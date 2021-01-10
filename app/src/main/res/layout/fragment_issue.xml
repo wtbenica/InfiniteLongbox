@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ImageView
+        android:id="@+id/issue_cover"
+        android:layout_width="100dp"
+        android:layout_height="200dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:contentDescription="@string/description_issue_cover"
+        android:src="@drawable/ic_issue_add_cover"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <EditText
+        android:id="@+id/issue_series"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        android:hint="@string/hint_series_title"
+        android:importantForAutofill="no"
+        android:inputType="textAutoComplete"
+        android:textSize="24sp"
+        app:layout_constraintEnd_toStartOf="@+id/issue_number"
+        app:layout_constraintStart_toEndOf="@+id/issue_cover"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <EditText
+        android:id="@+id/issue_number"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        android:hint="@string/hint_issue_number"
+        android:importantForAutofill="no"
+        android:inputType="number"
+        android:textSize="24sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/issue_writer_label"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        android:labelFor="@id/issue_writer"
+        android:text="@string/label_writer"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/issue_cover"
+        app:layout_constraintTop_toBottomOf="@+id/issue_series" />
+
+    <EditText
+        android:id="@+id/issue_writer"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="16dp"
+        android:importantForAutofill="no"
+        android:inputType="textAutoComplete"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/issue_cover"
+        app:layout_constraintTop_toBottomOf="@+id/issue_writer_label" />
+
+    <TextView
+        android:id="@+id/issue_penciller_label"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        android:labelFor="@id/issue_penciller"
+        android:text="@string/label_penciller"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/issue_cover"
+        app:layout_constraintTop_toBottomOf="@+id/issue_writer" />
+
+    <EditText
+        android:id="@+id/issue_penciller"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="16dp"
+        android:importantForAutofill="no"
+        android:inputType="textAutoComplete"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/issue_cover"
+        app:layout_constraintTop_toBottomOf="@+id/issue_penciller_label" />
+
+    <TextView
+        android:id="@+id/issue_inker_label"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        android:labelFor="@id/issue_inker"
+        android:text="@string/label_inker"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/issue_cover"
+        app:layout_constraintTop_toBottomOf="@+id/issue_penciller" />
+
+    <EditText
+        android:id="@+id/issue_inker"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="16dp"
+        android:importantForAutofill="no"
+        android:inputType="textAutoComplete"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/issue_cover"
+        app:layout_constraintTop_toBottomOf="@+id/issue_inker_label" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
