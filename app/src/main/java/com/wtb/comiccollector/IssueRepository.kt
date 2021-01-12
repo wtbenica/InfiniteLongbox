@@ -4,7 +4,7 @@ import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.room.Room
 import com.wtb.comiccollector.database.IssueDatabase
-import com.wtb.comiccollector.database.migration_1_2
+import java.io.File
 import java.util.*
 import java.util.concurrent.Executors
 
@@ -17,7 +17,6 @@ class IssueRepository private constructor(context: Context) {
         IssueDatabase::class.java,
         DATABASE_NAME
     )
-        .addMigrations(migration_1_2)
         .build()
 
     private val issueDao = database.issueDao()
@@ -45,6 +44,8 @@ class IssueRepository private constructor(context: Context) {
             issueDao.deleteIssue(issue)
         }
     }
+
+    fun getCoverImage(issue: Issue): File = File(filesDir, issue.coverFileName)
 
     companion object {
         private var INSTANCE: IssueRepository? = null

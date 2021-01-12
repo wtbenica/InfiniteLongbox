@@ -4,6 +4,9 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import java.util.*
 
+private const val TAG = "MainActivity"
+private var X = 1
+
 class MainActivity : AppCompatActivity(),
     IssueListFragment.Callbacks {
 
@@ -24,6 +27,15 @@ class MainActivity : AppCompatActivity(),
 
     override fun onIssueSelected(issueId: UUID) {
         val fragment = IssueFragment.newInstance(issueId)
+        supportFragmentManager
+            .beginTransaction()
+            .replace(R.id.fragment_container, fragment)
+            .addToBackStack(null)
+            .commit()
+    }
+
+    override fun onNewIssue() {
+        val fragment = IssueFragment.newInstance()
 
         supportFragmentManager
             .beginTransaction()

@@ -2,8 +2,8 @@ package com.wtb.comiccollector
 
 import android.app.Activity
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
-import android.provider.MediaStore
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.*
@@ -11,6 +11,7 @@ import android.widget.EditText
 import android.widget.ImageView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import java.io.File
 import java.util.*
 
 private const val TAG = "IssueFragment"
@@ -30,6 +31,8 @@ class IssueFragment : Fragment() {
     private lateinit var writerEditText: EditText
     private lateinit var pencillerEditText: EditText
     private lateinit var inkerEditText: EditText
+    private lateinit var coverFile: File
+    private lateinit var coverUri: Uri
 
     private var saveIssue = true
 
@@ -66,9 +69,15 @@ class IssueFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         issueDetailViewModel.issueLiveData.observe(
             viewLifecycleOwner,
-            androidx.lifecycle.Observer { issue ->
+            { issue ->
                 issue?.let {
                     this.issue = issue
+//                    coverFile = issueDetailViewModel.getPhotoFile(issue)
+//                    coverUri = FileProvider.getUriForFile(
+//                        requireActivity(),
+//                        "com.wtb.comiccollector.fileprovider",
+//                        coverFile
+//                    )
                     updateUI()
                 }
             }
@@ -79,14 +88,14 @@ class IssueFragment : Fragment() {
         super.onStart()
         attachTextWatchers()
 
-        coverImageView.apply {
-            setOnClickListener {
-                val getImageIntent =
-                    Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
-                val chooserIntent = Intent.createChooser(getImageIntent, null)
-                startActivityForResult(chooserIntent, PICK_COVER_IMAGE)
-            }
-        }
+//        coverImageView.apply {
+//            setOnClickListener {
+//                val getImageIntent =
+//                    Intent(Intent.ACTION_GET_CONTENT, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+//                val chooserIntent = Intent.createChooser(getImageIntent, null)
+//                startActivityForResult(chooserIntent, PICK_COVER_IMAGE)
+//            }
+//        }
     }
 
     private fun attachTextWatchers() {
@@ -238,7 +247,7 @@ class IssueFragment : Fragment() {
 
     companion object {
         @JvmStatic
-        fun newInstance(issueId: UUID): IssueFragment =
+        fun newInstance(issueId: UUID? = null): IssueFragment =
             IssueFragment().apply {
                 arguments = Bundle().apply {
                     putSerializable(ARG_ISSUE_ID, issueId)

@@ -7,7 +7,11 @@ import java.util.*
 class IssueTypeConverters {
     @TypeConverter
     fun toUUID(uuid: String?): UUID? {
-        return UUID.fromString(uuid)
+        return if (uuid == null) {
+            null
+        } else {
+            UUID.fromString(uuid)
+        }
     }
 
     @TypeConverter

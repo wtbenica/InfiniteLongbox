@@ -6,7 +6,6 @@ import android.view.*
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -16,6 +15,7 @@ class IssueListFragment : Fragment() {
 
     interface Callbacks {
         fun onIssueSelected(issueId: UUID)
+        fun onNewIssue()
     }
 
     private var callbacks: Callbacks? = null
@@ -52,7 +52,7 @@ class IssueListFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         issueListViewModel.issueListLiveData.observe(
             viewLifecycleOwner,
-            Observer { issues ->
+            { issues ->
                 issues?.let {
                     updateUI(issues)
                 }
@@ -120,10 +120,7 @@ class IssueListFragment : Fragment() {
             seriesTextView.text = this.issue.series
             issueNumTextView.text = this.issue.issueNum.toString()
 
-            this.issue.coverUri?.let {
-                coverImageView.setImageURI(this.issue.coverUri)
-                coverImageView.contentDescription = "Issue Cover (set)"
-            }
+//            TODO("Set cover image")
         }
 
         override fun onClick(v: View?) {

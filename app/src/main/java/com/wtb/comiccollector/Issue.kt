@@ -16,4 +16,8 @@ data class Issue(
     var penciller: String = "",
     var inker: String = "",
     var coverUri: Uri? = null
-)
+) {
+    val coverFileName: String
+        get() = "IMG_$issueId.jpg"
+}
+
