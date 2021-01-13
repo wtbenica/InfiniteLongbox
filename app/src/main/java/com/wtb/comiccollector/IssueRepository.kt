@@ -16,14 +16,13 @@ class IssueRepository private constructor(context: Context) {
         context.applicationContext,
         IssueDatabase::class.java,
         DATABASE_NAME
-    )
-        .build()
+    ).build()
 
     private val issueDao = database.issueDao()
     private val executor = Executors.newSingleThreadExecutor()
     private val filesDir = context.applicationContext.filesDir
 
-    fun getIssues(): LiveData<List<Issue>> = issueDao.getIssues()
+    fun getIssues(): LiveData<List<FullIssue>> = issueDao.getIssues()
 
     fun getIssue(issueId: UUID): LiveData<Issue?> = issueDao.getIssue(issueId)
 
@@ -45,7 +44,29 @@ class IssueRepository private constructor(context: Context) {
         }
     }
 
+    fun getSeriesList(): LiveData<List<Series>> = issueDao.getSeriesList()
+
+    fun getSeries(seriesId: UUID): LiveData<Series?> = issueDao.getSeries(seriesId)
+
     fun getCoverImage(issue: Issue): File = File(filesDir, issue.coverFileName)
+
+    fun updateSeries(series: Series) {
+        executor.execute {
+            issueDao.updateSeries(series)
+        }
+    }
+
+    fun addSeries(series: Series) {
+        executor.execute {
+            issueDao.addSeries(series)
+        }
+    }
+
+    fun deleteSeries(series: Series) {
+        executor.execute {
+            issueDao.deleteSeries(series)
+        }
+    }
 
     companion object {
         private var INSTANCE: IssueRepository? = null

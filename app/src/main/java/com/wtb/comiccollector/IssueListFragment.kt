@@ -2,6 +2,7 @@ package com.wtb.comiccollector
 
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.*
 import android.widget.ImageView
 import android.widget.TextView
@@ -15,7 +16,7 @@ class IssueListFragment : Fragment() {
 
     interface Callbacks {
         fun onIssueSelected(issueId: UUID)
-        fun onNewIssue()
+        fun onNewIssue(issueId: UUID)
     }
 
     private var callbacks: Callbacks? = null
@@ -26,18 +27,21 @@ class IssueListFragment : Fragment() {
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
+        Log.i("MORO", "onAttach")
         callbacks = context as Callbacks?
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
+        Log.i("MORO", "onCreate")
     }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        Log.i("MORO", "onCreateView")
         // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.fragment_issue_list, container, false)
 
@@ -50,6 +54,8 @@ class IssueListFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        Log.i("MORO", "onViewCreated")
+        issueListViewModel.issueListLiveData.value?.let { updateUI(it) }
         issueListViewModel.issueListLiveData.observe(
             viewLifecycleOwner,
             { issues ->
@@ -73,7 +79,9 @@ class IssueListFragment : Fragment() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.new_issue -> {
-                val issue = Issue()
+                val series = Series()
+                val issue = Issue(seriesId = series.seriesId)
+                issueListViewModel.addSeries(series)
                 issueListViewModel.addIssue(issue)
                 callbacks?.onIssueSelected(issue.issueId)
                 true
@@ -82,12 +90,12 @@ class IssueListFragment : Fragment() {
         }
     }
 
-    private fun updateUI(issues: List<Issue>) {
+    private fun updateUI(issues: List<FullIssue>) {
         adapter = IssueAdapter(issues)
         issueRecyclerView.adapter = adapter
     }
 
-    private inner class IssueAdapter(var issues: List<Issue>) :
+    private inner class IssueAdapter(var issues: List<FullIssue>) :
         RecyclerView.Adapter<IssueHolder>() {
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): IssueHolder {
             val view = layoutInflater.inflate(R.layout.list_item_issue, parent, false)
@@ -105,7 +113,7 @@ class IssueListFragment : Fragment() {
 
     private inner class IssueHolder(view: View) : RecyclerView.ViewHolder(view),
         View.OnClickListener {
-        private lateinit var issue: Issue
+        private lateinit var issue: FullIssue
 
         private val coverImageView: ImageView = itemView.findViewById(R.id.list_item_cover)
         private val seriesTextView: TextView = itemView.findViewById(R.id.list_item_title)
@@ -115,16 +123,14 @@ class IssueListFragment : Fragment() {
             itemView.setOnClickListener(this)
         }
 
-        fun bind(issue: Issue) {
+        fun bind(issue: FullIssue) {
             this.issue = issue
-            seriesTextView.text = this.issue.series
-            issueNumTextView.text = this.issue.issueNum.toString()
-
-//            TODO("Set cover image")
+            seriesTextView.text = this.issue.series.seriesName
+            issueNumTextView.text = this.issue.issue.issueNum.toString()
         }
 
         override fun onClick(v: View?) {
-            callbacks?.onIssueSelected(issue.issueId)
+            callbacks?.onIssueSelected(issue.issue.issueId)
         }
     }
 

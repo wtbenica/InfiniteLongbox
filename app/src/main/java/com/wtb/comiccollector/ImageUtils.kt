@@ -5,6 +5,7 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Point
 import android.os.Build
+import kotlin.math.roundToInt
 
 fun getScaledBitmap(path: String, destWidth: Int, destHeight: Int): Bitmap {
     var options = BitmapFactory.Options()
@@ -25,7 +26,7 @@ fun getScaledBitmap(path: String, destWidth: Int, destHeight: Int): Bitmap {
             widthScale
         }
 
-        inSampleSize = Math.round(sampleScale)
+        inSampleSize = sampleScale.roundToInt()
     }
 
     options = BitmapFactory.Options()

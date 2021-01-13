@@ -10,14 +10,21 @@ class IssueDetailViewModel : ViewModel() {
 
     private val issueRepository: IssueRepository = IssueRepository.get()
     private val issueIdLiveData = MutableLiveData<UUID>()
+    private val seriesIdLiveData = MutableLiveData<UUID>()
 
     var issueLiveData: LiveData<Issue?> =
         Transformations.switchMap(issueIdLiveData) { issueId ->
             issueRepository.getIssue(issueId)
         }
 
+    var seriesLiveData: LiveData<Series?> =
+        Transformations.switchMap(issueLiveData) { issue ->
+            issue?.seriesId?.let { issueRepository.getSeries(it) }
+        }
+
     fun loadIssue(issueId: UUID) {
         issueIdLiveData.value = issueId
+        seriesIdLiveData.value = issueLiveData.value?.seriesId
     }
 
     fun saveIssue(issue: Issue) {
@@ -26,5 +33,17 @@ class IssueDetailViewModel : ViewModel() {
 
     fun deleteIssue(issue: Issue) {
         issueRepository.deleteIssue(issue)
+    }
+
+    fun loadSeries(seriesId: UUID) {
+        seriesIdLiveData.value = seriesId
+    }
+
+    fun saveSeries(series: Series) {
+        issueRepository.updateSeries(series)
+    }
+
+    fun deleteSeries(series: Series) {
+        issueRepository.deleteSeries(series)
     }
 }

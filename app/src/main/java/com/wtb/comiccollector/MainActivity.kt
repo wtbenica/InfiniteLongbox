@@ -34,8 +34,8 @@ class MainActivity : AppCompatActivity(),
             .commit()
     }
 
-    override fun onNewIssue() {
-        val fragment = IssueFragment.newInstance()
+    override fun onNewIssue(issueId: UUID) {
+        val fragment = IssueFragment.newInstance(issueId)
 
         supportFragmentManager
             .beginTransaction()

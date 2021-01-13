@@ -2,6 +2,7 @@ package com.wtb.comiccollector.database
 
 import android.net.Uri
 import androidx.room.TypeConverter
+import java.time.LocalDate
 import java.util.*
 
 class IssueTypeConverters {
@@ -30,7 +31,20 @@ class IssueTypeConverters {
 
     @TypeConverter
     fun fromUri(uri: Uri?): String {
-        val toString = uri.toString()
-        return toString
+        return uri.toString()
     }
+
+    @TypeConverter
+    fun toLocalDate(date: String): LocalDate? {
+        return if (date == "null") {
+            null
+        } else {
+            LocalDate.parse(date)
+        }
+    }
+}
+
+@TypeConverter
+fun fromLocalDate(date: LocalDate?): String {
+    return date.toString()
 }

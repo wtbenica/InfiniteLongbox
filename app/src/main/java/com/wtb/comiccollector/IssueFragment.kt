@@ -6,6 +6,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.view.*
 import android.widget.EditText
 import android.widget.ImageView
@@ -25,6 +26,7 @@ private const val PICK_COVER_IMAGE = 0
  */
 class IssueFragment : Fragment() {
     private lateinit var issue: Issue
+    private lateinit var series: Series
     private lateinit var coverImageView: ImageView
     private lateinit var seriesEditText: EditText
     private lateinit var issueNumEditText: EditText
@@ -43,7 +45,8 @@ class IssueFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
-        issue = Issue()
+        series = Series()
+        issue = Issue(seriesId = series.seriesId)
         val issueId = arguments?.getSerializable(ARG_ISSUE_ID) as UUID
         issueDetailViewModel.loadIssue(issueId)
     }
@@ -82,6 +85,17 @@ class IssueFragment : Fragment() {
                 }
             }
         )
+
+        issueDetailViewModel.seriesLiveData.observe(
+            viewLifecycleOwner,
+            { series ->
+                series?.let {
+                    Log.i("VANILLA_SKY", "sWITCHIng SerIEs ${series.seriesName}")
+                    this.series = series
+                    updateUI()
+                }
+            }
+        )
     }
 
     override fun onStart() {
@@ -109,7 +123,7 @@ class IssueFragment : Fragment() {
                 before: Int,
                 count: Int
             ) {
-                issue.series = sequence.toString()
+                series.seriesName = sequence.toString()
             }
 
             override fun afterTextChanged(s: Editable?) {}
@@ -209,6 +223,7 @@ class IssueFragment : Fragment() {
     override fun onStop() {
         super.onStop()
         issueDetailViewModel.saveIssue(this.issue)
+        issueDetailViewModel.saveSeries(this.series)
     }
 
     override fun onDetach() {
@@ -216,7 +231,7 @@ class IssueFragment : Fragment() {
     }
 
     private fun updateUI() {
-        seriesEditText.setText(this.issue.series)
+        seriesEditText.setText(this.series.seriesName)
         issueNumEditText.setText(this.issue.issueNum.toString())
         writerEditText.setText(this.issue.writer)
         pencillerEditText.setText(this.issue.penciller)
