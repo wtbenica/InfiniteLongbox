@@ -33,15 +33,87 @@ class IssueRepository private constructor(context: Context) {
         }
     }
 
+    fun updateSeries(series: Series) {
+        executor.execute {
+            issueDao.updateSeries(series)
+        }
+    }
+
+    fun updateCreator(creator: Creator) {
+        executor.execute {
+            issueDao.updateCreator(creator)
+        }
+    }
+
+    fun updateRole(role: Role) {
+        executor.execute {
+            issueDao.updateRole(role)
+        }
+    }
+
+    fun updateCredit(credit: Credit) {
+        executor.execute {
+            issueDao.updateCredit(credit)
+        }
+    }
+    
     fun addIssue(issue: Issue) {
         executor.execute {
             issueDao.addIssue(issue)
         }
     }
 
+    fun addSeries(series: Series) {
+        executor.execute {
+            issueDao.addSeries(series)
+        }
+    }
+
+    fun addCreator(creator: Creator) {
+        executor.execute {
+            issueDao.addCreator(creator)
+        }
+    }
+
+    fun addRole(role: Role) {
+        executor.execute {
+            issueDao.addRole(role)
+        }
+    }
+
+    fun addCredit(credit: Credit) {
+        executor.execute {
+            issueDao.addCredit(credit)
+        }
+    }
+
     fun deleteIssue(issue: Issue) {
         executor.execute {
             issueDao.deleteIssue(issue)
+        }
+    }
+
+    fun deleteSeries(series: Series) {
+        executor.execute {
+            issueDao.deleteSeries(series)
+        }
+    }
+
+    fun deleteCreator(creator: Creator) {
+        executor.execute {
+            issueDao.deleteCreator(creator)
+        }
+    }
+
+    fun deleteRole(role: Role) {
+        executor.execute {
+            issueDao.deleteRole(role)
+        }
+    }
+
+    fun deleteCredit(credit: Credit) {
+        executor.execute {
+            issueDao.deleteCredit(credit)
         }
     }
 
@@ -52,24 +124,6 @@ class IssueRepository private constructor(context: Context) {
     fun getSeries(seriesId: UUID): LiveData<Series?> = issueDao.getSeriesList(seriesId)
 
     fun getCoverImage(issue: Issue): File = File(filesDir, issue.coverFileName)
-
-    fun updateSeries(series: Series) {
-        executor.execute {
-            issueDao.updateSeries(series)
-        }
-    }
-
-    fun addSeries(series: Series) {
-        executor.execute {
-            issueDao.addSeries(series)
-        }
-    }
-
-    fun deleteSeries(series: Series) {
-        executor.execute {
-            issueDao.deleteSeries(series)
-        }
-    }
 
     companion object {
         private var INSTANCE: IssueRepository? = null

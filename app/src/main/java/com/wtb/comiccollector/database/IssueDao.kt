@@ -2,9 +2,7 @@ package com.wtb.comiccollector.database
 
 import androidx.lifecycle.LiveData
 import androidx.room.*
-import com.wtb.comiccollector.FullIssue
-import com.wtb.comiccollector.Issue
-import com.wtb.comiccollector.Series
+import com.wtb.comiccollector.*
 import java.util.*
 
 @Dao
@@ -14,6 +12,15 @@ interface IssueDao {
 
     @Query("SELECT * FROM issue WHERE issueId=(:issueId)")
     fun getIssue(issueId: UUID): LiveData<Issue?>
+
+    @Query(
+        """
+        SELECT roleName, name FROM credit 
+            INNER JOIN role ON credit.roleId = role.roleId 
+            INNER JOIN creator on creator.creatorId = credit.creatorId
+            WHERE credit.issueId = :issueId"""
+    )
+    fun getIssueCredits(issueId: UUID): LiveData<IssueCredits>
 
     @Update
     fun updateIssue(issue: Issue)
@@ -38,4 +45,31 @@ interface IssueDao {
 
     @Delete
     fun deleteSeries(series: Series)
+
+    @Update
+    fun updateCreator(creator: Creator)
+
+    @Insert
+    fun addCreator(creator: Creator)
+
+    @Delete
+    fun deleteCreator(creator: Creator)
+
+    @Update
+    fun updateRole(role: Role)
+
+    @Insert
+    fun addRole(role: Role)
+
+    @Delete
+    fun deleteRole(role: Role)
+
+    @Update
+    fun updateCredit(credit: Credit)
+
+    @Insert
+    fun addCredit(credit: Credit)
+
+    @Delete
+    fun deleteCredit(credit: Credit)
 }

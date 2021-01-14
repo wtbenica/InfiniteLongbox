@@ -42,18 +42,21 @@ data class Series(
     }
 }
 
-data class FullIssue(
-    @Embedded
-    val issue: Issue,
-
-    @Relation(parentColumn = "seriesId", entityColumn = "seriesId")
-    val series: Series
-)
-
 @Entity
 data class Creator(
     @PrimaryKey val creatorId: UUID = UUID.randomUUID(),
-    var name: String = ""
+    var firstName: String,
+    var middleName: String?,
+    var lastName: String?,
+    val name: String = firstName + if (middleName != null) {
+        " $middleName"
+    } else {
+        ""
+    } + if (lastName != null) {
+        " $lastName"
+    } else {
+        ""
+    }
 )
 
 @Entity
@@ -67,4 +70,17 @@ data class Credit(
     var issueId: UUID,
     var creatorId: UUID,
     var roleId: UUID
+)
+
+data class FullIssue(
+    @Embedded
+    val issue: Issue,
+
+    @Relation(parentColumn = "seriesId", entityColumn = "seriesId")
+    val series: Series
+)
+
+data class IssueCredits(
+    val roleName: String,
+    val name: String
 )

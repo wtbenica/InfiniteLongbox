@@ -16,6 +16,18 @@ class IssueListViewModel : ViewModel() {
         issueRepository.addSeries(series)
     }
 
+    fun addCreator(creator: Creator) {
+        issueRepository.addCreator(creator)
+    }
+
+    fun addRole(role: Role) {
+        issueRepository.addRole(role)
+    }
+
+    fun addCredit(issue: Issue, creator: Creator, role: Role) {
+        issueRepository.addCredit(Credit(issue.issueId, creator.creatorId, role.roleId))
+    }
+
     fun getSeries(seriesId: UUID): LiveData<Series?> = issueRepository.getSeries(seriesId)
 
 }
