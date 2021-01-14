@@ -42,6 +42,11 @@ class IssueTypeConverters {
             LocalDate.parse(date)
         }
     }
+
+    @TypeConverter
+    fun fromLocalDate(date: LocalDate?) : String {
+        return date.toString()
+    }
 }
 
 @TypeConverter

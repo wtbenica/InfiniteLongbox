@@ -27,12 +27,20 @@ data class Issue(
 @Entity
 data class Series(
     @PrimaryKey val seriesId: UUID = UUID.randomUUID(),
-    var seriesName: String = "FEMA",
+    var seriesName: String = "",
     var volume: Int = 1,
     var publisher: String = "",
     var startDate: LocalDate? = null,
     var endDate: LocalDate? = null
-)
+) {
+    override fun toString(): String {
+        return if (startDate != null && endDate != null) {
+            "$seriesName v$volume (${startDate!!.year}-${endDate!!.year})"
+        } else {
+            "$seriesName v$volume"
+        }
+    }
+}
 
 data class FullIssue(
     @Embedded

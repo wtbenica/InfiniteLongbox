@@ -20,8 +20,8 @@
             android:layout_marginStart="8dp"
             android:layout_marginTop="8dp"
             android:layout_weight="1"
-            android:text="Series Name"
-            android:textSize="24sp" />
+            android:textSize="24sp"
+            tools:text="@string/hint_series_title"/>
 
         <TextView
             android:id="@+id/list_item_issue"
@@ -30,6 +30,6 @@
             android:layout_marginStart="8dp"
             android:layout_marginTop="8dp"
             android:layout_marginEnd="8dp"
-            android:text="35"
-            android:textSize="24sp" />
+            android:textSize="24sp"
+            tools:text="@string/hint_issue_number"/>
 </LinearLayout>

@@ -28,7 +28,7 @@ interface IssueDao {
     fun getSeriesList(): LiveData<List<Series>>
 
     @Query("SELECT * FROM series WHERE seriesId=(:seriesId)")
-    fun getSeries(seriesId: UUID): LiveData<Series?>
+    fun getSeriesList(seriesId: UUID): LiveData<Series?>
 
     @Update
     fun updateSeries(series: Series)

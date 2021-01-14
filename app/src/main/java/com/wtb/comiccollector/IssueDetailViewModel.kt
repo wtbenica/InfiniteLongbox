@@ -22,6 +22,8 @@ class IssueDetailViewModel : ViewModel() {
             issue?.seriesId?.let { issueRepository.getSeries(it) }
         }
 
+    var allSeriesLiveData: LiveData<List<Series>> = issueRepository.allSeries
+
     fun loadIssue(issueId: UUID) {
         issueIdLiveData.value = issueId
         seriesIdLiveData.value = issueLiveData.value?.seriesId
@@ -46,4 +48,5 @@ class IssueDetailViewModel : ViewModel() {
     fun deleteSeries(series: Series) {
         issueRepository.deleteSeries(series)
     }
+
 }

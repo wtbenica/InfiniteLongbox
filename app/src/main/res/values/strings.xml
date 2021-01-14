@@ -3,9 +3,12 @@
     <string name="add_issue">Add Issue</string>
     <string name="delete_issue">Delete Issue</string>
     <string name="hint_series_title">Series title</string>
-    <string name="hint_issue_number">Number</string>
+    <string name="hint_issue_number">  #</string>
     <string name="label_writer">Writer</string>
     <string name="label_penciller">Penciller</string>
     <string name="description_issue_cover">Issue Cover (not set)</string>
     <string name="label_inker">Inker</string>
+    <string name="add_writer">Add additional writer</string>
+    <string name="add_penciller">Add additional penciller</string>
+    <string name="add_inker">Add additional inker</string>
 </resources>

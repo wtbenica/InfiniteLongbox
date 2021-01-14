@@ -8,6 +8,8 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
 import android.view.*
+import android.widget.ArrayAdapter
+import android.widget.AutoCompleteTextView
 import android.widget.EditText
 import android.widget.ImageView
 import androidx.fragment.app.Fragment
@@ -28,7 +30,7 @@ class IssueFragment : Fragment() {
     private lateinit var issue: Issue
     private lateinit var series: Series
     private lateinit var coverImageView: ImageView
-    private lateinit var seriesEditText: EditText
+    private lateinit var seriesEditText: AutoCompleteTextView
     private lateinit var issueNumEditText: EditText
     private lateinit var writerEditText: EditText
     private lateinit var pencillerEditText: EditText
@@ -49,6 +51,20 @@ class IssueFragment : Fragment() {
         issue = Issue(seriesId = series.seriesId)
         val issueId = arguments?.getSerializable(ARG_ISSUE_ID) as UUID
         issueDetailViewModel.loadIssue(issueId)
+
+        issueDetailViewModel.allSeriesLiveData.observe(this,
+            { seriesList ->
+                seriesList?.let {
+                    val adapter = ArrayAdapter(
+                        requireContext(),
+                        android.R.layout.simple_dropdown_item_1line,
+                        seriesList.map { series -> series.toString() }
+                    )
+
+                    seriesEditText.setAdapter(adapter)
+                    seriesEditText.threshold = 2
+                }
+            })
     }
 
     override fun onCreateView(
@@ -58,8 +74,8 @@ class IssueFragment : Fragment() {
         // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.fragment_issue, container, false)
 
+        seriesEditText = view.findViewById(R.id.issue_series) as AutoCompleteTextView
         coverImageView = view.findViewById(R.id.issue_cover) as ImageView
-        seriesEditText = view.findViewById(R.id.issue_series) as EditText
         issueNumEditText = view.findViewById(R.id.issue_number) as EditText
         writerEditText = view.findViewById(R.id.issue_writer) as EditText
         pencillerEditText = view.findViewById(R.id.issue_penciller) as EditText
