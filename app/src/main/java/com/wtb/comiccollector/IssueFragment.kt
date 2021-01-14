@@ -6,12 +6,8 @@ import android.net.Uri
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import android.view.*
-import android.widget.ArrayAdapter
-import android.widget.AutoCompleteTextView
-import android.widget.EditText
-import android.widget.ImageView
+import android.widget.*
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import java.io.File
@@ -33,8 +29,11 @@ class IssueFragment : Fragment() {
     private lateinit var seriesEditText: AutoCompleteTextView
     private lateinit var issueNumEditText: EditText
     private lateinit var writerEditText: EditText
+    private lateinit var addWriterButton: ImageButton
     private lateinit var pencillerEditText: EditText
+    private lateinit var addPencillerButton: ImageButton
     private lateinit var inkerEditText: EditText
+    private lateinit var addInkerButton: ImageButton
     private lateinit var coverFile: File
     private lateinit var coverUri: Uri
 
@@ -78,8 +77,11 @@ class IssueFragment : Fragment() {
         coverImageView = view.findViewById(R.id.issue_cover) as ImageView
         issueNumEditText = view.findViewById(R.id.issue_number) as EditText
         writerEditText = view.findViewById(R.id.issue_writer) as EditText
+        addWriterButton = view.findViewById(R.id.add_writer_button) as ImageButton
         pencillerEditText = view.findViewById(R.id.issue_penciller) as EditText
+        addPencillerButton = view.findViewById(R.id.add_penciller_button) as ImageButton
         inkerEditText = view.findViewById(R.id.issue_inker) as EditText
+        addInkerButton = view.findViewById(R.id.add_inker_button) as ImageButton
 
         return view
     }
@@ -106,7 +108,6 @@ class IssueFragment : Fragment() {
             viewLifecycleOwner,
             { series ->
                 series?.let {
-                    Log.i("VANILLA_SKY", "sWITCHIng SerIEs ${series.seriesName}")
                     this.series = series
                     updateUI()
                 }
@@ -118,7 +119,13 @@ class IssueFragment : Fragment() {
         super.onStart()
         attachTextWatchers()
 
-//        coverImageView.apply {
+        addWriterButton.setOnClickListener(addNewRow())
+
+        addPencillerButton.setOnClickListener(addNewRow())
+
+        addInkerButton.setOnClickListener(addNewRow())
+
+        //        coverImageView.apply {
 //            setOnClickListener {
 //                val getImageIntent =
 //                    Intent(Intent.ACTION_GET_CONTENT, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
@@ -126,6 +133,10 @@ class IssueFragment : Fragment() {
 //                startActivityForResult(chooserIntent, PICK_COVER_IMAGE)
 //            }
 //        }
+    }
+
+    private fun addNewRow(): (v: View) -> Unit = {
+        TODO("Add new row for creator")
     }
 
     private fun attachTextWatchers() {
