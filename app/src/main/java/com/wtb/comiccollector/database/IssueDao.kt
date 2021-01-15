@@ -7,7 +7,8 @@ import java.util.*
 
 @Dao
 interface IssueDao {
-    @Query("SELECT * FROM issue NATURAL JOIN series")
+    @Transaction
+    @Query("SELECT issue.*, seriesName FROM issue JOIN series ON issue.seriesId = series.seriesId")
     fun getIssues(): LiveData<List<FullIssue>>
 
     @Query("SELECT * FROM issue WHERE issueId=(:issueId)")

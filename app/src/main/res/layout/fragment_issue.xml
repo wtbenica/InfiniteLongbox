@@ -17,21 +17,18 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <AutoCompleteTextView
+    <Spinner
         android:id="@+id/issue_series"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
         android:layout_marginEnd="16dp"
-        android:hint="@string/hint_series_title"
         android:importantForAutofill="no"
-        android:inputType="textAutoComplete"
-        android:textSize="24sp"
+        app:layout_constraintBottom_toBottomOf="@+id/issue_number"
         app:layout_constraintEnd_toStartOf="@+id/issue_number"
         app:layout_constraintStart_toEndOf="@+id/issue_cover"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:text="Series Name" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <EditText
         android:id="@+id/issue_number"

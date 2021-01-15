@@ -4,7 +4,6 @@ import android.net.Uri
 import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import androidx.room.Relation
 import java.time.LocalDate
 import java.util.*
 
@@ -76,9 +75,7 @@ data class FullIssue(
     @Embedded
     val issue: Issue,
 
-    @Relation(parentColumn = "seriesId", entityColumn = "seriesId")
-    val series: Series
-)
+    val seriesName: String)
 
 data class IssueCredits(
     val roleName: String,

@@ -2,15 +2,14 @@ package com.wtb.comiccollector
 
 import android.app.Activity
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.*
 import android.widget.*
+import androidx.core.view.children
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
-import java.io.File
 import java.util.*
 
 private const val TAG = "IssueFragment"
@@ -26,16 +25,21 @@ class IssueFragment : Fragment() {
     private lateinit var issue: Issue
     private lateinit var series: Series
     private lateinit var coverImageView: ImageView
-    private lateinit var seriesEditText: AutoCompleteTextView
+
+    private lateinit var seriesEditText: Spinner
     private lateinit var issueNumEditText: EditText
+
+    private lateinit var writersBox: TableLayout
     private lateinit var writerEditText: EditText
     private lateinit var addWriterButton: ImageButton
+
+    private lateinit var pencillersBox: TableLayout
     private lateinit var pencillerEditText: EditText
     private lateinit var addPencillerButton: ImageButton
+
+    private lateinit var inkersBox: TableLayout
     private lateinit var inkerEditText: EditText
     private lateinit var addInkerButton: ImageButton
-    private lateinit var coverFile: File
-    private lateinit var coverUri: Uri
 
     private var saveIssue = true
 
@@ -61,7 +65,6 @@ class IssueFragment : Fragment() {
                     )
 
                     seriesEditText.setAdapter(adapter)
-                    seriesEditText.threshold = 2
                 }
             })
     }
@@ -71,15 +74,18 @@ class IssueFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        val view = inflater.inflate(R.layout.fragment_issue, container, false)
+        val view = inflater.inflate(R.layout.fragment_issue_new, container, false)
 
-        seriesEditText = view.findViewById(R.id.issue_series) as AutoCompleteTextView
+        seriesEditText = view.findViewById(R.id.issue_series) as Spinner
         coverImageView = view.findViewById(R.id.issue_cover) as ImageView
         issueNumEditText = view.findViewById(R.id.issue_number) as EditText
+        writersBox = view.findViewById(R.id.writers_box) as TableLayout
         writerEditText = view.findViewById(R.id.issue_writer) as EditText
         addWriterButton = view.findViewById(R.id.add_writer_button) as ImageButton
+        pencillersBox = view.findViewById(R.id.pencillers_box) as TableLayout
         pencillerEditText = view.findViewById(R.id.issue_penciller) as EditText
         addPencillerButton = view.findViewById(R.id.add_penciller_button) as ImageButton
+        inkersBox = view.findViewById(R.id.inkers_box) as TableLayout
         inkerEditText = view.findViewById(R.id.issue_inker) as EditText
         addInkerButton = view.findViewById(R.id.add_inker_button) as ImageButton
 
@@ -93,12 +99,6 @@ class IssueFragment : Fragment() {
             { issue ->
                 issue?.let {
                     this.issue = issue
-//                    coverFile = issueDetailViewModel.getPhotoFile(issue)
-//                    coverUri = FileProvider.getUriForFile(
-//                        requireActivity(),
-//                        "com.wtb.comiccollector.fileprovider",
-//                        coverFile
-//                    )
                     updateUI()
                 }
             }
@@ -119,24 +119,38 @@ class IssueFragment : Fragment() {
         super.onStart()
         attachTextWatchers()
 
-        addWriterButton.setOnClickListener(addNewRow())
+        seriesEditText.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(
+                parent: AdapterView<*>?,
+                view: View?,
+                position: Int,
+                id: Long
+            ) {
 
-        addPencillerButton.setOnClickListener(addNewRow())
+            }
 
-        addInkerButton.setOnClickListener(addNewRow())
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+                TODO("Not yet implemented")
+            }
+        }
 
-        //        coverImageView.apply {
-//            setOnClickListener {
-//                val getImageIntent =
-//                    Intent(Intent.ACTION_GET_CONTENT, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
-//                val chooserIntent = Intent.createChooser(getImageIntent, null)
-//                startActivityForResult(chooserIntent, PICK_COVER_IMAGE)
-//            }
-//        }
+        addWriterButton.setOnClickListener(addNewRow(writersBox, addWriterButton))
+
+        addPencillerButton.setOnClickListener(addNewRow(pencillersBox, addPencillerButton))
+
+        addInkerButton.setOnClickListener(addNewRow(inkersBox, addInkerButton))
     }
 
-    private fun addNewRow(): (v: View) -> Unit = {
-        TODO("Add new row for creator")
+    private fun addNewRow(parentTable: TableLayout, addButton: ImageButton): (v: View) -> Unit = {
+        val numChildren = parentTable.childCount
+        val newRow = TableRow(requireContext())
+        val newText = EditText(requireContext()).also {
+
+        }
+        newRow.addView(newText)
+        (parentTable.children.elementAt(numChildren - 1) as TableRow).removeView(addButton)
+        newRow.addView(addButton)
+        parentTable.addView(newRow)
     }
 
     private fun attachTextWatchers() {
@@ -228,7 +242,7 @@ class IssueFragment : Fragment() {
 
         }
 
-        seriesEditText.addTextChangedListener(seriesWatcher)
+//        seriesEditText.addTextChangedListener(seriesWatcher)
         issueNumEditText.addTextChangedListener(issueNumWatcher)
         writerEditText.addTextChangedListener(writerWatcher)
         pencillerEditText.addTextChangedListener(pencillerWatcher)
@@ -258,7 +272,7 @@ class IssueFragment : Fragment() {
     }
 
     private fun updateUI() {
-        seriesEditText.setText(this.series.seriesName)
+//        seriesEditText.setText(this.series.seriesName)
         issueNumEditText.setText(this.issue.issueNum.toString())
         writerEditText.setText(this.issue.writer)
         pencillerEditText.setText(this.issue.penciller)
