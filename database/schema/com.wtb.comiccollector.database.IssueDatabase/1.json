@@ -1,0 +1,132 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 1,
+    "identityHash": "35f72ab3af1a51e1df40707e292b7747",
+    "entities": [
+      {
+        "tableName": "Issue",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`issueId` TEXT NOT NULL, `series` TEXT NOT NULL, `seriesId` TEXT NOT NULL, `volume` INTEGER NOT NULL, `issueNum` INTEGER NOT NULL, `writer` TEXT NOT NULL, `penciller` TEXT NOT NULL, `inker` TEXT NOT NULL, `coverUri` TEXT, PRIMARY KEY(`issueId`))",
+        "fields": [
+          {
+            "fieldPath": "issueId",
+            "columnName": "issueId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "series",
+            "columnName": "series",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "seriesId",
+            "columnName": "seriesId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "volume",
+            "columnName": "volume",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "issueNum",
+            "columnName": "issueNum",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "writer",
+            "columnName": "writer",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "penciller",
+            "columnName": "penciller",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "inker",
+            "columnName": "inker",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "coverUri",
+            "columnName": "coverUri",
+            "affinity": "TEXT",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "issueId"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "Series",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`seriesId` TEXT NOT NULL, `seriesName` TEXT NOT NULL, `volume` INTEGER NOT NULL, `publisher` TEXT NOT NULL, `startDate` TEXT, `endDate` TEXT, PRIMARY KEY(`seriesId`))",
+        "fields": [
+          {
+            "fieldPath": "seriesId",
+            "columnName": "seriesId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "seriesName",
+            "columnName": "seriesName",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "volume",
+            "columnName": "volume",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "publisher",
+            "columnName": "publisher",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "startDate",
+            "columnName": "startDate",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "endDate",
+            "columnName": "endDate",
+            "affinity": "TEXT",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "seriesId"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [],
+        "foreignKeys": []
+      }
+    ],
+    "views": [],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '35f72ab3af1a51e1df40707e292b7747')"
+    ]
+  }
+}
