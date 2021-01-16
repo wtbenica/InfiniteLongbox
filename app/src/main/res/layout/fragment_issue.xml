@@ -16,18 +16,14 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <AutoCompleteTextView
+    <Spinner
         android:id="@+id/issue_series"
-        tools:text="Series Name"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
         android:layout_marginEnd="16dp"
-        android:hint="@string/hint_series_title"
         android:importantForAutofill="no"
-        android:inputType="textAutoComplete"
-        android:textSize="24sp"
         app:layout_constraintEnd_toStartOf="@+id/issue_number"
         app:layout_constraintStart_toEndOf="@+id/issue_cover"
         app:layout_constraintTop_toTopOf="parent" />

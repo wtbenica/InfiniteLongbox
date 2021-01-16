@@ -27,7 +27,7 @@ data class Issue(
 @Entity
 data class Series(
     @PrimaryKey val seriesId: UUID = UUID.randomUUID(),
-    var seriesName: String = "",
+    var seriesName: String = "New Series",
     var volume: Int = 1,
     var publisher: String = "",
     var startDate: LocalDate? = null,

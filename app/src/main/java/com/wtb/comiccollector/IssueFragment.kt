@@ -1,6 +1,9 @@
 package com.wtb.comiccollector
 
 import android.app.Activity
+import android.app.AlertDialog
+import android.app.Dialog
+import android.content.DialogInterface
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -9,6 +12,7 @@ import android.text.TextWatcher
 import android.util.Log
 import android.view.*
 import android.widget.*
+import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import java.io.File
@@ -27,7 +31,7 @@ class IssueFragment : Fragment() {
     private lateinit var issue: Issue
     private lateinit var series: Series
     private lateinit var coverImageView: ImageView
-    private lateinit var seriesEditText: AutoCompleteTextView
+    private lateinit var seriesSpinner: Spinner
     private lateinit var issueNumEditText: EditText
     private lateinit var writerEditText: EditText
     private lateinit var pencillerEditText: EditText
@@ -58,11 +62,10 @@ class IssueFragment : Fragment() {
                     val adapter = ArrayAdapter(
                         requireContext(),
                         android.R.layout.simple_dropdown_item_1line,
-                        newSeriesList.map { series -> series.seriesName }
+                        newSeriesList
                     )
 
-                    seriesEditText.setAdapter(adapter)
-                    seriesEditText.threshold = 2
+                    seriesSpinner.setAdapter(adapter)
                 }
             })
     }
@@ -74,7 +77,8 @@ class IssueFragment : Fragment() {
         // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.fragment_issue, container, false)
 
-        seriesEditText = view.findViewById(R.id.issue_series) as AutoCompleteTextView
+        seriesSpinner = view.findViewById(R.id.issue_series) as Spinner
+        seriesSpinner.prompt = "Series Name"
         coverImageView = view.findViewById(R.id.issue_cover) as ImageView
         issueNumEditText = view.findViewById(R.id.issue_number) as EditText
         writerEditText = view.findViewById(R.id.issue_writer) as EditText
@@ -119,7 +123,7 @@ class IssueFragment : Fragment() {
         super.onStart()
         attachTextWatchers()
         toggleEditButton.setOnClickListener {
-            seriesEditText.isEnabled = !seriesEditText.isEnabled
+            seriesSpinner.isEnabled = !seriesSpinner.isEnabled
             writerEditText.isEnabled = !writerEditText.isEnabled
             pencillerEditText.isEnabled = !pencillerEditText.isEnabled
             inkerEditText.isEnabled = !inkerEditText.isEnabled
@@ -137,23 +141,6 @@ class IssueFragment : Fragment() {
     }
 
     private fun attachTextWatchers() {
-        val seriesWatcher = object : TextWatcher {
-
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-
-            override fun onTextChanged(
-                sequence: CharSequence?,
-                start: Int,
-                before: Int,
-                count: Int
-            ) {
-                series.seriesName = sequence.toString()
-            }
-
-            override fun afterTextChanged(s: Editable?) {}
-
-        }
-
         val issueNumWatcher = object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
 
@@ -225,17 +212,23 @@ class IssueFragment : Fragment() {
 
         }
 
-        seriesEditText.addTextChangedListener(seriesWatcher)
-        seriesEditText.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+        seriesSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(
                 parent: AdapterView<*>?,
                 view: View?,
                 position: Int,
                 id: Long
             ) {
-                issueDetailViewModel.allSeriesLiveData.value?.let {
-                    series = it[position]
-                    seriesEditText.setText(it[position].seriesName)
+                if (parent != null) {
+                    if ((parent.getItemAtPosition(position) as Series).seriesName == "New Series") {
+                        val d = NewSeriesDialogFragment()
+                        d.show(parentFragmentManager, "NDF")
+                    } else {
+                        issueDetailViewModel.allSeriesLiveData.value?.let {
+                            series = parent.getItemAtPosition(position) as Series
+                            issue.seriesId = series.seriesId
+                        }
+                    }
                 }
             }
 
@@ -273,7 +266,7 @@ class IssueFragment : Fragment() {
     }
 
     private fun updateUI() {
-        seriesEditText.setText(this.series.seriesName)
+//        seriesSpinner.setText(this.series.seriesName)
         issueNumEditText.setText(this.issue.issueNum.toString())
         writerEditText.setText(this.issue.writer)
         pencillerEditText.setText(this.issue.penciller)
@@ -310,5 +303,17 @@ class IssueFragment : Fragment() {
                     putSerializable(ARG_ISSUE_ID, issueId)
                 }
             }
+    }
+}
+
+class NewSeriesDialogFragment : DialogFragment() {
+    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+        return activity?.let {
+            val builder = AlertDialog.Builder(it)
+            builder.setMessage("Mogwai")
+                .setPositiveButton("Yes", DialogInterface.OnClickListener { dialog, id -> })
+                .setNegativeButton("No", DialogInterface.OnClickListener { dialog, id -> })
+            builder.create()
+        } ?: throw IllegalStateException("Activity cannot be null")
     }
 }
