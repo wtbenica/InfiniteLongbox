@@ -9,13 +9,10 @@ import android.net.Uri
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import android.view.*
 import android.widget.*
 import androidx.core.view.children
 import androidx.fragment.app.DialogFragment
-import android.widget.*
-import androidx.core.view.children
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import java.io.File
@@ -77,7 +74,7 @@ class IssueFragment : Fragment() {
                         newSeriesList
                     )
 
-                    seriesSpinner.setAdapter(adapter)
+                    seriesSpinner.adapter = adapter
                 }
             })
     }
@@ -102,6 +99,7 @@ class IssueFragment : Fragment() {
         inkersBox = view.findViewById(R.id.inkers_box) as TableLayout
         inkerEditText = view.findViewById(R.id.issue_inker) as EditText
         toggleEditButton = view.findViewById(R.id.edit_button)
+        addInkerButton = view.findViewById(R.id.add_inker_button) as ImageButton
         addInkerButton = view.findViewById(R.id.add_inker_button) as ImageButton
 
         return view
@@ -158,10 +156,13 @@ class IssueFragment : Fragment() {
 
     private fun addNewRow(parentTable: TableLayout, addButton: ImageButton): (v: View) -> Unit = {
         val numChildren = parentTable.childCount
-        val newRow = TableRow(requireContext())
-        val newText = EditText(requireContext()).also {
-
-        }
+        val newRow = TableRow(context)
+        val newText = EditText(context)
+        newText.layoutParams = TableRow.LayoutParams(
+            LinearLayout.LayoutParams.MATCH_PARENT,
+            LinearLayout.LayoutParams.WRAP_CONTENT,
+            1.0f
+        )
         newRow.addView(newText)
         (parentTable.children.elementAt(numChildren - 1) as TableRow).removeView(addButton)
         newRow.addView(addButton)
@@ -287,10 +288,6 @@ class IssueFragment : Fragment() {
         super.onStop()
         issueDetailViewModel.saveIssue(this.issue)
         issueDetailViewModel.saveSeries(this.series)
-    }
-
-    override fun onDetach() {
-        super.onDetach()
     }
 
     private fun updateUI() {
