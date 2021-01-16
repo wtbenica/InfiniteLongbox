@@ -125,7 +125,7 @@ class IssueListFragment : Fragment() {
 
         fun bind(issue: FullIssue) {
             this.issue = issue
-            seriesTextView.text = this.issue.series.seriesName
+            seriesTextView.text = this.issue.seriesName
             issueNumTextView.text = this.issue.issue.issueNum.toString()
         }
 

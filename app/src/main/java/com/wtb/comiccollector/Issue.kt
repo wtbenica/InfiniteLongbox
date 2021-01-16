@@ -4,7 +4,6 @@ import android.net.Uri
 import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import androidx.room.Relation
 import java.time.LocalDate
 import java.util.*
 
@@ -42,18 +41,21 @@ data class Series(
     }
 }
 
-data class FullIssue(
-    @Embedded
-    val issue: Issue,
-
-    @Relation(parentColumn = "seriesId", entityColumn = "seriesId")
-    val series: Series
-)
-
 @Entity
 data class Creator(
     @PrimaryKey val creatorId: UUID = UUID.randomUUID(),
-    var name: String = ""
+    var firstName: String,
+    var middleName: String?,
+    var lastName: String?,
+    val name: String = firstName + if (middleName != null) {
+        " $middleName"
+    } else {
+        ""
+    } + if (lastName != null) {
+        " $lastName"
+    } else {
+        ""
+    }
 )
 
 @Entity
@@ -67,4 +69,15 @@ data class Credit(
     var issueId: UUID,
     var creatorId: UUID,
     var roleId: UUID
+)
+
+data class FullIssue(
+    @Embedded
+    val issue: Issue,
+
+    val seriesName: String)
+
+data class IssueCredits(
+    val roleName: String,
+    val name: String
 )

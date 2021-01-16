@@ -12,7 +12,10 @@ import android.text.TextWatcher
 import android.util.Log
 import android.view.*
 import android.widget.*
+import androidx.core.view.children
 import androidx.fragment.app.DialogFragment
+import android.widget.*
+import androidx.core.view.children
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import java.io.File
@@ -33,9 +36,18 @@ class IssueFragment : Fragment() {
     private lateinit var coverImageView: ImageView
     private lateinit var seriesSpinner: Spinner
     private lateinit var issueNumEditText: EditText
+
+    private lateinit var writersBox: TableLayout
     private lateinit var writerEditText: EditText
+    private lateinit var addWriterButton: ImageButton
+
+    private lateinit var pencillersBox: TableLayout
     private lateinit var pencillerEditText: EditText
+    private lateinit var addPencillerButton: ImageButton
+
+    private lateinit var inkersBox: TableLayout
     private lateinit var inkerEditText: EditText
+    private lateinit var addInkerButton: ImageButton
     private lateinit var toggleEditButton: Button
     private lateinit var coverFile: File
     private lateinit var coverUri: Uri
@@ -75,16 +87,22 @@ class IssueFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        val view = inflater.inflate(R.layout.fragment_issue, container, false)
+        val view = inflater.inflate(R.layout.fragment_issue_new, container, false)
 
         seriesSpinner = view.findViewById(R.id.issue_series) as Spinner
         seriesSpinner.prompt = "Series Name"
         coverImageView = view.findViewById(R.id.issue_cover) as ImageView
         issueNumEditText = view.findViewById(R.id.issue_number) as EditText
+        writersBox = view.findViewById(R.id.writers_box) as TableLayout
         writerEditText = view.findViewById(R.id.issue_writer) as EditText
+        addWriterButton = view.findViewById(R.id.add_writer_button) as ImageButton
+        pencillersBox = view.findViewById(R.id.pencillers_box) as TableLayout
         pencillerEditText = view.findViewById(R.id.issue_penciller) as EditText
+        addPencillerButton = view.findViewById(R.id.add_penciller_button) as ImageButton
+        inkersBox = view.findViewById(R.id.inkers_box) as TableLayout
         inkerEditText = view.findViewById(R.id.issue_inker) as EditText
         toggleEditButton = view.findViewById(R.id.edit_button)
+        addInkerButton = view.findViewById(R.id.add_inker_button) as ImageButton
 
         return view
     }
@@ -96,12 +114,6 @@ class IssueFragment : Fragment() {
             { issue ->
                 issue?.let {
                     this.issue = issue
-//                    coverFile = issueDetailViewModel.getPhotoFile(issue)
-//                    coverUri = FileProvider.getUriForFile(
-//                        requireActivity(),
-//                        "com.wtb.comiccollector.fileprovider",
-//                        coverFile
-//                    )
                     updateUI()
                 }
             }
@@ -111,7 +123,6 @@ class IssueFragment : Fragment() {
             viewLifecycleOwner,
             { series ->
                 series?.let {
-                    Log.i("VANILLA_SKY", "sWITCHIng SerIEs ${series.seriesName}")
                     this.series = series
                     updateUI()
                 }
@@ -138,6 +149,23 @@ class IssueFragment : Fragment() {
 //                startActivityForResult(chooserIntent, PICK_COVER_IMAGE)
 //            }
 //        }
+        addWriterButton.setOnClickListener(addNewRow(writersBox, addWriterButton))
+
+        addPencillerButton.setOnClickListener(addNewRow(pencillersBox, addPencillerButton))
+
+        addInkerButton.setOnClickListener(addNewRow(inkersBox, addInkerButton))
+    }
+
+    private fun addNewRow(parentTable: TableLayout, addButton: ImageButton): (v: View) -> Unit = {
+        val numChildren = parentTable.childCount
+        val newRow = TableRow(requireContext())
+        val newText = EditText(requireContext()).also {
+
+        }
+        newRow.addView(newText)
+        (parentTable.children.elementAt(numChildren - 1) as TableRow).removeView(addButton)
+        newRow.addView(addButton)
+        parentTable.addView(newRow)
     }
 
     private fun attachTextWatchers() {
