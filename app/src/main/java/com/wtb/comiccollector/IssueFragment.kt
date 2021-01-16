@@ -8,10 +8,7 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
 import android.view.*
-import android.widget.ArrayAdapter
-import android.widget.AutoCompleteTextView
-import android.widget.EditText
-import android.widget.ImageView
+import android.widget.*
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import java.io.File
@@ -35,6 +32,7 @@ class IssueFragment : Fragment() {
     private lateinit var writerEditText: EditText
     private lateinit var pencillerEditText: EditText
     private lateinit var inkerEditText: EditText
+    private lateinit var toggleEditButton: Button
     private lateinit var coverFile: File
     private lateinit var coverUri: Uri
 
@@ -55,10 +53,12 @@ class IssueFragment : Fragment() {
         issueDetailViewModel.allSeriesLiveData.observe(this,
             { seriesList ->
                 seriesList?.let {
+                    val newSeriesList: MutableList<Series> = mutableListOf(series)
+                    newSeriesList.addAll(seriesList)
                     val adapter = ArrayAdapter(
                         requireContext(),
                         android.R.layout.simple_dropdown_item_1line,
-                        seriesList.map { series -> series.toString() }
+                        newSeriesList.map { series -> series.seriesName }
                     )
 
                     seriesEditText.setAdapter(adapter)
@@ -80,6 +80,7 @@ class IssueFragment : Fragment() {
         writerEditText = view.findViewById(R.id.issue_writer) as EditText
         pencillerEditText = view.findViewById(R.id.issue_penciller) as EditText
         inkerEditText = view.findViewById(R.id.issue_inker) as EditText
+        toggleEditButton = view.findViewById(R.id.edit_button)
 
         return view
     }
@@ -117,6 +118,13 @@ class IssueFragment : Fragment() {
     override fun onStart() {
         super.onStart()
         attachTextWatchers()
+        toggleEditButton.setOnClickListener {
+            seriesEditText.isEnabled = !seriesEditText.isEnabled
+            writerEditText.isEnabled = !writerEditText.isEnabled
+            pencillerEditText.isEnabled = !pencillerEditText.isEnabled
+            inkerEditText.isEnabled = !inkerEditText.isEnabled
+            issueNumEditText.isEnabled = !issueNumEditText.isEnabled
+        }
 
 //        coverImageView.apply {
 //            setOnClickListener {
@@ -218,6 +226,24 @@ class IssueFragment : Fragment() {
         }
 
         seriesEditText.addTextChangedListener(seriesWatcher)
+        seriesEditText.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(
+                parent: AdapterView<*>?,
+                view: View?,
+                position: Int,
+                id: Long
+            ) {
+                issueDetailViewModel.allSeriesLiveData.value?.let {
+                    series = it[position]
+                    seriesEditText.setText(it[position].seriesName)
+                }
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+                TODO("Not yet implemented")
+            }
+
+        }
         issueNumEditText.addTextChangedListener(issueNumWatcher)
         writerEditText.addTextChangedListener(writerWatcher)
         pencillerEditText.addTextChangedListener(pencillerWatcher)

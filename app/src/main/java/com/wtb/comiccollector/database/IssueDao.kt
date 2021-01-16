@@ -24,7 +24,7 @@ interface IssueDao {
     @Delete
     fun deleteIssue(issue: Issue)
 
-    @Query("SELECT * FROM series")
+    @Query("SELECT * FROM series ORDER BY seriesName ASC")
     fun getSeriesList(): LiveData<List<Series>>
 
     @Query("SELECT * FROM series WHERE seriesId=(:seriesId)")
