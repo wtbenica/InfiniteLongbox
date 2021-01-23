@@ -1,9 +1,6 @@
 package com.wtb.comiccollector
 
 import android.app.Activity
-import android.app.AlertDialog
-import android.app.Dialog
-import android.content.DialogInterface
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -12,7 +9,7 @@ import android.text.TextWatcher
 import android.view.*
 import android.widget.*
 import androidx.core.view.children
-import androidx.fragment.app.DialogFragment
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import java.io.File
@@ -20,7 +17,9 @@ import java.util.*
 
 private const val TAG = "IssueFragment"
 private const val ARG_ISSUE_ID = "issue_id"
+private const val ARG_EDITABLE = "open_as_editable"
 private const val PICK_COVER_IMAGE = 0
+private const val RESULT_NEW_SERIES = 108
 
 /**
  * A simple [Fragment] subclass.
@@ -30,6 +29,8 @@ private const val PICK_COVER_IMAGE = 0
 class IssueFragment : Fragment() {
     private lateinit var issue: Issue
     private lateinit var series: Series
+    private lateinit var seriesList: List<Series>
+
     private lateinit var coverImageView: ImageView
     private lateinit var seriesSpinner: Spinner
     private lateinit var issueNumEditText: EditText
@@ -50,6 +51,7 @@ class IssueFragment : Fragment() {
     private lateinit var coverUri: Uri
 
     private var saveIssue = true
+    private var isEditable: Boolean = true
 
     private val issueDetailViewModel: IssueDetailViewModel by lazy {
         ViewModelProvider(this).get(IssueDetailViewModel::class.java)
@@ -58,29 +60,17 @@ class IssueFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
-        series = Series()
-        issue = Issue(seriesId = series.seriesId)
+        series = Series(publisherId = NEW_SERIES_ID)
+        issue = Issue(seriesId = NEW_SERIES_ID)
+        isEditable = arguments?.getSerializable(ARG_EDITABLE) as Boolean
         val issueId = arguments?.getSerializable(ARG_ISSUE_ID) as UUID
+        this.seriesList = emptyList()
         issueDetailViewModel.loadIssue(issueId)
-
-        issueDetailViewModel.allSeriesLiveData.observe(this,
-            { seriesList ->
-                seriesList?.let {
-                    val newSeriesList: MutableList<Series> = mutableListOf(series)
-                    newSeriesList.addAll(seriesList)
-                    val adapter = ArrayAdapter(
-                        requireContext(),
-                        android.R.layout.simple_dropdown_item_1line,
-                        newSeriesList
-                    )
-
-                    seriesSpinner.adapter = adapter
-                }
-            })
     }
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
+        inflater: LayoutInflater,
+        container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
@@ -107,6 +97,20 @@ class IssueFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        issueDetailViewModel.allSeriesLiveData.observe(viewLifecycleOwner,
+            { seriesList ->
+                seriesList?.let {
+                    val adapter = ArrayAdapter(
+                        requireContext(),
+                        android.R.layout.simple_dropdown_item_1line,
+                        seriesList
+                    )
+                    this.seriesList = seriesList
+                    seriesSpinner.adapter = adapter
+                }
+            })
+
         issueDetailViewModel.issueLiveData.observe(
             viewLifecycleOwner,
             { issue ->
@@ -126,17 +130,18 @@ class IssueFragment : Fragment() {
                 }
             }
         )
+
+        if (!isEditable) {
+            // TODO: Create a separate layout for editing vs viewing
+            toggleEnable()
+        }
     }
 
     override fun onStart() {
         super.onStart()
         attachTextWatchers()
         toggleEditButton.setOnClickListener {
-            seriesSpinner.isEnabled = !seriesSpinner.isEnabled
-            writerEditText.isEnabled = !writerEditText.isEnabled
-            pencillerEditText.isEnabled = !pencillerEditText.isEnabled
-            inkerEditText.isEnabled = !inkerEditText.isEnabled
-            issueNumEditText.isEnabled = !issueNumEditText.isEnabled
+            toggleEnable()
         }
 
 //        coverImageView.apply {
@@ -147,11 +152,29 @@ class IssueFragment : Fragment() {
 //                startActivityForResult(chooserIntent, PICK_COVER_IMAGE)
 //            }
 //        }
+
         addWriterButton.setOnClickListener(addNewRow(writersBox, addWriterButton))
 
         addPencillerButton.setOnClickListener(addNewRow(pencillersBox, addPencillerButton))
 
         addInkerButton.setOnClickListener(addNewRow(inkersBox, addInkerButton))
+
+        if (!isEditable) {
+            val indexOf = this.seriesList.indexOf(series)
+            seriesSpinner.setSelection(indexOf)
+
+        }
+    }
+
+    private fun toggleEnable() {
+        seriesSpinner.isEnabled = !seriesSpinner.isEnabled
+        writerEditText.isEnabled = !writerEditText.isEnabled
+        addWriterButton.isVisible = !addWriterButton.isVisible
+        pencillerEditText.isEnabled = !pencillerEditText.isEnabled
+        addPencillerButton.isVisible = !addPencillerButton.isVisible
+        inkerEditText.isEnabled = !inkerEditText.isEnabled
+        addInkerButton.isVisible = !addInkerButton.isVisible
+        issueNumEditText.isEnabled = !issueNumEditText.isEnabled
     }
 
     private fun addNewRow(parentTable: TableLayout, addButton: ImageButton): (v: View) -> Unit = {
@@ -248,10 +271,13 @@ class IssueFragment : Fragment() {
                 position: Int,
                 id: Long
             ) {
-                if (parent != null) {
-                    if ((parent.getItemAtPosition(position) as Series).seriesName == "New Series") {
+                parent?.let {
+                    if ((parent.getItemAtPosition(position) as Series).seriesId == NEW_SERIES_ID) {
                         val d = NewSeriesDialogFragment()
+                        d.setTargetFragment(this@IssueFragment, RESULT_NEW_SERIES)
                         d.show(parentFragmentManager, "NDF")
+                        series = parent.getItemAtPosition(position) as Series
+                        issue.seriesId = series.seriesId
                     } else {
                         issueDetailViewModel.allSeriesLiveData.value?.let {
                             series = parent.getItemAtPosition(position) as Series
@@ -262,7 +288,7 @@ class IssueFragment : Fragment() {
             }
 
             override fun onNothingSelected(parent: AdapterView<*>?) {
-                TODO("Not yet implemented")
+//                TODO("Not yet implemented")
             }
 
         }
@@ -276,9 +302,10 @@ class IssueFragment : Fragment() {
 
         when {
             resultCode != Activity.RESULT_OK -> return
-            requestCode == PICK_COVER_IMAGE && data != null -> {
-                this.issue.coverUri = data.data
+            requestCode == RESULT_NEW_SERIES && data != null -> {
+                this.issue.seriesId = data.getSerializableExtra("seriesId") as UUID
                 issueDetailViewModel.saveIssue(this.issue)
+                issueDetailViewModel.loadIssue(this.issue.issueId)
                 updateUI()
             }
         }
@@ -291,7 +318,7 @@ class IssueFragment : Fragment() {
     }
 
     private fun updateUI() {
-//        seriesSpinner.setText(this.series.seriesName)
+        seriesSpinner.setSelection(seriesList.indexOf(series))
         issueNumEditText.setText(this.issue.issueNum.toString())
         writerEditText.setText(this.issue.writer)
         pencillerEditText.setText(this.issue.penciller)
@@ -322,23 +349,13 @@ class IssueFragment : Fragment() {
 
     companion object {
         @JvmStatic
-        fun newInstance(issueId: UUID? = null): IssueFragment =
+        fun newInstance(issueId: UUID? = null, openAsEditable: Boolean = true): IssueFragment =
             IssueFragment().apply {
                 arguments = Bundle().apply {
                     putSerializable(ARG_ISSUE_ID, issueId)
+                    putSerializable(ARG_EDITABLE, openAsEditable)
                 }
             }
     }
 }
 
-class NewSeriesDialogFragment : DialogFragment() {
-    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        return activity?.let {
-            val builder = AlertDialog.Builder(it)
-            builder.setMessage("Mogwai")
-                .setPositiveButton("Yes", DialogInterface.OnClickListener { dialog, id -> })
-                .setNegativeButton("No", DialogInterface.OnClickListener { dialog, id -> })
-            builder.create()
-        } ?: throw IllegalStateException("Activity cannot be null")
-    }
-}

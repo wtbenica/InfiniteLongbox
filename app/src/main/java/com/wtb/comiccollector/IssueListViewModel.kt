@@ -6,6 +6,7 @@ import java.util.*
 
 class IssueListViewModel : ViewModel() {
     private val issueRepository: IssueRepository = IssueRepository.get()
+
     val issueListLiveData: LiveData<List<FullIssue>> = issueRepository.getIssues()
 
     fun addIssue(issue: Issue) {
@@ -30,4 +31,5 @@ class IssueListViewModel : ViewModel() {
 
     fun getSeries(seriesId: UUID): LiveData<Series?> = issueRepository.getSeries(seriesId)
 
+    fun getNewSeries(): LiveData<Series?> = issueRepository.newSeries
 }

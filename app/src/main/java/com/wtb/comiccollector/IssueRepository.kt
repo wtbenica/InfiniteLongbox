@@ -3,6 +3,8 @@ package com.wtb.comiccollector
 import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.room.Room
+import androidx.room.RoomDatabase
+import androidx.sqlite.db.SupportSQLiteDatabase
 import com.wtb.comiccollector.database.IssueDatabase
 import java.io.File
 import java.util.*
@@ -11,17 +13,37 @@ import java.util.concurrent.Executors
 private const val DATABASE_NAME = "issue-database"
 
 class IssueRepository private constructor(context: Context) {
-
+    private val executor = Executors.newSingleThreadExecutor()
     private val database: IssueDatabase = Room.databaseBuilder(
         context.applicationContext,
         IssueDatabase::class.java,
         DATABASE_NAME
-    ).build()
+    ).addCallback(object : RoomDatabase.Callback() {
+        override fun onCreate(db: SupportSQLiteDatabase) {
+            super.onCreate(db)
+            executor.execute {
+                issueDao.addSeries(Series(seriesId = NEW_SERIES_ID, publisherId = NEW_SERIES_ID))
+                issueDao.addPublishers(
+                    Publisher(publisher = "DC"),
+                    Publisher(publisher = "Marvel"),
+                    Publisher(publisher = "Image"),
+                    Publisher(publisher = "Dark Horse"),
+                    Publisher(publisher = "Valiant"),
+                    Publisher(publisher = "Fantagraphics"),
+                    Publisher(publisher = "Aftershock"),
+                    Publisher(publisher = "DC/Vertigo")
+                )
+            }
+        }
+    }).build()
 
     private val issueDao = database.issueDao()
-    private val executor = Executors.newSingleThreadExecutor()
+
     private val filesDir = context.applicationContext.filesDir
     val allSeries: LiveData<List<Series>> = issueDao.getSeriesList()
+    val allPublishers: LiveData<List<Publisher>> = issueDao.getPublishersList()
+
+    val newSeries: LiveData<Series?> = issueDao.getSeriesById(UUID(0, 0))
 
     fun getIssues(): LiveData<List<FullIssue>> = issueDao.getIssues()
 
@@ -56,7 +78,7 @@ class IssueRepository private constructor(context: Context) {
             issueDao.updateCredit(credit)
         }
     }
-    
+
     fun addIssue(issue: Issue) {
         executor.execute {
             issueDao.addIssue(issue)
@@ -121,7 +143,9 @@ class IssueRepository private constructor(context: Context) {
         return issueDao.getSeriesList()
     }
 
-    fun getSeries(seriesId: UUID): LiveData<Series?> = issueDao.getSeriesList(seriesId)
+    fun getSeries(seriesId: UUID): LiveData<Series?> = issueDao.getSeriesById(seriesId)
+
+//    fun getNewSeries(): LiveData<Series?> = issueDao.getSeriesById(UUID(0, 0))
 
     fun getCoverImage(issue: Issue): File = File(filesDir, issue.coverFileName)
 

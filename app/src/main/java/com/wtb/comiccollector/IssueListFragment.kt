@@ -2,7 +2,6 @@ package com.wtb.comiccollector
 
 import android.content.Context
 import android.os.Bundle
-import android.util.Log
 import android.view.*
 import android.widget.ImageView
 import android.widget.TextView
@@ -27,22 +26,18 @@ class IssueListFragment : Fragment() {
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        Log.i("MORO", "onAttach")
         callbacks = context as Callbacks?
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
-        Log.i("MORO", "onCreate")
     }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        Log.i("MORO", "onCreateView")
-        // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.fragment_issue_list, container, false)
 
         issueRecyclerView = view.findViewById(R.id.issue_recycler_view)
@@ -54,7 +49,6 @@ class IssueListFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        Log.i("MORO", "onViewCreated")
         issueListViewModel.issueListLiveData.value?.let { updateUI(it) }
         issueListViewModel.issueListLiveData.observe(
             viewLifecycleOwner,
@@ -64,6 +58,7 @@ class IssueListFragment : Fragment() {
                 }
             }
         )
+
     }
 
     override fun onDetach() {
@@ -79,11 +74,9 @@ class IssueListFragment : Fragment() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.new_issue -> {
-                val series = Series()
-                val issue = Issue(seriesId = series.seriesId)
-                issueListViewModel.addSeries(series)
+                val issue = Issue(seriesId = NEW_SERIES_ID)
                 issueListViewModel.addIssue(issue)
-                callbacks?.onIssueSelected(issue.issueId)
+                callbacks?.onNewIssue(issue.issueId)
                 true
             }
             else -> super.onOptionsItemSelected(item)

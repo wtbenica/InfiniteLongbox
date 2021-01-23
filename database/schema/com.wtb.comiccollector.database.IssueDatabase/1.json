@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "43b23fed8e3d917fc268c54c749c854c",
+    "identityHash": "3f60a39b90a9adc818b6fd2f4064cf10",
     "entities": [
       {
         "tableName": "Issue",
@@ -74,7 +74,7 @@
       },
       {
         "tableName": "Series",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`seriesId` TEXT NOT NULL, `seriesName` TEXT NOT NULL, `volume` INTEGER NOT NULL, `publisher` TEXT NOT NULL, `startDate` TEXT, `endDate` TEXT, PRIMARY KEY(`seriesId`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`seriesId` TEXT NOT NULL, `seriesName` TEXT NOT NULL, `volume` INTEGER NOT NULL, `publisher` TEXT NOT NULL, `publisherId` TEXT NOT NULL, `startDate` TEXT, `endDate` TEXT, PRIMARY KEY(`seriesId`))",
         "fields": [
           {
             "fieldPath": "seriesId",
@@ -97,6 +97,12 @@
           {
             "fieldPath": "publisher",
             "columnName": "publisher",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "publisherId",
+            "columnName": "publisherId",
             "affinity": "TEXT",
             "notNull": true
           },
@@ -225,12 +231,38 @@
         },
         "indices": [],
         "foreignKeys": []
+      },
+      {
+        "tableName": "Publisher",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`publisherId` TEXT NOT NULL, `publisher` TEXT NOT NULL, PRIMARY KEY(`publisherId`))",
+        "fields": [
+          {
+            "fieldPath": "publisherId",
+            "columnName": "publisherId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "publisher",
+            "columnName": "publisher",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "publisherId"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [],
+        "foreignKeys": []
       }
     ],
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '43b23fed8e3d917fc268c54c749c854c')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '3f60a39b90a9adc818b6fd2f4064cf10')"
     ]
   }
 }

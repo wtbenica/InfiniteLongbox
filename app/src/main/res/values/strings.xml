@@ -11,4 +11,8 @@
     <string name="add_writer">Add additional writer</string>
     <string name="add_penciller">Add additional penciller</string>
     <string name="add_inker">Add additional inker</string>
+    <string name="hint_volume_number">Volume Number</string>
+    <string name="hint_start_date">Start Date</string>
+    <string name="hint_end_date">End Date</string>
+    <string name="hint_publisher">Publisher</string>
 </resources>

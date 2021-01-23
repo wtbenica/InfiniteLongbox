@@ -24,6 +24,8 @@ class IssueDetailViewModel : ViewModel() {
 
     var allSeriesLiveData: LiveData<List<Series>> = issueRepository.allSeries
 
+    var allPublishersLiveData: LiveData<List<Publisher>> = issueRepository.allPublishers
+
     fun loadIssue(issueId: UUID) {
         issueIdLiveData.value = issueId
         seriesIdLiveData.value = issueLiveData.value?.seriesId
@@ -45,8 +47,14 @@ class IssueDetailViewModel : ViewModel() {
         issueRepository.updateSeries(series)
     }
 
+    fun addSeries(series: Series) {
+        // TODO: Check if series exists
+        issueRepository.addSeries(series)
+    }
+
     fun deleteSeries(series: Series) {
         issueRepository.deleteSeries(series)
     }
 
+    fun getNewSeries(): LiveData<Series?> = issueRepository.newSeries
 }

@@ -7,6 +7,8 @@ import androidx.room.PrimaryKey
 import java.time.LocalDate
 import java.util.*
 
+val NEW_SERIES_ID = UUID(0, 0)
+
 @Entity
 data class Issue(
     @PrimaryKey val issueId: UUID = UUID.randomUUID(),
@@ -26,9 +28,10 @@ data class Issue(
 @Entity
 data class Series(
     @PrimaryKey val seriesId: UUID = UUID.randomUUID(),
-    var seriesName: String = "New Series",
+    var seriesName: String = "",
     var volume: Int = 1,
     var publisher: String = "",
+    var publisherId: UUID,
     var startDate: LocalDate? = null,
     var endDate: LocalDate? = null
 ) {
@@ -59,6 +62,18 @@ data class Creator(
 )
 
 @Entity
+data class Publisher(
+    @PrimaryKey val publisherId: UUID = UUID.randomUUID(),
+    val publisher: String = ""
+
+
+) {
+    override fun toString(): String {
+        return publisher
+    }
+}
+
+@Entity
 data class Role(
     @PrimaryKey val roleId: UUID = UUID.randomUUID(),
     var roleName: String = ""
@@ -74,8 +89,8 @@ data class Credit(
 data class FullIssue(
     @Embedded
     val issue: Issue,
-
-    val seriesName: String)
+    val seriesName: String
+)
 
 data class IssueCredits(
     val roleName: String,

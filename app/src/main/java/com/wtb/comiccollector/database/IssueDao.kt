@@ -8,7 +8,7 @@ import java.util.*
 @Dao
 interface IssueDao {
     @Transaction
-    @Query("SELECT issue.*, seriesName FROM issue JOIN series ON issue.seriesId = series.seriesId")
+    @Query("SELECT issue.*, series.seriesName, publisher.publisher FROM issue NATURAL JOIN series NATURAL JOIN publisher")
     fun getIssues(): LiveData<List<FullIssue>>
 
     @Query("SELECT * FROM issue WHERE issueId=(:issueId)")
@@ -36,7 +36,10 @@ interface IssueDao {
     fun getSeriesList(): LiveData<List<Series>>
 
     @Query("SELECT * FROM series WHERE seriesId=(:seriesId)")
-    fun getSeriesList(seriesId: UUID): LiveData<Series?>
+    fun getSeriesById(seriesId: UUID): LiveData<Series?>
+
+    @Query("SELECT * FROM publisher ORDER BY publisher ASC")
+    fun getPublishersList(): LiveData<List<Publisher>>
 
     @Update
     fun updateSeries(series: Series)
@@ -55,6 +58,18 @@ interface IssueDao {
 
     @Delete
     fun deleteCreator(creator: Creator)
+
+    @Update
+    fun updatePublisher(publisher: Publisher)
+
+    @Insert
+    fun addPublisher(publisher: Publisher)
+
+    @Insert
+    fun addPublishers(vararg publisher: Publisher)
+
+    @Delete
+    fun deletePublisher(publisher: Publisher)
 
     @Update
     fun updateRole(role: Role)

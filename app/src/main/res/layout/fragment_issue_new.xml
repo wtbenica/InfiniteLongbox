@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/issue"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -22,13 +22,22 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
-        android:layout_marginEnd="16dp"
         android:layout_marginBottom="16dp"
         android:importantForAutofill="no"
         app:layout_constraintBottom_toBottomOf="@+id/issue_number"
-        app:layout_constraintEnd_toStartOf="@+id/issue_number"
+        app:layout_constraintEnd_toStartOf="@+id/add_series_button"
         app:layout_constraintStart_toEndOf="@+id/issue_cover"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageButton
+        android:id="@+id/add_series_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:backgroundTint="#FFF"
+        android:contentDescription="@string/add_writer"
+        app:layout_constraintEnd_toStartOf="@+id/issue_number"
+        app:layout_constraintTop_toTopOf="@+id/issue_number"
+        app:srcCompat="@drawable/ic_menu_add" />
 
     <EditText
         android:id="@+id/issue_number"
@@ -60,7 +69,6 @@
             android:layout_height="match_parent">
 
             <TextView
-                android:id="@+id/issue_writer_label"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
@@ -69,7 +77,6 @@
         </TableRow>
 
         <TableRow
-            android:id="@+id/writer_1"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
@@ -107,7 +114,6 @@
             android:layout_height="match_parent">
 
             <TextView
-                android:id="@+id/issue_penciller_label"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -116,7 +122,6 @@
         </TableRow>
 
         <TableRow
-            android:id="@+id/penciller_1"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
@@ -154,7 +159,6 @@
             android:layout_height="match_parent">
 
             <TextView
-                android:id="@+id/issue_inker_label"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -163,7 +167,6 @@
         </TableRow>
 
         <TableRow
-            android:id="@+id/inker_1"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
@@ -197,6 +200,5 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/inkers_box" />
-
 
 </androidx.constraintlayout.widget.ConstraintLayout>
