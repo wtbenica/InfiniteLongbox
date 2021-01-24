@@ -11,7 +11,7 @@ interface IssueDao {
     @Query("SELECT issue.*, series.seriesName, publisher.publisher FROM issue NATURAL JOIN series NATURAL JOIN publisher")
     fun getIssues(): LiveData<List<FullIssue>>
 
-    @Query("SELECT * FROM issue WHERE issueId=(:issueId)")
+    @Query("SELECT * FROM issue WHERE issueId=:issueId")
     fun getIssue(issueId: UUID): LiveData<Issue?>
 
     @Query(
@@ -23,6 +23,21 @@ interface IssueDao {
     )
     fun getIssueCredits(issueId: UUID): LiveData<IssueCredits>
 
+    @Query("SELECT * FROM series ORDER BY seriesName ASC")
+    fun getSeriesList(): LiveData<List<Series>>
+
+    @Query("SELECT * FROM series WHERE seriesId=:seriesId")
+    fun getSeriesById(seriesId: UUID): LiveData<Series?>
+
+    @Query("SELECT * FROM publisher ORDER BY publisher ASC")
+    fun getPublishersList(): LiveData<List<Publisher>>
+
+    @Query("SELECT * FROM issue WHERE seriesId=:seriesId")
+    fun getIssuesBySeries(seriesId: UUID): LiveData<List<Issue>>
+
+    @Query("SELECT issue.* FROM issue NATURAL JOIN credit WHERE creatorId=:creatorId")
+    fun getIssuesByCreator(creatorId: UUID): LiveData<List<Issue>>
+
     @Update
     fun updateIssue(issue: Issue)
 
@@ -31,15 +46,6 @@ interface IssueDao {
 
     @Delete
     fun deleteIssue(issue: Issue)
-
-    @Query("SELECT * FROM series ORDER BY seriesName ASC")
-    fun getSeriesList(): LiveData<List<Series>>
-
-    @Query("SELECT * FROM series WHERE seriesId=(:seriesId)")
-    fun getSeriesById(seriesId: UUID): LiveData<Series?>
-
-    @Query("SELECT * FROM publisher ORDER BY publisher ASC")
-    fun getPublishersList(): LiveData<List<Publisher>>
 
     @Update
     fun updateSeries(series: Series)
@@ -67,6 +73,9 @@ interface IssueDao {
 
     @Insert
     fun addPublishers(vararg publisher: Publisher)
+
+    @Insert
+    fun addRoles(vararg role: Role)
 
     @Delete
     fun deletePublisher(publisher: Publisher)

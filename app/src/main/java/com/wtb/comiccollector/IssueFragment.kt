@@ -46,7 +46,7 @@ class IssueFragment : Fragment() {
     private lateinit var inkersBox: TableLayout
     private lateinit var inkerEditText: EditText
     private lateinit var addInkerButton: ImageButton
-    private lateinit var toggleEditButton: Button
+    private lateinit var toggleEditButton: ImageButton
     private lateinit var coverFile: File
     private lateinit var coverUri: Uri
 
@@ -74,7 +74,7 @@ class IssueFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        val view = inflater.inflate(R.layout.fragment_issue_new, container, false)
+        val view = inflater.inflate(R.layout.fragment_new_issue, container, false)
 
         seriesSpinner = view.findViewById(R.id.issue_series) as Spinner
         seriesSpinner.prompt = "Series Name"
@@ -88,7 +88,7 @@ class IssueFragment : Fragment() {
         addPencillerButton = view.findViewById(R.id.add_penciller_button) as ImageButton
         inkersBox = view.findViewById(R.id.inkers_box) as TableLayout
         inkerEditText = view.findViewById(R.id.issue_inker) as EditText
-        toggleEditButton = view.findViewById(R.id.edit_button)
+        toggleEditButton = view.findViewById(R.id.edit_button) as ImageButton
         addInkerButton = view.findViewById(R.id.add_inker_button) as ImageButton
         addInkerButton = view.findViewById(R.id.add_inker_button) as ImageButton
 
@@ -288,7 +288,7 @@ class IssueFragment : Fragment() {
             }
 
             override fun onNothingSelected(parent: AdapterView<*>?) {
-//                TODO("Not yet implemented")
+                // TODO: Not yet implemented
             }
 
         }

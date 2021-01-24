@@ -21,10 +21,10 @@ class IssueRepository private constructor(context: Context) {
     ).addCallback(object : RoomDatabase.Callback() {
         override fun onCreate(db: SupportSQLiteDatabase) {
             super.onCreate(db)
+            val initUUID = UUID.randomUUID()
             executor.execute {
-                issueDao.addSeries(Series(seriesId = NEW_SERIES_ID, publisherId = NEW_SERIES_ID))
                 issueDao.addPublishers(
-                    Publisher(publisher = "DC"),
+                    Publisher(publisherId = initUUID, publisher = "DC"),
                     Publisher(publisher = "Marvel"),
                     Publisher(publisher = "Image"),
                     Publisher(publisher = "Dark Horse"),
@@ -33,6 +33,20 @@ class IssueRepository private constructor(context: Context) {
                     Publisher(publisher = "Aftershock"),
                     Publisher(publisher = "DC/Vertigo")
                 )
+                issueDao.addRoles(
+                    Role(roleName = "Writer"),
+                    Role(roleName = "Scripter"),
+                    Role(roleName = "Plotter"),
+                    Role(roleName = "Penciller"),
+                    Role(roleName = "Artist"),
+                    Role(roleName = "Inker"),
+                    Role(roleName = "Colorist"),
+                    Role(roleName = "Letterer"),
+                    Role(roleName = "Cover Artist"),
+                    Role(roleName = "Editor"),
+                    Role(roleName = "Assistant Editor")
+                )
+                issueDao.addSeries(Series(seriesId = NEW_SERIES_ID, publisherId = initUUID))
             }
         }
     }).build()

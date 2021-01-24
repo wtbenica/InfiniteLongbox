@@ -12,7 +12,7 @@ import androidx.recyclerview.widget.RecyclerView
 import java.util.*
 
 class IssueListFragment : Fragment() {
-
+    // TODO: Start as list of series
     interface Callbacks {
         fun onIssueSelected(issueId: UUID)
         fun onNewIssue(issueId: UUID)

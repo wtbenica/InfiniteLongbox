@@ -97,7 +97,6 @@ class NewSeriesDialogFragment : DialogFragment() {
             val series = Series(
                 seriesName = seriesNameEditText.text.toString(),
                 volume = volumeNumberEditText.text.toString().toInt(),
-                publisher = publisherSpinner.selectedItem.toString(),
                 publisherId = publisher.publisherId,
 //                startDate = LocalDate.parse(startDateEditText.text),
 //                endDate = LocalDate.parse(endDateEditText.text)
