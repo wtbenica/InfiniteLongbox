@@ -13,7 +13,9 @@ import java.util.concurrent.Executors
 private const val DATABASE_NAME = "issue-database"
 
 class IssueRepository private constructor(context: Context) {
+
     private val executor = Executors.newSingleThreadExecutor()
+
     private val database: IssueDatabase = Room.databaseBuilder(
         context.applicationContext,
         IssueDatabase::class.java,
@@ -46,7 +48,13 @@ class IssueRepository private constructor(context: Context) {
                     Role(roleName = "Editor"),
                     Role(roleName = "Assistant Editor")
                 )
-                issueDao.addSeries(Series(seriesId = NEW_SERIES_ID, publisherId = initUUID))
+                issueDao.addSeries(
+                    Series(
+                        seriesId = NEW_SERIES_ID,
+                        seriesName = "New Series",
+                        publisherId = initUUID
+                    )
+                )
             }
         }
     }).build()
@@ -62,6 +70,8 @@ class IssueRepository private constructor(context: Context) {
     fun getIssues(): LiveData<List<FullIssue>> = issueDao.getIssues()
 
     fun getIssue(issueId: UUID): LiveData<Issue?> = issueDao.getIssue(issueId)
+
+    fun getIssuesBySeries(seriesId: UUID) = issueDao.getIssuesBySeries(seriesId)
 
     fun updateIssue(issue: Issue) {
         executor.execute {

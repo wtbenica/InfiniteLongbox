@@ -4,10 +4,10 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import java.util.*
 
-class IssueListViewModel : ViewModel() {
+class SeriesListViewModel : ViewModel() {
     private val issueRepository: IssueRepository = IssueRepository.get()
 
-    var issueListLiveData: LiveData<List<FullIssue>> = issueRepository.getIssues()
+    val seriesListLiveData: LiveData<List<Series>> = issueRepository.getSeriesList()
 
     fun addIssue(issue: Issue) {
         issueRepository.addIssue(issue)
@@ -33,10 +33,6 @@ class IssueListViewModel : ViewModel() {
                 roleId = role.roleId
             )
         )
-    }
-
-    fun loadSeries(seriesId: UUID) {
-        issueListLiveData = issueRepository.getIssuesBySeries(seriesId)
     }
 
     fun getSeries(seriesId: UUID): LiveData<Series?> = issueRepository.getSeries(seriesId)

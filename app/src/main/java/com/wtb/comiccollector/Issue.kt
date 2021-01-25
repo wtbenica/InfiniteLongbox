@@ -58,7 +58,7 @@ data class Series(
         return if (startDate != null && endDate != null) {
             "$seriesName v$volume (${startDate!!.year}-${endDate!!.year})"
         } else {
-            "$seriesName v$volume"
+            "$seriesName vol. $volume"
         }
     }
 }

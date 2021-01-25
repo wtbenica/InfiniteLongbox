@@ -11,18 +11,17 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import java.util.*
 
-class IssueListFragment(val seriesId: UUID? = null) : Fragment() {
-    // TODO: Start as list of series
+class SeriesListFragment : Fragment() {
     interface Callbacks {
-        fun onIssueSelected(issueId: UUID)
+        fun onSeriesSelected(seriesId: UUID)
         fun onNewIssue(issueId: UUID)
     }
 
     private var callbacks: Callbacks? = null
 
-    private val issueListViewModel by lazy { ViewModelProvider(this).get(IssueListViewModel::class.java) }
-    private lateinit var issueRecyclerView: RecyclerView
-    private var adapter: IssueAdapter? = IssueAdapter(emptyList())
+    private val seriesListViewModel by lazy { ViewModelProvider(this).get(SeriesListViewModel::class.java) }
+    private lateinit var seriesRecyclerView: RecyclerView
+    private var adapter: SeriesAdapter? = SeriesAdapter(emptyList())
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -40,24 +39,21 @@ class IssueListFragment(val seriesId: UUID? = null) : Fragment() {
     ): View? {
         val view = inflater.inflate(R.layout.fragment_issue_list, container, false)
 
-        issueRecyclerView = view.findViewById(R.id.issue_recycler_view)
-        issueRecyclerView.layoutManager = LinearLayoutManager(context)
-        issueRecyclerView.adapter = adapter
+        seriesRecyclerView = view.findViewById(R.id.issue_recycler_view)
+        seriesRecyclerView.layoutManager = LinearLayoutManager(context)
+        seriesRecyclerView.adapter = adapter
 
         return view
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        seriesId?.let {
-            issueListViewModel.loadSeries(seriesId)
-        }
-        issueListViewModel.issueListLiveData.value?.let { updateUI(it) }
-        issueListViewModel.issueListLiveData.observe(
+        seriesListViewModel.seriesListLiveData.value?.let { updateUI(it) }
+        seriesListViewModel.seriesListLiveData.observe(
             viewLifecycleOwner,
-            { issues ->
-                issues?.let {
-                    updateUI(issues)
+            { series ->
+                series?.let {
+                    updateUI(series)
                 }
             }
         )
@@ -78,7 +74,7 @@ class IssueListFragment(val seriesId: UUID? = null) : Fragment() {
         return when (item.itemId) {
             R.id.new_issue -> {
                 val issue = Issue(seriesId = NEW_SERIES_ID)
-                issueListViewModel.addIssue(issue)
+                seriesListViewModel.addIssue(issue)
                 callbacks?.onNewIssue(issue.issueId)
                 true
             }
@@ -86,52 +82,53 @@ class IssueListFragment(val seriesId: UUID? = null) : Fragment() {
         }
     }
 
-    private fun updateUI(issues: List<FullIssue>) {
-        adapter = IssueAdapter(issues)
-        issueRecyclerView.adapter = adapter
+    private fun updateUI(seriesList: List<Series>) {
+        adapter = SeriesAdapter(seriesList)
+        seriesRecyclerView.adapter = adapter
     }
 
-    private inner class IssueAdapter(var issues: List<FullIssue>) :
-        RecyclerView.Adapter<IssueHolder>() {
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): IssueHolder {
+    private inner class SeriesAdapter(var seriesList: List<Series>) :
+        RecyclerView.Adapter<SeriesHolder>() {
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SeriesHolder {
             val view = layoutInflater.inflate(R.layout.list_item_issue, parent, false)
-            return IssueHolder(view)
+            return SeriesHolder(view)
         }
 
-        override fun onBindViewHolder(holder: IssueHolder, position: Int) {
-            val issue = issues[position]
-            holder.bind(issue)
+        override fun onBindViewHolder(holder: SeriesHolder, position: Int) {
+            val series = seriesList[position]
+            holder.bind(series)
         }
 
-        override fun getItemCount(): Int = issues.size
+        override fun getItemCount(): Int = seriesList.size
 
     }
 
-    private inner class IssueHolder(view: View) : RecyclerView.ViewHolder(view),
+    // TODO: Make this look prettier
+    private inner class SeriesHolder(view: View) : RecyclerView.ViewHolder(view),
         View.OnClickListener {
-        private lateinit var issue: FullIssue
+        private lateinit var series: Series
 
         private val coverImageView: ImageView = itemView.findViewById(R.id.list_item_cover)
         private val seriesTextView: TextView = itemView.findViewById(R.id.list_item_title)
-        private val issueNumTextView: TextView = itemView.findViewById(R.id.list_item_issue)
+        private val seriesVolTextView: TextView = itemView.findViewById(R.id.list_item_issue)
 
         init {
             itemView.setOnClickListener(this)
         }
 
-        fun bind(issue: FullIssue) {
-            this.issue = issue
-            seriesTextView.text = this.issue.seriesName
-            issueNumTextView.text = this.issue.issue.issueNum.toString()
+        fun bind(series: Series) {
+            this.series = series
+            seriesTextView.text = this.series.toString()
+            seriesVolTextView.text = this.series.volume.toString()
         }
 
         override fun onClick(v: View?) {
-            callbacks?.onIssueSelected(issue.issue.issueId)
+            callbacks?.onSeriesSelected(series.seriesId)
         }
     }
 
     companion object {
         @JvmStatic
-        fun newInstance(seriesId: UUID? = null) = IssueListFragment(seriesId)
+        fun newInstance() = SeriesListFragment()
     }
 }

@@ -26,6 +26,7 @@ private const val RESULT_NEW_SERIES = 108
  * Use the [IssueFragment.newInstance] factory method to
  * create an instance of this fragment.
  */
+// TODO: Do I need a separate fragment for editing vs viewing or can I do it all in this one?
 class IssueFragment : Fragment() {
     private lateinit var issue: Issue
     private lateinit var series: Series
@@ -132,7 +133,7 @@ class IssueFragment : Fragment() {
         )
 
         if (!isEditable) {
-            // TODO: Create a separate layout for editing vs viewing
+            // TODO: Create a separate layout for editing vs viewing instead of this
             toggleEnable()
         }
     }
@@ -177,6 +178,7 @@ class IssueFragment : Fragment() {
         issueNumEditText.isEnabled = !issueNumEditText.isEnabled
     }
 
+    // TODO: Add textWatchers. as of now, they editTexts dont save anything
     private fun addNewRow(parentTable: TableLayout, addButton: ImageButton): (v: View) -> Unit = {
         val numChildren = parentTable.childCount
         val newRow = TableRow(context)
@@ -272,6 +274,8 @@ class IssueFragment : Fragment() {
                 id: Long
             ) {
                 parent?.let {
+                    // TODO: NewSeriesDialog opens even when it shouldn't
+                    //  bc spinner is always initially NEW_SERIES_ID
                     if ((parent.getItemAtPosition(position) as Series).seriesId == NEW_SERIES_ID) {
                         val d = NewSeriesDialogFragment()
                         d.setTargetFragment(this@IssueFragment, RESULT_NEW_SERIES)

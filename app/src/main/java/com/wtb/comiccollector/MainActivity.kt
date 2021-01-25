@@ -10,6 +10,7 @@ private var X = 1
 
 class MainActivity : AppCompatActivity(),
     IssueListFragment.Callbacks,
+    SeriesListFragment.Callbacks,
     NewSeriesDialogFragment.NewSeriesDialogListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -19,7 +20,7 @@ class MainActivity : AppCompatActivity(),
         val currentFragment = supportFragmentManager.findFragmentById(R.id.fragment_container)
 
         if (currentFragment == null) {
-            val fragment = IssueListFragment.newInstance()
+            val fragment = SeriesListFragment.newInstance()
             supportFragmentManager
                 .beginTransaction()
                 .add(R.id.fragment_container, fragment)
@@ -29,6 +30,15 @@ class MainActivity : AppCompatActivity(),
 
     override fun onIssueSelected(issueId: UUID) {
         val fragment = IssueFragment.newInstance(issueId, false)
+        supportFragmentManager
+            .beginTransaction()
+            .replace(R.id.fragment_container, fragment)
+            .addToBackStack(null)
+            .commit()
+    }
+
+    override fun onSeriesSelected(seriesId: UUID) {
+        val fragment = IssueListFragment.newInstance(seriesId)
         supportFragmentManager
             .beginTransaction()
             .replace(R.id.fragment_container, fragment)
