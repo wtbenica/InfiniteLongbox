@@ -6,18 +6,19 @@ import java.time.LocalDate
 import java.util.*
 
 val NEW_SERIES_ID = UUID(0, 0)
+
 // TODO: For all entities, need to add onDeletes: i.e. CASCADE, etc.
 @Entity(
-    foreignKeys = arrayOf(
+    foreignKeys = [
         ForeignKey(
             entity = Series::class,
             parentColumns = arrayOf("seriesId"),
             childColumns = arrayOf("seriesId")
         )
-    ),
-    indices = arrayOf(
+    ],
+    indices = [
         Index(value = ["seriesId", "issueNum"], unique = true)
-    )
+    ]
 )
 data class Issue(
     @PrimaryKey val issueId: UUID = UUID.randomUUID(),
@@ -34,17 +35,17 @@ data class Issue(
 }
 
 @Entity(
-    foreignKeys = arrayOf(
+    foreignKeys = [
         ForeignKey(
             entity = Publisher::class,
             parentColumns = arrayOf("publisherId"),
             childColumns = arrayOf("publisherId")
         )
-    ),
-    indices = arrayOf(
+    ],
+    indices = [
         Index(value = ["seriesName", "volume", "publisherId"], unique = true),
         Index(value = ["publisherId"])
-    )
+    ]
 )
 data class Series(
     @PrimaryKey val seriesId: UUID = UUID.randomUUID(),
@@ -64,9 +65,9 @@ data class Series(
 }
 
 @Entity(
-    indices = arrayOf(
+    indices = [
         Index(value = ["firstName", "middleName", "lastName", "suffix", "number"])
-    )
+    ]
 )
 data class Creator(
     @PrimaryKey val creatorId: UUID = UUID.randomUUID(),
@@ -105,13 +106,11 @@ data class Role(
 )
 
 @Entity(
-    indices = arrayOf(
+    indices = [
         Index(value = ["issueId", "creatorId", "roleId"], unique = true),
-        Index(value = ["issueId"]),
-        Index(value = ["creatorId"]),
-        Index(value = ["roleId"])
-    ),
-    foreignKeys = arrayOf(
+        Index(value = ["issueId"]), Index(value = ["creatorId"]), Index(value = ["roleId"])
+    ],
+    foreignKeys = [
         ForeignKey(
             entity = Issue::class,
             parentColumns = arrayOf("issueId"),
@@ -127,7 +126,7 @@ data class Role(
             parentColumns = arrayOf("roleId"),
             childColumns = arrayOf("roleId")
         )
-    )
+    ]
 )
 data class Credit(
     @PrimaryKey val creditId: UUID = UUID.randomUUID(),
