@@ -7,6 +7,7 @@ import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.wtb.comiccollector.database.IssueDatabase
 import java.io.File
+import java.time.LocalDate
 import java.util.*
 import java.util.concurrent.Executors
 
@@ -52,7 +53,9 @@ class IssueRepository private constructor(context: Context) {
                     Series(
                         seriesId = NEW_SERIES_ID,
                         seriesName = "New Series",
-                        publisherId = initUUID
+                        publisherId = initUUID,
+                        startDate = LocalDate.of(1995, 5, 13),
+                        endDate = LocalDate.of(2000, 3, 25)
                     )
                 )
             }

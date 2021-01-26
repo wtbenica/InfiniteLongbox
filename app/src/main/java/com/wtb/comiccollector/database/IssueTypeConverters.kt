@@ -48,8 +48,3 @@ class IssueTypeConverters {
         return date.toString()
     }
 }
-
-@TypeConverter
-fun fromLocalDate(date: LocalDate?): String {
-    return date.toString()
-}

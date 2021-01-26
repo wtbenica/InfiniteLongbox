@@ -62,6 +62,11 @@ data class Series(
             "$seriesName vol. $volume"
         }
     }
+
+    val dateRange: String
+        get() = startDate?.let {
+            "(${it.year}-${endDate?.year ?: " "})"
+        } ?: ""
 }
 
 @Entity(

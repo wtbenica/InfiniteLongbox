@@ -90,7 +90,7 @@ class SeriesListFragment : Fragment() {
     private inner class SeriesAdapter(var seriesList: List<Series>) :
         RecyclerView.Adapter<SeriesHolder>() {
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SeriesHolder {
-            val view = layoutInflater.inflate(R.layout.list_item_issue, parent, false)
+            val view = layoutInflater.inflate(R.layout.list_item_series, parent, false)
             return SeriesHolder(view)
         }
 
@@ -110,7 +110,7 @@ class SeriesListFragment : Fragment() {
 
         private val coverImageView: ImageView = itemView.findViewById(R.id.list_item_cover)
         private val seriesTextView: TextView = itemView.findViewById(R.id.list_item_title)
-        private val seriesVolTextView: TextView = itemView.findViewById(R.id.list_item_issue)
+        private val seriesDateRangeTextView: TextView = itemView.findViewById(R.id.list_item_dates)
 
         init {
             itemView.setOnClickListener(this)
@@ -118,8 +118,8 @@ class SeriesListFragment : Fragment() {
 
         fun bind(series: Series) {
             this.series = series
-            seriesTextView.text = this.series.toString()
-            seriesVolTextView.text = this.series.volume.toString()
+            seriesTextView.text = this.series.seriesName
+            seriesDateRangeTextView.text = this.series.dateRange
         }
 
         override fun onClick(v: View?) {
