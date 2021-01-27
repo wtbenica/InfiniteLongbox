@@ -12,7 +12,7 @@ import androidx.recyclerview.widget.RecyclerView
 import java.util.*
 
 class IssueListFragment(val seriesId: UUID? = null) : Fragment() {
-    // TODO: Start as list of series
+
     interface Callbacks {
         fun onIssueSelected(issueId: UUID)
         fun onNewIssue(issueId: UUID)
@@ -77,9 +77,11 @@ class IssueListFragment(val seriesId: UUID? = null) : Fragment() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.new_issue -> {
-//                val issue = Issue(seriesId = NEW_SERIES_ID)
-//                issueListViewModel.addIssue(issue)
-                callbacks?.onNewIssue(NEW_SERIES_ID)
+                // TODO: Find solution to this. If issueNum is default (1), if there already
+                //  exists an issue number 1, then violates unique series/issue restraint in db
+                val issue = seriesId?.let { Issue(seriesId = it, issueNum = Int.MIN_VALUE) } ?: Issue()
+                issueListViewModel.addIssue(issue)
+                callbacks?.onNewIssue(issue.issueId)
                 true
             }
             else -> super.onOptionsItemSelected(item)
