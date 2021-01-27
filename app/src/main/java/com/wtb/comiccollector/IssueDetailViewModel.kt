@@ -43,6 +43,10 @@ class IssueDetailViewModel : ViewModel() {
         seriesIdLiveData.value = seriesId
     }
 
+    fun updateIssue(issue: Issue) {
+        issueRepository.updateIssue(issue)
+    }
+
     fun saveSeries(series: Series) {
         issueRepository.updateSeries(series)
     }

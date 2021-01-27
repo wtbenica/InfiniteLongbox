@@ -6,6 +6,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.view.*
 import android.widget.*
 import androidx.core.view.children
@@ -34,6 +35,7 @@ class IssueFragment : Fragment() {
 
     private lateinit var coverImageView: ImageView
     private lateinit var seriesSpinner: Spinner
+    private lateinit var addSeriesButton: ImageButton
     private lateinit var issueNumEditText: EditText
 
     private lateinit var writersBox: TableLayout
@@ -61,11 +63,11 @@ class IssueFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
-        series = Series(publisherId = NEW_SERIES_ID)
-        issue = Issue(seriesId = NEW_SERIES_ID)
+        series = Series()
+        issue = Issue()
         isEditable = arguments?.getSerializable(ARG_EDITABLE) as Boolean
         val issueId = arguments?.getSerializable(ARG_ISSUE_ID) as UUID
-        this.seriesList = emptyList()
+        seriesList = emptyList()
         issueDetailViewModel.loadIssue(issueId)
     }
 
@@ -79,6 +81,7 @@ class IssueFragment : Fragment() {
 
         seriesSpinner = view.findViewById(R.id.issue_series) as Spinner
         seriesSpinner.prompt = "Series Name"
+        addSeriesButton = view.findViewById(R.id.add_series_button) as ImageButton
         coverImageView = view.findViewById(R.id.issue_cover) as ImageView
         issueNumEditText = view.findViewById(R.id.issue_number) as EditText
         writersBox = view.findViewById(R.id.writers_box) as TableLayout
@@ -100,15 +103,24 @@ class IssueFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         issueDetailViewModel.allSeriesLiveData.observe(viewLifecycleOwner,
-            { seriesList ->
-                seriesList?.let {
+            { allSeries ->
+                allSeries?.let {
                     val adapter = ArrayAdapter(
                         requireContext(),
                         android.R.layout.simple_dropdown_item_1line,
-                        seriesList
+                        allSeries
                     )
-                    this.seriesList = seriesList
+                    seriesList = allSeries
                     seriesSpinner.adapter = adapter
+
+                    if (seriesList.size == 0) {
+                        Log.d(TAG, "series list is zero")
+                        val d = NewSeriesDialogFragment()
+                        d.setTargetFragment(this@IssueFragment, RESULT_NEW_SERIES)
+                        d.show(parentFragmentManager, "NDF")
+                    } else if (issue.seriesId == NEW_SERIES_ID) {
+                        issue.seriesId = seriesList[0].seriesId
+                    }
                 }
             })
 
@@ -141,6 +153,7 @@ class IssueFragment : Fragment() {
     override fun onStart() {
         super.onStart()
         attachTextWatchers()
+
         toggleEditButton.setOnClickListener {
             toggleEnable()
         }
@@ -159,6 +172,12 @@ class IssueFragment : Fragment() {
         addPencillerButton.setOnClickListener(addNewRow(pencillersBox, addPencillerButton))
 
         addInkerButton.setOnClickListener(addNewRow(inkersBox, addInkerButton))
+
+        addSeriesButton.setOnClickListener {
+            val d = NewSeriesDialogFragment()
+            d.setTargetFragment(this@IssueFragment, RESULT_NEW_SERIES)
+            d.show(parentFragmentManager, "NDF")
+        }
 
         if (!isEditable) {
             val indexOf = this.seriesList.indexOf(series)
@@ -276,17 +295,10 @@ class IssueFragment : Fragment() {
                 parent?.let {
                     // TODO: NewSeriesDialog opens even when it shouldn't
                     //  bc spinner is always initially NEW_SERIES_ID
-                    if ((parent.getItemAtPosition(position) as Series).seriesId == NEW_SERIES_ID) {
-                        val d = NewSeriesDialogFragment()
-                        d.setTargetFragment(this@IssueFragment, RESULT_NEW_SERIES)
-                        d.show(parentFragmentManager, "NDF")
+                    Log.d(TAG, "series spinner set to something other than new")
+                    issueDetailViewModel.allSeriesLiveData.value?.let {
                         series = parent.getItemAtPosition(position) as Series
                         issue.seriesId = series.seriesId
-                    } else {
-                        issueDetailViewModel.allSeriesLiveData.value?.let {
-                            series = parent.getItemAtPosition(position) as Series
-                            issue.seriesId = series.seriesId
-                        }
                     }
                 }
             }

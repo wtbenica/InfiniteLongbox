@@ -22,7 +22,7 @@ val NEW_SERIES_ID = UUID(0, 0)
 )
 data class Issue(
     @PrimaryKey val issueId: UUID = UUID.randomUUID(),
-    var seriesId: UUID,
+    var seriesId: UUID = NEW_SERIES_ID,
     var issueNum: Int = 1,
     var writer: String = "",
     var penciller: String = "",
@@ -51,7 +51,7 @@ data class Series(
     @PrimaryKey val seriesId: UUID = UUID.randomUUID(),
     var seriesName: String = "",
     var volume: Int = 1,
-    var publisherId: UUID,
+    var publisherId: UUID = NEW_SERIES_ID,
     var startDate: LocalDate? = null,
     var endDate: LocalDate? = null
 ) {
