@@ -28,6 +28,7 @@ data class Issue(
     var penciller: String = "",
     var inker: String = "",
     var coverUri: Uri? = null,
+    var releaseDate: LocalDate? = null,
     var upc: Long? = null
 ) {
     val coverFileName: String

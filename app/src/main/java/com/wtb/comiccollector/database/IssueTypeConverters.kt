@@ -35,8 +35,8 @@ class IssueTypeConverters {
     }
 
     @TypeConverter
-    fun toLocalDate(date: String): LocalDate? {
-        return if (date == "null") {
+    fun toLocalDate(date: String?): LocalDate? {
+        return if (date == null || date == "null") {
             null
         } else {
             LocalDate.parse(date)

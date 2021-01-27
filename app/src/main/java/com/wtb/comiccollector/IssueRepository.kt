@@ -6,6 +6,7 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.wtb.comiccollector.database.IssueDatabase
+import com.wtb.comiccollector.database.migration_1_2
 import java.io.File
 import java.time.LocalDate
 import java.util.*
@@ -21,46 +22,49 @@ class IssueRepository private constructor(context: Context) {
         context.applicationContext,
         IssueDatabase::class.java,
         DATABASE_NAME
-    ).addCallback(object : RoomDatabase.Callback() {
-        override fun onCreate(db: SupportSQLiteDatabase) {
-            super.onCreate(db)
-            val initUUID = UUID.randomUUID()
-            executor.execute {
-                issueDao.addPublishers(
-                    Publisher(publisherId = initUUID, publisher = "DC"),
-                    Publisher(publisher = "Marvel"),
-                    Publisher(publisher = "Image"),
-                    Publisher(publisher = "Dark Horse"),
-                    Publisher(publisher = "Valiant"),
-                    Publisher(publisher = "Fantagraphics"),
-                    Publisher(publisher = "Aftershock"),
-                    Publisher(publisher = "DC/Vertigo")
-                )
-                issueDao.addRoles(
-                    Role(roleName = "Writer"),
-                    Role(roleName = "Scripter"),
-                    Role(roleName = "Plotter"),
-                    Role(roleName = "Penciller"),
-                    Role(roleName = "Artist"),
-                    Role(roleName = "Inker"),
-                    Role(roleName = "Colorist"),
-                    Role(roleName = "Letterer"),
-                    Role(roleName = "Cover Artist"),
-                    Role(roleName = "Editor"),
-                    Role(roleName = "Assistant Editor")
-                )
-                issueDao.addSeries(
-                    Series(
-                        seriesId = NEW_SERIES_ID,
-                        seriesName = "New Series",
-                        publisherId = initUUID,
-                        startDate = LocalDate.of(1995, 5, 13),
-                        endDate = LocalDate.of(2000, 3, 25)
+    ).addCallback(
+        object : RoomDatabase.Callback() {
+            override fun onCreate(db: SupportSQLiteDatabase) {
+                super.onCreate(db)
+                val initUUID = UUID.randomUUID()
+                executor.execute {
+                    issueDao.addPublishers(
+                        Publisher(publisherId = initUUID, publisher = "DC"),
+                        Publisher(publisher = "Marvel"),
+                        Publisher(publisher = "Image"),
+                        Publisher(publisher = "Dark Horse"),
+                        Publisher(publisher = "Valiant"),
+                        Publisher(publisher = "Fantagraphics"),
+                        Publisher(publisher = "Aftershock"),
+                        Publisher(publisher = "DC/Vertigo")
                     )
-                )
+                    issueDao.addRoles(
+                        Role(roleName = "Writer"),
+                        Role(roleName = "Scripter"),
+                        Role(roleName = "Plotter"),
+                        Role(roleName = "Penciller"),
+                        Role(roleName = "Artist"),
+                        Role(roleName = "Inker"),
+                        Role(roleName = "Colorist"),
+                        Role(roleName = "Letterer"),
+                        Role(roleName = "Cover Artist"),
+                        Role(roleName = "Editor"),
+                        Role(roleName = "Assistant Editor")
+                    )
+                    issueDao.addSeries(
+                        Series(
+                            seriesId = NEW_SERIES_ID,
+                            seriesName = "New Series",
+                            publisherId = initUUID,
+                            startDate = LocalDate.of(1995, 5, 13),
+                            endDate = LocalDate.of(2000, 3, 25)
+                        )
+                    )
+                }
             }
         }
-    }).build()
+    ).addMigrations(migration_1_2)
+        .build()
 
     private val issueDao = database.issueDao()
 

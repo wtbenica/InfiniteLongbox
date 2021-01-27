@@ -2,21 +2,21 @@
   "formatVersion": 1,
   "database": {
     "version": 2,
-    "identityHash": "2df0648ac36ce256fcac6612cbb41353",
+    "identityHash": "953a7658f943296c9b367041dfc28272",
     "entities": [
       {
         "tableName": "Issue",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`seriesId` TEXT, `issueId` TEXT NOT NULL, `issueNum` INTEGER NOT NULL, `writer` TEXT, `penciller` TEXT, `inker` TEXT, `coverUri` TEXT, PRIMARY KEY(`issueId`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`issueId` TEXT NOT NULL, `seriesId` TEXT NOT NULL, `issueNum` INTEGER NOT NULL, `writer` TEXT NOT NULL, `penciller` TEXT NOT NULL, `inker` TEXT NOT NULL, `coverUri` TEXT, `releaseDate` TEXT, `upc` INTEGER, PRIMARY KEY(`issueId`), FOREIGN KEY(`seriesId`) REFERENCES `Series`(`seriesId`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
         "fields": [
-          {
-            "fieldPath": "seriesId",
-            "columnName": "seriesId",
-            "affinity": "TEXT",
-            "notNull": false
-          },
           {
             "fieldPath": "issueId",
             "columnName": "issueId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "seriesId",
+            "columnName": "seriesId",
             "affinity": "TEXT",
             "notNull": true
           },
@@ -30,30 +30,373 @@
             "fieldPath": "writer",
             "columnName": "writer",
             "affinity": "TEXT",
-            "notNull": false
+            "notNull": true
           },
           {
             "fieldPath": "penciller",
             "columnName": "penciller",
             "affinity": "TEXT",
-            "notNull": false
+            "notNull": true
           },
           {
             "fieldPath": "inker",
             "columnName": "inker",
             "affinity": "TEXT",
-            "notNull": false
+            "notNull": true
           },
           {
             "fieldPath": "coverUri",
             "columnName": "coverUri",
             "affinity": "TEXT",
             "notNull": false
+          },
+          {
+            "fieldPath": "releaseDate",
+            "columnName": "releaseDate",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "upc",
+            "columnName": "upc",
+            "affinity": "INTEGER",
+            "notNull": false
           }
         ],
         "primaryKey": {
           "columnNames": [
             "issueId"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [
+          {
+            "name": "index_Issue_seriesId_issueNum",
+            "unique": true,
+            "columnNames": [
+              "seriesId",
+              "issueNum"
+            ],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_Issue_seriesId_issueNum` ON `${TABLE_NAME}` (`seriesId`, `issueNum`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "Series",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "seriesId"
+            ],
+            "referencedColumns": [
+              "seriesId"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "Series",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`seriesId` TEXT NOT NULL, `seriesName` TEXT NOT NULL, `volume` INTEGER NOT NULL, `publisherId` TEXT NOT NULL, `startDate` TEXT, `endDate` TEXT, PRIMARY KEY(`seriesId`), FOREIGN KEY(`publisherId`) REFERENCES `Publisher`(`publisherId`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "fields": [
+          {
+            "fieldPath": "seriesId",
+            "columnName": "seriesId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "seriesName",
+            "columnName": "seriesName",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "volume",
+            "columnName": "volume",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "publisherId",
+            "columnName": "publisherId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "startDate",
+            "columnName": "startDate",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "endDate",
+            "columnName": "endDate",
+            "affinity": "TEXT",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "seriesId"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [
+          {
+            "name": "index_Series_seriesName_volume_publisherId",
+            "unique": true,
+            "columnNames": [
+              "seriesName",
+              "volume",
+              "publisherId"
+            ],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_Series_seriesName_volume_publisherId` ON `${TABLE_NAME}` (`seriesName`, `volume`, `publisherId`)"
+          },
+          {
+            "name": "index_Series_publisherId",
+            "unique": false,
+            "columnNames": [
+              "publisherId"
+            ],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_Series_publisherId` ON `${TABLE_NAME}` (`publisherId`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "Publisher",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "publisherId"
+            ],
+            "referencedColumns": [
+              "publisherId"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "Creator",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`creatorId` TEXT NOT NULL, `firstName` TEXT NOT NULL, `middleName` TEXT, `lastName` TEXT, `suffix` TEXT, `number` INTEGER NOT NULL, `name` TEXT NOT NULL, PRIMARY KEY(`creatorId`))",
+        "fields": [
+          {
+            "fieldPath": "creatorId",
+            "columnName": "creatorId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "firstName",
+            "columnName": "firstName",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "middleName",
+            "columnName": "middleName",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "lastName",
+            "columnName": "lastName",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "suffix",
+            "columnName": "suffix",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "number",
+            "columnName": "number",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "creatorId"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [
+          {
+            "name": "index_Creator_firstName_middleName_lastName_suffix_number",
+            "unique": false,
+            "columnNames": [
+              "firstName",
+              "middleName",
+              "lastName",
+              "suffix",
+              "number"
+            ],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_Creator_firstName_middleName_lastName_suffix_number` ON `${TABLE_NAME}` (`firstName`, `middleName`, `lastName`, `suffix`, `number`)"
+          }
+        ],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "Role",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`roleId` TEXT NOT NULL, `roleName` TEXT NOT NULL, PRIMARY KEY(`roleId`))",
+        "fields": [
+          {
+            "fieldPath": "roleId",
+            "columnName": "roleId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "roleName",
+            "columnName": "roleName",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "roleId"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "Credit",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`creditId` TEXT NOT NULL, `issueId` TEXT NOT NULL, `creatorId` TEXT NOT NULL, `roleId` TEXT NOT NULL, PRIMARY KEY(`creditId`), FOREIGN KEY(`issueId`) REFERENCES `Issue`(`issueId`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`creatorId`) REFERENCES `Creator`(`creatorId`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`roleId`) REFERENCES `Role`(`roleId`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "fields": [
+          {
+            "fieldPath": "creditId",
+            "columnName": "creditId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "issueId",
+            "columnName": "issueId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "creatorId",
+            "columnName": "creatorId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "roleId",
+            "columnName": "roleId",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "creditId"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [
+          {
+            "name": "index_Credit_issueId_creatorId_roleId",
+            "unique": true,
+            "columnNames": [
+              "issueId",
+              "creatorId",
+              "roleId"
+            ],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_Credit_issueId_creatorId_roleId` ON `${TABLE_NAME}` (`issueId`, `creatorId`, `roleId`)"
+          },
+          {
+            "name": "index_Credit_issueId",
+            "unique": false,
+            "columnNames": [
+              "issueId"
+            ],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_Credit_issueId` ON `${TABLE_NAME}` (`issueId`)"
+          },
+          {
+            "name": "index_Credit_creatorId",
+            "unique": false,
+            "columnNames": [
+              "creatorId"
+            ],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_Credit_creatorId` ON `${TABLE_NAME}` (`creatorId`)"
+          },
+          {
+            "name": "index_Credit_roleId",
+            "unique": false,
+            "columnNames": [
+              "roleId"
+            ],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_Credit_roleId` ON `${TABLE_NAME}` (`roleId`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "Issue",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "issueId"
+            ],
+            "referencedColumns": [
+              "issueId"
+            ]
+          },
+          {
+            "table": "Creator",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "creatorId"
+            ],
+            "referencedColumns": [
+              "creatorId"
+            ]
+          },
+          {
+            "table": "Role",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "roleId"
+            ],
+            "referencedColumns": [
+              "roleId"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "Publisher",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`publisherId` TEXT NOT NULL, `publisher` TEXT NOT NULL, PRIMARY KEY(`publisherId`))",
+        "fields": [
+          {
+            "fieldPath": "publisherId",
+            "columnName": "publisherId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "publisher",
+            "columnName": "publisher",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "publisherId"
           ],
           "autoGenerate": false
         },
@@ -64,7 +407,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '2df0648ac36ce256fcac6612cbb41353')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '953a7658f943296c9b367041dfc28272')"
     ]
   }
 }
