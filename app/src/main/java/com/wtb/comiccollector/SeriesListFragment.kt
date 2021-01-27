@@ -57,7 +57,6 @@ class SeriesListFragment : Fragment() {
                 }
             }
         )
-
     }
 
     override fun onDetach() {
@@ -73,7 +72,7 @@ class SeriesListFragment : Fragment() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.new_issue -> {
-                val issue = Issue(seriesId = NEW_SERIES_ID)
+                val issue = Issue()
                 seriesListViewModel.addIssue(issue)
                 callbacks?.onNewIssue(issue.issueId)
                 true

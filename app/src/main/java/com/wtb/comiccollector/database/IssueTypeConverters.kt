@@ -22,7 +22,7 @@ class IssueTypeConverters {
 
     @TypeConverter
     fun toUri(uri: String?): Uri? {
-        return if (uri == "null") {
+        return if (uri == null || uri == "null") {
             null
         } else {
             Uri.parse(uri)
@@ -30,8 +30,8 @@ class IssueTypeConverters {
     }
 
     @TypeConverter
-    fun fromUri(uri: Uri?): String {
-        return uri.toString()
+    fun fromUri(uri: Uri?): String? {
+        return uri?.toString()
     }
 
     @TypeConverter
@@ -44,7 +44,7 @@ class IssueTypeConverters {
     }
 
     @TypeConverter
-    fun fromLocalDate(date: LocalDate?) : String {
-        return date.toString()
+    fun fromLocalDate(date: LocalDate?) : String? {
+        return date?.toString()
     }
 }
