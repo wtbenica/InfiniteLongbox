@@ -57,7 +57,6 @@ class SeriesListFragment : Fragment() {
                 }
             }
         )
-
     }
 
     override fun onDetach() {

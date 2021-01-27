@@ -335,7 +335,11 @@ class IssueFragment : Fragment() {
 
     private fun updateUI() {
         seriesSpinner.setSelection(seriesList.indexOf(series))
-        issueNumEditText.setText(this.issue.issueNum.toString())
+        issueNumEditText.setText(if (this.issue.issueNum == Int.MAX_VALUE) {
+            "1"
+        } else {
+            this.issue.issueNum.toString()
+        })
         writerEditText.setText(this.issue.writer)
         pencillerEditText.setText(this.issue.penciller)
         inkerEditText.setText(this.issue.inker)

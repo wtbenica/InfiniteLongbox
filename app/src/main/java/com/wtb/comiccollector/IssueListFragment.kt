@@ -79,7 +79,7 @@ class IssueListFragment(val seriesId: UUID? = null) : Fragment() {
             R.id.new_issue -> {
                 // TODO: Find solution to this. If issueNum is default (1), if there already
                 //  exists an issue number 1, then violates unique series/issue restraint in db
-                val issue = seriesId?.let { Issue(seriesId = it, issueNum = Int.MIN_VALUE) } ?: Issue()
+                val issue = seriesId?.let { Issue(seriesId = it, issueNum = Int.MAX_VALUE) } ?: Issue()
                 issueListViewModel.addIssue(issue)
                 callbacks?.onNewIssue(issue.issueId)
                 true
