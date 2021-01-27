@@ -13,6 +13,10 @@ class SeriesListViewModel : ViewModel() {
         issueRepository.addIssue(issue)
     }
 
+    fun updateIssue(issue: Issue) {
+        issueRepository.updateIssue(issue)
+    }
+
     fun addSeries(series: Series) {
         issueRepository.addSeries(series)
     }

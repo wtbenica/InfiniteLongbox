@@ -12,7 +12,7 @@ import androidx.recyclerview.widget.RecyclerView
 import java.util.*
 
 class IssueListFragment(val seriesId: UUID? = null) : Fragment() {
-    // TODO: Start as list of series
+
     interface Callbacks {
         fun onIssueSelected(issueId: UUID)
         fun onNewIssue(issueId: UUID)
@@ -77,7 +77,9 @@ class IssueListFragment(val seriesId: UUID? = null) : Fragment() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.new_issue -> {
-                val issue = Issue(seriesId = NEW_SERIES_ID)
+                // TODO: Find solution to this. If issueNum is default (1), if there already
+                //  exists an issue number 1, then violates unique series/issue restraint in db
+                val issue = seriesId?.let { Issue(seriesId = it, issueNum = Int.MAX_VALUE) } ?: Issue()
                 issueListViewModel.addIssue(issue)
                 callbacks?.onNewIssue(issue.issueId)
                 true
@@ -93,6 +95,7 @@ class IssueListFragment(val seriesId: UUID? = null) : Fragment() {
 
     private inner class IssueAdapter(var issues: List<FullIssue>) :
         RecyclerView.Adapter<IssueHolder>() {
+
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): IssueHolder {
             val view = layoutInflater.inflate(R.layout.list_item_issue, parent, false)
             return IssueHolder(view)
@@ -109,7 +112,7 @@ class IssueListFragment(val seriesId: UUID? = null) : Fragment() {
 
     private inner class IssueHolder(view: View) : RecyclerView.ViewHolder(view),
         View.OnClickListener {
-        private lateinit var issue: FullIssue
+        private lateinit var fullIssue: FullIssue
 
         private val coverImageView: ImageView = itemView.findViewById(R.id.list_item_cover)
         private val seriesTextView: TextView = itemView.findViewById(R.id.list_item_title)
@@ -120,13 +123,13 @@ class IssueListFragment(val seriesId: UUID? = null) : Fragment() {
         }
 
         fun bind(issue: FullIssue) {
-            this.issue = issue
-            seriesTextView.text = this.issue.seriesName
-            issueNumTextView.text = this.issue.issue.issueNum.toString()
+            this.fullIssue = issue
+            seriesTextView.text = this.fullIssue.seriesName
+            issueNumTextView.text = this.fullIssue.issue.issueNum.toString()
         }
 
         override fun onClick(v: View?) {
-            callbacks?.onIssueSelected(issue.issue.issueId)
+            callbacks?.onIssueSelected(fullIssue.issue.issueId)
         }
     }
 

@@ -133,6 +133,4 @@ class NewSeriesDialogFragment : DialogFragment() {
         window?.setLayout((size.x * .9).toInt(), (size.y * .9).toInt())
         window?.setGravity(Gravity.CENTER)
     }
-
-    companion object
 }
