@@ -72,7 +72,7 @@ class NewSeriesDialogFragment : DialogFragment(),
         volumeNumberEditText = view.findViewById(R.id.volume_num)
         publisherSpinner = view.findViewById(R.id.publisher_spinner) as Spinner
         startDateEditText = view.findViewById(R.id.start_date_text_view) as TextView
-        endDateEditText = view.findViewById(R.id.end_date_edit_text) as TextView
+        endDateEditText = view.findViewById(R.id.end_date_text_view) as TextView
         okayButton = view.findViewById(R.id.button2) as Button
         cancelButton = view.findViewById(R.id.button)
 
@@ -102,10 +102,10 @@ class NewSeriesDialogFragment : DialogFragment(),
         when {
             resultCode != Activity.RESULT_OK -> return
             requestCode == RESULT_START_DATE && data != null -> {
-                startDateEditText.setText((data.getSerializableExtra(ARG_DATE) as LocalDate).toString())
+                startDateEditText.text = (data.getSerializableExtra(ARG_DATE) as LocalDate).toString()
             }
             requestCode == RESULT_END_DATE && data != null -> {
-                endDateEditText.setText((data.getSerializableExtra(ARG_DATE) as LocalDate).toString())
+                endDateEditText.text = (data.getSerializableExtra(ARG_DATE) as LocalDate).toString()
             }
         }
     }

@@ -94,7 +94,7 @@ class IssueFragment : Fragment(),
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        val view = inflater.inflate(R.layout.fragment_new_issue, container, false)
+        val view = inflater.inflate(R.layout.fragment_edit_issue, container, false)
 
         seriesSpinner = view.findViewById(R.id.issue_series) as Spinner
         seriesSpinner.prompt = "Series Name"
@@ -131,7 +131,7 @@ class IssueFragment : Fragment(),
                     seriesList = allSeries
                     seriesSpinner.adapter = adapter
 
-                    if (seriesList.size == 0) {
+                    if (seriesList.isEmpty()) {
                         Log.d(TAG, "series list is zero")
                         val d = NewSeriesDialogFragment()
                         d.setTargetFragment(this@IssueFragment, RESULT_NEW_SERIES)
@@ -372,8 +372,8 @@ class IssueFragment : Fragment(),
         writerEditText.setText(this.issue.writer)
         pencillerEditText.setText(this.issue.penciller)
         inkerEditText.setText(this.issue.inker)
-        releaseDateTextView.setText(this.issue.releaseDate.toString())
-        releaseDateTextView.setText(this.issue.releaseDate?.format(DateTimeFormatter.ofPattern("MMMM d, y")))
+        this.issue.releaseDate?.format(DateTimeFormatter.ofPattern("MMMM d, y"))
+            ?.let { releaseDateTextView.text = it }
 
         this.issue.coverUri?.let {
             coverImageView.setImageURI(this.issue.coverUri)

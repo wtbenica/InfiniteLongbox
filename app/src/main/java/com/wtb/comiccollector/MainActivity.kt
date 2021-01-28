@@ -5,9 +5,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.DialogFragment
 import java.util.*
 
-private const val TAG = "MainActivity"
-private var X = 1
-
 class MainActivity : AppCompatActivity(),
     IssueListFragment.Callbacks,
     SeriesListFragment.Callbacks,

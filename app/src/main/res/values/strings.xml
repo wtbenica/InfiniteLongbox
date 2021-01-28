@@ -15,4 +15,8 @@
     <string name="hint_start_date">Start Date</string>
     <string name="hint_end_date">End Date</string>
     <string name="hint_publisher">Publisher</string>
+    <string name="save">Save</string>
+    <string name="cancel">Cancel</string>
+    <string name="toggle_edit_button">Toggle Edit Button</string>
+    <string name="release_date">Release Date</string>
 </resources>
