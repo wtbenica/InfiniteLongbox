@@ -42,6 +42,7 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintWidth_min="50dp"
         tool:text="35" />
+
     <!-- TODO: Add publisher info-->
     <TableLayout
         android:id="@+id/writers_box"

@@ -1,13 +1,15 @@
 package com.wtb.comiccollector
 
+import android.app.Activity
 import android.app.DatePickerDialog
 import android.app.Dialog
+import android.content.Intent
 import android.os.Bundle
 import android.widget.DatePicker
 import androidx.fragment.app.DialogFragment
 import java.time.LocalDate
 
-private const val ARG_DATE = "date"
+const val ARG_DATE = "date"
 
 class DatePickerFragment : DialogFragment() {
 
@@ -25,10 +27,15 @@ class DatePickerFragment : DialogFragment() {
 
                 targetFragment?.let { fragment ->
                     (fragment as Callbacks).onDateSelected(resultDate)
+                    val bundle = Bundle()
+                    bundle.putSerializable(ARG_DATE, resultDate)
+                    val intent = Intent().putExtras(bundle)
+                    fragment.onActivityResult(targetRequestCode, Activity.RESULT_OK, intent)
                 }
             }
 
         var date: LocalDate = LocalDate.now()
+
         arguments?.getSerializable(ARG_DATE)?.let {
             date = it as LocalDate
         }

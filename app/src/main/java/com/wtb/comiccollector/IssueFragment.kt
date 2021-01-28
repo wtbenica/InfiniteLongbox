@@ -42,6 +42,7 @@ private const val DIALOG_DATE = "DialogDate"
 // TODO: Do I need a separate fragment for editing vs viewing or can I do it all in this one?
 class IssueFragment : Fragment(),
     DatePickerFragment.Callbacks {
+
     private lateinit var issue: Issue
     private lateinit var series: Series
     private lateinit var seriesList: List<Series>
@@ -345,7 +346,7 @@ class IssueFragment : Fragment(),
         when {
             resultCode != Activity.RESULT_OK -> return
             requestCode == RESULT_NEW_SERIES && data != null -> {
-                this.issue.seriesId = data.getSerializableExtra("seriesId") as UUID
+                this.issue.seriesId = data.getSerializableExtra(ARG_SERIES_ID) as UUID
                 issueDetailViewModel.saveIssue(this.issue)
                 issueDetailViewModel.loadIssue(this.issue.issueId)
                 updateUI()

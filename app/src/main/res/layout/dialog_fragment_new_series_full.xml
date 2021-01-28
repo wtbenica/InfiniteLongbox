@@ -113,14 +113,14 @@
         android:layout_marginTop="16dp"
         android:layout_marginEnd="16dp"
         android:gravity="start"
-        android:labelFor="@id/start_date_edit_text"
+        android:labelFor="@id/start_date_text_view"
         android:text="@string/hint_start_date"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/publisher_spinner" />
 
-    <EditText
-        android:id="@+id/start_date_edit_text"
+    <TextView
+        android:id="@+id/start_date_text_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
@@ -145,15 +145,14 @@
         android:textAlignment="textStart"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/start_date_edit_text" />
+        app:layout_constraintTop_toBottomOf="@+id/start_date_text_view" />
 
-    <EditText
+    <TextView
         android:id="@+id/end_date_edit_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
-        android:layout_marginBottom="16dp"
         android:ems="10"
         android:importantForAutofill="no"
         android:inputType="date"
