@@ -11,7 +11,8 @@
         android:layout_height="90dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        tool:srcCompat="@tools:sample/avatars[8]" />
+        tool:srcCompat="@tools:sample/avatars[8]"
+        android:contentDescription="@string/description_issue_cover" />
 
     <TextView
         android:id="@+id/list_item_title"

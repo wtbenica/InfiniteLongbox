@@ -11,23 +11,31 @@ import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ArrayAdapter
-import android.widget.Button
-import android.widget.EditText
-import android.widget.Spinner
+import android.widget.*
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.ViewModelProvider
+import java.time.LocalDate
 
 private const val TAG = "NewSeriesDialogFragment"
 
-class NewSeriesDialogFragment : DialogFragment() {
+private const val RESULT_START_DATE = 33
+private const val RESULT_END_DATE = 34
+
+private const val DIALOG_START_DATE = "DialogStartDate"
+private const val DIALOG_END_DATE = "DialogEndDate"
+
+const val ARG_SERIES_ID = "seriesId"
+
+class NewSeriesDialogFragment : DialogFragment(),
+    DatePickerFragment.Callbacks {
+
     private lateinit var listener: NewSeriesDialogListener
 
     private lateinit var seriesNameEditText: EditText
     private lateinit var volumeNumberEditText: EditText
     private lateinit var publisherSpinner: Spinner
-    private lateinit var startDateEditText: EditText
-    private lateinit var endDateEditText: EditText
+    private lateinit var startDateEditText: TextView
+    private lateinit var endDateEditText: TextView
     private lateinit var okayButton: Button
     private lateinit var cancelButton: Button
 
@@ -63,6 +71,8 @@ class NewSeriesDialogFragment : DialogFragment() {
         seriesNameEditText = view.findViewById(R.id.series_title)
         volumeNumberEditText = view.findViewById(R.id.volume_num)
         publisherSpinner = view.findViewById(R.id.publisher_spinner) as Spinner
+        startDateEditText = view.findViewById(R.id.start_date_text_view) as TextView
+        endDateEditText = view.findViewById(R.id.end_date_text_view) as TextView
         okayButton = view.findViewById(R.id.button2) as Button
         cancelButton = view.findViewById(R.id.button)
 
@@ -88,8 +98,34 @@ class NewSeriesDialogFragment : DialogFragment() {
             })
     }
 
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        when {
+            resultCode != Activity.RESULT_OK -> return
+            requestCode == RESULT_START_DATE && data != null -> {
+                startDateEditText.text = (data.getSerializableExtra(ARG_DATE) as LocalDate).toString()
+            }
+            requestCode == RESULT_END_DATE && data != null -> {
+                endDateEditText.text = (data.getSerializableExtra(ARG_DATE) as LocalDate).toString()
+            }
+        }
+    }
+
     override fun onStart() {
         super.onStart()
+
+        startDateEditText.setOnClickListener {
+            DatePickerFragment.newInstance(LocalDate.now()).apply {
+                setTargetFragment(this@NewSeriesDialogFragment, RESULT_START_DATE)
+                show(this@NewSeriesDialogFragment.parentFragmentManager, DIALOG_START_DATE)
+            }
+        }
+
+        endDateEditText.setOnClickListener {
+            DatePickerFragment.newInstance(LocalDate.now()).apply {
+                setTargetFragment(this@NewSeriesDialogFragment, RESULT_END_DATE)
+                show(this@NewSeriesDialogFragment.parentFragmentManager, DIALOG_END_DATE)
+            }
+        }
 
         okayButton.setOnClickListener { view ->
             val publisher = publisherSpinner.selectedItem as Publisher
@@ -98,14 +134,14 @@ class NewSeriesDialogFragment : DialogFragment() {
                 seriesName = seriesNameEditText.text.toString(),
                 volume = volumeNumberEditText.text.toString().toInt(),
                 publisherId = publisher.publisherId,
-//                startDate = LocalDate.parse(startDateEditText.text),
-//                endDate = LocalDate.parse(endDateEditText.text)
+                startDate = LocalDate.parse(startDateEditText.text),
+                endDate = LocalDate.parse(endDateEditText.text)
             )
 
             issueDetailViewModel.addSeries(series)
 
             val bundle = Bundle()
-            bundle.putSerializable("seriesId", series.seriesId)
+            bundle.putSerializable(ARG_SERIES_ID, series.seriesId)
             val intent = Intent().putExtras(bundle)
             targetFragment?.onActivityResult(targetRequestCode, Activity.RESULT_OK, intent)
 
@@ -132,5 +168,9 @@ class NewSeriesDialogFragment : DialogFragment() {
 
         window?.setLayout((size.x * .9).toInt(), (size.y * .9).toInt())
         window?.setGravity(Gravity.CENTER)
+    }
+
+    override fun onDateSelected(date: LocalDate) {
+
     }
 }

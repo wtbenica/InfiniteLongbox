@@ -61,7 +61,6 @@ class IssueListFragment(val seriesId: UUID? = null) : Fragment() {
                 }
             }
         )
-
     }
 
     override fun onDetach() {

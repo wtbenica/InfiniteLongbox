@@ -5,8 +5,6 @@ import androidx.room.*
 import com.wtb.comiccollector.*
 import java.util.*
 
-private const val NEW_SERIES_STRING = "00000000-0000-0000-0000-000000000000"
-
 @Dao
 interface IssueDao {
     @Transaction
