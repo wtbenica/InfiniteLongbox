@@ -29,6 +29,12 @@ class MainActivity : AppCompatActivity(),
         val fragment = IssueFragment.newInstance(issueId, false)
         supportFragmentManager
             .beginTransaction()
+            .setCustomAnimations(
+                R.anim.slide_in,
+                R.anim.fade_out,
+                R.anim.fade_in,
+                R.anim.slide_out
+            )
             .replace(R.id.fragment_container, fragment)
             .addToBackStack(null)
             .commit()
@@ -38,6 +44,13 @@ class MainActivity : AppCompatActivity(),
         val fragment = IssueListFragment.newInstance(seriesId)
         supportFragmentManager
             .beginTransaction()
+            .setCustomAnimations(
+                R.anim.slide_in,
+                R.anim.fade_out,
+                R.anim.fade_in,
+                R.anim.slide_out
+            )
+
             .replace(R.id.fragment_container, fragment)
             .addToBackStack(null)
             .commit()
@@ -48,6 +61,12 @@ class MainActivity : AppCompatActivity(),
 
         supportFragmentManager
             .beginTransaction()
+            .setCustomAnimations(
+                R.anim.fade_in,
+                R.anim.fade_out,
+                R.anim.fade_in,
+                R.anim.fade_out
+            )
             .replace(R.id.fragment_container, fragment)
             .addToBackStack(null)
             .commit()
