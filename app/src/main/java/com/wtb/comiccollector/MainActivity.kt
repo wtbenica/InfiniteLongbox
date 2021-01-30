@@ -32,8 +32,8 @@ class MainActivity : AppCompatActivity(),
             .setCustomAnimations(
                 R.anim.slide_in,
                 R.anim.fade_out,
-                R.anim.fade_in,
-                R.anim.slide_out
+                R.anim.slide_out,
+                R.anim.fade_in
             )
             .replace(R.id.fragment_container, fragment)
             .addToBackStack(null)
@@ -47,8 +47,8 @@ class MainActivity : AppCompatActivity(),
             .setCustomAnimations(
                 R.anim.slide_in,
                 R.anim.fade_out,
-                R.anim.fade_in,
-                R.anim.slide_out
+                R.anim.slide_out,
+                R.anim.fade_in
             )
 
             .replace(R.id.fragment_container, fragment)
@@ -62,10 +62,10 @@ class MainActivity : AppCompatActivity(),
         supportFragmentManager
             .beginTransaction()
             .setCustomAnimations(
-                R.anim.fade_in,
+                R.anim.slide_in,
                 R.anim.fade_out,
-                R.anim.fade_in,
-                R.anim.fade_out
+                R.anim.slide_out,
+                R.anim.fade_in
             )
             .replace(R.id.fragment_container, fragment)
             .addToBackStack(null)
