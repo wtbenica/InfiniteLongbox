@@ -46,6 +46,7 @@ class IssueFragment : Fragment(),
     private lateinit var issue: Issue
     private lateinit var series: Series
     private lateinit var seriesList: List<Series>
+    private lateinit var writersList: List<Creator>
 
     private lateinit var coverImageView: ImageView
     private lateinit var seriesSpinner: Spinner
@@ -53,7 +54,7 @@ class IssueFragment : Fragment(),
     private lateinit var issueNumEditText: EditText
 
     private lateinit var writersBox: TableLayout
-    private lateinit var writerEditText: EditText
+    private lateinit var writerSpinner: Spinner
     private lateinit var addWriterButton: ImageButton
 
     private lateinit var pencillersBox: TableLayout
@@ -102,7 +103,7 @@ class IssueFragment : Fragment(),
         coverImageView = view.findViewById(R.id.issue_cover) as ImageView
         issueNumEditText = view.findViewById(R.id.issue_number) as EditText
         writersBox = view.findViewById(R.id.writers_box) as TableLayout
-        writerEditText = view.findViewById(R.id.issue_writer) as EditText
+        writerSpinner = view.findViewById(R.id.issue_writer) as Spinner
         addWriterButton = view.findViewById(R.id.add_writer_button) as ImageButton
         pencillersBox = view.findViewById(R.id.pencillers_box) as TableLayout
         pencillerEditText = view.findViewById(R.id.issue_penciller) as EditText
@@ -128,7 +129,7 @@ class IssueFragment : Fragment(),
                         android.R.layout.simple_dropdown_item_1line,
                         allSeries
                     )
-                    seriesList = allSeries
+                    seriesList = it
                     seriesSpinner.adapter = adapter
 
                     if (seriesList.isEmpty()) {
@@ -139,6 +140,19 @@ class IssueFragment : Fragment(),
                     } else if (issue.seriesId == NEW_SERIES_ID) {
                         issue.seriesId = seriesList[0].seriesId
                     }
+                }
+            })
+
+        issueDetailViewModel.allCreatorsLiveData.observe(viewLifecycleOwner,
+            {allWriters ->
+                allWriters?.let {
+                    val adapter = ArrayAdapter(
+                        requireContext(),
+                        android.R.layout.simple_dropdown_item_1line,
+                        allWriters
+                    )
+                    writersList = it
+                    writerSpinner.adapter = adapter
                 }
             })
 
@@ -214,7 +228,7 @@ class IssueFragment : Fragment(),
 
     private fun toggleEnable() {
         seriesSpinner.isEnabled = !seriesSpinner.isEnabled
-        writerEditText.isEnabled = !writerEditText.isEnabled
+        writerSpinner.isEnabled = !writerSpinner.isEnabled
         addWriterButton.isVisible = !addWriterButton.isVisible
         pencillerEditText.isEnabled = !pencillerEditText.isEnabled
         addPencillerButton.isVisible = !addPencillerButton.isVisible
@@ -336,7 +350,7 @@ class IssueFragment : Fragment(),
 
         }
         issueNumEditText.addTextChangedListener(issueNumWatcher)
-        writerEditText.addTextChangedListener(writerWatcher)
+//        writerSpinner.addTextChangedListener(writerWatcher)
         pencillerEditText.addTextChangedListener(pencillerWatcher)
         inkerEditText.addTextChangedListener(inkerWatcher)
     }
@@ -369,7 +383,7 @@ class IssueFragment : Fragment(),
                 this.issue.issueNum.toString()
             }
         )
-        writerEditText.setText(this.issue.writer)
+//        writerSpinner.setText(this.issue.writer)
         pencillerEditText.setText(this.issue.penciller)
         inkerEditText.setText(this.issue.inker)
         this.issue.releaseDate?.format(DateTimeFormatter.ofPattern("MMMM d, y"))

@@ -5,6 +5,7 @@ import androidx.room.*
 import com.wtb.comiccollector.*
 import java.util.*
 
+
 @Dao
 interface IssueDao {
     @Transaction
@@ -26,19 +27,27 @@ interface IssueDao {
             INNER JOIN creator on creator.creatorId = credit.creatorId
             WHERE credit.issueId = :issueId"""
     )
-    fun getIssueCredits(issueId: UUID): LiveData<IssueCredits>
-
-    @Query("SELECT * FROM series WHERE seriesId != '00000000-0000-0000-0000-000000000000' ORDER BY seriesName ASC")
-    fun getSeriesList(): LiveData<List<Series>>
+    fun getIssueCredits(issueId: UUID): LiveData<List<IssueCredits>>
 
     @Query("SELECT * FROM series WHERE seriesId=:seriesId")
     fun getSeriesById(seriesId: UUID): LiveData<Series?>
 
+    @Query("SELECT issue.* FROM issue NATURAL JOIN credit WHERE creatorId=:creatorId")
+    fun getIssuesByCreator(creatorId: UUID): LiveData<List<Issue>>
+
+    @Query("SELECT * FROM series WHERE seriesId != '00000000-0000-0000-0000-000000000000' ORDER BY seriesName ASC")
+    fun getSeriesList(): LiveData<List<Series>>
+
     @Query("SELECT * FROM publisher ORDER BY publisher ASC")
     fun getPublishersList(): LiveData<List<Publisher>>
 
-    @Query("SELECT issue.* FROM issue NATURAL JOIN credit WHERE creatorId=:creatorId")
-    fun getIssuesByCreator(creatorId: UUID): LiveData<List<Issue>>
+    @Query("SELECT * FROM creator ORDER BY lastName ASC")
+    fun getCreatorsList(): LiveData<List<Creator>>
+
+    @Query(
+        """SELECT creator.* FROM creator natural join credit natural join role where roleName = 'Writer'"""
+    )
+    fun getWritersList(): LiveData<List<Creator>>
 
     @Update
     fun updateIssue(issue: Issue)
@@ -62,7 +71,7 @@ interface IssueDao {
     fun updateCreator(creator: Creator)
 
     @Insert
-    fun addCreator(creator: Creator)
+    fun addCreator(vararg creator: Creator)
 
     @Delete
     fun deleteCreator(creator: Creator)

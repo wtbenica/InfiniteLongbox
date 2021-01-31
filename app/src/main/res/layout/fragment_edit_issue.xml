@@ -80,13 +80,12 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-            <EditText
+            <Spinner
                 android:id="@+id/issue_writer"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:importantForAutofill="no"
-                android:inputType="textAutoComplete" />
+                android:importantForAutofill="no" />
 
             <ImageButton
                 android:id="@+id/add_writer_button"

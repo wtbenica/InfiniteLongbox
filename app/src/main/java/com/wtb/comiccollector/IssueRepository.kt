@@ -18,7 +18,32 @@ class IssueRepository private constructor(context: Context) {
 
     private val executor = Executors.newSingleThreadExecutor()
 
-    private val database: IssueDatabase = Room.databaseBuilder(
+    private val database: IssueDatabase = buildDatabase(context)
+
+    private val issueDao = database.issueDao()
+
+    private val filesDir = context.applicationContext.filesDir
+
+    val allSeries: LiveData<List<Series>> = issueDao.getSeriesList()
+
+    val allPublishers: LiveData<List<Publisher>> = issueDao.getPublishersList()
+
+    val allCreators: LiveData<List<Creator>> = issueDao.getCreatorsList()
+
+    val allWriters: LiveData<List<Creator>> = issueDao.getWritersList()
+
+    val newSeries: LiveData<Series?> = issueDao.getSeriesById(UUID(0, 0))
+
+    fun getIssues(): LiveData<List<FullIssue>> = issueDao.getIssues()
+
+    fun getIssue(issueId: UUID): LiveData<Issue?> = issueDao.getIssue(issueId)
+
+    fun getIssuesBySeries(seriesId: UUID) = issueDao.getIssuesBySeries(seriesId)
+
+    fun getIssueCredits(issueId: UUID): LiveData<List<IssueCredits>> =
+        issueDao.getIssueCredits(issueId)
+
+    private fun buildDatabase(context: Context) = Room.databaseBuilder(
         context.applicationContext,
         IssueDatabase::class.java,
         DATABASE_NAME
@@ -51,6 +76,11 @@ class IssueRepository private constructor(context: Context) {
                         Role(roleName = "Editor"),
                         Role(roleName = "Assistant Editor")
                     )
+                    issueDao.addCreator(
+                        Creator(firstName = "Grant", lastName = "Morrison"),
+                        Creator(firstName = "Neil", lastName = "Gaiman"),
+                        Creator(firstName = "Jason", lastName = "Aaron")
+                    )
                     issueDao.addSeries(
                         Series(
                             seriesId = NEW_SERIES_ID,
@@ -65,20 +95,6 @@ class IssueRepository private constructor(context: Context) {
         }
     ).addMigrations(migration_1_2)
         .build()
-
-    private val issueDao = database.issueDao()
-
-    private val filesDir = context.applicationContext.filesDir
-    val allSeries: LiveData<List<Series>> = issueDao.getSeriesList()
-    val allPublishers: LiveData<List<Publisher>> = issueDao.getPublishersList()
-
-    val newSeries: LiveData<Series?> = issueDao.getSeriesById(UUID(0, 0))
-
-    fun getIssues(): LiveData<List<FullIssue>> = issueDao.getIssues()
-
-    fun getIssue(issueId: UUID): LiveData<Issue?> = issueDao.getIssue(issueId)
-
-    fun getIssuesBySeries(seriesId: UUID) = issueDao.getIssuesBySeries(seriesId)
 
     fun updateIssue(issue: Issue) {
         executor.execute {

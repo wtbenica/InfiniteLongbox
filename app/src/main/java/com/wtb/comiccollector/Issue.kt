@@ -91,7 +91,11 @@ data class Creator(
     } else {
         ""
     }
-)
+) {
+    override fun toString(): String {
+        return name
+    }
+}
 
 @Entity
 data class Publisher(
