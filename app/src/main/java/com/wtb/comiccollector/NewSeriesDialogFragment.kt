@@ -15,6 +15,7 @@ import android.widget.*
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.ViewModelProvider
 import java.time.LocalDate
+import java.time.format.DateTimeParseException
 
 private const val TAG = "NewSeriesDialogFragment"
 
@@ -131,8 +132,16 @@ class NewSeriesDialogFragment : DialogFragment(),
                 seriesName = seriesNameEditText.text.toString(),
                 volume = volumeNumberEditText.text.toString().toInt(),
                 publisherId = publisher.publisherId,
-                startDate = LocalDate.parse(startDateEditText.text),
-                endDate = LocalDate.parse(endDateEditText.text)
+                startDate = try {
+                    LocalDate.parse(startDateEditText.text)
+                } catch (e: DateTimeParseException) {
+                    null
+                },
+                endDate = try {
+                    LocalDate.parse(endDateEditText.text)
+                } catch (e: DateTimeParseException) {
+                    null
+                }
             )
 
             issueDetailViewModel.addSeries(series)
