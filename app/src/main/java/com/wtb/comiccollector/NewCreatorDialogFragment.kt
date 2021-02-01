@@ -6,7 +6,6 @@ import android.content.Intent
 import android.graphics.Point
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
@@ -16,7 +15,7 @@ import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.ViewModelProvider
 import java.time.LocalDate
 
-private const val TAG = "NewSeriesDialogFragment"
+private const val TAG = "NewCreatorDialogFrag"
 
 private const val RESULT_START_DATE = 33
 private const val RESULT_END_DATE = 34
@@ -24,16 +23,17 @@ private const val RESULT_END_DATE = 34
 private const val DIALOG_START_DATE = "DialogStartDate"
 private const val DIALOG_END_DATE = "DialogEndDate"
 
-const val ARG_SERIES_ID = "seriesId"
+const val ARG_CREATOR_ID = "seriesId"
 
-class NewSeriesDialogFragment : DialogFragment(),
+class NewCreatorDialogFragment : DialogFragment(),
     DatePickerFragment.Callbacks {
 
-    private lateinit var listener: NewSeriesDialogListener
+    private lateinit var listener: NewCreatorDialogListener
 
-    private lateinit var seriesNameEditText: EditText
-    private lateinit var volumeNumberEditText: EditText
-    private lateinit var publisherSpinner: Spinner
+    private lateinit var firstNameEditText: EditText
+    private lateinit var middleNameEditText: EditText
+    private lateinit var lastNameEditText: EditText
+    private lateinit var suffixSpinner: Spinner
     private lateinit var startDateEditText: TextView
     private lateinit var endDateEditText: TextView
     private lateinit var okayButton: Button
@@ -43,17 +43,17 @@ class NewSeriesDialogFragment : DialogFragment(),
         ViewModelProvider(this).get(IssueDetailViewModel::class.java)
     }
 
-    interface NewSeriesDialogListener {
-        fun onSaveSeriesClick(dialog: DialogFragment, series: Series)
+    interface NewCreatorDialogListener {
+        fun onSaveCreatorClick(dialog: DialogFragment, creator: Creator)
         fun onCancelClick(dialog: DialogFragment)
     }
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
         try {
-            listener = context as NewSeriesDialogListener
+            listener = context as NewCreatorDialogListener
         } catch (e: ClassCastException) {
-            throw java.lang.ClassCastException(("$context must implement NewSeriesDialogFragment"))
+            throw java.lang.ClassCastException(("$context must implement NewCreatorDialogFragment"))
         }
     }
 
@@ -62,38 +62,38 @@ class NewSeriesDialogFragment : DialogFragment(),
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        val view = inflater.inflate(R.layout.dialog_fragment_new_series, container, false)
+        val view = inflater.inflate(R.layout.dialog_fragment_new_creator, container, false)
 
-        seriesNameEditText = view.findViewById(R.id.series_title)
-        volumeNumberEditText = view.findViewById(R.id.volume_num)
-        publisherSpinner = view.findViewById(R.id.publisher_spinner) as Spinner
-        startDateEditText = view.findViewById(R.id.start_date_text_view) as TextView
-        endDateEditText = view.findViewById(R.id.end_date_text_view) as TextView
+        firstNameEditText = view.findViewById(R.id.first_name)
+        middleNameEditText = view.findViewById(R.id.middle_name)
+        lastNameEditText = view.findViewById(R.id.last_name)
+        suffixSpinner = view.findViewById(R.id.suffix_spinner) as Spinner
+        /***
+         * Future implementation
+         *         startDateEditText = view.findViewById(R.id.start_date_text_view) as TextView
+         *         endDateEditText = view.findViewById(R.id.end_date_text_view) as TextView
+         */
         okayButton = view.findViewById(R.id.button2) as Button
         cancelButton = view.findViewById(R.id.button)
+
+        ArrayAdapter.createFromResource(
+            requireContext(),
+            R.array.suffixes_array,
+            android.R.layout.simple_spinner_item
+        ).also { adapter ->
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+            suffixSpinner.adapter = adapter
+        }
 
         return view
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        Log.d(TAG, "onViewCreated")
-
-
-        issueDetailViewModel.allPublishersLiveData.observe(viewLifecycleOwner,
-            { publisherList ->
-                publisherList?.let {
-                    val adapter = ArrayAdapter(
-                        requireContext(),
-                        android.R.layout.simple_dropdown_item_1line,
-                        publisherList
-                    )
-
-                    publisherSpinner.adapter = adapter
-                }
-            })
     }
 
+// Future implementation
+/*
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         when {
             resultCode != Activity.RESULT_OK -> return
@@ -106,43 +106,46 @@ class NewSeriesDialogFragment : DialogFragment(),
             }
         }
     }
+*/
 
     override fun onStart() {
         super.onStart()
 
+// Future implementation
+/*
         startDateEditText.setOnClickListener {
             DatePickerFragment.newInstance(LocalDate.now()).apply {
-                setTargetFragment(this@NewSeriesDialogFragment, RESULT_START_DATE)
-                show(this@NewSeriesDialogFragment.parentFragmentManager, DIALOG_START_DATE)
+                setTargetFragment(this@NewCreatorDialogFragment, RESULT_START_DATE)
+                show(this@NewCreatorDialogFragment.parentFragmentManager, DIALOG_START_DATE)
             }
         }
 
         endDateEditText.setOnClickListener {
             DatePickerFragment.newInstance(LocalDate.now()).apply {
-                setTargetFragment(this@NewSeriesDialogFragment, RESULT_END_DATE)
-                show(this@NewSeriesDialogFragment.parentFragmentManager, DIALOG_END_DATE)
+                setTargetFragment(this@NewCreatorDialogFragment, RESULT_END_DATE)
+                show(this@NewCreatorDialogFragment.parentFragmentManager, DIALOG_END_DATE)
             }
         }
 
+*/
         okayButton.setOnClickListener { view ->
-            val publisher = publisherSpinner.selectedItem as Publisher
+            val suffix = suffixSpinner.selectedItem as String
 
-            val series = Series(
-                seriesName = seriesNameEditText.text.toString(),
-                volume = volumeNumberEditText.text.toString().toInt(),
-                publisherId = publisher.publisherId,
-                startDate = LocalDate.parse(startDateEditText.text),
-                endDate = LocalDate.parse(endDateEditText.text)
+            val creator = Creator(
+                firstName = firstNameEditText.text.toString(),
+                middleName= middleNameEditText.text.toString(),
+                lastName = lastNameEditText.text.toString(),
+                suffix = suffix
             )
 
-            issueDetailViewModel.addSeries(series)
+            issueDetailViewModel.addCreator(creator)
 
             val bundle = Bundle()
-            bundle.putSerializable(ARG_SERIES_ID, series.seriesId)
+            bundle.putSerializable(ARG_CREATOR_ID, creator.creatorId)
             val intent = Intent().putExtras(bundle)
             targetFragment?.onActivityResult(targetRequestCode, Activity.RESULT_OK, intent)
 
-            listener.onSaveSeriesClick(this, series)
+            listener.onSaveCreatorClick(this, creator)
         }
 
         cancelButton.setOnClickListener { view ->

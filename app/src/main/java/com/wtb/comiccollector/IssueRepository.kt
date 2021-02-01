@@ -6,8 +6,6 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.wtb.comiccollector.database.IssueDatabase
-import com.wtb.comiccollector.database.migration_1_2
-import java.io.File
 import java.time.LocalDate
 import java.util.*
 import java.util.concurrent.Executors
@@ -51,10 +49,10 @@ class IssueRepository private constructor(context: Context) {
         object : RoomDatabase.Callback() {
             override fun onCreate(db: SupportSQLiteDatabase) {
                 super.onCreate(db)
-                val initUUID = UUID.randomUUID()
                 executor.execute {
+                    val publisherDC = Publisher(publisherId = UUID.randomUUID(), publisher = "DC")
                     issueDao.addPublishers(
-                        Publisher(publisherId = initUUID, publisher = "DC"),
+                        publisherDC,
                         Publisher(publisher = "Marvel"),
                         Publisher(publisher = "Image"),
                         Publisher(publisher = "Dark Horse"),
@@ -76,24 +74,30 @@ class IssueRepository private constructor(context: Context) {
                         Role(roleName = "Editor"),
                         Role(roleName = "Assistant Editor")
                     )
+                    val grantMorrison = Creator(firstName = "Grant", lastName = "Morrison")
                     issueDao.addCreator(
-                        Creator(firstName = "Grant", lastName = "Morrison"),
+                        grantMorrison,
                         Creator(firstName = "Neil", lastName = "Gaiman"),
                         Creator(firstName = "Jason", lastName = "Aaron")
                     )
+                    val seriesDoomPatrol = Series(seriesName = "Doom Patrol", publisherId = publisherDC.publisherId)
                     issueDao.addSeries(
                         Series(
                             seriesId = NEW_SERIES_ID,
                             seriesName = "New Series",
-                            publisherId = initUUID,
+                            publisherId = publisherDC.publisherId,
                             startDate = LocalDate.of(1995, 5, 13),
                             endDate = LocalDate.of(2000, 3, 25)
-                        )
+                        ),
+                        seriesDoomPatrol
+                    )
+                    issueDao.addIssue(
+                        Issue(seriesId = seriesDoomPatrol.seriesId, writerId = grantMorrison.creatorId)
                     )
                 }
             }
         }
-    ).addMigrations(migration_1_2)
+    )
         .build()
 
     fun updateIssue(issue: Issue) {
@@ -192,9 +196,14 @@ class IssueRepository private constructor(context: Context) {
 
     fun getSeries(seriesId: UUID): LiveData<Series?> = issueDao.getSeriesById(seriesId)
 
-//    fun getNewSeries(): LiveData<Series?> = issueDao.getSeriesById(UUID(0, 0))
+    fun getCreator(creatorId: UUID): LiveData<Creator> {
+        return issueDao.getCreator(creatorId)
+    }
 
+/*
+    FUTURE IMPLEMENTATION
     fun getCoverImage(issue: Issue): File = File(filesDir, issue.coverFileName)
+*/
 
     companion object {
         private var INSTANCE: IssueRepository? = null

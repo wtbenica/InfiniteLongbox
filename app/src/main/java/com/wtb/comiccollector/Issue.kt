@@ -14,10 +14,16 @@ val NEW_SERIES_ID = UUID(0, 0)
             entity = Series::class,
             parentColumns = arrayOf("seriesId"),
             childColumns = arrayOf("seriesId")
+        ),
+        ForeignKey(
+            entity = Creator::class,
+            parentColumns = arrayOf("creatorId"),
+            childColumns = arrayOf("writerId")
         )
     ],
     indices = [
-        Index(value = ["seriesId", "issueNum"], unique = true)
+        Index(value = ["seriesId", "issueNum"], unique = true),
+        Index(value = ["writerId"])
     ]
 )
 data class Issue(
@@ -25,6 +31,7 @@ data class Issue(
     var seriesId: UUID = NEW_SERIES_ID,
     var issueNum: Int = 1,
     var writer: String = "",
+    var writerId: UUID? = null,
     var penciller: String = "",
     var inker: String = "",
     var coverUri: Uri? = null,

@@ -28,11 +28,12 @@ private const val ARG_EDITABLE = "open_as_editable"
 private const val PICK_COVER_IMAGE = 0
 private const val RESULT_DATE_PICKER = 107
 private const val RESULT_NEW_SERIES = 108
+private const val RESULT_NEW_CREATOR = 109
 
 // Fragment Tags
 private const val DIALOG_NEW_SERIES = "DialogNewSeries"
+private const val DIALOG_NEW_CREATOR = "DialogNewCreator"
 private const val DIALOG_DATE = "DialogDate"
-
 
 /**
  * A simple [Fragment] subclass.
@@ -45,6 +46,7 @@ class IssueFragment : Fragment(),
 
     private lateinit var issue: Issue
     private lateinit var series: Series
+    private lateinit var writer: Creator
     private lateinit var seriesList: List<Series>
     private lateinit var writersList: List<Creator>
 
@@ -53,6 +55,7 @@ class IssueFragment : Fragment(),
     private lateinit var addSeriesButton: ImageButton
     private lateinit var issueNumEditText: EditText
 
+    private lateinit var writersLabel: TextView
     private lateinit var writersBox: TableLayout
     private lateinit var writerSpinner: Spinner
     private lateinit var addWriterButton: ImageButton
@@ -83,6 +86,8 @@ class IssueFragment : Fragment(),
         setHasOptionsMenu(true)
         series = Series()
         issue = Issue()
+        writer = Creator(firstName = "")
+        writersList = emptyList()
         isEditable = arguments?.getSerializable(ARG_EDITABLE) as Boolean
         val issueId = arguments?.getSerializable(ARG_ISSUE_ID) as UUID
         seriesList = emptyList()
@@ -102,6 +107,7 @@ class IssueFragment : Fragment(),
         addSeriesButton = view.findViewById(R.id.add_series_button) as ImageButton
         coverImageView = view.findViewById(R.id.issue_cover) as ImageView
         issueNumEditText = view.findViewById(R.id.issue_number) as EditText
+        writersLabel = view.findViewById(R.id.writer_label) as TextView
         writersBox = view.findViewById(R.id.writers_box) as TableLayout
         writerSpinner = view.findViewById(R.id.issue_writer) as Spinner
         addWriterButton = view.findViewById(R.id.add_writer_button) as ImageButton
@@ -144,7 +150,7 @@ class IssueFragment : Fragment(),
             })
 
         issueDetailViewModel.allCreatorsLiveData.observe(viewLifecycleOwner,
-            {allWriters ->
+            { allWriters ->
                 allWriters?.let {
                     val adapter = ArrayAdapter(
                         requireContext(),
@@ -176,6 +182,15 @@ class IssueFragment : Fragment(),
             }
         )
 
+        issueDetailViewModel.writerLiveData.observe(
+            viewLifecycleOwner,
+            { writer ->
+                writer?.let {
+                    this.writer = writer
+                    updateUI()
+                }
+            }
+        )
         if (!isEditable) {
             // TODO: Create a separate layout for editing vs viewing instead of this
             toggleEnable()
@@ -209,6 +224,12 @@ class IssueFragment : Fragment(),
             val d = NewSeriesDialogFragment()
             d.setTargetFragment(this@IssueFragment, RESULT_NEW_SERIES)
             d.show(parentFragmentManager, DIALOG_NEW_SERIES)
+        }
+
+        writersLabel.setOnClickListener {
+            val d = NewCreatorDialogFragment()
+            d.setTargetFragment(this@IssueFragment, RESULT_NEW_CREATOR)
+            d.show(parentFragmentManager, DIALOG_NEW_CREATOR)
         }
 
         releaseDateTextView.setOnClickListener {
@@ -254,76 +275,55 @@ class IssueFragment : Fragment(),
         parentTable.addView(newRow)
     }
 
-    private fun attachTextWatchers() {
-        val issueNumWatcher = object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+    class SimpleTextWatcher(val transformation: (CharSequence?) -> Unit) : TextWatcher {
+        override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
 
-            override fun onTextChanged(
-                sequence: CharSequence?,
-                start: Int,
-                before: Int,
-                count: Int
+        }
+
+        override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+            transformation(s)
+        }
+
+        override fun afterTextChanged(s: Editable?) {
+
+        }
+    }
+
+    private fun attachTextWatchers() {
+        val issueNumWatcher = SimpleTextWatcher { sequence ->
+            issue.issueNum = try {
+                sequence.toString().toInt()
+            } catch (e: Exception) {
+                1
+            }
+        }
+
+        val pencillerWatcher = SimpleTextWatcher { sequence ->
+            issue.penciller = sequence.toString()
+        }
+
+
+        val inkerWatcher = SimpleTextWatcher { sequence ->
+                issue.inker = sequence.toString()
+        }
+
+        writerSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(
+                parent: AdapterView<*>?,
+                view: View?,
+                position: Int,
+                id: Long
             ) {
-                issue.issueNum = try {
-                    sequence.toString().toInt()
-                } catch (e: Exception) {
-                    1
+                parent?.let {
+                    issueDetailViewModel.allCreatorsLiveData.value?.let {
+                        issue.writerId = (parent.getItemAtPosition(position) as Creator).creatorId
+                    }
                 }
             }
 
-            override fun afterTextChanged(s: Editable?) {}
-        }
+            override fun onNothingSelected(parent: AdapterView<*>?) {
 
-        val writerWatcher = object : TextWatcher {
-
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-
-            override fun onTextChanged(
-                sequence: CharSequence?,
-                start: Int,
-                before: Int,
-                count: Int
-            ) {
-                issue.writer = sequence.toString()
             }
-
-            override fun afterTextChanged(s: Editable?) {}
-
-        }
-
-        val pencillerWatcher = object : TextWatcher {
-
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-
-            override fun onTextChanged(
-                sequence: CharSequence?,
-                start: Int,
-                before: Int,
-                count: Int
-            ) {
-                issue.penciller = sequence.toString()
-            }
-
-            override fun afterTextChanged(s: Editable?) {}
-
-        }
-
-
-        val inkerWatcher = object : TextWatcher {
-
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-
-            override fun onTextChanged(
-                sequence: CharSequence?,
-                start: Int,
-                before: Int,
-                count: Int
-            ) {
-                issue.inker = sequence.toString()
-            }
-
-            override fun afterTextChanged(s: Editable?) {}
-
         }
 
         seriesSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
@@ -334,9 +334,6 @@ class IssueFragment : Fragment(),
                 id: Long
             ) {
                 parent?.let {
-                    // TODO: NewSeriesDialog opens even when it shouldn't
-                    //  bc spinner is always initially NEW_SERIES_ID
-                    Log.d(TAG, "series spinner set to something other than new")
                     issueDetailViewModel.allSeriesLiveData.value?.let {
                         series = parent.getItemAtPosition(position) as Series
                         issue.seriesId = series.seriesId
@@ -350,7 +347,6 @@ class IssueFragment : Fragment(),
 
         }
         issueNumEditText.addTextChangedListener(issueNumWatcher)
-//        writerSpinner.addTextChangedListener(writerWatcher)
         pencillerEditText.addTextChangedListener(pencillerWatcher)
         inkerEditText.addTextChangedListener(inkerWatcher)
     }
@@ -361,6 +357,12 @@ class IssueFragment : Fragment(),
             resultCode != Activity.RESULT_OK -> return
             requestCode == RESULT_NEW_SERIES && data != null -> {
                 this.issue.seriesId = data.getSerializableExtra(ARG_SERIES_ID) as UUID
+                issueDetailViewModel.saveIssue(this.issue)
+                issueDetailViewModel.loadIssue(this.issue.issueId)
+                updateUI()
+            }
+            requestCode == RESULT_NEW_CREATOR && data != null -> {
+                this.issue.writerId = data.getSerializableExtra(ARG_CREATOR_ID) as UUID
                 issueDetailViewModel.saveIssue(this.issue)
                 issueDetailViewModel.loadIssue(this.issue.issueId)
                 updateUI()
@@ -383,7 +385,8 @@ class IssueFragment : Fragment(),
                 this.issue.issueNum.toString()
             }
         )
-//        writerSpinner.setText(this.issue.writer)
+        val pos = writersList.indexOf(writer)
+        writerSpinner.setSelection(pos)
         pencillerEditText.setText(this.issue.penciller)
         inkerEditText.setText(this.issue.inker)
         this.issue.releaseDate?.format(DateTimeFormatter.ofPattern("MMMM d, y"))

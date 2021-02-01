@@ -20,6 +20,9 @@ interface IssueDao {
     @Query("SELECT * FROM issue WHERE issueId=:issueId")
     fun getIssue(issueId: UUID): LiveData<Issue?>
 
+    @Query("SELECT * FROM creator WHERE creatorId = :creatorId")
+    fun getCreator(creatorId: UUID): LiveData<Creator>
+
     @Query(
         """
         SELECT roleName, name FROM credit 
@@ -62,7 +65,7 @@ interface IssueDao {
     fun updateSeries(series: Series)
 
     @Insert
-    fun addSeries(series: Series)
+    fun addSeries(vararg series: Series)
 
     @Delete
     fun deleteSeries(series: Series)

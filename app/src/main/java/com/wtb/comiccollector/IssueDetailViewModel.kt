@@ -11,6 +11,7 @@ class IssueDetailViewModel : ViewModel() {
     private val issueRepository: IssueRepository = IssueRepository.get()
     private val issueIdLiveData = MutableLiveData<UUID>()
     private val seriesIdLiveData = MutableLiveData<UUID>()
+    private val writerIdLiveData = MutableLiveData<UUID>()
 
     var issueLiveData: LiveData<Issue?> =
         Transformations.switchMap(issueIdLiveData) { issueId ->
@@ -20,6 +21,11 @@ class IssueDetailViewModel : ViewModel() {
     var seriesLiveData: LiveData<Series?> =
         Transformations.switchMap(issueLiveData) { issue ->
             issue?.seriesId?.let { issueRepository.getSeries(it) }
+        }
+
+    var writerLiveData: LiveData<Creator> =
+        Transformations.switchMap(issueLiveData) { issue ->
+            issue?.writerId?.let { issueRepository.getCreator(it) }
         }
 
     var allSeriesLiveData: LiveData<List<Series>> = issueRepository.allSeries
@@ -65,4 +71,8 @@ class IssueDetailViewModel : ViewModel() {
     }
 
     fun getNewSeries(): LiveData<Series?> = issueRepository.newSeries
+
+    fun addCreator(creator: Creator) {
+        issueRepository.addCreator(creator)
+    }
 }
