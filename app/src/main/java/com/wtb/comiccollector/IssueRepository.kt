@@ -1,6 +1,8 @@
 package com.wtb.comiccollector
 
 import android.content.Context
+import android.database.sqlite.SQLiteConstraintException
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.room.Room
 import androidx.room.RoomDatabase
@@ -11,6 +13,7 @@ import java.util.*
 import java.util.concurrent.Executors
 
 private const val DATABASE_NAME = "issue-database"
+private const val TAG = "IssueRepository"
 
 class IssueRepository private constructor(context: Context) {
 
@@ -80,7 +83,8 @@ class IssueRepository private constructor(context: Context) {
                         Creator(firstName = "Neil", lastName = "Gaiman"),
                         Creator(firstName = "Jason", lastName = "Aaron")
                     )
-                    val seriesDoomPatrol = Series(seriesName = "Doom Patrol", publisherId = publisherDC.publisherId)
+                    val seriesDoomPatrol =
+                        Series(seriesName = "Doom Patrol", publisherId = publisherDC.publisherId)
                     issueDao.addSeries(
                         Series(
                             seriesId = NEW_SERIES_ID,
@@ -92,7 +96,10 @@ class IssueRepository private constructor(context: Context) {
                         seriesDoomPatrol
                     )
                     issueDao.addIssue(
-                        Issue(seriesId = seriesDoomPatrol.seriesId, writerId = grantMorrison.creatorId)
+                        Issue(
+                            seriesId = seriesDoomPatrol.seriesId,
+                            writerId = grantMorrison.creatorId
+                        )
                     )
                 }
             }
@@ -102,13 +109,23 @@ class IssueRepository private constructor(context: Context) {
 
     fun updateIssue(issue: Issue) {
         executor.execute {
-            issueDao.updateIssue(issue)
+            try {
+                issueDao.updateIssue(issue)
+            } catch (e: SQLiteConstraintException) {
+                // TODO: some real exception handling
+                Log.d(TAG, "updateIssue: $e")
+            }
         }
     }
 
     fun updateSeries(series: Series) {
         executor.execute {
-            issueDao.updateSeries(series)
+            try {
+                issueDao.updateSeries(series)
+            } catch (e: SQLiteConstraintException) {
+                // TODO: some real exception handling
+                Log.d(TAG, "updateSeries: $e")
+            }
         }
     }
 
@@ -132,7 +149,12 @@ class IssueRepository private constructor(context: Context) {
 
     fun addIssue(issue: Issue) {
         executor.execute {
-            issueDao.addIssue(issue)
+            try {
+                issueDao.addIssue(issue)
+            } catch (e: SQLiteConstraintException) {
+                // TODO: some real exception handling
+                Log.d(TAG, "addIssue: $e")
+            }
         }
     }
 

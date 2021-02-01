@@ -2,6 +2,7 @@ package com.wtb.comiccollector
 
 import android.app.Activity
 import android.content.Intent
+import android.database.sqlite.SQLiteConstraintException
 import android.net.Uri
 import android.os.Bundle
 import android.text.Editable
@@ -372,8 +373,12 @@ class IssueFragment : Fragment(),
 
     override fun onStop() {
         super.onStop()
-        issueDetailViewModel.saveIssue(this.issue)
-        issueDetailViewModel.saveSeries(this.series)
+        try {
+            issueDetailViewModel.saveIssue(this.issue)
+            issueDetailViewModel.saveSeries(this.series)
+        } catch (e: SQLiteConstraintException) {
+            Log.d(TAG, "$e: whapoo")
+        }
     }
 
     private fun updateUI() {
