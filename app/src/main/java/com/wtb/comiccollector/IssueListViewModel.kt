@@ -9,6 +9,10 @@ class IssueListViewModel : ViewModel() {
 
     var issueListLiveData: LiveData<List<FullIssue>> = issueRepository.getIssues()
 
+    fun loadSeries(seriesId: UUID) {
+        issueListLiveData = issueRepository.getIssuesBySeries(seriesId)
+    }
+
     fun addIssue(issue: Issue) {
         issueRepository.addIssue(issue)
     }
@@ -33,10 +37,6 @@ class IssueListViewModel : ViewModel() {
                 roleId = role.roleId
             )
         )
-    }
-
-    fun loadSeries(seriesId: UUID) {
-        issueListLiveData = issueRepository.getIssuesBySeries(seriesId)
     }
 
     fun getSeries(seriesId: UUID): LiveData<Series?> = issueRepository.getSeries(seriesId)

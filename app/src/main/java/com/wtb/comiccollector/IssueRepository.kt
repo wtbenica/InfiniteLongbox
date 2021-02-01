@@ -1,8 +1,13 @@
 package com.wtb.comiccollector
 
+import android.app.Dialog
 import android.content.Context
+import android.content.DialogInterface
 import android.database.sqlite.SQLiteConstraintException
+import android.os.Bundle
 import android.util.Log
+import androidx.appcompat.app.AlertDialog
+import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.LiveData
 import androidx.room.Room
 import androidx.room.RoomDatabase
@@ -15,7 +20,7 @@ import java.util.concurrent.Executors
 private const val DATABASE_NAME = "issue-database"
 private const val TAG = "IssueRepository"
 
-class IssueRepository private constructor(context: Context) {
+class IssueRepository private constructor(val context: Context) {
 
     private val executor = Executors.newSingleThreadExecutor()
 
@@ -107,6 +112,17 @@ class IssueRepository private constructor(context: Context) {
     )
         .build()
 
+    fun addIssue(issue: Issue) {
+        executor.execute {
+            try {
+                issueDao.addIssue(issue)
+            } catch (e: SQLiteConstraintException) {
+                // TODO: some real exception handling
+                Log.d(TAG, "addIssue: $e")
+            }
+        }
+    }
+
     fun updateIssue(issue: Issue) {
         executor.execute {
             try {
@@ -114,6 +130,16 @@ class IssueRepository private constructor(context: Context) {
             } catch (e: SQLiteConstraintException) {
                 // TODO: some real exception handling
                 Log.d(TAG, "updateIssue: $e")
+            }
+        }
+    }
+
+    fun addSeries(series: Series) {
+        executor.execute {
+            try {
+                issueDao.addSeries(series)
+            } catch (e: SQLiteConstraintException) {
+                Log.d(TAG, "addSeries: $e")
             }
         }
     }
@@ -126,41 +152,6 @@ class IssueRepository private constructor(context: Context) {
                 // TODO: some real exception handling
                 Log.d(TAG, "updateSeries: $e")
             }
-        }
-    }
-
-    fun updateCreator(creator: Creator) {
-        executor.execute {
-            issueDao.updateCreator(creator)
-        }
-    }
-
-    fun updateRole(role: Role) {
-        executor.execute {
-            issueDao.updateRole(role)
-        }
-    }
-
-    fun updateCredit(credit: Credit) {
-        executor.execute {
-            issueDao.updateCredit(credit)
-        }
-    }
-
-    fun addIssue(issue: Issue) {
-        executor.execute {
-            try {
-                issueDao.addIssue(issue)
-            } catch (e: SQLiteConstraintException) {
-                // TODO: some real exception handling
-                Log.d(TAG, "addIssue: $e")
-            }
-        }
-    }
-
-    fun addSeries(series: Series) {
-        executor.execute {
-            issueDao.addSeries(series)
         }
     }
 
@@ -194,6 +185,46 @@ class IssueRepository private constructor(context: Context) {
         }
     }
 
+    fun getSeriesList(): LiveData<List<Series>> {
+        return issueDao.getSeriesList()
+    }
+
+    fun getSeries(seriesId: UUID): LiveData<Series?> = issueDao.getSeriesById(seriesId)
+
+    fun getCreator(creatorId: UUID): LiveData<Creator> {
+        return issueDao.getCreator(creatorId)
+    }
+
+    fun updateCreator(creator: Creator) {
+        executor.execute {
+            issueDao.updateCreator(creator)
+        }
+    }
+
+    fun updateRole(role: Role) {
+        executor.execute {
+            issueDao.updateRole(role)
+        }
+    }
+
+    class DuplicateFrament : DialogFragment() {
+        override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+            return activity?.let {
+                val builder = AlertDialog.Builder(it)
+                builder.setTitle("Duplicate Issue")
+                    .setMessage("This is a duplicate issue and will not be saved")
+                    .setPositiveButton("OK") { dialogInterface: DialogInterface, i: Int -> }
+                builder.create()
+            } ?: throw IllegalStateException("Activity cannot be null")
+        }
+    }
+
+    fun updateCredit(credit: Credit) {
+        executor.execute {
+            issueDao.updateCredit(credit)
+        }
+    }
+
     fun deleteCreator(creator: Creator) {
         executor.execute {
             issueDao.deleteCreator(creator)
@@ -210,16 +241,6 @@ class IssueRepository private constructor(context: Context) {
         executor.execute {
             issueDao.deleteCredit(credit)
         }
-    }
-
-    fun getSeriesList(): LiveData<List<Series>> {
-        return issueDao.getSeriesList()
-    }
-
-    fun getSeries(seriesId: UUID): LiveData<Series?> = issueDao.getSeriesById(seriesId)
-
-    fun getCreator(creatorId: UUID): LiveData<Creator> {
-        return issueDao.getCreator(creatorId)
     }
 
 /*

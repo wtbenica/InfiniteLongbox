@@ -2,7 +2,6 @@ package com.wtb.comiccollector
 
 import android.app.Activity
 import android.content.Intent
-import android.database.sqlite.SQLiteConstraintException
 import android.net.Uri
 import android.os.Bundle
 import android.text.Editable
@@ -276,6 +275,13 @@ class IssueFragment : Fragment(),
         parentTable.addView(newRow)
     }
 
+    /**
+     * A TextWatcher that applies [transformation] to the CharSequence? onTextChanged, with no
+     * effects for before- or after- TextChanged
+     *
+     * @property transformation the action to apply upon onTextChanged
+     * @return a TextWatcher that applies transformation
+     */
     class SimpleTextWatcher(val transformation: (CharSequence?) -> Unit) : TextWatcher {
         override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
 
@@ -305,7 +311,7 @@ class IssueFragment : Fragment(),
 
 
         val inkerWatcher = SimpleTextWatcher { sequence ->
-                issue.inker = sequence.toString()
+            issue.inker = sequence.toString()
         }
 
         writerSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
@@ -358,14 +364,12 @@ class IssueFragment : Fragment(),
             resultCode != Activity.RESULT_OK -> return
             requestCode == RESULT_NEW_SERIES && data != null -> {
                 this.issue.seriesId = data.getSerializableExtra(ARG_SERIES_ID) as UUID
-                issueDetailViewModel.saveIssue(this.issue)
-                issueDetailViewModel.loadIssue(this.issue.issueId)
+                saveChanges()
                 updateUI()
             }
             requestCode == RESULT_NEW_CREATOR && data != null -> {
                 this.issue.writerId = data.getSerializableExtra(ARG_CREATOR_ID) as UUID
-                issueDetailViewModel.saveIssue(this.issue)
-                issueDetailViewModel.loadIssue(this.issue.issueId)
+                saveChanges()
                 updateUI()
             }
         }
@@ -373,16 +377,17 @@ class IssueFragment : Fragment(),
 
     override fun onStop() {
         super.onStop()
-        try {
-            issueDetailViewModel.saveIssue(this.issue)
-            issueDetailViewModel.saveSeries(this.series)
-        } catch (e: SQLiteConstraintException) {
-            Log.d(TAG, "$e: whapoo")
-        }
+        saveChanges()
+    }
+
+    private fun saveChanges() {
+        issueDetailViewModel.updateIssue(this.issue)
+        issueDetailViewModel.loadIssue(this.issue.issueId)
     }
 
     private fun updateUI() {
         seriesSpinner.setSelection(seriesList.indexOf(series))
+
         issueNumEditText.setText(
             if (this.issue.issueNum == Int.MAX_VALUE) {
                 "1"
@@ -390,10 +395,13 @@ class IssueFragment : Fragment(),
                 this.issue.issueNum.toString()
             }
         )
+
         val pos = writersList.indexOf(writer)
         writerSpinner.setSelection(pos)
+
         pencillerEditText.setText(this.issue.penciller)
         inkerEditText.setText(this.issue.inker)
+
         this.issue.releaseDate?.format(DateTimeFormatter.ofPattern("MMMM d, y"))
             ?.let { releaseDateTextView.text = it }
 

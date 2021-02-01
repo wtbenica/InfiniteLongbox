@@ -6,6 +6,8 @@ import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
 import java.util.*
 
+private const val TAG = "IssueDetailViewModel"
+
 class IssueDetailViewModel : ViewModel() {
 
     private val issueRepository: IssueRepository = IssueRepository.get()
@@ -41,7 +43,7 @@ class IssueDetailViewModel : ViewModel() {
         seriesIdLiveData.value = issueLiveData.value?.seriesId
     }
 
-    fun saveIssue(issue: Issue) {
+    fun updateIssue(issue: Issue) {
         issueRepository.updateIssue(issue)
     }
 
@@ -49,15 +51,7 @@ class IssueDetailViewModel : ViewModel() {
         issueRepository.deleteIssue(issue)
     }
 
-    fun loadSeries(seriesId: UUID) {
-        seriesIdLiveData.value = seriesId
-    }
-
-    fun updateIssue(issue: Issue) {
-        issueRepository.updateIssue(issue)
-    }
-
-    fun saveSeries(series: Series) {
+    fun updateSeries(series: Series) {
         issueRepository.updateSeries(series)
     }
 
@@ -66,13 +60,17 @@ class IssueDetailViewModel : ViewModel() {
         issueRepository.addSeries(series)
     }
 
+    fun addCreator(creator: Creator) {
+        issueRepository.addCreator(creator)
+    }
+
+    fun loadSeries(seriesId: UUID) {
+        seriesIdLiveData.value = seriesId
+    }
+
     fun deleteSeries(series: Series) {
         issueRepository.deleteSeries(series)
     }
 
     fun getNewSeries(): LiveData<Series?> = issueRepository.newSeries
-
-    fun addCreator(creator: Creator) {
-        issueRepository.addCreator(creator)
-    }
 }
