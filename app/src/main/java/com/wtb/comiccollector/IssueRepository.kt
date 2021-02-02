@@ -69,11 +69,13 @@ class IssueRepository private constructor(val context: Context) {
                         Publisher(publisher = "Aftershock"),
                         Publisher(publisher = "DC/Vertigo")
                     )
+                    val writer = Role(roleName = "Writer")
+                    val penciller = Role(roleName = "Penciller")
                     issueDao.addRoles(
-                        Role(roleName = "Writer"),
+                        writer,
                         Role(roleName = "Scripter"),
                         Role(roleName = "Plotter"),
-                        Role(roleName = "Penciller"),
+                        penciller,
                         Role(roleName = "Artist"),
                         Role(roleName = "Inker"),
                         Role(roleName = "Colorist"),
@@ -85,10 +87,12 @@ class IssueRepository private constructor(val context: Context) {
                     val grantMorrison = Creator(firstName = "Grant", lastName = "Morrison")
                     val philipBond = Creator(firstName = "Philip", lastName = "Bond")
                     val johnNyberg = Creator(firstName = "John", lastName = "Nyberg")
+                    val richardCase = Creator(firstName = "Richard", lastName = "Case")
                     issueDao.addCreator(
                         grantMorrison,
                         philipBond,
                         johnNyberg,
+                        richardCase,
                         Creator(firstName = "Neil", lastName = "Gaiman"),
                         Creator(firstName = "Jason", lastName = "Aaron")
                     )
@@ -104,6 +108,13 @@ class IssueRepository private constructor(val context: Context) {
                         ),
                         seriesDoomPatrol
                     )
+                    val dp35 = Issue(
+                        seriesId = seriesDoomPatrol.seriesId,
+                        writerId = grantMorrison.creatorId,
+                        pencillerId = philipBond.creatorId,
+                        inkerId = johnNyberg.creatorId,
+                        issueNum = 35
+                    )
                     issueDao.addIssue(
                         Issue(
                             seriesId = seriesDoomPatrol.seriesId,
@@ -112,12 +123,18 @@ class IssueRepository private constructor(val context: Context) {
                             inkerId = johnNyberg.creatorId,
                             issueNum = 33
                         ),
-                        Issue(
-                            seriesId = seriesDoomPatrol.seriesId,
-                            writerId = grantMorrison.creatorId,
-                            pencillerId = philipBond.creatorId,
-                            inkerId = johnNyberg.creatorId,
-                            issueNum = 35
+                        dp35
+                    )
+                    issueDao.addCredit(
+                        Credit(
+                            issueId = dp35.issueId,
+                            creatorId = grantMorrison.creatorId,
+                            roleId = writer.roleId
+                        ),
+                        Credit(
+                            issueId = dp35.issueId,
+                            creatorId = richardCase.creatorId,
+                            roleId = penciller.roleId
                         )
                     )
                 }

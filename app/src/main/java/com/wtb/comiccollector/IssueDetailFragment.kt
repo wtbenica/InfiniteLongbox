@@ -289,13 +289,6 @@ class IssueDetailFragment : Fragment(),
                 show(this@IssueDetailFragment.parentFragmentManager, DIALOG_DATE)
             }
         }
-
-        if (!isEditable) {
-            val indexOf = this.seriesList.indexOf(series)
-            seriesSpinner.setSelection(indexOf)
-
-        }
-
     }
 
     private fun toggleEnable() {

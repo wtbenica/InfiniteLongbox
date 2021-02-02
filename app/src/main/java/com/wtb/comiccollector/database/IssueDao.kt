@@ -107,7 +107,7 @@ interface IssueDao {
     fun updateCredit(credit: Credit)
 
     @Insert
-    fun addCredit(credit: Credit)
+    fun addCredit(vararg credit: Credit)
 
     @Delete
     fun deleteCredit(credit: Credit)

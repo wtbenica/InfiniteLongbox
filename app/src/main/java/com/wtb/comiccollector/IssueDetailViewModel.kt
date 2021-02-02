@@ -30,6 +30,11 @@ class IssueDetailViewModel : ViewModel() {
             issue?.writerId?.let { issueRepository.getCreator(it) }
         }
 
+    var writersLiveData: LiveData<List<IssueCredits>> =
+        Transformations.switchMap(issueLiveData) { issue ->
+            issue?.let { issueRepository.getIssueCredits(issueId = it.issueId) }
+        }
+
     val pencillerLiveData: LiveData<Creator> =
         Transformations.switchMap(issueLiveData) { issue ->
             issue?.pencillerId?.let { issueRepository.getCreator(it) }
