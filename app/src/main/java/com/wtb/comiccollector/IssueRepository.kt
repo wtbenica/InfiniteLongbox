@@ -83,8 +83,12 @@ class IssueRepository private constructor(val context: Context) {
                         Role(roleName = "Assistant Editor")
                     )
                     val grantMorrison = Creator(firstName = "Grant", lastName = "Morrison")
+                    val philipBond = Creator(firstName = "Philip", lastName = "Bond")
+                    val johnNyberg = Creator(firstName = "John", lastName = "Nyberg")
                     issueDao.addCreator(
                         grantMorrison,
+                        philipBond,
+                        johnNyberg,
                         Creator(firstName = "Neil", lastName = "Gaiman"),
                         Creator(firstName = "Jason", lastName = "Aaron")
                     )
@@ -103,7 +107,17 @@ class IssueRepository private constructor(val context: Context) {
                     issueDao.addIssue(
                         Issue(
                             seriesId = seriesDoomPatrol.seriesId,
-                            writerId = grantMorrison.creatorId
+                            writerId = grantMorrison.creatorId,
+                            pencillerId = philipBond.creatorId,
+                            inkerId = johnNyberg.creatorId,
+                            issueNum = 33
+                        ),
+                        Issue(
+                            seriesId = seriesDoomPatrol.seriesId,
+                            writerId = grantMorrison.creatorId,
+                            pencillerId = philipBond.creatorId,
+                            inkerId = johnNyberg.creatorId,
+                            issueNum = 35
                         )
                     )
                 }

@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "aaba1dcf74e05bc50233fe23b53defda",
+    "identityHash": "3b067cf09946850a1baf2c00cea0edf9",
     "entities": [
       {
         "tableName": "Issue",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`issueId` TEXT NOT NULL, `seriesId` TEXT NOT NULL, `issueNum` INTEGER NOT NULL, `writer` TEXT NOT NULL, `writerId` TEXT, `penciller` TEXT NOT NULL, `inker` TEXT NOT NULL, `coverUri` TEXT, `releaseDate` TEXT, `upc` INTEGER, PRIMARY KEY(`issueId`), FOREIGN KEY(`seriesId`) REFERENCES `Series`(`seriesId`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`writerId`) REFERENCES `Creator`(`creatorId`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`issueId` TEXT NOT NULL, `seriesId` TEXT NOT NULL, `issueNum` INTEGER NOT NULL, `writer` TEXT NOT NULL, `writerId` TEXT, `pencillerId` TEXT, `inkerId` TEXT, `coverUri` TEXT, `releaseDate` TEXT, `upc` INTEGER, PRIMARY KEY(`issueId`), FOREIGN KEY(`seriesId`) REFERENCES `Series`(`seriesId`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`writerId`) REFERENCES `Creator`(`creatorId`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
         "fields": [
           {
             "fieldPath": "issueId",
@@ -39,16 +39,16 @@
             "notNull": false
           },
           {
-            "fieldPath": "penciller",
-            "columnName": "penciller",
+            "fieldPath": "pencillerId",
+            "columnName": "pencillerId",
             "affinity": "TEXT",
-            "notNull": true
+            "notNull": false
           },
           {
-            "fieldPath": "inker",
-            "columnName": "inker",
+            "fieldPath": "inkerId",
+            "columnName": "inkerId",
             "affinity": "TEXT",
-            "notNull": true
+            "notNull": false
           },
           {
             "fieldPath": "coverUri",
@@ -432,7 +432,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'aaba1dcf74e05bc50233fe23b53defda')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '3b067cf09946850a1baf2c00cea0edf9')"
     ]
   }
 }

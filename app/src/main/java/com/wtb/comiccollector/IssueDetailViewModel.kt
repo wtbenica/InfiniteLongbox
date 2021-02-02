@@ -30,6 +30,16 @@ class IssueDetailViewModel : ViewModel() {
             issue?.writerId?.let { issueRepository.getCreator(it) }
         }
 
+    val pencillerLiveData: LiveData<Creator> =
+        Transformations.switchMap(issueLiveData) { issue ->
+            issue?.pencillerId?.let { issueRepository.getCreator(it) }
+        }
+
+    val inkerLiveData: LiveData<Creator> =
+        Transformations.switchMap(issueLiveData) { issue ->
+            issue?.inkerId?.let { issueRepository.getCreator(it) }
+        }
+
     var allSeriesLiveData: LiveData<List<Series>> = issueRepository.allSeries
 
     var allPublishersLiveData: LiveData<List<Publisher>> = issueRepository.allPublishers

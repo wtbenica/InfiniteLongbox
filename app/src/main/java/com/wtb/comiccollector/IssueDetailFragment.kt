@@ -28,7 +28,9 @@ private const val ARG_EDITABLE = "open_as_editable"
 private const val PICK_COVER_IMAGE = 0
 private const val RESULT_DATE_PICKER = 107
 private const val RESULT_NEW_SERIES = 108
-private const val RESULT_NEW_CREATOR = 109
+private const val RESULT_NEW_WRITER = 109
+private const val RESULT_NEW_PENCILLER = 110
+private const val RESULT_NEW_INKER = 111
 
 // Fragment Tags
 private const val DIALOG_NEW_SERIES = "DialogNewSeries"
@@ -37,16 +39,18 @@ private const val DIALOG_DATE = "DialogDate"
 
 /**
  * A simple [Fragment] subclass.
- * Use the [IssueFragment.newInstance] factory method to
+ * Use the [IssueDetailFragment.newInstance] factory method to
  * create an instance of this fragment.
  */
 // TODO: Do I need a separate fragment for editing vs viewing or can I do it all in this one?
-class IssueFragment : Fragment(),
+class IssueDetailFragment : Fragment(),
     DatePickerFragment.Callbacks {
 
     private lateinit var issue: Issue
     private lateinit var series: Series
     private lateinit var writer: Creator
+    private lateinit var penciller: Creator
+    private lateinit var inker: Creator
     private lateinit var seriesList: List<Series>
     private lateinit var writersList: List<Creator>
 
@@ -60,12 +64,14 @@ class IssueFragment : Fragment(),
     private lateinit var writerSpinner: Spinner
     private lateinit var addWriterButton: ImageButton
 
+    private lateinit var pencillersLabel: TextView
     private lateinit var pencillersBox: TableLayout
-    private lateinit var pencillerEditText: EditText
+    private lateinit var pencillerSpinner: Spinner
     private lateinit var addPencillerButton: ImageButton
 
+    private lateinit var inkersLabel: TextView
     private lateinit var inkersBox: TableLayout
-    private lateinit var inkerEditText: EditText
+    private lateinit var inkerSpinner: Spinner
     private lateinit var addInkerButton: ImageButton
 
     private lateinit var releaseDateTextView: TextView
@@ -87,6 +93,8 @@ class IssueFragment : Fragment(),
         series = Series()
         issue = Issue()
         writer = Creator(firstName = "")
+        penciller = Creator(firstName = "")
+        inker = Creator(firstName = "")
         writersList = emptyList()
         isEditable = arguments?.getSerializable(ARG_EDITABLE) as Boolean
         val issueId = arguments?.getSerializable(ARG_ISSUE_ID) as UUID
@@ -105,21 +113,29 @@ class IssueFragment : Fragment(),
         seriesSpinner = view.findViewById(R.id.issue_series) as Spinner
         seriesSpinner.prompt = "Series Name"
         addSeriesButton = view.findViewById(R.id.add_series_button) as ImageButton
+
         coverImageView = view.findViewById(R.id.issue_cover) as ImageView
+
         issueNumEditText = view.findViewById(R.id.issue_number) as EditText
+
         writersLabel = view.findViewById(R.id.writer_label) as TextView
         writersBox = view.findViewById(R.id.writers_box) as TableLayout
         writerSpinner = view.findViewById(R.id.issue_writer) as Spinner
         addWriterButton = view.findViewById(R.id.add_writer_button) as ImageButton
+
+        pencillersLabel = view.findViewById(R.id.pencillers_label)
         pencillersBox = view.findViewById(R.id.pencillers_box) as TableLayout
-        pencillerEditText = view.findViewById(R.id.issue_penciller) as EditText
+        pencillerSpinner = view.findViewById(R.id.issue_penciller) as Spinner
         addPencillerButton = view.findViewById(R.id.add_penciller_button) as ImageButton
+
+        inkersLabel = view.findViewById(R.id.inkers_label)
         inkersBox = view.findViewById(R.id.inkers_box) as TableLayout
-        inkerEditText = view.findViewById(R.id.issue_inker) as EditText
+        inkerSpinner = view.findViewById(R.id.issue_inker) as Spinner
+        addInkerButton = view.findViewById(R.id.add_inker_button) as ImageButton
+
         releaseDateTextView = view.findViewById(R.id.release_date_text_view)
+
         toggleEditButton = view.findViewById(R.id.edit_button) as ImageButton
-        addInkerButton = view.findViewById(R.id.add_inker_button) as ImageButton
-        addInkerButton = view.findViewById(R.id.add_inker_button) as ImageButton
 
         return view
     }
@@ -141,7 +157,7 @@ class IssueFragment : Fragment(),
                     if (seriesList.isEmpty()) {
                         Log.d(TAG, "series list is zero")
                         val d = NewSeriesDialogFragment()
-                        d.setTargetFragment(this@IssueFragment, RESULT_NEW_SERIES)
+                        d.setTargetFragment(this@IssueDetailFragment, RESULT_NEW_SERIES)
                         d.show(parentFragmentManager, DIALOG_NEW_SERIES)
                     } else if (issue.seriesId == NEW_SERIES_ID) {
                         issue.seriesId = seriesList[0].seriesId
@@ -159,6 +175,8 @@ class IssueFragment : Fragment(),
                     )
                     writersList = it
                     writerSpinner.adapter = adapter
+                    pencillerSpinner.adapter = adapter
+                    inkerSpinner.adapter = adapter
                 }
             })
 
@@ -191,6 +209,27 @@ class IssueFragment : Fragment(),
                 }
             }
         )
+
+        issueDetailViewModel.pencillerLiveData.observe(
+            viewLifecycleOwner,
+            { penciller ->
+                penciller?.let {
+                    this.penciller = penciller
+                    updateUI()
+                }
+            }
+        )
+
+        issueDetailViewModel.inkerLiveData.observe(
+            viewLifecycleOwner,
+            { inker ->
+                inker?.let {
+                    this.inker = inker
+                    updateUI()
+                }
+            }
+        )
+
         if (!isEditable) {
             // TODO: Create a separate layout for editing vs viewing instead of this
             toggleEnable()
@@ -222,20 +261,32 @@ class IssueFragment : Fragment(),
 
         addSeriesButton.setOnClickListener {
             val d = NewSeriesDialogFragment()
-            d.setTargetFragment(this@IssueFragment, RESULT_NEW_SERIES)
+            d.setTargetFragment(this@IssueDetailFragment, RESULT_NEW_SERIES)
             d.show(parentFragmentManager, DIALOG_NEW_SERIES)
         }
 
         writersLabel.setOnClickListener {
             val d = NewCreatorDialogFragment()
-            d.setTargetFragment(this@IssueFragment, RESULT_NEW_CREATOR)
+            d.setTargetFragment(this@IssueDetailFragment, RESULT_NEW_WRITER)
+            d.show(parentFragmentManager, DIALOG_NEW_CREATOR)
+        }
+
+        pencillersLabel.setOnClickListener {
+            val d = NewCreatorDialogFragment()
+            d.setTargetFragment(this@IssueDetailFragment, RESULT_NEW_PENCILLER)
+            d.show(parentFragmentManager, DIALOG_NEW_CREATOR)
+        }
+
+        inkersLabel.setOnClickListener {
+            val d = NewCreatorDialogFragment()
+            d.setTargetFragment(this@IssueDetailFragment, RESULT_NEW_INKER)
             d.show(parentFragmentManager, DIALOG_NEW_CREATOR)
         }
 
         releaseDateTextView.setOnClickListener {
             DatePickerFragment.newInstance(issue.releaseDate).apply {
-                setTargetFragment(this@IssueFragment, RESULT_DATE_PICKER)
-                show(this@IssueFragment.parentFragmentManager, DIALOG_DATE)
+                setTargetFragment(this@IssueDetailFragment, RESULT_DATE_PICKER)
+                show(this@IssueDetailFragment.parentFragmentManager, DIALOG_DATE)
             }
         }
 
@@ -249,12 +300,15 @@ class IssueFragment : Fragment(),
 
     private fun toggleEnable() {
         seriesSpinner.isEnabled = !seriesSpinner.isEnabled
+
         writerSpinner.isEnabled = !writerSpinner.isEnabled
+        pencillerSpinner.isEnabled = !pencillerSpinner.isEnabled
+        inkerSpinner.isEnabled = !inkerSpinner.isEnabled
+
         addWriterButton.isVisible = !addWriterButton.isVisible
-        pencillerEditText.isEnabled = !pencillerEditText.isEnabled
         addPencillerButton.isVisible = !addPencillerButton.isVisible
-        inkerEditText.isEnabled = !inkerEditText.isEnabled
         addInkerButton.isVisible = !addInkerButton.isVisible
+
         issueNumEditText.isEnabled = !issueNumEditText.isEnabled
         releaseDateTextView.isEnabled = !releaseDateTextView.isEnabled
     }
@@ -305,15 +359,6 @@ class IssueFragment : Fragment(),
             }
         }
 
-        val pencillerWatcher = SimpleTextWatcher { sequence ->
-            issue.penciller = sequence.toString()
-        }
-
-
-        val inkerWatcher = SimpleTextWatcher { sequence ->
-            issue.inker = sequence.toString()
-        }
-
         writerSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(
                 parent: AdapterView<*>?,
@@ -324,6 +369,45 @@ class IssueFragment : Fragment(),
                 parent?.let {
                     issueDetailViewModel.allCreatorsLiveData.value?.let {
                         issue.writerId = (parent.getItemAtPosition(position) as Creator).creatorId
+                    }
+                }
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+
+            }
+        }
+
+        pencillerSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(
+                parent: AdapterView<*>?,
+                view: View?,
+                position: Int,
+                id: Long
+            ) {
+                parent?.let {
+                    issueDetailViewModel.allCreatorsLiveData.value?.let {
+                        issue.pencillerId =
+                            (parent.getItemAtPosition(position) as Creator).creatorId
+                    }
+                }
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+
+            }
+        }
+
+        inkerSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(
+                parent: AdapterView<*>?,
+                view: View?,
+                position: Int,
+                id: Long
+            ) {
+                parent?.let {
+                    issueDetailViewModel.allCreatorsLiveData.value?.let {
+                        issue.inkerId = (parent.getItemAtPosition(position) as Creator).creatorId
                     }
                 }
             }
@@ -354,8 +438,6 @@ class IssueFragment : Fragment(),
 
         }
         issueNumEditText.addTextChangedListener(issueNumWatcher)
-        pencillerEditText.addTextChangedListener(pencillerWatcher)
-        inkerEditText.addTextChangedListener(inkerWatcher)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -367,8 +449,18 @@ class IssueFragment : Fragment(),
                 saveChanges()
                 updateUI()
             }
-            requestCode == RESULT_NEW_CREATOR && data != null -> {
+            requestCode == RESULT_NEW_WRITER && data != null -> {
                 this.issue.writerId = data.getSerializableExtra(ARG_CREATOR_ID) as UUID
+                saveChanges()
+                updateUI()
+            }
+            requestCode == RESULT_NEW_PENCILLER && data != null -> {
+                this.issue.pencillerId = data.getSerializableExtra(ARG_CREATOR_ID) as UUID
+                saveChanges()
+                updateUI()
+            }
+            requestCode == RESULT_NEW_INKER && data != null -> {
+                this.issue.inkerId = data.getSerializableExtra(ARG_CREATOR_ID) as UUID
                 saveChanges()
                 updateUI()
             }
@@ -396,11 +488,10 @@ class IssueFragment : Fragment(),
             }
         )
 
-        val pos = writersList.indexOf(writer)
-        writerSpinner.setSelection(pos)
-
-        pencillerEditText.setText(this.issue.penciller)
-        inkerEditText.setText(this.issue.inker)
+        val writerPos = writersList.indexOf(writer)
+        writerSpinner.setSelection(writerPos)
+        pencillerSpinner.setSelection(writersList.indexOf(penciller))
+        inkerSpinner.setSelection(writersList.indexOf(inker))
 
         this.issue.releaseDate?.format(DateTimeFormatter.ofPattern("MMMM d, y"))
             ?.let { releaseDateTextView.text = it }
@@ -430,8 +521,11 @@ class IssueFragment : Fragment(),
 
     companion object {
         @JvmStatic
-        fun newInstance(issueId: UUID? = null, openAsEditable: Boolean = true): IssueFragment =
-            IssueFragment().apply {
+        fun newInstance(
+            issueId: UUID? = null,
+            openAsEditable: Boolean = true
+        ): IssueDetailFragment =
+            IssueDetailFragment().apply {
                 arguments = Bundle().apply {
                     putSerializable(ARG_ISSUE_ID, issueId)
                     putSerializable(ARG_EDITABLE, openAsEditable)

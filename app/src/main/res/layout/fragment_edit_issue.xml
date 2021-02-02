@@ -115,6 +115,7 @@
             android:layout_height="match_parent">
 
             <TextView
+                android:id="@+id/pencillers_label"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -126,13 +127,12 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-            <EditText
+            <Spinner
                 android:id="@+id/issue_penciller"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:importantForAutofill="no"
-                android:inputType="textAutoComplete" />
+                android:importantForAutofill="no" />
 
             <ImageButton
                 android:id="@+id/add_penciller_button"
@@ -161,6 +161,7 @@
             android:layout_height="match_parent">
 
             <TextView
+                android:id="@+id/inkers_label"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -172,13 +173,12 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-            <EditText
+            <Spinner
                 android:id="@+id/issue_inker"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:importantForAutofill="no"
-                android:inputType="textAutoComplete" />
+                android:importantForAutofill="no" />
 
             <ImageButton
                 android:id="@+id/add_inker_button"

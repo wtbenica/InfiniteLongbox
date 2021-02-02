@@ -27,7 +27,7 @@ class MainActivity : AppCompatActivity(),
     }
 
     override fun onIssueSelected(issueId: UUID) {
-        val fragment = IssueFragment.newInstance(issueId, false)
+        val fragment = IssueDetailFragment.newInstance(issueId, false)
         supportFragmentManager
             .beginTransaction()
             .setCustomAnimations(
@@ -58,7 +58,7 @@ class MainActivity : AppCompatActivity(),
     }
 
     override fun onNewIssue(issueId: UUID) {
-        val fragment = IssueFragment.newInstance(issueId)
+        val fragment = IssueDetailFragment.newInstance(issueId)
 
         supportFragmentManager
             .beginTransaction()

@@ -32,8 +32,8 @@ data class Issue(
     var issueNum: Int = 1,
     var writer: String = "",
     var writerId: UUID? = null,
-    var penciller: String = "",
-    var inker: String = "",
+    var pencillerId: UUID? = null,
+    var inkerId: UUID? = null,
     var coverUri: Uri? = null,
     var releaseDate: LocalDate? = null,
     var upc: Long? = null

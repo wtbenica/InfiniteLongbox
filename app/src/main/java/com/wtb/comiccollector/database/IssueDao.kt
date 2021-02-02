@@ -56,7 +56,7 @@ interface IssueDao {
     fun updateIssue(issue: Issue)
 
     @Insert
-    fun addIssue(issue: Issue)
+    fun addIssue(vararg issue: Issue)
 
     @Delete
     fun deleteIssue(issue: Issue)
