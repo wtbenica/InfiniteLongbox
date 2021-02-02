@@ -88,11 +88,7 @@ class NewCreatorDialogFragment : DialogFragment(),
         return view
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-    }
-
-// Future implementation
+    // Future implementation
 /*
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         when {

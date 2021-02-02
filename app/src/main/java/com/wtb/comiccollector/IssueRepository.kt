@@ -20,7 +20,7 @@ import java.util.concurrent.Executors
 private const val DATABASE_NAME = "issue-database"
 private const val TAG = "IssueRepository"
 
-class IssueRepository private constructor(val context: Context) {
+class IssueRepository private constructor(context: Context) {
 
     private val executor = Executors.newSingleThreadExecutor()
 
