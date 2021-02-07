@@ -26,11 +26,14 @@ private const val DIALOG_START_DATE = "DialogStartDate"
 private const val DIALOG_END_DATE = "DialogEndDate"
 
 const val ARG_SERIES_ID = "seriesId"
+const val ARG_SERIES_NAME = "Series Name"
 
-class NewSeriesDialogFragment : DialogFragment(),
+class NewSeriesDialogFragment private constructor(): DialogFragment(),
     DatePickerFragment.Callbacks {
 
     private lateinit var listener: NewSeriesDialogListener
+
+    private lateinit var seriesName: String
 
     private lateinit var seriesNameEditText: EditText
     private lateinit var volumeNumberEditText: EditText
@@ -58,6 +61,11 @@ class NewSeriesDialogFragment : DialogFragment(),
         }
     }
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        seriesName = arguments?.getSerializable(ARG_SERIES_NAME) as String
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -66,6 +74,8 @@ class NewSeriesDialogFragment : DialogFragment(),
         val view = inflater.inflate(R.layout.dialog_fragment_new_series, container, false)
 
         seriesNameEditText = view.findViewById(R.id.series_title)
+        seriesNameEditText.setText(seriesName)
+        seriesNameEditText.requestFocus()
         volumeNumberEditText = view.findViewById(R.id.volume_num)
         publisherSpinner = view.findViewById(R.id.publisher_spinner) as Spinner
         startDateEditText = view.findViewById(R.id.start_date_text_view) as TextView
@@ -178,5 +188,16 @@ class NewSeriesDialogFragment : DialogFragment(),
 
     override fun onDateSelected(date: LocalDate) {
 
+    }
+
+    companion object {
+        @JvmStatic
+        fun newInstance(seriesName: String = ""): NewSeriesDialogFragment {
+            return NewSeriesDialogFragment().apply {
+                arguments = Bundle().apply {
+                    putSerializable(ARG_SERIES_NAME, seriesName)
+                }
+            }
+        }
     }
 }

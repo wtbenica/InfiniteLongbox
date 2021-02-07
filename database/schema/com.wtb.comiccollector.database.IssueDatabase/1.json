@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "3b067cf09946850a1baf2c00cea0edf9",
+    "identityHash": "b019096994e641e7dc32f6b5259576c9",
     "entities": [
       {
         "tableName": "Issue",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`issueId` TEXT NOT NULL, `seriesId` TEXT NOT NULL, `issueNum` INTEGER NOT NULL, `writer` TEXT NOT NULL, `writerId` TEXT, `pencillerId` TEXT, `inkerId` TEXT, `coverUri` TEXT, `releaseDate` TEXT, `upc` INTEGER, PRIMARY KEY(`issueId`), FOREIGN KEY(`seriesId`) REFERENCES `Series`(`seriesId`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`writerId`) REFERENCES `Creator`(`creatorId`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`issueId` TEXT NOT NULL, `seriesId` TEXT NOT NULL, `issueNum` INTEGER NOT NULL, `writer` TEXT NOT NULL, `writerId` TEXT, `pencillerId` TEXT, `inkerId` TEXT, `coverUri` TEXT, `releaseDate` TEXT, `upc` INTEGER, PRIMARY KEY(`issueId`), FOREIGN KEY(`seriesId`) REFERENCES `Series`(`seriesId`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`writerId`) REFERENCES `Creator`(`creatorId`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
         "fields": [
           {
             "fieldPath": "issueId",
@@ -97,7 +97,7 @@
         "foreignKeys": [
           {
             "table": "Series",
-            "onDelete": "NO ACTION",
+            "onDelete": "CASCADE",
             "onUpdate": "NO ACTION",
             "columns": [
               "seriesId"
@@ -432,7 +432,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '3b067cf09946850a1baf2c00cea0edf9')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'b019096994e641e7dc32f6b5259576c9')"
     ]
   }
 }

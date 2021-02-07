@@ -20,9 +20,9 @@ class IssueDetailViewModel : ViewModel() {
             issueRepository.getIssue(issueId)
         }
 
-    var seriesLiveData: LiveData<Series?> =
+    var seriesLiveData: LiveData<Series> =
         Transformations.switchMap(issueLiveData) { issue ->
-            issue?.seriesId?.let { issueRepository.getSeries(it) }
+            issue?.let { issueRepository.getSeries(it.seriesId) }
         }
 
     var writerLiveData: LiveData<Creator> =
@@ -55,7 +55,10 @@ class IssueDetailViewModel : ViewModel() {
 
     fun loadIssue(issueId: UUID) {
         issueIdLiveData.value = issueId
-        seriesIdLiveData.value = issueLiveData.value?.seriesId
+    }
+
+    fun loadSeries(seriesId: UUID) {
+        seriesIdLiveData.value = seriesId
     }
 
     fun updateIssue(issue: Issue) {
@@ -79,13 +82,11 @@ class IssueDetailViewModel : ViewModel() {
         issueRepository.addCreator(creator)
     }
 
-    fun loadSeries(seriesId: UUID) {
-        seriesIdLiveData.value = seriesId
-    }
-
     fun deleteSeries(series: Series) {
         issueRepository.deleteSeries(series)
     }
 
-    fun getNewSeries(): LiveData<Series?> = issueRepository.newSeries
+    fun addIssue(issue: Issue) {
+        issueRepository.addIssue(issue)
+    }
 }

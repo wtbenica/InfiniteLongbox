@@ -43,7 +43,7 @@ private const val DIALOG_DATE = "DialogDate"
  * create an instance of this fragment.
  */
 // TODO: Do I need a separate fragment for editing vs viewing or can I do it all in this one?
-class IssueDetailFragment : Fragment(),
+class IssueDetailFragment private constructor() : Fragment(),
     DatePickerFragment.Callbacks {
 
     private lateinit var issue: Issue
@@ -56,7 +56,6 @@ class IssueDetailFragment : Fragment(),
 
     private lateinit var coverImageView: ImageView
     private lateinit var seriesSpinner: Spinner
-    private lateinit var addSeriesButton: ImageButton
     private lateinit var issueNumEditText: EditText
 
     private lateinit var writersLabel: TextView
@@ -100,6 +99,7 @@ class IssueDetailFragment : Fragment(),
         val issueId = arguments?.getSerializable(ARG_ISSUE_ID) as UUID
         seriesList = emptyList()
         issueDetailViewModel.loadIssue(issueId)
+        issueDetailViewModel.loadSeries(issue.seriesId)
     }
 
     override fun onCreateView(
@@ -107,12 +107,10 @@ class IssueDetailFragment : Fragment(),
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
+
         val view = inflater.inflate(R.layout.fragment_edit_issue, container, false)
 
         seriesSpinner = view.findViewById(R.id.issue_series) as Spinner
-        seriesSpinner.prompt = "Series Name"
-        addSeriesButton = view.findViewById(R.id.add_series_button) as ImageButton
 
         coverImageView = view.findViewById(R.id.issue_cover) as ImageView
 
@@ -143,48 +141,11 @@ class IssueDetailFragment : Fragment(),
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        issueDetailViewModel.allSeriesLiveData.observe(viewLifecycleOwner,
-            { allSeries ->
-                allSeries?.let {
-                    val adapter = ArrayAdapter(
-                        requireContext(),
-                        android.R.layout.simple_dropdown_item_1line,
-                        allSeries
-                    )
-                    seriesList = it
-                    seriesSpinner.adapter = adapter
-
-                    if (seriesList.isEmpty()) {
-                        Log.d(TAG, "series list is zero")
-                        val d = NewSeriesDialogFragment()
-                        d.setTargetFragment(this@IssueDetailFragment, RESULT_NEW_SERIES)
-                        d.show(parentFragmentManager, DIALOG_NEW_SERIES)
-                    } else if (issue.seriesId == NEW_SERIES_ID) {
-                        issue.seriesId = seriesList[0].seriesId
-                    }
-                }
-            })
-
-        issueDetailViewModel.allCreatorsLiveData.observe(viewLifecycleOwner,
-            { allWriters ->
-                allWriters?.let {
-                    val adapter = ArrayAdapter(
-                        requireContext(),
-                        android.R.layout.simple_dropdown_item_1line,
-                        allWriters
-                    )
-                    writersList = it
-                    writerSpinner.adapter = adapter
-                    pencillerSpinner.adapter = adapter
-                    inkerSpinner.adapter = adapter
-                }
-            })
-
         issueDetailViewModel.issueLiveData.observe(
             viewLifecycleOwner,
             { issue ->
                 issue?.let {
-                    this.issue = issue
+                    this.issue = it
                     updateUI()
                 }
             }
@@ -194,17 +155,55 @@ class IssueDetailFragment : Fragment(),
             viewLifecycleOwner,
             { series ->
                 series?.let {
-                    this.series = series
+                    this.series = it
                     updateUI()
                 }
             }
         )
 
+        issueDetailViewModel.allSeriesLiveData.observe(viewLifecycleOwner,
+            { allSeries ->
+                allSeries?.let {
+                    val thisList = listOf(Series()) + it
+                    val adapter = ArrayAdapter(
+                        requireContext(),
+                        android.R.layout.simple_dropdown_item_1line,
+                        thisList
+                    )
+                    seriesList = thisList
+                    seriesSpinner.setAdapter(adapter)
+
+//                    if (seriesList.isEmpty()) {
+//                        Log.d(TAG, "series list is zero")
+//                        val d = NewSeriesDialogFragment.newInstance("")
+//                        d.setTargetFragment(this@IssueDetailFragment, RESULT_NEW_SERIES)
+//                        d.show(parentFragmentManager, DIALOG_NEW_SERIES)
+//                    } else if (issue.seriesId == NEW_SERIES_ID) {
+//                        issue.seriesId = seriesList[0].seriesId
+//                    }
+                }
+            })
+
+        issueDetailViewModel.allCreatorsLiveData.observe(viewLifecycleOwner,
+            { allWriters ->
+                allWriters?.let {
+                    val adapter = ArrayAdapter(
+                        requireContext(),
+                        android.R.layout.simple_dropdown_item_1line,
+                        it
+                    )
+                    writersList = it
+                    writerSpinner.adapter = adapter
+                    pencillerSpinner.adapter = adapter
+                    inkerSpinner.adapter = adapter
+                }
+            })
+
         issueDetailViewModel.writerLiveData.observe(
             viewLifecycleOwner,
             { writer ->
                 writer?.let {
-                    this.writer = writer
+                    this.writer = it
                     updateUI()
                 }
             }
@@ -214,7 +213,7 @@ class IssueDetailFragment : Fragment(),
             viewLifecycleOwner,
             { penciller ->
                 penciller?.let {
-                    this.penciller = penciller
+                    this.penciller = it
                     updateUI()
                 }
             }
@@ -224,7 +223,7 @@ class IssueDetailFragment : Fragment(),
             viewLifecycleOwner,
             { inker ->
                 inker?.let {
-                    this.inker = inker
+                    this.inker = it
                     updateUI()
                 }
             }
@@ -258,12 +257,6 @@ class IssueDetailFragment : Fragment(),
         addPencillerButton.setOnClickListener(addNewRow(pencillersBox, addPencillerButton))
 
         addInkerButton.setOnClickListener(addNewRow(inkersBox, addInkerButton))
-
-        addSeriesButton.setOnClickListener {
-            val d = NewSeriesDialogFragment()
-            d.setTargetFragment(this@IssueDetailFragment, RESULT_NEW_SERIES)
-            d.show(parentFragmentManager, DIALOG_NEW_SERIES)
-        }
 
         writersLabel.setOnClickListener {
             val d = NewCreatorDialogFragment()
@@ -306,7 +299,7 @@ class IssueDetailFragment : Fragment(),
         releaseDateTextView.isEnabled = !releaseDateTextView.isEnabled
     }
 
-    // TODO: Add textWatchers. as of now, they editTexts dont save anything
+    // TODO: Add textWatchers. as of now, the editTexts dont save anything
     private fun addNewRow(parentTable: TableLayout, addButton: ImageButton): (v: View) -> Unit = {
         val numChildren = parentTable.childCount
         val newRow = TableRow(context)
@@ -379,10 +372,7 @@ class IssueDetailFragment : Fragment(),
                 id: Long
             ) {
                 parent?.let {
-                    issueDetailViewModel.allCreatorsLiveData.value?.let {
-                        issue.pencillerId =
-                            (parent.getItemAtPosition(position) as Creator).creatorId
-                    }
+                    issue.pencillerId = (it.getItemAtPosition(position) as Creator).creatorId
                 }
             }
 
@@ -399,9 +389,7 @@ class IssueDetailFragment : Fragment(),
                 id: Long
             ) {
                 parent?.let {
-                    issueDetailViewModel.allCreatorsLiveData.value?.let {
-                        issue.inkerId = (parent.getItemAtPosition(position) as Creator).creatorId
-                    }
+                    issue.inkerId = (it.getItemAtPosition(position) as Creator).creatorId
                 }
             }
 
@@ -417,28 +405,47 @@ class IssueDetailFragment : Fragment(),
                 position: Int,
                 id: Long
             ) {
+                Log.d(TAG, "seriesAutoComplete ItemSelected")
                 parent?.let {
-                    issueDetailViewModel.allSeriesLiveData.value?.let {
-                        series = parent.getItemAtPosition(position) as Series
-                        issue.seriesId = series.seriesId
+                    if ((it.getItemAtPosition(position) as Series).seriesName == "New Series") {
+                        val d = NewSeriesDialogFragment.newInstance()
+                        d.setTargetFragment(this@IssueDetailFragment, RESULT_NEW_SERIES)
+                        d.show(parentFragmentManager, DIALOG_NEW_SERIES)
+                    } else {
+                        issue.seriesId = (it.getItemAtPosition(position) as Series).seriesId
+                        issueDetailViewModel.updateIssue(issue)
+                        issueDetailViewModel.loadIssue(issue.issueId)
+                        issueDetailViewModel.loadSeries(issue.seriesId)
                     }
                 }
             }
 
             override fun onNothingSelected(parent: AdapterView<*>?) {
-                // TODO: Not yet implemented
+
             }
 
         }
+
+//        seriesAutoComplete.setOnDismissListener {
+//            Log.d(TAG, "seriesAutoComplete Dismiss")
+//            if (series.seriesName == "New Series") {
+//                val d = NewSeriesDialogFragment.newInstance(seriesAutoComplete.text.toString())
+//                d.setTargetFragment(this@IssueDetailFragment, RESULT_NEW_SERIES)
+//                d.show(parentFragmentManager, DIALOG_NEW_SERIES)
+//            }
+//        }
+//
         issueNumEditText.addTextChangedListener(issueNumWatcher)
     }
+
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
 
         when {
             resultCode != Activity.RESULT_OK -> return
             requestCode == RESULT_NEW_SERIES && data != null -> {
-                this.issue.seriesId = data.getSerializableExtra(ARG_SERIES_ID) as UUID
+                val seriesId = data.getSerializableExtra(ARG_SERIES_ID) as UUID
+                this.issue.seriesId = seriesId
                 saveChanges()
                 updateUI()
             }
@@ -462,16 +469,21 @@ class IssueDetailFragment : Fragment(),
 
     override fun onStop() {
         super.onStop()
-        saveChanges()
+        issueDetailViewModel.updateIssue(issue)
+        issueDetailViewModel.loadIssue(issue.issueId)
     }
 
     private fun saveChanges() {
-        issueDetailViewModel.updateIssue(this.issue)
-        issueDetailViewModel.loadIssue(this.issue.issueId)
+        issueDetailViewModel.updateIssue(issue)
+        issueDetailViewModel.loadIssue(issue.issueId)
+        issueDetailViewModel.loadSeries(issue.seriesId)
     }
 
     private fun updateUI() {
         seriesSpinner.setSelection(seriesList.indexOf(series))
+        writerSpinner.setSelection(writersList.indexOf(writer))
+        pencillerSpinner.setSelection(writersList.indexOf(penciller))
+        inkerSpinner.setSelection(writersList.indexOf(inker))
 
         issueNumEditText.setText(
             if (this.issue.issueNum == Int.MAX_VALUE) {
@@ -480,11 +492,6 @@ class IssueDetailFragment : Fragment(),
                 this.issue.issueNum.toString()
             }
         )
-
-        val writerPos = writersList.indexOf(writer)
-        writerSpinner.setSelection(writerPos)
-        pencillerSpinner.setSelection(writersList.indexOf(penciller))
-        inkerSpinner.setSelection(writersList.indexOf(inker))
 
         this.issue.releaseDate?.format(DateTimeFormatter.ofPattern("MMMM d, y"))
             ?.let { releaseDateTextView.text = it }

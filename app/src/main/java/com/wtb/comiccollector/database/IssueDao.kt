@@ -5,6 +5,7 @@ import androidx.room.*
 import com.wtb.comiccollector.*
 import java.util.*
 
+private val NEW_SERIES_UUID = UUID(0, 0)
 
 @Dao
 interface IssueDao {
@@ -52,62 +53,56 @@ interface IssueDao {
     )
     fun getWritersList(): LiveData<List<Creator>>
 
-    @Update
-    fun updateIssue(issue: Issue)
+    @Insert
+    fun insertIssue(vararg issue: Issue)
 
     @Insert
-    fun addIssue(vararg issue: Issue)
+    fun insertSeries(vararg series: Series)
 
-    @Delete
-    fun deleteIssue(issue: Issue)
+    @Insert
+    fun insertCreator(vararg creator: Creator)
+
+    @Insert
+    fun insertPublisher(vararg publisher: Publisher)
+
+    @Insert
+    fun insertRole(vararg role: Role)
+
+    @Insert
+    fun insertCredit(vararg credit: Credit)
+
+    @Update
+    fun updateIssue(issue: Issue)
 
     @Update
     fun updateSeries(series: Series)
 
-    @Insert
-    fun addSeries(vararg series: Series)
-
-    @Delete
-    fun deleteSeries(series: Series)
-
     @Update
     fun updateCreator(creator: Creator)
-
-    @Insert
-    fun addCreator(vararg creator: Creator)
-
-    @Delete
-    fun deleteCreator(creator: Creator)
 
     @Update
     fun updatePublisher(publisher: Publisher)
 
-    @Insert
-    fun addPublisher(publisher: Publisher)
-
-    @Insert
-    fun addPublishers(vararg publisher: Publisher)
-
-    @Insert
-    fun addRoles(vararg role: Role)
-
-    @Delete
-    fun deletePublisher(publisher: Publisher)
-
     @Update
     fun updateRole(role: Role)
-
-    @Insert
-    fun addRole(role: Role)
-
-    @Delete
-    fun deleteRole(role: Role)
 
     @Update
     fun updateCredit(credit: Credit)
 
-    @Insert
-    fun addCredit(vararg credit: Credit)
+    @Delete
+    fun deleteIssue(issue: Issue)
+
+    @Delete
+    fun deleteSeries(series: Series)
+
+    @Delete
+    fun deleteCreator(creator: Creator)
+
+    @Delete
+    fun deletePublisher(publisher: Publisher)
+
+    @Delete
+    fun deleteRole(role: Role)
 
     @Delete
     fun deleteCredit(credit: Credit)

@@ -38,8 +38,6 @@ class IssueRepository private constructor(context: Context) {
 
     val allWriters: LiveData<List<Creator>> = issueDao.getWritersList()
 
-    val newSeries: LiveData<Series?> = issueDao.getSeriesById(UUID(0, 0))
-
     fun getIssues(): LiveData<List<FullIssue>> = issueDao.getIssues()
 
     fun getIssue(issueId: UUID): LiveData<Issue?> = issueDao.getIssue(issueId)
@@ -59,7 +57,7 @@ class IssueRepository private constructor(context: Context) {
                 super.onCreate(db)
                 executor.execute {
                     val publisherDC = Publisher(publisherId = UUID.randomUUID(), publisher = "DC")
-                    issueDao.addPublishers(
+                    issueDao.insertPublisher(
                         publisherDC,
                         Publisher(publisher = "Marvel"),
                         Publisher(publisher = "Image"),
@@ -71,7 +69,7 @@ class IssueRepository private constructor(context: Context) {
                     )
                     val writer = Role(roleName = "Writer")
                     val penciller = Role(roleName = "Penciller")
-                    issueDao.addRoles(
+                    issueDao.insertRole(
                         writer,
                         Role(roleName = "Scripter"),
                         Role(roleName = "Plotter"),
@@ -88,7 +86,7 @@ class IssueRepository private constructor(context: Context) {
                     val philipBond = Creator(firstName = "Philip", lastName = "Bond")
                     val johnNyberg = Creator(firstName = "John", lastName = "Nyberg")
                     val richardCase = Creator(firstName = "Richard", lastName = "Case")
-                    issueDao.addCreator(
+                    issueDao.insertCreator(
                         grantMorrison,
                         philipBond,
                         johnNyberg,
@@ -98,7 +96,7 @@ class IssueRepository private constructor(context: Context) {
                     )
                     val seriesDoomPatrol =
                         Series(seriesName = "Doom Patrol", publisherId = publisherDC.publisherId)
-                    issueDao.addSeries(
+                    issueDao.insertSeries(
                         Series(
                             seriesId = NEW_SERIES_ID,
                             seriesName = "New Series",
@@ -115,7 +113,7 @@ class IssueRepository private constructor(context: Context) {
                         inkerId = johnNyberg.creatorId,
                         issueNum = 35
                     )
-                    issueDao.addIssue(
+                    issueDao.insertIssue(
                         Issue(
                             seriesId = seriesDoomPatrol.seriesId,
                             writerId = grantMorrison.creatorId,
@@ -125,7 +123,7 @@ class IssueRepository private constructor(context: Context) {
                         ),
                         dp35
                     )
-                    issueDao.addCredit(
+                    issueDao.insertCredit(
                         Credit(
                             issueId = dp35.issueId,
                             creatorId = grantMorrison.creatorId,
@@ -146,11 +144,39 @@ class IssueRepository private constructor(context: Context) {
     fun addIssue(issue: Issue) {
         executor.execute {
             try {
-                issueDao.addIssue(issue)
+                issueDao.insertIssue(issue)
             } catch (e: SQLiteConstraintException) {
                 // TODO: some real exception handling
                 Log.d(TAG, "addIssue: $e")
             }
+        }
+    }
+
+    fun addSeries(series: Series) {
+        executor.execute {
+            try {
+                issueDao.insertSeries(series)
+            } catch (e: SQLiteConstraintException) {
+                Log.d(TAG, "addSeries: $e")
+            }
+        }
+    }
+
+    fun addCreator(creator: Creator) {
+        executor.execute {
+            issueDao.insertCreator(creator)
+        }
+    }
+
+    fun addRole(role: Role) {
+        executor.execute {
+            issueDao.insertRole(role)
+        }
+    }
+
+    fun addCredit(credit: Credit) {
+        executor.execute {
+            issueDao.insertCredit(credit)
         }
     }
 
@@ -165,16 +191,6 @@ class IssueRepository private constructor(context: Context) {
         }
     }
 
-    fun addSeries(series: Series) {
-        executor.execute {
-            try {
-                issueDao.addSeries(series)
-            } catch (e: SQLiteConstraintException) {
-                Log.d(TAG, "addSeries: $e")
-            }
-        }
-    }
-
     fun updateSeries(series: Series) {
         executor.execute {
             try {
@@ -183,24 +199,6 @@ class IssueRepository private constructor(context: Context) {
                 // TODO: some real exception handling
                 Log.d(TAG, "updateSeries: $e")
             }
-        }
-    }
-
-    fun addCreator(creator: Creator) {
-        executor.execute {
-            issueDao.addCreator(creator)
-        }
-    }
-
-    fun addRole(role: Role) {
-        executor.execute {
-            issueDao.addRole(role)
-        }
-    }
-
-    fun addCredit(credit: Credit) {
-        executor.execute {
-            issueDao.addCredit(credit)
         }
     }
 
