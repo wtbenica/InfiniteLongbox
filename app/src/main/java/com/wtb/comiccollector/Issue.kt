@@ -2,6 +2,7 @@ package com.wtb.comiccollector
 
 import android.net.Uri
 import androidx.room.*
+import androidx.room.ForeignKey.CASCADE
 import java.time.LocalDate
 import java.util.*
 
@@ -13,11 +14,18 @@ val NEW_SERIES_ID = UUID(0, 0)
         ForeignKey(
             entity = Series::class,
             parentColumns = arrayOf("seriesId"),
-            childColumns = arrayOf("seriesId")
+            childColumns = arrayOf("seriesId"),
+            onDelete = CASCADE
+        ),
+        ForeignKey(
+            entity = Creator::class,
+            parentColumns = arrayOf("creatorId"),
+            childColumns = arrayOf("writerId")
         )
     ],
     indices = [
-        Index(value = ["seriesId", "issueNum"], unique = true)
+        Index(value = ["seriesId", "issueNum"], unique = true),
+        Index(value = ["writerId"])
     ]
 )
 data class Issue(
@@ -25,8 +33,9 @@ data class Issue(
     var seriesId: UUID = NEW_SERIES_ID,
     var issueNum: Int = 1,
     var writer: String = "",
-    var penciller: String = "",
-    var inker: String = "",
+    var writerId: UUID? = null,
+    var pencillerId: UUID? = null,
+    var inkerId: UUID? = null,
     var coverUri: Uri? = null,
     var releaseDate: LocalDate? = null,
     var upc: Long? = null
@@ -50,19 +59,16 @@ data class Issue(
 )
 data class Series(
     @PrimaryKey val seriesId: UUID = UUID.randomUUID(),
-    var seriesName: String = "",
+    var seriesName: String = "New Series",
     var volume: Int = 1,
     var publisherId: UUID = NEW_SERIES_ID,
     var startDate: LocalDate? = null,
     var endDate: LocalDate? = null
 ) {
-    override fun toString(): String {
-        return if (startDate != null && endDate != null) {
-            "$seriesName v$volume (${startDate!!.year}-${endDate!!.year})"
-        } else {
-            "$seriesName vol. $volume"
-        }
-    }
+    override fun toString(): String = seriesName
+
+    val fullDescription: String
+        get() = "$seriesName vol. $volume $dateRange".removeSuffix(" ")
 
     val dateRange: String
         get() = startDate?.let {
@@ -91,7 +97,11 @@ data class Creator(
     } else {
         ""
     }
-)
+) {
+    override fun toString(): String {
+        return name
+    }
+}
 
 @Entity
 data class Publisher(

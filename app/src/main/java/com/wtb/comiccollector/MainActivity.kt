@@ -8,7 +8,8 @@ import java.util.*
 class MainActivity : AppCompatActivity(),
     IssueListFragment.Callbacks,
     SeriesListFragment.Callbacks,
-    NewSeriesDialogFragment.NewSeriesDialogListener {
+    NewSeriesDialogFragment.NewSeriesDialogListener,
+    NewCreatorDialogFragment.NewCreatorDialogListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -26,7 +27,7 @@ class MainActivity : AppCompatActivity(),
     }
 
     override fun onIssueSelected(issueId: UUID) {
-        val fragment = IssueFragment.newInstance(issueId, false)
+        val fragment = IssueDetailFragment.newInstance(issueId, false)
         supportFragmentManager
             .beginTransaction()
             .setCustomAnimations(
@@ -57,7 +58,7 @@ class MainActivity : AppCompatActivity(),
     }
 
     override fun onNewIssue(issueId: UUID) {
-        val fragment = IssueFragment.newInstance(issueId)
+        val fragment = IssueDetailFragment.newInstance(issueId)
 
         supportFragmentManager
             .beginTransaction()
@@ -74,6 +75,11 @@ class MainActivity : AppCompatActivity(),
 
     override fun onSaveSeriesClick(dialog: DialogFragment, series: Series) {
         // TODO: MainActivity onSaveSeriesClick
+        dialog.dismiss()
+    }
+
+    override fun onSaveCreatorClick(dialog: DialogFragment, creator: Creator) {
+        // TODO: Not yet implemented
         dialog.dismiss()
     }
 

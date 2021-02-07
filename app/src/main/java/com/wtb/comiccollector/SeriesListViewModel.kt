@@ -4,6 +4,8 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import java.util.*
 
+private const val TAG = "SeriesListViewModel"
+
 class SeriesListViewModel : ViewModel() {
     private val issueRepository: IssueRepository = IssueRepository.get()
 
@@ -40,6 +42,4 @@ class SeriesListViewModel : ViewModel() {
     }
 
     fun getSeries(seriesId: UUID): LiveData<Series?> = issueRepository.getSeries(seriesId)
-
-    fun getNewSeries(): LiveData<Series?> = issueRepository.newSeries
 }
