@@ -1,5 +1,68 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.recyclerview.widget.RecyclerView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/issue_recycler_view"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent" />
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:id="@+id/details"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:id="@+id/details_series_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            tools:text="Doom Patrol" />
+
+        <TextView
+            android:id="@+id/details_series_volume"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            tools:text="vol. 1" />
+
+        <TextView
+            android:id="@+id/details_publisher"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            tools:text="DC/Vertigo" />
+
+        <TextView
+            android:id="@+id/details_start_date"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            tools:text="Dec. 1989" />
+
+        <TextView
+            android:id="@+id/details_end_date"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            tools:text="Feb. 1994" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/label_description" />
+
+        <TextView
+            android:id="@+id/details_description"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            tools:text="A guy whose brain is stuck in a robot body goes on adventures with a ragtag group of fellow outcasts." />
+
+    </LinearLayout>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/issue_recycler_view"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/details" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

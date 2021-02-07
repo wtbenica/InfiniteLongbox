@@ -24,6 +24,7 @@
     <string name="hint_last_name">Last Name</string>
     <string name="hint_suffix">Suffix</string>
     <string name="hint_new_creator">New Creator</string>
+    <string name="label_description">Description</string>
     <string-array name="suffixes_array">
         <item>Sr.</item>
         <item>Jr.</item>

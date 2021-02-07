@@ -21,6 +21,12 @@ class IssueListFragment(val seriesId: UUID? = null) : Fragment() {
     private var callbacks: Callbacks? = null
 
     private val issueListViewModel by lazy { ViewModelProvider(this).get(IssueListViewModel::class.java) }
+    private lateinit var seriesNameTextView: TextView
+    private lateinit var volumeNumTextView: TextView
+    private lateinit var publisherTextView: TextView
+    private lateinit var startDateTextView: TextView
+    private lateinit var endDateTextView: TextView
+    private lateinit var descriptionTextView: TextView
     private lateinit var issueRecyclerView: RecyclerView
     private var adapter: IssueAdapter? = IssueAdapter(emptyList())
 
@@ -40,6 +46,13 @@ class IssueListFragment(val seriesId: UUID? = null) : Fragment() {
     ): View? {
         val view = inflater.inflate(R.layout.fragment_issue_list, container, false)
 
+        seriesNameTextView = view.findViewById(R.id.details_series_name)
+        volumeNumTextView = view.findViewById(R.id.details_series_volume)
+        publisherTextView = view.findViewById(R.id.details_publisher)
+        startDateTextView = view.findViewById(R.id.details_start_date)
+        endDateTextView = view.findViewById(R.id.details_end_date)
+        descriptionTextView = view.findViewById(R.id.details_description)
+
         issueRecyclerView = view.findViewById(R.id.issue_recycler_view)
         issueRecyclerView.layoutManager = LinearLayoutManager(context)
         issueRecyclerView.adapter = adapter
@@ -52,7 +65,14 @@ class IssueListFragment(val seriesId: UUID? = null) : Fragment() {
         seriesId?.let {
             issueListViewModel.loadSeries(seriesId)
         }
-        issueListViewModel.issueListLiveData.value?.let { updateUI(it) }
+
+        issueListViewModel.seriesLiveData.observe(
+            viewLifecycleOwner,
+            { series ->
+                updateSeriesDetails(series)
+            }
+        )
+
         issueListViewModel.issueListLiveData.observe(
             viewLifecycleOwner,
             { issues ->
@@ -85,6 +105,15 @@ class IssueListFragment(val seriesId: UUID? = null) : Fragment() {
             }
             else -> super.onOptionsItemSelected(item)
         }
+    }
+
+    private fun updateSeriesDetails(series: SeriesDetail?) {
+        seriesNameTextView.setText(series?.series?.seriesName)
+        volumeNumTextView.setText(series?.series?.volume.toString())
+        publisherTextView.setText(series?.publisher)
+        startDateTextView.setText(series?.series?.startDate.toString())
+        endDateTextView.setText(series?.series?.endDate.toString())
+        descriptionTextView.setText(series?.series?.description)
     }
 
     private fun updateUI(issues: List<FullIssue>) {

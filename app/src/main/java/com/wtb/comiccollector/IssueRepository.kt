@@ -13,6 +13,7 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.wtb.comiccollector.database.IssueDatabase
+import com.wtb.comiccollector.database.migration_1_2
 import java.time.LocalDate
 import java.util.*
 import java.util.concurrent.Executors
@@ -138,7 +139,7 @@ class IssueRepository private constructor(context: Context) {
                 }
             }
         }
-    )
+    ).addMigrations(migration_1_2)
         .build()
 
     fun addIssue(issue: Issue) {
@@ -218,7 +219,7 @@ class IssueRepository private constructor(context: Context) {
         return issueDao.getSeriesList()
     }
 
-    fun getSeries(seriesId: UUID): LiveData<Series?> = issueDao.getSeriesById(seriesId)
+    fun getSeries(seriesId: UUID): LiveData<SeriesDetail?> = issueDao.getSeriesById(seriesId)
 
     fun getCreator(creatorId: UUID): LiveData<Creator> {
         return issueDao.getCreator(creatorId)

@@ -33,8 +33,8 @@ interface IssueDao {
     )
     fun getIssueCredits(issueId: UUID): LiveData<List<IssueCredits>>
 
-    @Query("SELECT * FROM series WHERE seriesId=:seriesId")
-    fun getSeriesById(seriesId: UUID): LiveData<Series?>
+    @Query("SELECT * FROM series NATURAL JOIN Publisher WHERE seriesId=:seriesId")
+    fun getSeriesById(seriesId: UUID): LiveData<SeriesDetail?>
 
     @Query("SELECT issue.* FROM issue NATURAL JOIN credit WHERE creatorId=:creatorId")
     fun getIssuesByCreator(creatorId: UUID): LiveData<List<Issue>>

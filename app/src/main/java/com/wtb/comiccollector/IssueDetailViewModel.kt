@@ -18,7 +18,7 @@ class IssueDetailViewModel : ViewModel() {
             issueRepository.getIssue(issueId)
         }
 
-    var seriesLiveData: LiveData<Series> =
+    var seriesLiveData: LiveData<SeriesDetail> =
         Transformations.switchMap(issueLiveData) { issue ->
             issue?.let { issueRepository.getSeries(it.seriesId) }
         }

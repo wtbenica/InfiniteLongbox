@@ -154,7 +154,7 @@ class IssueDetailFragment private constructor() : Fragment(),
             viewLifecycleOwner,
             { series ->
                 series?.let {
-                    this.series = it
+                    this.series = it.series
                     updateUI()
                 }
             }
