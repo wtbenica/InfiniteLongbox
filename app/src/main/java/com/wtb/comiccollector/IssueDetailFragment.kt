@@ -99,7 +99,6 @@ class IssueDetailFragment private constructor() : Fragment(),
         val issueId = arguments?.getSerializable(ARG_ISSUE_ID) as UUID
         seriesList = emptyList()
         issueDetailViewModel.loadIssue(issueId)
-        issueDetailViewModel.loadSeries(issue.seriesId)
     }
 
     override fun onCreateView(
@@ -164,7 +163,7 @@ class IssueDetailFragment private constructor() : Fragment(),
         issueDetailViewModel.allSeriesLiveData.observe(viewLifecycleOwner,
             { allSeries ->
                 allSeries?.let {
-                    val thisList = listOf(Series()) + it
+                    val thisList = it + listOf(Series())
                     val adapter = ArrayAdapter(
                         requireContext(),
                         android.R.layout.simple_dropdown_item_1line,
@@ -172,15 +171,6 @@ class IssueDetailFragment private constructor() : Fragment(),
                     )
                     seriesList = thisList
                     seriesSpinner.setAdapter(adapter)
-
-//                    if (seriesList.isEmpty()) {
-//                        Log.d(TAG, "series list is zero")
-//                        val d = NewSeriesDialogFragment.newInstance("")
-//                        d.setTargetFragment(this@IssueDetailFragment, RESULT_NEW_SERIES)
-//                        d.show(parentFragmentManager, DIALOG_NEW_SERIES)
-//                    } else if (issue.seriesId == NEW_SERIES_ID) {
-//                        issue.seriesId = seriesList[0].seriesId
-//                    }
                 }
             })
 
@@ -415,7 +405,6 @@ class IssueDetailFragment private constructor() : Fragment(),
                         issue.seriesId = (it.getItemAtPosition(position) as Series).seriesId
                         issueDetailViewModel.updateIssue(issue)
                         issueDetailViewModel.loadIssue(issue.issueId)
-                        issueDetailViewModel.loadSeries(issue.seriesId)
                     }
                 }
             }
@@ -476,7 +465,6 @@ class IssueDetailFragment private constructor() : Fragment(),
     private fun saveChanges() {
         issueDetailViewModel.updateIssue(issue)
         issueDetailViewModel.loadIssue(issue.issueId)
-        issueDetailViewModel.loadSeries(issue.seriesId)
     }
 
     private fun updateUI() {
