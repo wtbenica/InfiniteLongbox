@@ -37,12 +37,14 @@ class IssueListFragment(val seriesId: UUID? = null) : Fragment() {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
 
-        val fragment = SeriesDetailFragment.newInstance(seriesId)
-        childFragmentManager.beginTransaction()
-            .replace(R.id.details, fragment)
-            .addToBackStack(null)
-            .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
-            .commit()
+        seriesId?.let {
+            val fragment = SeriesDetailFragment.newInstance(it)
+            childFragmentManager.beginTransaction()
+                .replace(R.id.details, fragment)
+                .addToBackStack(null)
+                .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
+                .commit()
+        }
     }
 
     override fun onCreateView(

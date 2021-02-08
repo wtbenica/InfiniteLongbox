@@ -60,6 +60,7 @@ class IssueRepository private constructor(context: Context) {
                     val publisherDC = Publisher(publisherId = UUID.randomUUID(), publisher = "DC")
                     issueDao.insertPublisher(
                         publisherDC,
+                        Publisher(publisherId = NEW_SERIES_ID, publisher = "New Publisher"),
                         Publisher(publisher = "Marvel"),
                         Publisher(publisher = "Image"),
                         Publisher(publisher = "Dark Horse"),

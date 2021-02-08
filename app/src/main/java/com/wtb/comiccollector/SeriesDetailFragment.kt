@@ -21,7 +21,7 @@ private const val DIALOG_NEW_SERIES = "DIALOG_EDIT_SERIES"
  * Use the [SeriesDetailFragment.newInstance] factory method to
  * create an instance of this fragment.
  */
-class SeriesDetailFragment(val seriesId: UUID? = null) : Fragment() {
+class SeriesDetailFragment(val seriesId: UUID) : Fragment() {
 
     private val issueListViewModel by lazy {
         ViewModelProvider(this).get(IssueListViewModel::class.java)
@@ -59,7 +59,7 @@ class SeriesDetailFragment(val seriesId: UUID? = null) : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         Log.d(TAG, "View Created")
 
-        seriesId?.let {
+        seriesId.let {
             issueListViewModel.loadSeries(seriesId)
         }
 
@@ -72,7 +72,7 @@ class SeriesDetailFragment(val seriesId: UUID? = null) : Fragment() {
         )
 
         editSeriesButton.setOnClickListener {
-            val d = NewSeriesDialogFragment.newInstance()
+            val d = NewSeriesDialogFragment.newInstance(seriesId)
             d.setTargetFragment(this, RESULT_NEW_SERIES)
             d.show(parentFragmentManager, DIALOG_NEW_SERIES)
         }
@@ -111,6 +111,6 @@ class SeriesDetailFragment(val seriesId: UUID? = null) : Fragment() {
          * @return A new instance of fragment SeriesDetailFragment.
          */
         @JvmStatic
-        fun newInstance(seriesId: UUID?) = SeriesDetailFragment(seriesId)
+        fun newInstance(seriesId: UUID) = SeriesDetailFragment(seriesId)
     }
 }
