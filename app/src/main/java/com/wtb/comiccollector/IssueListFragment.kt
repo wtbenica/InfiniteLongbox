@@ -6,6 +6,7 @@ import android.view.*
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentTransaction
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -20,13 +21,10 @@ class IssueListFragment(val seriesId: UUID? = null) : Fragment() {
 
     private var callbacks: Callbacks? = null
 
-    private val issueListViewModel by lazy { ViewModelProvider(this).get(IssueListViewModel::class.java) }
-    private lateinit var seriesNameTextView: TextView
-    private lateinit var volumeNumTextView: TextView
-    private lateinit var publisherTextView: TextView
-    private lateinit var startDateTextView: TextView
-    private lateinit var endDateTextView: TextView
-    private lateinit var descriptionTextView: TextView
+    private val issueListViewModel by lazy {
+        ViewModelProvider(this).get(IssueListViewModel::class.java)
+    }
+
     private lateinit var issueRecyclerView: RecyclerView
     private var adapter: IssueAdapter? = IssueAdapter(emptyList())
 
@@ -38,6 +36,13 @@ class IssueListFragment(val seriesId: UUID? = null) : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
+
+        val fragment = SeriesDetailFragment.newInstance(seriesId)
+        childFragmentManager.beginTransaction()
+            .replace(R.id.details, fragment)
+            .addToBackStack(null)
+            .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
+            .commit()
     }
 
     override fun onCreateView(
@@ -45,13 +50,6 @@ class IssueListFragment(val seriesId: UUID? = null) : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         val view = inflater.inflate(R.layout.fragment_issue_list, container, false)
-
-        seriesNameTextView = view.findViewById(R.id.details_series_name)
-        volumeNumTextView = view.findViewById(R.id.details_series_volume)
-        publisherTextView = view.findViewById(R.id.details_publisher)
-        startDateTextView = view.findViewById(R.id.details_start_date)
-        endDateTextView = view.findViewById(R.id.details_end_date)
-        descriptionTextView = view.findViewById(R.id.details_description)
 
         issueRecyclerView = view.findViewById(R.id.issue_recycler_view)
         issueRecyclerView.layoutManager = LinearLayoutManager(context)
@@ -65,13 +63,6 @@ class IssueListFragment(val seriesId: UUID? = null) : Fragment() {
         seriesId?.let {
             issueListViewModel.loadSeries(seriesId)
         }
-
-        issueListViewModel.seriesLiveData.observe(
-            viewLifecycleOwner,
-            { series ->
-                updateSeriesDetails(series)
-            }
-        )
 
         issueListViewModel.issueListLiveData.observe(
             viewLifecycleOwner,
@@ -98,22 +89,14 @@ class IssueListFragment(val seriesId: UUID? = null) : Fragment() {
             R.id.new_issue -> {
                 // TODO: Find solution to this. If issueNum is default (1), if there already
                 //  exists an issue number 1, then violates unique series/issue restraint in db
-                val issue = seriesId?.let { Issue(seriesId = it, issueNum = Int.MAX_VALUE) } ?: Issue()
+                val issue =
+                    seriesId?.let { Issue(seriesId = it, issueNum = Int.MAX_VALUE) } ?: Issue()
                 issueListViewModel.addIssue(issue)
                 callbacks?.onNewIssue(issue.issueId)
                 true
             }
             else -> super.onOptionsItemSelected(item)
         }
-    }
-
-    private fun updateSeriesDetails(series: SeriesDetail?) {
-        seriesNameTextView.setText(series?.series?.seriesName)
-        volumeNumTextView.setText(series?.series?.volume.toString())
-        publisherTextView.setText(series?.publisher)
-        startDateTextView.setText(series?.series?.startDate.toString())
-        endDateTextView.setText(series?.series?.endDate.toString())
-        descriptionTextView.setText(series?.series?.description)
     }
 
     private fun updateUI(issues: List<FullIssue>) {

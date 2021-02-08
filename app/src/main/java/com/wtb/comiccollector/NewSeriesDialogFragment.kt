@@ -28,8 +28,12 @@ private const val DIALOG_END_DATE = "DialogEndDate"
 const val ARG_SERIES_ID = "seriesId"
 const val ARG_SERIES_NAME = "Series Name"
 
-class NewSeriesDialogFragment private constructor(): DialogFragment(),
+class NewSeriesDialogFragment private constructor() : DialogFragment(),
     DatePickerFragment.Callbacks {
+
+    private val issueListViewModel by lazy {
+        ViewModelProvider(this).get(IssueListViewModel::class.java)
+    }
 
     private lateinit var listener: NewSeriesDialogListener
 

@@ -34,4 +34,8 @@
         <item>IV</item>
         <item>V</item>
     </string-array>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="hint_volume">Volume</string>
+    <string name="hint_edit_series_button">Edit series info</string>
 </resources>
