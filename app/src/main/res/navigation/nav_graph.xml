@@ -1,5 +1,55 @@
 <?xml version="1.0" encoding="utf-8"?>
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto" android:id="@+id/nav_graph">
+    xmlns:app="http://schemas.android.com/apk/res-auto" android:id="@+id/nav_graph"
+    app:startDestination="@id/seriesListFragment">
 
+    <fragment
+        android:id="@+id/seriesListFragment"
+        android:name="com.wtb.comiccollector.SeriesListFragment"
+        android:label="SeriesListFragment" >
+        <action
+            android:id="@+id/action_seriesListFragment_to_issueListFragment"
+            app:destination="@id/issueListFragment" />
+        <action
+            android:id="@+id/action_seriesListFragment_to_newSeriesDialogFragment"
+            app:destination="@id/newSeriesDialogFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/issueListFragment"
+        android:name="com.wtb.comiccollector.IssueListFragment"
+        android:label="IssueListFragment" >
+        <action
+            android:id="@+id/action_issueListFragment_to_issueDetailFragment"
+            app:destination="@id/issueDetailFragment" />
+        <action
+            android:id="@+id/action_issueListFragment_to_newSeriesDialogFragment"
+            app:destination="@id/newSeriesDialogFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/issueDetailFragment"
+        android:name="com.wtb.comiccollector.IssueDetailFragment"
+        android:label="IssueDetailFragment" >
+        <action
+            android:id="@+id/action_issueDetailFragment_to_datePickerFragment"
+            app:destination="@id/datePickerFragment" />
+        <action
+            android:id="@+id/action_issueDetailFragment_to_newCreatorDialogFragment"
+            app:destination="@id/newCreatorDialogFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/newSeriesDialogFragment"
+        android:name="com.wtb.comiccollector.SeriesInfoDialogFragment"
+        android:label="NewSeriesDialogFragment" >
+        <action
+            android:id="@+id/action_newSeriesDialogFragment_to_datePickerFragment"
+            app:destination="@id/datePickerFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/datePickerFragment"
+        android:name="com.wtb.comiccollector.DatePickerFragment"
+        android:label="DatePickerFragment" />
+    <fragment
+        android:id="@+id/newCreatorDialogFragment"
+        android:name="com.wtb.comiccollector.NewCreatorDialogFragment"
+        android:label="NewCreatorDialogFragment" />
 </navigation>

@@ -6,6 +6,7 @@ import android.view.*
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentTransaction
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -20,7 +21,10 @@ class IssueListFragment(val seriesId: UUID? = null) : Fragment() {
 
     private var callbacks: Callbacks? = null
 
-    private val issueListViewModel by lazy { ViewModelProvider(this).get(IssueListViewModel::class.java) }
+    private val issueListViewModel by lazy {
+        ViewModelProvider(this).get(IssueListViewModel::class.java)
+    }
+
     private lateinit var issueRecyclerView: RecyclerView
     private var adapter: IssueAdapter? = IssueAdapter(emptyList())
 
@@ -32,6 +36,15 @@ class IssueListFragment(val seriesId: UUID? = null) : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
+
+        seriesId?.let {
+            val fragment = SeriesDetailFragment.newInstance(it)
+            childFragmentManager.beginTransaction()
+                .replace(R.id.details, fragment)
+                .addToBackStack(null)
+                .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
+                .commit()
+        }
     }
 
     override fun onCreateView(
@@ -52,7 +65,7 @@ class IssueListFragment(val seriesId: UUID? = null) : Fragment() {
         seriesId?.let {
             issueListViewModel.loadSeries(seriesId)
         }
-        issueListViewModel.issueListLiveData.value?.let { updateUI(it) }
+
         issueListViewModel.issueListLiveData.observe(
             viewLifecycleOwner,
             { issues ->
@@ -78,7 +91,8 @@ class IssueListFragment(val seriesId: UUID? = null) : Fragment() {
             R.id.new_issue -> {
                 // TODO: Find solution to this. If issueNum is default (1), if there already
                 //  exists an issue number 1, then violates unique series/issue restraint in db
-                val issue = seriesId?.let { Issue(seriesId = it, issueNum = Int.MAX_VALUE) } ?: Issue()
+                val issue =
+                    seriesId?.let { Issue(seriesId = it, issueNum = Int.MAX_VALUE) } ?: Issue()
                 issueListViewModel.addIssue(issue)
                 callbacks?.onNewIssue(issue.issueId)
                 true

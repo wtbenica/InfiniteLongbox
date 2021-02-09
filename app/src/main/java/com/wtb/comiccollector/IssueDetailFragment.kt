@@ -4,8 +4,6 @@ import android.app.Activity
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.text.Editable
-import android.text.TextWatcher
 import android.util.Log
 import android.view.*
 import android.widget.*
@@ -27,13 +25,13 @@ private const val ARG_EDITABLE = "open_as_editable"
 // onActivityResult Request Codes
 private const val PICK_COVER_IMAGE = 0
 private const val RESULT_DATE_PICKER = 107
-private const val RESULT_NEW_SERIES = 108
+private const val RESULT_SERIES_DETAIL = 108
 private const val RESULT_NEW_WRITER = 109
 private const val RESULT_NEW_PENCILLER = 110
 private const val RESULT_NEW_INKER = 111
 
 // Fragment Tags
-private const val DIALOG_NEW_SERIES = "DialogNewSeries"
+private const val DIALOG_SERIES_DETAIL = "DialogNewSeries"
 private const val DIALOG_NEW_CREATOR = "DialogNewCreator"
 private const val DIALOG_DATE = "DialogDate"
 
@@ -96,9 +94,9 @@ class IssueDetailFragment private constructor() : Fragment(),
         inker = Creator(firstName = "")
         writersList = emptyList()
         isEditable = arguments?.getSerializable(ARG_EDITABLE) as Boolean
-        val issueId = arguments?.getSerializable(ARG_ISSUE_ID) as UUID
         seriesList = emptyList()
-        issueDetailViewModel.loadIssue(issueId)
+
+        issueDetailViewModel.loadIssue(arguments?.getSerializable(ARG_ISSUE_ID) as UUID)
     }
 
     override fun onCreateView(
@@ -163,7 +161,7 @@ class IssueDetailFragment private constructor() : Fragment(),
         issueDetailViewModel.allSeriesLiveData.observe(viewLifecycleOwner,
             { allSeries ->
                 allSeries?.let {
-                    val thisList = it + listOf(Series())
+                    val thisList = it + Series(publisherId = NEW_SERIES_ID)
                     val adapter = ArrayAdapter(
                         requireContext(),
                         android.R.layout.simple_dropdown_item_1line,
@@ -305,27 +303,6 @@ class IssueDetailFragment private constructor() : Fragment(),
         parentTable.addView(newRow)
     }
 
-    /**
-     * A TextWatcher that applies [transformation] to the CharSequence? onTextChanged, with no
-     * effects for before- or after- TextChanged
-     *
-     * @property transformation the action to apply upon onTextChanged
-     * @return a TextWatcher that applies transformation
-     */
-    class SimpleTextWatcher(val transformation: (CharSequence?) -> Unit) : TextWatcher {
-        override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
-
-        }
-
-        override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-            transformation(s)
-        }
-
-        override fun afterTextChanged(s: Editable?) {
-
-        }
-    }
-
     private fun attachTextWatchers() {
         val issueNumWatcher = SimpleTextWatcher { sequence ->
             issue.issueNum = try {
@@ -397,12 +374,18 @@ class IssueDetailFragment private constructor() : Fragment(),
             ) {
                 Log.d(TAG, "seriesAutoComplete ItemSelected")
                 parent?.let {
-                    if ((it.getItemAtPosition(position) as Series).seriesName == "New Series") {
-                        val d = NewSeriesDialogFragment.newInstance()
-                        d.setTargetFragment(this@IssueDetailFragment, RESULT_NEW_SERIES)
-                        d.show(parentFragmentManager, DIALOG_NEW_SERIES)
+                    val selectedSeries = it.getItemAtPosition(position) as Series
+                    if (selectedSeries.seriesName == "New Series") {
+                        selectedSeries.seriesName = ""
+                        issueDetailViewModel.addSeries(selectedSeries)
+                        issue.seriesId = selectedSeries.seriesId
+                        issueDetailViewModel.updateIssue(issue)
+                        issueDetailViewModel.loadIssue(issue.issueId)
+                        val d = SeriesInfoDialogFragment.newInstance(issue.seriesId)
+                        d.setTargetFragment(this@IssueDetailFragment, RESULT_SERIES_DETAIL)
+                        d.show(parentFragmentManager, DIALOG_SERIES_DETAIL)
                     } else {
-                        issue.seriesId = (it.getItemAtPosition(position) as Series).seriesId
+                        issue.seriesId = selectedSeries.seriesId
                         issueDetailViewModel.updateIssue(issue)
                         issueDetailViewModel.loadIssue(issue.issueId)
                     }
@@ -432,7 +415,7 @@ class IssueDetailFragment private constructor() : Fragment(),
 
         when {
             resultCode != Activity.RESULT_OK -> return
-            requestCode == RESULT_NEW_SERIES && data != null -> {
+            requestCode == RESULT_SERIES_DETAIL && data != null -> {
                 val seriesId = data.getSerializableExtra(ARG_SERIES_ID) as UUID
                 this.issue.seriesId = seriesId
                 saveChanges()

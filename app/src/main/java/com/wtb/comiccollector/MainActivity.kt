@@ -8,7 +8,7 @@ import java.util.*
 class MainActivity : AppCompatActivity(),
     IssueListFragment.Callbacks,
     SeriesListFragment.Callbacks,
-    NewSeriesDialogFragment.NewSeriesDialogListener,
+    SeriesInfoDialogFragment.SeriesInfoDialogListener,
     NewCreatorDialogFragment.NewCreatorDialogListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {

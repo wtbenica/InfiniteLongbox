@@ -18,9 +18,14 @@ class IssueDetailViewModel : ViewModel() {
             issueRepository.getIssue(issueId)
         }
 
-    var seriesLiveData: LiveData<Series> =
+    var seriesLiveData: LiveData<Series?> =
         Transformations.switchMap(issueLiveData) { issue ->
             issue?.let { issueRepository.getSeries(it.seriesId) }
+        }
+
+    var publisherLiveData: LiveData<Publisher?> =
+        Transformations.switchMap(seriesLiveData) { series ->
+            series?.let { issueRepository.getPublisher(series.publisherId) }
         }
 
     var writerLiveData: LiveData<Creator> =
@@ -43,7 +48,10 @@ class IssueDetailViewModel : ViewModel() {
             issue?.inkerId?.let { issueRepository.getCreator(it) }
         }
 
-    var allSeriesLiveData: LiveData<List<Series>> = issueRepository.allSeries
+    var allSeriesLiveData: LiveData<List<Series>> =
+        Transformations.switchMap(issueLiveData) {
+            issueRepository.allSeries
+        }
 
     var allPublishersLiveData: LiveData<List<Publisher>> = issueRepository.allPublishers
 

@@ -1,16 +1,31 @@
 package com.wtb.comiccollector
 
+import android.util.Log
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
 import java.util.*
 
+private const val TAG = "IssueListViewModel"
+
 class IssueListViewModel : ViewModel() {
     private val issueRepository: IssueRepository = IssueRepository.get()
+    private val seriesIdLiveData = MutableLiveData<UUID>()
 
-    var issueListLiveData: LiveData<List<FullIssue>> = issueRepository.getIssues()
+    var seriesLiveData: LiveData<Series?> =
+        Transformations.switchMap(seriesIdLiveData) { seriesId ->
+            issueRepository.getSeries(seriesId)
+        }
+
+    var issueListLiveData: LiveData<List<FullIssue>> =
+        Transformations.switchMap(seriesIdLiveData) { seriesId ->
+            issueRepository.getIssuesBySeries(seriesId)
+        }
 
     fun loadSeries(seriesId: UUID) {
-        issueListLiveData = issueRepository.getIssuesBySeries(seriesId)
+        Log.d(TAG, "Loading series: $seriesId")
+        seriesIdLiveData.value = seriesId
     }
 
     fun addIssue(issue: Issue) {

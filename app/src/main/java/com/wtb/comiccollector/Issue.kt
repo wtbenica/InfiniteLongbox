@@ -63,7 +63,8 @@ data class Series(
     var volume: Int = 1,
     var publisherId: UUID = NEW_SERIES_ID,
     var startDate: LocalDate? = null,
-    var endDate: LocalDate? = null
+    var endDate: LocalDate? = null,
+    var description: String? = null
 ) {
     override fun toString(): String = seriesName
 
@@ -161,4 +162,10 @@ data class FullIssue(
 data class IssueCredits(
     val roleName: String,
     val name: String
+)
+
+data class SeriesDetail(
+    @Embedded
+    val series: Series,
+    val publisher: String
 )

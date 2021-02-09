@@ -13,6 +13,7 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.wtb.comiccollector.database.IssueDatabase
+import com.wtb.comiccollector.database.migration_1_2
 import java.time.LocalDate
 import java.util.*
 import java.util.concurrent.Executors
@@ -59,6 +60,7 @@ class IssueRepository private constructor(context: Context) {
                     val publisherDC = Publisher(publisherId = UUID.randomUUID(), publisher = "DC")
                     issueDao.insertPublisher(
                         publisherDC,
+                        Publisher(publisherId = NEW_SERIES_ID, publisher = "New Publisher"),
                         Publisher(publisher = "Marvel"),
                         Publisher(publisher = "Image"),
                         Publisher(publisher = "Dark Horse"),
@@ -138,7 +140,7 @@ class IssueRepository private constructor(context: Context) {
                 }
             }
         }
-    )
+    ).addMigrations(migration_1_2)
         .build()
 
     fun addIssue(issue: Issue) {
@@ -220,7 +222,7 @@ class IssueRepository private constructor(context: Context) {
 
     fun getSeries(seriesId: UUID): LiveData<Series?> = issueDao.getSeriesById(seriesId)
 
-    fun getCreator(creatorId: UUID): LiveData<Creator> {
+    fun getCreator(creatorId: UUID): LiveData<Creator?> {
         return issueDao.getCreator(creatorId)
     }
 
@@ -271,6 +273,8 @@ class IssueRepository private constructor(context: Context) {
             issueDao.deleteCredit(credit)
         }
     }
+
+    fun getPublisher(publisherId: UUID): LiveData<Publisher?> = issueDao.getPublisher(publisherId)
 
 /*
     FUTURE IMPLEMENTATION
