@@ -4,8 +4,6 @@ import android.app.Activity
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.text.Editable
-import android.text.TextWatcher
 import android.util.Log
 import android.view.*
 import android.widget.*
@@ -96,9 +94,9 @@ class IssueDetailFragment private constructor() : Fragment(),
         inker = Creator(firstName = "")
         writersList = emptyList()
         isEditable = arguments?.getSerializable(ARG_EDITABLE) as Boolean
-        val issueId = arguments?.getSerializable(ARG_ISSUE_ID) as UUID
         seriesList = emptyList()
-        issueDetailViewModel.loadIssue(issueId)
+
+        issueDetailViewModel.loadIssue(arguments?.getSerializable(ARG_ISSUE_ID) as UUID)
     }
 
     override fun onCreateView(
@@ -154,7 +152,7 @@ class IssueDetailFragment private constructor() : Fragment(),
             viewLifecycleOwner,
             { series ->
                 series?.let {
-                    this.series = it.series
+                    this.series = it
                     updateUI()
                 }
             }
@@ -305,27 +303,6 @@ class IssueDetailFragment private constructor() : Fragment(),
         parentTable.addView(newRow)
     }
 
-    /**
-     * A TextWatcher that applies [transformation] to the CharSequence? onTextChanged, with no
-     * effects for before- or after- TextChanged
-     *
-     * @property transformation the action to apply upon onTextChanged
-     * @return a TextWatcher that applies transformation
-     */
-    class SimpleTextWatcher(val transformation: (CharSequence?) -> Unit) : TextWatcher {
-        override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
-
-        }
-
-        override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-            transformation(s)
-        }
-
-        override fun afterTextChanged(s: Editable?) {
-
-        }
-    }
-
     private fun attachTextWatchers() {
         val issueNumWatcher = SimpleTextWatcher { sequence ->
             issue.issueNum = try {
@@ -399,11 +376,12 @@ class IssueDetailFragment private constructor() : Fragment(),
                 parent?.let {
                     val selectedSeries = it.getItemAtPosition(position) as Series
                     if (selectedSeries.seriesName == "New Series") {
+                        selectedSeries.seriesName = ""
                         issueDetailViewModel.addSeries(selectedSeries)
                         issue.seriesId = selectedSeries.seriesId
                         issueDetailViewModel.updateIssue(issue)
                         issueDetailViewModel.loadIssue(issue.issueId)
-                        val d = NewSeriesDialogFragment.newInstance(issue.seriesId)
+                        val d = SeriesInfoDialogFragment.newInstance(issue.seriesId)
                         d.setTargetFragment(this@IssueDetailFragment, RESULT_SERIES_DETAIL)
                         d.show(parentFragmentManager, DIALOG_SERIES_DETAIL)
                     } else {

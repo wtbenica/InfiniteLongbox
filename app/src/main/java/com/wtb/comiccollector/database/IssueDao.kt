@@ -22,7 +22,10 @@ interface IssueDao {
     fun getIssue(issueId: UUID): LiveData<Issue?>
 
     @Query("SELECT * FROM creator WHERE creatorId = :creatorId")
-    fun getCreator(creatorId: UUID): LiveData<Creator>
+    fun getCreator(creatorId: UUID): LiveData<Creator?>
+
+    @Query("SELECT * FROM publisher WHERE publisherId = :publisherId")
+    fun getPublisher(publisherId: UUID): LiveData<Publisher?>
 
     @Query(
         """
@@ -33,8 +36,8 @@ interface IssueDao {
     )
     fun getIssueCredits(issueId: UUID): LiveData<List<IssueCredits>>
 
-    @Query("SELECT * FROM series NATURAL JOIN Publisher WHERE seriesId=:seriesId")
-    fun getSeriesById(seriesId: UUID): LiveData<SeriesDetail?>
+    @Query("SELECT * FROM series WHERE seriesId=:seriesId")
+    fun getSeriesById(seriesId: UUID): LiveData<Series?>
 
     @Query("SELECT issue.* FROM issue NATURAL JOIN credit WHERE creatorId=:creatorId")
     fun getIssuesByCreator(creatorId: UUID): LiveData<List<Issue>>
@@ -106,4 +109,5 @@ interface IssueDao {
 
     @Delete
     fun deleteCredit(credit: Credit)
+
 }

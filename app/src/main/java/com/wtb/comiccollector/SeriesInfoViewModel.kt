@@ -13,9 +13,14 @@ class SeriesInfoViewModel : ViewModel() {
     private val issueRepository: IssueRepository = IssueRepository.get()
     private val seriesIdLiveData = MutableLiveData<UUID>()
 
-    var seriesLiveData: LiveData<SeriesDetail?> =
+    var seriesLiveData: LiveData<Series?> =
         Transformations.switchMap(seriesIdLiveData) { seriesId ->
             issueRepository.getSeries(seriesId)
+        }
+
+    var publisherLiveData: LiveData<Publisher?> =
+        Transformations.switchMap(seriesLiveData) { series ->
+            series?.let { issueRepository.getPublisher(it.seriesId) }
         }
 
     var allPublishersLiveData: LiveData<List<Publisher>> = issueRepository.allPublishers

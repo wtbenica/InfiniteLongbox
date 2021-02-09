@@ -15,7 +15,6 @@ import android.widget.*
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.ViewModelProvider
 import java.time.LocalDate
-import java.time.format.DateTimeParseException
 import java.util.*
 
 private const val TAG = "NewSeriesDialogFragment"
@@ -28,15 +27,16 @@ private const val DIALOG_END_DATE = "DialogEndDate"
 
 const val ARG_SERIES_ID = "seriesId"
 
-class NewSeriesDialogFragment private constructor() : DialogFragment(),
+class SeriesInfoDialogFragment private constructor() : DialogFragment(),
     DatePickerFragment.Callbacks {
 
-    private val seriesInfoViewModel by lazy {
+    private val seriesViewModel by lazy {
         ViewModelProvider(this).get(SeriesInfoViewModel::class.java)
     }
 
-    private lateinit var listener: NewSeriesDialogListener
-    private lateinit var seriesDetail: SeriesDetail
+    private lateinit var listener: SeriesInfoDialogListener
+    private lateinit var series: Series
+    private lateinit var publisher: Publisher
 
     private lateinit var seriesNameEditText: EditText
     private lateinit var volumeNumberEditText: EditText
@@ -47,7 +47,7 @@ class NewSeriesDialogFragment private constructor() : DialogFragment(),
 
     private lateinit var cancelButton: Button
 
-    interface NewSeriesDialogListener {
+    interface SeriesInfoDialogListener {
         fun onSaveSeriesClick(dialog: DialogFragment, series: Series)
         fun onCancelClick(dialog: DialogFragment)
     }
@@ -55,7 +55,7 @@ class NewSeriesDialogFragment private constructor() : DialogFragment(),
     override fun onAttach(context: Context) {
         super.onAttach(context)
         try {
-            listener = context as NewSeriesDialogListener
+            listener = context as SeriesInfoDialogListener
         } catch (e: ClassCastException) {
             throw java.lang.ClassCastException(("$context must implement NewSeriesDialogFragment"))
         }
@@ -64,8 +64,10 @@ class NewSeriesDialogFragment private constructor() : DialogFragment(),
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        seriesDetail = SeriesDetail(Series(), "")
+        series = Series()
+        publisher = Publisher()
 
+        seriesViewModel.loadSeries(arguments?.getSerializable(ARG_SERIES_ID) as UUID)
     }
 
     override fun onCreateView(
@@ -91,9 +93,7 @@ class NewSeriesDialogFragment private constructor() : DialogFragment(),
         super.onViewCreated(view, savedInstanceState)
         Log.d(TAG, "onViewCreated")
 
-        seriesInfoViewModel.loadSeries(arguments?.getSerializable(ARG_SERIES_ID) as UUID)
-
-        seriesInfoViewModel.allPublishersLiveData.observe(
+        seriesViewModel.allPublishersLiveData.observe(
             viewLifecycleOwner,
             { publisherList ->
                 publisherList?.let {
@@ -108,11 +108,21 @@ class NewSeriesDialogFragment private constructor() : DialogFragment(),
             }
         )
 
-        seriesInfoViewModel.seriesLiveData.observe(
+        seriesViewModel.seriesLiveData.observe(
             viewLifecycleOwner,
             {
                 it?.let {
-                    seriesDetail = it
+                    series = it
+                    updateUI()
+                }
+            }
+        )
+
+        seriesViewModel.publisherLiveData.observe(
+            viewLifecycleOwner,
+            {
+                it?.let {
+                    publisher = it
                     updateUI()
                 }
             }
@@ -123,58 +133,75 @@ class NewSeriesDialogFragment private constructor() : DialogFragment(),
         when {
             resultCode != Activity.RESULT_OK -> return
             requestCode == RESULT_START_DATE && data != null -> {
-                startDateEditText.text =
-                    (data.getSerializableExtra(ARG_DATE) as LocalDate).toString()
+                series.startDate = data.getSerializableExtra(ARG_DATE) as LocalDate
             }
             requestCode == RESULT_END_DATE && data != null -> {
-                endDateEditText.text = (data.getSerializableExtra(ARG_DATE) as LocalDate).toString()
+                series.endDate = data.getSerializableExtra(ARG_DATE) as LocalDate
             }
         }
+        updateUI()
     }
 
     override fun onStart() {
         super.onStart()
 
+        seriesNameEditText.addTextChangedListener(
+            SimpleTextWatcher {
+                series.seriesName = it.toString()
+            }
+        )
+
+        volumeNumberEditText.addTextChangedListener(
+            SimpleTextWatcher {
+                series.volume = try {
+                    it.toString().toInt()
+                } catch (e: Exception) {
+                    1
+                }
+            }
+        )
+
         startDateEditText.setOnClickListener {
             DatePickerFragment.newInstance(LocalDate.now()).apply {
-                setTargetFragment(this@NewSeriesDialogFragment, RESULT_START_DATE)
-                show(this@NewSeriesDialogFragment.parentFragmentManager, DIALOG_START_DATE)
+                setTargetFragment(this@SeriesInfoDialogFragment, RESULT_START_DATE)
+                show(this@SeriesInfoDialogFragment.parentFragmentManager, DIALOG_START_DATE)
             }
         }
 
         endDateEditText.setOnClickListener {
             DatePickerFragment.newInstance(LocalDate.now()).apply {
-                setTargetFragment(this@NewSeriesDialogFragment, RESULT_END_DATE)
-                show(this@NewSeriesDialogFragment.parentFragmentManager, DIALOG_END_DATE)
+                setTargetFragment(this@SeriesInfoDialogFragment, RESULT_END_DATE)
+                show(this@SeriesInfoDialogFragment.parentFragmentManager, DIALOG_END_DATE)
+            }
+        }
+
+        publisherSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(
+                parent: AdapterView<*>?,
+                view: View?,
+                position: Int,
+                id: Long
+            ) {
+                parent?.let {
+                    publisher = it.getItemAtPosition(position) as Publisher
+                    series.publisherId = publisher.publisherId
+                }
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+
             }
         }
 
         okayButton.setOnClickListener { view ->
-            val publisher = publisherSpinner.selectedItem as Publisher
-
-
-            seriesDetail.series.seriesName = seriesNameEditText.text.toString()
-            seriesDetail.series.volume = volumeNumberEditText.text.toString().toInt()
-            seriesDetail.series.publisherId = publisher.publisherId
-            seriesDetail.series.startDate = try {
-                LocalDate.parse(startDateEditText.text)
-            } catch (e: DateTimeParseException) {
-                null
-            }
-            seriesDetail.series.endDate = try {
-                LocalDate.parse(endDateEditText.text)
-            } catch (e: DateTimeParseException) {
-                null
-            }
-
-            seriesInfoViewModel.updateSeries(seriesDetail.series)
+            seriesViewModel.updateSeries(series)
 
             val bundle = Bundle()
-            bundle.putSerializable(ARG_SERIES_ID, seriesDetail.series.seriesId)
+            bundle.putSerializable(ARG_SERIES_ID, series.seriesId)
             val intent = Intent().putExtras(bundle)
             targetFragment?.onActivityResult(targetRequestCode, Activity.RESULT_OK, intent)
 
-            listener.onSaveSeriesClick(this, seriesDetail.series)
+            listener.onSaveSeriesClick(this, series)
         }
 
         cancelButton.setOnClickListener { view ->
@@ -204,16 +231,16 @@ class NewSeriesDialogFragment private constructor() : DialogFragment(),
     }
 
     fun updateUI() {
-        seriesNameEditText.setText(seriesDetail.series.seriesName)
-        volumeNumberEditText.setText(seriesDetail.series.volume.toString())
-        startDateEditText.setText(seriesDetail.series.startDate.toString())
-        endDateEditText.setText(seriesDetail.series.endDate.toString())
+        seriesNameEditText.setText(series.seriesName)
+        volumeNumberEditText.setText(series.volume.toString())
+        startDateEditText.setText(series.startDate.toString())
+        endDateEditText.setText(series.endDate.toString())
     }
 
     companion object {
         @JvmStatic
-        fun newInstance(seriesId: UUID): NewSeriesDialogFragment {
-            return NewSeriesDialogFragment().apply {
+        fun newInstance(seriesId: UUID): SeriesInfoDialogFragment {
+            return SeriesInfoDialogFragment().apply {
                 arguments = Bundle().apply {
                     putSerializable(ARG_SERIES_ID, seriesId)
                 }

@@ -14,8 +14,9 @@ import androidx.lifecycle.ViewModelProvider
 import java.util.*
 
 private const val TAG = "SeriesDetailFragment"
-private const val RESULT_NEW_SERIES = 312
-private const val DIALOG_NEW_SERIES = "DIALOG_EDIT_SERIES"
+private const val RESULT_SERIES_INFO = 312
+private const val DIALOG_SERIES_INFO = "DIALOG_EDIT_SERIES"
+
 /**
  * A simple [Fragment] subclass.
  * Use the [SeriesDetailFragment.newInstance] factory method to
@@ -23,9 +24,12 @@ private const val DIALOG_NEW_SERIES = "DIALOG_EDIT_SERIES"
  */
 class SeriesDetailFragment(val seriesId: UUID) : Fragment() {
 
-    private val issueListViewModel by lazy {
-        ViewModelProvider(this).get(IssueListViewModel::class.java)
+    private val seriesViewModel by lazy {
+        ViewModelProvider(this).get(SeriesInfoViewModel::class.java)
     }
+
+    private lateinit var series: Series
+    private lateinit var publisher: Publisher
 
     private lateinit var seriesNameTextView: TextView
     private lateinit var editSeriesButton: ImageButton
@@ -37,6 +41,9 @@ class SeriesDetailFragment(val seriesId: UUID) : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        series = Series()
+        publisher = Publisher()
     }
 
     override fun onCreateView(
@@ -60,21 +67,30 @@ class SeriesDetailFragment(val seriesId: UUID) : Fragment() {
         Log.d(TAG, "View Created")
 
         seriesId.let {
-            issueListViewModel.loadSeries(seriesId)
+            seriesViewModel.loadSeries(seriesId)
         }
 
-        issueListViewModel.seriesDetailLiveData.observe(
+        seriesViewModel.seriesLiveData.observe(
             viewLifecycleOwner,
             {
-                Log.d(TAG, "onViewCreated: ${it?.series?.seriesName ?: "None"}")
-                updateUI(it)
+                Log.d(TAG, "onViewCreated: ${it?.seriesName ?: "None"}")
+                it?.let { series = it }
+                updateUI()
+            }
+        )
+
+        seriesViewModel.publisherLiveData.observe(
+            viewLifecycleOwner,
+            {
+                it?.let { publisher = it }
+                updateUI()
             }
         )
 
         editSeriesButton.setOnClickListener {
-            val d = NewSeriesDialogFragment.newInstance(seriesId)
-            d.setTargetFragment(this, RESULT_NEW_SERIES)
-            d.show(parentFragmentManager, DIALOG_NEW_SERIES)
+            val d = SeriesInfoDialogFragment.newInstance(seriesId)
+            d.setTargetFragment(this, RESULT_SERIES_INFO)
+            d.show(parentFragmentManager, DIALOG_SERIES_INFO)
         }
     }
 
@@ -82,21 +98,21 @@ class SeriesDetailFragment(val seriesId: UUID) : Fragment() {
 
         when {
             resultCode != Activity.RESULT_OK -> return
-            requestCode == RESULT_NEW_SERIES && data != null -> {
+            requestCode == RESULT_SERIES_INFO && data != null -> {
                 val seriesId = data.getSerializableExtra(ARG_SERIES_ID) as UUID
-                issueListViewModel.loadSeries(seriesId)
+                seriesViewModel.loadSeries(seriesId)
             }
         }
     }
 
-    private fun updateUI(seriesDetail: SeriesDetail?) {
-        Log.d(TAG, "updateUI: ${seriesDetail?.series?.seriesName ?: "None"}")
-        seriesNameTextView.setText(seriesDetail?.series?.seriesName)
-        volumeNumTextView.setText(seriesDetail?.series?.volume.toString())
-        publisherTextView.setText(seriesDetail?.publisher)
-        dateRangeTextview.setText(seriesDetail?.series?.dateRange)
+    private fun updateUI() {
+        Log.d(TAG, "updateUI: ${series.seriesName ?: "None"}")
+        seriesNameTextView.setText(series.seriesName)
+        volumeNumTextView.setText(series.volume.toString())
+        publisherTextView.setText(publisher.publisher)
+        dateRangeTextview.setText(series.dateRange)
 
-        seriesDetail?.series?.description?.let {
+        series.description?.let {
             descriptionTextView.text = it
             descriptionLabelTextView.visibility = TextView.VISIBLE
             descriptionTextView.visibility = TextView.VISIBLE

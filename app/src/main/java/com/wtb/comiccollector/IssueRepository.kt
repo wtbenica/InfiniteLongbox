@@ -220,9 +220,9 @@ class IssueRepository private constructor(context: Context) {
         return issueDao.getSeriesList()
     }
 
-    fun getSeries(seriesId: UUID): LiveData<SeriesDetail?> = issueDao.getSeriesById(seriesId)
+    fun getSeries(seriesId: UUID): LiveData<Series?> = issueDao.getSeriesById(seriesId)
 
-    fun getCreator(creatorId: UUID): LiveData<Creator> {
+    fun getCreator(creatorId: UUID): LiveData<Creator?> {
         return issueDao.getCreator(creatorId)
     }
 
@@ -273,6 +273,8 @@ class IssueRepository private constructor(context: Context) {
             issueDao.deleteCredit(credit)
         }
     }
+
+    fun getPublisher(publisherId: UUID): LiveData<Publisher?> = issueDao.getPublisher(publisherId)
 
 /*
     FUTURE IMPLEMENTATION

@@ -41,5 +41,5 @@ class SeriesListViewModel : ViewModel() {
         )
     }
 
-    fun getSeries(seriesId: UUID): LiveData<SeriesDetail?> = issueRepository.getSeries(seriesId)
+    fun getSeries(seriesId: UUID): LiveData<Series?> = issueRepository.getSeries(seriesId)
 }

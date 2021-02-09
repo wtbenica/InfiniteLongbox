@@ -13,7 +13,7 @@ class IssueListViewModel : ViewModel() {
     private val issueRepository: IssueRepository = IssueRepository.get()
     private val seriesIdLiveData = MutableLiveData<UUID>()
 
-    var seriesDetailLiveData: LiveData<SeriesDetail?> =
+    var seriesLiveData: LiveData<Series?> =
         Transformations.switchMap(seriesIdLiveData) { seriesId ->
             issueRepository.getSeries(seriesId)
         }
@@ -54,5 +54,5 @@ class IssueListViewModel : ViewModel() {
         )
     }
 
-    fun getSeries(seriesId: UUID): LiveData<SeriesDetail?> = issueRepository.getSeries(seriesId)
+    fun getSeries(seriesId: UUID): LiveData<Series?> = issueRepository.getSeries(seriesId)
 }

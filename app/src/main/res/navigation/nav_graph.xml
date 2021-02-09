@@ -38,7 +38,7 @@
     </fragment>
     <fragment
         android:id="@+id/newSeriesDialogFragment"
-        android:name="com.wtb.comiccollector.NewSeriesDialogFragment"
+        android:name="com.wtb.comiccollector.SeriesInfoDialogFragment"
         android:label="NewSeriesDialogFragment" >
         <action
             android:id="@+id/action_newSeriesDialogFragment_to_datePickerFragment"
