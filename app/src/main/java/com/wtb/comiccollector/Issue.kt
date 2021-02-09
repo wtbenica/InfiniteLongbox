@@ -4,6 +4,7 @@ import android.net.Uri
 import androidx.room.*
 import androidx.room.ForeignKey.CASCADE
 import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import java.util.*
 
 val NEW_SERIES_ID = UUID(0, 0)
@@ -73,7 +74,11 @@ data class Series(
 
     val dateRange: String
         get() = startDate?.let {
-            "(${it.year}-${endDate?.year ?: " "})"
+            "(${it.format(DateTimeFormatter.ofPattern("MMM yyyy"))} - ${
+                endDate?.format(
+                    DateTimeFormatter.ofPattern("MMM yyyy")
+                ) ?: " "
+            })"
         } ?: ""
 }
 

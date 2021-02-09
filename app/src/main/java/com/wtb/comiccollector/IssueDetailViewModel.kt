@@ -60,6 +60,7 @@ class IssueDetailViewModel : ViewModel() {
     var allWritersLiveData: LiveData<List<Creator>> = issueRepository.allWriters
 
     fun loadIssue(issueId: UUID) {
+        issueIdLiveData.value = NEW_SERIES_ID
         issueIdLiveData.value = issueId
     }
 

@@ -386,8 +386,7 @@ class IssueDetailFragment private constructor() : Fragment(),
                         d.show(parentFragmentManager, DIALOG_SERIES_DETAIL)
                     } else {
                         issue.seriesId = selectedSeries.seriesId
-                        issueDetailViewModel.updateIssue(issue)
-                        issueDetailViewModel.loadIssue(issue.issueId)
+                        saveChanges()
                     }
                 }
             }
@@ -416,38 +415,36 @@ class IssueDetailFragment private constructor() : Fragment(),
         when {
             resultCode != Activity.RESULT_OK -> return
             requestCode == RESULT_SERIES_DETAIL && data != null -> {
-                val seriesId = data.getSerializableExtra(ARG_SERIES_ID) as UUID
-                this.issue.seriesId = seriesId
+                this.issue.seriesId = data.getSerializableExtra(ARG_SERIES_ID) as UUID
                 saveChanges()
-                updateUI()
             }
             requestCode == RESULT_NEW_WRITER && data != null -> {
                 this.issue.writerId = data.getSerializableExtra(ARG_CREATOR_ID) as UUID
                 saveChanges()
-                updateUI()
             }
             requestCode == RESULT_NEW_PENCILLER && data != null -> {
                 this.issue.pencillerId = data.getSerializableExtra(ARG_CREATOR_ID) as UUID
                 saveChanges()
-                updateUI()
             }
             requestCode == RESULT_NEW_INKER && data != null -> {
                 this.issue.inkerId = data.getSerializableExtra(ARG_CREATOR_ID) as UUID
                 saveChanges()
-                updateUI()
             }
         }
     }
 
     override fun onStop() {
         super.onStop()
-        issueDetailViewModel.updateIssue(issue)
-        issueDetailViewModel.loadIssue(issue.issueId)
+        saveChanges()
     }
 
     private fun saveChanges() {
-        issueDetailViewModel.updateIssue(issue)
-        issueDetailViewModel.loadIssue(issue.issueId)
+        if (issue.seriesId == NEW_SERIES_ID) {
+            issueDetailViewModel.deleteIssue(issue)
+        } else {
+            issueDetailViewModel.updateIssue(issue)
+            issueDetailViewModel.loadIssue(issue.issueId)
+        }
     }
 
     private fun updateUI() {
@@ -506,7 +503,7 @@ class IssueDetailFragment private constructor() : Fragment(),
 
     override fun onDateSelected(date: LocalDate) {
         issue.releaseDate = date
-        updateUI()
+        saveChanges()
     }
 }
 
