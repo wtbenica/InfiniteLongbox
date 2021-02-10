@@ -10,13 +10,19 @@
         <item name="colorSecondaryVariant">@color/splash_2</item>
         <item name="colorOnSecondary">@color/black</item>
         <!-- Status bar color. -->
-        <item name="android:backgroundTint">#DDD</item>
+<!--        <item name="android:backgroundTint">#DDD</item>-->
         <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimaryVariant</item>
         <!-- Customize your theme here. -->
-        <item name="buttonStyle">@style/bugaboo</item>
+        <item name="materialButtonStyle">@style/bugaboo</item>
+        <item name="android:spinnerStyle">@style/mySpinnerStyle</item>
     </style>
 
     <style name="bugaboo" parent="Widget.AppCompat.Button.Borderless.Colored">
-        <item name="colorButtonNormal">@color/splash</item>
+        <item name="android:textColor">@color/flare</item>
+    </style>
+
+    <style name="mySpinnerStyle" parent="Widget.AppCompat.Spinner">
+        <item name="android:background">@drawable/blue_outline</item>
+        <item name="android:popupBackground">@drawable/blue_outline_white_background</item>
     </style>
 </resources>

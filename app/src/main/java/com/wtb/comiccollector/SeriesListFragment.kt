@@ -51,9 +51,9 @@ class SeriesListFragment : Fragment() {
         seriesListViewModel.seriesListLiveData.value?.let { updateUI(it) }
         seriesListViewModel.seriesListLiveData.observe(
             viewLifecycleOwner,
-            { series ->
-                series?.let {
-                    updateUI(series)
+            { seriesList ->
+                seriesList?.let {
+                    updateUI(seriesList)
                 }
             }
         )

@@ -436,22 +436,22 @@ class IssueDetailFragment private constructor() : Fragment(),
     override fun onStop() {
         super.onStop()
         saveChanges()
-    }
-
-    private fun saveChanges() {
-        if (issue.seriesId == NEW_SERIES_ID) {
+        if (issue.seriesId == NEW_SERIES_ID || series.seriesName == "New Series") {
             issueDetailViewModel.deleteIssue(issue)
-        } else {
-            issueDetailViewModel.updateIssue(issue)
-            issueDetailViewModel.loadIssue(issue.issueId)
         }
     }
 
+    private fun saveChanges() {
+        issueDetailViewModel.updateIssue(issue)
+        issueDetailViewModel.loadIssue(issue.issueId)
+        updateUI()
+    }
+
     private fun updateUI() {
-        seriesSpinner.setSelection(seriesList.indexOf(series))
-        writerSpinner.setSelection(writersList.indexOf(writer))
-        pencillerSpinner.setSelection(writersList.indexOf(penciller))
-        inkerSpinner.setSelection(writersList.indexOf(inker))
+        seriesSpinner.setSelection(maxOf(0, seriesList.indexOf(series)))
+        writerSpinner.setSelection(maxOf(0, writersList.indexOf(writer)))
+        pencillerSpinner.setSelection(maxOf(0, writersList.indexOf(penciller)))
+        inkerSpinner.setSelection(maxOf(0, writersList.indexOf(inker)))
 
         issueNumEditText.setText(
             if (this.issue.issueNum == Int.MAX_VALUE) {

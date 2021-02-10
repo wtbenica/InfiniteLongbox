@@ -11,6 +11,7 @@ import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.*
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.ViewModelProvider
@@ -222,7 +223,7 @@ class SeriesInfoDialogFragment private constructor() : DialogFragment(),
             window?.windowManager?.defaultDisplay?.getRealSize(size)
         }
 
-        window?.setLayout((size.x * .9).toInt(), (size.y * .9).toInt())
+        window?.setLayout((size.x * .9).toInt(), WRAP_CONTENT)
         window?.setGravity(Gravity.CENTER)
     }
 

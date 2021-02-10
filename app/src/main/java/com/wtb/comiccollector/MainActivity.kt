@@ -51,7 +51,6 @@ class MainActivity : AppCompatActivity(),
                 R.anim.fragment_open_enter,
                 R.anim.fragment_fade_exit
             )
-
             .replace(R.id.fragment_container, fragment)
             .addToBackStack(null)
             .commit()
