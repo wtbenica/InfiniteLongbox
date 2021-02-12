@@ -231,11 +231,11 @@ class SeriesInfoDialogFragment private constructor() : DialogFragment(),
 
     }
 
-    fun updateUI() {
+    private fun updateUI() {
         seriesNameEditText.setText(series.seriesName)
         volumeNumberEditText.setText(series.volume.toString())
-        startDateEditText.setText(series.startDate.toString())
-        endDateEditText.setText(series.endDate.toString())
+        startDateEditText.text = series.startDate.toString()
+        endDateEditText.text = series.endDate.toString()
     }
 
     companion object {

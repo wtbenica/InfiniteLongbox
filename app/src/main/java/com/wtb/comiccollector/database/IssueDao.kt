@@ -11,12 +11,30 @@ private val NEW_SERIES_UUID = UUID(0, 0)
 interface IssueDao {
     @Transaction
     @Query(
-        """SELECT issue.*, series.seriesName, publisher.publisher FROM issue NATURAL JOIN series NATURAL JOIN publisher"""
+        """
+            SELECT issue.*, series.seriesName, publisher.publisher 
+            FROM issue NATURAL JOIN series NATURAL JOIN publisher
+            """
     )
     fun getIssues(): LiveData<List<FullIssue>>
 
-    @Query("""SELECT issue.*, series.seriesName, publisher.publisher FROM issue NATURAL JOIN series NATURAL JOIN publisher WHERE seriesId=:seriesId""")
+    @Query(
+        """
+            SELECT issue.*, series.seriesName, publisher.publisher 
+            FROM issue NATURAL JOIN series NATURAL JOIN publisher 
+            WHERE seriesId=:seriesId
+            """
+    )
     fun getIssuesBySeries(seriesId: UUID): LiveData<List<FullIssue>>
+
+    @Query(
+        """
+            SELECT issue.*, series.seriesName, publisher.publisher 
+            FROM issue NATURAL JOIN series NATURAL JOIN publisher 
+            WHERE seriesId=:seriesId and issueNum=:issueNum
+            """
+    )
+    fun getIssueByDetails(seriesId: UUID, issueNum: Int): LiveData<List<FullIssue>>
 
     @Query("SELECT * FROM issue WHERE issueId=:issueId")
     fun getIssue(issueId: UUID): LiveData<Issue?>
