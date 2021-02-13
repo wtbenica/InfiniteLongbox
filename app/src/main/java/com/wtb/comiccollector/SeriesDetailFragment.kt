@@ -60,21 +60,20 @@ class SeriesDetailFragment(val seriesId: UUID) : Fragment() {
         descriptionLabelTextView = view.findViewById(R.id.label_description)
         descriptionTextView = view.findViewById(R.id.details_description)
 
+        seriesViewModel.loadSeries(seriesId)
+
         return view
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         Log.d(TAG, "View Created")
 
-        seriesId.let {
-            seriesViewModel.loadSeries(seriesId)
-        }
-
         seriesViewModel.seriesLiveData.observe(
             viewLifecycleOwner,
             {
                 Log.d(TAG, "onViewCreated: ${it?.seriesName ?: "None"}")
                 it?.let { series = it }
+                seriesViewModel.loadPublisher(series.publisherId)
                 updateUI()
             }
         )

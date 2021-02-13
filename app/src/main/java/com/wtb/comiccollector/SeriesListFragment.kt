@@ -4,6 +4,8 @@ import android.content.Context
 import android.os.Bundle
 import android.view.*
 import android.widget.ImageView
+import android.widget.LinearLayout
+import android.widget.Spinner
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
@@ -21,6 +23,8 @@ class SeriesListFragment : Fragment() {
 
     private val seriesListViewModel by lazy { ViewModelProvider(this).get(SeriesListViewModel::class.java) }
     private lateinit var seriesRecyclerView: RecyclerView
+    private lateinit var groupingSpinner: Spinner
+    private lateinit var groupingRow: LinearLayout
     private var adapter: SeriesAdapter? = SeriesAdapter(emptyList())
 
     override fun onAttach(context: Context) {
@@ -39,9 +43,14 @@ class SeriesListFragment : Fragment() {
     ): View? {
         val view = inflater.inflate(R.layout.fragment_issue_list, container, false)
 
-        seriesRecyclerView = view.findViewById(R.id.issue_recycler_view)
+        seriesRecyclerView = view.findViewById(R.id.issue_recycler_view) as RecyclerView
         seriesRecyclerView.layoutManager = LinearLayoutManager(context)
         seriesRecyclerView.adapter = adapter
+
+        groupingRow = view.findViewById(R.id.grouping_row) as LinearLayout
+        groupingSpinner = view.findViewById(R.id.grouping_spinner) as Spinner
+
+        groupingRow.visibility = View.VISIBLE
 
         return view
     }

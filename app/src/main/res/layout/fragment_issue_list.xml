@@ -1,14 +1,46 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
+
+    <LinearLayout
+        android:id="@+id/grouping_row"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="16dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:visibility="gone">
+
+        <TextView
+            android:id="@+id/grouping_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Group By" />
+
+        <Spinner
+            android:id="@+id/grouping_spinner"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_weight="1"
+            android:entries="@array/grouping_options"
+            tools:listitem="@layout/support_simple_spinner_dropdown_item"
+            tools:text="Series" />
+
+    </LinearLayout>
 
     <FrameLayout
         android:id="@+id/details"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/grouping_row" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/issue_recycler_view"
