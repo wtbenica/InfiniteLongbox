@@ -168,7 +168,7 @@ class IssueDetailFragment private constructor() : Fragment(),
                         thisList
                     )
                     seriesList = thisList
-                    seriesSpinner.setAdapter(adapter)
+                    seriesSpinner.adapter = adapter
                 }
             })
 

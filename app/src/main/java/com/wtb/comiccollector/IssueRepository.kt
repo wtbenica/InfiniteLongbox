@@ -45,6 +45,9 @@ class IssueRepository private constructor(context: Context) {
 
     fun getIssuesBySeries(seriesId: UUID) = issueDao.getIssuesBySeries(seriesId)
 
+    fun getIssuesByDetails(seriesId: UUID, issueNum: Int) =
+        issueDao.getIssueByDetails(seriesId, issueNum)
+
     fun getIssueCredits(issueId: UUID): LiveData<List<IssueCredits>> =
         issueDao.getIssueCredits(issueId)
 

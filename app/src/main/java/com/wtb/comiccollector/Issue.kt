@@ -25,7 +25,7 @@ val NEW_SERIES_ID = UUID(0, 0)
         )
     ],
     indices = [
-        Index(value = ["seriesId", "issueNum"], unique = true),
+        Index(value = ["seriesId", "issueNum"]),
         Index(value = ["writerId"])
     ]
 )

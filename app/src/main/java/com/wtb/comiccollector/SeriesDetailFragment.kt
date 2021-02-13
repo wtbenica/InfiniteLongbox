@@ -106,11 +106,11 @@ class SeriesDetailFragment(val seriesId: UUID) : Fragment() {
     }
 
     private fun updateUI() {
-        Log.d(TAG, "updateUI: ${series.seriesName ?: "None"}")
-        seriesNameTextView.setText(series.seriesName)
-        volumeNumTextView.setText(series.volume.toString())
-        publisherTextView.setText(publisher.publisher)
-        dateRangeTextview.setText(series.dateRange)
+        Log.d(TAG, "updateUI: ${series.seriesName}")
+        seriesNameTextView.text = series.seriesName
+        volumeNumTextView.text = series.volume.toString()
+        publisherTextView.text = publisher.publisher
+        dateRangeTextview.text = series.dateRange
 
         series.description?.let {
             descriptionTextView.text = it
