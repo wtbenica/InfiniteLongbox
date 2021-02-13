@@ -38,6 +38,7 @@ class SeriesInfoDialogFragment private constructor() : DialogFragment(),
     private lateinit var listener: SeriesInfoDialogListener
     private lateinit var series: Series
     private lateinit var publisher: Publisher
+    private lateinit var publisherList: List<Publisher>
 
     private lateinit var seriesNameEditText: EditText
     private lateinit var volumeNumberEditText: EditText
@@ -45,8 +46,9 @@ class SeriesInfoDialogFragment private constructor() : DialogFragment(),
     private lateinit var startDateEditText: TextView
     private lateinit var endDateEditText: TextView
     private lateinit var okayButton: Button
-
     private lateinit var cancelButton: Button
+
+
 
     interface SeriesInfoDialogListener {
         fun onSaveSeriesClick(dialog: DialogFragment, series: Series)
@@ -67,6 +69,7 @@ class SeriesInfoDialogFragment private constructor() : DialogFragment(),
 
         series = Series()
         publisher = Publisher()
+        publisherList = emptyList()
 
         seriesViewModel.loadSeries(arguments?.getSerializable(ARG_SERIES_ID) as UUID)
     }
@@ -103,8 +106,9 @@ class SeriesInfoDialogFragment private constructor() : DialogFragment(),
                         android.R.layout.simple_dropdown_item_1line,
                         publisherList
                     )
-
                     publisherSpinner.adapter = adapter
+
+                    this.publisherList = publisherList
                 }
             }
         )
@@ -114,6 +118,7 @@ class SeriesInfoDialogFragment private constructor() : DialogFragment(),
             {
                 it?.let {
                     series = it
+                    seriesViewModel.loadPublisher(series.publisherId)
                     updateUI()
                 }
             }
@@ -234,6 +239,7 @@ class SeriesInfoDialogFragment private constructor() : DialogFragment(),
     private fun updateUI() {
         seriesNameEditText.setText(series.seriesName)
         volumeNumberEditText.setText(series.volume.toString())
+        publisherSpinner.setSelection(publisherList.indexOf(publisher))
         startDateEditText.text = series.startDate.toString()
         endDateEditText.text = series.endDate.toString()
     }
