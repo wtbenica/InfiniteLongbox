@@ -12,7 +12,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import java.util.*
 
-class IssueListFragment(val seriesId: UUID? = null) : Fragment() {
+class IssueListFragment(val seriesId: UUID, val grouping: SeriesListFragment.Grouping) :
+    Fragment() {
 
     interface Callbacks {
         fun onIssueSelected(issueId: UUID)
@@ -37,14 +38,12 @@ class IssueListFragment(val seriesId: UUID? = null) : Fragment() {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
 
-        seriesId?.let {
-            val fragment = SeriesDetailFragment.newInstance(it)
-            childFragmentManager.beginTransaction()
-                .replace(R.id.details, fragment)
-                .addToBackStack(null)
-                .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
-                .commit()
-        }
+        val fragment = SeriesDetailFragment.newInstance(seriesId)
+        childFragmentManager.beginTransaction()
+            .replace(R.id.details, fragment)
+            .addToBackStack(null)
+            .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
+            .commit()
     }
 
     override fun onCreateView(
@@ -62,9 +61,7 @@ class IssueListFragment(val seriesId: UUID? = null) : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        seriesId?.let {
-            issueListViewModel.loadSeries(seriesId)
-        }
+        issueListViewModel.loadSeries(seriesId)
 
         issueListViewModel.issueListLiveData.observe(
             viewLifecycleOwner,
@@ -91,8 +88,7 @@ class IssueListFragment(val seriesId: UUID? = null) : Fragment() {
             R.id.new_issue -> {
                 // TODO: Find solution to this. If issueNum is default (1), if there already
                 //  exists an issue number 1, then violates unique series/issue restraint in db
-                val issue =
-                    seriesId?.let { Issue(seriesId = it, issueNum = Int.MAX_VALUE) } ?: Issue()
+                val issue = Issue(seriesId = seriesId)
                 issueListViewModel.addIssue(issue)
                 callbacks?.onNewIssue(issue.issueId)
                 true
@@ -128,7 +124,7 @@ class IssueListFragment(val seriesId: UUID? = null) : Fragment() {
         private lateinit var fullIssue: FullIssue
 
         private val coverImageView: ImageView = itemView.findViewById(R.id.list_item_cover)
-        private val seriesTextView: TextView = itemView.findViewById(R.id.list_item_title)
+        private val seriesTextView: TextView = itemView.findViewById(R.id.list_item_name)
         private val issueNumTextView: TextView = itemView.findViewById(R.id.list_item_issue)
 
         init {
@@ -148,6 +144,10 @@ class IssueListFragment(val seriesId: UUID? = null) : Fragment() {
 
     companion object {
         @JvmStatic
-        fun newInstance(seriesId: UUID? = null) = IssueListFragment(seriesId)
+        fun newInstance(
+            seriesId: UUID,
+            grouping: SeriesListFragment.Grouping = SeriesListFragment.Grouping.SERIES
+        ) =
+            IssueListFragment(seriesId, grouping)
     }
 }

@@ -56,6 +56,21 @@ class MainActivity : AppCompatActivity(),
             .commit()
     }
 
+    override fun onCreatorSelected(creatorId: UUID) {
+        val fragment = IssueListFragment.newInstance(creatorId)
+        supportFragmentManager
+            .beginTransaction()
+            .setCustomAnimations(
+                R.anim.fragment_open_enter,
+                R.anim.fragment_fade_exit,
+                R.anim.fragment_open_enter,
+                R.anim.fragment_fade_exit
+            )
+            .replace(R.id.fragment_container, fragment)
+            .addToBackStack(null)
+            .commit()
+    }
+
     override fun onNewIssue(issueId: UUID) {
         val fragment = IssueDetailFragment.newInstance(issueId)
 

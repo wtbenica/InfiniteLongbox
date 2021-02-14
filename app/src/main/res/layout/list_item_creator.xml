@@ -14,31 +14,17 @@
         app:layout_constraintTop_toTopOf="parent"
         tool:srcCompat="@tools:sample/avatars[8]" />
 
-    <LinearLayout
+    <TextView
+        android:id="@+id/list_item_name"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginEnd="8dp"
-        android:orientation="vertical"
+        android:textSize="24sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/list_item_cover"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <TextView
-            android:id="@+id/list_item_name"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:textSize="24sp"
-            tool:hint="@string/hint_series_title" />
-
-        <TextView
-            android:id="@+id/list_item_dates"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            tool:hint="(1990-2005)" />
-    </LinearLayout>
+        app:layout_constraintStart_toEndOf="@id/list_item_cover"
+        app:layout_constraintTop_toTopOf="parent"
+        tool:text="Morrison, Grant" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

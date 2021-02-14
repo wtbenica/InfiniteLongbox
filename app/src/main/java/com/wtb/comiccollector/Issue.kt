@@ -107,6 +107,18 @@ data class Creator(
     override fun toString(): String {
         return name
     }
+
+    val sortName: String
+        get() = if (lastName != null) {
+            "$lastName, "
+        } else {
+            ""
+        } + firstName + if (middleName != null) {
+            " $middleName"
+        } else {
+            ""
+        }
+
 }
 
 @Entity

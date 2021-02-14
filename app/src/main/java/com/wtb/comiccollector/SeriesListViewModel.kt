@@ -10,6 +10,7 @@ class SeriesListViewModel : ViewModel() {
     private val issueRepository: IssueRepository = IssueRepository.get()
 
     val seriesListLiveData: LiveData<List<Series>> = issueRepository.getSeriesList()
+    val creatorListLiveData: LiveData<List<Creator>> = issueRepository.allCreators
 
     fun addIssue(issue: Issue) {
         issueRepository.addIssue(issue)
