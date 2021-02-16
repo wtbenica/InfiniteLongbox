@@ -26,6 +26,7 @@
     <string name="hint_new_creator">New Creator</string>
     <string name="label_description">Description</string>
     <string-array name="suffixes_array">
+        <item>None</item>
         <item>Sr.</item>
         <item>Jr.</item>
         <item>I</item>

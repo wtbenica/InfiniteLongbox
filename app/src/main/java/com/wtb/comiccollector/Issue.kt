@@ -181,8 +181,47 @@ data class IssueCredits(
     val name: String
 )
 
-data class SeriesDetail(
+data class SeriesAndPublisher(
     @Embedded
     val series: Series,
-    val publisher: String
+
+    @Relation(
+        parentColumn = "publisherId",
+        entityColumn = "publisherId"
+    )
+    val publisher: Publisher
+)
+
+data class FullCredit(
+    @Embedded
+    val credit: Credit,
+
+    @Relation(
+        parentColumn = "issueId",
+        entityColumn = "issueId"
+    )
+    var issue: Issue,
+
+    @Relation(
+        parentColumn = "creatorId",
+        entityColumn = "creatorId"
+    )
+    var creator: Creator,
+
+    @Relation(
+        parentColumn = "roleId",
+        entityColumn = "roleId"
+    )
+    val role: Role
+)
+
+data class IssueAndSeries(
+    @Embedded
+    val issue: Issue,
+
+    @Relation(
+        parentColumn = "seriesId",
+        entityColumn = "seriesId"
+    )
+    val series: Series
 )

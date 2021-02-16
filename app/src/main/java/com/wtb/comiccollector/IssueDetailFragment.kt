@@ -44,13 +44,14 @@ private const val DIALOG_DATE = "DialogDate"
 class IssueDetailFragment private constructor() : Fragment(),
     DatePickerFragment.Callbacks {
 
-    private lateinit var issue: Issue
-    private lateinit var series: Series
-    private lateinit var writer: Creator
-    private lateinit var penciller: Creator
-    private lateinit var inker: Creator
+    private var numUpdates = 0
+
+    private lateinit var fullIssue: IssueAndSeries
+    private lateinit var issueCredits: List<FullCredit>
+
     private lateinit var seriesList: List<Series>
     private lateinit var writersList: List<Creator>
+    private lateinit var rolesList: List<Role>
 
     private lateinit var coverImageView: ImageView
     private lateinit var seriesSpinner: Spinner
@@ -87,14 +88,14 @@ class IssueDetailFragment private constructor() : Fragment(),
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
-        series = Series()
-        issue = Issue()
-        writer = Creator(firstName = "")
-        penciller = Creator(firstName = "")
-        inker = Creator(firstName = "")
+
         writersList = emptyList()
+        rolesList = emptyList()
         isEditable = arguments?.getSerializable(ARG_EDITABLE) as Boolean
         seriesList = emptyList()
+
+        fullIssue = IssueAndSeries(Issue(), Series())
+        issueCredits = emptyList()
 
         issueDetailViewModel.loadIssue(arguments?.getSerializable(ARG_ISSUE_ID) as UUID)
     }
@@ -138,21 +139,21 @@ class IssueDetailFragment private constructor() : Fragment(),
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        issueDetailViewModel.issueLiveData.observe(
+        issueDetailViewModel.fullIssueLiveData.observe(
             viewLifecycleOwner,
             { issue ->
                 issue?.let {
-                    this.issue = it
+                    this.fullIssue = it
                     updateUI()
                 }
             }
         )
 
-        issueDetailViewModel.seriesLiveData.observe(
+        issueDetailViewModel.issueCreditsLiveData.observe(
             viewLifecycleOwner,
-            { series ->
-                series?.let {
-                    this.series = it
+            { issue ->
+                issue?.let {
+                    this.issueCredits = it
                     updateUI()
                 }
             }
@@ -172,6 +173,11 @@ class IssueDetailFragment private constructor() : Fragment(),
                 }
             })
 
+        issueDetailViewModel.allRolesLiveData.observe(viewLifecycleOwner,
+            {allRoles ->
+                rolesList = allRoles
+            })
+
         issueDetailViewModel.allCreatorsLiveData.observe(viewLifecycleOwner,
             { allWriters ->
                 allWriters?.let {
@@ -187,36 +193,6 @@ class IssueDetailFragment private constructor() : Fragment(),
                 }
             })
 
-        issueDetailViewModel.writerLiveData.observe(
-            viewLifecycleOwner,
-            { writer ->
-                writer?.let {
-                    this.writer = it
-                    updateUI()
-                }
-            }
-        )
-
-        issueDetailViewModel.pencillerLiveData.observe(
-            viewLifecycleOwner,
-            { penciller ->
-                penciller?.let {
-                    this.penciller = it
-                    updateUI()
-                }
-            }
-        )
-
-        issueDetailViewModel.inkerLiveData.observe(
-            viewLifecycleOwner,
-            { inker ->
-                inker?.let {
-                    this.inker = it
-                    updateUI()
-                }
-            }
-        )
-
         if (!isEditable) {
             // TODO: Create a separate layout for editing vs viewing instead of this
             toggleEnable()
@@ -225,51 +201,236 @@ class IssueDetailFragment private constructor() : Fragment(),
 
     override fun onStart() {
         super.onStart()
-        attachTextWatchers()
+        attachLabelListeners()
+        attachAddCreditListeners()
+        toggleEditButton.setOnClickListener { toggleEnable() }
 
-        toggleEditButton.setOnClickListener {
-            toggleEnable()
+        attachSeriesListener()
+        attachIssueNumListener()
+        attachCreatorListeners()
+        attachCoverImageListener()
+
+        releaseDateTextView.setOnClickListener {
+            DatePickerFragment.newInstance(fullIssue.issue.releaseDate).apply {
+                setTargetFragment(this@IssueDetailFragment, RESULT_DATE_PICKER)
+                show(this@IssueDetailFragment.parentFragmentManager, DIALOG_DATE)
+            }
         }
+    }
 
-//        coverImageView.apply {
-//            setOnClickListener {
-//                val getImageIntent =
-//                    Intent(Intent.ACTION_GET_CONTENT, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
-//                val chooserIntent = Intent.createChooser(getImageIntent, null)
-//                startActivityForResult(chooserIntent, PICK_COVER_IMAGE)
-//            }
-//        }
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
 
+        when {
+            resultCode != Activity.RESULT_OK -> return
+            requestCode == RESULT_SERIES_DETAIL && data != null -> {
+                this.fullIssue.issue.seriesId = data.getSerializableExtra(ARG_SERIES_ID) as UUID
+                saveChanges()
+            }
+            requestCode == RESULT_NEW_WRITER && data != null -> {
+                this.fullIssue.issue.writerId = data.getSerializableExtra(ARG_CREATOR_ID) as UUID
+                saveChanges()
+            }
+            requestCode == RESULT_NEW_PENCILLER && data != null -> {
+                this.fullIssue.issue.pencillerId = data.getSerializableExtra(ARG_CREATOR_ID) as UUID
+                saveChanges()
+            }
+            requestCode == RESULT_NEW_INKER && data != null -> {
+                this.fullIssue.issue.inkerId = data.getSerializableExtra(ARG_CREATOR_ID) as UUID
+                saveChanges()
+            }
+        }
+    }
+
+    override fun onStop() {
+        super.onStop()
+        saveChanges()
+        if (fullIssue.issue.seriesId == NEW_SERIES_ID || fullIssue.series.seriesName == "New Series") {
+            issueDetailViewModel.deleteIssue(fullIssue.issue)
+        }
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        super.onCreateOptionsMenu(menu, inflater)
+        inflater.inflate(R.menu.fragment_issue, menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.delete_issue -> {
+                saveIssue = false
+                issueDetailViewModel.deleteIssue(fullIssue.issue)
+                requireActivity().onBackPressed()
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
+    }
+
+    override fun onDateSelected(date: LocalDate) {
+        fullIssue.issue.releaseDate = date
+        saveChanges()
+    }
+
+    private fun attachIssueNumListener() {
+        issueNumEditText.addTextChangedListener(
+            SimpleTextWatcher { sequence ->
+                fullIssue.issue.issueNum = try {
+                    sequence.toString().toInt()
+                } catch (e: Exception) {
+                    1
+                }
+            }
+        )
+    }
+
+    private fun saveChanges() {
+        issueDetailViewModel.updateIssue(fullIssue.issue)
+        issueDetailViewModel.loadIssue(fullIssue.issue.issueId)
+        updateUI()
+    }
+
+    private fun updateCreator(spinner: Spinner, roleName: String) {
+        spinner.setSelection(maxOf(0, writersList.indexOf(getCredit(roleName)?.creator)))
+    }
+
+    private fun updateUI() {
+        numUpdates += 1
+        Log.d(TAG, "$numUpdates updates *****************************************************")
+
+        seriesSpinner.setSelection(maxOf(0, seriesList.indexOf(fullIssue.series)))
+
+        updateCreator(writerSpinner, "Writer")
+        updateCreator(pencillerSpinner, "Penciller")
+        updateCreator(inkerSpinner, "Inker")
+
+        issueNumEditText.setText(
+            if (this.fullIssue.issue.issueNum == Int.MAX_VALUE) {
+                "1"
+            } else {
+                this.fullIssue.issue.issueNum.toString()
+            }
+        )
+
+        this.fullIssue.issue.releaseDate?.format(DateTimeFormatter.ofPattern("MMMM d, y"))
+            ?.let { releaseDateTextView.text = it }
+
+        this.fullIssue.issue.coverUri?.let {
+            coverImageView.setImageURI(this.fullIssue.issue.coverUri)
+            coverImageView.contentDescription = "Issue Cover (set)"
+        }
+    }
+
+    private fun attachSeriesListener() {
+        seriesSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(
+                parent: AdapterView<*>?,
+                view: View?,
+                position: Int,
+                id: Long
+            ) {
+                Log.d(TAG, "seriesAutoComplete ItemSelected")
+                parent?.let {
+                    val selectedSeries = it.getItemAtPosition(position) as Series
+                    if (selectedSeries.seriesName == "New Series") {
+                        selectedSeries.seriesName = ""
+                        issueDetailViewModel.addSeries(selectedSeries)
+                        fullIssue.issue.seriesId = selectedSeries.seriesId
+                        issueDetailViewModel.updateIssue(fullIssue.issue)
+                        issueDetailViewModel.loadIssue(fullIssue.issue.issueId)
+                        val d = SeriesInfoDialogFragment.newInstance(fullIssue.issue.seriesId)
+                        d.setTargetFragment(this@IssueDetailFragment, RESULT_SERIES_DETAIL)
+                        d.show(parentFragmentManager, DIALOG_SERIES_DETAIL)
+                    } else {
+                        fullIssue.issue.seriesId = selectedSeries.seriesId
+                        saveChanges()
+                    }
+                }
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+
+            }
+
+        }
+    }
+
+    private fun attachCoverImageListener() {
+        //        coverImageView.apply {
+        //            setOnClickListener {
+        //                val getImageIntent =
+        //                    Intent(Intent.ACTION_GET_CONTENT, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+        //                val chooserIntent = Intent.createChooser(getImageIntent, null)
+        //                startActivityForResult(chooserIntent, PICK_COVER_IMAGE)
+        //            }
+        //        }
+    }
+
+    private fun attachAddCreditListeners() {
         addWriterButton.setOnClickListener(addNewRow(writersBox, addWriterButton))
 
         addPencillerButton.setOnClickListener(addNewRow(pencillersBox, addPencillerButton))
 
         addInkerButton.setOnClickListener(addNewRow(inkersBox, addInkerButton))
+    }
 
-        writersLabel.setOnClickListener {
-            val d = NewCreatorDialogFragment()
-            d.setTargetFragment(this@IssueDetailFragment, RESULT_NEW_WRITER)
-            d.show(parentFragmentManager, DIALOG_NEW_CREATOR)
-        }
+    private fun attachLabelListeners() {
+        writersLabel.setOnClickListener { addCreator(RESULT_NEW_WRITER) }
 
-        pencillersLabel.setOnClickListener {
-            val d = NewCreatorDialogFragment()
-            d.setTargetFragment(this@IssueDetailFragment, RESULT_NEW_PENCILLER)
-            d.show(parentFragmentManager, DIALOG_NEW_CREATOR)
-        }
+        pencillersLabel.setOnClickListener { addCreator(RESULT_NEW_PENCILLER) }
 
-        inkersLabel.setOnClickListener {
-            val d = NewCreatorDialogFragment()
-            d.setTargetFragment(this@IssueDetailFragment, RESULT_NEW_INKER)
-            d.show(parentFragmentManager, DIALOG_NEW_CREATOR)
-        }
+        inkersLabel.setOnClickListener { addCreator(RESULT_NEW_INKER) }
+    }
 
-        releaseDateTextView.setOnClickListener {
-            DatePickerFragment.newInstance(issue.releaseDate).apply {
-                setTargetFragment(this@IssueDetailFragment, RESULT_DATE_PICKER)
-                show(this@IssueDetailFragment.parentFragmentManager, DIALOG_DATE)
+    private fun getRoleByName(roleName: String) : Role? {
+        for (role in rolesList) {
+            if (role.roleName == roleName) {
+                return role
             }
         }
+        return null
+    }
+
+    private fun attachCreatorListeners() {
+
+        class CreditsOnItemSelectedListener(val roleName: String) : AdapterView
+        .OnItemSelectedListener {
+            override fun onItemSelected(
+                parent: AdapterView<*>?,
+                view: View?,
+                position: Int,
+                id: Long
+            ) {
+                parent?.let {
+                    val fullCredit: FullCredit? = getCredit(roleName)
+                    val creatorId = (parent.getItemAtPosition(position) as Creator).creatorId
+
+                    if (fullCredit != null) {
+                        fullCredit.credit.creatorId = creatorId
+                        issueDetailViewModel.updateCredit(fullCredit.credit)
+                    } else {
+                        issueDetailViewModel.addCredit(
+                            Credit(
+                                issueId = fullIssue.issue.issueId,
+                                creatorId = creatorId,
+                                roleId = getRoleByName(roleName)?.roleId!!
+                            )
+                        )
+                    }
+                }
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+                // Do nothing
+            }
+
+        }
+
+        writerSpinner.onItemSelectedListener = CreditsOnItemSelectedListener("Writer")
+
+        pencillerSpinner.onItemSelectedListener = CreditsOnItemSelectedListener("Penciller")
+
+        inkerSpinner.onItemSelectedListener = CreditsOnItemSelectedListener("Inker")
+
     }
 
     private fun toggleEnable() {
@@ -303,188 +464,20 @@ class IssueDetailFragment private constructor() : Fragment(),
         parentTable.addView(newRow)
     }
 
-    private fun attachTextWatchers() {
-        val issueNumWatcher = SimpleTextWatcher { sequence ->
-            issue.issueNum = try {
-                sequence.toString().toInt()
-            } catch (e: Exception) {
-                1
+    fun getCredit(type: String): FullCredit? {
+        for (credit in issueCredits) {
+            if (credit.role.roleName == type) {
+                return credit
             }
         }
 
-        writerSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(
-                parent: AdapterView<*>?,
-                view: View?,
-                position: Int,
-                id: Long
-            ) {
-                parent?.let {
-                    issueDetailViewModel.allCreatorsLiveData.value?.let {
-                        issue.writerId = (parent.getItemAtPosition(position) as Creator).creatorId
-                    }
-                }
-            }
-
-            override fun onNothingSelected(parent: AdapterView<*>?) {
-
-            }
-        }
-
-        pencillerSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(
-                parent: AdapterView<*>?,
-                view: View?,
-                position: Int,
-                id: Long
-            ) {
-                parent?.let {
-                    issue.pencillerId = (it.getItemAtPosition(position) as Creator).creatorId
-                }
-            }
-
-            override fun onNothingSelected(parent: AdapterView<*>?) {
-
-            }
-        }
-
-        inkerSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(
-                parent: AdapterView<*>?,
-                view: View?,
-                position: Int,
-                id: Long
-            ) {
-                parent?.let {
-                    issue.inkerId = (it.getItemAtPosition(position) as Creator).creatorId
-                }
-            }
-
-            override fun onNothingSelected(parent: AdapterView<*>?) {
-
-            }
-        }
-
-        seriesSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(
-                parent: AdapterView<*>?,
-                view: View?,
-                position: Int,
-                id: Long
-            ) {
-                Log.d(TAG, "seriesAutoComplete ItemSelected")
-                parent?.let {
-                    val selectedSeries = it.getItemAtPosition(position) as Series
-                    if (selectedSeries.seriesName == "New Series") {
-                        selectedSeries.seriesName = ""
-                        issueDetailViewModel.addSeries(selectedSeries)
-                        issue.seriesId = selectedSeries.seriesId
-                        issueDetailViewModel.updateIssue(issue)
-                        issueDetailViewModel.loadIssue(issue.issueId)
-                        val d = SeriesInfoDialogFragment.newInstance(issue.seriesId)
-                        d.setTargetFragment(this@IssueDetailFragment, RESULT_SERIES_DETAIL)
-                        d.show(parentFragmentManager, DIALOG_SERIES_DETAIL)
-                    } else {
-                        issue.seriesId = selectedSeries.seriesId
-                        saveChanges()
-                    }
-                }
-            }
-
-            override fun onNothingSelected(parent: AdapterView<*>?) {
-
-            }
-
-        }
-
-//        seriesAutoComplete.setOnDismissListener {
-//            Log.d(TAG, "seriesAutoComplete Dismiss")
-//            if (series.seriesName == "New Series") {
-//                val d = NewSeriesDialogFragment.newInstance(seriesAutoComplete.text.toString())
-//                d.setTargetFragment(this@IssueDetailFragment, RESULT_NEW_SERIES)
-//                d.show(parentFragmentManager, DIALOG_NEW_SERIES)
-//            }
-//        }
-//
-        issueNumEditText.addTextChangedListener(issueNumWatcher)
+        return null
     }
 
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-
-        when {
-            resultCode != Activity.RESULT_OK -> return
-            requestCode == RESULT_SERIES_DETAIL && data != null -> {
-                this.issue.seriesId = data.getSerializableExtra(ARG_SERIES_ID) as UUID
-                saveChanges()
-            }
-            requestCode == RESULT_NEW_WRITER && data != null -> {
-                this.issue.writerId = data.getSerializableExtra(ARG_CREATOR_ID) as UUID
-                saveChanges()
-            }
-            requestCode == RESULT_NEW_PENCILLER && data != null -> {
-                this.issue.pencillerId = data.getSerializableExtra(ARG_CREATOR_ID) as UUID
-                saveChanges()
-            }
-            requestCode == RESULT_NEW_INKER && data != null -> {
-                this.issue.inkerId = data.getSerializableExtra(ARG_CREATOR_ID) as UUID
-                saveChanges()
-            }
-        }
-    }
-
-    override fun onStop() {
-        super.onStop()
-        saveChanges()
-        if (issue.seriesId == NEW_SERIES_ID || series.seriesName == "New Series") {
-            issueDetailViewModel.deleteIssue(issue)
-        }
-    }
-
-    private fun saveChanges() {
-        issueDetailViewModel.updateIssue(issue)
-        issueDetailViewModel.loadIssue(issue.issueId)
-        updateUI()
-    }
-
-    private fun updateUI() {
-        seriesSpinner.setSelection(maxOf(0, seriesList.indexOf(series)))
-        writerSpinner.setSelection(maxOf(0, writersList.indexOf(writer)))
-        pencillerSpinner.setSelection(maxOf(0, writersList.indexOf(penciller)))
-        inkerSpinner.setSelection(maxOf(0, writersList.indexOf(inker)))
-
-        issueNumEditText.setText(
-            if (this.issue.issueNum == Int.MAX_VALUE) {
-                "1"
-            } else {
-                this.issue.issueNum.toString()
-            }
-        )
-
-        this.issue.releaseDate?.format(DateTimeFormatter.ofPattern("MMMM d, y"))
-            ?.let { releaseDateTextView.text = it }
-
-        this.issue.coverUri?.let {
-            coverImageView.setImageURI(this.issue.coverUri)
-            coverImageView.contentDescription = "Issue Cover (set)"
-        }
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        super.onCreateOptionsMenu(menu, inflater)
-        inflater.inflate(R.menu.fragment_issue, menu)
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId) {
-            R.id.delete_issue -> {
-                saveIssue = false
-                issueDetailViewModel.deleteIssue(issue)
-                requireActivity().onBackPressed()
-                true
-            }
-            else -> super.onOptionsItemSelected(item)
-        }
+    private fun addCreator(requestCode: Int) {
+        val d = NewCreatorDialogFragment()
+        d.setTargetFragment(this@IssueDetailFragment, requestCode)
+        d.show(parentFragmentManager, DIALOG_NEW_CREATOR)
     }
 
     companion object {
@@ -499,11 +492,6 @@ class IssueDetailFragment private constructor() : Fragment(),
                     putSerializable(ARG_EDITABLE, openAsEditable)
                 }
             }
-    }
-
-    override fun onDateSelected(date: LocalDate) {
-        issue.releaseDate = date
-        saveChanges()
     }
 }
 
