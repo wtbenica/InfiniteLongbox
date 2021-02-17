@@ -14,6 +14,7 @@ interface IssueDao {
     @Query("SELECT * FROM issue WHERE issueId = :issueId")
     fun getNewFullIssue(issueId: UUID): LiveData<IssueAndSeries?>
 
+    @Transaction
     @Query(
         """
             SELECT *
@@ -21,20 +22,10 @@ interface IssueDao {
                 NATURAL JOIN creator
                 NATURAL JOIN role
             WHERE issueId = :issueId
+            ORDER BY sortOrder
         """
     )
     fun getNewIssueCredits(issueId: UUID): LiveData<List<FullCredit>>
-
-    @Query(
-        """
-            SELECT roleName, name
-            FROM credit 
-                NATURAL JOIN role
-                NATURAL JOIN creator
-            WHERE credit.issueId = :issueId
-        """
-    )
-    fun getIssueCredits(issueId: UUID): LiveData<List<IssueCredits>>
 
     @Transaction
     @Query(

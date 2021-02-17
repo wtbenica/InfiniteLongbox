@@ -93,40 +93,29 @@ data class Creator(
     var middleName: String? = null,
     var lastName: String? = null,
     var suffix: String? = null,
-    var number: Int = 1,
-    val name: String = firstName + if (middleName != null) {
-        " $middleName"
-    } else {
-        ""
-    } + if (lastName != null) {
-        " $lastName"
-    } else {
-        ""
-    }
+    var number: Int = 1
 ) {
+    val name: String
+        get() = firstName +
+                (if (middleName != null) " $middleName" else "") +
+                (if (lastName != null) " $lastName" else "") +
+                (if (suffix != null) " $suffix" else "")
+
+    val sortName: String
+        get() = (if (suffix != null && lastName != null) "$lastName $suffix, "
+        else (if (lastName != null) "$lastName, " else "")) +
+                firstName +
+                if (middleName != null) "$middleName" else ""
+
     override fun toString(): String {
         return name
     }
-
-    val sortName: String
-        get() = if (lastName != null) {
-            "$lastName, "
-        } else {
-            ""
-        } + firstName + if (middleName != null) {
-            " $middleName"
-        } else {
-            ""
-        }
-
 }
 
 @Entity
 data class Publisher(
     @PrimaryKey val publisherId: UUID = UUID.randomUUID(),
     val publisher: String = ""
-
-
 ) {
     override fun toString(): String {
         return publisher

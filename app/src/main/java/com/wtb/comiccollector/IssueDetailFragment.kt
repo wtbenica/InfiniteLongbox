@@ -1,6 +1,7 @@
 package com.wtb.comiccollector
 
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -174,16 +175,15 @@ class IssueDetailFragment private constructor() : Fragment(),
             })
 
         issueDetailViewModel.allRolesLiveData.observe(viewLifecycleOwner,
-            {allRoles ->
+            { allRoles ->
                 rolesList = allRoles
             })
 
         issueDetailViewModel.allCreatorsLiveData.observe(viewLifecycleOwner,
             { allWriters ->
                 allWriters?.let {
-                    val adapter = ArrayAdapter(
+                    val adapter = CreatorAdapter(
                         requireContext(),
-                        android.R.layout.simple_dropdown_item_1line,
                         it
                     )
                     writersList = it
@@ -227,16 +227,25 @@ class IssueDetailFragment private constructor() : Fragment(),
                 saveChanges()
             }
             requestCode == RESULT_NEW_WRITER && data != null -> {
-                this.fullIssue.issue.writerId = data.getSerializableExtra(ARG_CREATOR_ID) as UUID
-                saveChanges()
+                val myCredit: FullCredit? = getCredit("Writer")
+                myCredit?.let { fullCredit ->
+                    fullCredit.credit.creatorId = data.getSerializableExtra(ARG_CREATOR_ID) as UUID
+                    issueDetailViewModel.updateCredit(fullCredit.credit)
+                }
             }
             requestCode == RESULT_NEW_PENCILLER && data != null -> {
-                this.fullIssue.issue.pencillerId = data.getSerializableExtra(ARG_CREATOR_ID) as UUID
-                saveChanges()
+                val myCredit: FullCredit? = getCredit("Penciller")
+                myCredit?.let { fullCredit ->
+                    fullCredit.credit.creatorId = data.getSerializableExtra(ARG_CREATOR_ID) as UUID
+                    issueDetailViewModel.updateCredit(fullCredit.credit)
+                }
             }
             requestCode == RESULT_NEW_INKER && data != null -> {
-                this.fullIssue.issue.inkerId = data.getSerializableExtra(ARG_CREATOR_ID) as UUID
-                saveChanges()
+                val myCredit: FullCredit? = getCredit("Inker")
+                myCredit?.let { fullCredit ->
+                    fullCredit.credit.creatorId = data.getSerializableExtra(ARG_CREATOR_ID) as UUID
+                    issueDetailViewModel.updateCredit(fullCredit.credit)
+                }
             }
         }
     }
@@ -271,6 +280,12 @@ class IssueDetailFragment private constructor() : Fragment(),
         saveChanges()
     }
 
+    private fun saveChanges() {
+        issueDetailViewModel.updateIssue(fullIssue.issue)
+        issueDetailViewModel.loadIssue(fullIssue.issue.issueId)
+        updateUI()
+    }
+
     private fun attachIssueNumListener() {
         issueNumEditText.addTextChangedListener(
             SimpleTextWatcher { sequence ->
@@ -281,12 +296,6 @@ class IssueDetailFragment private constructor() : Fragment(),
                 }
             }
         )
-    }
-
-    private fun saveChanges() {
-        issueDetailViewModel.updateIssue(fullIssue.issue)
-        issueDetailViewModel.loadIssue(fullIssue.issue.issueId)
-        updateUI()
     }
 
     private fun updateCreator(spinner: Spinner, roleName: String) {
@@ -381,7 +390,7 @@ class IssueDetailFragment private constructor() : Fragment(),
         inkersLabel.setOnClickListener { addCreator(RESULT_NEW_INKER) }
     }
 
-    private fun getRoleByName(roleName: String) : Role? {
+    private fun getRoleByName(roleName: String): Role? {
         for (role in rolesList) {
             if (role.roleName == roleName) {
                 return role
@@ -458,7 +467,17 @@ class IssueDetailFragment private constructor() : Fragment(),
             LinearLayout.LayoutParams.WRAP_CONTENT,
             1.0f
         )
+
+        val newSpinner = Spinner(context)
+        newSpinner.adapter =
+            ArrayAdapter(
+                requireContext(),
+                R.layout.support_simple_spinner_dropdown_item,
+                rolesList
+            )
+
         newRow.addView(newText)
+        newRow.addView(newSpinner)
         (parentTable.children.elementAt(numChildren - 1) as TableRow).removeView(addButton)
         newRow.addView(addButton)
         parentTable.addView(newRow)
@@ -495,3 +514,42 @@ class IssueDetailFragment private constructor() : Fragment(),
     }
 }
 
+class CreatorAdapter(context: Context, data: List<Creator>) :
+    ArrayAdapter<Creator>(context, android.R.layout.simple_dropdown_item_1line, data),
+    SpinnerAdapter {
+
+    override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
+
+        val creator: Creator? = getItem(position)
+
+        val res = if (convertView == null) {
+            LayoutInflater.from(context).inflate(
+                android.R.layout.simple_dropdown_item_1line, parent, false
+            )
+        } else {
+            convertView
+        }
+
+        val text1 = res.findViewById(android.R.id.text1) as TextView
+        text1.setText(creator?.toString())
+
+        return text1
+    }
+
+    override fun getDropDownView(position: Int, convertView: View?, parent: ViewGroup): View {
+        val creator: Creator? = getItem(position)
+
+        val res = if (convertView == null) {
+            LayoutInflater.from(context).inflate(
+                android.R.layout.simple_dropdown_item_1line, parent, false
+            )
+        } else {
+            convertView
+        }
+
+        val text1 = res.findViewById(android.R.id.text1) as TextView
+        text1.setText(creator?.sortName)
+
+        return text1
+    }
+}

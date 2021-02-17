@@ -49,9 +49,6 @@ class IssueRepository private constructor(context: Context) {
     fun getIssuesByDetails(seriesId: UUID, issueNum: Int) =
         issueDao.getIssueByDetails(seriesId, issueNum)
 
-    fun getIssueCredits(issueId: UUID): LiveData<List<IssueCredits>> =
-        issueDao.getIssueCredits(issueId)
-
     private fun buildDatabase(context: Context) = Room.databaseBuilder(
         context.applicationContext,
         IssueDatabase::class.java,
@@ -214,7 +211,11 @@ class IssueRepository private constructor(context: Context) {
 
     fun addCredit(credit: Credit) {
         executor.execute {
-            issueDao.insertCredit(credit)
+            try {
+                issueDao.insertCredit(credit)
+            } catch (e: SQLiteConstraintException) {
+                Log.d(TAG, "addCredit: $e")
+            }
         }
     }
 
