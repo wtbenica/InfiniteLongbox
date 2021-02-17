@@ -136,7 +136,8 @@ data class Publisher(
 @Entity
 data class Role(
     @PrimaryKey val roleId: UUID = UUID.randomUUID(),
-    var roleName: String = ""
+    var roleName: String = "",
+    var sortOrder: Int
 )
 
 @Entity(

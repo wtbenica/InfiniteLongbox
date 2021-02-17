@@ -13,7 +13,6 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.wtb.comiccollector.database.IssueDatabase
-import com.wtb.comiccollector.database.migration_1_2
 import java.time.LocalDate
 import java.util.*
 import java.util.concurrent.Executors
@@ -77,22 +76,22 @@ class IssueRepository private constructor(context: Context) {
                         Publisher(publisher = "DC/Vertigo")
                     )
 
-                    val writer = Role(roleName = "Writer")
-                    val penciller = Role(roleName = "Penciller")
-                    val inker = Role(roleName = "Inker")
+                    val writer = Role(roleName = "Writer", sortOrder = 0)
+                    val penciller = Role(roleName = "Penciller", sortOrder = 20)
+                    val inker = Role(roleName = "Inker", sortOrder = 40)
 
                     issueDao.insertRole(
                         writer,
-                        Role(roleName = "Scripter"),
-                        Role(roleName = "Plotter"),
+                        Role(roleName = "Plotter", sortOrder = 5),
+                        Role(roleName = "Scripter", sortOrder = 10),
                         penciller,
-                        Role(roleName = "Artist"),
+                        Role(roleName = "Artist", sortOrder = 21),
                         inker,
-                        Role(roleName = "Colorist"),
-                        Role(roleName = "Letterer"),
-                        Role(roleName = "Cover Artist"),
-                        Role(roleName = "Editor"),
-                        Role(roleName = "Assistant Editor")
+                        Role(roleName = "Colorist", sortOrder = 60),
+                        Role(roleName = "Letterer", sortOrder = 80),
+                        Role(roleName = "Cover Artist", sortOrder = 100),
+                        Role(roleName = "Editor", sortOrder = 120),
+                        Role(roleName = "Assistant Editor", sortOrder = 125)
                     )
 
                     val grantMorrison = Creator(firstName = "Grant", lastName = "Morrison")
@@ -178,8 +177,7 @@ class IssueRepository private constructor(context: Context) {
                 }
             }
         }
-    ).addMigrations(migration_1_2)
-        .build()
+    ).build()
 
     fun addIssue(issue: Issue) {
         executor.execute {
@@ -317,10 +315,6 @@ class IssueRepository private constructor(context: Context) {
     fun getNewFullIssue(issueId: UUID) = issueDao.getNewFullIssue(issueId)
 
     fun getNewIssueCredits(issueId: UUID) = issueDao.getNewIssueCredits(issueId)
-
-    fun getRoleByName(roleName: String) : Role {
-        return issueDao.getRoleByName(roleName)
-    }
 
 /*
     FUTURE IMPLEMENTATION

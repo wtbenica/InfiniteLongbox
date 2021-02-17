@@ -38,10 +38,6 @@ class IssueDetailViewModel : ViewModel() {
         issueIdLiveData.value = issueId
     }
 
-    fun getRoleByName(roleName: String): Role {
-        return issueRepository.getRoleByName(roleName)
-    }
-
     fun updateIssue(issue: Issue) {
         issueRepository.updateIssue(issue)
     }
