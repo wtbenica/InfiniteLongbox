@@ -283,7 +283,6 @@ class IssueDetailFragment private constructor() : Fragment(),
     private fun saveChanges() {
         issueDetailViewModel.updateIssue(fullIssue.issue)
         issueDetailViewModel.loadIssue(fullIssue.issue.issueId)
-        updateUI()
     }
 
     private fun attachIssueNumListener() {
