@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import java.util.*
 
+
 class SeriesListFragment : Fragment() {
     interface Callbacks {
         fun onSeriesSelected(seriesId: UUID)
@@ -145,6 +146,8 @@ class SeriesListFragment : Fragment() {
 
     private abstract inner class MyAdapter<T>(var itemList: List<T>) :
         RecyclerView.Adapter<MyHolder<T>>() {
+
+        private var lastPosition = -1
 
         override fun onBindViewHolder(holder: MyHolder<T>, position: Int) {
             val item = itemList[position]

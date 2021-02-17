@@ -9,12 +9,30 @@ private val NEW_SERIES_UUID = UUID(0, 0)
 
 @Dao
 interface IssueDao {
+
+    @Transaction
+    @Query("SELECT * FROM issue WHERE issueId = :issueId")
+    fun getNewFullIssue(issueId: UUID): LiveData<IssueAndSeries?>
+
+    @Transaction
+    @Query(
+        """
+            SELECT *
+            FROM credit
+                NATURAL JOIN creator
+                NATURAL JOIN role
+            WHERE issueId = :issueId
+            ORDER BY sortOrder
+        """
+    )
+    fun getNewIssueCredits(issueId: UUID): LiveData<List<FullCredit>>
+
     @Transaction
     @Query(
         """
             SELECT issue.*, series.seriesName, publisher.publisher 
             FROM issue NATURAL JOIN series NATURAL JOIN publisher
-            """
+         """
     )
     fun getIssues(): LiveData<List<FullIssue>>
 
@@ -45,20 +63,14 @@ interface IssueDao {
     @Query("SELECT * FROM publisher WHERE publisherId = :publisherId")
     fun getPublisher(publisherId: UUID): LiveData<Publisher?>
 
-    @Query(
-        """
-        SELECT roleName, name FROM credit 
-            INNER JOIN role ON credit.roleId = role.roleId 
-            INNER JOIN creator on creator.creatorId = credit.creatorId
-            WHERE credit.issueId = :issueId"""
-    )
-    fun getIssueCredits(issueId: UUID): LiveData<List<IssueCredits>>
-
     @Query("SELECT * FROM series WHERE seriesId=:seriesId")
     fun getSeriesById(seriesId: UUID): LiveData<Series?>
 
     @Query("SELECT issue.* FROM issue NATURAL JOIN credit WHERE creatorId=:creatorId")
     fun getIssuesByCreator(creatorId: UUID): LiveData<List<Issue>>
+
+    @Query("SELECT * FROM role WHERE roleName = :roleName")
+    fun getRoleByName(roleName: String) : Role
 
     @Query("SELECT * FROM series WHERE seriesId != '00000000-0000-0000-0000-000000000000' ORDER BY seriesName ASC")
     fun getSeriesList(): LiveData<List<Series>>
@@ -68,6 +80,9 @@ interface IssueDao {
 
     @Query("SELECT * FROM creator ORDER BY lastName ASC")
     fun getCreatorsList(): LiveData<List<Creator>>
+
+    @Query("SELECT * FROM role")
+    fun getRoleList(): LiveData<List<Role>>
 
     @Query(
         """SELECT creator.* FROM creator natural join credit natural join role where roleName = 'Writer'"""
@@ -127,5 +142,4 @@ interface IssueDao {
 
     @Delete
     fun deleteCredit(credit: Credit)
-
 }

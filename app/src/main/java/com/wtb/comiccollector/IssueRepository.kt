@@ -13,7 +13,6 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.wtb.comiccollector.database.IssueDatabase
-import com.wtb.comiccollector.database.migration_1_2
 import java.time.LocalDate
 import java.util.*
 import java.util.concurrent.Executors
@@ -39,6 +38,8 @@ class IssueRepository private constructor(context: Context) {
 
     val allWriters: LiveData<List<Creator>> = issueDao.getWritersList()
 
+    val allRoles: LiveData<List<Role>> = issueDao.getRoleList()
+
     fun getIssues(): LiveData<List<FullIssue>> = issueDao.getIssues()
 
     fun getIssue(issueId: UUID): LiveData<Issue?> = issueDao.getIssue(issueId)
@@ -47,9 +48,6 @@ class IssueRepository private constructor(context: Context) {
 
     fun getIssuesByDetails(seriesId: UUID, issueNum: Int) =
         issueDao.getIssueByDetails(seriesId, issueNum)
-
-    fun getIssueCredits(issueId: UUID): LiveData<List<IssueCredits>> =
-        issueDao.getIssueCredits(issueId)
 
     private fun buildDatabase(context: Context) = Room.databaseBuilder(
         context.applicationContext,
@@ -60,7 +58,9 @@ class IssueRepository private constructor(context: Context) {
             override fun onCreate(db: SupportSQLiteDatabase) {
                 super.onCreate(db)
                 executor.execute {
+
                     val publisherDC = Publisher(publisherId = UUID.randomUUID(), publisher = "DC")
+
                     issueDao.insertPublisher(
                         publisherDC,
                         Publisher(publisherId = NEW_SERIES_ID, publisher = "New Publisher"),
@@ -72,26 +72,30 @@ class IssueRepository private constructor(context: Context) {
                         Publisher(publisher = "Aftershock"),
                         Publisher(publisher = "DC/Vertigo")
                     )
-                    val writer = Role(roleName = "Writer")
-                    val penciller = Role(roleName = "Penciller")
-                    val inker = Role(roleName = "Inker")
+
+                    val writer = Role(roleName = "Writer", sortOrder = 0)
+                    val penciller = Role(roleName = "Penciller", sortOrder = 20)
+                    val inker = Role(roleName = "Inker", sortOrder = 40)
+
                     issueDao.insertRole(
                         writer,
-                        Role(roleName = "Scripter"),
-                        Role(roleName = "Plotter"),
+                        Role(roleName = "Plotter", sortOrder = 5),
+                        Role(roleName = "Scripter", sortOrder = 10),
                         penciller,
-                        Role(roleName = "Artist"),
+                        Role(roleName = "Artist", sortOrder = 21),
                         inker,
-                        Role(roleName = "Colorist"),
-                        Role(roleName = "Letterer"),
-                        Role(roleName = "Cover Artist"),
-                        Role(roleName = "Editor"),
-                        Role(roleName = "Assistant Editor")
+                        Role(roleName = "Colorist", sortOrder = 60),
+                        Role(roleName = "Letterer", sortOrder = 80),
+                        Role(roleName = "Cover Artist", sortOrder = 100),
+                        Role(roleName = "Editor", sortOrder = 120),
+                        Role(roleName = "Assistant Editor", sortOrder = 125)
                     )
+
                     val grantMorrison = Creator(firstName = "Grant", lastName = "Morrison")
                     val philipBond = Creator(firstName = "Philip", lastName = "Bond")
                     val johnNyberg = Creator(firstName = "John", lastName = "Nyberg")
                     val richardCase = Creator(firstName = "Richard", lastName = "Case")
+
                     issueDao.insertCreator(
                         grantMorrison,
                         philipBond,
@@ -100,6 +104,7 @@ class IssueRepository private constructor(context: Context) {
                         Creator(firstName = "Neil", lastName = "Gaiman"),
                         Creator(firstName = "Jason", lastName = "Aaron")
                     )
+
                     val seriesDoomPatrol =
                         Series(
                             seriesName = "Doom Patrol",
@@ -107,6 +112,7 @@ class IssueRepository private constructor(context: Context) {
                             startDate = LocalDate.of(1987, 10, 1),
                             endDate = LocalDate.of(1995, 2, 1)
                         )
+
                     issueDao.insertSeries(
                         Series(
                             seriesId = NEW_SERIES_ID,
@@ -117,23 +123,20 @@ class IssueRepository private constructor(context: Context) {
                         ),
                         seriesDoomPatrol
                     )
+
                     val dp35 = Issue(
                         seriesId = seriesDoomPatrol.seriesId,
-                        writerId = grantMorrison.creatorId,
-                        pencillerId = richardCase.creatorId,
-                        inkerId = johnNyberg.creatorId,
                         issueNum = 35,
                         releaseDate = LocalDate.of(1990, 8, 1)
                     )
+
+                    val dp33 = Issue(
+                        seriesId = seriesDoomPatrol.seriesId,
+                        issueNum = 33,
+                        releaseDate = LocalDate.of(1990, 6, 1)
+                    )
                     issueDao.insertIssue(
-                        Issue(
-                            seriesId = seriesDoomPatrol.seriesId,
-                            writerId = grantMorrison.creatorId,
-                            pencillerId = richardCase.creatorId,
-                            inkerId = johnNyberg.creatorId,
-                            issueNum = 33,
-                            releaseDate = LocalDate.of(1990, 6, 1)
-                        ),
+                        dp33,
                         dp35
                     )
                     issueDao.insertCredit(
@@ -151,13 +154,27 @@ class IssueRepository private constructor(context: Context) {
                             issueId = dp35.issueId,
                             creatorId = johnNyberg.creatorId,
                             roleId = inker.roleId
+                        ),
+                        Credit(
+                            issueId = dp33.issueId,
+                            creatorId = grantMorrison.creatorId,
+                            roleId = writer.roleId
+                        ),
+                        Credit(
+                            issueId = dp33.issueId,
+                            creatorId = richardCase.creatorId,
+                            roleId = penciller.roleId
+                        ),
+                        Credit(
+                            issueId = dp33.issueId,
+                            creatorId = johnNyberg.creatorId,
+                            roleId = inker.roleId
                         )
                     )
                 }
             }
         }
-    ).addMigrations(migration_1_2)
-        .build()
+    ).build()
 
     fun addIssue(issue: Issue) {
         executor.execute {
@@ -194,7 +211,11 @@ class IssueRepository private constructor(context: Context) {
 
     fun addCredit(credit: Credit) {
         executor.execute {
-            issueDao.insertCredit(credit)
+            try {
+                issueDao.insertCredit(credit)
+            } catch (e: SQLiteConstraintException) {
+                Log.d(TAG, "addCredit: $e")
+            }
         }
     }
 
@@ -291,6 +312,10 @@ class IssueRepository private constructor(context: Context) {
     }
 
     fun getPublisher(publisherId: UUID): LiveData<Publisher?> = issueDao.getPublisher(publisherId)
+
+    fun getNewFullIssue(issueId: UUID) = issueDao.getNewFullIssue(issueId)
+
+    fun getNewIssueCredits(issueId: UUID) = issueDao.getNewIssueCredits(issueId)
 
 /*
     FUTURE IMPLEMENTATION

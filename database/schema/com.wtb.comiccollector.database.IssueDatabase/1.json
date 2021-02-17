@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "b019096994e641e7dc32f6b5259576c9",
+    "identityHash": "965dcbc33a77579395dac73c0bbf7eb3",
     "entities": [
       {
         "tableName": "Issue",
@@ -78,12 +78,12 @@
         "indices": [
           {
             "name": "index_Issue_seriesId_issueNum",
-            "unique": true,
+            "unique": false,
             "columnNames": [
               "seriesId",
               "issueNum"
             ],
-            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_Issue_seriesId_issueNum` ON `${TABLE_NAME}` (`seriesId`, `issueNum`)"
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_Issue_seriesId_issueNum` ON `${TABLE_NAME}` (`seriesId`, `issueNum`)"
           },
           {
             "name": "index_Issue_writerId",
@@ -121,7 +121,7 @@
       },
       {
         "tableName": "Series",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`seriesId` TEXT NOT NULL, `seriesName` TEXT NOT NULL, `volume` INTEGER NOT NULL, `publisherId` TEXT NOT NULL, `startDate` TEXT, `endDate` TEXT, PRIMARY KEY(`seriesId`), FOREIGN KEY(`publisherId`) REFERENCES `Publisher`(`publisherId`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`seriesId` TEXT NOT NULL, `seriesName` TEXT NOT NULL, `volume` INTEGER NOT NULL, `publisherId` TEXT NOT NULL, `startDate` TEXT, `endDate` TEXT, `description` TEXT, PRIMARY KEY(`seriesId`), FOREIGN KEY(`publisherId`) REFERENCES `Publisher`(`publisherId`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
         "fields": [
           {
             "fieldPath": "seriesId",
@@ -156,6 +156,12 @@
           {
             "fieldPath": "endDate",
             "columnName": "endDate",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "description",
+            "columnName": "description",
             "affinity": "TEXT",
             "notNull": false
           }
@@ -202,7 +208,7 @@
       },
       {
         "tableName": "Creator",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`creatorId` TEXT NOT NULL, `firstName` TEXT NOT NULL, `middleName` TEXT, `lastName` TEXT, `suffix` TEXT, `number` INTEGER NOT NULL, `name` TEXT NOT NULL, PRIMARY KEY(`creatorId`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`creatorId` TEXT NOT NULL, `firstName` TEXT NOT NULL, `middleName` TEXT, `lastName` TEXT, `suffix` TEXT, `number` INTEGER NOT NULL, PRIMARY KEY(`creatorId`))",
         "fields": [
           {
             "fieldPath": "creatorId",
@@ -239,12 +245,6 @@
             "columnName": "number",
             "affinity": "INTEGER",
             "notNull": true
-          },
-          {
-            "fieldPath": "name",
-            "columnName": "name",
-            "affinity": "TEXT",
-            "notNull": true
           }
         ],
         "primaryKey": {
@@ -271,7 +271,7 @@
       },
       {
         "tableName": "Role",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`roleId` TEXT NOT NULL, `roleName` TEXT NOT NULL, PRIMARY KEY(`roleId`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`roleId` TEXT NOT NULL, `roleName` TEXT NOT NULL, `sortOrder` INTEGER NOT NULL, PRIMARY KEY(`roleId`))",
         "fields": [
           {
             "fieldPath": "roleId",
@@ -283,6 +283,12 @@
             "fieldPath": "roleName",
             "columnName": "roleName",
             "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sortOrder",
+            "columnName": "sortOrder",
+            "affinity": "INTEGER",
             "notNull": true
           }
         ],
@@ -432,7 +438,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'b019096994e641e7dc32f6b5259576c9')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '965dcbc33a77579395dac73c0bbf7eb3')"
     ]
   }
 }

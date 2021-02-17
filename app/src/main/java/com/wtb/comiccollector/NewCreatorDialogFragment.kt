@@ -125,13 +125,12 @@ class NewCreatorDialogFragment : DialogFragment(),
 
 */
         okayButton.setOnClickListener { view ->
-            val suffix = suffixSpinner.selectedItem as String
-
+            // TODO: Need to validate to make sure that firstName is not blank
             val creator = Creator(
                 firstName = firstNameEditText.text.toString(),
-                middleName= middleNameEditText.text.toString(),
-                lastName = lastNameEditText.text.toString(),
-                suffix = suffix
+                middleName = isNoneOrBlank(middleNameEditText.text.toString()),
+                lastName = isNoneOrBlank(lastNameEditText.text.toString()),
+                suffix = isNoneOrBlank(suffixSpinner.selectedItem as String)
             )
 
             issueDetailViewModel.addCreator(creator)
@@ -147,6 +146,12 @@ class NewCreatorDialogFragment : DialogFragment(),
         cancelButton.setOnClickListener { view ->
             listener.onCancelClick(this)
         }
+    }
+
+    private fun isNoneOrBlank(str: String?) = if (str == "None" || str == "") {
+        null
+    } else {
+        str
     }
 
     override fun onResume() {

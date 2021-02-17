@@ -93,40 +93,29 @@ data class Creator(
     var middleName: String? = null,
     var lastName: String? = null,
     var suffix: String? = null,
-    var number: Int = 1,
-    val name: String = firstName + if (middleName != null) {
-        " $middleName"
-    } else {
-        ""
-    } + if (lastName != null) {
-        " $lastName"
-    } else {
-        ""
-    }
+    var number: Int = 1
 ) {
+    val name: String
+        get() = firstName +
+                (if (middleName != null) " $middleName" else "") +
+                (if (lastName != null) " $lastName" else "") +
+                (if (suffix != null) " $suffix" else "")
+
+    val sortName: String
+        get() = (if (suffix != null && lastName != null) "$lastName $suffix, "
+        else (if (lastName != null) "$lastName, " else "")) +
+                firstName +
+                if (middleName != null) "$middleName" else ""
+
     override fun toString(): String {
         return name
     }
-
-    val sortName: String
-        get() = if (lastName != null) {
-            "$lastName, "
-        } else {
-            ""
-        } + firstName + if (middleName != null) {
-            " $middleName"
-        } else {
-            ""
-        }
-
 }
 
 @Entity
 data class Publisher(
     @PrimaryKey val publisherId: UUID = UUID.randomUUID(),
     val publisher: String = ""
-
-
 ) {
     override fun toString(): String {
         return publisher
@@ -136,7 +125,8 @@ data class Publisher(
 @Entity
 data class Role(
     @PrimaryKey val roleId: UUID = UUID.randomUUID(),
-    var roleName: String = ""
+    var roleName: String = "",
+    var sortOrder: Int
 )
 
 @Entity(
@@ -181,8 +171,47 @@ data class IssueCredits(
     val name: String
 )
 
-data class SeriesDetail(
+data class SeriesAndPublisher(
     @Embedded
     val series: Series,
-    val publisher: String
+
+    @Relation(
+        parentColumn = "publisherId",
+        entityColumn = "publisherId"
+    )
+    val publisher: Publisher
+)
+
+data class FullCredit(
+    @Embedded
+    val credit: Credit,
+
+    @Relation(
+        parentColumn = "issueId",
+        entityColumn = "issueId"
+    )
+    var issue: Issue,
+
+    @Relation(
+        parentColumn = "creatorId",
+        entityColumn = "creatorId"
+    )
+    var creator: Creator,
+
+    @Relation(
+        parentColumn = "roleId",
+        entityColumn = "roleId"
+    )
+    val role: Role
+)
+
+data class IssueAndSeries(
+    @Embedded
+    val issue: Issue,
+
+    @Relation(
+        parentColumn = "seriesId",
+        entityColumn = "seriesId"
+    )
+    val series: Series
 )
