@@ -22,12 +22,13 @@ private const val DIALOG_SERIES_INFO = "DIALOG_EDIT_SERIES"
  * Use the [SeriesDetailFragment.newInstance] factory method to
  * create an instance of this fragment.
  */
-class SeriesDetailFragment(val seriesId: UUID) : Fragment() {
+class SeriesDetailFragment() : Fragment() {
 
     private val seriesViewModel by lazy {
         ViewModelProvider(this).get(SeriesInfoViewModel::class.java)
     }
 
+    private lateinit var seriesId: UUID
     private lateinit var series: Series
     private lateinit var publisher: Publisher
 
@@ -42,6 +43,7 @@ class SeriesDetailFragment(val seriesId: UUID) : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        seriesId = arguments?.getSerializable(ARG_SERIES_ID) as UUID
         series = Series()
         publisher = Publisher()
     }
@@ -126,6 +128,10 @@ class SeriesDetailFragment(val seriesId: UUID) : Fragment() {
          * @return A new instance of fragment SeriesDetailFragment.
          */
         @JvmStatic
-        fun newInstance(seriesId: UUID) = SeriesDetailFragment(seriesId)
+        fun newInstance(seriesId: UUID) = SeriesDetailFragment().apply {
+            arguments = Bundle().apply {
+                putSerializable(ARG_SERIES_ID, seriesId)
+            }
+        }
     }
 }

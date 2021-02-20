@@ -127,7 +127,9 @@ data class Role(
     @PrimaryKey val roleId: UUID = UUID.randomUUID(),
     var roleName: String = "",
     var sortOrder: Int
-)
+) {
+    override fun toString(): String = roleName
+}
 
 @Entity(
     indices = [
@@ -186,12 +188,12 @@ data class FullCredit(
     @Embedded
     val credit: Credit,
 
-    @Relation(
-        parentColumn = "issueId",
-        entityColumn = "issueId"
-    )
-    var issue: Issue,
-
+//    @Relation(
+//        parentColumn = "issueId",
+//        entityColumn = "issueId"
+//    )
+//    var issue: Issue,
+//
     @Relation(
         parentColumn = "creatorId",
         entityColumn = "creatorId"
