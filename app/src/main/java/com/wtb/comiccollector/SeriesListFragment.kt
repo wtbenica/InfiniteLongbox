@@ -1,3 +1,5 @@
+@file:Suppress("LeakingThis")
+
 package com.wtb.comiccollector
 
 import android.content.Context

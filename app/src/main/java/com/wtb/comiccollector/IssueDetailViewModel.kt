@@ -1,5 +1,6 @@
 package com.wtb.comiccollector
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
@@ -34,6 +35,7 @@ class IssueDetailViewModel : ViewModel() {
     var allRolesLiveData: LiveData<List<Role>> = issueRepository.allRoles
 
     fun loadIssue(issueId: UUID) {
+        Log.d(TAG, "loadIssue")
         issueIdLiveData.value = NEW_SERIES_ID
         issueIdLiveData.value = issueId
     }

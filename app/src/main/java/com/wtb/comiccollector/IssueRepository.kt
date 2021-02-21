@@ -215,6 +215,8 @@ class IssueRepository private constructor(context: Context) {
                 issueDao.insertCredit(credit)
             } catch (e: SQLiteConstraintException) {
                 Log.d(TAG, "addCredit: $e")
+                // TODO: notify user that they are updating an existing item
+                issueDao.updateCredit(credit)
             }
         }
     }
