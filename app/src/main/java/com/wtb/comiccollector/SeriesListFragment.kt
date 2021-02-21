@@ -31,9 +31,9 @@ class SeriesListFragment : Fragment() {
     private lateinit var creatorList: List<Creator>
 
     private fun getAdapter(): MyAdapter<*> {
-        when (grouping) {
-            Grouping.SERIES -> return SeriesAdapter(seriesList)
-            Grouping.CREATOR -> return CreatorAdapter(creatorList)
+        return when (grouping) {
+            Grouping.SERIES -> SeriesAdapter(seriesList)
+            Grouping.CREATOR -> CreatorAdapter(creatorList)
         }
     }
 
