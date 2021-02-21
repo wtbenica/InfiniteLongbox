@@ -44,7 +44,7 @@ private const val DIALOG_DATE = "DialogDate"
  * create an instance of this fragment.
  */
 // TODO: Do I need a separate fragment for editing vs viewing or can I do it all in this one?
-class IssueDetailFragment() : Fragment(),
+class IssueDetailFragment : Fragment(),
     DatePickerFragment.Callbacks {
 
     private var numUpdates = 0
@@ -129,6 +129,7 @@ class IssueDetailFragment() : Fragment(),
             { issue ->
                 issue?.let {
                     this.fullIssue = it
+                    Log.d(TAG, this.fullIssue.series.seriesName)
                     updateUI()
                 }
             }
@@ -155,6 +156,7 @@ class IssueDetailFragment() : Fragment(),
                     )
                     seriesList = thisList
                     seriesSpinner.adapter = adapter
+                    updateUI()
                 }
             })
 
@@ -162,20 +164,6 @@ class IssueDetailFragment() : Fragment(),
             { allRoles ->
                 rolesList = allRoles
             })
-
-//        issueDetailViewModel.allCreatorsLiveData.observe(viewLifecycleOwner,
-//            { allWriters ->
-//                allWriters?.let {
-//                    val adapter = CreatorAdapter(
-//                        requireContext(),
-//                        it
-//                    )
-//                    writersList = it
-//                    writerSpinner.adapter = adapter
-//                    pencillerSpinner.adapter = adapter
-//                    inkerSpinner.adapter = adapter
-//                }
-//            })
 
         if (!isEditable) {
             // TODO: Create a separate layout for editing vs viewing instead of this
@@ -233,6 +221,8 @@ class IssueDetailFragment() : Fragment(),
     }
 
     override fun onStop() {
+        Log.d(TAG,
+            "onStop!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
         super.onStop()
         saveChanges()
         if (fullIssue.issue.seriesId == NEW_SERIES_ID || fullIssue.series.seriesName == "New Series") {
@@ -266,7 +256,7 @@ class IssueDetailFragment() : Fragment(),
         issueDetailViewModel.updateIssue(fullIssue.issue)
         issueDetailViewModel.loadIssue(fullIssue.issue.issueId)
         for (credit in creditsBox.getCredits()) {
-            issueDetailViewModel.updateCredit(credit)
+            issueDetailViewModel.addCredit(credit)
         }
     }
 
@@ -364,57 +354,17 @@ class IssueDetailFragment() : Fragment(),
         return null
     }
 
-    //    private fun attachCreatorListeners() {
-//
-//        class CreditsOnItemSelectedListener(val roleName: String) : AdapterView
-//        .OnItemSelectedListener {
-//            override fun onItemSelected(
-//                parent: AdapterView<*>?,
-//                view: View?,
-//                position: Int,
-//                id: Long
-//            ) {
-//                parent?.let {
-//                    val fullCredit: FullCredit? = getCredit(roleName)
-//                    val creatorId = (parent.getItemAtPosition(position) as Creator).creatorId
-//
-//                    if (fullCredit != null) {
-//                        fullCredit.credit.creatorId = creatorId
-//                        issueDetailViewModel.updateCredit(fullCredit.credit)
-//                    } else {
-//                        issueDetailViewModel.addCredit(
-//                            Credit(
-//                                issueId = fullIssue.issue.issueId,
-//                                creatorId = creatorId,
-//                                roleId = getRoleByName(roleName)?.roleId!!
-//                            )
-//                        )
-//                    }
-//                }
-//            }
-//
-//            override fun onNothingSelected(parent: AdapterView<*>?) {
-//                // Do nothing
-//            }
-//
-//        }
-//
-//        writerSpinner.onItemSelectedListener = CreditsOnItemSelectedListener("Writer")
-//
-//        pencillerSpinner.onItemSelectedListener = CreditsOnItemSelectedListener("Penciller")
-//
-//        inkerSpinner.onItemSelectedListener = CreditsOnItemSelectedListener("Inker")
-//
-//    }
-//
     private fun toggleEnable() {
         seriesSpinner.isEnabled = !seriesSpinner.isEnabled
 
+        creditsBox.isEnabled = !creditsBox.isEnabled
+
         issueNumEditText.isEnabled = !issueNumEditText.isEnabled
         releaseDateTextView.isEnabled = !releaseDateTextView.isEnabled
+
     }
 
-    fun getCredit(type: String): FullCredit? {
+    private fun getCredit(type: String): FullCredit? {
         for (credit in issueCredits) {
             if (credit.role.roleName == type) {
                 return credit
@@ -460,7 +410,7 @@ class IssueDetailFragment() : Fragment(),
             this.addView(row)
         }
 
-        fun addNewRow(button: ImageButton, fullCredit: FullCredit? = null): CreditsRow {
+        private fun addNewRow(button: ImageButton, fullCredit: FullCredit? = null): CreditsRow {
             val newRow = CreditsRow(context, fullCredit)
             (addRowButton.parent as ViewGroup).removeView(addRowButton)
             newRow.addView(button)
@@ -477,18 +427,28 @@ class IssueDetailFragment() : Fragment(),
         }
 
         fun displayCredit(credits: List<FullCredit>) {
-            this.removeAllViews()
-            for (credit in credits) {
-                this.addNewRow(addRowButton, credit)
+            if (!credits.isEmpty()) {
+                this.removeAllViews()
+                for (credit in credits) {
+                    this.addNewRow(addRowButton, credit)
+                }
+            }
+        }
+
+        override fun setEnabled(enabled: Boolean) {
+            super.setEnabled(enabled)
+
+            for (child in children) {
+                child.isEnabled = enabled
             }
         }
     }
 
-    inner class CreditsRow(context: Context, val fullCredit: FullCredit?) :
+    inner class CreditsRow(context: Context, private val fullCredit: FullCredit?) :
         TableRow(context) {
 
-        private var creatorSpinner: Spinner
-        private var roleSpinner: Spinner
+        private var creatorSpinner: Spinner = Spinner(context)
+        private var roleSpinner: Spinner = Spinner(context)
 
         private var creatorsList: List<Creator> = emptyList()
         private var roleList: List<Role> = emptyList()
@@ -500,7 +460,6 @@ class IssueDetailFragment() : Fragment(),
         )
 
         init {
-            creatorSpinner = Spinner(context)
             creatorSpinner.layoutParams = LayoutParams(WRAP_CONTENT, WRAP_CONTENT)
 
             creatorSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
@@ -520,7 +479,6 @@ class IssueDetailFragment() : Fragment(),
 
             }
 
-            roleSpinner = Spinner(context)
             roleSpinner.layoutParams = LayoutParams(WRAP_CONTENT, WRAP_CONTENT)
 
             roleSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
@@ -543,9 +501,8 @@ class IssueDetailFragment() : Fragment(),
                 viewLifecycleOwner,
                 {
                     creatorsList = it
-                    creatorSpinner.adapter = ArrayAdapter(
+                    creatorSpinner.adapter = CreatorAdapter(
                         context,
-                        androidx.appcompat.R.layout.support_simple_spinner_dropdown_item,
                         it
                     )
                     if (fullCredit != null) {
@@ -576,24 +533,34 @@ class IssueDetailFragment() : Fragment(),
         fun getCredit(): Credit {
             return credit
         }
+
+        override fun setEnabled(enabled: Boolean) {
+            super.setEnabled(enabled)
+
+            creatorSpinner.isEnabled = enabled
+            roleSpinner.isEnabled = enabled
+        }
     }
 }
 
 class CreatorAdapter(context: Context, data: List<Creator>) :
-    ArrayAdapter<Creator>(context, android.R.layout.simple_dropdown_item_1line, data),
+    ArrayAdapter<Creator>(
+        context,
+        androidx.appcompat.R.layout.support_simple_spinner_dropdown_item,
+        data
+    ),
     SpinnerAdapter {
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
 
         val creator: Creator? = getItem(position)
 
-        val res = if (convertView == null) {
-            LayoutInflater.from(context).inflate(
-                android.R.layout.simple_dropdown_item_1line, parent, false
+        val res = convertView
+            ?: LayoutInflater.from(context).inflate(
+                androidx.appcompat.R.layout.support_simple_spinner_dropdown_item,
+                parent,
+                false
             )
-        } else {
-            convertView
-        }
 
         val text1 = res.findViewById(android.R.id.text1) as TextView
         text1.setText(creator?.toString())
@@ -604,13 +571,12 @@ class CreatorAdapter(context: Context, data: List<Creator>) :
     override fun getDropDownView(position: Int, convertView: View?, parent: ViewGroup): View {
         val creator: Creator? = getItem(position)
 
-        val res = if (convertView == null) {
-            LayoutInflater.from(context).inflate(
-                android.R.layout.simple_dropdown_item_1line, parent, false
+        val res = convertView
+            ?: LayoutInflater.from(context).inflate(
+                androidx.appcompat.R.layout.support_simple_spinner_dropdown_item,
+                parent,
+                false
             )
-        } else {
-            convertView
-        }
 
         val text1 = res.findViewById(android.R.id.text1) as TextView
         text1.setText(creator?.sortName)

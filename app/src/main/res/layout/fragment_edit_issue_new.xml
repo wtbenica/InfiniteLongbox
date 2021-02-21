@@ -57,6 +57,18 @@
         app:layout_constraintWidth_min="50dp" />
 
     <TextView
+        android:id="@+id/release_date_text_view"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="16dp"
+        android:text="@string/release_date"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/issue_cover"
+        app:layout_constraintTop_toBottomOf="@+id/issue_series" />
+
+    <TextView
         android:id="@+id/issue_credits_box_label"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -65,8 +77,8 @@
         android:labelFor="@id/issue_credits_table"
         android:text="@string/issue_credits"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@id/issue_cover"
-        app:layout_constraintTop_toBottomOf="@id/issue_series" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/issue_cover" />
 
     <LinearLayout
         android:id="@+id/issue_credits_table"
@@ -76,31 +88,9 @@
         android:layout_marginEnd="16dp"
         android:animateLayoutChanges="true"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/issue_cover"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/issue_credits_box_label"
         android:orientation="horizontal" />
-
-    <!--    <Button-->
-    <!--        android:id="@+id/edit_button"-->
-    <!--        android:layout_width="wrap_content"-->
-    <!--        android:layout_height="wrap_content"-->
-    <!--        android:layout_marginTop="16dp"-->
-    <!--        android:text="Toggle Edit"-->
-    <!--        app:layout_constraintEnd_toEndOf="parent"-->
-    <!--        app:layout_constraintStart_toStartOf="parent"-->
-    <!--        app:layout_constraintTop_toBottomOf="@+id/inkers_box" />-->
-
-    <TextView
-        android:id="@+id/release_date_text_view"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="16dp"
-        android:text="@string/release_date"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/issue_cover"
-        app:layout_constraintTop_toBottomOf="@+id/issue_credits_table" />
 
     <ImageButton
         android:id="@+id/edit_button"
@@ -110,7 +100,7 @@
         android:layout_marginEnd="16dp"
         android:contentDescription="@string/toggle_edit_button"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/release_date_text_view"
+        app:layout_constraintTop_toBottomOf="@+id/issue_credits_table"
         app:srcCompat="@drawable/ic_issue_edit" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

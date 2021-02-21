@@ -40,6 +40,7 @@
     <string name="hint_volume">Volume</string>
     <string name="hint_edit_series_button">Edit series info</string>
     <string name="issue_credits">Issue Credits</string>
+    <string name="group_by">Group By</string>
     <string-array name="grouping_options">
         <item>Series</item>
         <item>Creator</item>

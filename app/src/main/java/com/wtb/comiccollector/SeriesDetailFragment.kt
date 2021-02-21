@@ -22,7 +22,7 @@ private const val DIALOG_SERIES_INFO = "DIALOG_EDIT_SERIES"
  * Use the [SeriesDetailFragment.newInstance] factory method to
  * create an instance of this fragment.
  */
-class SeriesDetailFragment() : Fragment() {
+class SeriesDetailFragment : Fragment() {
 
     private val seriesViewModel by lazy {
         ViewModelProvider(this).get(SeriesInfoViewModel::class.java)
@@ -53,7 +53,7 @@ class SeriesDetailFragment() : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         val view = inflater.inflate(R.layout.fragment_series_detail, container, false)
-        // Inflate the layout for this fragment
+
         seriesNameTextView = view.findViewById(R.id.details_series_name)
         editSeriesButton = view.findViewById(R.id.details_edit_series_info)
         volumeNumTextView = view.findViewById(R.id.details_series_volume)

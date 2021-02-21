@@ -67,16 +67,16 @@ data class Series(
     var endDate: LocalDate? = null,
     var description: String? = null
 ) {
-    override fun toString(): String = seriesName
+    override fun toString(): String = "$seriesName $dateRange"
 
     val fullDescription: String
         get() = "$seriesName vol. $volume $dateRange".removeSuffix(" ")
 
     val dateRange: String
         get() = startDate?.let {
-            "(${it.format(DateTimeFormatter.ofPattern("MMM yyyy"))} - ${
+            "(${it.format(DateTimeFormatter.ofPattern("yyyy"))} - ${
                 endDate?.format(
-                    DateTimeFormatter.ofPattern("MMM yyyy")
+                    DateTimeFormatter.ofPattern("yyyy")
                 ) ?: " "
             })"
         } ?: ""
