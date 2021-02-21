@@ -14,7 +14,7 @@ import java.util.*
 
 const val ARG_GROUPING = "Grouping"
 
-class IssueListFragment() : Fragment() {
+class IssueListFragment : Fragment() {
 
     interface Callbacks {
         fun onIssueSelected(issueId: UUID)
