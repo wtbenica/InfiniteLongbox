@@ -67,16 +67,16 @@ data class Series(
     var endDate: LocalDate? = null,
     var description: String? = null
 ) {
-    override fun toString(): String = seriesName
+    override fun toString(): String = "$seriesName $dateRange"
 
     val fullDescription: String
         get() = "$seriesName vol. $volume $dateRange".removeSuffix(" ")
 
     val dateRange: String
         get() = startDate?.let {
-            "(${it.format(DateTimeFormatter.ofPattern("MMM yyyy"))} - ${
+            "(${it.format(DateTimeFormatter.ofPattern("yyyy"))} - ${
                 endDate?.format(
-                    DateTimeFormatter.ofPattern("MMM yyyy")
+                    DateTimeFormatter.ofPattern("yyyy")
                 ) ?: " "
             })"
         } ?: ""
@@ -127,7 +127,9 @@ data class Role(
     @PrimaryKey val roleId: UUID = UUID.randomUUID(),
     var roleName: String = "",
     var sortOrder: Int
-)
+) {
+    override fun toString(): String = roleName
+}
 
 @Entity(
     indices = [
@@ -186,12 +188,12 @@ data class FullCredit(
     @Embedded
     val credit: Credit,
 
-    @Relation(
-        parentColumn = "issueId",
-        entityColumn = "issueId"
-    )
-    var issue: Issue,
-
+//    @Relation(
+//        parentColumn = "issueId",
+//        entityColumn = "issueId"
+//    )
+//    var issue: Issue,
+//
     @Relation(
         parentColumn = "creatorId",
         entityColumn = "creatorId"

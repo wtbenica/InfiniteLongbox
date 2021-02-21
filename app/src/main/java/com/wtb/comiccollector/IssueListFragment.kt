@@ -12,8 +12,9 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import java.util.*
 
-class IssueListFragment(val seriesId: UUID, val grouping: SeriesListFragment.Grouping) :
-    Fragment() {
+const val ARG_GROUPING = "Grouping"
+
+class IssueListFragment : Fragment() {
 
     interface Callbacks {
         fun onIssueSelected(issueId: UUID)
@@ -21,6 +22,8 @@ class IssueListFragment(val seriesId: UUID, val grouping: SeriesListFragment.Gro
     }
 
     private var callbacks: Callbacks? = null
+    private lateinit var seriesId: UUID
+    private lateinit var grouping: SeriesListFragment.Grouping
 
     private val issueListViewModel by lazy {
         ViewModelProvider(this).get(IssueListViewModel::class.java)
@@ -37,6 +40,9 @@ class IssueListFragment(val seriesId: UUID, val grouping: SeriesListFragment.Gro
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
+
+        seriesId = arguments?.getSerializable(ARG_SERIES_ID) as UUID
+        grouping = arguments?.getSerializable(ARG_GROUPING) as SeriesListFragment.Grouping
 
         val fragment = SeriesDetailFragment.newInstance(seriesId)
         childFragmentManager.beginTransaction()
@@ -148,6 +154,11 @@ class IssueListFragment(val seriesId: UUID, val grouping: SeriesListFragment.Gro
             seriesId: UUID,
             grouping: SeriesListFragment.Grouping = SeriesListFragment.Grouping.SERIES
         ) =
-            IssueListFragment(seriesId, grouping)
+            IssueListFragment().apply {
+                arguments = Bundle().apply {
+                    putSerializable(ARG_SERIES_ID, seriesId)
+                    putSerializable(ARG_GROUPING, grouping)
+                }
+            }
     }
 }
