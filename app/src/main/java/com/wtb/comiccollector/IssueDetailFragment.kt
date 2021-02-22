@@ -7,10 +7,10 @@ import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.*
-import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.*
 import androidx.core.view.children
+import androidx.core.view.contains
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import java.io.File
@@ -221,8 +221,10 @@ class IssueDetailFragment : Fragment(),
     }
 
     override fun onStop() {
-        Log.d(TAG,
-            "onStop!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+        Log.d(
+            TAG,
+            "onStop!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+        )
         super.onStop()
         saveChanges()
         if (fullIssue.issue.seriesId == NEW_SERIES_ID || fullIssue.series.seriesName == "New Series") {
@@ -399,23 +401,41 @@ class IssueDetailFragment : Fragment(),
         private val addRowButton: ImageButton
 
         init {
-            val row = CreditsRow(context, null)
+//            val row = CreditsRow(context, null)
             addRowButton = ImageButton(context)
             addRowButton.setImageResource(R.drawable.ic_menu_add)
             addRowButton.setOnClickListener {
                 addNewRow(addRowButton)
             }
-            row.addView(addRowButton)
-            row.layoutParams = LayoutParams(MATCH_PARENT, WRAP_CONTENT)
-            this.addView(row)
+//            row.addView(addRowButton)
+//            row.layoutParams = LayoutParams(MATCH_PARENT, WRAP_CONTENT)
+//            this.addView(row)
+            addNewRow(addRowButton)
         }
 
         private fun addNewRow(button: ImageButton, fullCredit: FullCredit? = null): CreditsRow {
+            val prevRow = addRowButton.parent?.let { it as ViewGroup }
             val newRow = CreditsRow(context, fullCredit)
-            (addRowButton.parent as ViewGroup).removeView(addRowButton)
+            prevRow?.removeView(addRowButton)
             newRow.addView(button)
             this.addView(newRow)
             return newRow
+        }
+
+        fun deleteRow(row: CreditsRow) {
+            removeView(row)
+
+            if (row.contains(addRowButton)) {
+                row.removeView(addRowButton)
+                val lastRow = children.lastOrNull()
+                if (lastRow == null) {
+                    addNewRow(addRowButton)
+                } else {
+                    (lastRow as CreditsRow).addView(addRowButton)
+                }
+            }
+
+            issueDetailViewModel.deleteCredit(row.getCredit())
         }
 
         fun getCredits(): ArrayList<Credit> {
@@ -449,6 +469,7 @@ class IssueDetailFragment : Fragment(),
 
         private var creatorSpinner: Spinner = Spinner(context)
         private var roleSpinner: Spinner = Spinner(context)
+        private var deleteRowButton: ImageButton = ImageButton(context)
 
         private var creatorsList: List<Creator> = emptyList()
         private var roleList: List<Role> = emptyList()
@@ -461,7 +482,6 @@ class IssueDetailFragment : Fragment(),
 
         init {
             creatorSpinner.layoutParams = LayoutParams(WRAP_CONTENT, WRAP_CONTENT)
-
             creatorSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
                 override fun onItemSelected(
                     parent: AdapterView<*>?,
@@ -480,7 +500,6 @@ class IssueDetailFragment : Fragment(),
             }
 
             roleSpinner.layoutParams = LayoutParams(WRAP_CONTENT, WRAP_CONTENT)
-
             roleSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
                 override fun onItemSelected(
                     parent: AdapterView<*>?,
@@ -496,6 +515,9 @@ class IssueDetailFragment : Fragment(),
                 }
 
             }
+
+            deleteRowButton.setImageResource(R.drawable.ic_menu_delete)
+            deleteRowButton.setOnClickListener { (parent as CreditsBox).deleteRow(this) }
 
             issueDetailViewModel.allCreatorsLiveData.observe(
                 viewLifecycleOwner,
@@ -528,6 +550,7 @@ class IssueDetailFragment : Fragment(),
 
             this.addView(creatorSpinner)
             this.addView(roleSpinner)
+            this.addView(deleteRowButton)
         }
 
         fun getCredit(): Credit {
