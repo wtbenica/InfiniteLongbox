@@ -77,6 +77,15 @@ class IssueListFragment : Fragment() {
                 }
             }
         )
+
+        issueListViewModel.seriesLiveData.observe(
+            viewLifecycleOwner,
+            {
+                (requireActivity() as MainActivity).supportActionBar?.apply {
+                    it?.let { title = it.seriesName }
+                }
+            }
+        )
     }
 
     override fun onDetach() {

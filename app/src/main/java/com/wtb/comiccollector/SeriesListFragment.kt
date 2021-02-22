@@ -65,7 +65,11 @@ class SeriesListFragment : Fragment() {
 
         groupingRow = view.findViewById(R.id.grouping_row) as LinearLayout
         groupingSpinner = view.findViewById(R.id.grouping_spinner) as Spinner
-
+        groupingSpinner.adapter = ArrayAdapter<Grouping>(
+            requireContext(),
+            R.layout.support_simple_spinner_dropdown_item,
+            Grouping.values()
+        )
         groupingRow.visibility = View.VISIBLE
 
 
@@ -102,14 +106,8 @@ class SeriesListFragment : Fragment() {
                 position: Int,
                 id: Long
             ) {
-                when (parent?.selectedItem) {
-                    Grouping.SERIES.s -> {
-                        grouping = Grouping.SERIES
-                    }
-                    Grouping.CREATOR.s -> {
-                        grouping = Grouping.CREATOR
-                    }
-                }
+                grouping = parent?.selectedItem as Grouping
+
                 updateUI()
             }
 
@@ -144,6 +142,7 @@ class SeriesListFragment : Fragment() {
     private fun updateUI() {
         adapter = getAdapter()
         seriesRecyclerView.adapter = adapter
+        (requireActivity() as MainActivity).supportActionBar?.apply { title = grouping.toString() }
     }
 
     private abstract inner class MyAdapter<T>(var itemList: List<T>) :
@@ -232,7 +231,11 @@ class SeriesListFragment : Fragment() {
     }
 
     enum class Grouping(val s: String) {
-        SERIES("Series"), CREATOR("Creator")
+        SERIES("Series"), CREATOR("Creator");
+
+        override fun toString(): String {
+            return s
+        }
     }
 
     companion object {

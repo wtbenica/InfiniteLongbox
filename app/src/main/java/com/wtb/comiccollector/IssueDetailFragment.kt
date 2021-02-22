@@ -221,10 +221,7 @@ class IssueDetailFragment : Fragment(),
     }
 
     override fun onStop() {
-        Log.d(
-            TAG,
-            "onStop!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
-        )
+        Log.d(TAG, "onStop")
         super.onStop()
         saveChanges()
         if (fullIssue.issue.seriesId == NEW_SERIES_ID || fullIssue.series.seriesName == "New Series") {
@@ -401,25 +398,20 @@ class IssueDetailFragment : Fragment(),
         private val addRowButton: ImageButton
 
         init {
-//            val row = CreditsRow(context, null)
             addRowButton = ImageButton(context)
             addRowButton.setImageResource(R.drawable.ic_menu_add)
             addRowButton.setOnClickListener {
                 addNewRow(addRowButton)
             }
-//            row.addView(addRowButton)
-//            row.layoutParams = LayoutParams(MATCH_PARENT, WRAP_CONTENT)
-//            this.addView(row)
             addNewRow(addRowButton)
         }
 
-        private fun addNewRow(button: ImageButton, fullCredit: FullCredit? = null): CreditsRow {
+        private fun addNewRow(button: ImageButton, fullCredit: FullCredit? = null) {
             val prevRow = addRowButton.parent?.let { it as ViewGroup }
             val newRow = CreditsRow(context, fullCredit)
             prevRow?.removeView(addRowButton)
             newRow.addView(button)
             this.addView(newRow)
-            return newRow
         }
 
         fun deleteRow(row: CreditsRow) {
@@ -435,13 +427,13 @@ class IssueDetailFragment : Fragment(),
                 }
             }
 
-            issueDetailViewModel.deleteCredit(row.getCredit())
+            row.getCredit()?.let { issueDetailViewModel.deleteCredit(it) }
         }
 
         fun getCredits(): ArrayList<Credit> {
             val result = ArrayList<Credit>()
             for (row in this.children) {
-                result.add((row as CreditsRow).getCredit())
+                (row as CreditsRow).getCredit()?.let { result.add(it) }
             }
             return result
         }
@@ -482,6 +474,7 @@ class IssueDetailFragment : Fragment(),
 
         init {
             creatorSpinner.layoutParams = LayoutParams(WRAP_CONTENT, WRAP_CONTENT)
+            this.addView(creatorSpinner)
             creatorSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
                 override fun onItemSelected(
                     parent: AdapterView<*>?,
@@ -500,6 +493,7 @@ class IssueDetailFragment : Fragment(),
             }
 
             roleSpinner.layoutParams = LayoutParams(WRAP_CONTENT, WRAP_CONTENT)
+            this.addView(roleSpinner)
             roleSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
                 override fun onItemSelected(
                     parent: AdapterView<*>?,
@@ -517,18 +511,19 @@ class IssueDetailFragment : Fragment(),
             }
 
             deleteRowButton.setImageResource(R.drawable.ic_menu_delete)
+            this.addView(deleteRowButton)
             deleteRowButton.setOnClickListener { (parent as CreditsBox).deleteRow(this) }
 
             issueDetailViewModel.allCreatorsLiveData.observe(
                 viewLifecycleOwner,
                 {
-                    creatorsList = it
+                    creatorsList = listOf(Creator(NEW_SERIES_ID, firstName = "Creator")) + it
                     creatorSpinner.adapter = CreatorAdapter(
                         context,
-                        it
+                        creatorsList
                     )
                     if (fullCredit != null) {
-                        creatorSpinner.setSelection(it.indexOf(fullCredit.creator))
+                        creatorSpinner.setSelection(creatorsList.indexOf(fullCredit.creator))
                     }
                 }
             )
@@ -536,25 +531,25 @@ class IssueDetailFragment : Fragment(),
             issueDetailViewModel.allRolesLiveData.observe(
                 viewLifecycleOwner,
                 {
-                    roleList = it
+                    roleList = listOf(Role(NEW_SERIES_ID, roleName = "Role", sortOrder = 0)) + it
                     roleSpinner.adapter = ArrayAdapter(
                         context,
                         androidx.appcompat.R.layout.support_simple_spinner_dropdown_item,
-                        it
+                        roleList
                     )
                     if (fullCredit != null) {
-                        roleSpinner.setSelection(it.indexOf(fullCredit.role))
+                        roleSpinner.setSelection(roleList.indexOf(fullCredit.role))
                     }
                 }
             )
-
-            this.addView(creatorSpinner)
-            this.addView(roleSpinner)
-            this.addView(deleteRowButton)
         }
 
-        fun getCredit(): Credit {
-            return credit
+        fun getCredit(): Credit? {
+            return if (credit.creatorId == NEW_SERIES_ID || credit.roleId == NEW_SERIES_ID) {
+                null
+            } else {
+                credit
+            }
         }
 
         override fun setEnabled(enabled: Boolean) {
