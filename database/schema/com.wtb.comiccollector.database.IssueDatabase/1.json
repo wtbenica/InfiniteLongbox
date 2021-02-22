@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "965dcbc33a77579395dac73c0bbf7eb3",
+    "identityHash": "b2d8e72ce8990a6baeca3f2b80de6736",
     "entities": [
       {
         "tableName": "Issue",
@@ -303,7 +303,7 @@
       },
       {
         "tableName": "Credit",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`creditId` TEXT NOT NULL, `issueId` TEXT NOT NULL, `creatorId` TEXT NOT NULL, `roleId` TEXT NOT NULL, PRIMARY KEY(`creditId`), FOREIGN KEY(`issueId`) REFERENCES `Issue`(`issueId`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`creatorId`) REFERENCES `Creator`(`creatorId`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`roleId`) REFERENCES `Role`(`roleId`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`creditId` TEXT NOT NULL, `issueId` TEXT NOT NULL, `creatorId` TEXT NOT NULL, `roleId` TEXT NOT NULL, PRIMARY KEY(`creditId`), FOREIGN KEY(`issueId`) REFERENCES `Issue`(`issueId`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`creatorId`) REFERENCES `Creator`(`creatorId`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`roleId`) REFERENCES `Role`(`roleId`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "creditId",
@@ -375,7 +375,7 @@
         "foreignKeys": [
           {
             "table": "Issue",
-            "onDelete": "NO ACTION",
+            "onDelete": "CASCADE",
             "onUpdate": "NO ACTION",
             "columns": [
               "issueId"
@@ -386,7 +386,7 @@
           },
           {
             "table": "Creator",
-            "onDelete": "NO ACTION",
+            "onDelete": "CASCADE",
             "onUpdate": "NO ACTION",
             "columns": [
               "creatorId"
@@ -397,7 +397,7 @@
           },
           {
             "table": "Role",
-            "onDelete": "NO ACTION",
+            "onDelete": "CASCADE",
             "onUpdate": "NO ACTION",
             "columns": [
               "roleId"
@@ -438,7 +438,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '965dcbc33a77579395dac73c0bbf7eb3')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'b2d8e72ce8990a6baeca3f2b80de6736')"
     ]
   }
 }

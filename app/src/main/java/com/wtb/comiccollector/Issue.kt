@@ -140,17 +140,20 @@ data class Role(
         ForeignKey(
             entity = Issue::class,
             parentColumns = arrayOf("issueId"),
-            childColumns = arrayOf("issueId")
+            childColumns = arrayOf("issueId"),
+            onDelete = CASCADE
         ),
         ForeignKey(
             entity = Creator::class,
             parentColumns = arrayOf("creatorId"),
-            childColumns = arrayOf("creatorId")
+            childColumns = arrayOf("creatorId"),
+            onDelete = CASCADE
         ),
         ForeignKey(
             entity = Role::class,
             parentColumns = arrayOf("roleId"),
-            childColumns = arrayOf("roleId")
+            childColumns = arrayOf("roleId"),
+            onDelete = CASCADE
         )
     ]
 )

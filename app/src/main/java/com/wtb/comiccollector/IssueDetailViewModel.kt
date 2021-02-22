@@ -76,4 +76,8 @@ class IssueDetailViewModel : ViewModel() {
     fun addCredit(credit: Credit) {
         issueRepository.addCredit(credit)
     }
+
+    fun deleteCredit(credit: Credit) {
+        issueRepository.deleteCredit(credit)
+    }
 }
