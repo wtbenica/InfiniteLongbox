@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "b2d8e72ce8990a6baeca3f2b80de6736",
+    "identityHash": "acf11d08d14ec3adfd1186079f04eb8f",
     "entities": [
       {
         "tableName": "Issue",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`issueId` TEXT NOT NULL, `seriesId` TEXT NOT NULL, `issueNum` INTEGER NOT NULL, `writer` TEXT NOT NULL, `writerId` TEXT, `pencillerId` TEXT, `inkerId` TEXT, `coverUri` TEXT, `releaseDate` TEXT, `upc` INTEGER, PRIMARY KEY(`issueId`), FOREIGN KEY(`seriesId`) REFERENCES `Series`(`seriesId`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`writerId`) REFERENCES `Creator`(`creatorId`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`issueId` TEXT NOT NULL, `seriesId` TEXT NOT NULL, `issueNum` INTEGER NOT NULL, `coverUri` TEXT, `releaseDate` TEXT, `upc` INTEGER, PRIMARY KEY(`issueId`), FOREIGN KEY(`seriesId`) REFERENCES `Series`(`seriesId`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "issueId",
@@ -25,30 +25,6 @@
             "columnName": "issueNum",
             "affinity": "INTEGER",
             "notNull": true
-          },
-          {
-            "fieldPath": "writer",
-            "columnName": "writer",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "writerId",
-            "columnName": "writerId",
-            "affinity": "TEXT",
-            "notNull": false
-          },
-          {
-            "fieldPath": "pencillerId",
-            "columnName": "pencillerId",
-            "affinity": "TEXT",
-            "notNull": false
-          },
-          {
-            "fieldPath": "inkerId",
-            "columnName": "inkerId",
-            "affinity": "TEXT",
-            "notNull": false
           },
           {
             "fieldPath": "coverUri",
@@ -84,14 +60,6 @@
               "issueNum"
             ],
             "createSql": "CREATE INDEX IF NOT EXISTS `index_Issue_seriesId_issueNum` ON `${TABLE_NAME}` (`seriesId`, `issueNum`)"
-          },
-          {
-            "name": "index_Issue_writerId",
-            "unique": false,
-            "columnNames": [
-              "writerId"
-            ],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_Issue_writerId` ON `${TABLE_NAME}` (`writerId`)"
           }
         ],
         "foreignKeys": [
@@ -104,17 +72,6 @@
             ],
             "referencedColumns": [
               "seriesId"
-            ]
-          },
-          {
-            "table": "Creator",
-            "onDelete": "NO ACTION",
-            "onUpdate": "NO ACTION",
-            "columns": [
-              "writerId"
-            ],
-            "referencedColumns": [
-              "creatorId"
             ]
           }
         ]
@@ -438,7 +395,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'b2d8e72ce8990a6baeca3f2b80de6736')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'acf11d08d14ec3adfd1186079f04eb8f')"
     ]
   }
 }

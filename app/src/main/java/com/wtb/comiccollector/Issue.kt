@@ -18,25 +18,15 @@ val NEW_SERIES_ID = UUID(0, 0)
             childColumns = arrayOf("seriesId"),
             onDelete = CASCADE
         ),
-        ForeignKey(
-            entity = Creator::class,
-            parentColumns = arrayOf("creatorId"),
-            childColumns = arrayOf("writerId")
-        )
     ],
     indices = [
         Index(value = ["seriesId", "issueNum"]),
-        Index(value = ["writerId"])
     ]
 )
 data class Issue(
     @PrimaryKey val issueId: UUID = UUID.randomUUID(),
     var seriesId: UUID = NEW_SERIES_ID,
     var issueNum: Int = 1,
-    var writer: String = "",
-    var writerId: UUID? = null,
-    var pencillerId: UUID? = null,
-    var inkerId: UUID? = null,
     var coverUri: Uri? = null,
     var releaseDate: LocalDate? = null,
     var upc: Long? = null
@@ -191,12 +181,6 @@ data class FullCredit(
     @Embedded
     val credit: Credit,
 
-//    @Relation(
-//        parentColumn = "issueId",
-//        entityColumn = "issueId"
-//    )
-//    var issue: Issue,
-//
     @Relation(
         parentColumn = "creatorId",
         entityColumn = "creatorId"

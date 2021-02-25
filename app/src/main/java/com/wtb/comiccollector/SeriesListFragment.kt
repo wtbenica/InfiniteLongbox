@@ -5,6 +5,8 @@ package com.wtb.comiccollector
 import android.content.Context
 import android.os.Bundle
 import android.view.*
+import android.view.animation.AnimationUtils
+import android.view.animation.LayoutAnimationController
 import android.widget.*
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
@@ -142,7 +144,18 @@ class SeriesListFragment : Fragment() {
     private fun updateUI() {
         adapter = getAdapter()
         seriesRecyclerView.adapter = adapter
+        runLayoutAnimation(seriesRecyclerView)
         (requireActivity() as MainActivity).supportActionBar?.apply { title = grouping.toString() }
+    }
+
+    private fun runLayoutAnimation(view: RecyclerView) {
+        val context = view.context
+        val controller: LayoutAnimationController = AnimationUtils.loadLayoutAnimation(context, R
+            .anim.layout_animation_fall_down)
+
+        view.layoutAnimation = controller
+        view.adapter?.notifyDataSetChanged()
+        view.scheduleLayoutAnimation()
     }
 
     private abstract inner class MyAdapter<T>(var itemList: List<T>) :

@@ -433,7 +433,9 @@ class IssueDetailFragment : Fragment(),
         fun getCredits(): ArrayList<Credit> {
             val result = ArrayList<Credit>()
             for (row in this.children) {
-                (row as CreditsRow).getCredit()?.let { result.add(it) }
+                val credit = (row as CreditsRow).getCredit()
+                Log.d(TAG, "getCredit: ${credit?.creditId ?: "NONE"}")
+                credit?.let { result.add(it) }
             }
             return result
         }
@@ -482,8 +484,9 @@ class IssueDetailFragment : Fragment(),
                     position: Int,
                     id: Long
                 ) {
-                    credit.creatorId =
-                        (creatorSpinner.getItemAtPosition(position) as Creator).creatorId
+                    val creator = creatorSpinner.getItemAtPosition(position) as Creator
+                    Log.d(TAG, "Setting creator: ${creator.name}")
+                    credit.creatorId = creator.creatorId
                 }
 
                 override fun onNothingSelected(parent: AdapterView<*>?) {
@@ -501,7 +504,9 @@ class IssueDetailFragment : Fragment(),
                     position: Int,
                     id: Long
                 ) {
-                    credit.roleId = (roleSpinner.getItemAtPosition(position) as Role).roleId
+                    val role = roleSpinner.getItemAtPosition(position) as Role
+                    Log.d(TAG, "Setting role: ${role.roleName}")
+                    credit.roleId = role.roleId
                 }
 
                 override fun onNothingSelected(parent: AdapterView<*>?) {
@@ -548,6 +553,7 @@ class IssueDetailFragment : Fragment(),
             return if (credit.creatorId == NEW_SERIES_ID || credit.roleId == NEW_SERIES_ID) {
                 null
             } else {
+                Log.d(TAG, "Returning Credit: ${credit.creatorId} ${credit.roleId}")
                 credit
             }
         }

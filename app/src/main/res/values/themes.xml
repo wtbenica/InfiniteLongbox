@@ -25,4 +25,8 @@
         <item name="android:background">@drawable/blue_outline</item>
         <item name="android:popupBackground">@drawable/blue_outline_white_background</item>
     </style>
+
+    <style name="myListItem">
+        <item name="android:background">@drawable/blue_outline_white_background</item>
+    </style>
 </resources>

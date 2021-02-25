@@ -3,6 +3,8 @@ package com.wtb.comiccollector
 import android.content.Context
 import android.os.Bundle
 import android.view.*
+import android.view.animation.AnimationUtils
+import android.view.animation.LayoutAnimationController
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.fragment.app.Fragment
@@ -115,6 +117,17 @@ class IssueListFragment : Fragment() {
     private fun updateUI(issues: List<FullIssue>) {
         adapter = IssueAdapter(issues)
         issueRecyclerView.adapter = adapter
+        runLayoutAnimation(issueRecyclerView)
+    }
+
+    private fun runLayoutAnimation(view: RecyclerView) {
+        val context = view.context
+        val controller: LayoutAnimationController = AnimationUtils.loadLayoutAnimation(context, R
+            .anim.layout_animation_fall_down)
+
+        view.layoutAnimation = controller
+        view.adapter?.notifyDataSetChanged()
+        view.scheduleLayoutAnimation()
     }
 
     private inner class IssueAdapter(var issues: List<FullIssue>) :
