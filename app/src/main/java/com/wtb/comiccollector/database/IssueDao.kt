@@ -70,7 +70,7 @@ interface IssueDao {
     fun getIssuesByCreator(creatorId: UUID): LiveData<List<Issue>>
 
     @Query("SELECT * FROM role WHERE roleName = :roleName")
-    fun getRoleByName(roleName: String) : Role
+    fun getRoleByName(roleName: String): Role
 
     @Query("SELECT * FROM series WHERE seriesId != '00000000-0000-0000-0000-000000000000' ORDER BY seriesName ASC")
     fun getSeriesList(): LiveData<List<Series>>
@@ -142,4 +142,15 @@ interface IssueDao {
 
     @Delete
     fun deleteCredit(credit: Credit)
+
+    @Query(
+        """
+        SELECT DISTINCT series.*
+        FROM series
+        NATURAL JOIN issue
+        NATURAL JOIN credit
+        WHERE creatorId = :creatorId
+           """
+    )
+    fun getSeriesByCreator(creatorId: UUID): LiveData<List<Series>>
 }

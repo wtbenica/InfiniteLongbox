@@ -14,6 +14,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import java.util.*
 
+const val ARG_FILTER_ID = "Grouping Id"
+const val ARG_FILTER = "Filter"
 
 class SeriesListFragment : Fragment() {
     interface Callbacks {
@@ -28,7 +30,9 @@ class SeriesListFragment : Fragment() {
     private lateinit var seriesRecyclerView: RecyclerView
     private lateinit var groupingSpinner: Spinner
     private lateinit var groupingRow: LinearLayout
-    private var grouping: Grouping = Grouping.SERIES
+    private lateinit var grouping: Grouping
+    private lateinit var filter: Filter
+    private var filterId: UUID? = null
     private lateinit var adapter: MyAdapter<*>
 
     private lateinit var seriesList: List<Series>
@@ -49,6 +53,10 @@ class SeriesListFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
+
+        grouping = arguments?.getSerializable(ARG_GROUPING) as Grouping
+        filter = arguments?.getSerializable(ARG_FILTER) as Filter
+        filterId = arguments?.getSerializable(ARG_FILTER_ID) as UUID?
     }
 
     override fun onCreateView(
@@ -80,6 +88,14 @@ class SeriesListFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        when (filter) {
+            Filter.NONE -> {}
+            Filter.CREATOR -> {
+                filterId?.let { seriesListViewModel.filterByCreator(it) }
+            }
+            Filter.DATE -> TODO()
+        }
 
         seriesListViewModel.seriesListLiveData.observe(
             viewLifecycleOwner,
@@ -251,8 +267,22 @@ class SeriesListFragment : Fragment() {
         }
     }
 
+    enum class Filter() {
+        NONE, CREATOR, DATE
+    }
+
     companion object {
         @JvmStatic
-        fun newInstance() = SeriesListFragment()
+        fun newInstance(
+            filterId: UUID? = null,
+            grouping: Grouping = Grouping.SERIES,
+            filter: Filter = Filter.NONE
+        ) = SeriesListFragment().apply {
+            arguments = Bundle().apply {
+                putSerializable(ARG_FILTER_ID, filterId)
+                putSerializable(ARG_GROUPING, grouping)
+                putSerializable(ARG_FILTER, filter)
+            }
+        }
     }
 }

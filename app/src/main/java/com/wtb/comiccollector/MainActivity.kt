@@ -15,15 +15,15 @@ class MainActivity : AppCompatActivity(),
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val currentFragment = supportFragmentManager.findFragmentById(R.id.fragment_container)
-
-        if (currentFragment == null) {
-            val fragment = SeriesListFragment.newInstance()
-            supportFragmentManager
-                .beginTransaction()
-                .add(R.id.fragment_container, fragment)
-                .commit()
-        }
+//        val currentFragment = supportFragmentManager.findFragmentById(R.id.fragment_container)
+//
+//        if (currentFragment == null) {
+        val fragment = SeriesListFragment.newInstance()
+        supportFragmentManager
+            .beginTransaction()
+            .add(R.id.fragment_container, fragment)
+            .commit()
+//        }
     }
 
     override fun onIssueSelected(issueId: UUID) {
@@ -57,7 +57,10 @@ class MainActivity : AppCompatActivity(),
     }
 
     override fun onCreatorSelected(creatorId: UUID) {
-        val fragment = IssueListFragment.newInstance(creatorId)
+        val fragment = SeriesListFragment.newInstance(
+            grouping = SeriesListFragment.Grouping
+                .CREATOR, filterId = creatorId, filter = SeriesListFragment.Filter.CREATOR
+        )
         supportFragmentManager
             .beginTransaction()
             .setCustomAnimations(
