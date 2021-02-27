@@ -30,7 +30,7 @@ class IssueRepository private constructor(context: Context) {
 
     private val filesDir = context.applicationContext.filesDir
 
-    val allSeries: LiveData<List<Series>> = issueDao.getSeriesList()
+    val allSeries: LiveData<List<Series>> = issueDao.getAllSeries()
 
     val allPublishers: LiveData<List<Publisher>> = issueDao.getPublishersList()
 
@@ -256,7 +256,8 @@ class IssueRepository private constructor(context: Context) {
     }
 
     fun getSeriesList(): LiveData<List<Series>> {
-        return issueDao.getSeriesList()
+//        TODO("update this to work with getSeriesList in IssueDao")
+        return issueDao.getAllSeries()
     }
 
     fun getSeries(seriesId: UUID): LiveData<Series?> = issueDao.getSeriesById(seriesId)
@@ -320,8 +321,7 @@ class IssueRepository private constructor(context: Context) {
     fun getNewIssueCredits(issueId: UUID) = issueDao.getNewIssueCredits(issueId)
 
     fun getSeriesByCreator(creatorId: UUID): LiveData<List<Series>> =
-        issueDao.getSeriesByCreator(creatorId)
-
+        issueDao.getSeriesList(creatorId)
 
 /*
     FUTURE IMPLEMENTATION

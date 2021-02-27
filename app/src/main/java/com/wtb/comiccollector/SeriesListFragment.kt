@@ -8,16 +8,25 @@ import android.view.*
 import android.view.animation.AnimationUtils
 import android.view.animation.LayoutAnimationController
 import android.widget.*
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import java.time.LocalDate
 import java.util.*
 
-const val ARG_FILTER_ID = "Grouping Id"
-const val ARG_FILTER = "Filter"
+private const val TAG = "SeriesListFragment"
+
+const val ARG_GROUPING = "Grouping"
+
+const val ARG_SERIES_FILTER_ID = "Series Filter"
+const val ARG_CREATOR_FILTER = "Creator Filter"
+const val ARG_DATE_FILTER_START = "Date Filter Start"
+const val ARG_DATE_FILTER_END = "Date Filter End"
 
 class SeriesListFragment : Fragment() {
+
     interface Callbacks {
         fun onSeriesSelected(seriesId: UUID)
         fun onCreatorSelected(creatorId: UUID)
@@ -26,14 +35,20 @@ class SeriesListFragment : Fragment() {
 
     private var callbacks: Callbacks? = null
 
-    private val seriesListViewModel by lazy { ViewModelProvider(this).get(SeriesListViewModel::class.java) }
     private lateinit var seriesRecyclerView: RecyclerView
+    private lateinit var groupingRow: ConstraintLayout
     private lateinit var groupingSpinner: Spinner
-    private lateinit var groupingRow: LinearLayout
+
     private lateinit var grouping: Grouping
-    private lateinit var filter: Filter
-    private var filterId: UUID? = null
+    private var seriesFilterId: UUID? = null
+    private var creatorFilterId: UUID? = null
+    private var dateFilterStart: LocalDate? = null
+    private var dateFilterEnd: LocalDate? = null
     private lateinit var adapter: MyAdapter<*>
+
+    private val seriesListViewModel by lazy {
+        ViewModelProvider(this).get(SeriesListViewModel::class.java)
+    }
 
     private lateinit var seriesList: List<Series>
     private lateinit var creatorList: List<Creator>
@@ -54,9 +69,11 @@ class SeriesListFragment : Fragment() {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
 
-        grouping = arguments?.getSerializable(ARG_GROUPING) as Grouping
-        filter = arguments?.getSerializable(ARG_FILTER) as Filter
-        filterId = arguments?.getSerializable(ARG_FILTER_ID) as UUID?
+        grouping = arguments?.getSerializable(ARG_GROUPING) as Grouping? ?: Grouping.SERIES
+        seriesFilterId = arguments?.getSerializable(ARG_SERIES_FILTER_ID) as UUID?
+        creatorFilterId = arguments?.getSerializable(ARG_CREATOR_FILTER) as UUID?
+        dateFilterStart = arguments?.getSerializable(ARG_DATE_FILTER_START) as LocalDate?
+        dateFilterEnd = arguments?.getSerializable(ARG_DATE_FILTER_END) as LocalDate?
     }
 
     override fun onCreateView(
@@ -73,13 +90,16 @@ class SeriesListFragment : Fragment() {
         seriesRecyclerView.layoutManager = LinearLayoutManager(context)
         seriesRecyclerView.adapter = adapter
 
-        groupingRow = view.findViewById(R.id.grouping_row) as LinearLayout
+        groupingRow = view.findViewById(R.id.grouping_row) as ConstraintLayout
+
         groupingSpinner = view.findViewById(R.id.grouping_spinner) as Spinner
-        groupingSpinner.adapter = ArrayAdapter<Grouping>(
+        groupingSpinner.adapter = ArrayAdapter(
             requireContext(),
             R.layout.support_simple_spinner_dropdown_item,
             Grouping.values()
         )
+        groupingSpinner.setSelection(Grouping.values().indexOf(grouping))
+
         groupingRow.visibility = View.VISIBLE
 
 
@@ -89,13 +109,7 @@ class SeriesListFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        when (filter) {
-            Filter.NONE -> {}
-            Filter.CREATOR -> {
-                filterId?.let { seriesListViewModel.filterByCreator(it) }
-            }
-            Filter.DATE -> TODO()
-        }
+        creatorFilterId?.let { seriesListViewModel.filterByCreator(it) }
 
         seriesListViewModel.seriesListLiveData.observe(
             viewLifecycleOwner,
@@ -125,7 +139,6 @@ class SeriesListFragment : Fragment() {
                 id: Long
             ) {
                 grouping = parent?.selectedItem as Grouping
-
                 updateUI()
             }
 
@@ -166,8 +179,10 @@ class SeriesListFragment : Fragment() {
 
     private fun runLayoutAnimation(view: RecyclerView) {
         val context = view.context
-        val controller: LayoutAnimationController = AnimationUtils.loadLayoutAnimation(context, R
-            .anim.layout_animation_fall_down)
+        val controller: LayoutAnimationController = AnimationUtils.loadLayoutAnimation(
+            context, R
+                .anim.layout_animation_fall_down
+        )
 
         view.layoutAnimation = controller
         view.adapter?.notifyDataSetChanged()
@@ -267,22 +282,43 @@ class SeriesListFragment : Fragment() {
         }
     }
 
-    enum class Filter() {
-        NONE, CREATOR, DATE
+    enum class SeriesFilter(val s: String, val onSelect: (viewModel: SeriesListViewModel) -> Unit) {
+        NONE("None", { }),
+        CREATOR("Creator", { }),
+        DATE("Date Range", { });
+
+        override fun toString(): String {
+            return s
+        }
+    }
+
+    enum class CreatorFilter(val s: String, val onSelect: () -> Unit) {
+        NONE("None", { }),
+        COCREATOR("Cocreator", { }),
+        DATE("Date Range", { });
+
+        override fun toString(): String {
+            return s
+        }
     }
 
     companion object {
         @JvmStatic
         fun newInstance(
-            filterId: UUID? = null,
             grouping: Grouping = Grouping.SERIES,
-            filter: Filter = Filter.NONE
-        ) = SeriesListFragment().apply {
-            arguments = Bundle().apply {
-                putSerializable(ARG_FILTER_ID, filterId)
-                putSerializable(ARG_GROUPING, grouping)
-                putSerializable(ARG_FILTER, filter)
+            seriesFilterId: UUID? = null,
+            creatorFilterId: UUID? = null,
+            dateFilterStart: LocalDate? = null,
+            dateFilterEnd: LocalDate? = null
+        ) =
+            SeriesListFragment().apply {
+                arguments = Bundle().apply {
+                    putSerializable(ARG_GROUPING, grouping)
+                    putSerializable(ARG_SERIES_FILTER_ID, seriesFilterId)
+                    putSerializable(ARG_CREATOR_FILTER, creatorFilterId)
+                    putSerializable(ARG_DATE_FILTER_START, dateFilterStart)
+                    putSerializable(ARG_DATE_FILTER_END, dateFilterEnd)
+                }
             }
-        }
     }
 }

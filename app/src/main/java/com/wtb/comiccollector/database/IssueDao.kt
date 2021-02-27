@@ -3,6 +3,7 @@ package com.wtb.comiccollector.database
 import androidx.lifecycle.LiveData
 import androidx.room.*
 import com.wtb.comiccollector.*
+import java.time.LocalDate
 import java.util.*
 
 private val NEW_SERIES_UUID = UUID(0, 0)
@@ -73,7 +74,7 @@ interface IssueDao {
     fun getRoleByName(roleName: String): Role
 
     @Query("SELECT * FROM series WHERE seriesId != '00000000-0000-0000-0000-000000000000' ORDER BY seriesName ASC")
-    fun getSeriesList(): LiveData<List<Series>>
+    fun getAllSeries(): LiveData<List<Series>>
 
     @Query("SELECT * FROM publisher WHERE publisherId != '00000000-0000-0000-0000-000000000000' ORDER BY publisher ASC")
     fun getPublishersList(): LiveData<List<Publisher>>
@@ -143,6 +144,30 @@ interface IssueDao {
     @Delete
     fun deleteCredit(credit: Credit)
 
+    fun getSeriesList(
+        creatorId: UUID? = null,
+        startDate: LocalDate? = null,
+        endDate: LocalDate? = null
+    ): LiveData<List<Series>> {
+        return if (creatorId == null) {
+            if (startDate == null && endDate == null) {
+                getAllSeries()
+            } else {
+                getSeriesByDates(startDate ?: LocalDate.MIN, endDate ?: LocalDate.MAX)
+            }
+        } else {
+            if (startDate == null && endDate == null) {
+                getSeriesByCreator(creatorId)
+            } else {
+                getSeriesByCreatorAndDates(
+                    creatorId,
+                    startDate ?: LocalDate.MIN,
+                    endDate ?: LocalDate.MAX
+                )
+            }
+        }
+    }
+
     @Query(
         """
         SELECT DISTINCT series.*
@@ -153,4 +178,31 @@ interface IssueDao {
            """
     )
     fun getSeriesByCreator(creatorId: UUID): LiveData<List<Series>>
+
+    @Query(
+        """
+        SELECT DISTINCT series.*
+        FROM series
+        NATURAL JOIN issue
+        NATURAL JOIN credit
+        WHERE series.startDate < :endDate AND series.endDate > :startDate 
+           """
+    )
+    fun getSeriesByDates(startDate: LocalDate, endDate: LocalDate): LiveData<List<Series>>
+
+    @Query(
+        """
+        SELECT DISTINCT series.*
+        FROM series
+        NATURAL JOIN issue
+        NATURAL JOIN credit
+        WHERE creatorId = :creatorId
+        AND series.startDate < :endDate AND series.endDate > :startDate 
+           """
+    )
+    fun getSeriesByCreatorAndDates(
+        creatorId: UUID,
+        startDate: LocalDate = LocalDate.MIN,
+        endDate: LocalDate = LocalDate.MAX
+    ): LiveData<List<Series>>
 }

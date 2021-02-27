@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
+import java.time.LocalDate
 import java.util.*
 
 private const val TAG = "SeriesListViewModel"
@@ -22,6 +23,15 @@ class SeriesListViewModel : ViewModel() {
         }
 
     val creatorListLiveData: LiveData<List<Creator>> = issueRepository.allCreators
+
+    fun filter(
+        seriesId: UUID? = null,
+        creatorId: UUID? = null,
+        startDate: LocalDate? = null,
+        endDate: LocalDate? = null
+    ) {
+
+    }
 
     fun filterByCreator(creatorId: UUID) {
         creatorIdFilterLiveData.value = creatorId

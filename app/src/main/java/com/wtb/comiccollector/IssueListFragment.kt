@@ -12,9 +12,8 @@ import androidx.fragment.app.FragmentTransaction
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import java.time.LocalDate
 import java.util.*
-
-const val ARG_GROUPING = "Grouping"
 
 class IssueListFragment : Fragment() {
 
@@ -24,8 +23,12 @@ class IssueListFragment : Fragment() {
     }
 
     private var callbacks: Callbacks? = null
-    private lateinit var seriesId: UUID
+
     private lateinit var grouping: SeriesListFragment.Grouping
+    private lateinit var seriesFilterId: UUID
+    private var creatorFilterId: UUID? = null
+    private var dateFilterStart: LocalDate? = null
+    private var dateFilterEnd: LocalDate? = null
 
     private val issueListViewModel by lazy {
         ViewModelProvider(this).get(IssueListViewModel::class.java)
@@ -43,10 +46,13 @@ class IssueListFragment : Fragment() {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
 
-        seriesId = arguments?.getSerializable(ARG_SERIES_ID) as UUID
         grouping = arguments?.getSerializable(ARG_GROUPING) as SeriesListFragment.Grouping
+        seriesFilterId = arguments?.getSerializable(ARG_SERIES_FILTER_ID) as UUID
+        creatorFilterId = arguments?.getSerializable(ARG_CREATOR_FILTER) as UUID?
+        dateFilterStart = arguments?.getSerializable(ARG_DATE_FILTER_START) as LocalDate?
+        dateFilterEnd = arguments?.getSerializable(ARG_DATE_FILTER_END) as LocalDate?
 
-        val fragment = SeriesDetailFragment.newInstance(seriesId)
+        val fragment = SeriesDetailFragment.newInstance(seriesFilterId)
         childFragmentManager.beginTransaction()
             .replace(R.id.details, fragment)
             .addToBackStack(null)
@@ -69,7 +75,7 @@ class IssueListFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        issueListViewModel.loadSeries(seriesId)
+        issueListViewModel.loadSeries(seriesFilterId)
 
         issueListViewModel.issueListLiveData.observe(
             viewLifecycleOwner,
@@ -105,7 +111,7 @@ class IssueListFragment : Fragment() {
             R.id.new_issue -> {
                 // TODO: Find solution to this. If issueNum is default (1), if there already
                 //  exists an issue number 1, then violates unique series/issue restraint in db
-                val issue = Issue(seriesId = seriesId)
+                val issue = Issue(seriesId = seriesFilterId)
                 issueListViewModel.addIssue(issue)
                 callbacks?.onNewIssue(issue.issueId)
                 true
@@ -122,8 +128,10 @@ class IssueListFragment : Fragment() {
 
     private fun runLayoutAnimation(view: RecyclerView) {
         val context = view.context
-        val controller: LayoutAnimationController = AnimationUtils.loadLayoutAnimation(context, R
-            .anim.layout_animation_fall_down)
+        val controller: LayoutAnimationController = AnimationUtils.loadLayoutAnimation(
+            context, R
+                .anim.layout_animation_fall_down
+        )
 
         view.layoutAnimation = controller
         view.adapter?.notifyDataSetChanged()
@@ -173,13 +181,19 @@ class IssueListFragment : Fragment() {
     companion object {
         @JvmStatic
         fun newInstance(
-            seriesId: UUID,
-            grouping: SeriesListFragment.Grouping = SeriesListFragment.Grouping.SERIES
+            grouping: SeriesListFragment.Grouping = SeriesListFragment.Grouping.SERIES,
+            seriesFilterId: UUID? = null,
+            creatorFilterId: UUID? = null,
+            dateFilterStart: LocalDate? = null,
+            dateFilterEnd: LocalDate? = null
         ) =
             IssueListFragment().apply {
                 arguments = Bundle().apply {
-                    putSerializable(ARG_SERIES_ID, seriesId)
                     putSerializable(ARG_GROUPING, grouping)
+                    putSerializable(ARG_SERIES_FILTER_ID, seriesFilterId)
+                    putSerializable(ARG_CREATOR_FILTER, creatorFilterId)
+                    putSerializable(ARG_DATE_FILTER_START, dateFilterStart)
+                    putSerializable(ARG_DATE_FILTER_END, dateFilterEnd)
                 }
             }
     }

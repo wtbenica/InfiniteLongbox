@@ -41,8 +41,13 @@
     <string name="hint_edit_series_button">Edit series info</string>
     <string name="issue_credits">Issue Credits</string>
     <string name="group_by">Group By</string>
+    <string name="filter_by">Filter By</string>
     <string-array name="grouping_options">
         <item>Series</item>
+        <item>Creator</item>
+    </string-array>
+    <string-array name="filtering_options">
+        <item>Date</item>
         <item>Creator</item>
     </string-array>
 </resources>
