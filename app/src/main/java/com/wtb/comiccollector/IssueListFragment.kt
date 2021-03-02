@@ -45,7 +45,7 @@ class IssueListFragment : Fragment() {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
 
-        seriesFilterId = arguments?.getSerializable(ARG_SERIES_FILTER_ID) as UUID
+        seriesFilterId = arguments?.getSerializable(ARG_FILTER_ID) as UUID
         creatorFilterId = arguments?.getSerializable(ARG_CREATOR_FILTER) as UUID?
         dateFilterStart = arguments?.getSerializable(ARG_DATE_FILTER_START) as LocalDate?
         dateFilterEnd = arguments?.getSerializable(ARG_DATE_FILTER_END) as LocalDate?
@@ -186,7 +186,7 @@ class IssueListFragment : Fragment() {
         ) =
             IssueListFragment().apply {
                 arguments = Bundle().apply {
-                    putSerializable(ARG_SERIES_FILTER_ID, seriesFilterId)
+                    putSerializable(ARG_FILTER_ID, seriesFilterId)
                     putSerializable(ARG_CREATOR_FILTER, creatorFilterId)
                     putSerializable(ARG_DATE_FILTER_START, dateFilterStart)
                     putSerializable(ARG_DATE_FILTER_END, dateFilterEnd)

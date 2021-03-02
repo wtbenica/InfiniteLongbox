@@ -9,20 +9,22 @@ import java.util.*
 
 private const val TAG = "SeriesListViewModel"
 
-class SeriesListViewModel : ViewModel() {
-    private val issueRepository: IssueRepository = IssueRepository.get()
-    private val creatorIdFilterLiveData = MutableLiveData<UUID?>(null)
+class SeriesListViewModel : ViewModel(),
+    GroupListViewModel<Series> {
+
+    override val issueRepository: IssueRepository = IssueRepository.get()
+    override val filterIdLiveData = MutableLiveData<UUID?>(null)
+
+    override val creatorListLiveData: LiveData<List<Creator>> = issueRepository.allCreators
 
     val seriesListLiveData: LiveData<List<Series>> =
-        Transformations.switchMap(creatorIdFilterLiveData) { creatorId ->
+        Transformations.switchMap(filterIdLiveData) { creatorId ->
             if (creatorId == null) {
                 issueRepository.getSeriesList()
             } else {
                 issueRepository.getSeriesByCreator(creatorId)
             }
         }
-
-    val creatorListLiveData: LiveData<List<Creator>> = issueRepository.allCreators
 
     fun filter(
         seriesId: UUID? = null,
@@ -34,11 +36,7 @@ class SeriesListViewModel : ViewModel() {
     }
 
     fun filterByCreator(creatorId: UUID) {
-        creatorIdFilterLiveData.value = creatorId
-    }
-
-    fun addIssue(issue: Issue) {
-        issueRepository.addIssue(issue)
+        filterIdLiveData.value = creatorId
     }
 
     fun updateIssue(issue: Issue) {

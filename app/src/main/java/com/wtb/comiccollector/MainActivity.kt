@@ -7,8 +7,7 @@ import java.util.*
 
 class MainActivity : AppCompatActivity(),
     IssueListFragment.Callbacks,
-    SeriesListFragment.Callbacks,
-    CreatorListFragment.Callbacks,
+    GroupListFragment.Callbacks,
     SeriesInfoDialogFragment.SeriesInfoDialogListener,
     NewCreatorDialogFragment.NewCreatorDialogListener {
 
