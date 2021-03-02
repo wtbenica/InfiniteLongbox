@@ -16,14 +16,9 @@ import androidx.recyclerview.widget.RecyclerView
 import java.time.LocalDate
 import java.util.*
 
-private const val TAG = "SeriesListFragment"
+private const val TAG = "CreatorListFragment"
 
-const val ARG_SERIES_FILTER_ID = "Series Filter"
-const val ARG_CREATOR_FILTER = "Creator Filter"
-const val ARG_DATE_FILTER_START = "Date Filter Start"
-const val ARG_DATE_FILTER_END = "Date Filter End"
-
-class SeriesListFragment : Fragment() {
+class CreatorListFragment : Fragment() {
 
     interface Callbacks {
         fun onSeriesSelected(seriesId: UUID)
@@ -33,17 +28,17 @@ class SeriesListFragment : Fragment() {
 
     private var callbacks: Callbacks? = null
 
-    private lateinit var seriesRecyclerView: RecyclerView
+    private lateinit var creatorRecyclerView: RecyclerView
 
-    private var creatorFilterId: UUID? = null
+    private var seriesFilterId: UUID? = null
     private var dateFilterStart: LocalDate? = null
     private var dateFilterEnd: LocalDate? = null
 
-    private val seriesListViewModel by lazy {
-        ViewModelProvider(this).get(SeriesListViewModel::class.java)
+    private val creatorListViewModel by lazy {
+        ViewModelProvider(this).get(CreatorListViewModel::class.java)
     }
 
-    private lateinit var seriesList: List<Series>
+    private lateinit var creatorList: List<Creator>
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -54,7 +49,7 @@ class SeriesListFragment : Fragment() {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
 
-        creatorFilterId = arguments?.getSerializable(ARG_CREATOR_FILTER) as UUID?
+        seriesFilterId = arguments?.getSerializable(ARG_SERIES_FILTER_ID) as UUID?
         dateFilterStart = arguments?.getSerializable(ARG_DATE_FILTER_START) as LocalDate?
         dateFilterEnd = arguments?.getSerializable(ARG_DATE_FILTER_END) as LocalDate?
     }
@@ -65,11 +60,11 @@ class SeriesListFragment : Fragment() {
     ): View? {
         val view = inflater.inflate(R.layout.fragment_issue_list, container, false)
 
-        seriesList = emptyList()
+        creatorList = emptyList()
 
-        seriesRecyclerView = view.findViewById(R.id.issue_recycler_view) as RecyclerView
-        seriesRecyclerView.layoutManager = LinearLayoutManager(context)
-        seriesRecyclerView.adapter = SeriesAdapter(seriesList)
+        creatorRecyclerView = view.findViewById(R.id.issue_recycler_view) as RecyclerView
+        creatorRecyclerView.layoutManager = LinearLayoutManager(context)
+        creatorRecyclerView.adapter = CreatorAdapter(creatorList)
 
         return view
     }
@@ -77,13 +72,13 @@ class SeriesListFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        creatorFilterId?.let { seriesListViewModel.filterByCreator(it) }
+        seriesFilterId?.let { creatorListViewModel.filterByCreator(it) }
 
-        seriesListViewModel.seriesListLiveData.observe(
+        creatorListViewModel.creatorListLiveData.observe(
             viewLifecycleOwner,
-            { seriesList ->
-                seriesList?.let {
-                    this.seriesList = it
+            { creatorList ->
+                creatorList?.let {
+                    this.creatorList = it
                     updateUI()
                 }
             }
@@ -104,7 +99,7 @@ class SeriesListFragment : Fragment() {
         return when (item.itemId) {
             R.id.new_issue -> {
                 val issue = Issue()
-                seriesListViewModel.addIssue(issue)
+                creatorListViewModel.addIssue(issue)
                 callbacks?.onNewIssue(issue.issueId)
                 true
             }
@@ -113,8 +108,8 @@ class SeriesListFragment : Fragment() {
     }
 
     private fun updateUI() {
-        seriesRecyclerView.adapter = SeriesAdapter(seriesList)
-        runLayoutAnimation(seriesRecyclerView)
+        creatorRecyclerView.adapter = CreatorAdapter(creatorList)
+        runLayoutAnimation(creatorRecyclerView)
     }
 
     private fun runLayoutAnimation(view: RecyclerView) {
@@ -138,15 +133,6 @@ class SeriesListFragment : Fragment() {
         }
 
         override fun getItemCount(): Int = itemList.size
-    }
-
-    private inner class SeriesAdapter(seriesList: List<Series>) :
-        MyAdapter<Series>(itemList = seriesList) {
-
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SeriesHolder {
-            val view = layoutInflater.inflate(R.layout.list_item_series, parent, false)
-            return SeriesHolder(view)
-        }
     }
 
     private inner class CreatorAdapter(creatorlist: List<Creator>) :
@@ -235,12 +221,14 @@ class SeriesListFragment : Fragment() {
     companion object {
         @JvmStatic
         fun newInstance(
+            seriesFilterId: UUID? = null,
             creatorFilterId: UUID? = null,
             dateFilterStart: LocalDate? = null,
             dateFilterEnd: LocalDate? = null
         ) =
             SeriesListFragment().apply {
                 arguments = Bundle().apply {
+                    putSerializable(ARG_SERIES_FILTER_ID, seriesFilterId)
                     putSerializable(ARG_CREATOR_FILTER, creatorFilterId)
                     putSerializable(ARG_DATE_FILTER_START, dateFilterStart)
                     putSerializable(ARG_DATE_FILTER_END, dateFilterEnd)
