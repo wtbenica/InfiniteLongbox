@@ -51,23 +51,7 @@ class SeriesListFragment : GroupListFragment<Series>() {
         return view
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
-        filterId?.let { viewModel.filterByCreator(it) }
-
-        viewModel.seriesListLiveData.observe(
-            viewLifecycleOwner,
-            { seriesList ->
-                seriesList?.let {
-                    this.itemList = it
-                    updateUI()
-                }
-            }
-        )
-    }
-
-    private fun updateUI() {
+    override fun updateUI() {
         recyclerView.adapter = SeriesAdapter(itemList)
         runLayoutAnimation(recyclerView)
     }

@@ -45,6 +45,24 @@ abstract class GroupListFragment<T> : Fragment() {
         dateFilterEnd = arguments?.getSerializable(ARG_DATE_FILTER_END) as LocalDate?
     }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        filterId?.let { viewModel.filter(it) }
+
+        viewModel.objectListLiveData.observe(
+            viewLifecycleOwner,
+            { objectList ->
+                objectList?.let {
+                    this.itemList = it
+                    updateUI()
+                }
+            }
+        )
+    }
+
+    abstract fun updateUI()
+
     override fun onDetach() {
         super.onDetach()
         callbacks = null

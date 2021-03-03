@@ -52,28 +52,12 @@ class CreatorListFragment : GroupListFragment<Creator>() {
         return view
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
-        filterId?.let { viewModel.filterByCreator(it) }
-
-        viewModel.creatorListLiveData.observe(
-            viewLifecycleOwner,
-            { creatorList ->
-                creatorList?.let {
-                    this.itemList = it
-                    updateUI()
-                }
-            }
-        )
-    }
-
-    private fun updateUI() {
+    override fun updateUI() {
         recyclerView.adapter = CreatorAdapter(itemList)
         runLayoutAnimation(recyclerView)
     }
 
-    private inner class CreatorAdapter(creatorlist: List<Creator>) :
+    inner class CreatorAdapter(creatorlist: List<Creator>) :
         GroupListFragment.MyAdapter<Creator>(itemList = creatorlist) {
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CreatorHolder {
@@ -82,7 +66,7 @@ class CreatorListFragment : GroupListFragment<Creator>() {
         }
     }
 
-    private inner class CreatorHolder(view: View) : GroupListFragment.MyHolder<Creator>(view) {
+    inner class CreatorHolder(view: View) : GroupListFragment.MyHolder<Creator>(view) {
         override lateinit var item: Creator
 
         private val coverImageView: ImageView = itemView.findViewById(R.id.list_item_cover)

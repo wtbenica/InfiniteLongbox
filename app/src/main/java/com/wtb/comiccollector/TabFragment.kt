@@ -51,10 +51,8 @@ class CollectionAdapter(fragment: Fragment) : FragmentStateAdapter(fragment) {
     override fun getItemCount(): Int = 2
 
     override fun createFragment(position: Int): Fragment {
-        val fragment: Fragment
-        fragment = if (position == 0) {
+        val fragment: Fragment = if (position == 0) {
             SeriesListFragment()
-
         } else {
             CreatorListFragment()
         }

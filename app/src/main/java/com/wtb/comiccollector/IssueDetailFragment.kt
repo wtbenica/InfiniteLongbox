@@ -395,10 +395,9 @@ class IssueDetailFragment : Fragment(),
 
     inner class CreditsBox(context: Context) : TableLayout(context) {
 
-        private val addRowButton: ImageButton
+        private val addRowButton: ImageButton = ImageButton(context)
 
         init {
-            addRowButton = ImageButton(context)
             addRowButton.setImageResource(R.drawable.ic_menu_add)
             addRowButton.setOnClickListener {
                 addNewRow(addRowButton)
@@ -441,7 +440,7 @@ class IssueDetailFragment : Fragment(),
         }
 
         fun displayCredit(credits: List<FullCredit>) {
-            if (!credits.isEmpty()) {
+            if (credits.isNotEmpty()) {
                 this.removeAllViews()
                 for (credit in credits) {
                     this.addNewRow(addRowButton, credit)
@@ -587,6 +586,7 @@ class CreatorAdapter(context: Context, data: List<Creator>) :
             )
 
         val text1 = res.findViewById(android.R.id.text1) as TextView
+        @Suppress("UsePropertyAccessSyntax")
         text1.setText(creator?.toString())
 
         return text1
@@ -603,6 +603,7 @@ class CreatorAdapter(context: Context, data: List<Creator>) :
             )
 
         val text1 = res.findViewById(android.R.id.text1) as TextView
+        @Suppress("UsePropertyAccessSyntax")
         text1.setText(creator?.sortName)
 
         return text1

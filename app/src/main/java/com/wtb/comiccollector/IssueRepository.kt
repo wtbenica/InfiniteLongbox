@@ -323,6 +323,9 @@ class IssueRepository private constructor(context: Context) {
     fun getSeriesByCreator(creatorId: UUID): LiveData<List<Series>> =
         issueDao.getSeriesList(creatorId)
 
+    fun getCreatorBySeries(seriesId: UUID): LiveData<List<Creator>> =
+        issueDao.getCreatorList(seriesId)
+
 /*
     FUTURE IMPLEMENTATION
     fun getCoverImage(issue: Issue): File = File(filesDir, issue.coverFileName)
