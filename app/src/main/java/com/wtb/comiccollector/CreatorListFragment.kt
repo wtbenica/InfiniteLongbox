@@ -1,69 +1,26 @@
 package com.wtb.comiccollector
 
-import android.content.Context
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.lifecycle.ViewModelProvider
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import java.time.LocalDate
 import java.util.*
 
 private const val TAG = "CreatorListFragment"
 
-class CreatorListFragment : GroupListFragment<Creator>() {
-
-    override lateinit var recyclerView: RecyclerView
-
-    override var filterId: UUID? = null
-    override var dateFilterStart: LocalDate? = null
-    override var dateFilterEnd: LocalDate? = null
-
-    override var callbacks: Callbacks? = null
+class CreatorListFragment : GroupListFragment<Creator, CreatorListFragment.CreatorAdapter>() {
 
     override val viewModel by lazy {
         ViewModelProvider(this).get(CreatorListViewModel::class.java)
     }
 
-    override lateinit var itemList: List<Creator>
-
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        callbacks = context as Callbacks?
-    }
-
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-
-        val view = inflater.inflate(R.layout.fragment_issue_list, container, false)
-
-        itemList = emptyList()
-
-        recyclerView = view.findViewById(R.id.issue_recycler_view) as RecyclerView
-        recyclerView.layoutManager = LinearLayoutManager(context)
-        recyclerView.adapter = CreatorAdapter(itemList)
-
-        return view
-    }
-
-    override fun updateUI() {
-        recyclerView.adapter = CreatorAdapter(itemList)
-        runLayoutAnimation(recyclerView)
-    }
+    override fun getAdapter(): CreatorAdapter = CreatorAdapter(itemList)
 
     inner class CreatorAdapter(creatorlist: List<Creator>) :
-        GroupListFragment.MyAdapter<Creator>(itemList = creatorlist) {
-
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CreatorHolder {
-            val view = layoutInflater.inflate(R.layout.list_item_series, parent, false)
-            return CreatorHolder(view)
-        }
+        MyAdapter<Creator>(itemList = creatorlist) {
+        override fun getHolder(view: View): MyHolder<Creator> = CreatorHolder(view)
     }
 
     inner class CreatorHolder(view: View) : GroupListFragment.MyHolder<Creator>(view) {

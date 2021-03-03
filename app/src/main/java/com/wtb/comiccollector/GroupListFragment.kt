@@ -1,13 +1,12 @@
 package com.wtb.comiccollector
 
+import android.content.Context
 import android.os.Bundle
-import android.view.Menu
-import android.view.MenuInflater
-import android.view.MenuItem
-import android.view.View
+import android.view.*
 import android.view.animation.AnimationUtils
 import android.view.animation.LayoutAnimationController
 import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import java.time.LocalDate
 import java.util.*
@@ -17,7 +16,8 @@ const val ARG_CREATOR_FILTER = "Creator Filter"
 const val ARG_DATE_FILTER_START = "Date Filter Start"
 const val ARG_DATE_FILTER_END = "Date Filter End"
 
-abstract class GroupListFragment<T> : Fragment() {
+abstract class GroupListFragment<T, U: GroupListFragment<T, U>.MyAdapter<T>>
+    : Fragment() {
 
     interface Callbacks {
         fun onSeriesSelected(seriesId: UUID)
@@ -25,16 +25,21 @@ abstract class GroupListFragment<T> : Fragment() {
         fun onNewIssue(issueId: UUID)
     }
 
-    abstract var recyclerView: RecyclerView
+    private lateinit var recyclerView: RecyclerView
 
-    abstract var filterId: UUID?
-    abstract var dateFilterStart: LocalDate?
-    abstract var dateFilterEnd: LocalDate?
+    protected var callbacks: Callbacks? = null
 
-    abstract var callbacks: Callbacks?
+    private var filterId: UUID? = null
+    private var dateFilterStart: LocalDate? = null
+    private var dateFilterEnd: LocalDate? = null
 
     abstract val viewModel: GroupListViewModel<T>
-    abstract var itemList: List<T>
+    protected lateinit var itemList: List<T>
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        callbacks = context as Callbacks?
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -43,6 +48,21 @@ abstract class GroupListFragment<T> : Fragment() {
         filterId = arguments?.getSerializable(ARG_FILTER_ID) as UUID?
         dateFilterStart = arguments?.getSerializable(ARG_DATE_FILTER_START) as LocalDate?
         dateFilterEnd = arguments?.getSerializable(ARG_DATE_FILTER_END) as LocalDate?
+    }
+
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        val view = inflater.inflate(R.layout.fragment_issue_list, container, false)
+
+        itemList = emptyList()
+
+        recyclerView = view.findViewById(R.id.issue_recycler_view) as RecyclerView
+        recyclerView.layoutManager = LinearLayoutManager(context)
+        recyclerView.adapter = getAdapter()
+
+        return view
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -60,8 +80,6 @@ abstract class GroupListFragment<T> : Fragment() {
             }
         )
     }
-
-    abstract fun updateUI()
 
     override fun onDetach() {
         super.onDetach()
@@ -85,6 +103,13 @@ abstract class GroupListFragment<T> : Fragment() {
         }
     }
 
+    fun updateUI() {
+        recyclerView.adapter = getAdapter()
+        runLayoutAnimation(recyclerView)
+    }
+
+    abstract fun getAdapter(): U
+
     fun runLayoutAnimation(view: RecyclerView) {
         val context = view.context
         val controller: LayoutAnimationController =
@@ -95,7 +120,7 @@ abstract class GroupListFragment<T> : Fragment() {
         view.scheduleLayoutAnimation()
     }
 
-    abstract class MyAdapter<T>(var itemList: List<T>) :
+    abstract inner class MyAdapter<T>(var itemList: List<T>) :
         RecyclerView.Adapter<MyHolder<T>>() {
 
         private var lastPosition = -1
@@ -104,6 +129,13 @@ abstract class GroupListFragment<T> : Fragment() {
             val item = itemList[position]
             holder.bind(item)
         }
+
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MyHolder<T> {
+            val view = layoutInflater.inflate(R.layout.list_item_series, parent, false)
+            return getHolder(view)
+        }
+
+        abstract fun getHolder(view: View) : MyHolder<T>
 
         override fun getItemCount(): Int = itemList.size
     }
