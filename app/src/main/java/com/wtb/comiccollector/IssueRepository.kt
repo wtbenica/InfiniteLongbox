@@ -9,10 +9,16 @@ import android.util.Log
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.wtb.comiccollector.database.IssueDatabase
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 import java.time.LocalDate
 import java.util.*
 import java.util.concurrent.Executors
@@ -30,7 +36,41 @@ class IssueRepository private constructor(context: Context) {
 
     private val filesDir = context.applicationContext.filesDir
 
-    val allSeries: LiveData<List<Series>> = issueDao.getAllSeries()
+    var allSeries: MutableLiveData<List<Series>> = MutableLiveData(issueDao.getAllSeries().value)
+
+    val retrofit = Retrofit.Builder()
+        .baseUrl("http://192.168.0.141:8000/")
+        .addConverterFactory(GsonConverterFactory.create())
+        .build()
+
+    val apiService: Webservice = retrofit.create(Webservice::class.java)
+
+    val call: Call<List<JsonRead.Item>> = apiService.getSeries()
+
+    init {
+        Log.d("POTATO", "graham cracker")
+        call.enqueue(
+            object : Callback<List<JsonRead.Item>> {
+                override fun onResponse(
+                    call: Call<List<JsonRead.Item>>, response: Response<List<JsonRead.Item>>
+                ) {
+                    val statusCode: Int = response.code()
+                    val seriesList: List<JsonRead.Item>? = response.body()
+                    seriesList?.let {
+                        allSeries.value = seriesList.map {
+                            Series(seriesName = it.fields?.name ?: "None")
+                        }
+                    }
+                    Log.d("POTATO", "response: ${seriesList.toString()}")
+                }
+
+                override fun onFailure(call: Call<List<JsonRead.Item>>, t: Throwable) {
+                    val res = null
+
+                    Log.d("POTATO", t.message ?: "No message")
+                }
+            })
+    }
 
     val allPublishers: LiveData<List<Publisher>> = issueDao.getPublishersList()
 
