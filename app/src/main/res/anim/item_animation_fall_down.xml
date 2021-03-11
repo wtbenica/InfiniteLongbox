@@ -3,7 +3,7 @@
     android:duration="@android:integer/config_mediumAnimTime">
 
     <translate
-        android:fromYDelta="25%"
+        android:fromYDelta="5%"
         android:interpolator="@android:anim/decelerate_interpolator"
         android:toYDelta="0" />
 

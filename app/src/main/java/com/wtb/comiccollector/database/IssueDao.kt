@@ -205,4 +205,20 @@ interface IssueDao {
         startDate: LocalDate = LocalDate.MIN,
         endDate: LocalDate = LocalDate.MAX
     ): LiveData<List<Series>>
+
+    @Query(
+        """
+            SELECT DISTINCT creator.*
+            FROM creator
+            NATURAL JOIN issue
+            NATURAL JOIN series
+            NATURAL JOIN credit
+            WHERE seriesId = :seriesId
+            AND issue.releaseDate < :endDate AND issue.releaseDate > :startDate
+        """
+    )
+    fun getCreatorList(
+        seriesId: UUID, startDate: LocalDate = LocalDate.MIN, endDate: LocalDate =
+            LocalDate.MAX
+    ): LiveData<List<Creator>>
 }

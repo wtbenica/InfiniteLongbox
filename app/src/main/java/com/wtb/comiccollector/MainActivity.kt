@@ -7,7 +7,7 @@ import java.util.*
 
 class MainActivity : AppCompatActivity(),
     IssueListFragment.Callbacks,
-    SeriesListFragment.Callbacks,
+    GroupListFragment.Callbacks,
     SeriesInfoDialogFragment.SeriesInfoDialogListener,
     NewCreatorDialogFragment.NewCreatorDialogListener {
 
@@ -18,7 +18,7 @@ class MainActivity : AppCompatActivity(),
         val currentFragment = supportFragmentManager.findFragmentById(R.id.fragment_container)
 
         if (currentFragment == null) {
-            val fragment = SeriesListFragment.newInstance()
+            val fragment = TabFragment.newInstance()
             supportFragmentManager
                 .beginTransaction()
                 .add(R.id.fragment_container, fragment)

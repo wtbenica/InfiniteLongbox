@@ -1,5 +1,3 @@
 package com.wtb.comiccollector
 
-class SeriesFilterRow {
-
-}
+class SeriesFilterRow
