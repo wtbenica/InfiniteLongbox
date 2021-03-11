@@ -103,14 +103,14 @@ abstract class GroupListFragment<T, U: GroupListFragment<T, U>.MyAdapter<T>>
         }
     }
 
-    fun updateUI() {
+    private fun updateUI() {
         recyclerView.adapter = getAdapter()
         runLayoutAnimation(recyclerView)
     }
 
     abstract fun getAdapter(): U
 
-    fun runLayoutAnimation(view: RecyclerView) {
+    private fun runLayoutAnimation(view: RecyclerView) {
         val context = view.context
         val controller: LayoutAnimationController =
             AnimationUtils.loadLayoutAnimation(context, R.anim.layout_animation_fall_down)
@@ -150,5 +150,25 @@ abstract class GroupListFragment<T, U: GroupListFragment<T, U>.MyAdapter<T>>
         }
 
         abstract fun bind(item: T)
+    }
+
+    enum class SeriesFilter(private val s: String, val onSelect: (viewModel: SeriesListViewModel) -> Unit) {
+        NONE("None", { }),
+        CREATOR("Creator", { }),
+        DATE("Date Range", { });
+
+        override fun toString(): String {
+            return s
+        }
+    }
+
+    enum class CreatorFilter(private val s: String, val onSelect: () -> Unit) {
+        NONE("None", { }),
+        COCREATOR("Cocreator", { }),
+        DATE("Date Range", { });
+
+        override fun toString(): String {
+            return s
+        }
     }
 }

@@ -39,14 +39,14 @@ class IssueRepository private constructor(context: Context) {
 
     var allSeries: MutableLiveData<List<Series>> = MutableLiveData(issueDao.getAllSeries().value)
 
-    val retrofit = Retrofit.Builder()
+    private val retrofit: Retrofit = Retrofit.Builder()
         .baseUrl(BASE_URL)
         .addConverterFactory(GsonConverterFactory.create())
         .build()
 
-    val apiService: Webservice = retrofit.create(Webservice::class.java)
+    private val apiService: Webservice = retrofit.create(Webservice::class.java)
 
-    val call: Call<List<JsonRead.Item>> = apiService.getSeries()
+    private val call: Call<List<JsonRead.Item>> = apiService.getSeries()
 
     init {
         Log.d("POTATO", "graham cracker")

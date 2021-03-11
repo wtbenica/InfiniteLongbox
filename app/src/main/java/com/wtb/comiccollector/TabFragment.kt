@@ -10,8 +10,6 @@ import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 
-private val TABS = arrayOf("Series", "Creators")
-
 class TabFragment : Fragment() {
 
     private lateinit var collectionAdapter: CollectionAdapter
@@ -33,7 +31,7 @@ class TabFragment : Fragment() {
         viewPager.adapter = collectionAdapter
 
         TabLayoutMediator(tabLayout, viewPager) { tab, position ->
-            tab.text = TABS[position]
+            tab.text = resources.getStringArray(R.array.grouping_options)[position]
         }.attach()
     }
 
@@ -51,11 +49,10 @@ class CollectionAdapter(fragment: Fragment) : FragmentStateAdapter(fragment) {
     override fun getItemCount(): Int = 2
 
     override fun createFragment(position: Int): Fragment {
-        val fragment: Fragment = if (position == 0) {
+        return if (position == 0) {
             SeriesListFragment()
         } else {
             CreatorListFragment()
         }
-        return fragment
     }
 }

@@ -40,26 +40,6 @@ class CreatorListFragment : GroupListFragment<Creator, CreatorListFragment.Creat
 
     }
 
-    enum class SeriesFilter(val s: String, val onSelect: (viewModel: SeriesListViewModel) -> Unit) {
-        NONE("None", { }),
-        CREATOR("Creator", { }),
-        DATE("Date Range", { });
-
-        override fun toString(): String {
-            return s
-        }
-    }
-
-    enum class CreatorFilter(val s: String, val onSelect: () -> Unit) {
-        NONE("None", { }),
-        COCREATOR("Cocreator", { }),
-        DATE("Date Range", { });
-
-        override fun toString(): String {
-            return s
-        }
-    }
-
     companion object {
         @JvmStatic
         fun newInstance(

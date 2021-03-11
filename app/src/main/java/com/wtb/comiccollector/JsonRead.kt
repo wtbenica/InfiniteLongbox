@@ -7,13 +7,11 @@ import java.io.FileInputStream
 import java.io.InputStream
 import java.io.InputStreamReader
 
-class JsonRead() {
+class JsonRead {
     fun readJsonStream(str_in: InputStream): ArrayList<Item> {
         val reader = JsonReader(InputStreamReader(str_in, "UTF-8"))
-        try {
+        reader.use { reader ->
             return readItemsArray(reader)
-        } finally {
-            reader.close()
         }
     }
 
@@ -35,8 +33,7 @@ class JsonRead() {
 
         reader.beginObject()
         while (reader.hasNext()) {
-            val name = reader.nextName()
-            when (name) {
+            when (reader.nextName()) {
                 "model" -> model = reader.nextString()
                 "pk" -> pk = reader.nextInt()
                 "data" -> data = readData(reader)
@@ -53,8 +50,7 @@ class JsonRead() {
 
         reader.beginObject()
         while (reader.hasNext()) {
-            val field_name = reader.nextName()
-            when (field_name) {
+            when (reader.nextName()) {
                 "name" -> name = reader.nextString()
                 "pub_dates" -> pub_dates = reader.nextString()
                 else -> reader.skipValue()
