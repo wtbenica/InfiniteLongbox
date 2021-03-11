@@ -25,6 +25,7 @@ import java.util.concurrent.Executors
 
 private const val DATABASE_NAME = "issue-database"
 private const val TAG = "IssueRepository"
+private const val BASE_URL = "http://192.168.0.138:8000/"
 
 class IssueRepository private constructor(context: Context) {
 
@@ -39,7 +40,7 @@ class IssueRepository private constructor(context: Context) {
     var allSeries: MutableLiveData<List<Series>> = MutableLiveData(issueDao.getAllSeries().value)
 
     val retrofit = Retrofit.Builder()
-        .baseUrl("http://192.168.0.141:8000/")
+        .baseUrl(BASE_URL)
         .addConverterFactory(GsonConverterFactory.create())
         .build()
 
