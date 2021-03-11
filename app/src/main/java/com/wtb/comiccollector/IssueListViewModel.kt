@@ -5,13 +5,12 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
-import java.util.*
 
 private const val TAG = "IssueListViewModel"
 
 class IssueListViewModel : ViewModel() {
     private val issueRepository: IssueRepository = IssueRepository.get()
-    private val seriesIdLiveData = MutableLiveData<UUID>()
+    private val seriesIdLiveData = MutableLiveData<Int>()
 
     var seriesLiveData: LiveData<Series?> =
         Transformations.switchMap(seriesIdLiveData) { seriesId ->
@@ -23,7 +22,7 @@ class IssueListViewModel : ViewModel() {
             issueRepository.getIssuesBySeries(seriesId)
         }
 
-    fun loadSeries(seriesId: UUID) {
+    fun loadSeries(seriesId: Int) {
         Log.d(TAG, "Loading series: $seriesId")
         seriesIdLiveData.value = seriesId
     }
@@ -54,5 +53,5 @@ class IssueListViewModel : ViewModel() {
         )
     }
 
-    fun getSeries(seriesId: UUID): LiveData<Series?> = issueRepository.getSeries(seriesId)
+    fun getSeries(seriesId: Int): LiveData<Series?> = issueRepository.getSeries(seriesId)
 }

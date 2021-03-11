@@ -3,11 +3,11 @@ package com.wtb.comiccollector
 import android.net.Uri
 import androidx.room.*
 import androidx.room.ForeignKey.CASCADE
+import java.io.InvalidObjectException
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
-import java.util.*
 
-val NEW_SERIES_ID = UUID(0, 0)
+const val NEW_SERIES_ID = 0
 
 // TODO: For all entities, need to add onDeletes: i.e. CASCADE, etc.
 @Entity(
@@ -24,8 +24,8 @@ val NEW_SERIES_ID = UUID(0, 0)
     ]
 )
 data class Issue(
-    @PrimaryKey val issueId: UUID = UUID.randomUUID(),
-    var seriesId: UUID = NEW_SERIES_ID,
+    @PrimaryKey val issueId: Int = 0,
+    var seriesId: Int = NEW_SERIES_ID,
     var issueNum: Int = 1,
     var coverUri: Uri? = null,
     var releaseDate: LocalDate? = null,
@@ -49,10 +49,10 @@ data class Issue(
     ]
 )
 data class Series(
-    @PrimaryKey val seriesId: UUID = UUID.randomUUID(),
+    @PrimaryKey val seriesId: Int = 0,
     var seriesName: String = "New Series",
     var volume: Int = 1,
-    var publisherId: UUID = NEW_SERIES_ID,
+    var publisherId: Int = NEW_SERIES_ID,
     var startDate: LocalDate? = null,
     var endDate: LocalDate? = null,
     var description: String? = null
@@ -70,6 +70,36 @@ data class Series(
                 ) ?: " "
             })"
         } ?: ""
+
+    companion object {
+        fun fromItem(item: JsonRead.Item): Series {
+            val fields: JsonRead.Item.Fields =
+                item.fields ?: throw InvalidObjectException("fields must not be null")
+            return Series(
+                seriesId = item.pk,
+                seriesName = fields.name ?: "",
+                publisherId = fields.publisher?.get(0)?.toInt() ?: 0,
+                startDate = when (fields.yearBeganUncertain as Int) {
+                    0 -> LocalDate.of(
+                        fields.yearBegan ?: LocalDate.MIN.year,
+                        1,
+                        1
+                    )
+                    else -> null
+                },
+                endDate = when (fields.yearEndedUncertain) {
+                    0 -> fields.yearEnded?.let {
+                        LocalDate.of(
+                            it,
+                            1,
+                            1
+                        )
+                    }
+                    else -> null
+                },
+            )
+        }
+    }
 }
 
 @Entity(
@@ -78,7 +108,7 @@ data class Series(
     ]
 )
 data class Creator(
-    @PrimaryKey val creatorId: UUID = UUID.randomUUID(),
+    @PrimaryKey val creatorId: Int = 0,
     var firstName: String,
     var middleName: String? = null,
     var lastName: String? = null,
@@ -104,7 +134,7 @@ data class Creator(
 
 @Entity
 data class Publisher(
-    @PrimaryKey val publisherId: UUID = UUID.randomUUID(),
+    @PrimaryKey val publisherId: Int = 0,
     val publisher: String = ""
 ) {
     override fun toString(): String {
@@ -114,7 +144,7 @@ data class Publisher(
 
 @Entity
 data class Role(
-    @PrimaryKey val roleId: UUID = UUID.randomUUID(),
+    @PrimaryKey val roleId: Int = 0,
     var roleName: String = "",
     var sortOrder: Int
 ) {
@@ -148,10 +178,10 @@ data class Role(
     ]
 )
 data class Credit(
-    @PrimaryKey val creditId: UUID = UUID.randomUUID(),
-    var issueId: UUID,
-    var creatorId: UUID,
-    var roleId: UUID
+    @PrimaryKey val creditId: Int = 0,
+    var issueId: Int,
+    var creatorId: Int,
+    var roleId: Int
 )
 
 data class FullIssue(

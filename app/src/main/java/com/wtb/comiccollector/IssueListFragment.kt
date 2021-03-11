@@ -13,19 +13,18 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import java.time.LocalDate
-import java.util.*
 
 class IssueListFragment : Fragment() {
 
     interface Callbacks {
-        fun onIssueSelected(issueId: UUID)
-        fun onNewIssue(issueId: UUID)
+        fun onIssueSelected(issueId: Int)
+        fun onNewIssue(issueId: Int)
     }
 
     private var callbacks: Callbacks? = null
 
-    private lateinit var seriesFilterId: UUID
-    private var creatorFilterId: UUID? = null
+    private var seriesFilterId: Int? = null
+    private var creatorFilterId: Int? = null
     private var dateFilterStart: LocalDate? = null
     private var dateFilterEnd: LocalDate? = null
 
@@ -45,8 +44,8 @@ class IssueListFragment : Fragment() {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
 
-        seriesFilterId = arguments?.getSerializable(ARG_FILTER_ID) as UUID
-        creatorFilterId = arguments?.getSerializable(ARG_CREATOR_FILTER) as UUID?
+        seriesFilterId = arguments?.getSerializable(ARG_FILTER_ID) as Int
+        creatorFilterId = arguments?.getSerializable(ARG_CREATOR_FILTER) as Int?
         dateFilterStart = arguments?.getSerializable(ARG_DATE_FILTER_START) as LocalDate?
         dateFilterEnd = arguments?.getSerializable(ARG_DATE_FILTER_END) as LocalDate?
 
@@ -73,7 +72,7 @@ class IssueListFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        issueListViewModel.loadSeries(seriesFilterId)
+        seriesFilterId?.let { issueListViewModel.loadSeries(it) }
 
         issueListViewModel.issueListLiveData.observe(
             viewLifecycleOwner,
@@ -109,7 +108,7 @@ class IssueListFragment : Fragment() {
             R.id.new_issue -> {
                 // TODO: Find solution to this. If issueNum is default (1), if there already
                 //  exists an issue number 1, then violates unique series/issue restraint in db
-                val issue = Issue(seriesId = seriesFilterId)
+                val issue = seriesFilterId?.let { Issue(seriesId = it) } ?: Issue()
                 issueListViewModel.addIssue(issue)
                 callbacks?.onNewIssue(issue.issueId)
                 true
@@ -179,8 +178,8 @@ class IssueListFragment : Fragment() {
     companion object {
         @JvmStatic
         fun newInstance(
-            seriesFilterId: UUID? = null,
-            creatorFilterId: UUID? = null,
+            seriesFilterId: Int? = null,
+            creatorFilterId: Int? = null,
             dateFilterStart: LocalDate? = null,
             dateFilterEnd: LocalDate? = null
         ) =

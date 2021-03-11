@@ -4,16 +4,15 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import java.time.LocalDate
-import java.util.*
 
 abstract class GroupListViewModel<T>: ViewModel() {
     val issueRepository: IssueRepository = IssueRepository.get()
-    val filterIdLiveData = MutableLiveData<UUID?>(null)
+    val filterIdLiveData = MutableLiveData<Int?>(null)
 
     abstract val objectListLiveData: LiveData<List<T>>
 
     fun filter(
-        filterId: UUID? = null,
+        filterId: Int? = null,
         startDate: LocalDate? = null,
         endDate: LocalDate? = null
     ) {
@@ -50,5 +49,5 @@ abstract class GroupListViewModel<T>: ViewModel() {
         )
     }
 
-    fun getSeries(seriesId: UUID): LiveData<Series?> = issueRepository.getSeries(seriesId)
+    fun getSeries(seriesId: Int): LiveData<Series?> = issueRepository.getSeries(seriesId)
 }

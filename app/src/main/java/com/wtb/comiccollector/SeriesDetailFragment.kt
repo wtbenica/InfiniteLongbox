@@ -11,7 +11,6 @@ import android.widget.ImageButton
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
-import java.util.*
 
 private const val TAG = "SeriesDetailFragment"
 private const val RESULT_SERIES_INFO = 312
@@ -28,7 +27,7 @@ class SeriesDetailFragment : Fragment() {
         ViewModelProvider(this).get(SeriesInfoViewModel::class.java)
     }
 
-    private lateinit var seriesId: UUID
+    private var seriesId: Int? = null
     private lateinit var series: Series
     private lateinit var publisher: Publisher
 
@@ -43,7 +42,7 @@ class SeriesDetailFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        seriesId = arguments?.getSerializable(ARG_SERIES_ID) as UUID
+        seriesId = arguments?.getSerializable(ARG_SERIES_ID) as Int
         series = Series()
         publisher = Publisher()
     }
@@ -62,7 +61,7 @@ class SeriesDetailFragment : Fragment() {
         descriptionLabelTextView = view.findViewById(R.id.label_description)
         descriptionTextView = view.findViewById(R.id.details_description)
 
-        seriesViewModel.loadSeries(seriesId)
+        seriesId?.let { seriesViewModel.loadSeries(it) }
 
         return view
     }
@@ -89,9 +88,11 @@ class SeriesDetailFragment : Fragment() {
         )
 
         editSeriesButton.setOnClickListener {
-            val d = SeriesInfoDialogFragment.newInstance(seriesId)
-            d.setTargetFragment(this, RESULT_SERIES_INFO)
-            d.show(parentFragmentManager, DIALOG_SERIES_INFO)
+            seriesId?.let { id ->
+                val d = SeriesInfoDialogFragment.newInstance(id)
+                d.setTargetFragment(this, RESULT_SERIES_INFO)
+                d.show(parentFragmentManager, DIALOG_SERIES_INFO)
+            }
         }
     }
 
@@ -100,7 +101,7 @@ class SeriesDetailFragment : Fragment() {
         when {
             resultCode != Activity.RESULT_OK -> return
             requestCode == RESULT_SERIES_INFO && data != null -> {
-                val seriesId = data.getSerializableExtra(ARG_SERIES_ID) as UUID
+                val seriesId = data.getSerializableExtra(ARG_SERIES_ID) as Int
                 seriesViewModel.loadSeries(seriesId)
             }
         }
@@ -128,7 +129,7 @@ class SeriesDetailFragment : Fragment() {
          * @return A new instance of fragment SeriesDetailFragment.
          */
         @JvmStatic
-        fun newInstance(seriesId: UUID) = SeriesDetailFragment().apply {
+        fun newInstance(seriesId: Int?) = SeriesDetailFragment().apply {
             arguments = Bundle().apply {
                 putSerializable(ARG_SERIES_ID, seriesId)
             }

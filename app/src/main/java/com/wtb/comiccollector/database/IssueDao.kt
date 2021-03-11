@@ -4,16 +4,13 @@ import androidx.lifecycle.LiveData
 import androidx.room.*
 import com.wtb.comiccollector.*
 import java.time.LocalDate
-import java.util.*
-
-private val NEW_SERIES_UUID = UUID(0, 0)
 
 @Dao
 interface IssueDao {
 
     @Transaction
     @Query("SELECT * FROM issue WHERE issueId = :issueId")
-    fun getNewFullIssue(issueId: UUID): LiveData<IssueAndSeries?>
+    fun getNewFullIssue(issueId: Int): LiveData<IssueAndSeries?>
 
     @Transaction
     @Query(
@@ -26,7 +23,7 @@ interface IssueDao {
             ORDER BY sortOrder
         """
     )
-    fun getNewIssueCredits(issueId: UUID): LiveData<List<FullCredit>>
+    fun getNewIssueCredits(issueId: Int): LiveData<List<FullCredit>>
 
     @Transaction
     @Query(
@@ -44,7 +41,7 @@ interface IssueDao {
             WHERE seriesId=:seriesId
             """
     )
-    fun getIssuesBySeries(seriesId: UUID): LiveData<List<FullIssue>>
+    fun getIssuesBySeries(seriesId: Int): LiveData<List<FullIssue>>
 
     @Query(
         """
@@ -53,22 +50,22 @@ interface IssueDao {
             WHERE seriesId=:seriesId and issueNum=:issueNum
             """
     )
-    fun getIssueByDetails(seriesId: UUID, issueNum: Int): LiveData<List<FullIssue>>
+    fun getIssueByDetails(seriesId: Int, issueNum: Int): LiveData<List<FullIssue>>
 
     @Query("SELECT * FROM issue WHERE issueId=:issueId")
-    fun getIssue(issueId: UUID): LiveData<Issue?>
+    fun getIssue(issueId: Int): LiveData<Issue?>
 
     @Query("SELECT * FROM creator WHERE creatorId = :creatorId")
-    fun getCreator(creatorId: UUID): LiveData<Creator?>
+    fun getCreator(creatorId: Int): LiveData<Creator?>
 
     @Query("SELECT * FROM publisher WHERE publisherId = :publisherId")
-    fun getPublisher(publisherId: UUID): LiveData<Publisher?>
+    fun getPublisher(publisherId: Int): LiveData<Publisher?>
 
     @Query("SELECT * FROM series WHERE seriesId=:seriesId")
-    fun getSeriesById(seriesId: UUID): LiveData<Series?>
+    fun getSeriesById(seriesId: Int): LiveData<Series?>
 
     @Query("SELECT issue.* FROM issue NATURAL JOIN credit WHERE creatorId=:creatorId")
-    fun getIssuesByCreator(creatorId: UUID): LiveData<List<Issue>>
+    fun getIssuesByCreator(creatorId: Int): LiveData<List<Issue>>
 
     @Query("SELECT * FROM role WHERE roleName = :roleName")
     fun getRoleByName(roleName: String): Role
@@ -112,7 +109,7 @@ interface IssueDao {
     fun updateIssue(issue: Issue)
 
     @Update
-    fun updateSeries(series: Series)
+    fun updateSeries(vararg series: Series)
 
     @Update
     fun updateCreator(creator: Creator)
@@ -145,7 +142,7 @@ interface IssueDao {
     fun deleteCredit(credit: Credit)
 
     fun getSeriesList(
-        creatorId: UUID? = null,
+        creatorId: Int? = null,
         startDate: LocalDate? = null,
         endDate: LocalDate? = null
     ): LiveData<List<Series>> {
@@ -177,7 +174,7 @@ interface IssueDao {
         WHERE creatorId = :creatorId
            """
     )
-    fun getSeriesByCreator(creatorId: UUID): LiveData<List<Series>>
+    fun getSeriesByCreator(creatorId: Int): LiveData<List<Series>>
 
     @Query(
         """
@@ -201,7 +198,7 @@ interface IssueDao {
            """
     )
     fun getSeriesByCreatorAndDates(
-        creatorId: UUID,
+        creatorId: Int,
         startDate: LocalDate = LocalDate.MIN,
         endDate: LocalDate = LocalDate.MAX
     ): LiveData<List<Series>>
@@ -218,7 +215,7 @@ interface IssueDao {
         """
     )
     fun getCreatorList(
-        seriesId: UUID, startDate: LocalDate = LocalDate.MIN, endDate: LocalDate =
+        seriesId: Int, startDate: LocalDate = LocalDate.MIN, endDate: LocalDate =
             LocalDate.MAX
     ): LiveData<List<Creator>>
 }

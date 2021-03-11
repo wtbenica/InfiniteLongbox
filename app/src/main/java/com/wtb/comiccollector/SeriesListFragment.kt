@@ -6,7 +6,6 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.lifecycle.ViewModelProvider
 import java.time.LocalDate
-import java.util.*
 
 private const val TAG = "SeriesListFragment"
 
@@ -51,7 +50,7 @@ class SeriesListFragment : GroupListFragment<Series, SeriesListFragment.SeriesAd
     companion object {
         @JvmStatic
         fun newInstance(
-            creatorFilterId: UUID? = null,
+            creatorFilterId: Int? = null,
             dateFilterStart: LocalDate? = null,
             dateFilterEnd: LocalDate? = null
         ) =

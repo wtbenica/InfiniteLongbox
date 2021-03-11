@@ -89,7 +89,7 @@ class IssueDetailFragment : Fragment(),
         fullIssue = IssueAndSeries(Issue(), Series())
         issueCredits = emptyList()
 
-        issueDetailViewModel.loadIssue(arguments?.getSerializable(ARG_ISSUE_ID) as UUID)
+        issueDetailViewModel.loadIssue(arguments?.getSerializable(ARG_ISSUE_ID) as Int)
     }
 
     override fun onCreateView(
@@ -193,27 +193,27 @@ class IssueDetailFragment : Fragment(),
         when {
             resultCode != Activity.RESULT_OK -> return
             requestCode == RESULT_SERIES_DETAIL && data != null -> {
-                this.fullIssue.issue.seriesId = data.getSerializableExtra(ARG_SERIES_ID) as UUID
+                this.fullIssue.issue.seriesId = data.getSerializableExtra(ARG_SERIES_ID) as Int
                 saveChanges()
             }
             requestCode == RESULT_NEW_WRITER && data != null -> {
                 val myCredit: FullCredit? = getCredit("Writer")
                 myCredit?.let { fullCredit ->
-                    fullCredit.credit.creatorId = data.getSerializableExtra(ARG_CREATOR_ID) as UUID
+                    fullCredit.credit.creatorId = data.getSerializableExtra(ARG_CREATOR_ID) as Int
                     issueDetailViewModel.updateCredit(fullCredit.credit)
                 }
             }
             requestCode == RESULT_NEW_PENCILLER && data != null -> {
                 val myCredit: FullCredit? = getCredit("Penciller")
                 myCredit?.let { fullCredit ->
-                    fullCredit.credit.creatorId = data.getSerializableExtra(ARG_CREATOR_ID) as UUID
+                    fullCredit.credit.creatorId = data.getSerializableExtra(ARG_CREATOR_ID) as Int
                     issueDetailViewModel.updateCredit(fullCredit.credit)
                 }
             }
             requestCode == RESULT_NEW_INKER && data != null -> {
                 val myCredit: FullCredit? = getCredit("Inker")
                 myCredit?.let { fullCredit ->
-                    fullCredit.credit.creatorId = data.getSerializableExtra(ARG_CREATOR_ID) as UUID
+                    fullCredit.credit.creatorId = data.getSerializableExtra(ARG_CREATOR_ID) as Int
                     issueDetailViewModel.updateCredit(fullCredit.credit)
                 }
             }
@@ -382,7 +382,7 @@ class IssueDetailFragment : Fragment(),
     companion object {
         @JvmStatic
         fun newInstance(
-            issueId: UUID? = null,
+            issueId: Int? = null,
             openAsEditable: Boolean = true
         ): IssueDetailFragment =
             IssueDetailFragment().apply {

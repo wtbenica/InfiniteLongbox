@@ -71,7 +71,7 @@ class SeriesInfoDialogFragment private constructor() : DialogFragment(),
         publisher = Publisher()
         publisherList = emptyList()
 
-        seriesViewModel.loadSeries(arguments?.getSerializable(ARG_SERIES_ID) as UUID)
+        seriesViewModel.loadSeries(arguments?.getSerializable(ARG_SERIES_ID) as Int)
     }
 
     override fun onCreateView(
@@ -246,7 +246,7 @@ class SeriesInfoDialogFragment private constructor() : DialogFragment(),
 
     companion object {
         @JvmStatic
-        fun newInstance(seriesId: UUID): SeriesInfoDialogFragment {
+        fun newInstance(seriesId: Int): SeriesInfoDialogFragment {
             return SeriesInfoDialogFragment().apply {
                 arguments = Bundle().apply {
                     putSerializable(ARG_SERIES_ID, seriesId)

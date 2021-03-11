@@ -11,21 +11,17 @@ import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.room.Room
-import androidx.room.RoomDatabase
-import androidx.sqlite.db.SupportSQLiteDatabase
 import com.wtb.comiccollector.database.IssueDatabase
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import java.time.LocalDate
-import java.util.*
 import java.util.concurrent.Executors
 
 private const val DATABASE_NAME = "issue-database"
 private const val TAG = "IssueRepository"
-private const val BASE_URL = "http://192.168.0.138:8000/"
+private const val BASE_URL = "http://192.168.0.141:8000/"
 
 class IssueRepository private constructor(context: Context) {
 
@@ -55,20 +51,26 @@ class IssueRepository private constructor(context: Context) {
                 override fun onResponse(
                     call: Call<List<JsonRead.Item>>, response: Response<List<JsonRead.Item>>
                 ) {
+                    Log.d(TAG, "call onResponse ${call.request()} ${response}")
                     val statusCode: Int = response.code()
                     val seriesList: List<JsonRead.Item>? = response.body()
+                    Log.d(TAG, "seriesList: $seriesList")
                     seriesList?.let {
                         allSeries.value = seriesList.map {
-                            Series(seriesName = it.fields?.name ?: "None")
+                            Series.fromItem(it)
                         }
                     }
-                    Log.d("POTATO", "response: ${seriesList.toString()}")
+                    allSeries.value?.let {
+                        val series = it.toTypedArray()
+                        executor.execute {
+                            issueDao.updateSeries(*series)
+                        }
+                    }
                 }
 
                 override fun onFailure(call: Call<List<JsonRead.Item>>, t: Throwable) {
+                    Log.d(TAG, "call onFailure $call $t")
                     val res = null
-
-                    Log.d("POTATO", t.message ?: "No message")
                 }
             })
     }
@@ -83,139 +85,140 @@ class IssueRepository private constructor(context: Context) {
 
     fun getIssues(): LiveData<List<FullIssue>> = issueDao.getIssues()
 
-    fun getIssue(issueId: UUID): LiveData<Issue?> = issueDao.getIssue(issueId)
+    fun getIssue(issueId: Int): LiveData<Issue?> = issueDao.getIssue(issueId)
 
-    fun getIssuesBySeries(seriesId: UUID) = issueDao.getIssuesBySeries(seriesId)
+    fun getIssuesBySeries(seriesId: Int) = issueDao.getIssuesBySeries(seriesId)
 
-    fun getIssuesByDetails(seriesId: UUID, issueNum: Int) =
+    fun getIssuesByDetails(seriesId: Int, issueNum: Int) =
         issueDao.getIssueByDetails(seriesId, issueNum)
 
     private fun buildDatabase(context: Context) = Room.databaseBuilder(
         context.applicationContext,
         IssueDatabase::class.java,
         DATABASE_NAME
-    ).addCallback(
-        object : RoomDatabase.Callback() {
-            override fun onCreate(db: SupportSQLiteDatabase) {
-                super.onCreate(db)
-                executor.execute {
-
-                    val publisherDC = Publisher(publisherId = UUID.randomUUID(), publisher = "DC")
-
-                    issueDao.insertPublisher(
-                        publisherDC,
-                        Publisher(publisherId = NEW_SERIES_ID, publisher = "New Publisher"),
-                        Publisher(publisher = "Marvel"),
-                        Publisher(publisher = "Image"),
-                        Publisher(publisher = "Dark Horse"),
-                        Publisher(publisher = "Valiant"),
-                        Publisher(publisher = "Fantagraphics"),
-                        Publisher(publisher = "Aftershock"),
-                        Publisher(publisher = "DC/Vertigo")
-                    )
-
-                    val writer = Role(roleName = "Writer", sortOrder = 0)
-                    val penciller = Role(roleName = "Penciller", sortOrder = 20)
-                    val inker = Role(roleName = "Inker", sortOrder = 40)
-
-                    issueDao.insertRole(
-                        writer,
-                        Role(roleName = "Plotter", sortOrder = 5),
-                        Role(roleName = "Scripter", sortOrder = 10),
-                        penciller,
-                        Role(roleName = "Artist", sortOrder = 21),
-                        inker,
-                        Role(roleName = "Colorist", sortOrder = 60),
-                        Role(roleName = "Letterer", sortOrder = 80),
-                        Role(roleName = "Cover Artist", sortOrder = 100),
-                        Role(roleName = "Editor", sortOrder = 120),
-                        Role(roleName = "Assistant Editor", sortOrder = 125)
-                    )
-
-                    val grantMorrison = Creator(firstName = "Grant", lastName = "Morrison")
-                    val philipBond = Creator(firstName = "Philip", lastName = "Bond")
-                    val johnNyberg = Creator(firstName = "John", lastName = "Nyberg")
-                    val richardCase = Creator(firstName = "Richard", lastName = "Case")
-
-                    issueDao.insertCreator(
-                        grantMorrison,
-                        philipBond,
-                        johnNyberg,
-                        richardCase,
-                        Creator(firstName = "Neil", lastName = "Gaiman"),
-                        Creator(firstName = "Jason", lastName = "Aaron")
-                    )
-
-                    val seriesDoomPatrol =
-                        Series(
-                            seriesName = "Doom Patrol",
-                            publisherId = publisherDC.publisherId,
-                            startDate = LocalDate.of(1987, 10, 1),
-                            endDate = LocalDate.of(1995, 2, 1)
-                        )
-
-                    issueDao.insertSeries(
-                        Series(
-                            seriesId = NEW_SERIES_ID,
-                            seriesName = "New Series",
-                            publisherId = publisherDC.publisherId,
-                            startDate = LocalDate.of(1995, 5, 13),
-                            endDate = LocalDate.of(2000, 3, 25)
-                        ),
-                        seriesDoomPatrol
-                    )
-
-                    val dp35 = Issue(
-                        seriesId = seriesDoomPatrol.seriesId,
-                        issueNum = 35,
-                        releaseDate = LocalDate.of(1990, 8, 1)
-                    )
-
-                    val dp33 = Issue(
-                        seriesId = seriesDoomPatrol.seriesId,
-                        issueNum = 33,
-                        releaseDate = LocalDate.of(1990, 6, 1)
-                    )
-                    issueDao.insertIssue(
-                        dp33,
-                        dp35
-                    )
-                    issueDao.insertCredit(
-                        Credit(
-                            issueId = dp35.issueId,
-                            creatorId = grantMorrison.creatorId,
-                            roleId = writer.roleId
-                        ),
-                        Credit(
-                            issueId = dp35.issueId,
-                            creatorId = richardCase.creatorId,
-                            roleId = penciller.roleId
-                        ),
-                        Credit(
-                            issueId = dp35.issueId,
-                            creatorId = johnNyberg.creatorId,
-                            roleId = inker.roleId
-                        ),
-                        Credit(
-                            issueId = dp33.issueId,
-                            creatorId = grantMorrison.creatorId,
-                            roleId = writer.roleId
-                        ),
-                        Credit(
-                            issueId = dp33.issueId,
-                            creatorId = richardCase.creatorId,
-                            roleId = penciller.roleId
-                        ),
-                        Credit(
-                            issueId = dp33.issueId,
-                            creatorId = johnNyberg.creatorId,
-                            roleId = inker.roleId
-                        )
-                    )
-                }
-            }
-        }
-    ).build()
+    )
+//        .addCallback(
+//        object : RoomDatabase.Callback() {
+//            override fun onCreate(db: SupportSQLiteDatabase) {
+//                super.onCreate(db)
+//                executor.execute {
+//                    val publisherDC = Publisher(publisherId = Random().nextInt(), publisher = "DC")
+//
+//                    issueDao.insertPublisher(
+//                        publisherDC,
+//                        Publisher(publisherId = NEW_SERIES_ID, publisher = "New Publisher"),
+//                        Publisher(publisher = "Marvel"),
+//                        Publisher(publisher = "Image"),
+//                        Publisher(publisher = "Dark Horse"),
+//                        Publisher(publisher = "Valiant"),
+//                        Publisher(publisher = "Fantagraphics"),
+//                        Publisher(publisher = "Aftershock"),
+//                        Publisher(publisher = "DC/Vertigo")
+//                    )
+//
+//                    val writer = Role(roleName = "Writer", sortOrder = 0)
+//                    val penciller = Role(roleName = "Penciller", sortOrder = 20)
+//                    val inker = Role(roleName = "Inker", sortOrder = 40)
+//
+//                    issueDao.insertRole(
+//                        writer,
+//                        Role(roleName = "Plotter", sortOrder = 5),
+//                        Role(roleName = "Scripter", sortOrder = 10),
+//                        penciller,
+//                        Role(roleName = "Artist", sortOrder = 21),
+//                        inker,
+//                        Role(roleName = "Colorist", sortOrder = 60),
+//                        Role(roleName = "Letterer", sortOrder = 80),
+//                        Role(roleName = "Cover Artist", sortOrder = 100),
+//                        Role(roleName = "Editor", sortOrder = 120),
+//                        Role(roleName = "Assistant Editor", sortOrder = 125)
+//                    )
+//
+//                    val grantMorrison = Creator(firstName = "Grant", lastName = "Morrison")
+//                    val philipBond = Creator(firstName = "Philip", lastName = "Bond")
+//                    val johnNyberg = Creator(firstName = "John", lastName = "Nyberg")
+//                    val richardCase = Creator(firstName = "Richard", lastName = "Case")
+//
+//                    issueDao.insertCreator(
+//                        grantMorrison,
+//                        philipBond,
+//                        johnNyberg,
+//                        richardCase,
+//                        Creator(firstName = "Neil", lastName = "Gaiman"),
+//                        Creator(firstName = "Jason", lastName = "Aaron")
+//                    )
+//
+//                    val seriesDoomPatrol =
+//                        Series(
+//                            seriesName = "Doom Patrol",
+//                            publisherId = publisherDC.publisherId,
+//                            startDate = LocalDate.of(1987, 10, 1),
+//                            endDate = LocalDate.of(1995, 2, 1)
+//                        )
+//
+//                    issueDao.insertSeries(
+//                        Series(
+//                            seriesId = NEW_SERIES_ID,
+//                            seriesName = "New Series",
+//                            publisherId = publisherDC.publisherId,
+//                            startDate = LocalDate.of(1995, 5, 13),
+//                            endDate = LocalDate.of(2000, 3, 25)
+//                        ),
+//                        seriesDoomPatrol
+//                    )
+//
+//                    val dp35 = Issue(
+//                        seriesId = seriesDoomPatrol.seriesId,
+//                        issueNum = 35,
+//                        releaseDate = LocalDate.of(1990, 8, 1)
+//                    )
+//
+//                    val dp33 = Issue(
+//                        seriesId = seriesDoomPatrol.seriesId,
+//                        issueNum = 33,
+//                        releaseDate = LocalDate.of(1990, 6, 1)
+//                    )
+//                    issueDao.insertIssue(
+//                        dp33,
+//                        dp35
+//                    )
+//                    issueDao.insertCredit(
+//                        Credit(
+//                            issueId = dp35.issueId,
+//                            creatorId = grantMorrison.creatorId,
+//                            roleId = writer.roleId
+//                        ),
+//                        Credit(
+//                            issueId = dp35.issueId,
+//                            creatorId = richardCase.creatorId,
+//                            roleId = penciller.roleId
+//                        ),
+//                        Credit(
+//                            issueId = dp35.issueId,
+//                            creatorId = johnNyberg.creatorId,
+//                            roleId = inker.roleId
+//                        ),
+//                        Credit(
+//                            issueId = dp33.issueId,
+//                            creatorId = grantMorrison.creatorId,
+//                            roleId = writer.roleId
+//                        ),
+//                        Credit(
+//                            issueId = dp33.issueId,
+//                            creatorId = richardCase.creatorId,
+//                            roleId = penciller.roleId
+//                        ),
+//                        Credit(
+//                            issueId = dp33.issueId,
+//                            creatorId = johnNyberg.creatorId,
+//                            roleId = inker.roleId
+//                        )
+//                    )
+//                }
+//            }
+//        }
+//    )
+    .build()
 
     fun addIssue(issue: Issue) {
         executor.execute {
@@ -301,9 +304,9 @@ class IssueRepository private constructor(context: Context) {
         return issueDao.getAllSeries()
     }
 
-    fun getSeries(seriesId: UUID): LiveData<Series?> = issueDao.getSeriesById(seriesId)
+    fun getSeries(seriesId: Int): LiveData<Series?> = issueDao.getSeriesById(seriesId)
 
-    fun getCreator(creatorId: UUID): LiveData<Creator?> {
+    fun getCreator(creatorId: Int): LiveData<Creator?> {
         return issueDao.getCreator(creatorId)
     }
 
@@ -355,16 +358,16 @@ class IssueRepository private constructor(context: Context) {
         }
     }
 
-    fun getPublisher(publisherId: UUID): LiveData<Publisher?> = issueDao.getPublisher(publisherId)
+    fun getPublisher(publisherId: Int): LiveData<Publisher?> = issueDao.getPublisher(publisherId)
 
-    fun getNewFullIssue(issueId: UUID) = issueDao.getNewFullIssue(issueId)
+    fun getNewFullIssue(issueId: Int) = issueDao.getNewFullIssue(issueId)
 
-    fun getNewIssueCredits(issueId: UUID) = issueDao.getNewIssueCredits(issueId)
+    fun getNewIssueCredits(issueId: Int) = issueDao.getNewIssueCredits(issueId)
 
-    fun getSeriesByCreator(creatorId: UUID): LiveData<List<Series>> =
+    fun getSeriesByCreator(creatorId: Int): LiveData<List<Series>> =
         issueDao.getSeriesList(creatorId)
 
-    fun getCreatorBySeries(seriesId: UUID): LiveData<List<Creator>> =
+    fun getCreatorBySeries(seriesId: Int): LiveData<List<Creator>> =
         issueDao.getCreatorList(seriesId)
 
 /*

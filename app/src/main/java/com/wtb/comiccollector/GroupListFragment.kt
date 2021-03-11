@@ -9,7 +9,6 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import java.time.LocalDate
-import java.util.*
 
 const val ARG_FILTER_ID = "Series Filter"
 const val ARG_CREATOR_FILTER = "Creator Filter"
@@ -20,16 +19,16 @@ abstract class GroupListFragment<T, U: GroupListFragment<T, U>.MyAdapter<T>>
     : Fragment() {
 
     interface Callbacks {
-        fun onSeriesSelected(seriesId: UUID)
-        fun onCreatorSelected(creatorId: UUID)
-        fun onNewIssue(issueId: UUID)
+        fun onSeriesSelected(seriesId: Int)
+        fun onCreatorSelected(creatorId: Int)
+        fun onNewIssue(issueId: Int)
     }
 
     private lateinit var recyclerView: RecyclerView
 
     protected var callbacks: Callbacks? = null
 
-    private var filterId: UUID? = null
+    private var filterId: Int? = null
     private var dateFilterStart: LocalDate? = null
     private var dateFilterEnd: LocalDate? = null
 
@@ -45,7 +44,7 @@ abstract class GroupListFragment<T, U: GroupListFragment<T, U>.MyAdapter<T>>
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
 
-        filterId = arguments?.getSerializable(ARG_FILTER_ID) as UUID?
+        filterId = arguments?.getSerializable(ARG_FILTER_ID) as Int?
         dateFilterStart = arguments?.getSerializable(ARG_DATE_FILTER_START) as LocalDate?
         dateFilterEnd = arguments?.getSerializable(ARG_DATE_FILTER_END) as LocalDate?
     }
