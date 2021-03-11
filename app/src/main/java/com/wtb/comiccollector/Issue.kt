@@ -72,8 +72,8 @@ data class Series(
         } ?: ""
 
     companion object {
-        fun fromItem(item: JsonRead.Item): Series {
-            val fields: JsonRead.Item.Fields =
+        fun fromItem(item: Item<GcdSeriesJson>): Series {
+            val fields: GcdSeriesJson =
                 item.fields ?: throw InvalidObjectException("fields must not be null")
             return Series(
                 seriesId = item.pk,
@@ -140,7 +140,19 @@ data class Publisher(
     override fun toString(): String {
         return publisher
     }
+
+    companion object {
+        fun fromItem(item: Item<GcdPublisherJson>): Publisher {
+            val fields: GcdPublisherJson =
+                item.fields ?: throw InvalidObjectException("fields must not be null")
+            return Publisher(
+                publisherId = item.pk,
+                publisher = fields.name ?: "",
+            )
+        }
+    }
 }
+
 
 @Entity
 data class Role(

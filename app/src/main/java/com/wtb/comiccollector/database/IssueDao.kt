@@ -90,13 +90,13 @@ interface IssueDao {
     @Insert
     fun insertIssue(vararg issue: Issue)
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertSeries(vararg series: Series)
 
     @Insert
     fun insertCreator(vararg creator: Creator)
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertPublisher(vararg publisher: Publisher)
 
     @Insert
