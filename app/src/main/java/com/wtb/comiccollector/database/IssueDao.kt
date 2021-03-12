@@ -70,10 +70,10 @@ interface IssueDao {
     @Query("SELECT * FROM role WHERE roleName = :roleName")
     fun getRoleByName(roleName: String): Role
 
-    @Query("SELECT * FROM series WHERE seriesId != '00000000-0000-0000-0000-000000000000' ORDER BY seriesName ASC")
+    @Query("SELECT * FROM series WHERE seriesId != ${Int.MAX_VALUE} ORDER BY seriesName ASC")
     fun getAllSeries(): LiveData<List<Series>>
 
-    @Query("SELECT * FROM publisher WHERE publisherId != '00000000-0000-0000-0000-000000000000' ORDER BY publisher ASC")
+    @Query("SELECT * FROM publisher WHERE publisherId != ${Int.MAX_VALUE} ORDER BY publisher ASC")
     fun getPublishersList(): LiveData<List<Publisher>>
 
     @Query("SELECT * FROM creator ORDER BY lastName ASC")

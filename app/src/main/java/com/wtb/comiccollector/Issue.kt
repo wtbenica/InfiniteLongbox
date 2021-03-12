@@ -7,7 +7,7 @@ import java.io.InvalidObjectException
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
-const val NEW_SERIES_ID = 0
+const val NEW_SERIES_ID = Int.MAX_VALUE
 
 // TODO: For all entities, need to add onDeletes: i.e. CASCADE, etc.
 @Entity(
@@ -24,7 +24,7 @@ const val NEW_SERIES_ID = 0
     ]
 )
 data class Issue(
-    @PrimaryKey val issueId: Int = 0,
+    @PrimaryKey(autoGenerate = true) val issueId: Int = 0,
     var seriesId: Int = NEW_SERIES_ID,
     var issueNum: Int = 1,
     var coverUri: Uri? = null,
@@ -147,7 +147,7 @@ data class Publisher(
                 item.fields ?: throw InvalidObjectException("fields must not be null")
             return Publisher(
                 publisherId = item.pk,
-                publisher = fields.name ?: "",
+                publisher = fields.name,
             )
         }
     }

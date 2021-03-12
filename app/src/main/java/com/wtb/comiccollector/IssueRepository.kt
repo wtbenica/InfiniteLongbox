@@ -11,6 +11,8 @@ import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.room.Room
+import androidx.room.RoomDatabase
+import androidx.sqlite.db.SupportSQLiteDatabase
 import com.wtb.comiccollector.database.IssueDatabase
 import retrofit2.Call
 import retrofit2.Callback
@@ -74,8 +76,10 @@ class IssueRepository private constructor(context: Context) {
                                 }
 
                                 val editor = prefs.edit()
-                                editor.putString("publisher_list_updated", LocalDate.now()
-                                    .toString())
+                                editor.putString(
+                                    "publisher_list_updated", LocalDate.now()
+                                        .toString()
+                                )
                                 editor.apply()
                             }
                         }
@@ -147,129 +151,30 @@ class IssueRepository private constructor(context: Context) {
         context.applicationContext,
         IssueDatabase::class.java,
         DATABASE_NAME
-    )
-//        .addCallback(
-//        object : RoomDatabase.Callback() {
-//            override fun onCreate(db: SupportSQLiteDatabase) {
-//                super.onCreate(db)
-//                executor.execute {
-//                    val publisherDC = Publisher(publisherId = Random().nextInt(), publisher = "DC")
-//
-//                    issueDao.insertPublisher(
-//                        publisherDC,
-//                        Publisher(publisherId = NEW_SERIES_ID, publisher = "New Publisher"),
-//                        Publisher(publisher = "Marvel"),
-//                        Publisher(publisher = "Image"),
-//                        Publisher(publisher = "Dark Horse"),
-//                        Publisher(publisher = "Valiant"),
-//                        Publisher(publisher = "Fantagraphics"),
-//                        Publisher(publisher = "Aftershock"),
-//                        Publisher(publisher = "DC/Vertigo")
-//                    )
-//
-//                    val writer = Role(roleName = "Writer", sortOrder = 0)
-//                    val penciller = Role(roleName = "Penciller", sortOrder = 20)
-//                    val inker = Role(roleName = "Inker", sortOrder = 40)
-//
-//                    issueDao.insertRole(
-//                        writer,
-//                        Role(roleName = "Plotter", sortOrder = 5),
-//                        Role(roleName = "Scripter", sortOrder = 10),
-//                        penciller,
-//                        Role(roleName = "Artist", sortOrder = 21),
-//                        inker,
-//                        Role(roleName = "Colorist", sortOrder = 60),
-//                        Role(roleName = "Letterer", sortOrder = 80),
-//                        Role(roleName = "Cover Artist", sortOrder = 100),
-//                        Role(roleName = "Editor", sortOrder = 120),
-//                        Role(roleName = "Assistant Editor", sortOrder = 125)
-//                    )
-//
-//                    val grantMorrison = Creator(firstName = "Grant", lastName = "Morrison")
-//                    val philipBond = Creator(firstName = "Philip", lastName = "Bond")
-//                    val johnNyberg = Creator(firstName = "John", lastName = "Nyberg")
-//                    val richardCase = Creator(firstName = "Richard", lastName = "Case")
-//
-//                    issueDao.insertCreator(
-//                        grantMorrison,
-//                        philipBond,
-//                        johnNyberg,
-//                        richardCase,
-//                        Creator(firstName = "Neil", lastName = "Gaiman"),
-//                        Creator(firstName = "Jason", lastName = "Aaron")
-//                    )
-//
-//                    val seriesDoomPatrol =
-//                        Series(
-//                            seriesName = "Doom Patrol",
-//                            publisherId = publisherDC.publisherId,
-//                            startDate = LocalDate.of(1987, 10, 1),
-//                            endDate = LocalDate.of(1995, 2, 1)
-//                        )
-//
-//                    issueDao.insertSeries(
-//                        Series(
-//                            seriesId = NEW_SERIES_ID,
-//                            seriesName = "New Series",
-//                            publisherId = publisherDC.publisherId,
-//                            startDate = LocalDate.of(1995, 5, 13),
-//                            endDate = LocalDate.of(2000, 3, 25)
-//                        ),
-//                        seriesDoomPatrol
-//                    )
-//
-//                    val dp35 = Issue(
-//                        seriesId = seriesDoomPatrol.seriesId,
-//                        issueNum = 35,
-//                        releaseDate = LocalDate.of(1990, 8, 1)
-//                    )
-//
-//                    val dp33 = Issue(
-//                        seriesId = seriesDoomPatrol.seriesId,
-//                        issueNum = 33,
-//                        releaseDate = LocalDate.of(1990, 6, 1)
-//                    )
-//                    issueDao.insertIssue(
-//                        dp33,
-//                        dp35
-//                    )
-//                    issueDao.insertCredit(
-//                        Credit(
-//                            issueId = dp35.issueId,
-//                            creatorId = grantMorrison.creatorId,
-//                            roleId = writer.roleId
-//                        ),
-//                        Credit(
-//                            issueId = dp35.issueId,
-//                            creatorId = richardCase.creatorId,
-//                            roleId = penciller.roleId
-//                        ),
-//                        Credit(
-//                            issueId = dp35.issueId,
-//                            creatorId = johnNyberg.creatorId,
-//                            roleId = inker.roleId
-//                        ),
-//                        Credit(
-//                            issueId = dp33.issueId,
-//                            creatorId = grantMorrison.creatorId,
-//                            roleId = writer.roleId
-//                        ),
-//                        Credit(
-//                            issueId = dp33.issueId,
-//                            creatorId = richardCase.creatorId,
-//                            roleId = penciller.roleId
-//                        ),
-//                        Credit(
-//                            issueId = dp33.issueId,
-//                            creatorId = johnNyberg.creatorId,
-//                            roleId = inker.roleId
-//                        )
-//                    )
-//                }
-//            }
-//        }
-//    )
-        .build()
+    ).addCallback(
+        object : RoomDatabase.Callback() {
+            override fun onCreate(db: SupportSQLiteDatabase) {
+                super.onCreate(db)
+                val publisher =
+                    Publisher(publisherId = NEW_SERIES_ID, publisher = "New Publisher")
+                executor.execute {
+                    issueDao.insertPublisher(
+                        publisher,
+                    )
+
+                    issueDao.insertSeries(
+                        Series(
+                            seriesId = NEW_SERIES_ID,
+                            seriesName = "New Series",
+                            publisherId = NEW_SERIES_ID,
+                            startDate = LocalDate.MIN,
+                            endDate = LocalDate.MIN
+                        )
+                    )
+                }
+            }
+        }
+    ).build()
 
     fun addIssue(issue: Issue) {
         executor.execute {
@@ -355,7 +260,8 @@ class IssueRepository private constructor(context: Context) {
         return issueDao.getAllSeries()
     }
 
-    fun getSeries(seriesId: Int): LiveData<Series?> = issueDao.getSeriesById(seriesId)
+    fun getSeries(seriesId: Int): LiveData<Series?> =
+        issueDao.getSeriesById(seriesId)
 
     fun getCreator(creatorId: Int): LiveData<Creator?> {
         return issueDao.getCreator(creatorId)
@@ -409,7 +315,8 @@ class IssueRepository private constructor(context: Context) {
         }
     }
 
-    fun getPublisher(publisherId: Int): LiveData<Publisher?> = issueDao.getPublisher(publisherId)
+    fun getPublisher(publisherId: Int): LiveData<Publisher?> =
+        issueDao.getPublisher(publisherId)
 
     fun getNewFullIssue(issueId: Int) = issueDao.getNewFullIssue(issueId)
 
@@ -436,7 +343,8 @@ class IssueRepository private constructor(context: Context) {
         }
 
         fun get(): IssueRepository {
-            return INSTANCE ?: throw IllegalStateException("IssueRepository must be initialized")
+            return INSTANCE
+                ?: throw IllegalStateException("IssueRepository must be initialized")
         }
     }
 }

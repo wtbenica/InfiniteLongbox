@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "d62ce6b9198bf63c8c8a1762230ddcbb",
+    "identityHash": "2502652db0d1273d25adaa8726058b52",
     "entities": [
       {
         "tableName": "Issue",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`issueId` INTEGER NOT NULL, `seriesId` INTEGER NOT NULL, `issueNum` INTEGER NOT NULL, `coverUri` TEXT, `releaseDate` TEXT, `upc` INTEGER, PRIMARY KEY(`issueId`), FOREIGN KEY(`seriesId`) REFERENCES `Series`(`seriesId`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`issueId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `seriesId` INTEGER NOT NULL, `issueNum` INTEGER NOT NULL, `coverUri` TEXT, `releaseDate` TEXT, `upc` INTEGER, FOREIGN KEY(`seriesId`) REFERENCES `Series`(`seriesId`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "issueId",
@@ -49,7 +49,7 @@
           "columnNames": [
             "issueId"
           ],
-          "autoGenerate": false
+          "autoGenerate": true
         },
         "indices": [
           {
@@ -395,7 +395,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'd62ce6b9198bf63c8c8a1762230ddcbb')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '2502652db0d1273d25adaa8726058b52')"
     ]
   }
 }

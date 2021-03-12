@@ -28,6 +28,7 @@ class IssueListViewModel : ViewModel() {
     }
 
     fun addIssue(issue: Issue) {
+        Log.d(TAG, "addIssue")
         issueRepository.addIssue(issue)
     }
 

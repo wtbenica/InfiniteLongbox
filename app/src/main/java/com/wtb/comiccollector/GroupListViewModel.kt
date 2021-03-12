@@ -1,9 +1,12 @@
 package com.wtb.comiccollector
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import java.time.LocalDate
+
+private const val TAG = "GroupListViewModel"
 
 abstract class GroupListViewModel<T>: ViewModel() {
     val issueRepository: IssueRepository = IssueRepository.get()
@@ -20,6 +23,7 @@ abstract class GroupListViewModel<T>: ViewModel() {
     }
 
     fun addIssue(issue: Issue) {
+        Log.d(TAG, "addIssue")
         issueRepository.addIssue(issue)
     }
 
