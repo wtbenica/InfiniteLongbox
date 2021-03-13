@@ -161,6 +161,18 @@ data class Role(
     var sortOrder: Int
 ) {
     override fun toString(): String = roleName
+
+    companion object {
+        fun fromItem(item: Item<GcdRoleJson>): Role {
+            val fields: GcdRoleJson =
+                item.fields ?: throw InvalidObjectException("fields must not be null")
+            return Role(
+                roleId = item.pk,
+                roleName = fields.name,
+                sortOrder = fields.sortCode
+            )
+        }
+    }
 }
 
 @Entity(
@@ -244,5 +256,5 @@ data class IssueAndSeries(
         parentColumn = "seriesId",
         entityColumn = "seriesId"
     )
-    val series: Series
+    var series: Series
 )

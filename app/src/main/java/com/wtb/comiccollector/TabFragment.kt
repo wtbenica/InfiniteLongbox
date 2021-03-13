@@ -9,6 +9,8 @@ import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
+import com.wtb.comiccollector.GroupListFragments.CreatorListFragment
+import com.wtb.comiccollector.GroupListFragments.SeriesListFragment
 
 class TabFragment : Fragment() {
 

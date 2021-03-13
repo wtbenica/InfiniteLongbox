@@ -56,3 +56,12 @@ class GcdPublisherJson(
     @Expose
     var yearEnded: Int?
 ) : GcdJson
+
+class GcdRoleJson(
+    @SerializedName("name")
+    @Expose
+    var name: String,
+    @SerializedName("sort_code")
+    @Expose
+    var sortCode: Int
+) : GcdJson

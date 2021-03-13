@@ -12,6 +12,10 @@ import androidx.fragment.app.FragmentTransaction
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.wtb.comiccollector.GroupListFragments.ARG_CREATOR_FILTER
+import com.wtb.comiccollector.GroupListFragments.ARG_DATE_FILTER_END
+import com.wtb.comiccollector.GroupListFragments.ARG_DATE_FILTER_START
+import com.wtb.comiccollector.GroupListFragments.ARG_FILTER_ID
 import java.time.LocalDate
 
 class IssueListFragment : Fragment() {

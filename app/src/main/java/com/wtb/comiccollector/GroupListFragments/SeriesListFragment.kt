@@ -1,10 +1,13 @@
-package com.wtb.comiccollector
+package com.wtb.comiccollector.GroupListFragments
 
 import android.os.Bundle
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.lifecycle.ViewModelProvider
+import com.wtb.comiccollector.GroupListViewModels.SeriesListViewModel
+import com.wtb.comiccollector.R
+import com.wtb.comiccollector.Series
 import java.time.LocalDate
 
 private const val TAG = "SeriesListFragment"

@@ -275,6 +275,11 @@ class IssueDetailFragment : Fragment(),
         numUpdates += 1
         Log.d(TAG, "$numUpdates updates *****************************************************")
 
+        fullIssue.series = if (fullIssue.series.seriesId == NEW_SERIES_ID) {
+            seriesSpinner.getItemAtPosition(0) as Series
+        } else {
+            fullIssue.series
+        }
         seriesSpinner.setSelection(maxOf(0, seriesList.indexOf(fullIssue.series)))
 
         // Update creators table

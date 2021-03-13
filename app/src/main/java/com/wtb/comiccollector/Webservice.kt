@@ -9,4 +9,7 @@ interface Webservice {
 
     @GET("/db_query/publisher")
     fun getPublishers(): Call<List<Item<GcdPublisherJson>>>
+
+    @GET("/db_query/role")
+    fun getRoles(): Call<List<Item<GcdRoleJson>>>
 }

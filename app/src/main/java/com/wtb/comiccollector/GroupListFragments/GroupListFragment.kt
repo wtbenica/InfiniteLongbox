@@ -1,4 +1,4 @@
-package com.wtb.comiccollector
+package com.wtb.comiccollector.GroupListFragments
 
 import android.content.Context
 import android.os.Bundle
@@ -8,6 +8,10 @@ import android.view.animation.LayoutAnimationController
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.wtb.comiccollector.GroupListViewModels.GroupListViewModel
+import com.wtb.comiccollector.GroupListViewModels.SeriesListViewModel
+import com.wtb.comiccollector.Issue
+import com.wtb.comiccollector.R
 import java.time.LocalDate
 
 const val ARG_FILTER_ID = "Series Filter"
@@ -15,7 +19,7 @@ const val ARG_CREATOR_FILTER = "Creator Filter"
 const val ARG_DATE_FILTER_START = "Date Filter Start"
 const val ARG_DATE_FILTER_END = "Date Filter End"
 
-abstract class GroupListFragment<T, U: GroupListFragment<T, U>.MyAdapter<T>>
+abstract class GroupListFragment<T, U : GroupListFragment<T, U>.MyAdapter<T>>
     : Fragment() {
 
     interface Callbacks {
@@ -24,16 +28,15 @@ abstract class GroupListFragment<T, U: GroupListFragment<T, U>.MyAdapter<T>>
         fun onNewIssue(issueId: Int)
     }
 
-    private lateinit var recyclerView: RecyclerView
+    abstract val viewModel: GroupListViewModel<T>
 
     protected var callbacks: Callbacks? = null
+    protected lateinit var itemList: List<T>
 
     private var filterId: Int? = null
     private var dateFilterStart: LocalDate? = null
     private var dateFilterEnd: LocalDate? = null
-
-    abstract val viewModel: GroupListViewModel<T>
-    protected lateinit var itemList: List<T>
+    private lateinit var recyclerView: RecyclerView
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -134,7 +137,7 @@ abstract class GroupListFragment<T, U: GroupListFragment<T, U>.MyAdapter<T>>
             return getHolder(view)
         }
 
-        abstract fun getHolder(view: View) : MyHolder<T>
+        abstract fun getHolder(view: View): MyHolder<T>
 
         override fun getItemCount(): Int = itemList.size
     }
@@ -151,7 +154,10 @@ abstract class GroupListFragment<T, U: GroupListFragment<T, U>.MyAdapter<T>>
         abstract fun bind(item: T)
     }
 
-    enum class SeriesFilter(private val s: String, val onSelect: (viewModel: SeriesListViewModel) -> Unit) {
+    enum class SeriesFilter(
+        private val s: String,
+        val onSelect: (viewModel: SeriesListViewModel) -> Unit
+    ) {
         NONE("None", { }),
         CREATOR("Creator", { }),
         DATE("Date Range", { });

@@ -3,6 +3,8 @@ package com.wtb.comiccollector
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.DialogFragment
+import com.wtb.comiccollector.GroupListFragments.GroupListFragment
+import com.wtb.comiccollector.GroupListFragments.SeriesListFragment
 
 class MainActivity : AppCompatActivity(),
     IssueListFragment.Callbacks,

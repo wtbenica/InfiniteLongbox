@@ -1,7 +1,8 @@
-package com.wtb.comiccollector
+package com.wtb.comiccollector.GroupListViewModels
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Transformations
+import com.wtb.comiccollector.Series
 
 private const val TAG = "SeriesListViewModel"
 

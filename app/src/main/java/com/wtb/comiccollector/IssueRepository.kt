@@ -9,7 +9,6 @@ import android.util.Log
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
@@ -36,9 +35,13 @@ class IssueRepository private constructor(context: Context) {
 
     private val filesDir = context.applicationContext.filesDir
 
-    var allSeries: MutableLiveData<List<Series>> = MutableLiveData(issueDao.getAllSeries().value)
+    var allSeries: LiveData<List<Series>> = issueDao.getAllSeries()
 
     init {
+        getDbUpdates(context)
+    }
+
+    private fun getDbUpdates(context: Context) {
         val prefs = context.getSharedPreferences("MyPrefs", Context.MODE_PRIVATE)
         val last_updated = prefs.getString("series_list_updated", LocalDate.MIN.toString())
 
@@ -109,7 +112,6 @@ class IssueRepository private constructor(context: Context) {
                             seriesList?.map {
                                 Series.fromItem(it)
                             }?.let {
-                                allSeries.value = it
                                 executor.execute {
                                     issueDao.insertSeries(*it.toTypedArray())
                                 }
@@ -123,6 +125,45 @@ class IssueRepository private constructor(context: Context) {
 
                     override fun onFailure(call: Call<List<Item<GcdSeriesJson>>>, t: Throwable) {
                         Log.d(TAG, "seriesCall onFailure ${call.request()} $t")
+                        val res = null
+                    }
+                }
+            )
+
+
+            val roleCall: Call<List<Item<GcdRoleJson>>> = apiService.getRoles()
+
+            roleCall.enqueue(
+                object : Callback<List<Item<GcdRoleJson>>> {
+                    override fun onResponse(
+                        call: Call<List<Item<GcdRoleJson>>>,
+                        response: Response<List<Item<GcdRoleJson>>>
+                    ) {
+                        Log.d(TAG, "pubCall onResponse ${call.request()} ${response}")
+                        if (response.code() == 200) {
+                            val roleList: List<Item<GcdRoleJson>>? = response.body()
+
+                            Log.d(TAG, "roleList: $roleList")
+
+                            roleList?.map {
+                                Role.fromItem(it)
+                            }?.let {
+                                executor.execute {
+                                    issueDao.insertRole(*it.toTypedArray())
+                                }
+
+                                val editor = prefs.edit()
+                                editor.putString(
+                                    "role_list_updated", LocalDate.now()
+                                        .toString()
+                                )
+                                editor.apply()
+                            }
+                        }
+                    }
+
+                    override fun onFailure(call: Call<List<Item<GcdRoleJson>>>, t: Throwable) {
+                        Log.d(TAG, "roleCall onFailure $call $t")
                         val res = null
                     }
                 }
