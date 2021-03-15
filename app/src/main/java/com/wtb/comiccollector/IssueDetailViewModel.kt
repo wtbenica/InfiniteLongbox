@@ -35,7 +35,7 @@ class IssueDetailViewModel : ViewModel() {
 
     fun loadIssue(issueId: Int) {
         Log.d(TAG, "loadIssue")
-        issueIdLiveData.value = NEW_SERIES_ID
+        issueIdLiveData.value = AUTO_ID
         issueIdLiveData.value = issueId
     }
 

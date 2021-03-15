@@ -170,7 +170,7 @@ class IssueListFragment : Fragment() {
 
         fun bind(issue: FullIssue) {
             this.fullIssue = issue
-            seriesTextView.text = this.fullIssue.seriesName
+            seriesTextView.text = this.fullIssue.issue.variantName
             issueNumTextView.text = this.fullIssue.issue.issueNum.toString()
         }
 

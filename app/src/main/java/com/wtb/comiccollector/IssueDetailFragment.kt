@@ -38,6 +38,7 @@ private const val DIALOG_SERIES_DETAIL = "DialogNewSeries"
 private const val DIALOG_NEW_CREATOR = "DialogNewCreator"
 private const val DIALOG_DATE = "DialogDate"
 
+private const val ADD_SERIES_ID = -2
 /**
  * A simple [Fragment] subclass.
  * Use the [IssueDetailFragment.newInstance] factory method to
@@ -148,7 +149,9 @@ class IssueDetailFragment : Fragment(),
         issueDetailViewModel.allSeriesLiveData.observe(viewLifecycleOwner,
             { allSeries ->
                 allSeries?.let {
-                    val thisList = it + Series(publisherId = NEW_SERIES_ID)
+                    val thisList = it + Series(
+                        seriesId = ADD_SERIES_ID, publisherId = AUTO_ID
+                    )
                     val adapter = ArrayAdapter(
                         requireContext(),
                         androidx.appcompat.R.layout.support_simple_spinner_dropdown_item,
@@ -224,7 +227,7 @@ class IssueDetailFragment : Fragment(),
         Log.d(TAG, "onStop")
         super.onStop()
         saveChanges()
-        if (fullIssue.issue.seriesId == NEW_SERIES_ID || fullIssue.series.seriesName == "New Series") {
+        if (fullIssue.issue.seriesId == AUTO_ID || fullIssue.series.seriesName == "New Series") {
             issueDetailViewModel.deleteIssue(fullIssue.issue)
         }
     }
@@ -252,6 +255,13 @@ class IssueDetailFragment : Fragment(),
     }
 
     private fun saveChanges() {
+        fullIssue.series.seriesId.let {
+            if (it == ADD_SERIES_ID) {
+                0
+            } else {
+                it
+            }
+        }
         issueDetailViewModel.updateIssue(fullIssue.issue)
         issueDetailViewModel.loadIssue(fullIssue.issue.issueId)
         for (credit in creditsBox.getCredits()) {
@@ -275,11 +285,6 @@ class IssueDetailFragment : Fragment(),
         numUpdates += 1
         Log.d(TAG, "$numUpdates updates *****************************************************")
 
-        fullIssue.series = if (fullIssue.series.seriesId == NEW_SERIES_ID) {
-            seriesSpinner.getItemAtPosition(0) as Series
-        } else {
-            fullIssue.series
-        }
         seriesSpinner.setSelection(maxOf(0, seriesList.indexOf(fullIssue.series)))
 
         // Update creators table
@@ -307,8 +312,9 @@ class IssueDetailFragment : Fragment(),
                 Log.d(TAG, "seriesSpinner ItemSelected")
                 parent?.let {
                     val selectedSeries = it.getItemAtPosition(position) as Series
-                    if (selectedSeries.seriesName == "New Series") {
+                    if (selectedSeries.seriesId == ADD_SERIES_ID) {
                         selectedSeries.seriesName = ""
+                        selectedSeries.seriesId = AUTO_ID
                         issueDetailViewModel.addSeries(selectedSeries)
                         fullIssue.issue.seriesId = selectedSeries.seriesId
                         issueDetailViewModel.updateIssue(fullIssue.issue)
@@ -474,8 +480,8 @@ class IssueDetailFragment : Fragment(),
 
         private var credit: Credit = fullCredit?.credit ?: Credit(
             issueId = fullIssue.issue.issueId,
-            creatorId = NEW_SERIES_ID,
-            roleId = NEW_SERIES_ID
+            creatorId = AUTO_ID,
+            roleId = AUTO_ID
         )
 
         init {
@@ -526,7 +532,7 @@ class IssueDetailFragment : Fragment(),
             issueDetailViewModel.allCreatorsLiveData.observe(
                 viewLifecycleOwner,
                 {
-                    creatorsList = listOf(Creator(NEW_SERIES_ID, firstName = "Creator")) + it
+                    creatorsList = listOf(Creator(AUTO_ID, firstName = "Creator")) + it
                     creatorSpinner.adapter = CreatorAdapter(
                         context,
                         creatorsList
@@ -540,7 +546,7 @@ class IssueDetailFragment : Fragment(),
             issueDetailViewModel.allRolesLiveData.observe(
                 viewLifecycleOwner,
                 {
-                    roleList = listOf(Role(NEW_SERIES_ID, roleName = "Role", sortOrder = 0)) + it
+                    roleList = listOf(Role(AUTO_ID, roleName = "Role", sortOrder = 0)) + it
                     roleSpinner.adapter = ArrayAdapter(
                         context,
                         androidx.appcompat.R.layout.support_simple_spinner_dropdown_item,
@@ -554,7 +560,7 @@ class IssueDetailFragment : Fragment(),
         }
 
         fun getCredit(): Credit? {
-            return if (credit.creatorId == NEW_SERIES_ID || credit.roleId == NEW_SERIES_ID) {
+            return if (credit.creatorId == AUTO_ID || credit.roleId == AUTO_ID) {
                 null
             } else {
                 Log.d(TAG, "Returning Credit: ${credit.creatorId} ${credit.roleId}")

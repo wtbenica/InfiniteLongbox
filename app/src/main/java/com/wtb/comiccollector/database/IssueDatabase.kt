@@ -18,7 +18,7 @@ abstract class IssueDatabase : RoomDatabase() {
 //val migration_1_2 = object : Migration(1, 2) {
 //    override fun migrate(database: SupportSQLiteDatabase) {
 //        database.execSQL(
-//            "ALTER TABLE series ADD COLUMN description TEXT DEFAULT null"
+//            "ALTER TABLE issue ADD COLUMN variant_name TEXT DEFAULT null"
 //        )
 //    }
 //}

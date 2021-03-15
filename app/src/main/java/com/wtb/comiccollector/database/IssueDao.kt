@@ -70,10 +70,10 @@ interface IssueDao {
     @Query("SELECT * FROM role WHERE roleName = :roleName")
     fun getRoleByName(roleName: String): Role
 
-    @Query("SELECT * FROM series WHERE seriesId != ${Int.MAX_VALUE} ORDER BY seriesName ASC")
+    @Query("SELECT * FROM series WHERE seriesId != ${DUMMY_ID} ORDER BY seriesName ASC")
     fun getAllSeries(): LiveData<List<Series>>
 
-    @Query("SELECT * FROM publisher WHERE publisherId != ${Int.MAX_VALUE} ORDER BY publisher ASC")
+    @Query("SELECT * FROM publisher WHERE publisherId != ${DUMMY_ID} ORDER BY publisher ASC")
     fun getPublishersList(): LiveData<List<Publisher>>
 
     @Query("SELECT * FROM creator ORDER BY lastName ASC")
@@ -87,19 +87,19 @@ interface IssueDao {
     )
     fun getWritersList(): LiveData<List<Creator>>
 
-    @Insert
-    fun insertIssue(vararg issue: Issue)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insertIssue(vararg issue: Issue?)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertSeries(vararg series: Series)
+    fun insertSeries(vararg series: Series?)
 
     @Insert
     fun insertCreator(vararg creator: Creator)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertPublisher(vararg publisher: Publisher)
+    fun insertPublisher(vararg publisher: Publisher?)
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertRole(vararg role: Role)
 
     @Insert
