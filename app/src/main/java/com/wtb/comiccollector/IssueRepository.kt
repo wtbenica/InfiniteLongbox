@@ -97,7 +97,7 @@ class IssueRepository private constructor(context: Context) {
                                 editor.apply()
                             }
 
-                            updateSeriesFromDb(prefs, 75)
+                            updateSeriesFromDb(prefs, 0)
                         }
                     }
 
@@ -177,7 +177,7 @@ class IssueRepository private constructor(context: Context) {
 
                         seriesList?.let {
                             if (seriesList.size > 0) {
-//                                updateSeriesFromDb(prefs, page)
+                                updateSeriesFromDb(prefs, page + 1)
 
                                 seriesList.map {
                                     Log.d(TAG, it.pk.toString())
