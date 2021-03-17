@@ -10,7 +10,7 @@ interface IssueDao {
 
     @Transaction
     @Query("SELECT * FROM issue WHERE issueId = :issueId")
-    fun getNewFullIssue(issueId: Int): LiveData<IssueAndSeries?>
+    fun getFullIssue(issueId: Int): LiveData<IssueAndSeries?>
 
     @Transaction
     @Query(
@@ -19,20 +19,14 @@ interface IssueDao {
             FROM credit
                 NATURAL JOIN creator
                 NATURAL JOIN role
-            WHERE issueId = :issueId
-            ORDER BY sortOrder
+                NATURAL JOIN story
+                NATURAL JOIN storytype
+                NATURAL JOIN issue
+            WHERE issue.issueId = :issueId
+            ORDER BY storyType.sortCode, story.sequenceNumber
         """
     )
-    fun getNewIssueCredits(issueId: Int): LiveData<List<FullCredit>>
-
-    @Transaction
-    @Query(
-        """
-            SELECT issue.*, series.seriesName, publisher.publisher 
-            FROM issue NATURAL JOIN series NATURAL JOIN publisher
-         """
-    )
-    fun getIssues(): LiveData<List<FullIssue>>
+    fun getIssueCredits(issueId: Int): LiveData<List<FullCredit>>
 
     @Query(
         """
@@ -56,7 +50,7 @@ interface IssueDao {
     fun getIssue(issueId: Int): LiveData<Issue?>
 
     @Query("SELECT * FROM creator WHERE creatorId = :creatorId")
-    fun getCreator(creatorId: Int): LiveData<Creator?>
+    fun getCreator(vararg creatorId: Int): LiveData<List<Creator>>?
 
     @Query("SELECT * FROM publisher WHERE publisherId = :publisherId")
     fun getPublisher(publisherId: Int): LiveData<Publisher?>
@@ -76,7 +70,7 @@ interface IssueDao {
     @Query("SELECT * FROM publisher WHERE publisherId != ${DUMMY_ID} ORDER BY publisher ASC")
     fun getPublishersList(): LiveData<List<Publisher>>
 
-    @Query("SELECT * FROM creator ORDER BY lastName ASC")
+    @Query("SELECT * FROM creator ORDER BY sortName ASC")
     fun getCreatorsList(): LiveData<List<Creator>>
 
     @Query("SELECT * FROM role")
@@ -93,7 +87,7 @@ interface IssueDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertSeries(vararg series: Series?)
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertCreator(vararg creator: Creator)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
@@ -218,4 +212,40 @@ interface IssueDao {
         seriesId: Int, startDate: LocalDate = LocalDate.MIN, endDate: LocalDate =
             LocalDate.MAX
     ): LiveData<List<Creator>>
+
+    @Query(
+        """
+            SELECT *
+            FROM creator cr
+            WHERE cr.name = :creator
+        """
+    )
+    fun getCreatorByName(creator: String): LiveData<Creator?>
+
+    @Query(
+        """
+            SELECT st.*
+            FROM story st
+            NATURAL JOIN issue iss
+            WHERE iss.issueId = :issueId
+        """
+    )
+    fun getStories(issueId: Int): LiveData<List<Story>>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insertStory(vararg story: Story)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insertStoryType(vararg storyType: StoryType)
+
+    @Transaction
+    fun insertCreditTransaction(
+        stories: Array<out Story>,
+        creators: Array<out Creator>,
+        credits: Array<out Credit>
+    ) {
+        insertStory(*stories)
+        insertCreator(*creators)
+        insertCredit(*credits)
+    }
 }

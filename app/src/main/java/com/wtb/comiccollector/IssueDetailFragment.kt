@@ -19,7 +19,7 @@ import java.time.format.DateTimeFormatter
 import java.util.*
 import kotlin.collections.ArrayList
 
-private const val TAG = "IssueFragment"
+private const val TAG = "IssueDetailFragment"
 
 // Bundle Argument Tags
 private const val ARG_ISSUE_ID = "issue_id"
@@ -39,6 +39,7 @@ private const val DIALOG_NEW_CREATOR = "DialogNewCreator"
 private const val DIALOG_DATE = "DialogDate"
 
 private const val ADD_SERIES_ID = -2
+
 /**
  * A simple [Fragment] subclass.
  * Use the [IssueDetailFragment.newInstance] factory method to
@@ -479,7 +480,7 @@ class IssueDetailFragment : Fragment(),
         private var roleList: List<Role> = emptyList()
 
         private var credit: Credit = fullCredit?.credit ?: Credit(
-            issueId = fullIssue.issue.issueId,
+            storyId = fullIssue.issue.issueId,
             creatorId = AUTO_ID,
             roleId = AUTO_ID
         )
@@ -532,7 +533,8 @@ class IssueDetailFragment : Fragment(),
             issueDetailViewModel.allCreatorsLiveData.observe(
                 viewLifecycleOwner,
                 {
-                    creatorsList = listOf(Creator(AUTO_ID, firstName = "Creator")) + it
+                    creatorsList =
+                        listOf(Creator(AUTO_ID, name = "Creator", sortName = "Creator")) + it
                     creatorSpinner.adapter = CreatorAdapter(
                         context,
                         creatorsList

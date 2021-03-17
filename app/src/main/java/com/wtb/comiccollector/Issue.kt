@@ -5,7 +5,6 @@ import android.util.Log
 import androidx.room.*
 import androidx.room.ForeignKey.CASCADE
 import com.wtb.comiccollector.GroupListFragments.GroupListFragment
-import java.io.InvalidObjectException
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -29,6 +28,7 @@ const val AUTO_ID = 0
     ],
     indices = [
         Index(value = ["seriesId", "issueNum"]),
+        Index(value = ["variantOf"]),
     ]
 )
 data class Issue(
@@ -47,7 +47,7 @@ data class Issue(
     companion object {
         fun fromItem(item: Item<GcdIssueJson, Issue>): Issue {
             val fields: GcdIssueJson =
-                item.fields ?: throw InvalidObjectException("fields must not be null")
+                item.fields
 
             Log.d("Issue.fromItem", fields.onSaleDate)
 
@@ -122,61 +122,14 @@ public data class Series(
             })"
         } ?: ""
 
-//    companion object {
-//        fun fromItem(item: Item<GcdSeriesJson, Series>): Series {
-//            val fields: GcdSeriesJson =
-//                item.fields ?: throw InvalidObjectException("fields must not be null")
-//            return Series(
-//                seriesId = item.pk,
-//                seriesName = fields.name ?: "",
-//                publisherId = fields.publisher?.get(0)?.toInt() ?: AUTO_ID,
-//                startDate = when (fields.yearBeganUncertain as Int) {
-//                    0 -> LocalDate.of(
-//                        fields.yearBegan ?: LocalDate.MIN.year,
-//                        1,
-//                        1
-//                    )
-//                    else -> null
-//                },
-//                endDate = when (fields.yearEndedUncertain) {
-//                    0 -> fields.yearEnded?.let {
-//                        LocalDate.of(
-//                            it,
-//                            1,
-//                            1
-//                        )
-//                    }
-//                    else -> null
-//                },
-//            )
-//        }
-//    }
 }
 
-@Entity(
-    indices = [
-        Index(value = ["firstName", "middleName", "lastName", "suffix", "number"])
-    ]
-)
+@Entity
 data class Creator(
     @PrimaryKey(autoGenerate = true) val creatorId: Int = AUTO_ID,
-    var firstName: String,
-    var middleName: String? = null,
-    var lastName: String? = null,
-    var suffix: String? = null,
-    var number: Int = 1
+    var name: String,
+    var sortName: String
 ) : GroupListFragment.Indexed {
-    val name: String
-        get() = firstName +
-                (if (middleName != null) " $middleName" else "") +
-                (if (lastName != null) " $lastName" else "") +
-                (if (suffix != null) " $suffix" else "")
-
-    val sortName: String
-        get() = (if (suffix != null && lastName != null) "$lastName $suffix, "
-        else (if (lastName != null) "$lastName, " else "")) +
-                firstName +
-                if (middleName != null) "$middleName" else ""
 
     override fun getIndex(): Char {
         return sortName.get(0)
@@ -195,17 +148,6 @@ data class Publisher(
     override fun toString(): String {
         return publisher
     }
-
-//    companion object {
-//        fun fromItem(item: Item<GcdPublisherJson, Publisher>): Publisher {
-//            val fields: GcdPublisherJson =
-//                item.fields ?: throw InvalidObjectException("fields must not be null")
-//            return Publisher(
-//                publisherId = item.pk,
-//                publisher = fields.name,
-//            )
-//        }
-//    }
 }
 
 
@@ -220,7 +162,7 @@ data class Role(
     companion object {
         fun fromItem(item: Item<GcdRoleJson, Role>): Role {
             val fields: GcdRoleJson =
-                item.fields ?: throw InvalidObjectException("fields must not be null")
+                item.fields
             Log.d("Issue", "roleId: ${item.pk}")
             return Role(
                 roleId = item.pk,
@@ -231,16 +173,48 @@ data class Role(
     }
 }
 
+@Entity
+data class StoryType(
+    @PrimaryKey(autoGenerate = true) val typeId: Int = AUTO_ID,
+    val name: String,
+    val sortCode: Int
+)
+
+@Entity(
+    foreignKeys = [
+        ForeignKey(
+            entity = StoryType::class,
+            parentColumns = arrayOf("typeId"),
+            childColumns = arrayOf("storyType")
+        )
+    ],
+    indices = [
+        Index(value = ["storyType"]),
+    ]
+)
+data class Story(
+    @PrimaryKey(autoGenerate = true) val storyId: Int = AUTO_ID,
+    var storyType: Int,
+    var title: String? = null,
+    var feature: String? = null,
+    var characters: String? = null,
+    var synopsis: String? = null,
+    var notes: String? = null,
+    var sequenceNumber: Int = 0,
+)
+
 @Entity(
     indices = [
-        Index(value = ["issueId", "creatorId", "roleId"], unique = true),
-        Index(value = ["issueId"]), Index(value = ["creatorId"]), Index(value = ["roleId"])
+        Index(value = ["storyId", "creatorId", "roleId"], unique = true),
+        Index(value = ["storyId"]),
+        Index(value = ["creatorId"]),
+        Index(value = ["roleId"])
     ],
     foreignKeys = [
         ForeignKey(
-            entity = Issue::class,
-            parentColumns = arrayOf("issueId"),
-            childColumns = arrayOf("issueId"),
+            entity = Story::class,
+            parentColumns = arrayOf("storyId"),
+            childColumns = arrayOf("storyId"),
             onDelete = CASCADE
         ),
         ForeignKey(
@@ -259,7 +233,44 @@ data class Role(
 )
 data class Credit(
     @PrimaryKey(autoGenerate = true) val creditId: Int = AUTO_ID,
-    var issueId: Int,
+    var storyId: Int,
+    var creatorId: Int,
+    var roleId: Int
+) {
+
+}
+
+@Entity(
+    indices = [
+        Index(value = ["storyId", "creatorId", "roleId"], unique = true),
+        Index(value = ["storyId"]),
+        Index(value = ["creatorId"]),
+        Index(value = ["roleId"])
+    ],
+    foreignKeys = [
+        ForeignKey(
+            entity = Story::class,
+            parentColumns = arrayOf("storyId"),
+            childColumns = arrayOf("storyId"),
+            onDelete = CASCADE
+        ),
+        ForeignKey(
+            entity = Creator::class,
+            parentColumns = arrayOf("creatorId"),
+            childColumns = arrayOf("creatorId"),
+            onDelete = CASCADE
+        ),
+        ForeignKey(
+            entity = Role::class,
+            parentColumns = arrayOf("roleId"),
+            childColumns = arrayOf("roleId"),
+            onDelete = CASCADE
+        )
+    ]
+)
+data class MyCredit(
+    @PrimaryKey(autoGenerate = true) val creditId: Int = AUTO_ID,
+    var storyId: Int,
     var creatorId: Int,
     var roleId: Int
 ) {

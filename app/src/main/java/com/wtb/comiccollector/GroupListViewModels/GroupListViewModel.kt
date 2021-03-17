@@ -47,7 +47,7 @@ abstract class GroupListViewModel<T>: ViewModel() {
     fun addCredit(issue: Issue, creator: Creator, role: Role) {
         issueRepository.addCredit(
             Credit(
-                issueId = issue.issueId,
+                storyId = issue.issueId,
                 creatorId = creator.creatorId,
                 roleId = role.roleId
             )

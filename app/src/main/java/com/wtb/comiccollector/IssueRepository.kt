@@ -26,137 +26,179 @@ const val DUMMY_ID = Int.MAX_VALUE
 
 private const val DATABASE_NAME = "issue-database"
 private const val TAG = "IssueRepository"
+private const val STALE_DATA_NUM_DAYS: Long = 14
+
 const val BASE_URL = "http://192.168.0.141:8000/"
 
 class IssueRepository private constructor(context: Context) {
 
     private val executor = Executors.newSingleThreadExecutor()
-
     private val database: IssueDatabase = buildDatabase(context)
-
     private val issueDao = database.issueDao()
-
     private val filesDir = context.applicationContext.filesDir
-
     val retrofit: Retrofit by lazy {
         Retrofit.Builder()
             .baseUrl(BASE_URL)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
     }
-
     val apiService: Webservice by lazy {
         retrofit.create(Webservice::class.java)
     }
 
     var allSeries: LiveData<List<Series>> = issueDao.getAllSeries()
 
+    val allPublishers: LiveData<List<Publisher>> = issueDao.getPublishersList()
+
+    val allCreators: LiveData<List<Creator>> = issueDao.getCreatorsList()
+
+    val allWriters: LiveData<List<Creator>> = issueDao.getWritersList()
+
+    val allRoles: LiveData<List<Role>> = issueDao.getRoleList()
+
     init {
-        getDbUpdates(context)
+        refreshStaticData(context)
     }
 
-    private fun getDbUpdates(context: Context) {
+    /**
+     *  Updates publisher, series, role, and storytype tables if it has been
+     *  more than [STALE_DATA_NUM_DAYS] days since last update
+     *
+     *  @param context
+     */
+    private fun refreshStaticData(context: Context) {
         val prefs = context.getSharedPreferences("MyPrefs", Context.MODE_PRIVATE)
         val series_last_updated = prefs.getString("series_list_updated", LocalDate.MIN.toString())
-        val publisher_last_updated = prefs.getString(
-            "publisher_last_updated", LocalDate.MIN
-                .toString()
-        )
 
-        if (LocalDate.parse(series_last_updated).plusDays(14) < LocalDate.now()) {
+        if (LocalDate.parse(series_last_updated).plusDays(STALE_DATA_NUM_DAYS) < LocalDate.now()) {
             Log.d(TAG, "init: updating series list from db")
 
-            val publisherCall: Call<List<Item<GcdPublisherJson, Publisher>>> = apiService
-                .getPublishers()
+            refreshPublishers(prefs)
 
-            publisherCall.enqueue(
-                object : Callback<List<Item<GcdPublisherJson, Publisher>>> {
-                    override fun onResponse(
-                        call: Call<List<Item<GcdPublisherJson, Publisher>>>,
-                        response: Response<List<Item<GcdPublisherJson, Publisher>>>
-                    ) {
-                        Log.d(TAG, "pubCall onResponse ${call.request()} ${response}")
-                        if (response.code() == 200) {
-                            val publisherList: List<Item<GcdPublisherJson, Publisher>>? =
-                                response.body()
+            refreshRoles(prefs)
 
-                            Log.d(TAG, "publisherList: $publisherList")
-
-                            publisherList?.map {
-                                it.fields?.toRoomModel(it)
-                            }?.let {
-                                executor.execute {
-                                    issueDao.insertPublisher(*it.toTypedArray())
-                                }
-
-                                val editor = prefs.edit()
-                                editor.putString(
-                                    "publisher_list_updated", LocalDate.now()
-                                        .toString()
-                                )
-                                editor.apply()
-                            }
-
-                            updateSeriesFromDb(prefs, 0)
-                        }
-                    }
-
-                    override fun onFailure(
-                        call: Call<List<Item<GcdPublisherJson, Publisher>>>,
-                        t: Throwable
-                    ) {
-                        Log.d(TAG, "pubCall onFailure $call $t")
-                        val res = null
-                    }
-                }
-            )
-
-            val roleCall: Call<List<Item<GcdRoleJson, Role>>> = apiService.getRoles()
-
-            roleCall.enqueue(
-                object : Callback<List<Item<GcdRoleJson, Role>>> {
-                    override fun onResponse(
-                        call: Call<List<Item<GcdRoleJson, Role>>>,
-                        response: Response<List<Item<GcdRoleJson, Role>>>
-                    ) {
-                        Log.d(TAG, "pubCall onResponse ${call.request()} ${response}")
-                        if (response.code() == 200) {
-                            val roleList: List<Item<GcdRoleJson, Role>>? = response.body()
-
-                            Log.d(TAG, "roleList: $roleList")
-
-                            roleList?.map {
-                                Role.fromItem(it)
-                            }?.let {
-                                executor.execute {
-                                    issueDao.insertRole(*it.toTypedArray())
-                                }
-
-                                val editor = prefs.edit()
-                                editor.putString(
-                                    "role_list_updated", LocalDate.now()
-                                        .toString()
-                                )
-                                editor.apply()
-                            }
-                        }
-                    }
-
-                    override fun onFailure(
-                        call: Call<List<Item<GcdRoleJson, Role>>>, t:
-                        Throwable
-                    ) {
-                        Log.d(TAG, "roleCall onFailure $call $t")
-                        val res = null
-                    }
-                }
-            )
+            refreshStoryTypes(prefs)
         }
+
     }
 
-    private fun updateSeriesFromDb(
-        prefs: SharedPreferences, page: Int
-    ) {
+    private fun refreshPublishers(prefs: SharedPreferences) {
+        val publisherCall: Call<List<Item<GcdPublisherJson, Publisher>>> =
+            apiService.getPublishers()
+
+        publisherCall.enqueue(
+            object : Callback<List<Item<GcdPublisherJson, Publisher>>> {
+                override fun onResponse(
+                    call: Call<List<Item<GcdPublisherJson, Publisher>>>,
+                    response: Response<List<Item<GcdPublisherJson, Publisher>>>
+                ) {
+                    Log.d(TAG, "pubCall onResponse ${call.request()} ${response}")
+                    if (response.code() == 200) {
+                        val publisherList: List<Item<GcdPublisherJson, Publisher>>? =
+                            response.body()
+
+                        Log.d(TAG, "publisherList: $publisherList")
+
+                        publisherList?.map {
+                            it.toRoomModel()
+                        }?.let {
+                            executor.execute {
+                                issueDao.insertPublisher(*it.toTypedArray())
+                            }
+
+                            val editor = prefs.edit()
+                            editor.putString(
+                                "publisher_list_updated", LocalDate.now()
+                                    .toString()
+                            )
+                            editor.apply()
+                        }
+
+                        refreshSeries(prefs, 0)
+                    }
+                }
+
+                override fun onFailure(
+                    call: Call<List<Item<GcdPublisherJson, Publisher>>>,
+                    t: Throwable
+                ) {
+                    Log.d(TAG, "pubCall onFailure $call $t")
+                }
+            }
+        )
+    }
+
+    private fun refreshRoles(prefs: SharedPreferences) {
+        val roleCall: Call<List<Item<GcdRoleJson, Role>>> = apiService.getRoles()
+
+        roleCall.enqueue(
+            object : Callback<List<Item<GcdRoleJson, Role>>> {
+                override fun onResponse(
+                    call: Call<List<Item<GcdRoleJson, Role>>>,
+                    response: Response<List<Item<GcdRoleJson, Role>>>
+                ) {
+                    Log.d(TAG, "pubCall onResponse ${call.request()} ${response}")
+
+                    if (response.code() == 200) {
+                        val roleList: List<Item<GcdRoleJson, Role>>? = response.body()
+
+                        roleList?.map {
+                            Role.fromItem(it)
+                        }?.let {
+                            executor.execute {
+                                issueDao.insertRole(*it.toTypedArray())
+                            }
+
+                            val editor = prefs.edit()
+                            editor.putString("role_list_updated", LocalDate.now().toString())
+                            editor.apply()
+                        }
+                    }
+                }
+
+                override fun onFailure(
+                    call: Call<List<Item<GcdRoleJson, Role>>>, t: Throwable
+                ) {
+                    Log.d(TAG, "roleCall onFailure $call $t")
+                }
+            }
+        )
+    }
+
+    private fun refreshStoryTypes(prefs: SharedPreferences) {
+        val storyTypeCall: Call<List<Item<GcdStoryType, StoryType>>> = apiService.getStoryTypes()
+
+        storyTypeCall.enqueue(
+            object : Callback<List<Item<GcdStoryType, StoryType>>> {
+                override fun onResponse(
+                    call: Call<List<Item<GcdStoryType, StoryType>>>,
+                    response: Response<List<Item<GcdStoryType, StoryType>>>
+                ) {
+                    if (response.code() == 200) {
+                        val storyTypeList: List<Item<GcdStoryType, StoryType>>? = response.body()
+
+                        storyTypeList?.map {
+                            it.toRoomModel()
+                        }?.let {
+                            executor.execute {
+                                issueDao.insertStoryType(*it.toTypedArray())
+                            }
+                        }
+                    }
+                }
+
+                override fun onFailure(
+                    call: Call<List<Item<GcdStoryType, StoryType>>>,
+                    t: Throwable
+                ) {
+                    Log.d(TAG, "storyTypeCall onFailure ${call.request()} $t")
+                }
+
+            }
+        )
+    }
+
+    private fun refreshSeries(prefs: SharedPreferences, page: Int) {
         val seriesCall: Call<List<Item<GcdSeriesJson, Series>>> = apiService.getSeries(page)
 
         seriesCall.enqueue(
@@ -177,19 +219,14 @@ class IssueRepository private constructor(context: Context) {
 
                         seriesList?.let {
                             if (seriesList.size > 0) {
-                                updateSeriesFromDb(prefs, page + 1)
+                                refreshSeries(prefs, page + 1)
 
                                 seriesList.map {
                                     Log.d(TAG, it.pk.toString())
-                                    it.fields?.toRoomModel(it)
+                                    it.toRoomModel()
                                 }.let {
                                     executor.execute {
-                                        for (thing in it.toTypedArray()) {
-                                            Log.d(TAG, "${thing}")
-                                            issueDao.insertSeries(thing)
-                                        }
-
-//                                        issueDao.insertSeries(*it.subList(0, 2).toTypedArray())
+                                        issueDao.insertSeries(*it.toTypedArray())
                                     }
 
                                     val editor = prefs.edit()
@@ -215,26 +252,161 @@ class IssueRepository private constructor(context: Context) {
         )
     }
 
-    val allPublishers: LiveData<List<Publisher>> = issueDao.getPublishersList()
-
-    val allCreators: LiveData<List<Creator>> = issueDao.getCreatorsList()
-
-    val allWriters: LiveData<List<Creator>> = issueDao.getWritersList()
-
-    val allRoles: LiveData<List<Role>> = issueDao.getRoleList()
-
-    fun getIssues(): LiveData<List<FullIssue>> = issueDao.getIssues()
-
-    fun getIssue(issueId: Int): LiveData<Issue?> {
-        updateIssueCredits(issueId)
-        return issueDao.getIssue(issueId)
+    fun getStories(issueId: Int): LiveData<List<Story>> {
+        refreshStories(issueId)
+        return issueDao.getStories(issueId)
     }
 
-    fun updateIssueCredits(issueId: Int) {
-        val creditsCall: Call<List<Item<GcdIssueCredit, Credit>>> =
-            apiService.getCreditsByIssue(issueId)
+    fun refreshStories(issueId: Int) {
+        val storiesCall: Call<List<Item<GcdStory, Story>>> = apiService.getStories(issueId)
+
+        storiesCall.enqueue(
+            object : Callback<List<Item<GcdStory, Story>>> {
+                override fun onResponse(
+                    call: Call<List<Item<GcdStory, Story>>>,
+                    response: Response<List<Item<GcdStory, Story>>>
+                ) {
+                    if (response.code() == 200) {
+                        Log.d(TAG, "storiesCall success: $response")
+                        val stories: List<Item<GcdStory, Story>>? = response.body()
+
+                        stories?.let {
+                            Log.d(TAG, "about to refresh creators!")
+                            refreshCreators(issueId, it.map { item -> item.toRoomModel() })
+                        }
+                    }
+                }
+
+                override fun onFailure(call: Call<List<Item<GcdStory, Story>>>, t: Throwable) {
+                    Log.d(TAG, "storiesCall failure: ${call.request()} $t")
+                }
+
+            }
+        )
     }
 
+    fun refreshCreators(issueId: Int, stories: List<Story>) {
+        val creatorsCall: Call<List<Item<GcdCreator, Creator>>> =
+            apiService.getCreatorsByIssue(issueId)
+
+        creatorsCall.enqueue(
+            object : Callback<List<Item<GcdCreator, Creator>>> {
+                override fun onResponse(
+                    call: Call<List<Item<GcdCreator, Creator>>>,
+                    response: Response<List<Item<GcdCreator, Creator>>>
+                ) {
+                    Log.d(TAG, "creatorsCall success: ${call.request()} $response")
+                    if (response.code() == 200) {
+                        val creators: List<Item<GcdCreator, Creator>>? = response.body()
+
+                        creators?.let {
+                            refreshCredits(
+                                issueId,
+                                stories,
+                                creators.map { item -> item.toRoomModel() }
+                            )
+                        }
+                    }
+                }
+
+                override fun onFailure(call: Call<List<Item<GcdCreator, Creator>>>, t: Throwable) {
+                    Log.d(TAG, "creatorsCall failure: ${call.request()} $t")
+                }
+
+            }
+        )
+    }
+
+    private fun refreshCredits(issueId: Int, stories: List<Story>, creators: List<Creator>) {
+        val creditsCall: Call<List<Item<GcdStoryCredit, Credit>>> = apiService.getCredits(issueId)
+
+        creditsCall.enqueue(
+            object : Callback<List<Item<GcdStoryCredit, Credit>>> {
+                override fun onResponse(
+                    call: Call<List<Item<GcdStoryCredit, Credit>>>,
+                    response: Response<List<Item<GcdStoryCredit, Credit>>>
+                ) {
+                    if (response.code() == 200) {
+                        val credits: List<Item<GcdStoryCredit, Credit>>? = response.body()
+
+                        credits?.map {
+                            it.toRoomModel()
+                        }?.let {
+                            executor.execute {
+                                issueDao.insertCreditTransaction(
+                                    stories.toTypedArray(),
+                                    creators.toTypedArray(),
+                                    it.toTypedArray()
+                                )
+                            }
+                        }
+                    }
+                }
+
+                override fun onFailure(
+                    call: Call<List<Item<GcdStoryCredit, Credit>>>,
+                    t: Throwable
+                ) {
+                    Log.d(TAG, "creditsCall failure: ${call.request()} $t")
+                }
+
+            }
+        )
+    }
+
+    //    fun refreshCreatorByName(name: String): LiveData<Creator?> {
+//        val creatorCall: Call<Item<GcdCreator, Creator>> = apiService.getCreatorByName(name)
+//
+//        creatorCall.enqueue(
+//            object : Callback<Item<GcdCreator, Creator>> {
+//                override fun onResponse(
+//                    call: Call<Item<GcdCreator, Creator>>,
+//                    response: Response<Item<GcdCreator, Creator>>
+//                ) {
+//                    Log.d(TAG, "creatorByNameCall response: ${call.request()} $response")
+//
+//                    if (response.code() == 200) {
+//                        val creator: Item<GcdCreator, Creator>? = response.body()
+//
+//                        creator?.let {
+//                            executor.execute {
+//                                issueDao.insertCreator(it.toRoomModel())
+//                            }
+//                        }
+//                    }
+//                }
+//
+//                override fun onFailure(call: Call<Item<GcdCreator, Creator>>, t: Throwable) {
+//                    Log.d(TAG, "creatorByNameCall failure: ${call.request()} $t")
+//                }
+//
+//            }
+//        )
+//
+//        return issueDao.getCreatorByName(name)
+//    }
+//
+//    private fun refreshStoryCredits(stories: List<Item<GcdStory, Story>>, issueId: Int) {
+//        /*
+//        For each field [script, pencils, inks, colors, letters, editing], extract name(s) by
+//        splitting on [;], removing non-relevant characters [(...), ?, etc.]
+//
+//        For each namend get
+//         */
+//        val creators = arrayListOf<String>()
+//
+//        for (storyItem in stories) {
+//            val script_names = storyItem.fields.script.split("; ")
+//            for (name in script_names) {
+//                val cleaned_name = name.replace(regex = Regex(""), "")
+//                creators.add(cleaned_name)
+//            }
+//            refreshCreatorByName(creators)
+//        }
+//
+//        refreshCredits(issueId, stories.map { it.toRoomModel() }, creators)
+//    }
+//
     fun getIssuesBySeries(seriesId: Int): LiveData<List<FullIssue>> {
         updateIssuesBySeries(seriesId)
         return issueDao.getIssuesBySeries(seriesId)
@@ -257,7 +429,7 @@ class IssueRepository private constructor(context: Context) {
                         Log.d(TAG, "issueList: $issueList")
 
                         issueList?.map {
-                            it.fields?.toRoomModel(it)
+                            it.toRoomModel()
                         }?.let {
                             executor.execute {
                                 issueDao.insertIssue(*it.toTypedArray())
@@ -274,9 +446,10 @@ class IssueRepository private constructor(context: Context) {
         )
     }
 
-    fun getIssuesByDetails(seriesId: Int, issueNum: Int) =
-        issueDao.getIssueByDetails(seriesId, issueNum)
-
+    /**
+     * Builds database and adds dummy publisher and series, which are used for creating new empty
+     * issue objects
+     */
     private fun buildDatabase(context: Context) = Room.databaseBuilder(
         context.applicationContext,
         IssueDatabase::class.java,
@@ -393,10 +566,6 @@ class IssueRepository private constructor(context: Context) {
     fun getSeries(seriesId: Int): LiveData<Series?> =
         issueDao.getSeriesById(seriesId)
 
-    fun getCreator(creatorId: Int): LiveData<Creator?> {
-        return issueDao.getCreator(creatorId)
-    }
-
     fun updateCreator(creator: Creator) {
         executor.execute {
             issueDao.updateCreator(creator)
@@ -445,12 +614,15 @@ class IssueRepository private constructor(context: Context) {
         }
     }
 
-    fun getPublisher(publisherId: Int): LiveData<Publisher?> =
-        issueDao.getPublisher(publisherId)
+    fun getPublisher(publisherId: Int): LiveData<Publisher?> = issueDao.getPublisher(publisherId)
 
-    fun getNewFullIssue(issueId: Int) = issueDao.getNewFullIssue(issueId)
+    fun getFullIssue(issueId: Int): LiveData<IssueAndSeries?> = issueDao.getFullIssue(issueId)
 
-    fun getNewIssueCredits(issueId: Int) = issueDao.getNewIssueCredits(issueId)
+    fun getIssueCredits(issueId: Int): LiveData<List<FullCredit>> {
+        refreshStories(issueId)
+        return issueDao.getIssueCredits(issueId)
+    }
+
 
     fun getSeriesByCreator(creatorId: Int): LiveData<List<Series>> =
         issueDao.getSeriesList(creatorId)
@@ -478,3 +650,4 @@ class IssueRepository private constructor(context: Context) {
         }
     }
 }
+
