@@ -139,8 +139,8 @@ class IssueDetailFragment : Fragment(),
 
         issueDetailViewModel.issueCreditsLiveData.observe(
             viewLifecycleOwner,
-            { issue ->
-                issue?.let {
+            { credits: List<FullCredit>? ->
+                credits?.let {
                     this.issueCredits = it
                     updateUI()
                 }

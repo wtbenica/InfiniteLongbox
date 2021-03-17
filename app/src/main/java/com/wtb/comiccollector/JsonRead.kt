@@ -228,7 +228,7 @@ class GcdStory(
     @SerializedName("sequence_number")
     @Expose
     val sequenceNumber: Int,
-    @SerializedName("issue_id")
+    @SerializedName("issue")
     @Expose
     val issueId: Int,
     @SerializedName("script")
@@ -271,7 +271,8 @@ class GcdStory(
             characters = characters,
             synopsis = synopsis,
             notes = notes,
-            sequenceNumber = 0
+            sequenceNumber = 0,
+            issueId = issueId
         )
     }
 }

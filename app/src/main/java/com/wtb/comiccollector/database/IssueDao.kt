@@ -15,14 +15,11 @@ interface IssueDao {
     @Transaction
     @Query(
         """
-            SELECT *
+            SELECT credit.*, story.*
             FROM credit
-                NATURAL JOIN creator
-                NATURAL JOIN role
-                NATURAL JOIN story
-                NATURAL JOIN storytype
-                NATURAL JOIN issue
-            WHERE issue.issueId = :issueId
+            NATURAL JOIN story
+            NATURAL JOIN storytype
+            WHERE story.issueId = :issueId
             ORDER BY storyType.sortCode, story.sequenceNumber
         """
     )

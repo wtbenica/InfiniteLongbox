@@ -201,6 +201,7 @@ data class Story(
     var synopsis: String? = null,
     var notes: String? = null,
     var sequenceNumber: Int = 0,
+    val issueId: Int,
 )
 
 @Entity(
