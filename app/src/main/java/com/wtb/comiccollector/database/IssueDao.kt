@@ -15,12 +15,13 @@ interface IssueDao {
     @Transaction
     @Query(
         """
-            SELECT credit.*, story.*
-            FROM credit
-            NATURAL JOIN story
-            NATURAL JOIN storytype
-            WHERE story.issueId = :issueId
-            ORDER BY storyType.sortCode, story.sequenceNumber
+            SELECT cr.*
+            FROM credit cr
+            JOIN story sr on cr.storyId = sr.storyId
+            JOIN storytype st on st.typeId = sr.storyType
+            WHERE sr.issueId = :issueId
+            AND (sr.storyType = 19 OR sr.storyType= 6)
+            ORDER BY st.sortCode, sr.sequenceNumber
         """
     )
     fun getIssueCredits(issueId: Int): LiveData<List<FullCredit>>
@@ -224,7 +225,10 @@ interface IssueDao {
             SELECT st.*
             FROM story st
             NATURAL JOIN issue iss
+            JOIN storytype type ON type.typeId = st.storyType
             WHERE iss.issueId = :issueId
+            AND (st.storyType = 19 OR st.storyType= 6)
+            ORDER BY type.sortCode, storyType
         """
     )
     fun getStories(issueId: Int): LiveData<List<Story>>

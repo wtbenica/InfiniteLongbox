@@ -13,7 +13,7 @@ class IssueDetailViewModel : ViewModel() {
     private val issueRepository: IssueRepository = IssueRepository.get()
     private val issueIdLiveData = MutableLiveData<Int>()
 
-    var fullIssueLiveData: LiveData<IssueAndSeries?> =
+    var fullIssueLiveData: LiveData<IssueAndSeries> =
         Transformations.switchMap(issueIdLiveData) { issueId ->
             issueRepository.getFullIssue(issueId)
         }
@@ -25,6 +25,7 @@ class IssueDetailViewModel : ViewModel() {
 
     var issueCreditsLiveData: LiveData<List<FullCredit>> =
         Transformations.switchMap(issueIdLiveData) { issueId ->
+            Log.d(TAG, "issueCreditsLD transformation")
             issueRepository.getIssueCredits(issueId)
         }
 

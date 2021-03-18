@@ -45,31 +45,6 @@ data class Issue(
         get() = "IMG_$issueId.jpg"
 
     companion object {
-        fun fromItem(item: Item<GcdIssueJson, Issue>): Issue {
-            val fields: GcdIssueJson =
-                item.fields
-
-            Log.d("Issue.fromItem", fields.onSaleDate)
-
-            return Issue(
-                issueId = item.pk,
-                seriesId = fields.seriesId,
-                issueNum = fields.number.toIntOrNull() ?: 1,
-                releaseDate = if (fields.onSaleDate == "") {
-                    null
-                } else {
-                    LocalDate.parse(
-                        formatDate(fields.onSaleDate),
-                        DateTimeFormatter.ofPattern("uuuu-MM-dd")
-                    )
-
-                },
-                upc = fields.barcode.toLongOrNull(),
-                variantName = fields.variantName,
-                variantOf = fields.variantOf
-            )
-        }
-
         fun formatDate(date: String): String {
             var res = date
             while (res.length < 10) {
@@ -315,7 +290,13 @@ data class FullCredit(
         parentColumn = "roleId",
         entityColumn = "roleId"
     )
-    val role: Role
+    val role: Role,
+
+    @Relation(
+        parentColumn = "storyId",
+        entityColumn = "storyId"
+    )
+    val story: Story,
 )
 
 data class IssueAndSeries(

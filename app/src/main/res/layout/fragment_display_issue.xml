@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -29,28 +28,22 @@
         app:layout_constraintStart_toEndOf="@id/issue_cover"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <Spinner
+    <TextView
         android:id="@+id/issue_series"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
-        android:background="@drawable/blue_outline"
-        android:importantForAutofill="no"
-        android:popupBackground="@drawable/blue_outline_white_background"
+        android:textSize="24sp"
         app:layout_constraintEnd_toStartOf="@+id/issue_number"
         app:layout_constraintStart_toEndOf="@+id/issue_cover"
-        app:layout_constraintTop_toBottomOf="@id/series_label"
-        tools:listitem="@layout/support_simple_spinner_dropdown_item" />
+        app:layout_constraintTop_toBottomOf="@id/series_label" />
 
-    <EditText
+    <TextView
         android:id="@+id/issue_number"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="16dp"
         android:gravity="end"
-        android:hint="@string/hint_issue_number"
-        android:importantForAutofill="no"
-        android:inputType="number"
         android:textSize="24sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@id/issue_series"
@@ -80,17 +73,19 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/issue_cover" />
 
-    <LinearLayout
+    <ScrollView
         android:id="@+id/issue_credits_table"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
         android:animateLayoutChanges="true"
+        android:isScrollContainer="true"
+        android:orientation="vertical"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/issue_credits_box_label"
-        android:orientation="horizontal" />
+        app:layout_constraintBottom_toTopOf="@id/edit_button"/>
 
     <ImageButton
         android:id="@+id/edit_button"
@@ -100,7 +95,7 @@
         android:layout_marginEnd="16dp"
         android:contentDescription="@string/toggle_edit_button"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/issue_credits_table"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:srcCompat="@drawable/ic_issue_edit" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
