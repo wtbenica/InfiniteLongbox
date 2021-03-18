@@ -93,7 +93,7 @@ interface IssueDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertRole(vararg role: Role)
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertCredit(vararg credit: Credit)
 
     @Update

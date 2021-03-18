@@ -91,6 +91,10 @@ class GcdSeriesJson(
     }
 }
 
+enum class PublisherKey(val pos: Int) {
+    ID(0), NAME(1)
+}
+
 class GcdPublisherJson(
     @SerializedName("name")
     @Expose
@@ -183,10 +187,10 @@ class GcdIssueJson(
 class GcdStoryCredit(
     @SerializedName("creator")
     @Expose
-    val creatorId: Int,
+    val creatorId: Array<String>,
     @SerializedName("credit_type")
     @Expose
-    val roleId: Int,
+    val roleId: Array<String>,
     @SerializedName("story")
     @Expose
     val storyId: Int
@@ -195,10 +199,22 @@ class GcdStoryCredit(
         return Credit(
             creditId = item.pk,
             storyId = storyId,
-            creatorId = creatorId,
-            roleId = roleId,
+            creatorId = creatorId[CreatorKey.ID.pos].toInt(),
+            roleId = roleId[RoleKey.ID.pos].toInt(),
         )
     }
+
+    fun getCreatorModel(): Creator {
+        return Creator(
+            creatorId = creatorId[CreatorKey.ID.pos].toInt(),
+            name = creatorId[CreatorKey.NAME.pos],
+            sortName = creatorId[CreatorKey.SORT_NAME.pos]
+        )
+    }
+}
+
+enum class RoleKey(val pos: Int) {
+    ID(0), NAME(1)
 }
 
 class GcdCreator(
@@ -216,6 +232,10 @@ class GcdCreator(
             sortName = sortName
         )
     }
+}
+
+enum class CreatorKey(val pos: Int) {
+    ID(0), NAME(1), SORT_NAME(2)
 }
 
 class GcdStory(
@@ -277,7 +297,7 @@ class GcdStory(
     }
 }
 
-class GcdStoryType (
+class GcdStoryType(
     @SerializedName("name")
     @Expose
     val name: String,

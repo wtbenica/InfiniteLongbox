@@ -272,7 +272,7 @@ class IssueRepository private constructor(context: Context) {
 
                         stories?.let {
                             Log.d(TAG, "about to refresh creators!")
-                            refreshCreators(issueId, it.map { item -> item.toRoomModel() })
+                            refreshCredits(issueId, it.map { item -> item.toRoomModel() })
                         }
                     }
                 }
@@ -285,39 +285,7 @@ class IssueRepository private constructor(context: Context) {
         )
     }
 
-    fun refreshCreators(issueId: Int, stories: List<Story>) {
-        val creatorsCall: Call<List<Item<GcdCreator, Creator>>> =
-            apiService.getCreatorsByIssue(issueId)
-
-        creatorsCall.enqueue(
-            object : Callback<List<Item<GcdCreator, Creator>>> {
-                override fun onResponse(
-                    call: Call<List<Item<GcdCreator, Creator>>>,
-                    response: Response<List<Item<GcdCreator, Creator>>>
-                ) {
-                    Log.d(TAG, "creatorsCall success: ${call.request()} $response")
-                    if (response.code() == 200) {
-                        val creators: List<Item<GcdCreator, Creator>>? = response.body()
-
-                        creators?.let {
-                            refreshCredits(
-                                issueId,
-                                stories,
-                                creators.map { item -> item.toRoomModel() }
-                            )
-                        }
-                    }
-                }
-
-                override fun onFailure(call: Call<List<Item<GcdCreator, Creator>>>, t: Throwable) {
-                    Log.d(TAG, "creatorsCall failure: ${call.request()} $t")
-                }
-
-            }
-        )
-    }
-
-    private fun refreshCredits(issueId: Int, stories: List<Story>, creators: List<Creator>) {
+    private fun refreshCredits(issueId: Int, stories: List<Story>) {
         val creditsCall: Call<List<Item<GcdStoryCredit, Credit>>> = apiService.getCredits(issueId)
 
         creditsCall.enqueue(
@@ -329,16 +297,23 @@ class IssueRepository private constructor(context: Context) {
                     if (response.code() == 200) {
                         val credits: List<Item<GcdStoryCredit, Credit>>? = response.body()
 
-                        credits?.map {
-                            it.toRoomModel()
-                        }?.let {
+                        credits?.let {
+                            val creditModels = it.map {
+                                it.toRoomModel()
+                            }
+
+                            val creatorModels = it.map {
+                                it.fields.getCreatorModel()
+                            }
+
                             executor.execute {
                                 issueDao.insertCreditTransaction(
                                     stories.toTypedArray(),
-                                    creators.toTypedArray(),
-                                    it.toTypedArray()
+                                    creatorModels.toTypedArray(),
+                                    creditModels.toTypedArray()
                                 )
                             }
+
                         }
                     }
                 }
