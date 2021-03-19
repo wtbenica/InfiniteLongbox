@@ -10,6 +10,8 @@ import java.time.format.DateTimeFormatter
 
 const val AUTO_ID = 0
 
+interface DataModel
+
 // TODO: For all entities, need to add onDeletes: i.e. CASCADE, etc.
 @Entity(
     foreignKeys = [
@@ -40,7 +42,7 @@ data class Issue(
     var upc: Long? = null,
     var variantName: String? = null,
     var variantOf: Int? = null
-) {
+) : DataModel {
     val coverFileName: String
         get() = "IMG_$issueId.jpg"
 
@@ -79,7 +81,7 @@ public data class Series(
     var endDate: LocalDate? = null,
     var description: String? = null,
     var publishingFormat: String? = null
-) : GroupListFragment.Indexed {
+) : GroupListFragment.Indexed, DataModel {
 
     override fun getIndex(): Char = seriesName.get(0).toUpperCase()
 
@@ -104,7 +106,7 @@ data class Creator(
     @PrimaryKey(autoGenerate = true) val creatorId: Int = AUTO_ID,
     var name: String,
     var sortName: String
-) : GroupListFragment.Indexed {
+) : GroupListFragment.Indexed, DataModel {
 
     override fun getIndex(): Char {
         return sortName.get(0)
@@ -119,7 +121,7 @@ data class Creator(
 data class Publisher(
     @PrimaryKey(autoGenerate = true) val publisherId: Int = AUTO_ID,
     val publisher: String = ""
-) {
+) : DataModel {
     override fun toString(): String {
         return publisher
     }
@@ -131,19 +133,15 @@ data class Role(
     @PrimaryKey(autoGenerate = true) val roleId: Int = AUTO_ID,
     var roleName: String = "",
     var sortOrder: Int
-) {
+) : DataModel {
     override fun toString(): String = roleName
 
     companion object {
-        fun fromItem(item: Item<GcdRoleJson, Role>): Role {
-            val fields: GcdRoleJson =
-                item.fields
-            Log.d("Issue", "roleId: ${item.pk}")
-            return Role(
-                roleId = item.pk,
-                roleName = fields.name,
-                sortOrder = fields.sortCode
-            )
+        enum class Name(val value: Int) {
+            SCRIPT(1), PENCILS(2), INKS(3), COLORS(4), LETTERS(5), EDITING(6), PENCILS_INKS(7),
+            PENCILS_INKS_COLORS(8), PAINTING(9), SCRIPT_PENCILS_INKS(10),
+            SCRIPT_PENCILS_INKS_COLORS(11), SCRIPT_PENCILS_INKS_LETTERS(12),
+            SCRIPT_PENCILS_INKS_COLORS_LETTERS(13), PENCILS_INKS_LETTERS(14)
         }
     }
 }
@@ -153,7 +151,7 @@ data class StoryType(
     @PrimaryKey(autoGenerate = true) val typeId: Int = AUTO_ID,
     val name: String,
     val sortCode: Int
-)
+) : DataModel
 
 @Entity(
     foreignKeys = [
@@ -177,7 +175,7 @@ data class Story(
     var notes: String? = null,
     var sequenceNumber: Int = 0,
     val issueId: Int,
-)
+) : DataModel
 
 @Entity(
     indices = [
@@ -212,8 +210,18 @@ data class Credit(
     var storyId: Int,
     var creatorId: Int,
     var roleId: Int
-) {
+) : DataModel {
+    init {
+        Log.d(
+            "INS",
+            "CREDIT: ${creditId.format(10)} ${storyId.format(10)} ${creatorId.format(10)} ${roleId
+                .format(10)}"
+        )
+    }
+}
 
+fun Int.format(width: Int): String {
+    return String.format("%${width}d", this)
 }
 
 @Entity(
@@ -249,7 +257,7 @@ data class MyCredit(
     var storyId: Int,
     var creatorId: Int,
     var roleId: Int
-) {
+) : DataModel {
 
 }
 
@@ -258,12 +266,12 @@ data class FullIssue(
     val issue: Issue,
     val seriesName: String,
     val publisher: String
-)
+) : DataModel
 
 data class IssueCredits(
     val roleName: String,
     val name: String
-)
+) : DataModel
 
 data class SeriesAndPublisher(
     @Embedded
@@ -274,7 +282,7 @@ data class SeriesAndPublisher(
         entityColumn = "publisherId"
     )
     val publisher: Publisher
-)
+) : DataModel
 
 data class FullCredit(
     @Embedded
@@ -297,7 +305,7 @@ data class FullCredit(
         entityColumn = "storyId"
     )
     val story: Story,
-)
+) : DataModel
 
 data class IssueAndSeries(
     @Embedded
@@ -308,4 +316,4 @@ data class IssueAndSeries(
         entityColumn = "seriesId"
     )
     var series: Series
-)
+) : DataModel

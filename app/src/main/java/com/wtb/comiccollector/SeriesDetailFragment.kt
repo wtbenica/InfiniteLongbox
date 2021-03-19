@@ -67,12 +67,10 @@ class SeriesDetailFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        Log.d(TAG, "View Created")
 
         seriesViewModel.seriesLiveData.observe(
             viewLifecycleOwner,
             {
-                Log.d(TAG, "onViewCreated: ${it?.seriesName ?: "None"}")
                 it?.let { series = it }
                 seriesViewModel.loadPublisher(series.publisherId)
                 updateUI()

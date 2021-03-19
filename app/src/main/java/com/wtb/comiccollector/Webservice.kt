@@ -6,19 +6,19 @@ import retrofit2.http.Path
 
 interface Webservice {
     @GET("/db_query/series_list/{page}")
-    fun getSeries(@Path("page") page: Int): Call<List<Item<GcdSeriesJson, Series>>>
+    fun getSeries(@Path("page") page: Int): Call<List<Item<GcdSeries, Series>>>
 
     @GET("/db_query/publisher")
-    fun getPublishers(): Call<List<Item<GcdPublisherJson, Publisher>>>
+    fun getPublishers(): Call<List<Item<GcdPublisher, Publisher>>>
 
     @GET("/db_query/role")
-    fun getRoles(): Call<List<Item<GcdRoleJson, Role>>>
+    fun getRoles(): Call<List<Item<GcdRole, Role>>>
 
     @GET("/db_query/series/{seriesId}/issues")
-    fun getIssuesBySeries(@Path("seriesId") seriesId: Int): Call<List<Item<GcdIssueJson, Issue>>>
+    fun getIssuesBySeries(@Path("seriesId") seriesId: Int): Call<List<Item<GcdIssue, Issue>>>
 
     @GET("/db_query/issue/{issueId}/credits")
-    fun getCredits(@Path("issueId") issueId: Int): Call<List<Item<GcdStoryCredit, Credit>>>
+    fun getCredits(@Path("issueId") issueId: Int): Call<List<Item<GcdCredit, Credit>>>
 
     @GET("/db_query/issue/{issueId}/stories")
     fun getStories(@Path("issueId") issueId: Int): Call<List<Item<GcdStory, Story>>>
@@ -30,7 +30,7 @@ interface Webservice {
     fun getStoryTypes(): Call<List<Item<GcdStoryType, StoryType>>>
 
     @GET("/db_query/creator/name/{name}")
-    fun getCreatorByName(@Path("name") name: String): Call<Item<GcdCreator, Creator>>
+    fun getCreatorByName(@Path("name") name: String): Call<List<Item<GcdCreator, Creator>>>
 
     @GET("/db_query/issue/{issueId}/creators")
     fun getCreatorsByIssue(@Path("issueId") issueId: Int): Call<List<Item<GcdCreator, Creator>>>

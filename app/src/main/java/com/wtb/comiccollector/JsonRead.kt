@@ -1,12 +1,13 @@
 package com.wtb.comiccollector
 
+import android.util.Log
 import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 // TODO: do all these val need to be nullable?
-class Item<T : GcdJson<U>, U>(
+class Item<G : GcdJson<M>, M : DataModel>(
     @SerializedName("model")
     @Expose
     val model: String?,
@@ -15,22 +16,22 @@ class Item<T : GcdJson<U>, U>(
     val pk: Int,
     @SerializedName("fields")
     @Expose
-    val fields: T,
+    val fields: G,
 ) {
     override fun toString(): String {
         return "$pk " + fields.toString()
     }
 
-    fun toRoomModel(): U {
-        return fields.toRoomModel(this)
+    fun toRoomModel(): M {
+        return fields.toRoomModel(this.pk)
     }
 }
 
-interface GcdJson<U> {
-    fun <T : GcdJson<U>> toRoomModel(item: Item<T, U>): U
+interface GcdJson<M : DataModel> {
+    fun toRoomModel(pk: Int): M
 }
 
-class GcdSeriesJson(
+class GcdSeries(
     @SerializedName("name")
     @Expose
     val name: String?,
@@ -63,9 +64,9 @@ class GcdSeriesJson(
         return "$name ($yearBegan - $yearEnded)"
     }
 
-    override fun <T : GcdJson<Series>> toRoomModel(item: Item<T, Series>): Series {
+    override fun toRoomModel(pk: Int): Series {
         return Series(
-            seriesId = item.pk,
+            seriesId = pk,
             seriesName = name ?: "",
             publisherId = publisherInfo?.get(0)?.toInt() ?: AUTO_ID,
             startDate = when (yearBeganUncertain as Int) {
@@ -95,7 +96,7 @@ enum class PublisherKey(val pos: Int) {
     ID(0), NAME(1)
 }
 
-class GcdPublisherJson(
+class GcdPublisher(
     @SerializedName("name")
     @Expose
     val name: String,
@@ -106,15 +107,15 @@ class GcdPublisherJson(
     @Expose
     val yearEnded: Int?
 ) : GcdJson<Publisher> {
-    override fun <T : GcdJson<Publisher>> toRoomModel(item: Item<T, Publisher>): Publisher {
+    override fun toRoomModel(pk: Int): Publisher {
         return Publisher(
-            publisherId = item.pk,
+            publisherId = pk,
             publisher = name,
         )
     }
 }
 
-class GcdRoleJson(
+class GcdRole(
     @SerializedName("name")
     @Expose
     val name: String,
@@ -122,16 +123,16 @@ class GcdRoleJson(
     @Expose
     val sortCode: Int
 ) : GcdJson<Role> {
-    override fun <T : GcdJson<Role>> toRoomModel(item: Item<T, Role>): Role {
+    override fun toRoomModel(pk: Int): Role {
         return Role(
-            roleId = item.pk,
+            roleId = pk,
             roleName = name,
             sortOrder = sortCode
         )
     }
 }
 
-class GcdIssueJson(
+class GcdIssue(
     @SerializedName("number")
     @Expose
     val number: String,
@@ -163,9 +164,9 @@ class GcdIssueJson(
     @Expose
     val variantOf: Int?
 ) : GcdJson<Issue> {
-    override fun <T : GcdJson<Issue>> toRoomModel(item: Item<T, Issue>): Issue {
+    override fun toRoomModel(pk: Int): Issue {
         return Issue(
-            issueId = item.pk,
+            issueId = pk,
             seriesId = seriesId,
             issueNum = number.toIntOrNull() ?: 1,
             releaseDate = if (onSaleDate == "") {
@@ -184,7 +185,7 @@ class GcdIssueJson(
     }
 }
 
-class GcdStoryCredit(
+class GcdCredit(
     @SerializedName("creator")
     @Expose
     val creatorId: Array<String>,
@@ -195,9 +196,14 @@ class GcdStoryCredit(
     @Expose
     val storyId: Int
 ) : GcdJson<Credit> {
-    override fun <T : GcdJson<Credit>> toRoomModel(item: Item<T, Credit>): Credit {
+    override fun toRoomModel(pk: Int): Credit {
+        Log.d(
+            "GcdCredit",
+            "pk: ${pk} sid: $storyId cid: ${creatorId[CreatorKey.ID.pos].toInt()} " +
+                    "rid: ${roleId[RoleKey.ID.pos].toInt()}"
+        )
         return Credit(
-            creditId = item.pk,
+            creditId = pk,
             storyId = storyId,
             creatorId = creatorId[CreatorKey.ID.pos].toInt(),
             roleId = roleId[RoleKey.ID.pos].toInt(),
@@ -225,9 +231,9 @@ class GcdCreator(
     @Expose
     val sortName: String,
 ) : GcdJson<Creator> {
-    override fun <T : GcdJson<Creator>> toRoomModel(item: Item<T, Creator>): Creator {
+    override fun toRoomModel(pk: Int): Creator {
         return Creator(
-            creatorId = item.pk,
+            creatorId = pk,
             name = name,
             sortName = sortName
         )
@@ -282,9 +288,9 @@ class GcdStory(
     @Expose
     val typeId: Int
 ) : GcdJson<Story> {
-    override fun <T : GcdJson<Story>> toRoomModel(item: Item<T, Story>): Story {
+    override fun toRoomModel(pk: Int): Story {
         return Story(
-            storyId = item.pk,
+            storyId = pk,
             storyType = typeId,
             title = title,
             feature = feature,
@@ -305,9 +311,9 @@ class GcdStoryType(
     @Expose
     val sortCode: Int
 ) : GcdJson<StoryType> {
-    override fun <T : GcdJson<StoryType>> toRoomModel(item: Item<T, StoryType>): StoryType {
+    override fun toRoomModel(pk: Int): StoryType {
         return StoryType(
-            typeId = item.pk,
+            typeId = pk,
             name = name,
             sortCode = sortCode
         )

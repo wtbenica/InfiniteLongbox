@@ -1,16 +1,59 @@
 package com.wtb.comiccollector.database
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.room.*
 import com.wtb.comiccollector.*
 import java.time.LocalDate
 
+/**
+ * BaseDao provides generic insert, update, delete, and upsert (insert if not exist, else update)
+ * I was having a problem where insert(REPLACE) is actually "try insert, if exists, delete then
+ * insert," which, along with "on delete cascade" resulted in lost records
+ */
 @Dao
-interface IssueDao {
+abstract class BaseDao<T: DataModel> {
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    abstract fun insert(obj: T): Long
+
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    abstract fun insert(obj: List<T>): List<Long>
+
+    @Update
+    abstract fun update(obj: T)
+
+    @Update
+    abstract fun update(obj: List<T>)
+
+    @Transaction
+    open fun upsert(obj: T) {
+        val id = insert(obj)
+        if (id == -1L) update(obj)
+    }
+
+    @Transaction
+    open fun upsert(objList: List<T>) {
+        val insertResult = insert(objList)
+        val updateList = mutableListOf<T>()
+
+        for (i in insertResult.indices) {
+            if (insertResult[i] == -1L) updateList.add(objList[i])
+        }
+
+        if (!updateList.isEmpty()) update(updateList)
+    }
+}
+
+
+// TODO: Figure out this mess. Separate daos for each entity might be necessary. There's lots of
+//  duplicate code that could be removed that way. Current type parameter is Creator because
+//  that's what i needed to upsert
+@Dao
+abstract class IssueDao: BaseDao<Creator>() {
 
     @Transaction
     @Query("SELECT * FROM issue WHERE issueId = :issueId")
-    fun getFullIssue(issueId: Int): LiveData<IssueAndSeries?>
+    abstract fun getFullIssue(issueId: Int): LiveData<IssueAndSeries?>
 
     @Transaction
     @Query(
@@ -19,12 +62,13 @@ interface IssueDao {
             FROM credit cr
             JOIN story sr on cr.storyId = sr.storyId
             JOIN storytype st on st.typeId = sr.storyType
+            JOIN role ON cr.roleId = role.roleId
             WHERE sr.issueId = :issueId
             AND (sr.storyType = 19 OR sr.storyType= 6)
-            ORDER BY st.sortCode, sr.sequenceNumber
+            ORDER BY st.sortCode, sr.sequenceNumber, role.sortOrder
         """
     )
-    fun getIssueCredits(issueId: Int): LiveData<List<FullCredit>>
+    abstract fun getIssueCredits(issueId: Int): LiveData<List<FullCredit>>
 
     @Query(
         """
@@ -33,7 +77,7 @@ interface IssueDao {
             WHERE seriesId=:seriesId
             """
     )
-    fun getIssuesBySeries(seriesId: Int): LiveData<List<FullIssue>>
+    abstract fun getIssuesBySeries(seriesId: Int): LiveData<List<FullIssue>>
 
     @Query(
         """
@@ -42,96 +86,96 @@ interface IssueDao {
             WHERE seriesId=:seriesId and issueNum=:issueNum
             """
     )
-    fun getIssueByDetails(seriesId: Int, issueNum: Int): LiveData<List<FullIssue>>
+    abstract fun getIssueByDetails(seriesId: Int, issueNum: Int): LiveData<List<FullIssue>>
 
     @Query("SELECT * FROM issue WHERE issueId=:issueId")
-    fun getIssue(issueId: Int): LiveData<Issue?>
+    abstract fun getIssue(issueId: Int): LiveData<Issue?>
 
     @Query("SELECT * FROM creator WHERE creatorId = :creatorId")
-    fun getCreator(vararg creatorId: Int): LiveData<List<Creator>>?
+    abstract fun getCreator(vararg creatorId: Int): LiveData<List<Creator>>?
 
     @Query("SELECT * FROM publisher WHERE publisherId = :publisherId")
-    fun getPublisher(publisherId: Int): LiveData<Publisher?>
+    abstract fun getPublisher(publisherId: Int): LiveData<Publisher?>
 
     @Query("SELECT * FROM series WHERE seriesId=:seriesId")
-    fun getSeriesById(seriesId: Int): LiveData<Series?>
+    abstract fun getSeriesById(seriesId: Int): LiveData<Series?>
 
     @Query("SELECT issue.* FROM issue NATURAL JOIN credit WHERE creatorId=:creatorId")
-    fun getIssuesByCreator(creatorId: Int): LiveData<List<Issue>>
+    abstract fun getIssuesByCreator(creatorId: Int): LiveData<List<Issue>>
 
     @Query("SELECT * FROM role WHERE roleName = :roleName")
-    fun getRoleByName(roleName: String): Role
+    abstract fun getRoleByName(roleName: String): Role
 
     @Query("SELECT * FROM series WHERE seriesId != ${DUMMY_ID} ORDER BY seriesName ASC")
-    fun getAllSeries(): LiveData<List<Series>>
+    abstract fun getAllSeries(): LiveData<List<Series>>
 
     @Query("SELECT * FROM publisher WHERE publisherId != ${DUMMY_ID} ORDER BY publisher ASC")
-    fun getPublishersList(): LiveData<List<Publisher>>
+    abstract fun getPublishersList(): LiveData<List<Publisher>>
 
     @Query("SELECT * FROM creator ORDER BY sortName ASC")
-    fun getCreatorsList(): LiveData<List<Creator>>
+    abstract fun getCreatorsList(): LiveData<List<Creator>>
 
     @Query("SELECT * FROM role")
-    fun getRoleList(): LiveData<List<Role>>
+    abstract fun getRoleList(): LiveData<List<Role>>
 
     @Query(
         """SELECT creator.* FROM creator natural join credit natural join role where roleName = 'Writer'"""
     )
-    fun getWritersList(): LiveData<List<Creator>>
+    abstract fun getWritersList(): LiveData<List<Creator>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertIssue(vararg issue: Issue?)
+    abstract fun insertIssue(vararg issue: Issue?)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertSeries(vararg series: Series?)
+    abstract fun insertSeries(vararg series: Series?)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertCreator(vararg creator: Creator)
+    abstract fun insertCreator(vararg creator: Creator): List<Long>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertPublisher(vararg publisher: Publisher?)
+    abstract fun insertPublisher(vararg publisher: Publisher?)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertRole(vararg role: Role)
+    abstract fun insertRole(vararg role: Role)
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertCredit(vararg credit: Credit)
-
-    @Update
-    fun updateIssue(issue: Issue)
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    abstract fun insertCredit(vararg credit: Credit)
 
     @Update
-    fun updateSeries(vararg series: Series)
+    abstract fun updateIssue(issue: Issue)
 
     @Update
-    fun updateCreator(creator: Creator)
+    abstract fun updateSeries(vararg series: Series)
 
     @Update
-    fun updatePublisher(publisher: Publisher)
+    abstract fun updateCreator(vararg creator: Creator)
 
     @Update
-    fun updateRole(role: Role)
+    abstract fun updatePublisher(publisher: Publisher)
 
     @Update
-    fun updateCredit(credit: Credit)
+    abstract fun updateRole(role: Role)
+
+    @Update
+    abstract fun updateCredit(credit: Credit)
 
     @Delete
-    fun deleteIssue(issue: Issue)
+    abstract fun deleteIssue(issue: Issue)
 
     @Delete
-    fun deleteSeries(series: Series)
+    abstract fun deleteSeries(series: Series)
 
     @Delete
-    fun deleteCreator(creator: Creator)
+    abstract fun deleteCreator(creator: Creator)
 
     @Delete
-    fun deletePublisher(publisher: Publisher)
+    abstract fun deletePublisher(publisher: Publisher)
 
     @Delete
-    fun deleteRole(role: Role)
+    abstract fun deleteRole(role: Role)
 
     @Delete
-    fun deleteCredit(credit: Credit)
+    abstract fun deleteCredit(credit: Credit)
 
     fun getSeriesList(
         creatorId: Int? = null,
@@ -166,7 +210,7 @@ interface IssueDao {
         WHERE creatorId = :creatorId
            """
     )
-    fun getSeriesByCreator(creatorId: Int): LiveData<List<Series>>
+    abstract fun getSeriesByCreator(creatorId: Int): LiveData<List<Series>>
 
     @Query(
         """
@@ -177,7 +221,7 @@ interface IssueDao {
         WHERE series.startDate < :endDate AND series.endDate > :startDate 
            """
     )
-    fun getSeriesByDates(startDate: LocalDate, endDate: LocalDate): LiveData<List<Series>>
+    abstract fun getSeriesByDates(startDate: LocalDate, endDate: LocalDate): LiveData<List<Series>>
 
     @Query(
         """
@@ -189,7 +233,7 @@ interface IssueDao {
         AND series.startDate < :endDate AND series.endDate > :startDate 
            """
     )
-    fun getSeriesByCreatorAndDates(
+    abstract fun getSeriesByCreatorAndDates(
         creatorId: Int,
         startDate: LocalDate = LocalDate.MIN,
         endDate: LocalDate = LocalDate.MAX
@@ -206,7 +250,7 @@ interface IssueDao {
             AND issue.releaseDate < :endDate AND issue.releaseDate > :startDate
         """
     )
-    fun getCreatorList(
+    abstract fun getCreatorList(
         seriesId: Int, startDate: LocalDate = LocalDate.MIN, endDate: LocalDate =
             LocalDate.MAX
     ): LiveData<List<Creator>>
@@ -218,7 +262,7 @@ interface IssueDao {
             WHERE cr.name = :creator
         """
     )
-    fun getCreatorByName(creator: String): LiveData<Creator?>
+    abstract fun getCreatorByName(creator: String): LiveData<Creator?>
 
     @Query(
         """
@@ -231,22 +275,38 @@ interface IssueDao {
             ORDER BY type.sortCode, storyType
         """
     )
-    fun getStories(issueId: Int): LiveData<List<Story>>
+    abstract fun getStories(issueId: Int): LiveData<List<Story>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertStory(vararg story: Story)
+    abstract fun insertStory(vararg story: Story)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertStoryType(vararg storyType: StoryType)
+    abstract fun insertStoryType(vararg storyType: StoryType)
 
     @Transaction
-    fun insertCreditTransaction(
+    open fun insertCreditTransaction(
         stories: Array<out Story>,
         creators: Array<out Creator>,
         credits: Array<out Credit>
     ) {
         insertStory(*stories)
-        insertCreator(*creators)
+        upsert(listOf(*creators))
         insertCredit(*credits)
+    }
+
+    @Transaction
+    open fun insertCreatorCreditTransaction(
+        creator: Creator,
+        credit: Credit
+    ) {
+        insertCreator(creator)
+        insertCredit(credit)
+
+        Log.d(
+            "INS:", "${credit.creditId.format(10)} ${credit.creatorId.format(10)} ${
+                credit.roleId.format
+                    (10)
+            } ${credit.storyId.format(10)}"
+        )
     }
 }

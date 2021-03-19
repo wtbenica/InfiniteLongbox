@@ -1,6 +1,5 @@
 package com.wtb.comiccollector
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
@@ -25,7 +24,6 @@ class IssueDetailViewModel : ViewModel() {
 
     var issueCreditsLiveData: LiveData<List<FullCredit>> =
         Transformations.switchMap(issueIdLiveData) { issueId ->
-            Log.d(TAG, "issueCreditsLD transformation")
             issueRepository.getIssueCredits(issueId)
         }
 
@@ -40,7 +38,6 @@ class IssueDetailViewModel : ViewModel() {
     var allRolesLiveData: LiveData<List<Role>> = issueRepository.allRoles
 
     fun loadIssue(issueId: Int) {
-        Log.d(TAG, "loadIssue")
         issueIdLiveData.value = AUTO_ID
         issueIdLiveData.value = issueId
     }
@@ -71,7 +68,6 @@ class IssueDetailViewModel : ViewModel() {
     }
 
     fun addIssue(issue: Issue) {
-        Log.d(TAG, "addIssue")
         issueRepository.addIssue(issue)
     }
 

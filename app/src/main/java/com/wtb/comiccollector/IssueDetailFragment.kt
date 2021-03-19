@@ -118,7 +118,6 @@ class IssueDetailFragment : Fragment() {
             { issue: IssueAndSeries? ->
                 issue?.let {
                     this.fullIssue = it
-                    Log.d(TAG, this.fullIssue.series.seriesName)
                     updateUI()
                 }
             }
@@ -128,7 +127,6 @@ class IssueDetailFragment : Fragment() {
             viewLifecycleOwner,
             { credits: List<FullCredit>? ->
                 credits?.let {
-                    Log.d(TAG, "issueCreditsLD changed")
                     this.issueCredits = it
                     creditsBox.displayCredit()
                     updateUI()
@@ -182,8 +180,6 @@ class IssueDetailFragment : Fragment() {
         Log.d(TAG, "$numUpdates updates *****************************************************")
 
         seriesTextView.text = fullIssue.series.seriesName
-
-        // Update creators table
 
         issueNumTextView.text = fullIssue.issue.issueNum.toString()
 
@@ -241,8 +237,6 @@ class IssueDetailFragment : Fragment() {
             orientation = HORIZONTAL
             layoutParams = LayoutParams(MATCH_PARENT, WRAP_CONTENT)
 
-            Log.d(TAG, "StoryRow init: ${story.title} ${story.characters}")
-
             val t = listOf(
                 story.feature, story.title, story.synopsis, story.characters, story.notes,
                 story.sequenceNumber
@@ -262,7 +256,6 @@ class IssueDetailFragment : Fragment() {
 
     inner class CreditsRow(context: Context, val fullCredit: FullCredit) : TableRow(context) {
         init {
-            Log.d(TAG, "CreditsRow init: ${fullCredit.creator} ${fullCredit.role}")
             this.addView(TextView(context).apply {
                 layoutParams = LayoutParams(WRAP_CONTENT, WRAP_CONTENT)
                 text = fullCredit.role.roleName
