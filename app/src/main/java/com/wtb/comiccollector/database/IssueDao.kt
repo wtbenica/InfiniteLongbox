@@ -44,7 +44,6 @@ abstract class BaseDao<T: DataModel> {
     }
 }
 
-
 // TODO: Figure out this mess. Separate daos for each entity might be necessary. There's lots of
 //  duplicate code that could be removed that way. Current type parameter is Creator because
 //  that's what i needed to upsert

@@ -241,16 +241,64 @@ class IssueRepository private constructor(context: Context) {
     }
 
     private fun extractCredits(stories: List<Item<GcdStory, Story>>?) {
-        stories?.forEach { item ->
+
+        stories?.forEach { gcdStory ->
             executor.execute {
-                issueDao.insertStory(item.toRoomModel())
+                issueDao.insertStory(gcdStory.toRoomModel())
             }
-            val story: GcdStory = item.fields as GcdStory
+
+            val story = gcdStory.fields
+
             if (story.script != "") {
                 story.script.split("; ").map { name ->
                     var res = name.replace(Regex("\\s*\\([^)]*\\)\\s*"), "")
                     res = res.replace(Regex("\\s*\\[[^]]*]\\s*"), "")
-                    makeCredit(res, item.pk, Role.Companion.Name.SCRIPT.value)
+                    Log.d(TAG, "SCRIPT: $res")
+                    makeCredit(res, gcdStory.pk, Role.Companion.Name.SCRIPT.value)
+                }
+            }
+
+            if (story.pencils != "") {
+                story.pencils.split("; ").map { name ->
+                    var res = name.replace(Regex("\\s*\\([^)]*\\)\\s*"), "")
+                    res = res.replace(Regex("\\s*\\[[^]]*]\\s*"), "")
+                    Log.d(TAG, "PENCILS: $res")
+                    makeCredit(res, gcdStory.pk, Role.Companion.Name.PENCILS.value)
+                }
+            }
+
+            if (story.inks != "") {
+                story.inks.split("; ").map { name ->
+                    var res = name.replace(Regex("\\s*\\([^)]*\\)\\s*"), "")
+                    res = res.replace(Regex("\\s*\\[[^]]*]\\s*"), "")
+                    Log.d(TAG, "INKS: $res")
+                    makeCredit(res, gcdStory.pk, Role.Companion.Name.INKS.value)
+                }
+            }
+
+            if (story.colors != "") {
+                story.colors.split("; ").map { name ->
+                    var res = name.replace(Regex("\\s*\\([^)]*\\)\\s*"), "")
+                    res = res.replace(Regex("\\s*\\[[^]]*]\\s*"), "")
+                    Log.d(TAG, "COLORS: $res")
+                    makeCredit(res, gcdStory.pk, Role.Companion.Name.COLORS.value)
+                }
+            }
+            if (story.letters != "") {
+                story.letters.split("; ").map { name ->
+                    var res = name.replace(Regex("\\s*\\([^)]*\\)\\s*"), "")
+                    res = res.replace(Regex("\\s*\\[[^]]*]\\s*"), "")
+                    Log.d(TAG, "LETTERS: $res")
+                    makeCredit(res, gcdStory.pk, Role.Companion.Name.LETTERS.value)
+                }
+            }
+
+            if (story.editing != "") {
+                story.editing.split("; ").map { name ->
+                    var res = name.replace(Regex("\\s*\\([^)]*\\)\\s*"), "")
+                    res = res.replace(Regex("\\s*\\[[^]]*]\\s*"), "")
+                    Log.d(TAG, "EDITS: $res")
+                    makeCredit(res, gcdStory.pk, Role.Companion.Name.EDITING.value)
                 }
             }
         }
