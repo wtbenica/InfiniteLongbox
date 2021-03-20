@@ -4,6 +4,7 @@ import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import com.wtb.comiccollector.*
+import com.wtb.comiccollector.Daos.*
 
 @Database(
     entities = [Issue::class, Series::class, Creator::class, Role::class, Credit::class,
@@ -14,6 +15,35 @@ import com.wtb.comiccollector.*
 
 abstract class IssueDatabase : RoomDatabase() {
     abstract fun issueDao(): IssueDao
+    abstract fun seriesDao(): SeriesDao
+    abstract fun creatorDao(): CreatorDao
+    abstract fun storyDao(): StoryDao
+    abstract fun publisherDao(): PublisherDao
+    abstract fun roleDao(): RoleDao
+    abstract fun creditDao(): CreditDao
+    abstract fun storyTypeDao(): StoryTypeDao
+
+    fun insertCredits(
+        stories: List<Story>,
+        creators: List<Creator>,
+        credits: List<Credit>
+    ) {
+        this.runInTransaction {
+            storyDao().upsert(stories)
+            creatorDao().upsert(creators)
+            creditDao().upsert(credits)
+        }
+    }
+
+    fun insertCreatorAndCredit(
+        creator: Creator,
+        credit: Credit
+    ) {
+        this.runInTransaction {
+            creatorDao().upsert(creator)
+            creditDao().upsert(credit)
+        }
+    }
 }
 
 //val migration_1_2 = object : Migration(1, 2) {

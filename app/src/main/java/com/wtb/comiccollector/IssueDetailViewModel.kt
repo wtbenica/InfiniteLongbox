@@ -33,8 +33,6 @@ class IssueDetailViewModel : ViewModel() {
 
     var allCreatorsLiveData: LiveData<List<Creator>> = issueRepository.allCreators
 
-    var allWritersLiveData: LiveData<List<Creator>> = issueRepository.allWriters
-
     var allRolesLiveData: LiveData<List<Role>> = issueRepository.allRoles
 
     fun loadIssue(issueId: Int) {
@@ -43,7 +41,7 @@ class IssueDetailViewModel : ViewModel() {
     }
 
     fun updateIssue(issue: Issue) {
-        issueRepository.updateIssue(issue)
+        issueRepository.saveIssue(issue)
     }
 
     fun deleteIssue(issue: Issue) {
@@ -51,16 +49,16 @@ class IssueDetailViewModel : ViewModel() {
     }
 
     fun updateSeries(series: Series) {
-        issueRepository.updateSeries(series)
+        issueRepository.saveSeries(series)
     }
 
     fun addSeries(series: Series) {
         // TODO: Check if series exists
-        issueRepository.addSeries(series)
+        issueRepository.saveSeries(series)
     }
 
     fun addCreator(creator: Creator) {
-        issueRepository.addCreator(creator)
+        issueRepository.saveCreator(creator)
     }
 
     fun deleteSeries(series: Series) {
@@ -68,7 +66,7 @@ class IssueDetailViewModel : ViewModel() {
     }
 
     fun addIssue(issue: Issue) {
-        issueRepository.addIssue(issue)
+        issueRepository.saveIssue(issue)
     }
 
     fun updateCredit(credit: Credit) {
@@ -76,7 +74,7 @@ class IssueDetailViewModel : ViewModel() {
     }
 
     fun addCredit(credit: Credit) {
-        issueRepository.addCredit(credit)
+        issueRepository.saveCredit(credit)
     }
 
     fun deleteCredit(credit: Credit) {

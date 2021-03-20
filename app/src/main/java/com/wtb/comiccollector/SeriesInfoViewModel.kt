@@ -26,12 +26,12 @@ class SeriesInfoViewModel : ViewModel() {
     var allPublishersLiveData: LiveData<List<Publisher>> = issueRepository.allPublishers
 
     fun updateSeries(series: Series) {
-        issueRepository.updateSeries(series)
+        issueRepository.saveSeries(series)
     }
 
     fun addSeries(series: Series) {
         // TODO: Check if series exists
-        issueRepository.addSeries(series)
+        issueRepository.saveSeries(series)
     }
 
     fun deleteSeries(series: Series) {

@@ -45,7 +45,15 @@ class IssueRepository private constructor(context: Context) {
 
     private val executor = Executors.newSingleThreadExecutor()
     private val database: IssueDatabase = buildDatabase(context)
+    private val seriesDao = database.seriesDao()
     private val issueDao = database.issueDao()
+    private val creatorDao = database.creatorDao()
+    private val publisherDao = database.publisherDao()
+    private val roleDao = database.roleDao()
+    private val storyDao = database.storyDao()
+    private val creditDao = database.creditDao()
+    private val storyTypeDao = database.storyTypeDao()
+
     private val filesDir = context.applicationContext.filesDir
     val retrofit: Retrofit by lazy {
         Retrofit.Builder()
@@ -57,15 +65,13 @@ class IssueRepository private constructor(context: Context) {
         retrofit.create(Webservice::class.java)
     }
 
-    var allSeries: LiveData<List<Series>> = issueDao.getAllSeries()
+    var allSeries: LiveData<List<Series>> = seriesDao.getAllSeries()
 
-    val allPublishers: LiveData<List<Publisher>> = issueDao.getPublishersList()
+    val allPublishers: LiveData<List<Publisher>> = publisherDao.getPublishersList()
 
-    val allCreators: LiveData<List<Creator>> = issueDao.getCreatorsList()
+    val allCreators: LiveData<List<Creator>> = creatorDao.getCreatorsList()
 
-    val allWriters: LiveData<List<Creator>> = issueDao.getWritersList()
-
-    val allRoles: LiveData<List<Role>> = issueDao.getRoleList()
+    val allRoles: LiveData<List<Role>> = roleDao.getRoleList()
 
     init {
         prefs = context.getSharedPreferences(SHARED_PREFS, Context.MODE_PRIVATE)
@@ -100,7 +106,7 @@ class IssueRepository private constructor(context: Context) {
                 callName = "pubCall",
                 commit_call = {
                     executor.execute {
-                        issueDao.insertPublisher(*it.toTypedArray())
+                        publisherDao.upsert(it)
                     }
                 },
                 prefs_key = PUBLISHERS_UPDATED,
@@ -116,7 +122,7 @@ class IssueRepository private constructor(context: Context) {
             StandardCall(
                 callName = "roleCall",
                 commit_call = {
-                    addRole(*it.toTypedArray())
+                    saveRole(*it.toTypedArray())
                 },
                 prefs_key = ROLES_UPDATED,
                 prefs = prefs
@@ -129,7 +135,7 @@ class IssueRepository private constructor(context: Context) {
 
         val commit = { it: List<StoryType> ->
             executor.execute {
-                issueDao.insertStoryType(*it.toTypedArray())
+                storyTypeDao.upsert(it)
 
                 val last_series_update = LocalDate.parse(
                     prefs.getString(SERIES_LIST_UPDATED, LocalDate.MIN.toString())
@@ -181,7 +187,7 @@ class IssueRepository private constructor(context: Context) {
                                     Log.d(TAG, it.pk.toString())
                                     it.toRoomModel()
                                 }.let {
-                                    addSeries(*it.toTypedArray())
+                                    saveSeries(*it.toTypedArray())
 
                                     saveTime(prefs, SERIES_LIST_UPDATED)
                                 }
@@ -208,7 +214,7 @@ class IssueRepository private constructor(context: Context) {
      */
     fun getStories(issueId: Int): LiveData<List<Story>> {
         refreshStories(issueId)
-        return issueDao.getStories(issueId)
+        return storyDao.getStories(issueId)
     }
 
     /**
@@ -244,7 +250,7 @@ class IssueRepository private constructor(context: Context) {
 
         stories?.forEach { gcdStory ->
             executor.execute {
-                issueDao.insertStory(gcdStory.toRoomModel())
+                storyDao.upsert(gcdStory.toRoomModel())
             }
 
             val story = gcdStory.fields
@@ -317,10 +323,10 @@ class IssueRepository private constructor(context: Context) {
                         val creator = response.body()
                         // TODO: Need to handle multiple options (i.e. size > 1)
                         creator?.let {
-                            if (it.size == 1) {
+                            if (it.size > 0) {
                                 it[0].toRoomModel().let {
                                     executor.execute {
-                                        issueDao.insertCreatorCreditTransaction(
+                                        database.insertCreatorAndCredit(
                                             it,
                                             Credit(
                                                 storyId = storyId,
@@ -364,10 +370,10 @@ class IssueRepository private constructor(context: Context) {
                             }
 
                             executor.execute {
-                                issueDao.insertCreditTransaction(
-                                    stories.toTypedArray(),
-                                    creatorModels.toTypedArray(),
-                                    creditModels.toTypedArray()
+                                database.insertCredits(
+                                    stories,
+                                    creatorModels,
+                                    creditModels
                                 )
                             }
 
@@ -381,7 +387,6 @@ class IssueRepository private constructor(context: Context) {
                 ) {
                     Log.d(TAG, "creditsCall failure: ${call.request()} $t")
                 }
-
             }
         )
     }
@@ -399,7 +404,7 @@ class IssueRepository private constructor(context: Context) {
                 callName = "issuesCall",
                 commit_call = {
                     executor.execute {
-                        issueDao.insertIssue(*it.toTypedArray())
+                        issueDao.upsert(it)
                     }
                 },
                 prefs_key = "${seriesId}_updated",
@@ -423,11 +428,11 @@ class IssueRepository private constructor(context: Context) {
                 val publisher =
                     Publisher(publisherId = DUMMY_ID, publisher = "Dummy Publisher")
                 executor.execute {
-                    issueDao.insertPublisher(
+                    publisherDao.upsert(
                         publisher,
                     )
 
-                    issueDao.insertSeries(
+                    seriesDao.upsert(
                         Series(
                             seriesId = DUMMY_ID,
                             seriesName = "Dummy Series",
@@ -441,118 +446,79 @@ class IssueRepository private constructor(context: Context) {
         }
     ).build()
 
-    fun addIssue(vararg issue: Issue) {
+    fun saveIssue(vararg issue: Issue) {
         executor.execute {
             try {
-                issueDao.insertIssue(*issue)
+                issueDao.upsert(issue.asList())
             } catch (e: SQLiteConstraintException) {
                 Log.d(TAG, "addIssue: $e")
             }
         }
     }
 
-    fun addSeries(vararg series: Series) {
+    fun saveSeries(vararg series: Series) {
         executor.execute {
             try {
-                issueDao.insertSeries(*series)
+                seriesDao.upsert(series.asList())
             } catch (e: SQLiteConstraintException) {
                 Log.d(TAG, "addSeries: $e")
             }
         }
     }
 
-    fun addCreator(vararg creator: Creator) {
+    fun saveCreator(vararg creator: Creator) {
         executor.execute {
             try {
-                issueDao.insertCreator(*creator)
+                creatorDao.upsert(creator.asList())
             } catch (e: SQLiteConstraintException) {
                 Log.d(TAG, "addCreator: $e")
             }
         }
     }
 
-    fun addRole(vararg role: Role) {
+    fun saveRole(vararg role: Role) {
         executor.execute {
             try {
-                issueDao.insertRole(*role)
+                roleDao.upsert(role.asList())
             } catch (e: SQLiteConstraintException) {
                 Log.d(TAG, "addRole: $e")
             }
         }
     }
 
-    fun addCredit(vararg credit: Credit) {
+    fun saveCredit(vararg credit: Credit) {
         executor.execute {
             try {
-                issueDao.insertCredit(*credit)
+                creditDao.upsert(credit.asList())
             } catch (e: SQLiteConstraintException) {
                 Log.d(TAG, "addCredit: $e")
             }
         }
     }
 
-    fun addStory(vararg story: Story) {
+    fun saveStory(vararg story: Story) {
         executor.execute {
             try {
-                issueDao.insertStory(*story)
+                storyDao.upsert(story.asList())
             } catch (e: SQLiteConstraintException) {
                 Log.d(TAG, "addStory: $e")
             }
         }
     }
 
-    fun updateIssue(issue: Issue) {
-        executor.execute {
-            try {
-                issueDao.updateIssue(issue)
-            } catch (e: SQLiteConstraintException) {
-                Log.d(TAG, "updateIssue: $e")
-            }
-        }
-    }
-
-    fun updateSeries(series: Series) {
-        executor.execute {
-            try {
-                issueDao.updateSeries(series)
-            } catch (e: SQLiteConstraintException) {
-                // TODO: some real exception handling
-                Log.d(TAG, "updateSeries: $e")
-            }
-        }
-    }
-
     fun deleteIssue(issue: Issue) {
         executor.execute {
-            issueDao.deleteIssue(issue)
+            issueDao.delete(issue)
         }
     }
 
     fun deleteSeries(series: Series) {
         executor.execute {
-            issueDao.deleteSeries(series)
+            seriesDao.delete(series)
         }
     }
 
-    fun getSeriesList(): LiveData<List<Series>> {
-//        TODO("update this to work with getSeriesList in IssueDao")
-        return issueDao.getAllSeries()
-    }
-
-    fun getSeries(seriesId: Int): LiveData<Series?> =
-        issueDao.getSeriesById(seriesId)
-
-    fun updateCreator(creator: Creator) {
-        executor.execute {
-            issueDao.updateCreator(creator)
-        }
-    }
-
-    fun updateRole(role: Role) {
-        executor.execute {
-            issueDao.updateRole(role)
-        }
-    }
+    fun getSeries(seriesId: Int): LiveData<Series?> = seriesDao.getSeriesById(seriesId)
 
     class DuplicateFrament : DialogFragment() {
         override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
@@ -568,51 +534,39 @@ class IssueRepository private constructor(context: Context) {
 
     fun updateCredit(credit: Credit) {
         executor.execute {
-            issueDao.updateCredit(credit)
-        }
-    }
-
-    fun deleteCreator(creator: Creator) {
-        executor.execute {
-            issueDao.deleteCreator(creator)
-        }
-    }
-
-    fun deleteRole(role: Role) {
-        executor.execute {
-            issueDao.deleteRole(role)
+            creditDao.update(credit)
         }
     }
 
     fun deleteCredit(credit: Credit) {
         executor.execute {
-            issueDao.deleteCredit(credit)
+            creditDao.delete(credit)
         }
     }
 
     fun getPublisher(publisherId: Int): LiveData<Publisher?> =
-        issueDao.getPublisher(publisherId)
+        publisherDao.getPublisher(publisherId)
 
     fun getFullIssue(issueId: Int): LiveData<IssueAndSeries?> = issueDao.getFullIssue(issueId)
 
     fun getIssueCredits(issueId: Int): LiveData<List<FullCredit>> {
         refreshStories(issueId)
-        return issueDao.getIssueCredits(issueId)
+        return creditDao.getIssueCredits(issueId)
     }
 
 
     fun getSeriesByCreator(creatorId: Int): LiveData<List<Series>> =
-        issueDao.getSeriesList(creatorId)
+        seriesDao.getSeriesList(creatorId)
 
     fun getCreatorBySeries(seriesId: Int): LiveData<List<Creator>> =
-        issueDao.getCreatorList(seriesId)
+        creatorDao.getCreatorList(seriesId)
 
 /*
     FUTURE IMPLEMENTATION
     fun getCoverImage(issue: Issue): File = File(filesDir, issue.coverFileName)
 */
 
-    class StandardCall<G: GcdJson<D>, D : DataModel>(
+    class StandardCall<G : GcdJson<D>, D : DataModel>(
         val callName: String,
         val commit_call: (List<D>) -> Unit,
         val prefs_key: String,

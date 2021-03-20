@@ -25,27 +25,27 @@ abstract class GroupListViewModel<T>: ViewModel() {
 
     fun addIssue(issue: Issue) {
         Log.d(TAG, "addIssue")
-        issueRepository.addIssue(issue)
+        issueRepository.saveIssue(issue)
     }
 
     fun updateIssue(issue: Issue) {
-        issueRepository.updateIssue(issue)
+        issueRepository.saveIssue(issue)
     }
 
     fun addSeries(series: Series) {
-        issueRepository.addSeries(series)
+        issueRepository.saveSeries(series)
     }
 
     fun addCreator(creator: Creator) {
-        issueRepository.addCreator(creator)
+        issueRepository.saveCreator(creator)
     }
 
     fun addRole(role: Role) {
-        issueRepository.addRole(role)
+        issueRepository.saveRole(role)
     }
 
     fun addCredit(issue: Issue, creator: Creator, role: Role) {
-        issueRepository.addCredit(
+        issueRepository.saveCredit(
             Credit(
                 storyId = issue.issueId,
                 creatorId = creator.creatorId,
