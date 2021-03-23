@@ -18,7 +18,7 @@ class Item<G : GcdJson<M>, M : DataModel>(
     val fields: G,
 ) {
     override fun toString(): String {
-        return "$pk " + fields.toString()
+        return "$pk $fields"
     }
 
     fun toRoomModel(): M {
@@ -191,8 +191,8 @@ class GcdCredit(
     override fun toRoomModel(pk: Int): Credit {
         Log.d(
             "GcdCredit",
-            "pk: ${pk} sid: $storyId cid: ${nameDetailId} " +
-                    "rid: ${roleId}"
+            "pk: $pk sid: $storyId cid: $nameDetailId " +
+                    "rid: $roleId"
         )
         return Credit(
             creditId = pk,

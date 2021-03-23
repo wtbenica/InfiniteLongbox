@@ -43,7 +43,7 @@ const val BASE_URL = ALFRED
 
 class IssueRepository private constructor(context: Context) {
 
-    private var prefs: SharedPreferences
+    private var prefs: SharedPreferences = context.getSharedPreferences(SHARED_PREFS, Context.MODE_PRIVATE)
 
     private val executor = Executors.newSingleThreadExecutor()
     private val database: IssueDatabase = buildDatabase(context)
@@ -58,7 +58,7 @@ class IssueRepository private constructor(context: Context) {
     private val nameDetailDao = database.nameDetailDao()
 
     private val filesDir = context.applicationContext.filesDir
-    val retrofit: Retrofit by lazy {
+    private val retrofit: Retrofit by lazy {
         Retrofit.Builder()
             .baseUrl(BASE_URL)
             .addConverterFactory(GsonConverterFactory.create())
@@ -68,9 +68,9 @@ class IssueRepository private constructor(context: Context) {
         retrofit.create(Webservice::class.java)
     }
 
-    val staticUpdater = StaticUpdater()
-    val creatorUpdater = CreatorUpdater()
-    val creditUpdater = CreditUpdater()
+    private val staticUpdater = StaticUpdater()
+    private val creatorUpdater = CreatorUpdater()
+    private val creditUpdater = CreditUpdater()
 
     var allSeries: LiveData<List<Series>> = seriesDao.getAllSeries()
 
@@ -81,12 +81,11 @@ class IssueRepository private constructor(context: Context) {
     val allRoles: LiveData<List<Role>> = roleDao.getRoleList()
 
     init {
-        prefs = context.getSharedPreferences(SHARED_PREFS, Context.MODE_PRIVATE)
-        val last_update = LocalDate.parse(
+        val lastUpdate = LocalDate.parse(
             prefs.getString(STATIC_DATA_UPDATED, LocalDate.MIN.toString())
         )
 
-        if (last_update.plusDays(STALE_DATA_NUM_DAYS) < LocalDate.now()) {
+        if (lastUpdate.plusDays(STALE_DATA_NUM_DAYS) < LocalDate.now()) {
             staticUpdater.update(prefs)
         }
     }
@@ -259,7 +258,7 @@ class IssueRepository private constructor(context: Context) {
         return issueDao.getIssuesBySeries(seriesId)
     }
 
-    fun updateIssuesBySeries(seriesId: Int) {
+    private fun updateIssuesBySeries(seriesId: Int) {
         val issuesCall = apiService.getIssuesBySeries(seriesId)
 
         issuesCall.enqueue(
@@ -420,7 +419,7 @@ class IssueRepository private constructor(context: Context) {
          *  Updates publisher, series, role, and storytype tables if it has been
          *  more than [STALE_DATA_NUM_DAYS] days since last update
          *
-         *  @param context
+         *  @param prefs
          */
         private fun refreshStaticData(prefs: SharedPreferences) {
 
@@ -469,11 +468,11 @@ class IssueRepository private constructor(context: Context) {
                 executor.execute {
                     storyTypeDao.upsert(it)
 
-                    val last_series_update = LocalDate.parse(
+                    val lastSeriesUpdate = LocalDate.parse(
                         prefs.getString(SERIES_LIST_UPDATED, LocalDate.MIN.toString())
                     )
 
-                    if (last_series_update.plusDays(STALE_SERIES_NUM_DAYS) < LocalDate.now()) {
+                    if (lastSeriesUpdate.plusDays(STALE_SERIES_NUM_DAYS) < LocalDate.now()) {
                         refreshAllSeries(prefs)
                     }
                 }
@@ -512,7 +511,7 @@ class IssueRepository private constructor(context: Context) {
                             Log.d(TAG, "seriesList: $seriesList")
 
                             seriesList?.let {
-                                if (seriesList.size > 0) {
+                                if (seriesList.isNotEmpty()) {
                                     refreshAllSeries(prefs, page + 1)
 
                                     seriesList.map {
@@ -597,7 +596,7 @@ class IssueRepository private constructor(context: Context) {
             )
         }
 
-        fun refreshNameDetailsByIds(
+        private fun refreshNameDetailsByIds(
             nameDetailIds: List<Int>,
             stories: List<Story>,
             credits: List<Credit>
@@ -621,7 +620,7 @@ class IssueRepository private constructor(context: Context) {
             )
         }
 
-        fun refreshCreators(
+        private fun refreshCreators(
             creatorIds: List<Int>,
             nameDetails: List<NameDetail>,
             stories: List<Story>,
@@ -653,7 +652,7 @@ class IssueRepository private constructor(context: Context) {
             refreshNameDetails(creatorId)
         }
 
-        fun refreshNameDetails(creatorId: Int) {
+        private fun refreshNameDetails(creatorId: Int) {
             val nameDetailCall = apiService.getNameDetailsByCreatorIds(listOf(creatorId))
 
             nameDetailCall.enqueue(
@@ -705,7 +704,7 @@ class IssueRepository private constructor(context: Context) {
         }
 
         private fun refreshVariantOfIssues(storyList: List<Story>, issueList: List<Issue>) {
-            val variantsCall = apiService.getIssues(issueList.map { it.variantOf }.filterNotNull())
+            val variantsCall = apiService.getIssues(issueList.mapNotNull { it.variantOf })
 
             variantsCall.enqueue(
                 StandardCall(
@@ -807,7 +806,7 @@ class IssueRepository private constructor(context: Context) {
             response: Response<List<Item<G, D>>>
         ) {
             if (response.code() == 200) {
-                Log.d(TAG, "STANDARD_CALL: $callName ${call.request()} ${response}")
+                Log.d(TAG, "STANDARD_CALL: $callName ${call.request()} $response")
                 val itemList: List<Item<G, D>>? = response.body()
 
                 preprocess?.let {

@@ -92,7 +92,7 @@ data class Issue(
         Index(value = ["publisherId"])
     ]
 )
-public data class Series(
+data class Series(
     @PrimaryKey(autoGenerate = true) var seriesId: Int = AUTO_ID,
     var seriesName: String = "New Series",
     var sortName: String? = null,
@@ -105,7 +105,7 @@ public data class Series(
 ) : GroupListFragment.Indexed, DataModel {
 
     override fun getIndex(): Char =
-        sortName?.get(0)?.toUpperCase() ?: seriesName.get(0).toUpperCase()
+        sortName?.get(0)?.toUpperCase() ?: seriesName[0].toUpperCase()
 
     override fun toString(): String = "$seriesId $seriesName $dateRange"
 
@@ -131,7 +131,7 @@ data class Creator(
 ) : GroupListFragment.Indexed, DataModel {
 
     override fun getIndex(): Char {
-        return sortName.get(0)
+        return sortName[0]
     }
 
     override fun toString(): String {
@@ -299,9 +299,7 @@ data class MyCredit(
     var storyId: Int,
     var creatorId: Int,
     var roleId: Int
-) : DataModel {
-
-}
+) : DataModel
 
 data class FullIssue(
     @Embedded

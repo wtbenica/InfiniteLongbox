@@ -127,16 +127,16 @@ abstract class GroupListFragment<T : GroupListFragment.Indexed, U : GroupListFra
             val item1 = item.getIndex()
 
             if (index == 0) {
-                result.put(item1, index)
+                result[item1] = index
             } else {
                 val item2 = try {
-                    itemList.get(index + 1)
+                    itemList[index + 1]
                 } catch (e: IndexOutOfBoundsException) {
                     '#'
                 }
 
-                if (!item1.equals(item2) && result.get(item1) == null) {
-                    result.put(item1, index)
+                if (item1 != item2 && result[item1] == null) {
+                    result[item1] = index
                 }
             }
         }
@@ -211,7 +211,7 @@ abstract class GroupListFragment<T : GroupListFragment.Indexed, U : GroupListFra
         }
     }
 
-    inner class IndexAdapter(val indexList: List<Pair<Char, Int>>) :
+    inner class IndexAdapter(private val indexList: List<Pair<Char, Int>>) :
         RecyclerView.Adapter<IndexViewHolder>() {
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): IndexViewHolder {
@@ -219,7 +219,7 @@ abstract class GroupListFragment<T : GroupListFragment.Indexed, U : GroupListFra
         }
 
         override fun onBindViewHolder(holder: IndexViewHolder, position: Int) {
-            holder.bind(indexList.get(position))
+            holder.bind(indexList[position])
         }
 
         override fun getItemCount(): Int = indexList.size

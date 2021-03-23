@@ -4,6 +4,4 @@ import androidx.room.Dao
 import com.wtb.comiccollector.NameDetail
 
 @Dao
-abstract class NameDetailDao : BaseDao<NameDetail>() {
-
-}
+abstract class NameDetailDao : BaseDao<NameDetail>()

@@ -253,7 +253,7 @@ class IssueDetailFragment : Fragment() {
         }
     }
 
-    inner class CreditsRow(context: Context, val fullCredit: FullCredit) : TableRow(context) {
+    inner class CreditsRow(context: Context, private val fullCredit: FullCredit) : TableRow(context) {
         init {
             this.addView(TextView(context).apply {
                 layoutParams = LayoutParams(WRAP_CONTENT, WRAP_CONTENT)

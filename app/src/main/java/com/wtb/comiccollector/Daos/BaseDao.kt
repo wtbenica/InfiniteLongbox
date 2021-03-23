@@ -55,7 +55,7 @@ abstract class BaseDao<T : DataModel> {
                 if (insertResult[i] == -1L) updateList.add(objList[i])
             }
 
-            if (!updateList.isEmpty()) {
+            if (updateList.isNotEmpty()) {
                 update(updateList)
             }
     }
