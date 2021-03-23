@@ -1,12 +1,14 @@
-package com.wtb.comiccollector
+package com.wtb.comiccollector.GroupListFragments
 
 import android.os.Bundle
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.lifecycle.ViewModelProvider
+import com.wtb.comiccollector.Creator
+import com.wtb.comiccollector.GroupListViewModels.CreatorListViewModel
+import com.wtb.comiccollector.R
 import java.time.LocalDate
-import java.util.*
 
 private const val TAG = "CreatorListFragment"
 
@@ -43,8 +45,8 @@ class CreatorListFragment : GroupListFragment<Creator, CreatorListFragment.Creat
     companion object {
         @JvmStatic
         fun newInstance(
-            seriesFilterId: UUID? = null,
-            creatorFilterId: UUID? = null,
+            seriesFilterId: Int? = null,
+            creatorFilterId: Int? = null,
             dateFilterStart: LocalDate? = null,
             dateFilterEnd: LocalDate? = null
         ) =

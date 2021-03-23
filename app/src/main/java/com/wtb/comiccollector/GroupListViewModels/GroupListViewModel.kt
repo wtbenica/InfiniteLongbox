@@ -1,19 +1,22 @@
-package com.wtb.comiccollector
+package com.wtb.comiccollector.GroupListViewModels
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.wtb.comiccollector.*
 import java.time.LocalDate
-import java.util.*
+
+private const val TAG = "GroupListViewModel"
 
 abstract class GroupListViewModel<T>: ViewModel() {
     val issueRepository: IssueRepository = IssueRepository.get()
-    val filterIdLiveData = MutableLiveData<UUID?>(null)
+    val filterIdLiveData = MutableLiveData<Int?>(null)
 
     abstract val objectListLiveData: LiveData<List<T>>
 
     fun filter(
-        filterId: UUID? = null,
+        filterId: Int? = null,
         startDate: LocalDate? = null,
         endDate: LocalDate? = null
     ) {
@@ -21,34 +24,35 @@ abstract class GroupListViewModel<T>: ViewModel() {
     }
 
     fun addIssue(issue: Issue) {
-        issueRepository.addIssue(issue)
+        Log.d(TAG, "addIssue")
+        issueRepository.saveIssue(issue)
     }
 
     fun updateIssue(issue: Issue) {
-        issueRepository.updateIssue(issue)
+        issueRepository.saveIssue(issue)
     }
 
     fun addSeries(series: Series) {
-        issueRepository.addSeries(series)
+        issueRepository.saveSeries(series)
     }
 
     fun addCreator(creator: Creator) {
-        issueRepository.addCreator(creator)
+        issueRepository.saveCreator(creator)
     }
 
     fun addRole(role: Role) {
-        issueRepository.addRole(role)
+        issueRepository.saveRole(role)
     }
 
     fun addCredit(issue: Issue, creator: Creator, role: Role) {
-        issueRepository.addCredit(
+        issueRepository.saveCredit(
             Credit(
-                issueId = issue.issueId,
-                creatorId = creator.creatorId,
+                storyId = issue.issueId,
+                nameDetailId = creator.creatorId,
                 roleId = role.roleId
             )
         )
     }
 
-    fun getSeries(seriesId: UUID): LiveData<Series?> = issueRepository.getSeries(seriesId)
+    fun getSeries(seriesId: Int): LiveData<Series?> = issueRepository.getSeries(seriesId)
 }

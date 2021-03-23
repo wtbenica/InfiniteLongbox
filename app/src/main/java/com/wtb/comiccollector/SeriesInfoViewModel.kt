@@ -4,15 +4,14 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
-import java.util.*
 
 private const val TAG = "IssueDetailViewModel"
 
 class SeriesInfoViewModel : ViewModel() {
 
     private val issueRepository: IssueRepository = IssueRepository.get()
-    private val seriesIdLiveData = MutableLiveData<UUID>()
-    private val publisherIdLiveData = MutableLiveData<UUID>()
+    private val seriesIdLiveData = MutableLiveData<Int>()
+    private val publisherIdLiveData = MutableLiveData<Int>()
 
     var seriesLiveData: LiveData<Series?> =
         Transformations.switchMap(seriesIdLiveData) { seriesId ->
@@ -27,23 +26,23 @@ class SeriesInfoViewModel : ViewModel() {
     var allPublishersLiveData: LiveData<List<Publisher>> = issueRepository.allPublishers
 
     fun updateSeries(series: Series) {
-        issueRepository.updateSeries(series)
+        issueRepository.saveSeries(series)
     }
 
     fun addSeries(series: Series) {
         // TODO: Check if series exists
-        issueRepository.addSeries(series)
+        issueRepository.saveSeries(series)
     }
 
     fun deleteSeries(series: Series) {
         issueRepository.deleteSeries(series)
     }
 
-    fun loadSeries(seriesId: UUID) {
+    fun loadSeries(seriesId: Int) {
         seriesIdLiveData.value = seriesId
     }
 
-    fun loadPublisher(publisherId: UUID) {
+    fun loadPublisher(publisherId: Int) {
         publisherIdLiveData.value = publisherId
     }
 }

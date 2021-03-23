@@ -3,7 +3,8 @@ package com.wtb.comiccollector
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.DialogFragment
-import java.util.*
+import com.wtb.comiccollector.GroupListFragments.GroupListFragment
+import com.wtb.comiccollector.GroupListFragments.SeriesListFragment
 
 class MainActivity : AppCompatActivity(),
     IssueListFragment.Callbacks,
@@ -26,7 +27,7 @@ class MainActivity : AppCompatActivity(),
         }
     }
 
-    override fun onIssueSelected(issueId: UUID) {
+    override fun onIssueSelected(issueId: Int) {
         val fragment = IssueDetailFragment.newInstance(issueId, false)
         supportFragmentManager
             .beginTransaction()
@@ -41,7 +42,7 @@ class MainActivity : AppCompatActivity(),
             .commit()
     }
 
-    override fun onSeriesSelected(seriesId: UUID) {
+    override fun onSeriesSelected(seriesId: Int) {
         val fragment = IssueListFragment.newInstance(seriesFilterId = seriesId)
         supportFragmentManager
             .beginTransaction()
@@ -56,7 +57,7 @@ class MainActivity : AppCompatActivity(),
             .commit()
     }
 
-    override fun onCreatorSelected(creatorId: UUID) {
+    override fun onCreatorSelected(creatorId: Int) {
         val fragment = SeriesListFragment.newInstance(creatorFilterId = creatorId)
         supportFragmentManager
             .beginTransaction()
@@ -71,7 +72,7 @@ class MainActivity : AppCompatActivity(),
             .commit()
     }
 
-    override fun onNewIssue(issueId: UUID) {
+    override fun onNewIssue(issueId: Int) {
         val fragment = IssueDetailFragment.newInstance(issueId)
 
         supportFragmentManager

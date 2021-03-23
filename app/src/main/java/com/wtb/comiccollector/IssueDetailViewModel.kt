@@ -1,27 +1,30 @@
 package com.wtb.comiccollector
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
-import java.util.*
 
 private const val TAG = "IssueDetailViewModel"
 
 class IssueDetailViewModel : ViewModel() {
 
     private val issueRepository: IssueRepository = IssueRepository.get()
-    private val issueIdLiveData = MutableLiveData<UUID>()
+    private val issueIdLiveData = MutableLiveData<Int>()
 
-    var fullIssueLiveData: LiveData<IssueAndSeries?> =
+    var fullIssueLiveData: LiveData<IssueAndSeries> =
         Transformations.switchMap(issueIdLiveData) { issueId ->
-            issueRepository.getNewFullIssue(issueId)
+            issueRepository.getFullIssue(issueId)
+        }
+
+    var issueStoriesLiveData: LiveData<List<Story>> =
+        Transformations.switchMap(issueIdLiveData) { issueId ->
+            issueRepository.getStoriesByIssue(issueId)
         }
 
     var issueCreditsLiveData: LiveData<List<FullCredit>> =
         Transformations.switchMap(issueIdLiveData) { issueId ->
-            issueRepository.getNewIssueCredits(issueId)
+            issueRepository.getIssueCredits(issueId)
         }
 
     var allSeriesLiveData: LiveData<List<Series>> = issueRepository.allSeries
@@ -30,18 +33,15 @@ class IssueDetailViewModel : ViewModel() {
 
     var allCreatorsLiveData: LiveData<List<Creator>> = issueRepository.allCreators
 
-    var allWritersLiveData: LiveData<List<Creator>> = issueRepository.allWriters
-
     var allRolesLiveData: LiveData<List<Role>> = issueRepository.allRoles
 
-    fun loadIssue(issueId: UUID) {
-        Log.d(TAG, "loadIssue")
-        issueIdLiveData.value = NEW_SERIES_ID
+    fun loadIssue(issueId: Int) {
+        issueIdLiveData.value = AUTO_ID
         issueIdLiveData.value = issueId
     }
 
     fun updateIssue(issue: Issue) {
-        issueRepository.updateIssue(issue)
+        issueRepository.saveIssue(issue)
     }
 
     fun deleteIssue(issue: Issue) {
@@ -49,16 +49,16 @@ class IssueDetailViewModel : ViewModel() {
     }
 
     fun updateSeries(series: Series) {
-        issueRepository.updateSeries(series)
+        issueRepository.saveSeries(series)
     }
 
     fun addSeries(series: Series) {
         // TODO: Check if series exists
-        issueRepository.addSeries(series)
+        issueRepository.saveSeries(series)
     }
 
     fun addCreator(creator: Creator) {
-        issueRepository.addCreator(creator)
+        issueRepository.saveCreator(creator)
     }
 
     fun deleteSeries(series: Series) {
@@ -66,7 +66,7 @@ class IssueDetailViewModel : ViewModel() {
     }
 
     fun addIssue(issue: Issue) {
-        issueRepository.addIssue(issue)
+        issueRepository.saveIssue(issue)
     }
 
     fun updateCredit(credit: Credit) {
@@ -74,7 +74,7 @@ class IssueDetailViewModel : ViewModel() {
     }
 
     fun addCredit(credit: Credit) {
-        issueRepository.addCredit(credit)
+        issueRepository.saveCredit(credit)
     }
 
     fun deleteCredit(credit: Credit) {
