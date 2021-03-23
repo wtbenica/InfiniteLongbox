@@ -4,7 +4,6 @@ import android.util.Log
 import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
 import java.time.LocalDate
-import java.time.format.DateTimeFormatter
 
 // TODO: do all these val need to be nullable?
 class Item<G : GcdJson<M>, M : DataModel>(
@@ -55,8 +54,8 @@ class GcdSeries(
     val publicationDates: String?,
     @SerializedName("publisher")
     @Expose
-    val publisherInfo: Array<String>?,
-    @SerializedName("publication_format")
+    val publisher: Int?,
+    @SerializedName("publishing_format")
     @Expose
     val publishingFormat: String?
 ) : GcdJson<Series> {
@@ -68,7 +67,8 @@ class GcdSeries(
         return Series(
             seriesId = pk,
             seriesName = name ?: "",
-            publisherId = publisherInfo?.get(0)?.toInt() ?: AUTO_ID,
+            sortName = sortName,
+            publisherId = publisher ?: AUTO_ID,
             startDate = when (yearBeganUncertain as Int) {
                 0 -> LocalDate.of(
                     yearBegan ?: LocalDate.MIN.year,
@@ -169,15 +169,7 @@ class GcdIssue(
             issueId = pk,
             seriesId = seriesId,
             issueNum = number.toIntOrNull() ?: 1,
-            releaseDate = if (onSaleDate == "") {
-                null
-            } else {
-                LocalDate.parse(
-                    Issue.formatDate(onSaleDate),
-                    DateTimeFormatter.ofPattern("uuuu-MM-dd")
-                )
-
-            },
+            releaseDate = Issue.formatDate(onSaleDate),
             upc = barcode.toLongOrNull(),
             variantName = variantName,
             variantOf = variantOf
@@ -188,10 +180,10 @@ class GcdIssue(
 class GcdCredit(
     @SerializedName("creator")
     @Expose
-    val creatorId: Array<String>,
+    val nameDetailId: Int,
     @SerializedName("credit_type")
     @Expose
-    val roleId: Array<String>,
+    val roleId: Int,
     @SerializedName("story")
     @Expose
     val storyId: Int
@@ -199,22 +191,22 @@ class GcdCredit(
     override fun toRoomModel(pk: Int): Credit {
         Log.d(
             "GcdCredit",
-            "pk: ${pk} sid: $storyId cid: ${creatorId[CreatorKey.ID.pos].toInt()} " +
-                    "rid: ${roleId[RoleKey.ID.pos].toInt()}"
+            "pk: ${pk} sid: $storyId cid: ${nameDetailId} " +
+                    "rid: ${roleId}"
         )
         return Credit(
             creditId = pk,
             storyId = storyId,
-            creatorId = creatorId[CreatorKey.ID.pos].toInt(),
-            roleId = roleId[RoleKey.ID.pos].toInt(),
+            nameDetailId = nameDetailId,
+            roleId = roleId,
         )
     }
 
     fun getCreatorModel(): Creator {
         return Creator(
-            creatorId = creatorId[CreatorKey.ID.pos].toInt(),
-            name = creatorId[CreatorKey.NAME.pos],
-            sortName = creatorId[CreatorKey.SORT_NAME.pos]
+            creatorId = nameDetailId,
+            name = nameDetailId.toString(),
+            sortName = nameDetailId.toString()
         )
     }
 }
@@ -316,6 +308,19 @@ class GcdStoryType(
             typeId = pk,
             name = name,
             sortCode = sortCode
+        )
+    }
+}
+
+class GcdNameDetail(
+    @SerializedName("creator")
+    @Expose
+    val creatorId: Int
+) : GcdJson<NameDetail> {
+    override fun toRoomModel(pk: Int): NameDetail {
+        return NameDetail(
+            nameDetailId = pk,
+            creatorId = creatorId
         )
     }
 }

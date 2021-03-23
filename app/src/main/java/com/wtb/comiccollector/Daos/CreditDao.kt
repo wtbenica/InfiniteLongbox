@@ -12,13 +12,14 @@ abstract class CreditDao : BaseDao<Credit>() {
     @Transaction
     @Query(
         """
-            SELECT cr.*
+            SELECT cr.*, c.*
             FROM credit cr
             JOIN story sr on cr.storyId = sr.storyId
             JOIN storytype st on st.typeId = sr.storyType
             JOIN role ON cr.roleId = role.roleId
+            JOIN namedetail nd ON nd.nameDetailId = cr.nameDetailId
+            JOIN creator c on c.creatorId = nd.creatorId
             WHERE sr.issueId = :issueId
-            AND (sr.storyType = 19 OR sr.storyType= 6)
             ORDER BY st.sortCode, sr.sequenceNumber, role.sortOrder
         """
     )

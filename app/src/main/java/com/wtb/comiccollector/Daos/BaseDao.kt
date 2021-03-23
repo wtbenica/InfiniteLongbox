@@ -1,5 +1,7 @@
 package com.wtb.comiccollector.Daos
 
+import android.database.sqlite.SQLiteConstraintException
+import android.util.Log
 import androidx.room.*
 import com.wtb.comiccollector.DataModel
 
@@ -13,6 +15,7 @@ abstract class BaseDao<T : DataModel> {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     abstract fun insert(obj: T): Long
 
+    @Transaction
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     abstract fun insert(obj: List<T>): List<Long>
 
@@ -38,15 +41,22 @@ abstract class BaseDao<T : DataModel> {
 
     @Transaction
     open fun upsert(objList: List<T>) {
-        val insertResult = insert(objList)
-        val updateList = mutableListOf<T>()
 
-        for (i in insertResult.indices) {
-            if (insertResult[i] == -1L) updateList.add(objList[i])
-        }
+            val insertResult = objList.map {
+                try {
+                    insert(it)
+                } catch (e: SQLiteConstraintException) {
+                    Log.d("UPSERT", "$it $e")
+                }
+            }
+            val updateList = mutableListOf<T>()
 
-        if (!updateList.isEmpty()) {
-            update(updateList)
-        }
+            for (i in insertResult.indices) {
+                if (insertResult[i] == -1L) updateList.add(objList[i])
+            }
+
+            if (!updateList.isEmpty()) {
+                update(updateList)
+            }
     }
 }

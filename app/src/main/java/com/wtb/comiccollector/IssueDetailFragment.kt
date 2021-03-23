@@ -210,26 +210,24 @@ class IssueDetailFragment : Fragment() {
             }
     }
 
-    inner class CreditsBox(context: Context) : LinearLayout(context) {
+    inner class CreditsBox(context: Context) : TableLayout(context) {
         init {
             orientation = VERTICAL
             layoutParams = LayoutParams(WRAP_CONTENT, WRAP_CONTENT)
+            isStretchAllColumns = true
         }
 
         fun displayCredit() {
             this.removeAllViews()
             for (story in issueStories) {
                 this.addView(StoryRow(context, story))
-                val creditsTable = TableLayout(context)
-                this.addView(creditsTable)
                 for (credit in issueCredits) {
                     if (credit.story.storyId == story.storyId) {
-                        creditsTable.addView(CreditsRow(context, credit))
+                        this.addView(CreditsRow(context, credit))
                     }
                 }
             }
         }
-
     }
 
     inner class StoryRow(context: Context, val story: Story) : LinearLayout(context) {
@@ -250,6 +248,7 @@ class IssueDetailFragment : Fragment() {
                 }
                 layoutParams = LayoutParams(MATCH_PARENT, WRAP_CONTENT)
                 textSize = 18.0F
+                setTextAppearance(R.style.TextAppearance_MaterialComponents_Headline6)
             })
         }
     }
@@ -259,6 +258,7 @@ class IssueDetailFragment : Fragment() {
             this.addView(TextView(context).apply {
                 layoutParams = LayoutParams(WRAP_CONTENT, WRAP_CONTENT)
                 text = fullCredit.role.roleName
+                setTextAppearance(R.style.TextAppearance_MaterialComponents_Subtitle1)
             })
             this.addView(TextView(context).apply {
                 text = fullCredit.creator.name

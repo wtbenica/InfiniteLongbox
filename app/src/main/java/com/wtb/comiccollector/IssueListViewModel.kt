@@ -48,7 +48,7 @@ class IssueListViewModel : ViewModel() {
         issueRepository.saveCredit(
             Credit(
                 storyId = issue.issueId,
-                creatorId = creator.creatorId,
+                nameDetailId = creator.creatorId,
                 roleId = role.roleId
             )
         )

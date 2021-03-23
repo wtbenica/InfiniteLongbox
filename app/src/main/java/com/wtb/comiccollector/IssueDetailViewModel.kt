@@ -19,7 +19,7 @@ class IssueDetailViewModel : ViewModel() {
 
     var issueStoriesLiveData: LiveData<List<Story>> =
         Transformations.switchMap(issueIdLiveData) { issueId ->
-            issueRepository.getStories(issueId)
+            issueRepository.getStoriesByIssue(issueId)
         }
 
     var issueCreditsLiveData: LiveData<List<FullCredit>> =

@@ -7,6 +7,7 @@ import androidx.room.ForeignKey.CASCADE
 import com.wtb.comiccollector.GroupListFragments.GroupListFragment
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
+import java.time.format.DateTimeParseException
 
 const val AUTO_ID = 0
 
@@ -47,12 +48,32 @@ data class Issue(
         get() = "IMG_$issueId.jpg"
 
     companion object {
-        fun formatDate(date: String): String {
-            var res = date
-            while (res.length < 10) {
-                res = res.plus("-01")
+        fun formatDate(date: String): LocalDate? {
+            val res: LocalDate?
+
+            if (date == "") {
+                res = null
+            } else {
+                val newDate = date.replace("-00", "-01")
+                res = try {
+                    LocalDate.parse(
+                        newDate,
+                        DateTimeFormatter.ofPattern("uuuu-MM-dd")
+                    )
+                } catch (e: DateTimeParseException) {
+                    try {
+                        LocalDate.parse(
+                            newDate.substringBeforeLast('-') + "-01",
+                            DateTimeFormatter.ofPattern(("uuuu-MM-dd"))
+                        )
+                    } catch (e: DateTimeParseException) {
+                        throw e
+                    }
+                } catch (e: DateTimeParseException) {
+                    throw e
+                }
             }
-            return res.replace("-00", "-01")
+            return res
         }
     }
 }
@@ -67,14 +88,14 @@ data class Issue(
         )
     ],
     indices = [
-        // TODO: This is creating conflicts bc 
-        Index(value = ["seriesName", "volume", "publisherId", "publishingFormat"], unique = true),
+        Index(value = ["seriesName"]),
         Index(value = ["publisherId"])
     ]
 )
 public data class Series(
     @PrimaryKey(autoGenerate = true) var seriesId: Int = AUTO_ID,
     var seriesName: String = "New Series",
+    var sortName: String? = null,
     var volume: Int = 1,
     var publisherId: Int = AUTO_ID,
     var startDate: LocalDate? = null,
@@ -83,7 +104,8 @@ public data class Series(
     var publishingFormat: String? = null
 ) : GroupListFragment.Indexed, DataModel {
 
-    override fun getIndex(): Char = seriesName.get(0).toUpperCase()
+    override fun getIndex(): Char =
+        sortName?.get(0)?.toUpperCase() ?: seriesName.get(0).toUpperCase()
 
     override fun toString(): String = "$seriesId $seriesName $dateRange"
 
@@ -146,6 +168,24 @@ data class Role(
     }
 }
 
+@Entity(
+    foreignKeys = [
+        ForeignKey(
+            entity = Creator::class,
+            parentColumns = arrayOf("creatorId"),
+            childColumns = arrayOf("creatorId"),
+            onDelete = CASCADE
+        )
+    ],
+    indices = [
+        Index(value = arrayOf("creatorId")),
+    ]
+)
+data class NameDetail(
+    @PrimaryKey(autoGenerate = true) val nameDetailId: Int = AUTO_ID,
+    var creatorId: Int
+) : DataModel
+
 @Entity
 data class StoryType(
     @PrimaryKey(autoGenerate = true) val typeId: Int = AUTO_ID,
@@ -179,9 +219,9 @@ data class Story(
 
 @Entity(
     indices = [
-        Index(value = ["storyId", "creatorId", "roleId"], unique = true),
+        Index(value = ["storyId", "nameDetailId", "roleId"], unique = true),
         Index(value = ["storyId"]),
-        Index(value = ["creatorId"]),
+        Index(value = ["nameDetailId"]),
         Index(value = ["roleId"])
     ],
     foreignKeys = [
@@ -192,9 +232,9 @@ data class Story(
             onDelete = CASCADE
         ),
         ForeignKey(
-            entity = Creator::class,
-            parentColumns = arrayOf("creatorId"),
-            childColumns = arrayOf("creatorId"),
+            entity = NameDetail::class,
+            parentColumns = arrayOf("nameDetailId"),
+            childColumns = arrayOf("nameDetailId"),
             onDelete = CASCADE
         ),
         ForeignKey(
@@ -208,14 +248,16 @@ data class Story(
 data class Credit(
     @PrimaryKey(autoGenerate = true) val creditId: Int = AUTO_ID,
     var storyId: Int,
-    var creatorId: Int,
+    var nameDetailId: Int,
     var roleId: Int
 ) : DataModel {
     init {
         Log.d(
             "INS",
-            "CREDIT: ${creditId.format(10)} ${storyId.format(10)} ${creatorId.format(10)} ${roleId
-                .format(10)}"
+            "CREDIT: ${creditId.format(10)} ${storyId.format(10)} ${nameDetailId.format(10)} ${
+                roleId
+                    .format(10)
+            }"
         )
     }
 }
@@ -289,10 +331,13 @@ data class FullCredit(
     val credit: Credit,
 
     @Relation(
-        parentColumn = "creatorId",
-        entityColumn = "creatorId"
+        parentColumn = "nameDetailId",
+        entityColumn = "nameDetailId"
     )
-    var creator: Creator,
+    var nameDetail: NameDetail,
+
+    @Embedded
+    val creator: Creator,
 
     @Relation(
         parentColumn = "roleId",

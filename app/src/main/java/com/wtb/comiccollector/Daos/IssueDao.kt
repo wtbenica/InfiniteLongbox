@@ -4,17 +4,17 @@ import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Query
 import androidx.room.Transaction
-import com.wtb.comiccollector.FullCredit
 import com.wtb.comiccollector.FullIssue
 import com.wtb.comiccollector.Issue
 import com.wtb.comiccollector.IssueAndSeries
 
 @Dao
 abstract class IssueDao : BaseDao<Issue>() {
+    @Transaction
     @Query("SELECT * FROM issue WHERE issueId = :issueId")
     abstract fun getFullIssue(issueId: Int): LiveData<IssueAndSeries?>
 
-    @Query("SELECT issue.* FROM issue NATURAL JOIN credit WHERE creatorId=:creatorId")
+    @Query("SELECT issue.* FROM issue NATURAL JOIN credit WHERE nameDetailId=:creatorId")
     abstract fun getIssuesByCreator(creatorId: Int): LiveData<List<Issue>>
 
 

@@ -18,21 +18,50 @@ interface Webservice {
     fun getIssuesBySeries(@Path("seriesId") seriesId: Int): Call<List<Item<GcdIssue, Issue>>>
 
     @GET("/db_query/issue/{issueId}/credits")
-    fun getCredits(@Path("issueId") issueId: Int): Call<List<Item<GcdCredit, Credit>>>
+    fun getCreditsByIssue(@Path("issueId") issueId: Int): Call<List<Item<GcdCredit, Credit>>>
 
     @GET("/db_query/issue/{issueId}/stories")
-    fun getStories(@Path("issueId") issueId: Int): Call<List<Item<GcdStory, Story>>>
+    fun getStoriesByIssue(@Path("issueId") issueId: Int): Call<List<Item<GcdStory, Story>>>
 
     @GET("/db_query/creator/{creatorId}")
-    fun getCreator(@Path("creatorId") creatorId: Int): Call<Item<GcdCreator, Creator>>
+    fun getCreator(@Path("creatorId") creatorId: Int): Call<List<Item<GcdCreator, Creator>>>
+
+    @GET("/db_query/creator_list/{creatorIds}")
+    fun getCreator(@Path("creatorIds") creatorId: List<Int>): Call<List<Item<GcdCreator, Creator>>>
 
     @GET("/db_query/story_types")
     fun getStoryTypes(): Call<List<Item<GcdStoryType, StoryType>>>
 
-    @GET("/db_query/creator/name/{name}")
-    fun getCreatorByName(@Path("name") name: String): Call<List<Item<GcdCreator, Creator>>>
-
     @GET("/db_query/issue/{issueId}/creators")
     fun getCreatorsByIssue(@Path("issueId") issueId: Int): Call<List<Item<GcdCreator, Creator>>>
+
+    @GET("/db_query/creator/{creatorId}/credits")
+    fun getCreditsByCreator(@Path("creatorId") creatorId: Int): Call<List<Item<GcdCredit, Credit>>>
+
+    @GET("/db_query/name_detail/{nameDetailId}/stories")
+    fun getStoriesByNameDetail(@Path("nameDetailId") nameDetailId: List<Int>): Call<List<Item<GcdStory,
+            Story>>>
+
+    @GET("/db_query/name_detail/{nameDetailIds}")
+    fun getNameDetails(@Path("nameDetailIds") nameDetailIds: List<Int>): Call<List<Item<GcdNameDetail,
+            NameDetail>>>
+
+    @GET("/db_query/creators/{creatorIds}/name_details")
+    fun getNameDetailsByCreatorIds(@Path("creatorIds") creatorIds: List<Int>):
+            Call<List<Item<GcdNameDetail, NameDetail>>>
+
+    @GET("/db_query/name_detail/name/{name}")
+    fun getCreatorByName(@Path("name") name: String): Call<List<Item<GcdNameDetail,
+            NameDetail>>>
+
+    @GET("/db_query/issues/{issueIds}")
+    fun getIssues(@Path("issueIds") issueIds: List<Int>): Call<List<Item<GcdIssue, Issue>>>
+
+    @GET("/db_query/stories/{storyIds}/credits")
+    fun getCreditsByStories(@Path("storyIds") storyIds: List<Int>): Call<List<Item<GcdCredit, Credit>>>
+
+    @GET("/db_query/creators/{creatorIds}/name_details")
+    fun getNameDetailsByCreator(@Path("creatorIds") creatorIds: List<Int>):
+            Call<List<Item<GcdNameDetail, NameDetail>>>
 }
 

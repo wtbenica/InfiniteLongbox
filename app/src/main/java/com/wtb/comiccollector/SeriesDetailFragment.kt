@@ -106,7 +106,7 @@ class SeriesDetailFragment : Fragment() {
     }
 
     private fun updateUI() {
-        Log.d(TAG, "updateUI: ${series.seriesName}")
+        Log.d(TAG, "updateUI: ${series.seriesName} ${publisher.publisher} ${series.volume}")
         seriesNameTextView.text = series.seriesName
         volumeNumTextView.text = series.volume.toString()
         publisherTextView.text = publisher.publisher

@@ -203,21 +203,21 @@ class IssueDetailEditFragment : Fragment(),
             requestCode == RESULT_NEW_WRITER && data != null -> {
                 val myCredit: FullCredit? = getCredit("Writer")
                 myCredit?.let { fullCredit ->
-                    fullCredit.credit.creatorId = data.getSerializableExtra(ARG_CREATOR_ID) as Int
+                    fullCredit.credit.nameDetailId = data.getSerializableExtra(ARG_CREATOR_ID) as Int
                     issueDetailViewModel.updateCredit(fullCredit.credit)
                 }
             }
             requestCode == RESULT_NEW_PENCILLER && data != null -> {
                 val myCredit: FullCredit? = getCredit("Penciller")
                 myCredit?.let { fullCredit ->
-                    fullCredit.credit.creatorId = data.getSerializableExtra(ARG_CREATOR_ID) as Int
+                    fullCredit.credit.nameDetailId = data.getSerializableExtra(ARG_CREATOR_ID) as Int
                     issueDetailViewModel.updateCredit(fullCredit.credit)
                 }
             }
             requestCode == RESULT_NEW_INKER && data != null -> {
                 val myCredit: FullCredit? = getCredit("Inker")
                 myCredit?.let { fullCredit ->
-                    fullCredit.credit.creatorId = data.getSerializableExtra(ARG_CREATOR_ID) as Int
+                    fullCredit.credit.nameDetailId = data.getSerializableExtra(ARG_CREATOR_ID) as Int
                     issueDetailViewModel.updateCredit(fullCredit.credit)
                 }
             }
@@ -481,7 +481,7 @@ class IssueDetailEditFragment : Fragment(),
 
         private var credit: Credit = fullCredit?.credit ?: Credit(
             storyId = fullIssue.issue.issueId,
-            creatorId = AUTO_ID,
+            nameDetailId = AUTO_ID,
             roleId = AUTO_ID
         )
 
@@ -497,7 +497,7 @@ class IssueDetailEditFragment : Fragment(),
                 ) {
                     val creator = creatorSpinner.getItemAtPosition(position) as Creator
                     Log.d(TAG, "Setting creator: ${creator.name}")
-                    credit.creatorId = creator.creatorId
+                    credit.nameDetailId = creator.creatorId
                 }
 
                 override fun onNothingSelected(parent: AdapterView<*>?) {
@@ -562,10 +562,10 @@ class IssueDetailEditFragment : Fragment(),
         }
 
         fun getCredit(): Credit? {
-            return if (credit.creatorId == AUTO_ID || credit.roleId == AUTO_ID) {
+            return if (credit.nameDetailId == AUTO_ID || credit.roleId == AUTO_ID) {
                 null
             } else {
-                Log.d(TAG, "Returning Credit: ${credit.creatorId} ${credit.roleId}")
+                Log.d(TAG, "Returning Credit: ${credit.nameDetailId} ${credit.roleId}")
                 credit
             }
         }

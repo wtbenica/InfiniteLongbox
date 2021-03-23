@@ -9,7 +9,7 @@ import java.time.LocalDate
 
 @Dao
 abstract class SeriesDao : BaseDao<Series>() {
-    @Query("SELECT * FROM series WHERE seriesId != $DUMMY_ID ORDER BY seriesName ASC")
+    @Query("SELECT * FROM series WHERE seriesId != $DUMMY_ID ORDER BY sortName ASC")
     abstract fun getAllSeries(): LiveData<List<Series>>
 
     fun getSeriesList(
@@ -38,11 +38,14 @@ abstract class SeriesDao : BaseDao<Series>() {
 
     @Query(
         """
-        SELECT DISTINCT series.*
-        FROM series
-        NATURAL JOIN issue
-        NATURAL JOIN credit
-        WHERE creatorId = :creatorId
+        SELECT DISTINCT ss.*
+        FROM series ss
+        JOIN issue ie on ie.seriesId = ss.seriesId 
+        JOIN story sy on sy.issueId = ie.issueId
+        JOIN credit ct on ct.storyId = sy.storyId
+        JOIN namedetail nd on nd.nameDetailId = ct.nameDetailId
+        JOIN creator cr on cr.creatorId = nd.creatorId
+        WHERE cr.creatorId = :creatorId
            """
     )
     abstract fun getSeriesByCreator(creatorId: Int): LiveData<List<Series>>
@@ -52,6 +55,7 @@ abstract class SeriesDao : BaseDao<Series>() {
         SELECT DISTINCT series.*
         FROM series
         NATURAL JOIN issue
+        NATURAL JOIN story
         NATURAL JOIN credit
         WHERE series.startDate < :endDate AND series.endDate > :startDate 
            """
@@ -64,7 +68,7 @@ abstract class SeriesDao : BaseDao<Series>() {
         FROM series
         NATURAL JOIN issue
         NATURAL JOIN credit
-        WHERE creatorId = :creatorId
+        WHERE nameDetailId = :creatorId
         AND series.startDate < :endDate AND series.endDate > :startDate 
            """
     )
