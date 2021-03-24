@@ -43,7 +43,8 @@ const val BASE_URL = ALFRED
 
 class IssueRepository private constructor(context: Context) {
 
-    private var prefs: SharedPreferences = context.getSharedPreferences(SHARED_PREFS, Context.MODE_PRIVATE)
+    private var prefs: SharedPreferences =
+        context.getSharedPreferences(SHARED_PREFS, Context.MODE_PRIVATE)
 
     private val executor = Executors.newSingleThreadExecutor()
     private val database: IssueDatabase = buildDatabase(context)
@@ -64,13 +65,11 @@ class IssueRepository private constructor(context: Context) {
             .addConverterFactory(GsonConverterFactory.create())
             .build()
     }
-    val apiService: Webservice by lazy {
+    private val apiService: Webservice by lazy {
         retrofit.create(Webservice::class.java)
     }
 
-    private val staticUpdater = StaticUpdater()
-    private val creatorUpdater = CreatorUpdater()
-    private val creditUpdater = CreditUpdater()
+    private val creditExtractor = CreditExtractor()
 
     var allSeries: LiveData<List<Series>> = seriesDao.getAllSeries()
 
@@ -86,205 +85,57 @@ class IssueRepository private constructor(context: Context) {
         )
 
         if (lastUpdate.plusDays(STALE_DATA_NUM_DAYS) < LocalDate.now()) {
-            staticUpdater.update(prefs)
+            StaticUpdater().update(prefs)
         }
     }
 
+    fun getSeries(seriesId: Int) = seriesDao.getSeriesById(seriesId)
 
-    fun getSeries(seriesId: Int): LiveData<Series?> = seriesDao.getSeriesById(seriesId)
-
-    fun getPublisher(publisherId: Int): LiveData<Publisher?> =
-        publisherDao.getPublisher(publisherId)
+    fun getPublisher(publisherId: Int) = publisherDao.getPublisher(publisherId)
 
     fun getFullIssue(issueId: Int): LiveData<IssueAndSeries?> = issueDao.getFullIssue(issueId)
 
-    /**
-     * Gets all stories from issue with pk issueId and also triggers an update from the server
-     *
-     * @param issueId the pk of the issue whose stories are being requested
-     */
     fun getStoriesByIssue(issueId: Int): LiveData<List<Story>> {
-        creditUpdater.update(issueId)
+        CreditUpdater().update(issueId)
         return storyDao.getStories(issueId)
     }
 
-    fun getIssueCredits(issueId: Int): LiveData<List<FullCredit>> {
-        return creditDao.getIssueCredits(issueId)
-    }
+    fun getIssueCredits(issueId: Int): LiveData<List<FullCredit>> =
+        creditDao.getIssueCredits(issueId)
+
 
     fun getSeriesByCreator(creatorId: Int): LiveData<List<Series>> {
-        creatorUpdater.update(creatorId)
+        CreatorUpdater().update(creatorId)
         return seriesDao.getSeriesList(creatorId)
     }
 
     fun getCreatorBySeries(seriesId: Int): LiveData<List<Creator>> =
         creatorDao.getCreatorList(seriesId)
 
-
-    /**
-    //    private fun extractCredits(stories: List<Item<GcdStory, Story>>?) {
-    //        executor.execute {
-    //            stories?.map {
-    //                it.toRoomModel()
-    //            }.apply {
-    //                this?.let { storyDao.upsert(it) }
-    //            }
-    //
-    //            stories?.forEach { gcdStory ->
-    //                val fields = gcdStory.fields
-    //
-    //                if (fields.script != "") {
-    //                    fields.script.split("; ").map { name ->
-    //                        var res = name.replace(Regex("\\s*\\([^)]*\\)\\s*"), "")
-    //                        res = res.replace(Regex("\\s*\\[[^]]*]\\s*"), "")
-    //                        Log.d(TAG, "SCRIPT: $res")
-    //                        makeCredit(res, gcdStory.pk, Role.Companion.Name.SCRIPT.value)
-    //                    }
-    //                }
-    //
-    //                if (fields.pencils != "") {
-    //                    fields.pencils.split("; ").map { name ->
-    //                        var res = name.replace(Regex("\\s*\\([^)]*\\)\\s*"), "")
-    //                        res = res.replace(Regex("\\s*\\[[^]]*]\\s*"), "")
-    //                        Log.d(TAG, "PENCILS: $res")
-    //                        makeCredit(res, gcdStory.pk, Role.Companion.Name.PENCILS.value)
-    //                    }
-    //                }
-    //
-    //                if (fields.inks != "") {
-    //                    fields.inks.split("; ").map { name ->
-    //                        var res = name.replace(Regex("\\s*\\([^)]*\\)\\s*"), "")
-    //                        res = res.replace(Regex("\\s*\\[[^]]*]\\s*"), "")
-    //                        Log.d(TAG, "INKS: $res")
-    //                        makeCredit(res, gcdStory.pk, Role.Companion.Name.INKS.value)
-    //                    }
-    //                }
-    //
-    //                if (fields.colors != "") {
-    //                    fields.colors.split("; ").map { name ->
-    //                        var res = name.replace(Regex("\\s*\\([^)]*\\)\\s*"), "")
-    //                        res = res.replace(Regex("\\s*\\[[^]]*]\\s*"), "")
-    //                        Log.d(TAG, "COLORS: $res")
-    //                        makeCredit(res, gcdStory.pk, Role.Companion.Name.COLORS.value)
-    //                    }
-    //                }
-    //                if (fields.letters != "") {
-    //                    fields.letters.split("; ").map { name ->
-    //                        var res = name.replace(Regex("\\s*\\([^)]*\\)\\s*"), "")
-    //                        res = res.replace(Regex("\\s*\\[[^]]*]\\s*"), "")
-    //                        Log.d(TAG, "LETTERS: $res")
-    //                        makeCredit(res, gcdStory.pk, Role.Companion.Name.LETTERS.value)
-    //                    }
-    //                }
-    //
-    //                if (fields.editing != "") {
-    //                    fields.editing.split("; ").map { name ->
-    //                        var res = name.replace(Regex("\\s*\\([^)]*\\)\\s*"), "")
-    //                        res = res.replace(Regex("\\s*\\[[^]]*]\\s*"), "")
-    //                        Log.d(TAG, "EDITS: $res")
-    //                        makeCredit(res, gcdStory.pk, Role.Companion.Name.EDITING.value)
-    //                    }
-    //                }
-    //            }
-    //        }
-    //    }
-    //
-    //    private fun makeCredit(extracted_name: String, storyId: Int, roleId: Int) {
-    //        val nameDetailCall = apiService.getCreatorByName(extracted_name)
-    //
-    //        nameDetailCall.enqueue(
-    //            object : Callback<List<Item<GcdNameDetail, NameDetail>>> {
-    //                override fun onResponse(
-    //                    call: Call<List<Item<GcdNameDetail, NameDetail>>>,
-    //                    response: Response<List<Item<GcdNameDetail, NameDetail>>>
-    //                ) {
-    //                    if (response.code() == 200) {
-    //                        val nameDetail = response.body()
-    //                        // TODO: Need to handle multiple options (i.e. size > 1)
-    //                        nameDetail?.let { nameDetails ->
-    //                            if (nameDetails.size > 1) {
-    //                                // Pick which one dialog
-    //                            }
-    //                            if (nameDetails.size > 0) {
-    //                                val creatorCall =
-    //                                    apiService.getCreator(nameDetails[0].fields.creatorId)
-    //
-    //                                creatorCall.enqueue(
-    //                                    StandardCall(
-    //                                        callName = "creatorCall (nd: ${nameDetails[0].toRoomModel
-    //                                            ()}) (sid: $storyId) (rid: $roleId)",
-    //                                        preprocess = { creatorItemList ->
-    //
-    //                                        },
-    //                                        commit_call = { creatorList ->
-    //                                            Log.d(TAG, "$")
-    //                                            executor.execute {
-    //                                                database.transactionDao().upsert(
-    //                                                    creators = creatorList,
-    //                                                    nameDetails = nameDetails.map { item -> item.toRoomModel() },
-    //                                                    credits = listOf(
-    //                                                        Credit(
-    //                                                            storyId = storyId,
-    //                                                            nameDetailId = nameDetails[0].toRoomModel().nameDetailId,
-    //                                                            roleId = roleId
-    //                                                        )
-    //                                                    ),
-    //                                                )
-    //                                            }
-    //                                        },
-    //                                        prefs_key = null,
-    //                                        prefs = prefs
-    //                                    )
-    //                                )
-    //                            }
-    //                        }
-    //                    }
-    //                }
-    //
-    //                override fun onFailure(
-    //                    call: Call<List<Item<GcdNameDetail, NameDetail>>>, t:
-    //                    Throwable
-    //                ) {
-    //                    Log.d(TAG, "creatorCall failure ${call.request()} $t")
-    //                }
-    //            }
-    //        )
-    //    }
-    //
-     */
-
     fun getIssuesBySeries(seriesId: Int): LiveData<List<FullIssue>> {
-        updateIssuesBySeries(seriesId)
+        IssueUpdater().refreshIssuesBySeries(seriesId)
         return issueDao.getIssuesBySeries(seriesId)
     }
 
-    private fun updateIssuesBySeries(seriesId: Int) {
-        val issuesCall = apiService.getIssuesBySeries(seriesId)
+    inner class IssueUpdater {
 
-        issuesCall.enqueue(
-            StandardCall(
-                callName = "issuesCall",
-                commit_call = {
-                    executor.execute {
-                        issueDao.upsert(it)
-                    }
-                },
-                prefs_key = "${seriesId}_updated",
-                prefs = prefs
+        fun refreshIssuesBySeries(seriesId: Int) {
+            val issuesCall = apiService.getIssuesBySeries(seriesId)
+
+            issuesCall.enqueue(
+                StandardCall(
+                    callName = "issuesCall",
+                    commit_call = {
+                        executor.execute {
+                            issueDao.upsert(it)
+                        }
+                    },
+                    prefs_key = "${seriesId}_updated",
+                    prefs = prefs
+                )
             )
-        )
-    }
-
-    fun saveIssue(vararg issue: Issue) {
-        executor.execute {
-            try {
-                issueDao.upsert(issue.asList())
-            } catch (e: SQLiteConstraintException) {
-                Log.d(TAG, "addIssue: $e")
-            }
         }
     }
-
     fun saveSeries(vararg series: Series) {
         executor.execute {
             try {
@@ -295,22 +146,12 @@ class IssueRepository private constructor(context: Context) {
         }
     }
 
-    fun saveCreator(vararg creator: Creator) {
+    fun saveIssue(vararg issue: Issue) {
         executor.execute {
             try {
-                creatorDao.upsert(creator.asList())
+                issueDao.upsert(issue.asList())
             } catch (e: SQLiteConstraintException) {
-                Log.d(TAG, "addCreator: $e")
-            }
-        }
-    }
-
-    fun saveRole(vararg role: Role) {
-        executor.execute {
-            try {
-                roleDao.upsert(role.asList())
-            } catch (e: SQLiteConstraintException) {
-                Log.d(TAG, "addRole: $e")
+                Log.d(TAG, "addIssue: $e")
             }
         }
     }
@@ -335,9 +176,23 @@ class IssueRepository private constructor(context: Context) {
         }
     }
 
-    fun deleteIssue(issue: Issue) {
+    fun saveCreator(vararg creator: Creator) {
         executor.execute {
-            issueDao.delete(issue)
+            try {
+                creatorDao.upsert(creator.asList())
+            } catch (e: SQLiteConstraintException) {
+                Log.d(TAG, "addCreator: $e")
+            }
+        }
+    }
+
+    fun saveRole(vararg role: Role) {
+        executor.execute {
+            try {
+                roleDao.upsert(role.asList())
+            } catch (e: SQLiteConstraintException) {
+                Log.d(TAG, "addRole: $e")
+            }
         }
     }
 
@@ -347,9 +202,9 @@ class IssueRepository private constructor(context: Context) {
         }
     }
 
-    fun updateCredit(credit: Credit) {
+    fun deleteIssue(issue: Issue) {
         executor.execute {
-            creditDao.update(credit)
+            issueDao.delete(issue)
         }
     }
 
@@ -363,18 +218,6 @@ class IssueRepository private constructor(context: Context) {
     FUTURE IMPLEMENTATION
     fun getCoverImage(issue: Issue): File = File(filesDir, issue.coverFileName)
 */
-
-    class DuplicateFrament : DialogFragment() {
-        override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-            return activity?.let {
-                val builder = AlertDialog.Builder(it)
-                builder.setTitle("Duplicate Issue")
-                    .setMessage("This is a duplicate issue and will not be saved")
-                    .setPositiveButton("OK") { dialogInterface: DialogInterface, i: Int -> }
-                builder.create()
-            } ?: throw IllegalStateException("Activity cannot be null")
-        }
-    }
 
     /**
      * Builds database and adds dummy publisher and series, which are used for creating new empty
@@ -555,7 +398,7 @@ class IssueRepository private constructor(context: Context) {
                 StandardCall(
                     callName = "storiesByIssueCall",
                     preprocess = {
-//                                extractCredits(it)
+                        CreditExtractor().extractCredits(it)
                     },
                     commit_call = { stories ->
                         executor.execute {
@@ -793,6 +636,132 @@ class IssueRepository private constructor(context: Context) {
         }
     }
 
+    inner class CreditExtractor {
+        fun extractCredits(stories: List<Item<GcdStory, Story>>?) {
+            executor.execute {
+                stories?.map {
+                    it.toRoomModel()
+                }.apply {
+                    this?.let { storyDao.upsert(it) }
+                }
+
+                stories?.forEach { gcdStory ->
+                    val fields = gcdStory.fields
+
+                    if (fields.script != "") {
+                        fields.script.split("; ").map { name ->
+                            var res = name.replace(Regex("\\s*\\([^)]*\\)\\s*"), "")
+                            res = res.replace(Regex("\\s*\\[[^]]*]\\s*"), "")
+                            Log.d(TAG, "SCRIPT: $res")
+                            makeCredit(res, gcdStory.pk, Role.Companion.Name.SCRIPT.value)
+                        }
+                    }
+
+                    if (fields.pencils != "") {
+                        fields.pencils.split("; ").map { name ->
+                            var res = name.replace(Regex("\\s*\\([^)]*\\)\\s*"), "")
+                            res = res.replace(Regex("\\s*\\[[^]]*]\\s*"), "")
+                            Log.d(TAG, "PENCILS: $res")
+                            makeCredit(res, gcdStory.pk, Role.Companion.Name.PENCILS.value)
+                        }
+                    }
+
+                    if (fields.inks != "") {
+                        fields.inks.split("; ").map { name ->
+                            var res = name.replace(Regex("\\s*\\([^)]*\\)\\s*"), "")
+                            res = res.replace(Regex("\\s*\\[[^]]*]\\s*"), "")
+                            Log.d(TAG, "INKS: $res")
+                            makeCredit(res, gcdStory.pk, Role.Companion.Name.INKS.value)
+                        }
+                    }
+
+                    if (fields.colors != "") {
+                        fields.colors.split("; ").map { name ->
+                            var res = name.replace(Regex("\\s*\\([^)]*\\)\\s*"), "")
+                            res = res.replace(Regex("\\s*\\[[^]]*]\\s*"), "")
+                            Log.d(TAG, "COLORS: $res")
+                            makeCredit(res, gcdStory.pk, Role.Companion.Name.COLORS.value)
+                        }
+                    }
+                    if (fields.letters != "") {
+                        fields.letters.split("; ").map { name ->
+                            var res = name.replace(Regex("\\s*\\([^)]*\\)\\s*"), "")
+                            res = res.replace(Regex("\\s*\\[[^]]*]\\s*"), "")
+                            Log.d(TAG, "LETTERS: $res")
+                            makeCredit(res, gcdStory.pk, Role.Companion.Name.LETTERS.value)
+                        }
+                    }
+
+                    if (fields.editing != "") {
+                        fields.editing.split("; ").map { name ->
+                            var res = name.replace(Regex("\\s*\\([^)]*\\)\\s*"), "")
+                            res = res.replace(Regex("\\s*\\[[^]]*]\\s*"), "")
+                            Log.d(TAG, "EDITS: $res")
+                            makeCredit(res, gcdStory.pk, Role.Companion.Name.EDITING.value)
+                        }
+                    }
+                }
+            }
+        }
+
+        private fun makeCredit(extracted_name: String, storyId: Int, roleId: Int) {
+            val nameDetailCall = apiService.getCreatorByName(extracted_name)
+
+            nameDetailCall.enqueue(
+                StandardCall(
+                    callName = "nameDetailCall",
+                    preprocess = {
+
+                    },
+                    commit_call = { nameList ->
+                        if (nameList.isNotEmpty()) {
+                            resolveCreators(nameList, storyId, roleId)
+                        }
+                    },
+                    error_call = {
+
+                    }
+                )
+            )
+        }
+
+        private fun resolveCreators(nameDetails: List<NameDetail>, storyId: Int, roleId: Int) {
+            val creatorCall = apiService.getCreator(nameDetails.map { it.creatorId })
+
+            creatorCall.enqueue(
+                StandardCall(
+                    callName = "creatorCall",
+                    preprocess = { creatorItemList ->
+
+                    },
+                    commit_call = { creatorList ->
+                        val creatorId: Creator
+                        creatorId = if (creatorList.size > 1) {
+                            // choose which one
+                            creatorList[0]
+                        } else {
+                            creatorList[0]
+                        }
+
+                        executor.execute {
+                            database.transactionDao().upsert(
+                                creators = listOf(creatorId),
+                                nameDetails = nameDetails,
+                                credits = listOf(
+                                    Credit(
+                                        storyId = storyId,
+                                        nameDetailId = nameDetails[0].nameDetailId,
+                                        roleId = roleId
+                                    )
+                                ),
+                            )
+                        }
+                    },
+                )
+            )
+        }
+    }
+
     class StandardCall<G : GcdJson<D>, D : DataModel>(
         val callName: String,
         val preprocess: ((List<Item<G, D>>) -> Unit)? = null,
@@ -801,6 +770,7 @@ class IssueRepository private constructor(context: Context) {
         val prefs_key: String? = null,
         val prefs: SharedPreferences? = null
     ) : Callback<List<Item<G, D>>> {
+
         override fun onResponse(
             call: Call<List<Item<G, D>>>,
             response: Response<List<Item<G, D>>>
@@ -834,6 +804,18 @@ class IssueRepository private constructor(context: Context) {
             t: Throwable
         ) {
             Log.d(TAG, "STANDARD_CALL: $callName onFailure ${call.request()} $t")
+        }
+    }
+
+    class DuplicateFragment : DialogFragment() {
+        override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+            return activity?.let {
+                val builder = AlertDialog.Builder(it)
+                builder.setTitle("Duplicate Issue")
+                    .setMessage("This is a duplicate issue and will not be saved")
+                    .setPositiveButton("OK") { dialogInterface: DialogInterface, i: Int -> }
+                builder.create()
+            } ?: throw IllegalStateException("Activity cannot be null")
         }
     }
 

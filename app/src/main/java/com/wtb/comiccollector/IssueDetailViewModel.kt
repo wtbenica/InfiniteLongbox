@@ -48,33 +48,20 @@ class IssueDetailViewModel : ViewModel() {
         issueRepository.deleteIssue(issue)
     }
 
-    fun updateSeries(series: Series) {
+    fun upsertSeries(series: Series) {
         issueRepository.saveSeries(series)
     }
 
-    fun addSeries(series: Series) {
-        // TODO: Check if series exists
-        issueRepository.saveSeries(series)
-    }
-
-    fun addCreator(creator: Creator) {
+    fun upsertCreator(creator: Creator) {
         issueRepository.saveCreator(creator)
+    }
+
+    fun upsertCredit(credit: Credit) {
+        issueRepository.saveCredit(credit)
     }
 
     fun deleteSeries(series: Series) {
         issueRepository.deleteSeries(series)
-    }
-
-    fun addIssue(issue: Issue) {
-        issueRepository.saveIssue(issue)
-    }
-
-    fun updateCredit(credit: Credit) {
-        issueRepository.updateCredit(credit)
-    }
-
-    fun addCredit(credit: Credit) {
-        issueRepository.saveCredit(credit)
     }
 
     fun deleteCredit(credit: Credit) {
