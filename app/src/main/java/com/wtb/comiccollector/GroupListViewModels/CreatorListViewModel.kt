@@ -2,9 +2,10 @@ package com.wtb.comiccollector.GroupListViewModels
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Transformations
+import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.Creator
 
-private const val TAG = "CreatorListViewModel"
+private const val TAG = APP + "CreatorListViewModel"
 
 class CreatorListViewModel : GroupListViewModel<Creator>() {
 
