@@ -46,6 +46,7 @@ abstract class SeriesDao : BaseDao<Series>() {
         JOIN namedetail nd on nd.nameDetailId = ct.nameDetailId
         JOIN creator cr on cr.creatorId = nd.creatorId
         WHERE cr.creatorId = :creatorId
+        ORDER BY ss.sortName ASC
            """
     )
     abstract fun getSeriesByCreator(creatorId: Int): LiveData<List<Series>>
@@ -58,6 +59,7 @@ abstract class SeriesDao : BaseDao<Series>() {
         NATURAL JOIN story
         NATURAL JOIN credit
         WHERE series.startDate < :endDate AND series.endDate > :startDate 
+        ORDER BY startDate
            """
     )
     abstract fun getSeriesByDates(startDate: LocalDate, endDate: LocalDate): LiveData<List<Series>>
@@ -70,6 +72,7 @@ abstract class SeriesDao : BaseDao<Series>() {
         NATURAL JOIN credit
         WHERE nameDetailId = :creatorId
         AND series.startDate < :endDate AND series.endDate > :startDate 
+        ORDER BY startDate
            """
     )
     abstract fun getSeriesByCreatorAndDates(

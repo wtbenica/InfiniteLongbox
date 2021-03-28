@@ -37,8 +37,18 @@ abstract class CreatorDao : BaseDao<Creator>() {
     )
     abstract fun getCreatorByName(creator: String): LiveData<Creator?>
 
+    @Query(
+        """
+            SELECT *
+            FROM creator cr
+            WHERE cr.name = :creator
+        """
+    )
+    abstract suspend fun getCreatorByNameSus(creator: String): Creator?
+
     @Query("SELECT * FROM creator WHERE creatorId = :creatorId")
-    abstract fun getCreator(vararg creatorId: Int): LiveData<List<Creator>>?
+    abstract fun getCreator(vararg creatorId: Int): LiveData<Creator?>
 
-
+    @Query("SELECT * FROM creator WHERE creatorId = :creatorId")
+    abstract suspend fun getCreatorSus(vararg creatorId: Int): Creator?
 }

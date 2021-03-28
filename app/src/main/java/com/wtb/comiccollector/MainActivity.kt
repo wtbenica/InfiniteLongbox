@@ -6,6 +6,8 @@ import androidx.fragment.app.DialogFragment
 import com.wtb.comiccollector.GroupListFragments.GroupListFragment
 import com.wtb.comiccollector.GroupListFragments.SeriesListFragment
 
+const val APP = "CC_"
+
 class MainActivity : AppCompatActivity(),
     IssueListFragment.Callbacks,
     GroupListFragment.Callbacks,

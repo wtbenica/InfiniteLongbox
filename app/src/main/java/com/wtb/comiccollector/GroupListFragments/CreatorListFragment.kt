@@ -5,12 +5,13 @@ import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.lifecycle.ViewModelProvider
+import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.Creator
 import com.wtb.comiccollector.GroupListViewModels.CreatorListViewModel
 import com.wtb.comiccollector.R
 import java.time.LocalDate
 
-private const val TAG = "CreatorListFragment"
+private const val TAG = APP + "CreatorListFragment"
 
 class CreatorListFragment : GroupListFragment<Creator, CreatorListFragment.CreatorAdapter>() {
 
