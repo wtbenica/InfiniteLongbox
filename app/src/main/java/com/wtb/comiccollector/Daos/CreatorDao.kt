@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Query
 import com.wtb.comiccollector.Creator
+import com.wtb.comiccollector.GroupListViewModels.GroupListViewModel
 import java.time.LocalDate
 
 @Dao
@@ -27,6 +28,60 @@ abstract class CreatorDao : BaseDao<Creator>() {
 
     @Query("SELECT * FROM creator ORDER BY sortName ASC")
     abstract fun getCreatorsList(): LiveData<List<Creator>>
+
+    fun getCreatorByFilter(filter: GroupListViewModel.Filter): LiveData<List<Creator>> {
+        return if (filter.filterId == null) {
+            if (filter.text == null || filter.text == "") {
+                getCreatorsList()
+            } else {
+                getCreatorByPartial("%" + filter.text + "%")
+            }
+        } else {
+            if (filter.text == null || filter.text == "") {
+                getCreatorBySeries(filter.filterId)
+            } else {
+                getCreatorBySeriesAndPartial(filter.filterId, "%" + filter.text + "%")
+            }
+        }
+    }
+
+    @Query(
+        """
+            SELECT c.*
+            FROM creator c
+            NATURAL JOIN namedetail nl
+            NATURAL JOIN credit ct
+            NATURAL JOIN story sy
+            NATURAL JOIN issue ie
+            NATURAL JOIN series s
+            WHERE s.seriesId = :seriesId
+            AND c.name LIKE :text
+        """
+    )
+    abstract fun getCreatorBySeriesAndPartial(seriesId: Int, text: String): LiveData<List<Creator>>
+
+    @Query(
+        """
+            SELECT c.*
+            FROM creator c
+            NATURAL JOIN namedetail nl
+            NATURAL JOIN credit ct
+            NATURAL JOIN story sy
+            NATURAL JOIN issue ie
+            NATURAL JOIN series s
+            WHERE s.seriesId = :seriesId
+        """
+    )
+    abstract fun getCreatorBySeries(seriesId: Int): LiveData<List<Creator>>
+
+    @Query(
+        """
+            SELECT *
+            FROM creator
+            WHERE name LIKE :text
+        """
+    )
+    abstract fun getCreatorByPartial(text: String): LiveData<List<Creator>>
 
     @Query(
         """

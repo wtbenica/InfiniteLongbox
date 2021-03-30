@@ -10,9 +10,7 @@ import java.time.format.DateTimeParseException
 
 const val AUTO_ID = 0
 
-interface DataModel {
-
-}
+interface DataModel
 
 // TODO: For all entities, need to add onDeletes: i.e. CASCADE, etc.
 @Entity(
@@ -257,13 +255,7 @@ data class StoryType(
     @PrimaryKey(autoGenerate = true) val typeId: Int = AUTO_ID,
     val name: String,
     val sortCode: Int
-) : DataModel {
-    companion object {
-        enum class Type(val value: Int) {
-            COVER(6)
-        }
-    }
-}
+) : DataModel
 
 @Entity(
     foreignKeys = [

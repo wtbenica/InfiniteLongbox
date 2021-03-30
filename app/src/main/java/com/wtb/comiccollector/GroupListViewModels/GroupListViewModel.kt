@@ -10,7 +10,6 @@ private const val TAG = "GroupListViewModel"
 
 abstract class GroupListViewModel<T>: ViewModel() {
     val issueRepository: IssueRepository = IssueRepository.get()
-    val filterIdLiveData = MutableLiveData<Int?>(null)
     val filterLiveData = MutableLiveData<Filter?>(null)
 
     abstract val objectListLiveData: LiveData<List<T>>

@@ -10,11 +10,11 @@ private const val TAG = APP + "CreatorListViewModel"
 class CreatorListViewModel : GroupListViewModel<Creator>() {
 
     override val objectListLiveData: LiveData<List<Creator>> =
-        Transformations.switchMap(filterIdLiveData) { seriesId ->
-            if (seriesId == null) {
+        Transformations.switchMap(filterLiveData) { filter ->
+            if (filter == null || filter.isEmpty()) {
                 issueRepository.allCreators
             } else {
-                issueRepository.getCreatorBySeries(seriesId)
+                issueRepository.getCreatorsByFilter(filter)
             }
         }
 }

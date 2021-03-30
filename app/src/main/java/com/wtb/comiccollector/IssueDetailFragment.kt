@@ -34,6 +34,7 @@ private const val DIALOG_NEW_CREATOR = "DialogNewCreator"
 private const val DIALOG_DATE = "DialogDate"
 
 private const val ADD_SERIES_ID = -2
+private const val STORY_TYPE_COVER = 6
 
 /**
  * A simple [Fragment] subclass.
@@ -294,10 +295,10 @@ class IssueDetailFragment : Fragment() {
             }
         }
 
-        fun combineCredits(original: List<Story>, variant: List<Story>): List<Story> =
-            if (StoryType.Companion.Type.COVER.value in variant.map { it.storyType }) {
+        private fun combineCredits(original: List<Story>, variant: List<Story>): List<Story> =
+            if (STORY_TYPE_COVER in variant.map { it.storyType }) {
                 original.mapNotNull {
-                    if (it.storyType != StoryType.Companion.Type.COVER.value) {
+                    if (it.storyType != STORY_TYPE_COVER) {
                         it
                     } else {
                         null
@@ -320,7 +321,7 @@ class IssueDetailFragment : Fragment() {
             )
 
             this.addView(TextView(context).apply {
-                text = if (story.storyType == 6) {
+                text = if (story.storyType == STORY_TYPE_COVER) {
                     "Cover"
                 } else {
                     story.title.toString()

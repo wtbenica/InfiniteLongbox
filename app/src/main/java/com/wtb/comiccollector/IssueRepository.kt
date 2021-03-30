@@ -130,6 +130,11 @@ class IssueRepository private constructor(context: Context) {
         return seriesDao.getSeriesByFilter(filter)
     }
 
+    fun getCreatorsByFilter(filter: GroupListViewModel.Filter): LiveData<List<Creator>> {
+//        filter.filterId?.let { CreatorUpdater().update(it) }
+        return creatorDao.getCreatorByFilter(filter)
+    }
+
     fun saveSeries(vararg series: Series) {
         executor.execute {
             try {

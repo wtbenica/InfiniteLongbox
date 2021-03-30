@@ -119,5 +119,4 @@ abstract class SeriesDao : BaseDao<Series>() {
 
     @Query("SELECT * FROM series WHERE seriesId=:seriesId")
     abstract fun getSeriesById(seriesId: Int): LiveData<Series?>
-
 }
