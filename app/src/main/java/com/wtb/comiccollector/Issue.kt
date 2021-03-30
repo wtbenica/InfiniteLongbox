@@ -257,7 +257,13 @@ data class StoryType(
     @PrimaryKey(autoGenerate = true) val typeId: Int = AUTO_ID,
     val name: String,
     val sortCode: Int
-) : DataModel
+) : DataModel {
+    companion object {
+        enum class Type(val value: Int) {
+            COVER(6)
+        }
+    }
+}
 
 @Entity(
     foreignKeys = [

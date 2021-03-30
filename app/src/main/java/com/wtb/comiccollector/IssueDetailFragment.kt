@@ -177,6 +177,9 @@ class IssueDetailFragment : Fragment() {
                     )
                     this.issueVariants = it
                     variantSpinner.adapter = adapter
+                    if (it.size == 1) {
+                        variantSpinner.visibility = View.GONE
+                    }
                     updateUI()
                 }
             }
@@ -279,7 +282,7 @@ class IssueDetailFragment : Fragment() {
 
         fun displayCredit() {
             this.removeAllViews()
-            val stories = issueStories + variantStories
+            val stories = combineCredits(issueStories, variantStories)
             stories.forEach { story ->
                 this.addView(StoryRow(context, story))
                 val credits = issueCredits + variantCredits
@@ -290,7 +293,21 @@ class IssueDetailFragment : Fragment() {
                 }
             }
         }
+
+        fun combineCredits(original: List<Story>, variant: List<Story>): List<Story> =
+            if (StoryType.Companion.Type.COVER.value in variant.map { it.storyType }) {
+                original.mapNotNull {
+                    if (it.storyType != StoryType.Companion.Type.COVER.value) {
+                        it
+                    } else {
+                        null
+                    }
+                } + variant
+            } else {
+                original + variant
+            }
     }
+
 
     inner class StoryRow(context: Context, val story: Story) : LinearLayout(context) {
         init {
