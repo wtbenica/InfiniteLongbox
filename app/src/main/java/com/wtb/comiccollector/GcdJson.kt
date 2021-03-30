@@ -195,14 +195,6 @@ class GcdCredit(
             roleId = roleId,
         )
     }
-
-    fun getCreatorModel(): Creator {
-        return Creator(
-            creatorId = nameDetailId,
-            name = nameDetailId.toString(),
-            sortName = nameDetailId.toString()
-        )
-    }
 }
 
 enum class RoleKey(val pos: Int) {
@@ -309,12 +301,16 @@ class GcdStoryType(
 class GcdNameDetail(
     @SerializedName("creator")
     @Expose
-    val creatorId: Int
+    val creatorId: Int,
+    @SerializedName("name")
+    @Expose
+    val name: String
 ) : GcdJson<NameDetail> {
     override fun toRoomModel(pk: Int): NameDetail {
         return NameDetail(
             nameDetailId = pk,
-            creatorId = creatorId
+            creatorId = creatorId,
+            name = name
         )
     }
 }

@@ -10,9 +10,7 @@ import java.time.format.DateTimeParseException
 
 const val AUTO_ID = 0
 
-interface DataModel {
-
-}
+interface DataModel
 
 // TODO: For all entities, need to add onDeletes: i.e. CASCADE, etc.
 @Entity(
@@ -148,6 +146,54 @@ data class Creator(
 }
 
 @Entity
+data class Character(
+    @PrimaryKey(autoGenerate = true) val characterId: Int = AUTO_ID,
+    var name: String,
+    var aka: String? = null
+) : GroupListFragment.Indexed, DataModel {
+    override fun getIndex(): Char {
+        return name.removePrefix("The ")[0]
+    }
+
+    val sortName: String
+        get() {
+            val shortName = name.removePrefix("The ")
+            return if (shortName == name) {
+                "$name [$aka]"
+            } else {
+                "$shortName, The [$aka]"
+            }
+        }
+}
+
+@Entity(
+    foreignKeys = [
+        ForeignKey(
+            entity = Story::class,
+            parentColumns = arrayOf("storyId"),
+            childColumns = arrayOf("characterId"),
+            onDelete = CASCADE
+        ),
+        ForeignKey(
+            entity = Character::class,
+            parentColumns = arrayOf("characterId"),
+            childColumns = arrayOf("characterId"),
+            onDelete = CASCADE
+        )
+    ],
+    indices = [
+        Index(value = ["storyId"]),
+        Index(value = ["characterId"])
+    ]
+)
+data class Appearance(
+    @PrimaryKey(autoGenerate = true) val appearanceId: Int = AUTO_ID,
+    val storyId: Int,
+    val characterId: Int,
+    val details: String?
+) : DataModel
+
+@Entity
 data class Publisher(
     @PrimaryKey(autoGenerate = true) val publisherId: Int = AUTO_ID,
     val publisher: String = ""
@@ -191,7 +237,8 @@ data class Role(
 )
 data class NameDetail(
     @PrimaryKey(autoGenerate = true) val nameDetailId: Int = AUTO_ID,
-    var creatorId: Int
+    var creatorId: Int,
+    var name: String
 ) : DataModel
 
 @Entity
