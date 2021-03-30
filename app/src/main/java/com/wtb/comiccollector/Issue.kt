@@ -42,11 +42,20 @@ data class Issue(
     var coverUri: Uri? = null,
     var releaseDate: LocalDate? = null,
     var upc: Long? = null,
-    var variantName: String? = null,
-    var variantOf: Int? = null
+    var variantName: String = "",
+    var variantOf: Int? = null,
+    var sortCode: Int = 0
 ) : DataModel {
     val coverFileName: String
         get() = "IMG_$issueId.jpg"
+
+    override fun toString(): String {
+        return if (variantName == "") {
+            "Regular"
+        } else {
+            variantName
+        }
+    }
 
     companion object {
         fun formatDate(date: String): LocalDate? {

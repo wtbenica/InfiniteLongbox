@@ -16,27 +16,15 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
-        android:id="@+id/series_label"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
-        android:layout_weight="1"
-        android:labelFor="@id/issue_series"
-        android:text="@string/hint_series_title"
-        app:layout_constraintEnd_toStartOf="@id/issue_number"
-        app:layout_constraintStart_toEndOf="@id/issue_cover"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <TextView
         android:id="@+id/issue_series"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
         android:textSize="24sp"
         app:layout_constraintEnd_toStartOf="@+id/issue_number"
         app:layout_constraintStart_toEndOf="@+id/issue_cover"
-        app:layout_constraintTop_toBottomOf="@id/series_label" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/issue_number"
@@ -61,31 +49,45 @@
         app:layout_constraintStart_toEndOf="@+id/issue_cover"
         app:layout_constraintTop_toBottomOf="@+id/issue_series" />
 
-    <TextView
-        android:id="@+id/issue_credits_box_label"
-        android:layout_width="0dp"
+    <Spinner
+        android:id="@+id/variant_spinner"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginTop="8dp"
-        android:labelFor="@id/issue_credits_table"
-        android:text="@string/issue_credits"
+        android:layout_marginEnd="16dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/issue_cover" />
+
+
+<!--    <TextView-->
+<!--        android:id="@+id/issue_credits_box_label"-->
+<!--        android:layout_width="0dp"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_marginStart="16dp"-->
+<!--        android:layout_marginTop="8dp"-->
+<!--        android:labelFor="@id/issue_credits_table"-->
+<!--        android:text="@string/issue_credits"-->
+<!--        app:layout_constraintEnd_toEndOf="parent"-->
+<!--        app:layout_constraintStart_toStartOf="parent"-->
+<!--        app:layout_constraintTop_toBottomOf="@id/issue_cover" />-->
 
     <ScrollView
         android:id="@+id/issue_credits_table"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginStart="16dp"
+        android:layout_marginTop="8dp"
         android:layout_marginEnd="16dp"
+        android:layout_marginBottom="8dp"
         android:animateLayoutChanges="true"
         android:isScrollContainer="true"
         android:orientation="vertical"
+        app:layout_constraintBottom_toTopOf="@id/edit_button"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/issue_credits_box_label"
-        app:layout_constraintBottom_toTopOf="@id/edit_button"/>
+        app:layout_constraintTop_toBottomOf="@+id/variant_spinner" />
 
     <ImageButton
         android:id="@+id/edit_button"

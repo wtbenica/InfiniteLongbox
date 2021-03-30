@@ -10,6 +10,7 @@ import android.util.Log
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.liveData
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
@@ -720,6 +721,24 @@ class IssueRepository private constructor(context: Context) {
         val lastUpdated = LocalDate.parse(prefs.getString(prefsKey, "${LocalDate.MIN}"))
         Log.d(TAG, "$prefsKey ${lastUpdated.plusDays(14)}")
         return lastUpdated.plusDays(shelfLife) < LocalDate.now()
+    }
+
+    fun getVariants(issueId: Int): LiveData<List<Issue>> {
+        val variantsCall = GlobalScope.async {
+            issueDao.getVariants(issueId)
+        }
+
+        val issueCall = GlobalScope.async {
+            variantsCall.await().let {
+                if (it.size == 1 && it[0].variantOf != null) {
+                    issueDao.getVariants(it[0].variantOf!!)
+                } else {
+                    it
+                }
+            }
+        }
+
+        return liveData { emit(issueCall.await()) }
     }
 
     class DuplicateFragment : DialogFragment() {

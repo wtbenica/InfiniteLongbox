@@ -27,6 +27,11 @@ class IssueDetailViewModel : ViewModel() {
             issueRepository.getIssueCredits(issueId)
         }
 
+    val variantsLiveData: LiveData<List<Issue>> =
+        Transformations.switchMap(issueIdLiveData) { issueId ->
+            issueRepository.getVariants(issueId)
+        }
+
     var allSeriesLiveData: LiveData<List<Series>> = issueRepository.allSeries
 
     var allPublishersLiveData: LiveData<List<Publisher>> = issueRepository.allPublishers

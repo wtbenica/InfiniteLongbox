@@ -23,6 +23,7 @@ abstract class IssueDao : BaseDao<Issue>() {
             SELECT issue.*, series.seriesName, publisher.publisher 
             FROM issue NATURAL JOIN series NATURAL JOIN publisher 
             WHERE seriesId=:seriesId
+            AND variantOf IS NULL
             """
     )
     abstract fun getIssuesBySeries(seriesId: Int): LiveData<List<FullIssue>>
@@ -38,4 +39,7 @@ abstract class IssueDao : BaseDao<Issue>() {
 
     @Query("SELECT * FROM issue WHERE issueId=:issueId")
     abstract fun getIssue(issueId: Int): LiveData<Issue?>
+
+    @Query("SELECT * FROM issue WHERE issueId=:issueId OR variantOf=:issueId ORDER BY sortCode")
+    abstract suspend fun getVariants(issueId: Int) : List<Issue>
 }

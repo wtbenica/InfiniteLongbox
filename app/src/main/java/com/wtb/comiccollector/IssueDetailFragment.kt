@@ -48,12 +48,14 @@ class IssueDetailFragment : Fragment() {
     private lateinit var fullIssue: IssueAndSeries
     private lateinit var issueCredits: List<FullCredit>
     private lateinit var issueStories: List<Story>
+    private lateinit var issueVariants: List<Issue>
 
     private lateinit var coverImageView: ImageView
     private lateinit var seriesTextView: TextView
     private lateinit var issueNumTextView: TextView
 
-    private lateinit var issueCreditsLabel: TextView
+    private lateinit var variantSpinner: Spinner
+//    private lateinit var issueCreditsLabel: TextView
     private lateinit var issueCreditsFrame: ScrollView
     private lateinit var creditsBox: CreditsBox
 
@@ -95,7 +97,8 @@ class IssueDetailFragment : Fragment() {
         issueCreditsFrame = view.findViewById(R.id.issue_credits_table) as ScrollView
         releaseDateTextView = view.findViewById(R.id.release_date_text_view)
         toggleEditButton = view.findViewById(R.id.edit_button) as ImageButton
-        issueCreditsLabel = view.findViewById(R.id.issue_credits_box_label) as TextView
+        variantSpinner = view.findViewById(R.id.variant_spinner) as Spinner
+//        issueCreditsLabel = view.findViewById(R.id.issue_credits_box_label) as TextView
         creditsBox = CreditsBox(requireContext())
         issueCreditsFrame.addView(creditsBox)
 
@@ -131,6 +134,22 @@ class IssueDetailFragment : Fragment() {
             { stories: List<Story>? ->
                 stories?.let {
                     this.issueStories = it
+                    updateUI()
+                }
+            }
+        )
+
+        issueDetailViewModel.variantsLiveData.observe(
+            viewLifecycleOwner,
+            { issues: List<Issue>? ->
+                issues?.let {
+                    val adapter = ArrayAdapter(
+                        requireContext(),
+                        androidx.appcompat.R.layout.support_simple_spinner_dropdown_item,
+                        it
+                    )
+                    this.issueVariants = it
+                    variantSpinner.adapter = adapter
                     updateUI()
                 }
             }
