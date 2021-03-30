@@ -171,7 +171,8 @@ class GcdIssue(
             releaseDate = Issue.formatDate(onSaleDate),
             upc = barcode.toLongOrNull(),
             variantName = variantName,
-            variantOf = variantOf
+            variantOf = variantOf,
+            sortCode = sortCode
         )
     }
 }

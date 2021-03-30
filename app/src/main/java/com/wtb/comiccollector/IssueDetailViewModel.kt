@@ -1,9 +1,6 @@
 package com.wtb.comiccollector
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Transformations
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.*
 
 private const val TAG = "IssueDetailViewModel"
 
@@ -11,6 +8,7 @@ class IssueDetailViewModel : ViewModel() {
 
     private val issueRepository: IssueRepository = IssueRepository.get()
     private val issueIdLiveData = MutableLiveData<Int>()
+    private val variantIdLiveData = MutableLiveData<Int?>()
 
     var fullIssueLiveData: LiveData<IssueAndSeries> =
         Transformations.switchMap(issueIdLiveData) { issueId ->
@@ -27,6 +25,29 @@ class IssueDetailViewModel : ViewModel() {
             issueRepository.getIssueCredits(issueId)
         }
 
+    var variantStoriesLiveData: LiveData<List<Story>> =
+        Transformations.switchMap(variantIdLiveData) { issueId ->
+            if (issueId != null) {
+                issueRepository.getStoriesByIssue(issueId)
+            } else {
+                liveData { emit(emptyList<Story>()) }
+            }
+        }
+
+    var variantCreditsLiveData: LiveData<List<FullCredit>> =
+        Transformations.switchMap(variantIdLiveData) { issueId ->
+            if (issueId != null) {
+                issueRepository.getIssueCredits(issueId)
+            } else {
+                liveData { emit(emptyList<FullCredit>()) }
+            }
+        }
+
+    val variantsLiveData: LiveData<List<Issue>> =
+        Transformations.switchMap(issueIdLiveData) { issueId ->
+            issueRepository.getVariants(issueId)
+        }
+
     var allSeriesLiveData: LiveData<List<Series>> = issueRepository.allSeries
 
     var allPublishersLiveData: LiveData<List<Publisher>> = issueRepository.allPublishers
@@ -38,6 +59,13 @@ class IssueDetailViewModel : ViewModel() {
     fun loadIssue(issueId: Int) {
         issueIdLiveData.value = AUTO_ID
         issueIdLiveData.value = issueId
+    }
+
+    fun getIssue() = issueIdLiveData.value
+
+    fun loadVariant(issueId: Int?) {
+        variantIdLiveData.value = AUTO_ID
+        variantIdLiveData.value = issueId
     }
 
     fun updateIssue(issue: Issue) {

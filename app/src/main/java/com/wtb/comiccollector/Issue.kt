@@ -42,11 +42,20 @@ data class Issue(
     var coverUri: Uri? = null,
     var releaseDate: LocalDate? = null,
     var upc: Long? = null,
-    var variantName: String? = null,
-    var variantOf: Int? = null
+    var variantName: String = "",
+    var variantOf: Int? = null,
+    var sortCode: Int = 0
 ) : DataModel {
     val coverFileName: String
         get() = "IMG_$issueId.jpg"
+
+    override fun toString(): String {
+        return if (variantName == "") {
+            "Regular"
+        } else {
+            variantName
+        }
+    }
 
     companion object {
         fun formatDate(date: String): LocalDate? {
@@ -248,7 +257,13 @@ data class StoryType(
     @PrimaryKey(autoGenerate = true) val typeId: Int = AUTO_ID,
     val name: String,
     val sortCode: Int
-) : DataModel
+) : DataModel {
+    companion object {
+        enum class Type(val value: Int) {
+            COVER(6)
+        }
+    }
+}
 
 @Entity(
     foreignKeys = [

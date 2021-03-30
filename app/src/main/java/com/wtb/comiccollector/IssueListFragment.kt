@@ -161,8 +161,8 @@ class IssueListFragment : Fragment() {
         private lateinit var fullIssue: FullIssue
 
         private val coverImageView: ImageView = itemView.findViewById(R.id.list_item_cover)
-        private val seriesTextView: TextView = itemView.findViewById(R.id.list_item_name)
         private val issueNumTextView: TextView = itemView.findViewById(R.id.list_item_issue)
+        private val variantNameTextView: TextView = itemView.findViewById(R.id.list_item_name)
 
         init {
             itemView.setOnClickListener(this)
@@ -170,8 +170,8 @@ class IssueListFragment : Fragment() {
 
         fun bind(issue: FullIssue) {
             this.fullIssue = issue
-            seriesTextView.text = this.fullIssue.issue.variantName
             issueNumTextView.text = this.fullIssue.issue.issueNum.toString()
+//            variantNameTextView.text = this.fullIssue.issue.variantName
         }
 
         override fun onClick(v: View?) {
