@@ -48,6 +48,8 @@ class IssueDetailFragment : Fragment() {
     private lateinit var fullIssue: IssueAndSeries
     private lateinit var issueCredits: List<FullCredit>
     private lateinit var issueStories: List<Story>
+    private lateinit var variantCredits: List<FullCredit>
+    private lateinit var variantStories: List<Story>
     private lateinit var issueVariants: List<Issue>
 
     private lateinit var coverImageView: ImageView
@@ -55,7 +57,8 @@ class IssueDetailFragment : Fragment() {
     private lateinit var issueNumTextView: TextView
 
     private lateinit var variantSpinner: Spinner
-//    private lateinit var issueCreditsLabel: TextView
+
+    //    private lateinit var issueCreditsLabel: TextView
     private lateinit var issueCreditsFrame: ScrollView
     private lateinit var creditsBox: CreditsBox
 
@@ -79,6 +82,8 @@ class IssueDetailFragment : Fragment() {
         fullIssue = IssueAndSeries(Issue(), Series())
         issueCredits = emptyList()
         issueStories = emptyList()
+        variantCredits = emptyList()
+        variantStories = emptyList()
 
         issueDetailViewModel.loadIssue(arguments?.getSerializable(ARG_ISSUE_ID) as Int)
     }
@@ -139,6 +144,28 @@ class IssueDetailFragment : Fragment() {
             }
         )
 
+        issueDetailViewModel.variantCreditsLiveData.observe(
+            viewLifecycleOwner,
+            { credits: List<FullCredit>? ->
+                credits?.let {
+                    this.variantCredits = it
+                    creditsBox.displayCredit()
+                    updateUI()
+                }
+            }
+        )
+
+        issueDetailViewModel.variantStoriesLiveData.observe(
+            viewLifecycleOwner,
+            { stories: List<Story> ->
+                stories.let {
+                    this.variantStories = it
+                    creditsBox.displayCredit()
+                    updateUI()
+                }
+            }
+        )
+
         issueDetailViewModel.variantsLiveData.observe(
             viewLifecycleOwner,
             { issues: List<Issue>? ->
@@ -165,6 +192,28 @@ class IssueDetailFragment : Fragment() {
             DatePickerFragment.newInstance(fullIssue.issue.releaseDate).apply {
                 setTargetFragment(this@IssueDetailFragment, RESULT_DATE_PICKER)
                 show(this@IssueDetailFragment.parentFragmentManager, DIALOG_DATE)
+            }
+        }
+
+        variantSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(
+                parent: AdapterView<*>?,
+                view: View?,
+                position: Int,
+                id: Long
+            ) {
+                parent?.let {
+                    val selectedIssueId = (it.getItemAtPosition(position) as Issue).issueId
+                    if (selectedIssueId != issueDetailViewModel.getIssue()) {
+                        issueDetailViewModel.loadVariant(selectedIssueId)
+                    } else {
+                        issueDetailViewModel.loadVariant(null)
+                    }
+                }
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+
             }
         }
     }
@@ -230,9 +279,11 @@ class IssueDetailFragment : Fragment() {
 
         fun displayCredit() {
             this.removeAllViews()
-            for (story in issueStories) {
+            val stories = issueStories + variantStories
+            stories.forEach { story ->
                 this.addView(StoryRow(context, story))
-                for (credit in issueCredits) {
+                val credits = issueCredits + variantCredits
+                credits.forEach { credit ->
                     if (credit.story.storyId == story.storyId) {
                         this.addView(CreditsRow(context, credit))
                     }
@@ -264,7 +315,8 @@ class IssueDetailFragment : Fragment() {
         }
     }
 
-    inner class CreditsRow(context: Context, private val fullCredit: FullCredit) : TableRow(context) {
+    inner class CreditsRow(context: Context, private val fullCredit: FullCredit) :
+        TableRow(context) {
         init {
             this.addView(TextView(context).apply {
                 layoutParams = LayoutParams(WRAP_CONTENT, WRAP_CONTENT)
