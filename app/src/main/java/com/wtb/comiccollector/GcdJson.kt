@@ -1,6 +1,5 @@
 package com.wtb.comiccollector
 
-import android.util.Log
 import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
 import java.time.LocalDate
@@ -189,24 +188,11 @@ class GcdCredit(
     val storyId: Int
 ) : GcdJson<Credit> {
     override fun toRoomModel(pk: Int): Credit {
-        Log.d(
-            "GcdCredit",
-            "pk: $pk sid: $storyId cid: $nameDetailId " +
-                    "rid: $roleId"
-        )
         return Credit(
             creditId = pk,
             storyId = storyId,
             nameDetailId = nameDetailId,
             roleId = roleId,
-        )
-    }
-
-    fun getCreatorModel(): Creator {
-        return Creator(
-            creatorId = nameDetailId,
-            name = nameDetailId.toString(),
-            sortName = nameDetailId.toString()
         )
     }
 }
@@ -315,12 +301,16 @@ class GcdStoryType(
 class GcdNameDetail(
     @SerializedName("creator")
     @Expose
-    val creatorId: Int
+    val creatorId: Int,
+    @SerializedName("name")
+    @Expose
+    val name: String
 ) : GcdJson<NameDetail> {
     override fun toRoomModel(pk: Int): NameDetail {
         return NameDetail(
             nameDetailId = pk,
-            creatorId = creatorId
+            creatorId = creatorId,
+            name = name
         )
     }
 }

@@ -131,7 +131,7 @@ class NewCreatorDialogFragment : DialogFragment(),
                 sortName = lastNameEditText.text.toString()
             )
 
-            issueDetailViewModel.addCreator(creator)
+            issueDetailViewModel.upsertCreator(creator)
 
             val bundle = Bundle()
             bundle.putSerializable(ARG_CREATOR_ID, creator.creatorId)

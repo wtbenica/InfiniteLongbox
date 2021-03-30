@@ -45,6 +45,7 @@
     <string name="series">Series</string>
     <string name="creator">Creator</string>
     <string name="my_comics">My Comics</string>
+    <string name="search">Search</string>
     <string-array name="grouping_options">
         <item>@string/series</item>
         <item>@string/creator</item>

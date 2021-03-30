@@ -2,9 +2,12 @@ package com.wtb.comiccollector.GroupListFragments
 
 import android.content.Context
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.*
 import android.view.animation.AnimationUtils
 import android.view.animation.LayoutAnimationController
+import android.widget.EditText
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -41,6 +44,8 @@ abstract class GroupListFragment<T : GroupListFragment.Indexed, U : GroupListFra
     private var filterId: Int? = null
     private var dateFilterStart: LocalDate? = null
     private var dateFilterEnd: LocalDate? = null
+
+    private lateinit var search: EditText
     private lateinit var itemListRecyclerView: RecyclerView
     private lateinit var indexRecyclerView: RecyclerView
 
@@ -66,6 +71,7 @@ abstract class GroupListFragment<T : GroupListFragment.Indexed, U : GroupListFra
 
         itemList = emptyList()
 
+        search = view.findViewById(R.id.search_tv) as EditText
         itemListRecyclerView = view.findViewById(R.id.issue_recycler_view) as RecyclerView
         itemListRecyclerView.layoutManager = LinearLayoutManager(context)
         itemListRecyclerView.adapter = getAdapter()
@@ -91,6 +97,20 @@ abstract class GroupListFragment<T : GroupListFragment.Indexed, U : GroupListFra
                 }
             }
         )
+
+        search.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+
+            }
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                viewModel.filter(text = s.toString())
+            }
+
+            override fun afterTextChanged(s: Editable?) {
+
+            }
+        })
     }
 
     override fun onDetach() {

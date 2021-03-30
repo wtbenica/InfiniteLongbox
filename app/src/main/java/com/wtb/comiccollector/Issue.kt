@@ -1,7 +1,6 @@
 package com.wtb.comiccollector
 
 import android.net.Uri
-import android.util.Log
 import androidx.room.*
 import androidx.room.ForeignKey.CASCADE
 import com.wtb.comiccollector.GroupListFragments.GroupListFragment
@@ -11,7 +10,9 @@ import java.time.format.DateTimeParseException
 
 const val AUTO_ID = 0
 
-interface DataModel
+interface DataModel {
+
+}
 
 // TODO: For all entities, need to add onDeletes: i.e. CASCADE, etc.
 @Entity(
@@ -63,11 +64,18 @@ data class Issue(
                 } catch (e: DateTimeParseException) {
                     try {
                         LocalDate.parse(
-                            newDate.substringBeforeLast('-') + "-01",
+                            newDate.subSequence(0, 8).toString() + "-01",
                             DateTimeFormatter.ofPattern(("uuuu-MM-dd"))
                         )
                     } catch (e: DateTimeParseException) {
-                        throw e
+                        try {
+                            LocalDate.parse(
+                                newDate.subSequence(0, 4).toString() + "-01-01",
+                                DateTimeFormatter.ofPattern("uuuu-MM-dd")
+                            )
+                        } catch (e: DateTimeParseException) {
+                            throw e
+                        }
                     }
                 } catch (e: DateTimeParseException) {
                     throw e
@@ -140,6 +148,54 @@ data class Creator(
 }
 
 @Entity
+data class Character(
+    @PrimaryKey(autoGenerate = true) val characterId: Int = AUTO_ID,
+    var name: String,
+    var aka: String? = null
+) : GroupListFragment.Indexed, DataModel {
+    override fun getIndex(): Char {
+        return name.removePrefix("The ")[0]
+    }
+
+    val sortName: String
+        get() {
+            val shortName = name.removePrefix("The ")
+            return if (shortName == name) {
+                "$name [$aka]"
+            } else {
+                "$shortName, The [$aka]"
+            }
+        }
+}
+
+@Entity(
+    foreignKeys = [
+        ForeignKey(
+            entity = Story::class,
+            parentColumns = arrayOf("storyId"),
+            childColumns = arrayOf("characterId"),
+            onDelete = CASCADE
+        ),
+        ForeignKey(
+            entity = Character::class,
+            parentColumns = arrayOf("characterId"),
+            childColumns = arrayOf("characterId"),
+            onDelete = CASCADE
+        )
+    ],
+    indices = [
+        Index(value = ["storyId"]),
+        Index(value = ["characterId"])
+    ]
+)
+data class Appearance(
+    @PrimaryKey(autoGenerate = true) val appearanceId: Int = AUTO_ID,
+    val storyId: Int,
+    val characterId: Int,
+    val details: String?
+) : DataModel
+
+@Entity
 data class Publisher(
     @PrimaryKey(autoGenerate = true) val publisherId: Int = AUTO_ID,
     val publisher: String = ""
@@ -183,7 +239,8 @@ data class Role(
 )
 data class NameDetail(
     @PrimaryKey(autoGenerate = true) val nameDetailId: Int = AUTO_ID,
-    var creatorId: Int
+    var creatorId: Int,
+    var name: String
 ) : DataModel
 
 @Entity
@@ -250,17 +307,7 @@ data class Credit(
     var storyId: Int,
     var nameDetailId: Int,
     var roleId: Int
-) : DataModel {
-    init {
-        Log.d(
-            "INS",
-            "CREDIT: ${creditId.format(10)} ${storyId.format(10)} ${nameDetailId.format(10)} ${
-                roleId
-                    .format(10)
-            }"
-        )
-    }
-}
+) : DataModel
 
 fun Int.format(width: Int): String {
     return String.format("%${width}d", this)

@@ -204,21 +204,21 @@ class IssueDetailEditFragment : Fragment(),
                 val myCredit: FullCredit? = getCredit("Writer")
                 myCredit?.let { fullCredit ->
                     fullCredit.credit.nameDetailId = data.getSerializableExtra(ARG_CREATOR_ID) as Int
-                    issueDetailViewModel.updateCredit(fullCredit.credit)
+                    issueDetailViewModel.upsertCredit(fullCredit.credit)
                 }
             }
             requestCode == RESULT_NEW_PENCILLER && data != null -> {
                 val myCredit: FullCredit? = getCredit("Penciller")
                 myCredit?.let { fullCredit ->
                     fullCredit.credit.nameDetailId = data.getSerializableExtra(ARG_CREATOR_ID) as Int
-                    issueDetailViewModel.updateCredit(fullCredit.credit)
+                    issueDetailViewModel.upsertCredit(fullCredit.credit)
                 }
             }
             requestCode == RESULT_NEW_INKER && data != null -> {
                 val myCredit: FullCredit? = getCredit("Inker")
                 myCredit?.let { fullCredit ->
                     fullCredit.credit.nameDetailId = data.getSerializableExtra(ARG_CREATOR_ID) as Int
-                    issueDetailViewModel.updateCredit(fullCredit.credit)
+                    issueDetailViewModel.upsertCredit(fullCredit.credit)
                 }
             }
         }
@@ -266,7 +266,7 @@ class IssueDetailEditFragment : Fragment(),
         issueDetailViewModel.updateIssue(fullIssue.issue)
         issueDetailViewModel.loadIssue(fullIssue.issue.issueId)
         for (credit in creditsBox.getCredits()) {
-            issueDetailViewModel.addCredit(credit)
+            issueDetailViewModel.upsertCredit(credit)
         }
     }
 
@@ -316,7 +316,7 @@ class IssueDetailEditFragment : Fragment(),
                     if (selectedSeries.seriesId == ADD_SERIES_ID) {
                         selectedSeries.seriesName = ""
                         selectedSeries.seriesId = AUTO_ID
-                        issueDetailViewModel.addSeries(selectedSeries)
+                        issueDetailViewModel.upsertSeries(selectedSeries)
                         fullIssue.issue.seriesId = selectedSeries.seriesId
                         issueDetailViewModel.updateIssue(fullIssue.issue)
                         issueDetailViewModel.loadIssue(fullIssue.issue.issueId)

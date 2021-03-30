@@ -5,22 +5,37 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.wtb.comiccollector.*
-import java.time.LocalDate
 
 private const val TAG = "GroupListViewModel"
 
 abstract class GroupListViewModel<T>: ViewModel() {
     val issueRepository: IssueRepository = IssueRepository.get()
     val filterIdLiveData = MutableLiveData<Int?>(null)
+    val filterLiveData = MutableLiveData<Filter?>(null)
 
     abstract val objectListLiveData: LiveData<List<T>>
 
+    class Filter(
+        val filterId: Int? = null,
+        val text: String? = null
+    ) {
+        fun isEmpty() : Boolean {
+            return filterId == null && text == null
+        }
+    }
+
+    private fun updateFilter(filter: Filter) {
+        filterLiveData.value = filter
+    }
+
     fun filter(
         filterId: Int? = null,
-        startDate: LocalDate? = null,
-        endDate: LocalDate? = null
+        text: String? = null
     ) {
-        filterIdLiveData.value = filterId
+        updateFilter(Filter(
+            filterId = filterId ?: filterLiveData.value?.filterId,
+            text = text ?: filterLiveData.value?.text
+        ))
     }
 
     fun addIssue(issue: Issue) {

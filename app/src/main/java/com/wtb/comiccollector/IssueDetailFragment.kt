@@ -90,21 +90,13 @@ class IssueDetailFragment : Fragment() {
         val view = inflater.inflate(R.layout.fragment_display_issue, container, false)
 
         seriesTextView = view.findViewById(R.id.issue_series) as TextView
-
         coverImageView = view.findViewById(R.id.issue_cover) as ImageView
-
         issueNumTextView = view.findViewById(R.id.issue_number) as TextView
-
         issueCreditsFrame = view.findViewById(R.id.issue_credits_table) as ScrollView
-
         releaseDateTextView = view.findViewById(R.id.release_date_text_view)
-
         toggleEditButton = view.findViewById(R.id.edit_button) as ImageButton
-
         issueCreditsLabel = view.findViewById(R.id.issue_credits_box_label) as TextView
-
         creditsBox = CreditsBox(requireContext())
-
         issueCreditsFrame.addView(creditsBox)
 
         return view
