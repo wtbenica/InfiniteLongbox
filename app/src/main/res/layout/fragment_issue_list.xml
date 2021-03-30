@@ -20,10 +20,10 @@
         android:layout_height="wrap_content"
         android:hint="@string/search"
         android:importantForAutofill="no"
+        android:inputType="text"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/details"
-        android:inputType="text" />
+        app:layout_constraintTop_toBottomOf="@id/details" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/issue_recycler_view"
@@ -31,16 +31,8 @@
         android:layout_height="0dp"
         android:layoutAnimation="@anim/layout_animation_fall_down"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/index_recycler_view"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/search_tv" />
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/index_recycler_view"
-        android:layout_width="wrap_content"
-        android:layout_height="0dp"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/search_tv" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

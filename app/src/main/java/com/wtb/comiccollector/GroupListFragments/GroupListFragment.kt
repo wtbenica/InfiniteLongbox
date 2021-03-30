@@ -8,7 +8,6 @@ import android.view.*
 import android.view.animation.AnimationUtils
 import android.view.animation.LayoutAnimationController
 import android.widget.EditText
-import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -47,7 +46,6 @@ abstract class GroupListFragment<T : GroupListFragment.Indexed, U : GroupListFra
 
     private lateinit var search: EditText
     private lateinit var itemListRecyclerView: RecyclerView
-    private lateinit var indexRecyclerView: RecyclerView
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -75,10 +73,6 @@ abstract class GroupListFragment<T : GroupListFragment.Indexed, U : GroupListFra
         itemListRecyclerView = view.findViewById(R.id.issue_recycler_view) as RecyclerView
         itemListRecyclerView.layoutManager = LinearLayoutManager(context)
         itemListRecyclerView.adapter = getAdapter()
-
-        indexRecyclerView = view.findViewById(R.id.index_recycler_view) as RecyclerView
-        indexRecyclerView.layoutManager = LinearLayoutManager(context)
-        indexRecyclerView.adapter = IndexAdapter(getIndexList())
 
         return view
     }
@@ -138,7 +132,6 @@ abstract class GroupListFragment<T : GroupListFragment.Indexed, U : GroupListFra
     private fun updateUI() {
         itemListRecyclerView.adapter = getAdapter()
         runLayoutAnimation(itemListRecyclerView)
-        indexRecyclerView.adapter = IndexAdapter(getIndexList())
     }
 
     private fun getIndexList(): List<Pair<Char, Int>> {
@@ -228,41 +221,6 @@ abstract class GroupListFragment<T : GroupListFragment.Indexed, U : GroupListFra
 
         override fun toString(): String {
             return s
-        }
-    }
-
-    inner class IndexAdapter(private val indexList: List<Pair<Char, Int>>) :
-        RecyclerView.Adapter<IndexViewHolder>() {
-
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): IndexViewHolder {
-            return IndexViewHolder(layoutInflater.inflate(R.layout.index_item, parent, false))
-        }
-
-        override fun onBindViewHolder(holder: IndexViewHolder, position: Int) {
-            holder.bind(indexList[position])
-        }
-
-        override fun getItemCount(): Int = indexList.size
-    }
-
-    inner class IndexViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView),
-        View.OnClickListener {
-
-        private lateinit var item: Pair<Char, Int>
-        private var indexTextView: TextView = itemView.findViewById(R.id.index_label)
-
-        init {
-            itemView.setOnClickListener(this)
-        }
-
-        fun bind(item: Pair<Char, Int>) {
-            this.item = item
-            indexTextView.text = item.first.toString()
-        }
-
-        override fun onClick(v: View?) {
-            (itemListRecyclerView.layoutManager as LinearLayoutManager)
-                .scrollToPositionWithOffset(item.second, 0)
         }
     }
 }
