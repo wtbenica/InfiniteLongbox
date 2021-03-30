@@ -10,7 +10,9 @@ import java.time.format.DateTimeParseException
 
 const val AUTO_ID = 0
 
-interface DataModel
+interface DataModel {
+
+}
 
 // TODO: For all entities, need to add onDeletes: i.e. CASCADE, etc.
 @Entity(
