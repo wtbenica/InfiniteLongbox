@@ -8,6 +8,6 @@ class ComicCollectorApplication: Application() {
 
     override fun onCreate() {
         super.onCreate()
-        IssueRepository.initialize(this)
+        NewIssueRepository.initialize(this)
     }
 }

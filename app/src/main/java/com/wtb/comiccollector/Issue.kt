@@ -13,12 +13,17 @@ interface DataModel {
     fun id(): Int
 }
 
-interface Filterable: DataModel, Comparable<Filterable> {
+interface Filterable : DataModel, Comparable<Filterable> {
     fun sortValue(): String
 
     override fun compareTo(other: Filterable): Int {
         return sortValue().compareTo(other.sortValue())
     }
+
+}
+
+fun <E: Filterable> MutableSet<E>.ids(): String {
+    return (this.map { it.id() }).toString()
 }
 
 // TODO: For all entities, need to add onDeletes: i.e. CASCADE, etc.
@@ -155,7 +160,7 @@ data class Creator(
     @PrimaryKey(autoGenerate = true) val creatorId: Int = AUTO_ID,
     var name: String,
     var sortName: String
-) : DataModel, Filterable {
+) : Filterable {
 
     override fun id(): Int = creatorId
 
@@ -218,7 +223,9 @@ data class Appearance(
 data class Publisher(
     @PrimaryKey(autoGenerate = true) val publisherId: Int = AUTO_ID,
     val publisher: String = ""
-) : DataModel {
+) : Filterable {
+    override fun sortValue(): String = publisher
+
     override fun id(): Int = publisherId
 
     override fun toString(): String {
