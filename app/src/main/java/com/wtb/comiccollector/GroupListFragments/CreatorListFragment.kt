@@ -9,11 +9,12 @@ import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.Creator
 import com.wtb.comiccollector.GroupListViewModels.CreatorListViewModel
 import com.wtb.comiccollector.R
+import com.wtb.comiccollector.Series
 import java.time.LocalDate
 
 private const val TAG = APP + "CreatorListFragment"
 
-class CreatorListFragment : GroupListFragment<Creator, CreatorListFragment.CreatorAdapter>() {
+class CreatorListFragment : GroupListFragment<Creator, CreatorListFragment.CreatorAdapter, Series>() {
 
     override val viewModel by lazy {
         ViewModelProvider(this).get(CreatorListViewModel::class.java)

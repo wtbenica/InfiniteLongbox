@@ -5,15 +5,13 @@ import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.lifecycle.ViewModelProvider
-import com.wtb.comiccollector.APP
+import com.wtb.comiccollector.*
 import com.wtb.comiccollector.GroupListViewModels.SeriesListViewModel
-import com.wtb.comiccollector.R
-import com.wtb.comiccollector.Series
 import java.time.LocalDate
 
 private const val TAG = APP + "SeriesListFragment"
 
-class SeriesListFragment : GroupListFragment<Series, SeriesListFragment.SeriesAdapter>() {
+class SeriesListFragment : GroupListFragment<Series, SeriesListFragment.SeriesAdapter, Creator>() {
 
     override val viewModel by lazy {
         ViewModelProvider(this).get(SeriesListViewModel::class.java)

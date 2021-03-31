@@ -2,28 +2,36 @@ package com.wtb.comiccollector.GroupListFragments
 
 import android.content.Context
 import android.os.Bundle
-import android.text.Editable
-import android.text.TextWatcher
+import android.util.Log
 import android.view.*
+import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.view.animation.AnimationUtils
 import android.view.animation.LayoutAnimationController
-import android.widget.EditText
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
+import android.widget.AutoCompleteTextView
+import androidx.appcompat.content.res.AppCompatResources.getDrawable
+import androidx.core.view.children
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.chip.Chip
+import com.google.android.material.chip.ChipGroup
+import com.wtb.comiccollector.*
 import com.wtb.comiccollector.GroupListViewModels.GroupListViewModel
 import com.wtb.comiccollector.GroupListViewModels.SeriesListViewModel
-import com.wtb.comiccollector.Issue
-import com.wtb.comiccollector.R
 import java.time.LocalDate
+
+private const val TAG = APP + "GroupListFragment"
 
 const val ARG_FILTER_ID = "Series Filter"
 const val ARG_CREATOR_FILTER = "Creator Filter"
 const val ARG_DATE_FILTER_START = "Date Filter Start"
 const val ARG_DATE_FILTER_END = "Date Filter End"
 
-abstract class GroupListFragment<T : GroupListFragment.Indexed, U : GroupListFragment<T, U>.MyAdapter<T>>
-    : Fragment() {
+abstract class GroupListFragment<T : DataModel, U : GroupListFragment<T, U, V>.MyAdapter<T>, V :
+DataModel> :
+    Fragment(), Chippy.ChipCallbacks {
 
     interface Callbacks {
         fun onSeriesSelected(seriesId: Int)
@@ -31,11 +39,7 @@ abstract class GroupListFragment<T : GroupListFragment.Indexed, U : GroupListFra
         fun onNewIssue(issueId: Int)
     }
 
-    interface Indexed {
-        fun getIndex(): Char
-    }
-
-    abstract val viewModel: GroupListViewModel<T>
+    abstract val viewModel: GroupListViewModel<T, V>
 
     protected var callbacks: Callbacks? = null
     protected lateinit var itemList: List<T>
@@ -44,7 +48,8 @@ abstract class GroupListFragment<T : GroupListFragment.Indexed, U : GroupListFra
     private var dateFilterStart: LocalDate? = null
     private var dateFilterEnd: LocalDate? = null
 
-    private lateinit var search: EditText
+    private lateinit var searchChips: ChipGroup
+    private lateinit var search: AutoCompleteTextView
     private lateinit var itemListRecyclerView: RecyclerView
 
     override fun onAttach(context: Context) {
@@ -65,11 +70,12 @@ abstract class GroupListFragment<T : GroupListFragment.Indexed, U : GroupListFra
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val view = inflater.inflate(R.layout.fragment_issue_list, container, false)
+        val view = inflater.inflate(R.layout.fragment_item_list, container, false)
 
         itemList = emptyList()
 
-        search = view.findViewById(R.id.search_tv) as EditText
+        searchChips = view.findViewById(R.id.search_chipgroup) as ChipGroup
+        search = view.findViewById(R.id.search_tv) as AutoCompleteTextView
         itemListRecyclerView = view.findViewById(R.id.issue_recycler_view) as RecyclerView
         itemListRecyclerView.layoutManager = LinearLayoutManager(context)
         itemListRecyclerView.adapter = getAdapter()
@@ -80,31 +86,55 @@ abstract class GroupListFragment<T : GroupListFragment.Indexed, U : GroupListFra
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        filterId?.let { viewModel.filter(it) }
+        viewModel.filter(filterId)
 
         viewModel.objectListLiveData.observe(
             viewLifecycleOwner,
-            { objectList ->
-                objectList?.let {
+            { objectList: List<T>? ->
+                objectList?.let { it: List<T> ->
                     this.itemList = it
                     updateUI()
                 }
             }
         )
 
-        search.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
-
+        viewModel.filterListLiveData.observe(
+            viewLifecycleOwner,
+            { filterObjects ->
+                filterObjects?.let {
+                    search.setAdapter(
+                        ArrayAdapter(
+                            requireContext(),
+                            android.R.layout.simple_dropdown_item_1line,
+                            it
+                        )
+                    )
+                }
             }
+        )
+    }
 
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                viewModel.filter(text = s.toString())
+    override fun onStart() {
+        super.onStart()
+        Log.d(TAG, "onStart is happening")
+
+        search.onItemClickListener =
+            object : AdapterView.OnItemClickListener {
+                override fun onItemClick(
+                    parent: AdapterView<*>?,
+                    view: View?,
+                    position: Int,
+                    id: Long
+                ) {
+                    val item = parent?.adapter?.getItem(position) as DataModel
+                    viewModel.filterUpdate(item.id())
+                    val chip = Chippy(context, item, this@GroupListFragment)
+                    chip.text = item.toString()
+                    searchChips.addView(chip)
+                    search.setText("")
+                    viewModel.filter(filterId = item.id())
+                }
             }
-
-            override fun afterTextChanged(s: Editable?) {
-
-            }
-        })
     }
 
     override fun onDetach() {
@@ -132,29 +162,6 @@ abstract class GroupListFragment<T : GroupListFragment.Indexed, U : GroupListFra
     private fun updateUI() {
         itemListRecyclerView.adapter = getAdapter()
         runLayoutAnimation(itemListRecyclerView)
-    }
-
-    private fun getIndexList(): List<Pair<Char, Int>> {
-        val result = LinkedHashMap<Char, Int>()
-        itemList.forEachIndexed { index, item ->
-            val item1 = item.getIndex()
-
-            if (index == 0) {
-                result[item1] = index
-            } else {
-                val item2 = try {
-                    itemList[index + 1]
-                } catch (e: IndexOutOfBoundsException) {
-                    '#'
-                }
-
-                if (item1 != item2 && result[item1] == null) {
-                    result[item1] = index
-                }
-            }
-        }
-
-        return result.toList()
     }
 
     abstract fun getAdapter(): U
@@ -222,5 +229,43 @@ abstract class GroupListFragment<T : GroupListFragment.Indexed, U : GroupListFra
         override fun toString(): String {
             return s
         }
+    }
+
+    override fun chipClosed(id: Int) {
+        viewModel.removeFilter(id)
+        for (child in searchChips.children) {
+            if ((child as Chippy).item.id() == id) {
+                searchChips.removeView(child)
+            }
+        }
+    }
+}
+
+class Chippy(context: Context?) : Chip(context) {
+
+    lateinit var item: DataModel
+    lateinit var caller: ChipCallbacks
+
+    constructor(context: Context?, item: DataModel, caller: ChipCallbacks) : this(context) {
+        this.item = item
+        this.caller = caller
+        Log.d(TAG, "Makin Chippy")
+        this.width = WRAP_CONTENT
+        this.height = WRAP_CONTENT
+        this.closeIcon = context?.let { getDrawable(it, R.drawable.ic_close) }
+        this.isCloseIconVisible = true
+
+        this.setOnCloseIconClickListener(
+            object : OnClickListener {
+                override fun onClick(v: View?) {
+                    caller.chipClosed(item.id())
+                }
+            }
+        )
+    }
+
+
+    interface ChipCallbacks {
+        fun chipClosed(id: Int)
     }
 }

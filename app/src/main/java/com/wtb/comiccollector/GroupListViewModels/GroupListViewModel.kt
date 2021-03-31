@@ -8,22 +8,27 @@ import com.wtb.comiccollector.*
 
 private const val TAG = "GroupListViewModel"
 
-abstract class GroupListViewModel<T>: ViewModel() {
+abstract class GroupListViewModel<T : DataModel, U : DataModel> : ViewModel() {
     val issueRepository: IssueRepository = IssueRepository.get()
     val filterLiveData = MutableLiveData<Filter?>(null)
 
     abstract val objectListLiveData: LiveData<List<T>>
 
+    val filterListLiveData: CombinedLiveData<List<Series>, List<Creator>, List<Filterable>?> =
+        issueRepository.everything
+
+    abstract fun filterUpdate(id: Int)
+
     class Filter(
         val filterId: Int? = null,
         val text: String? = null
     ) {
-        fun isEmpty() : Boolean {
+        fun isEmpty(): Boolean {
             return filterId == null && text == null
         }
     }
 
-    private fun updateFilter(filter: Filter) {
+    private fun updateFilter(filter: Filter?) {
         filterLiveData.value = filter
     }
 
@@ -31,10 +36,33 @@ abstract class GroupListViewModel<T>: ViewModel() {
         filterId: Int? = null,
         text: String? = null
     ) {
-        updateFilter(Filter(
-            filterId = filterId ?: filterLiveData.value?.filterId,
-            text = text ?: filterLiveData.value?.text
-        ))
+        filterId?.let { filterUpdate(it) }
+        updateFilter(
+            Filter(
+                filterId = filterId ?: filterLiveData.value?.filterId,
+                text = text ?: filterLiveData.value?.text
+            )
+        )
+    }
+
+    fun removeFilter(
+        filterId: Int? = null,
+        text: String? = null
+    ) {
+        updateFilter(
+            Filter(
+                filterId = if (filterId == null) {
+                    filterLiveData.value?.filterId
+                } else {
+                    null
+                },
+                text = if (text == null) {
+                    filterLiveData.value?.text
+                } else {
+                    null
+                }
+            )
+        )
     }
 
     fun addIssue(issue: Issue) {

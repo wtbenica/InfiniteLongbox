@@ -3,14 +3,23 @@ package com.wtb.comiccollector
 import android.net.Uri
 import androidx.room.*
 import androidx.room.ForeignKey.CASCADE
-import com.wtb.comiccollector.GroupListFragments.GroupListFragment
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
 
 const val AUTO_ID = 0
 
-interface DataModel
+interface DataModel {
+    fun id(): Int
+}
+
+interface Filterable: DataModel, Comparable<Filterable> {
+    fun sortValue(): String
+
+    override fun compareTo(other: Filterable): Int {
+        return sortValue().compareTo(other.sortValue())
+    }
+}
 
 // TODO: For all entities, need to add onDeletes: i.e. CASCADE, etc.
 @Entity(
@@ -46,6 +55,8 @@ data class Issue(
 ) : DataModel {
     val coverFileName: String
         get() = "IMG_$issueId.jpg"
+
+    override fun id(): Int = issueId
 
     override fun toString(): String {
         return if (variantName == "") {
@@ -117,12 +128,13 @@ data class Series(
     var endDate: LocalDate? = null,
     var description: String? = null,
     var publishingFormat: String? = null
-) : GroupListFragment.Indexed, DataModel {
+) : DataModel, Filterable {
 
-    override fun getIndex(): Char =
-        sortName?.get(0)?.toUpperCase() ?: seriesName[0].toUpperCase()
+    override fun id(): Int = seriesId
 
-    override fun toString(): String = "$seriesId $seriesName $dateRange"
+    override fun sortValue(): String = seriesName
+
+    override fun toString(): String = "$seriesName $dateRange"
 
     val fullDescription: String
         get() = "$seriesName vol. $volume $dateRange".removeSuffix(" ")
@@ -143,11 +155,11 @@ data class Creator(
     @PrimaryKey(autoGenerate = true) val creatorId: Int = AUTO_ID,
     var name: String,
     var sortName: String
-) : GroupListFragment.Indexed, DataModel {
+) : DataModel, Filterable {
 
-    override fun getIndex(): Char {
-        return sortName[0]
-    }
+    override fun id(): Int = creatorId
+
+    override fun sortValue(): String = name
 
     override fun toString(): String {
         return name
@@ -159,10 +171,8 @@ data class Character(
     @PrimaryKey(autoGenerate = true) val characterId: Int = AUTO_ID,
     var name: String,
     var aka: String? = null
-) : GroupListFragment.Indexed, DataModel {
-    override fun getIndex(): Char {
-        return name.removePrefix("The ")[0]
-    }
+) : DataModel {
+    override fun id(): Int = characterId
 
     val sortName: String
         get() {
@@ -200,13 +210,17 @@ data class Appearance(
     val storyId: Int,
     val characterId: Int,
     val details: String?
-) : DataModel
+) : DataModel {
+    override fun id(): Int = appearanceId
+}
 
 @Entity
 data class Publisher(
     @PrimaryKey(autoGenerate = true) val publisherId: Int = AUTO_ID,
     val publisher: String = ""
 ) : DataModel {
+    override fun id(): Int = publisherId
+
     override fun toString(): String {
         return publisher
     }
@@ -220,6 +234,8 @@ data class Role(
     var sortOrder: Int
 ) : DataModel {
     override fun toString(): String = roleName
+
+    override fun id(): Int = roleId
 
     companion object {
         enum class Name(val value: Int) {
@@ -248,14 +264,18 @@ data class NameDetail(
     @PrimaryKey(autoGenerate = true) val nameDetailId: Int = AUTO_ID,
     var creatorId: Int,
     var name: String
-) : DataModel
+) : DataModel {
+    override fun id(): Int = nameDetailId
+}
 
 @Entity
 data class StoryType(
     @PrimaryKey(autoGenerate = true) val typeId: Int = AUTO_ID,
     val name: String,
     val sortCode: Int
-) : DataModel
+) : DataModel {
+    override fun id(): Int = typeId
+}
 
 @Entity(
     foreignKeys = [
@@ -279,7 +299,9 @@ data class Story(
     var notes: String? = null,
     var sequenceNumber: Int = 0,
     val issueId: Int,
-) : DataModel
+) : DataModel {
+    override fun id(): Int = storyId
+}
 
 @Entity(
     indices = [
@@ -314,7 +336,9 @@ data class Credit(
     var storyId: Int,
     var nameDetailId: Int,
     var roleId: Int
-) : DataModel
+) : DataModel {
+    override fun id(): Int = creditId
+}
 
 fun Int.format(width: Int): String {
     return String.format("%${width}d", this)
@@ -353,19 +377,21 @@ data class MyCredit(
     var storyId: Int,
     var creatorId: Int,
     var roleId: Int
-) : DataModel
+) : DataModel {
+    override fun id(): Int = creditId
+}
 
 data class FullIssue(
     @Embedded
     val issue: Issue,
     val seriesName: String,
     val publisher: String
-) : DataModel
+)
 
 data class IssueCredits(
     val roleName: String,
     val name: String
-) : DataModel
+)
 
 data class SeriesAndPublisher(
     @Embedded
@@ -376,7 +402,7 @@ data class SeriesAndPublisher(
         entityColumn = "publisherId"
     )
     val publisher: Publisher
-) : DataModel
+)
 
 data class FullCredit(
     @Embedded
@@ -402,7 +428,7 @@ data class FullCredit(
         entityColumn = "storyId"
     )
     val story: Story,
-) : DataModel
+)
 
 data class IssueAndSeries(
     @Embedded
@@ -413,4 +439,4 @@ data class IssueAndSeries(
         entityColumn = "seriesId"
     )
     var series: Series
-) : DataModel
+)

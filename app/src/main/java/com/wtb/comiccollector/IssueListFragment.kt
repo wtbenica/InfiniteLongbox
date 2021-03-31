@@ -65,7 +65,7 @@ class IssueListFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val view = inflater.inflate(R.layout.fragment_issue_list, container, false)
+        val view = inflater.inflate(R.layout.fragment_item_list, container, false)
 
         issueRecyclerView = view.findViewById(R.id.issue_recycler_view)
         issueRecyclerView.layoutManager = LinearLayoutManager(context)

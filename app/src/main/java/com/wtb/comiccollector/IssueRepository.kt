@@ -10,6 +10,8 @@ import android.util.Log
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MediatorLiveData
+import androidx.lifecycle.Observer
 import androidx.lifecycle.liveData
 import androidx.room.Room
 import androidx.room.RoomDatabase
@@ -21,6 +23,7 @@ import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.time.LocalDate
+import java.util.Collections.sort
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import java.util.regex.Pattern
@@ -93,6 +96,16 @@ class IssueRepository private constructor(context: Context) {
 
     val allRoles: LiveData<List<Role>> = roleDao.getRoleList()
 
+    val everything = CombinedLiveData<List<Series>, List<Creator>, List<Filterable>?>(
+        source1 = allSeries,
+        source2 = allCreators,
+        combine = { list: List<Series>?, list1: List<Creator>? ->
+            val res = (list as List<Filterable>? ?: emptyList()) + (list1 as List<Filterable>?
+                ?: emptyList())
+            sort(res)
+            res
+        })
+
     init {
         StaticUpdater().update()
     }
@@ -101,7 +114,8 @@ class IssueRepository private constructor(context: Context) {
 
     fun getPublisher(publisherId: Int) = publisherDao.getPublisher(publisherId)
 
-    fun getFullIssue(issueId: Int): LiveData<IssueAndSeries?> = issueDao.getFullIssue(issueId)
+    fun getFullIssue(issueId: Int): LiveData<IssueAndSeries?> =
+        issueDao.getFullIssue(issueId)
 
     fun getStoriesByIssue(issueId: Int): LiveData<List<Story>> {
         CreditUpdater().update(issueId)
@@ -309,6 +323,10 @@ class IssueRepository private constructor(context: Context) {
         }
     }
 
+    fun updateIssueCredits(issueId: Int) {
+        CreditUpdater().update(issueId)
+    }
+
     inner class CreditUpdater {
         internal fun update(issueId: Int) {
             if (checkIfStale("${issueId}_updated", ISSUE_LIFETIME)) {
@@ -354,7 +372,8 @@ class IssueRepository private constructor(context: Context) {
                     withContext(Dispatchers.Default) {
                         val stories = storyItemsCall.await().map { it.toRoomModel() }
                         val credits = creditItemsCall.await()?.map { it.toRoomModel() }
-                        val nameDetails = nameDetailItemsCall.await()?.map { it.toRoomModel() }
+                        val nameDetails =
+                            nameDetailItemsCall.await()?.map { it.toRoomModel() }
                         val creators = creatorItemsCall.await()?.map { it.toRoomModel() }
 
                         database.transactionDao().upsertSus(
@@ -370,6 +389,10 @@ class IssueRepository private constructor(context: Context) {
                 }
             }
         }
+    }
+
+    fun updateCreator(creatorId: Int) {
+        CreatorUpdater().update(creatorId)
     }
 
     inner class CreatorUpdater {
@@ -417,7 +440,8 @@ class IssueRepository private constructor(context: Context) {
             }
 
             val issuesInserted = GlobalScope.async {
-                issueDao.upsertSus((variants.await()?.map { it.toRoomModel() } ?: emptyList()) +
+                issueDao.upsertSus((variants.await()?.map { it.toRoomModel() }
+                    ?: emptyList()) +
                         (issuesDef.await()?.map { it.toRoomModel() } ?: emptyList()))
             }
 
@@ -511,6 +535,10 @@ class IssueRepository private constructor(context: Context) {
             }
 
         }
+    }
+
+    fun updateIssuesBySeries(seriesId: Int) {
+        IssueUpdater().update(seriesId)
     }
 
     inner class IssueUpdater {
@@ -641,7 +669,8 @@ class IssueRepository private constructor(context: Context) {
             checkLocalCreators.await().let { localCreators: List<Creator>? ->
                 if (localCreators == null || localCreators.isEmpty()) {
                     val nameDetails = GlobalScope.async {
-                        apiService.getNameDetailByName(extracted_name).map { it.toRoomModel() }
+                        apiService.getNameDetailByName(extracted_name)
+                            .map { it.toRoomModel() }
                     }
 
                     nameDetails.await().let { nameDetailItems1: List<NameDetail> ->
@@ -650,7 +679,8 @@ class IssueRepository private constructor(context: Context) {
 
                             val creators = GlobalScope.async {
                                 if (creatorIds.isNotEmpty()) {
-                                    apiService.getCreator(creatorIds).map { it.toRoomModel() }
+                                    apiService.getCreator(creatorIds)
+                                        .map { it.toRoomModel() }
                                 } else {
                                     null
                                 }
@@ -777,5 +807,32 @@ class IssueRepository private constructor(context: Context) {
             editor.putString(key, LocalDate.now().toString())
             editor.apply()
         }
+    }
+}
+
+class CombinedLiveData<T : List<Filterable>, K : List<Filterable>, S>(
+    source1: LiveData<T>, source2: LiveData<K>,
+    private val combine: (data1: T?, data2: K?) -> S
+) : MediatorLiveData<S>() {
+    private var data1: T? = null
+    private var data2: K? = null
+
+    init {
+        super.addSource(source1) {
+            data1 = it
+            value = combine(data1, data2)
+        }
+        super.addSource(source2) {
+            data2 = it
+            value = combine(data1, data2)
+        }
+    }
+
+    override fun <S : Any?> addSource(source: LiveData<S>, onChanged: Observer<in S>) {
+        throw UnsupportedOperationException()
+    }
+
+    override fun <S : Any?> removeSource(toRemote: LiveData<S>) {
+        throw UnsupportedOperationException()
     }
 }

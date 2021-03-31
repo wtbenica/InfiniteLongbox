@@ -4,10 +4,11 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.Transformations
 import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.Creator
+import com.wtb.comiccollector.Series
 
 private const val TAG = APP + "CreatorListViewModel"
 
-class CreatorListViewModel : GroupListViewModel<Creator>() {
+class CreatorListViewModel : GroupListViewModel<Creator, Series>() {
 
     override val objectListLiveData: LiveData<List<Creator>> =
         Transformations.switchMap(filterLiveData) { filter ->
@@ -17,5 +18,7 @@ class CreatorListViewModel : GroupListViewModel<Creator>() {
                 issueRepository.getCreatorsByFilter(filter)
             }
         }
+
+    override fun filterUpdate(id: Int) = issueRepository.updateIssuesBySeries(id)
 }
 
