@@ -1,4 +1,4 @@
-package com.wtb.comiccollector
+package com.wtb.comiccollector.NewGroupListFragments
 
 import android.content.Context
 import android.os.Bundle
@@ -12,13 +12,14 @@ import androidx.fragment.app.FragmentTransaction
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.wtb.comiccollector.GroupListFragments.ARG_CREATOR_FILTER
-import com.wtb.comiccollector.GroupListFragments.ARG_DATE_FILTER_END
-import com.wtb.comiccollector.GroupListFragments.ARG_DATE_FILTER_START
-import com.wtb.comiccollector.GroupListFragments.ARG_FILTER_ID
+import com.wtb.comiccollector.*
+import com.wtb.comiccollector.NewGroupListViewModels.NewIssueListViewModel
 import java.time.LocalDate
 
-class IssueListFragment : Fragment() {
+private const val TAG = APP + "NewIssueListFragment"
+private const val ARG_SERIES_IDS = "Series Ids"
+
+class NewIssueListFragment : Fragment() {
 
     interface Callbacks {
         fun onIssueSelected(issueId: Int)
@@ -28,12 +29,12 @@ class IssueListFragment : Fragment() {
     private var callbacks: Callbacks? = null
 
     private var seriesFilterId: Int? = null
-    private var creatorFilterId: Int? = null
+    private var creatorFilterId = mutableSetOf<Int>()
     private var dateFilterStart: LocalDate? = null
     private var dateFilterEnd: LocalDate? = null
 
     private val issueListViewModel by lazy {
-        ViewModelProvider(this).get(IssueListViewModel::class.java)
+        ViewModelProvider(this).get(NewIssueListViewModel::class.java)
     }
 
     private lateinit var issueRecyclerView: RecyclerView
@@ -48,8 +49,8 @@ class IssueListFragment : Fragment() {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
 
-        seriesFilterId = arguments?.getSerializable(ARG_FILTER_ID) as Int
-        creatorFilterId = arguments?.getSerializable(ARG_CREATOR_FILTER) as Int?
+        seriesFilterId = (arguments?.getSerializable(ARG_SERIES_IDS) as String?)?.toInt()
+        creatorFilterId = Filter.deserialize(arguments?.getSerializable(ARG_CREATOR_IDS) as String?)
         dateFilterStart = arguments?.getSerializable(ARG_DATE_FILTER_START) as LocalDate?
         dateFilterEnd = arguments?.getSerializable(ARG_DATE_FILTER_END) as LocalDate?
 
@@ -67,7 +68,7 @@ class IssueListFragment : Fragment() {
     ): View? {
         val view = inflater.inflate(R.layout.fragment_item_list, container, false)
 
-        issueRecyclerView = view.findViewById(R.id.issue_recycler_view)
+        issueRecyclerView = view.findViewById(R.id.results_frame)
         issueRecyclerView.layoutManager = LinearLayoutManager(context)
         issueRecyclerView.adapter = adapter
 
@@ -130,8 +131,7 @@ class IssueListFragment : Fragment() {
     private fun runLayoutAnimation(view: RecyclerView) {
         val context = view.context
         val controller: LayoutAnimationController = AnimationUtils.loadLayoutAnimation(
-            context, R
-                .anim.layout_animation_fall_down
+            context, R.anim.layout_animation_fall_down
         )
 
         view.layoutAnimation = controller
@@ -181,16 +181,11 @@ class IssueListFragment : Fragment() {
 
     companion object {
         @JvmStatic
-        fun newInstance(
-            seriesFilterId: Int? = null,
-            creatorFilterId: Int? = null,
-            dateFilterStart: LocalDate? = null,
-            dateFilterEnd: LocalDate? = null
-        ) =
-            IssueListFragment().apply {
+        fun newInstance(filter: Filter) =
+            NewIssueListFragment().apply {
                 arguments = Bundle().apply {
-                    putSerializable(ARG_FILTER_ID, seriesFilterId)
-                    putSerializable(ARG_CREATOR_FILTER, creatorFilterId)
+                    putSerializable(ARG_SERIES_IDS, filter.seriesIds())
+                    putSerializable(ARG_CREATOR_IDS, filter.creatorIds())
                     putSerializable(ARG_DATE_FILTER_START, dateFilterStart)
                     putSerializable(ARG_DATE_FILTER_END, dateFilterEnd)
                 }

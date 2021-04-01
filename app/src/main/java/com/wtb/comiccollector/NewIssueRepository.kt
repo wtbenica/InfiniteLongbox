@@ -16,7 +16,6 @@ import androidx.lifecycle.liveData
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
-import com.wtb.comiccollector.GroupListViewModels.GroupListViewModel
 import com.wtb.comiccollector.database.IssueDatabase
 import kotlinx.coroutines.*
 import okhttp3.OkHttpClient
@@ -51,7 +50,7 @@ const val NIGHTWING = "http://192.168.0.141:8000/"
 const val ALFRED = "http://192.168.0.138:8000/"
 const val BASE_URL = ALFRED
 
-class IssueRepository private constructor(context: Context) {
+class NewIssueRepository private constructor(context: Context) {
 
     internal val prefs: SharedPreferences =
         context.getSharedPreferences(SHARED_PREFS, Context.MODE_PRIVATE)
@@ -126,11 +125,11 @@ class IssueRepository private constructor(context: Context) {
         creditDao.getIssueCredits(issueId)
 
 
-    fun getSeriesByCreator(creatorId: Int): LiveData<List<Series>> {
-        CreatorUpdater().update(creatorId)
-        return seriesDao.getSeriesList(creatorId)
-    }
-
+//    fun getSeriesByCreator(creatorId: Int): LiveData<List<Series>> {
+//        CreatorUpdater().update(creatorId)
+//        return seriesDao.getSeriesList(creatorId)
+//    }
+//
     fun getCreatorBySeries(seriesId: Int): LiveData<List<Creator>> =
         creatorDao.getCreatorList(seriesId)
 
@@ -139,14 +138,8 @@ class IssueRepository private constructor(context: Context) {
         return issueDao.getIssuesBySeries(seriesId)
     }
 
-    fun getSeriesByFilter(filter: GroupListViewModel.Filter): LiveData<List<Series>> {
-        filter.filterId?.let { CreatorUpdater().update(it) }
+    fun newGetSeriesByFilter(filter: Filter): LiveData<List<Series>> {
         return seriesDao.getSeriesByFilter(filter)
-    }
-
-    fun getCreatorsByFilter(filter: GroupListViewModel.Filter): LiveData<List<Creator>> {
-//        filter.filterId?.let { CreatorUpdater().update(it) }
-        return creatorDao.getCreatorByFilter(filter)
     }
 
     fun saveSeries(vararg series: Series) {
@@ -789,15 +782,15 @@ class IssueRepository private constructor(context: Context) {
     }
 
     companion object {
-        private var INSTANCE: IssueRepository? = null
+        private var INSTANCE: NewIssueRepository? = null
 
         fun initialize(context: Context) {
             if (INSTANCE == null) {
-                INSTANCE = IssueRepository(context)
+                INSTANCE = NewIssueRepository(context)
             }
         }
 
-        fun get(): IssueRepository {
+        fun get(): NewIssueRepository {
             return INSTANCE
                 ?: throw IllegalStateException("IssueRepository must be initialized")
         }

@@ -4,7 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Query
 import com.wtb.comiccollector.DUMMY_ID
-import com.wtb.comiccollector.GroupListViewModels.GroupListViewModel
+import com.wtb.comiccollector.Filter
 import com.wtb.comiccollector.Series
 import java.time.LocalDate
 
@@ -13,27 +13,16 @@ abstract class SeriesDao : BaseDao<Series>() {
     @Query("SELECT * FROM series WHERE seriesId != $DUMMY_ID ORDER BY sortName ASC")
     abstract fun getAllSeries(): LiveData<List<Series>>
 
-    fun getSeriesList(
-        creatorId: Int? = null,
-        text: String? = null
-    ): LiveData<List<Series>> {
-        return getSeriesByFilter(GroupListViewModel.Filter(creatorId, text))
-    }
-
-    fun getSeriesByFilter(filter: GroupListViewModel.Filter): LiveData<List<Series>> {
-        return if (filter.filterId == null) {
-            if (filter.text == null || filter.text == "") {
-                getAllSeries()
-            } else {
-                getSeriesByPartial("%" + filter.text + "%")
-            }
-        } else {
-            if (filter.text == null || filter.text == "") {
-                getSeriesByCreator(filter.filterId)
-            } else {
-                getSeriesByCreatorAndPartial(filter.filterId, "%" + filter.text + "%")
-            }
-        }
+//    fun getSeriesList(
+//        creatorId: Int? = null,
+//        text: String? = null
+//    ): LiveData<List<Series>> {
+//        return getSeriesByFilter(Filter(creatorId, text))
+//    }
+//
+    fun getSeriesByFilter(filter: Filter): LiveData<List<Series>> {
+        // TODO: need to actually filter
+        return getAllSeries()
     }
 
     @Query(

@@ -15,43 +15,14 @@
 
     </FrameLayout>
 
-    <AutoCompleteTextView
-        android:id="@+id/search_tv"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="16dp"
-        android:hint="@string/search"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/details" />
-
-    <HorizontalScrollView
-        android:id="@+id/chip_wrapper"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/search_tv">
-
-        <com.google.android.material.chip.ChipGroup
-            android:id="@+id/search_chipgroup"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginEnd="16dp"
-            app:singleLine="true" />
-    </HorizontalScrollView>
-
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/issue_recycler_view"
+        android:id="@+id/results_frame"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layoutAnimation="@anim/layout_animation_fall_down"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/chip_wrapper" />
+        app:layout_constraintTop_toBottomOf="@id/details" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

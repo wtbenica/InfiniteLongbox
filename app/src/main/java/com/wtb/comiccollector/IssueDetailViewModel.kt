@@ -6,7 +6,7 @@ private const val TAG = "IssueDetailViewModel"
 
 class IssueDetailViewModel : ViewModel() {
 
-    private val issueRepository: IssueRepository = IssueRepository.get()
+    private val issueRepository: NewIssueRepository = NewIssueRepository.get()
     private val issueIdLiveData = MutableLiveData<Int>()
     private val variantIdLiveData = MutableLiveData<Int?>()
 
