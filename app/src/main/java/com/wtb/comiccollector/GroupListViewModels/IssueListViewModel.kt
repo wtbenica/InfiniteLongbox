@@ -1,4 +1,4 @@
-package com.wtb.comiccollector.NewGroupListViewModels
+package com.wtb.comiccollector.GroupListViewModels
 
 import android.util.Log
 import androidx.lifecycle.LiveData
@@ -9,7 +9,7 @@ import com.wtb.comiccollector.*
 
 private const val TAG = "NewIssueListViewModel"
 
-class NewIssueListViewModel : ViewModel() {
+class IssueListViewModel : ViewModel() {
     private val issueRepository: NewIssueRepository = NewIssueRepository.get()
     private val seriesIdLiveData = MutableLiveData<Int>()
 

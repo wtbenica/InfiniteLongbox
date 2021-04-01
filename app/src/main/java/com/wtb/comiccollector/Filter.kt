@@ -1,39 +1,56 @@
 package com.wtb.comiccollector
 
 import androidx.fragment.app.Fragment
-import com.wtb.comiccollector.NewGroupListFragments.NewIssueListFragment
-import com.wtb.comiccollector.NewGroupListFragments.NewSeriesListFragment
+import com.wtb.comiccollector.GroupListFragments.IssueListFragment
+import com.wtb.comiccollector.GroupListFragments.SeriesListFragment
 import java.time.LocalDate
 
-class Filter(val observer: FilterObserver) {
-     var creators: MutableSet<Int> = mutableSetOf()
-     var series: Int? = null
-     var publishers: MutableSet<Int> = mutableSetOf()
-     var startDate: LocalDate? = null
-     var endDate: LocalDate? = null
+class Filter(
+    private val observer: FilterObserver,
+    creators: MutableSet<Int>? = null,
+    series: Int? = null,
+    publishers: MutableSet<Int>? = null,
+    startDate: LocalDate? = null,
+    endDate: LocalDate? = null,
+) {
 
-    fun addCreator(vararg creator: Creator) {
-        creators.addAll(creator.map { it.creatorId })
+    var mCreators: MutableSet<Int> = creators ?: mutableSetOf()
+    var mSeries: Int? = series
+    var mPublishers: MutableSet<Int> = publishers ?: mutableSetOf()
+    var mStartDate: LocalDate = startDate ?: LocalDate.MIN
+    var mEndDate: LocalDate = endDate ?: LocalDate.MAX
+
+    init {
+
     }
 
-    fun removeCreator(vararg creator: Creator) {
-        creators.removeAll(creator.map { it.creatorId })
+    fun hasCreator() = !mCreators.isEmpty()
+    fun hasSeries() = mSeries != null
+    fun hasPublisher() = !mPublishers.isEmpty()
+    fun hasDateFilter() = mStartDate != LocalDate.MIN || mEndDate != LocalDate.MAX
+
+    private fun addCreator(vararg creator: Creator) {
+        mCreators.addAll(creator.map { it.creatorId })
     }
 
-    fun addSeries(series: Series) {
-        this.series = series.seriesId
+    private fun removeCreator(vararg creator: Creator) {
+        mCreators.removeAll(creator.map { it.creatorId })
     }
 
-    fun removeSeries() {
-        this.series = null
+    private fun addSeries(series: Series) {
+        this.mSeries = series.seriesId
     }
 
-    fun addPublisher(vararg publisher: Publisher) {
-        publishers.addAll(publisher.map { it.publisherId })
+    private fun removeSeries() {
+        this.mSeries = null
     }
 
-    fun removePublisher(vararg publisher: Publisher) {
-        publishers.removeAll(publisher.map { it.publisherId })
+    private fun addPublisher(vararg publisher: Publisher) {
+        mPublishers.addAll(publisher.map { it.publisherId })
+    }
+
+    private fun removePublisher(vararg publisher: Publisher) {
+        mPublishers.removeAll(publisher.map { it.publisherId })
     }
 
     fun addItem(item: Filterable) {
@@ -54,23 +71,19 @@ class Filter(val observer: FilterObserver) {
         observer.onUpdate()
     }
 
-    fun getFragment(callback: NewSeriesListFragment.Callbacks): Fragment {
+    fun getFragment(callback: SeriesListFragment.Callbacks): Fragment {
         return when {
-            series == null -> NewSeriesListFragment.newInstance(callback,this)
-            else -> NewIssueListFragment.newInstance(this)
+            mSeries == null -> SeriesListFragment.newInstance(callback, this)
+            else -> IssueListFragment.newInstance(this)
         }
     }
 
 
-    fun creatorIds(): String = creators.toString()
+    fun creatorIds(): String = mCreators.toString()
 
-    fun publisherIds(): String {
-        return publishers.toString()
-    }
+    fun publisherIds(): String = mPublishers.toString()
 
-    fun seriesIds(): String {
-        return series.toString()
-    }
+    fun seriesIds(): String = mSeries.toString()
 
     interface FilterObserver {
         fun onUpdate()
@@ -78,10 +91,8 @@ class Filter(val observer: FilterObserver) {
 
     companion object {
         fun deserialize(str: String?): MutableSet<Int> {
-            return str?.removePrefix("[")?.removeSuffix("[")?.split(", ")?.mapNotNull {
-                it
-                    .toIntOrNull()
-            }?.toMutableSet() ?: mutableSetOf()
+            return str?.removePrefix("[")?.removeSuffix("]")?.split(", ")
+                ?.mapNotNull { it.toIntOrNull() }?.toMutableSet() ?: mutableSetOf()
         }
     }
 }

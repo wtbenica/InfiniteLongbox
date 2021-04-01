@@ -1,4 +1,4 @@
-package com.wtb.comiccollector.NewGroupListViewModels
+package com.wtb.comiccollector.GroupListViewModels
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -12,7 +12,7 @@ import java.time.LocalDate
 
 private const val TAG = APP + "SeriesListViewModel"
 
-class NewSeriesListViewModel : ViewModel(), Filter.FilterObserver {
+class SeriesListViewModel : ViewModel(), Filter.FilterObserver {
     val issueRepository: NewIssueRepository = NewIssueRepository.get()
     val filterLiveData = MutableLiveData<Filter?>(null)
 
@@ -27,12 +27,13 @@ class NewSeriesListViewModel : ViewModel(), Filter.FilterObserver {
         dateFilterStart: LocalDate?,
         dateFilterEnd: LocalDate?
     ) {
-        filterLiveData.value = Filter(this).apply {
-            creators = creatorIdsFilter ?: mutableSetOf()
-            publishers = publisherIdsFilter ?: mutableSetOf()
-            startDate = dateFilterStart
+        filterLiveData.value = Filter(
+            this,
+            creators = creatorIdsFilter,
+            publishers = publisherIdsFilter,
+            startDate = dateFilterStart,
             endDate = dateFilterEnd
-        }
+        )
     }
 
     override fun onUpdate() {

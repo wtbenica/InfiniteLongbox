@@ -11,12 +11,12 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentTransaction
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.chip.ChipGroup
-import com.wtb.comiccollector.NewGroupListFragments.NewSeriesListFragment
+import com.wtb.comiccollector.GroupListFragments.SeriesListFragment
 
 private const val TAG = APP + "SearchFragment"
 
 class SearchFragment : Fragment(), Chippy.ChipCallbacks, Filter.FilterObserver,
-    NewSeriesListFragment.Callbacks {
+    SeriesListFragment.Callbacks {
 
     val viewModel by lazy {
         ViewModelProvider(this).get(SearchViewModel::class.java)

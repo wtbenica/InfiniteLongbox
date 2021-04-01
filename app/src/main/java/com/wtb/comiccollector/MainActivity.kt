@@ -3,12 +3,12 @@ package com.wtb.comiccollector
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.DialogFragment
-import com.wtb.comiccollector.NewGroupListFragments.NewIssueListFragment
+import com.wtb.comiccollector.GroupListFragments.IssueListFragment
 
 const val APP = "CC_"
 
 class MainActivity : AppCompatActivity(),
-    NewIssueListFragment.Callbacks,
+    IssueListFragment.Callbacks,
     SearchFragment.Callbacks,
     SeriesInfoDialogFragment.SeriesInfoDialogListener,
     NewCreatorDialogFragment.NewCreatorDialogListener {

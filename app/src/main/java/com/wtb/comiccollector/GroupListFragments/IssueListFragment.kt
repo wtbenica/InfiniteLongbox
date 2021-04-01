@@ -1,4 +1,4 @@
-package com.wtb.comiccollector.NewGroupListFragments
+package com.wtb.comiccollector.GroupListFragments
 
 import android.content.Context
 import android.os.Bundle
@@ -13,13 +13,13 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.wtb.comiccollector.*
-import com.wtb.comiccollector.NewGroupListViewModels.NewIssueListViewModel
+import com.wtb.comiccollector.GroupListViewModels.IssueListViewModel
 import java.time.LocalDate
 
 private const val TAG = APP + "NewIssueListFragment"
 private const val ARG_SERIES_IDS = "Series Ids"
 
-class NewIssueListFragment : Fragment() {
+class IssueListFragment : Fragment() {
 
     interface Callbacks {
         fun onIssueSelected(issueId: Int)
@@ -34,7 +34,7 @@ class NewIssueListFragment : Fragment() {
     private var dateFilterEnd: LocalDate? = null
 
     private val issueListViewModel by lazy {
-        ViewModelProvider(this).get(NewIssueListViewModel::class.java)
+        ViewModelProvider(this).get(IssueListViewModel::class.java)
     }
 
     private lateinit var issueRecyclerView: RecyclerView
@@ -182,7 +182,7 @@ class NewIssueListFragment : Fragment() {
     companion object {
         @JvmStatic
         fun newInstance(filter: Filter) =
-            NewIssueListFragment().apply {
+            IssueListFragment().apply {
                 arguments = Bundle().apply {
                     putSerializable(ARG_SERIES_IDS, filter.seriesIds())
                     putSerializable(ARG_CREATOR_IDS, filter.creatorIds())

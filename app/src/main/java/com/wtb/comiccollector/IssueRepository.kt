@@ -95,12 +95,13 @@ class NewIssueRepository private constructor(context: Context) {
 
     val allRoles: LiveData<List<Role>> = roleDao.getRoleList()
 
-    val everything = CombinedLiveData<List<Series>, List<Creator>, List<Filterable>?>(
-        source1 = allSeries,
-        source2 = allCreators,
-        combine = { list: List<Series>?, list1: List<Creator>? ->
-            val res = (list as List<Filterable>? ?: emptyList()) + (list1 as List<Filterable>?
-                ?: emptyList())
+    val everything = CombinedLiveData(
+        series = allSeries,
+        creators = allCreators,
+        publishers = allPublishers,
+        combine = { series: List<Series>?, creators: List<Creator>?, publishers: List<Publisher>? ->
+            val res = (series as List<Filterable>? ?: emptyList()) + (creators as List<Filterable>?
+                ?: emptyList()) + (publishers as List<Filterable>? ?: emptyList())
             sort(res)
             res
         })
@@ -125,7 +126,7 @@ class NewIssueRepository private constructor(context: Context) {
         creditDao.getIssueCredits(issueId)
 
 
-//    fun getSeriesByCreator(creatorId: Int): LiveData<List<Series>> {
+    //    fun getSeriesByCreator(creatorId: Int): LiveData<List<Series>> {
 //        CreatorUpdater().update(creatorId)
 //        return seriesDao.getSeriesList(creatorId)
 //    }
@@ -803,21 +804,29 @@ class NewIssueRepository private constructor(context: Context) {
     }
 }
 
-class CombinedLiveData<T : List<Filterable>, K : List<Filterable>, S>(
-    source1: LiveData<T>, source2: LiveData<K>,
-    private val combine: (data1: T?, data2: K?) -> S
-) : MediatorLiveData<S>() {
-    private var data1: T? = null
-    private var data2: K? = null
+class CombinedLiveData(
+    series: LiveData<List<Series>>,
+    creators: LiveData<List<Creator>>,
+    publishers: LiveData<List<Publisher>>,
+    private val combine: (data1: List<Series>?, data2: List<Creator>?, data3: List<Publisher>?) -> List<Filterable>
+) : MediatorLiveData<List<Filterable>>() {
+
+    private var mSeries: List<Series>? = null
+    private var mCreators: List<Creator>? = null
+    private var mPublishers: List<Publisher>? = null
 
     init {
-        super.addSource(source1) {
-            data1 = it
-            value = combine(data1, data2)
+        super.addSource(series) {
+            mSeries = it
+            this.value = combine(mSeries, mCreators, mPublishers)
         }
-        super.addSource(source2) {
-            data2 = it
-            value = combine(data1, data2)
+        super.addSource(creators) {
+            mCreators = it
+            value = combine(mSeries, mCreators, mPublishers)
+        }
+        super.addSource(publishers) {
+            mPublishers = it
+            value = combine(mSeries, mCreators, mPublishers)
         }
     }
 

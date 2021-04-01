@@ -1,4 +1,4 @@
-package com.wtb.comiccollector.NewGroupListFragments
+package com.wtb.comiccollector.GroupListFragments
 
 import android.os.Bundle
 import android.util.Log
@@ -15,7 +15,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.Filter
-import com.wtb.comiccollector.NewGroupListViewModels.NewSeriesListViewModel
+import com.wtb.comiccollector.GroupListViewModels.SeriesListViewModel
 import com.wtb.comiccollector.R
 import com.wtb.comiccollector.Series
 import java.time.LocalDate
@@ -26,10 +26,10 @@ const val ARG_DATE_FILTER_START: String = "Start Date"
 const val ARG_PUBLISHER_IDS: String = "Publisher Ids"
 const val ARG_CREATOR_IDS: String = "Creator Ids"
 
-class NewSeriesListFragment(var callback: Callbacks) : Fragment() {
+class SeriesListFragment(var callback: Callbacks) : Fragment() {
 
-    val viewModel: NewSeriesListViewModel by lazy {
-        ViewModelProvider(this).get(NewSeriesListViewModel::class.java)
+    val viewModel: SeriesListViewModel by lazy {
+        ViewModelProvider(this).get(SeriesListViewModel::class.java)
     }
 
     protected lateinit var seriesList: List<Series>
@@ -161,7 +161,7 @@ class NewSeriesListFragment(var callback: Callbacks) : Fragment() {
             dateFilterStart: LocalDate? = null,
             dateFilterEnd: LocalDate? = null
         ) =
-            NewSeriesListFragment(callback).apply {
+            SeriesListFragment(callback).apply {
                 arguments = Bundle().apply {
                     putSerializable(ARG_CREATOR_IDS, filter.creatorIds())
                     putSerializable(ARG_PUBLISHER_IDS, filter.publisherIds())
