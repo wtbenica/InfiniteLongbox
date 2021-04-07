@@ -10,17 +10,19 @@ import android.util.Log
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MediatorLiveData
+import androidx.lifecycle.Observer
 import androidx.lifecycle.liveData
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
-import com.wtb.comiccollector.GroupListViewModels.GroupListViewModel
 import com.wtb.comiccollector.database.IssueDatabase
 import kotlinx.coroutines.*
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.time.LocalDate
+import java.util.Collections.sort
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import java.util.regex.Pattern
@@ -32,7 +34,7 @@ private const val TAG = APP + "IssueRepository"
 private const val GET_STORY_SIZE = 200
 
 
-private const val SHARED_PREFS = "CCPrefs"
+internal const val SHARED_PREFS = "CCPrefs"
 
 private const val STATIC_DATA_UPDATED = "static_data_updated"
 private const val SERIES_LIST_UPDATED = "series_list_updated"
@@ -68,6 +70,7 @@ class IssueRepository private constructor(context: Context) {
     private val appearanceDao = database.appearanceDao()
 
     private val filesDir = context.applicationContext.filesDir
+
     private val retrofit: Retrofit by lazy {
         val client = OkHttpClient.Builder()
             .connectTimeout(60, TimeUnit.SECONDS)
@@ -81,137 +84,101 @@ class IssueRepository private constructor(context: Context) {
             .addConverterFactory(GsonConverterFactory.create())
             .build()
     }
+
     private val apiService: Webservice by lazy {
         retrofit.create(Webservice::class.java)
     }
 
     var allSeries: LiveData<List<Series>> = seriesDao.getAllSeries()
-
     val allPublishers: LiveData<List<Publisher>> = publisherDao.getPublishersList()
-
     val allCreators: LiveData<List<Creator>> = creatorDao.getCreatorsList()
-
     val allRoles: LiveData<List<Role>> = roleDao.getRoleList()
+
+    val everything = CombinedLiveData(
+        series = allSeries,
+        creators = allCreators,
+        publishers = allPublishers,
+        combine = { series: List<Series>?, creators: List<Creator>?, publishers: List<Publisher>? ->
+            val res = (series as List<Filterable>? ?: emptyList()) + (creators as List<Filterable>?
+                ?: emptyList()) + (publishers as List<Filterable>? ?: emptyList())
+            sort(res)
+            res
+        })
 
     init {
         StaticUpdater().update()
     }
 
-    fun getSeries(seriesId: Int) = seriesDao.getSeriesById(seriesId)
+    fun getSeries(seriesId: Int): LiveData<Series?> = seriesDao.getSeries(seriesId)
 
     fun getPublisher(publisherId: Int) = publisherDao.getPublisher(publisherId)
 
-    fun getFullIssue(issueId: Int): LiveData<IssueAndSeries?> = issueDao.getFullIssue(issueId)
+    fun getIssue(issueId: Int): LiveData<IssueAndSeries?> =
+        issueDao.getFullIssue(issueId)
 
-    fun getStoriesByIssue(issueId: Int): LiveData<List<Story>> {
-        CreditUpdater().update(issueId)
-        return storyDao.getStories(issueId)
+    fun getIssuesByFilter(filter: Filter): LiveData<List<FullIssue>>? {
+        val seriesId = filter.mSeries!!.seriesId
+        val creatorIds = filter.mCreators.map { it.creatorId }
+        Log.d(TAG, "$seriesId: $creatorIds")
+
+        return when {
+            filter.hasCreator() -> {
+                CreatorUpdater().updateAll(creatorIds)
+                issueDao.getIssuesBySeriesCreator(seriesId, creatorIds)
+            }
+            filter.hasSeries() -> {
+                IssueUpdater().update(seriesId)
+                issueDao.getIssuesBySeries(seriesId)
+            }
+            else -> {
+                null
+            }
+        }
     }
 
-    fun getIssueCredits(issueId: Int): LiveData<List<FullCredit>> =
-        creditDao.getIssueCredits(issueId)
+    fun getSeriesByFilter(filter: Filter): LiveData<List<Series>> {
+        if (filter.hasCreator()) {
+            val updater = CreatorUpdater()
+            filter.mCreators.forEach { updater.update(it.creatorId) }
+        }
 
+        if (filter.hasSeries()) {
+            filter.mSeries?.let { IssueUpdater().update(it.seriesId) }
+        }
 
-    fun getSeriesByCreator(creatorId: Int): LiveData<List<Series>> {
-        CreatorUpdater().update(creatorId)
-        return seriesDao.getSeriesList(creatorId)
+        return seriesDao.getSeriesByFilter(filter)
     }
-
-    fun getCreatorBySeries(seriesId: Int): LiveData<List<Creator>> =
-        creatorDao.getCreatorList(seriesId)
 
     fun getIssuesBySeries(seriesId: Int): LiveData<List<FullIssue>> {
         IssueUpdater().update(seriesId)
         return issueDao.getIssuesBySeries(seriesId)
     }
 
-    fun getSeriesByFilter(filter: GroupListViewModel.Filter): LiveData<List<Series>> {
-        filter.filterId?.let { CreatorUpdater().update(it) }
-        return seriesDao.getSeriesByFilter(filter)
-    }
+    fun getVariants(issueId: Int): LiveData<List<Issue>> {
+        val variantsCall = GlobalScope.async {
+            issueDao.getVariants(issueId)
+        }
 
-    fun getCreatorsByFilter(filter: GroupListViewModel.Filter): LiveData<List<Creator>> {
-//        filter.filterId?.let { CreatorUpdater().update(it) }
-        return creatorDao.getCreatorByFilter(filter)
-    }
-
-    fun saveSeries(vararg series: Series) {
-        executor.execute {
-            try {
-                seriesDao.upsert(series.asList())
-            } catch (e: SQLiteConstraintException) {
-                Log.d(TAG, "addSeries: $e")
+        val issueCall = GlobalScope.async {
+            variantsCall.await().let {
+                if (it.size == 1 && it[0].variantOf != null) {
+                    issueDao.getVariants(it[0].variantOf!!)
+                } else {
+                    it
+                }
             }
         }
+
+        return liveData { emit(issueCall.await()) }
     }
 
-    fun saveIssue(vararg issue: Issue) {
-        executor.execute {
-            try {
-                issueDao.upsert(issue.asList())
-            } catch (e: SQLiteConstraintException) {
-                Log.d(TAG, "addIssue: $e")
-            }
-        }
+    fun getStoriesByIssue(issueId: Int): LiveData<List<Story>> {
+        CreditUpdater().update(issueId)
+        return storyDao.getStories(issueId)
     }
 
-    fun saveCredit(vararg credit: Credit) {
-        executor.execute {
-            try {
-                creditDao.upsert(credit.asList())
-            } catch (e: SQLiteConstraintException) {
-                Log.d(TAG, "addCredit: $e")
-            }
-        }
-    }
-
-    fun saveStory(vararg story: Story) {
-        executor.execute {
-            try {
-                storyDao.upsert(story.asList())
-            } catch (e: SQLiteConstraintException) {
-                Log.d(TAG, "addStory: $e")
-            }
-        }
-    }
-
-    fun saveCreator(vararg creator: Creator) {
-        executor.execute {
-            try {
-                creatorDao.upsert(creator.asList())
-            } catch (e: SQLiteConstraintException) {
-                Log.d(TAG, "addCreator: $e")
-            }
-        }
-    }
-
-    fun saveRole(vararg role: Role) {
-        executor.execute {
-            try {
-                roleDao.upsert(role.asList())
-            } catch (e: SQLiteConstraintException) {
-                Log.d(TAG, "addRole: $e")
-            }
-        }
-    }
-
-    fun deleteSeries(series: Series) {
-        executor.execute {
-            seriesDao.delete(series)
-        }
-    }
-
-    fun deleteIssue(issue: Issue) {
-        executor.execute {
-            issueDao.delete(issue)
-        }
-    }
-
-    fun deleteCredit(credit: Credit) {
-        executor.execute {
-            creditDao.delete(credit)
-        }
-    }
+    fun getCreditsByIssue(issueId: Int): LiveData<List<FullCredit>> =
+        creditDao.getIssueCredits(issueId)
 
 /*
     FUTURE IMPLEMENTATION
@@ -354,7 +321,8 @@ class IssueRepository private constructor(context: Context) {
                     withContext(Dispatchers.Default) {
                         val stories = storyItemsCall.await().map { it.toRoomModel() }
                         val credits = creditItemsCall.await()?.map { it.toRoomModel() }
-                        val nameDetails = nameDetailItemsCall.await()?.map { it.toRoomModel() }
+                        val nameDetails =
+                            nameDetailItemsCall.await()?.map { it.toRoomModel() }
                         val creators = creatorItemsCall.await()?.map { it.toRoomModel() }
 
                         database.transactionDao().upsertSus(
@@ -379,6 +347,10 @@ class IssueRepository private constructor(context: Context) {
                 refreshNewStyleCredits(creatorId)
                 refreshOldStyleCredits(creatorId)
             }
+        }
+
+        internal fun updateAll(creatorIds: List<Int>) {
+            creatorIds.forEach { update(it) }
         }
 
         private fun refreshOldStyleCredits(creatorId: Int) {
@@ -417,7 +389,8 @@ class IssueRepository private constructor(context: Context) {
             }
 
             val issuesInserted = GlobalScope.async {
-                issueDao.upsertSus((variants.await()?.map { it.toRoomModel() } ?: emptyList()) +
+                issueDao.upsertSus((variants.await()?.map { it.toRoomModel() }
+                    ?: emptyList()) +
                         (issuesDef.await()?.map { it.toRoomModel() } ?: emptyList()))
             }
 
@@ -623,7 +596,7 @@ class IssueRepository private constructor(context: Context) {
         }
 
         private suspend fun checkField(value: String, storyId: Int, roleId: Int) {
-            if (value != "") {
+            if (value != "" && value != "?") {
                 value.split("; ").map { name ->
                     var res = name.replace(Regex("\\s*\\([^)]*\\)\\s*"), "")
                     res = res.replace(Regex("\\s*\\[[^]]*]\\s*"), "")
@@ -641,7 +614,8 @@ class IssueRepository private constructor(context: Context) {
             checkLocalCreators.await().let { localCreators: List<Creator>? ->
                 if (localCreators == null || localCreators.isEmpty()) {
                     val nameDetails = GlobalScope.async {
-                        apiService.getNameDetailByName(extracted_name).map { it.toRoomModel() }
+                        apiService.getNameDetailByName(extracted_name)
+                            .map { it.toRoomModel() }
                     }
 
                     nameDetails.await().let { nameDetailItems1: List<NameDetail> ->
@@ -650,7 +624,8 @@ class IssueRepository private constructor(context: Context) {
 
                             val creators = GlobalScope.async {
                                 if (creatorIds.isNotEmpty()) {
-                                    apiService.getCreator(creatorIds).map { it.toRoomModel() }
+                                    apiService.getCreator(creatorIds)
+                                        .map { it.toRoomModel() }
                                 } else {
                                     null
                                 }
@@ -728,24 +703,6 @@ class IssueRepository private constructor(context: Context) {
         return lastUpdated.plusDays(shelfLife) < LocalDate.now()
     }
 
-    fun getVariants(issueId: Int): LiveData<List<Issue>> {
-        val variantsCall = GlobalScope.async {
-            issueDao.getVariants(issueId)
-        }
-
-        val issueCall = GlobalScope.async {
-            variantsCall.await().let {
-                if (it.size == 1 && it[0].variantOf != null) {
-                    issueDao.getVariants(it[0].variantOf!!)
-                } else {
-                    it
-                }
-            }
-        }
-
-        return liveData { emit(issueCall.await()) }
-    }
-
     class DuplicateFragment : DialogFragment() {
         override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
             return activity?.let {
@@ -777,5 +734,118 @@ class IssueRepository private constructor(context: Context) {
             editor.putString(key, LocalDate.now().toString())
             editor.apply()
         }
+    }
+
+    fun saveSeries(vararg series: Series) {
+        executor.execute {
+            try {
+                seriesDao.upsert(series.asList())
+            } catch (e: SQLiteConstraintException) {
+                Log.d(TAG, "addSeries: $e")
+            }
+        }
+    }
+
+    fun saveIssue(vararg issue: Issue) {
+        executor.execute {
+            try {
+                issueDao.upsert(issue.asList())
+            } catch (e: SQLiteConstraintException) {
+                Log.d(TAG, "addIssue: $e")
+            }
+        }
+    }
+
+    fun saveCredit(vararg credit: Credit) {
+        executor.execute {
+            try {
+                creditDao.upsert(credit.asList())
+            } catch (e: SQLiteConstraintException) {
+                Log.d(TAG, "addCredit: $e")
+            }
+        }
+    }
+
+    fun saveStory(vararg story: Story) {
+        executor.execute {
+            try {
+                storyDao.upsert(story.asList())
+            } catch (e: SQLiteConstraintException) {
+                Log.d(TAG, "addStory: $e")
+            }
+        }
+    }
+
+    fun saveCreator(vararg creator: Creator) {
+        executor.execute {
+            try {
+                creatorDao.upsert(creator.asList())
+            } catch (e: SQLiteConstraintException) {
+                Log.d(TAG, "addCreator: $e")
+            }
+        }
+    }
+
+    fun saveRole(vararg role: Role) {
+        executor.execute {
+            try {
+                roleDao.upsert(role.asList())
+            } catch (e: SQLiteConstraintException) {
+                Log.d(TAG, "addRole: $e")
+            }
+        }
+    }
+
+    fun deleteSeries(series: Series) {
+        executor.execute {
+            seriesDao.delete(series)
+        }
+    }
+
+    fun deleteIssue(issue: Issue) {
+        executor.execute {
+            issueDao.delete(issue)
+        }
+    }
+
+    fun deleteCredit(credit: Credit) {
+        executor.execute {
+            creditDao.delete(credit)
+        }
+    }
+}
+
+class CombinedLiveData(
+    series: LiveData<List<Series>>,
+    creators: LiveData<List<Creator>>,
+    publishers: LiveData<List<Publisher>>,
+    private val combine: (data1: List<Series>?, data2: List<Creator>?, data3: List<Publisher>?) -> List<Filterable>
+) : MediatorLiveData<List<Filterable>>() {
+
+    private var mSeries: List<Series>? = null
+    private var mCreators: List<Creator>? = null
+    private var mPublishers: List<Publisher>? = null
+
+    init {
+        super.addSource(series) {
+            mSeries = it
+            this.value = combine(mSeries, mCreators, mPublishers)
+        }
+        super.addSource(creators) {
+            mCreators = it
+            value = combine(mSeries, mCreators, mPublishers)
+        }
+        super.addSource(publishers) {
+            mPublishers = it
+            value = combine(mSeries, mCreators, mPublishers)
+        }
+    }
+
+    override fun <S : Any?> addSource(source: LiveData<S>, onChanged: Observer<in S>) {
+        throw UnsupportedOperationException()
+    }
+
+    override fun <S : Any?> removeSource(toRemote: LiveData<S>) {
+        throw UnsupportedOperationException()
     }
 }

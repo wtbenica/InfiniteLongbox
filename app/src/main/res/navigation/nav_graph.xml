@@ -16,7 +16,7 @@
     </fragment>
     <fragment
         android:id="@+id/issueListFragment"
-        android:name="com.wtb.comiccollector.IssueListFragment"
+        android:name="com.wtb.comiccollector.GroupListFragments.IssueListFragment"
         android:label="IssueListFragment" >
         <action
             android:id="@+id/action_issueListFragment_to_issueDetailFragment"

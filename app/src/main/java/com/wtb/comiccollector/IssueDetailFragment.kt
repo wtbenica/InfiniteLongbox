@@ -264,7 +264,7 @@ class IssueDetailFragment : Fragment() {
         @JvmStatic
         fun newInstance(
             issueId: Int? = null,
-            openAsEditable: Boolean = true
+            openAsEditable: Boolean = true,
         ): IssueDetailFragment =
             IssueDetailFragment().apply {
                 arguments = Bundle().apply {
@@ -312,7 +312,7 @@ class IssueDetailFragment : Fragment() {
 
     inner class StoryRow(context: Context, val story: Story) : LinearLayout(context) {
         init {
-            orientation = HORIZONTAL
+            orientation = VERTICAL
             layoutParams = LayoutParams(MATCH_PARENT, WRAP_CONTENT)
 
             val t = listOf(
@@ -320,16 +320,29 @@ class IssueDetailFragment : Fragment() {
                 story.sequenceNumber
             )
 
-            this.addView(TextView(context).apply {
-                text = if (story.storyType == STORY_TYPE_COVER) {
-                    "Cover"
-                } else {
-                    story.title.toString()
-                }
-                layoutParams = LayoutParams(MATCH_PARENT, WRAP_CONTENT)
-                textSize = 18.0F
-                setTextAppearance(R.style.TextAppearance_MaterialComponents_Headline6)
-            })
+            if (story.title != "" || story.storyType == STORY_TYPE_COVER)
+                this.addView(TextView(context).apply {
+                    text = if (story.storyType == STORY_TYPE_COVER) {
+                        "Cover"
+                    } else {
+                        story.title.toString()
+                    }
+                    layoutParams = LayoutParams(MATCH_PARENT, WRAP_CONTENT)
+                    textSize = 18.0F
+                    setTextAppearance(R.style.TextAppearance_MaterialComponents_Headline6)
+                })
+
+            if (story.synopsis != "")
+                this.addView(TextView(context).apply {
+                    text = story.synopsis
+                    layoutParams = LayoutParams(MATCH_PARENT, WRAP_CONTENT)
+                })
+
+            if (story.characters != "")
+                this.addView(TextView(context).apply {
+                    text = story.characters
+                    layoutParams = LayoutParams(MATCH_PARENT, WRAP_CONTENT)
+                })
         }
     }
 

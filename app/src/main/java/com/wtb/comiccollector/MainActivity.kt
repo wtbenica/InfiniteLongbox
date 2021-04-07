@@ -3,14 +3,13 @@ package com.wtb.comiccollector
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.DialogFragment
-import com.wtb.comiccollector.GroupListFragments.GroupListFragment
-import com.wtb.comiccollector.GroupListFragments.SeriesListFragment
+import com.wtb.comiccollector.GroupListFragments.IssueListFragment
 
 const val APP = "CC_"
 
 class MainActivity : AppCompatActivity(),
     IssueListFragment.Callbacks,
-    GroupListFragment.Callbacks,
+    SearchFragment.Callbacks,
     SeriesInfoDialogFragment.SeriesInfoDialogListener,
     NewCreatorDialogFragment.NewCreatorDialogListener {
 
@@ -21,7 +20,7 @@ class MainActivity : AppCompatActivity(),
         val currentFragment = supportFragmentManager.findFragmentById(R.id.fragment_container)
 
         if (currentFragment == null) {
-            val fragment = TabFragment.newInstance()
+            val fragment = SearchFragment.newInstance()
             supportFragmentManager
                 .beginTransaction()
                 .add(R.id.fragment_container, fragment)
@@ -29,38 +28,8 @@ class MainActivity : AppCompatActivity(),
         }
     }
 
-    override fun onIssueSelected(issueId: Int) {
+    override fun onIssueSelected(issueId: Int, filter: Filter) {
         val fragment = IssueDetailFragment.newInstance(issueId, false)
-        supportFragmentManager
-            .beginTransaction()
-            .setCustomAnimations(
-                R.anim.fragment_open_enter,
-                R.anim.fragment_fade_exit,
-                R.anim.fragment_open_enter,
-                R.anim.fragment_fade_exit
-            )
-            .replace(R.id.fragment_container, fragment)
-            .addToBackStack(null)
-            .commit()
-    }
-
-    override fun onSeriesSelected(seriesId: Int) {
-        val fragment = IssueListFragment.newInstance(seriesFilterId = seriesId)
-        supportFragmentManager
-            .beginTransaction()
-            .setCustomAnimations(
-                R.anim.fragment_open_enter,
-                R.anim.fragment_fade_exit,
-                R.anim.fragment_open_enter,
-                R.anim.fragment_fade_exit
-            )
-            .replace(R.id.fragment_container, fragment)
-            .addToBackStack(null)
-            .commit()
-    }
-
-    override fun onCreatorSelected(creatorId: Int) {
-        val fragment = SeriesListFragment.newInstance(creatorFilterId = creatorId)
         supportFragmentManager
             .beginTransaction()
             .setCustomAnimations(

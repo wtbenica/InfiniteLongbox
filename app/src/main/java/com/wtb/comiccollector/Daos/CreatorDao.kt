@@ -4,7 +4,6 @@ import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Query
 import com.wtb.comiccollector.Creator
-import com.wtb.comiccollector.GroupListViewModels.GroupListViewModel
 import java.time.LocalDate
 
 @Dao
@@ -28,22 +27,6 @@ abstract class CreatorDao : BaseDao<Creator>() {
 
     @Query("SELECT * FROM creator ORDER BY sortName ASC")
     abstract fun getCreatorsList(): LiveData<List<Creator>>
-
-    fun getCreatorByFilter(filter: GroupListViewModel.Filter): LiveData<List<Creator>> {
-        return if (filter.filterId == null) {
-            if (filter.text == null || filter.text == "") {
-                getCreatorsList()
-            } else {
-                getCreatorByPartial("%" + filter.text + "%")
-            }
-        } else {
-            if (filter.text == null || filter.text == "") {
-                getCreatorBySeries(filter.filterId)
-            } else {
-                getCreatorBySeriesAndPartial(filter.filterId, "%" + filter.text + "%")
-            }
-        }
-    }
 
     @Query(
         """
@@ -106,4 +89,7 @@ abstract class CreatorDao : BaseDao<Creator>() {
 
     @Query("SELECT * FROM creator WHERE creatorId = :creatorId")
     abstract suspend fun getCreatorSus(vararg creatorId: Int): Creator?
+
+    @Query( "SELECT * FROM creator WHERE creatorId IN (:creatorIds)")
+    abstract fun getCreators(creatorIds: List<Int>?): LiveData<List<Creator>?>
 }

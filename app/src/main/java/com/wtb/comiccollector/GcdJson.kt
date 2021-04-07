@@ -91,10 +91,6 @@ class GcdSeries(
     }
 }
 
-enum class PublisherKey(val pos: Int) {
-    ID(0), NAME(1)
-}
-
 class GcdPublisher(
     @SerializedName("name")
     @Expose
