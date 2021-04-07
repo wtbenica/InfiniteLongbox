@@ -219,7 +219,11 @@ data class Appearance(
     override fun id(): Int = appearanceId
 }
 
-@Entity
+@Entity(
+    indices = [
+        Index(value = ["publisher"]),
+    ]
+)
 data class Publisher(
     @PrimaryKey(autoGenerate = true) val publisherId: Int = AUTO_ID,
     val publisher: String = ""

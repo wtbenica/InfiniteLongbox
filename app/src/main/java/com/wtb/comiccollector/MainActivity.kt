@@ -28,7 +28,7 @@ class MainActivity : AppCompatActivity(),
         }
     }
 
-    override fun onIssueSelected(issueId: Int) {
+    override fun onIssueSelected(issueId: Int, filter: Filter) {
         val fragment = IssueDetailFragment.newInstance(issueId, false)
         supportFragmentManager
             .beginTransaction()

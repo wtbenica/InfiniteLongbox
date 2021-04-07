@@ -1,7 +1,9 @@
 package com.wtb.comiccollector
 
 import android.content.Context
+import android.content.Context.MODE_PRIVATE
 import android.os.Bundle
+import android.util.Log
 import android.view.*
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
@@ -15,26 +17,29 @@ import com.wtb.comiccollector.GroupListFragments.SeriesListFragment
 
 private const val TAG = APP + "SearchFragment"
 
-class SearchFragment : Fragment(), Chippy.ChipCallbacks, Filter.FilterObserver,
-    SeriesListFragment.Callbacks {
+class SearchFragment : Fragment(), Chippy.ChipCallbacks, SeriesListFragment.Callbacks {
 
-    val viewModel by lazy {
+    private val viewModel by lazy {
         ViewModelProvider(this).get(SearchViewModel::class.java)
     }
 
-    protected var callbacks: Callbacks? = null
-    private var filter: Filter = Filter(this)
+    private val sharedPreferences = context?.getSharedPreferences(SHARED_PREFS, MODE_PRIVATE)
+    private var callbacks: Callbacks? = null
     private lateinit var searchChips: ChipGroup
     private lateinit var search: AutoCompleteTextView
     private lateinit var resultsFrame: FrameLayout
+    private var filter = Filter()
+
+    interface Callbacks
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
         callbacks = context as Callbacks?
     }
 
-    interface Callbacks {
-
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        Log.d(TAG, "onCreate")
     }
 
     override fun onCreateView(
@@ -42,7 +47,7 @@ class SearchFragment : Fragment(), Chippy.ChipCallbacks, Filter.FilterObserver,
         savedInstanceState: Bundle?
     ): View? {
         val view = inflater.inflate(R.layout.search_fragment, container, false)
-
+        Log.d(TAG, "onCreateView")
         searchChips = view.findViewById(R.id.search_chipgroup) as ChipGroup
         search = view.findViewById(R.id.search_tv) as AutoCompleteTextView
         resultsFrame = view.findViewById(R.id.results_frame) as FrameLayout
@@ -54,10 +59,12 @@ class SearchFragment : Fragment(), Chippy.ChipCallbacks, Filter.FilterObserver,
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        Log.d(TAG, "onViewCreated")
 
-        viewModel.filterListLiveData.observe(
+        viewModel.filterOptionsLiveData.observe(
             viewLifecycleOwner,
             { filterObjects ->
+                Log.d(TAG, "filterList changed")
                 filterObjects?.let {
                     search.setAdapter(
                         ArrayAdapter(
@@ -69,45 +76,61 @@ class SearchFragment : Fragment(), Chippy.ChipCallbacks, Filter.FilterObserver,
                 }
             }
         )
+
+        viewModel.filterLiveData.observe(
+            viewLifecycleOwner,
+            {filter ->
+                this.filter = filter
+                onUpdate()
+            }
+        )
     }
 
     override fun onStart() {
         super.onStart()
+        Log.d(TAG, "onStart")
         search.onItemClickListener =
-            object : AdapterView.OnItemClickListener {
-                override fun onItemClick(
-                    parent: AdapterView<*>?,
-                    view: View?,
-                    position: Int,
-                    id: Long
-                ) {
-                    val item = parent?.adapter?.getItem(position) as Filterable
-                    filter.addItem(item)
-                    val chip = Chippy(context, item, this@SearchFragment)
-                    chip.text = item.toString()
-                    searchChips.addView(chip)
-                    search.setText("")
-                }
+            AdapterView.OnItemClickListener { parent, view, position, id ->
+                val item = parent?.adapter?.getItem(position) as Filterable
+                viewModel.addItem(item)
+                search.setText("")
+                onUpdate()
             }
     }
 
     override fun onDetach() {
         super.onDetach()
+        Log.d(TAG, "onDetach")
         callbacks = null
     }
 
-    override fun chipClosed(view: View, item: Filterable) {
-        filter.removeItem(item)
-        searchChips.removeView(view)
+    private fun addChip(item: Filterable) {
+        Log.d(TAG, "adding chip $item")
+        val chip = Chippy(context, item, this@SearchFragment)
+        chip.text = item.toString()
+        searchChips.addView(chip)
     }
 
-    override fun onUpdate() {
+    override fun chipClosed(view: View, item: Filterable) {
+        Log.d(TAG, "chipClosed $item")
+        viewModel.removeItem(item)
+        onUpdate()
+    }
+
+    private fun onUpdate() {
+        Log.d(TAG, "onUpdate")
+        updateUI()
         val fragment = filter.getFragment(this)
         childFragmentManager.beginTransaction()
             .replace(R.id.results_frame, fragment)
             .addToBackStack(null)
             .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
             .commit()
+    }
+
+    private fun updateUI() {
+        searchChips.removeAllViews()
+        filter.getAll().forEach { addChip(it) }
     }
 
     companion object {
@@ -121,7 +144,9 @@ class SearchFragment : Fragment(), Chippy.ChipCallbacks, Filter.FilterObserver,
     }
 
     override fun onSeriesSelected(series: Series) {
-        filter.addItem(series)
+        viewModel.addItem(series)
+        addChip(series)
+        onUpdate()
     }
 }
 

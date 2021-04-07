@@ -9,7 +9,7 @@ import androidx.lifecycle.ViewModel
 private const val TAG = "IssueListViewModel"
 
 class IssueListViewModel : ViewModel() {
-    private val issueRepository: NewIssueRepository = NewIssueRepository.get()
+    private val issueRepository: IssueRepository = IssueRepository.get()
     private val seriesIdLiveData = MutableLiveData<Int>()
 
     var seriesLiveData: LiveData<Series?> =

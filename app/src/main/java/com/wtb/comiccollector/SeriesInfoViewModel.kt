@@ -9,7 +9,7 @@ private const val TAG = "IssueDetailViewModel"
 
 class SeriesInfoViewModel : ViewModel() {
 
-    private val issueRepository: NewIssueRepository = NewIssueRepository.get()
+    private val issueRepository: IssueRepository = IssueRepository.get()
     private val seriesIdLiveData = MutableLiveData<Int>()
     private val publisherIdLiveData = MutableLiveData<Int>()
 

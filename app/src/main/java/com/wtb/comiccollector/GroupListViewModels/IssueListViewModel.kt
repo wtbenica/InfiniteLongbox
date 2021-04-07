@@ -10,8 +10,9 @@ import com.wtb.comiccollector.*
 private const val TAG = "NewIssueListViewModel"
 
 class IssueListViewModel : ViewModel() {
-    private val issueRepository: NewIssueRepository = NewIssueRepository.get()
+    private val issueRepository: IssueRepository = IssueRepository.get()
     private val seriesIdLiveData = MutableLiveData<Int>()
+    private val filterLiveData = MutableLiveData<Filter?>(null)
 
     var seriesLiveData: LiveData<Series?> =
         Transformations.switchMap(seriesIdLiveData) { seriesId ->
@@ -19,41 +20,16 @@ class IssueListViewModel : ViewModel() {
         }
 
     var issueListLiveData: LiveData<List<FullIssue>> =
-        Transformations.switchMap(seriesIdLiveData) { seriesId ->
-            issueRepository.getIssuesBySeries(seriesId)
+        Transformations.switchMap(filterLiveData) { filter ->
+            filter?.let { issueRepository.getIssuesByFilter(it) }
         }
 
-    fun loadSeries(seriesId: Int) {
-        Log.d(TAG, "Loading series: $seriesId")
-        seriesIdLiveData.value = seriesId
+    fun setFilter(filter: Filter) {
+        filterLiveData.value = filter
     }
 
     fun addIssue(issue: Issue) {
         Log.d(TAG, "addIssue")
         issueRepository.saveIssue(issue)
     }
-
-    fun addSeries(series: Series) {
-        issueRepository.saveSeries(series)
-    }
-
-    fun addCreator(creator: Creator) {
-        issueRepository.saveCreator(creator)
-    }
-
-    fun addRole(role: Role) {
-        issueRepository.saveRole(role)
-    }
-
-    fun addCredit(issue: Issue, creator: Creator, role: Role) {
-        issueRepository.saveCredit(
-            Credit(
-                storyId = issue.issueId,
-                nameDetailId = creator.creatorId,
-                roleId = role.roleId
-            )
-        )
-    }
-
-    fun getSeries(seriesId: Int): LiveData<Series?> = issueRepository.getSeries(seriesId)
 }

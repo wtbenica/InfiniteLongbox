@@ -13,4 +13,7 @@ abstract class PublisherDao : BaseDao<Publisher>() {
 
     @Query("SELECT * FROM publisher WHERE publisherId != $DUMMY_ID ORDER BY publisher ASC")
     abstract fun getPublishersList(): LiveData<List<Publisher>>
+
+    @Query("SELECT * FROM publisher WHERE publisherId IN (:publisherIds)")
+    abstract fun getPublishers(publisherIds: List<Int>?): LiveData<List<Publisher>?>
 }

@@ -7,49 +7,32 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AnimationUtils
 import android.view.animation.LayoutAnimationController
-import android.widget.ImageView
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.wtb.comiccollector.APP
-import com.wtb.comiccollector.Filter
+import com.wtb.comiccollector.*
 import com.wtb.comiccollector.GroupListViewModels.SeriesListViewModel
-import com.wtb.comiccollector.R
-import com.wtb.comiccollector.Series
-import java.time.LocalDate
 
-private const val TAG = APP + "NewSeriesListFragment"
-const val ARG_DATE_FILTER_END: String = "End Date"
-const val ARG_DATE_FILTER_START: String = "Start Date"
-const val ARG_PUBLISHER_IDS: String = "Publisher Ids"
-const val ARG_CREATOR_IDS: String = "Creator Ids"
+private const val TAG = APP + "SeriesListFragment"
 
 class SeriesListFragment(var callback: Callbacks) : Fragment() {
 
-    val viewModel: SeriesListViewModel by lazy {
+    private val viewModel: SeriesListViewModel by lazy {
         ViewModelProvider(this).get(SeriesListViewModel::class.java)
     }
 
-    protected lateinit var seriesList: List<Series>
+    private lateinit var seriesList: List<Series>
 
-    private var creatorIdsFilter: MutableSet<Int>? = null
-    private var publisherIdsFilter: MutableSet<Int>? = null
-    private var dateFilterStart: LocalDate? = null
-    private var dateFilterEnd: LocalDate? = null
+    private var filter = Filter()
     private lateinit var itemListRecyclerView: RecyclerView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
 
-        creatorIdsFilter =
-            Filter.deserialize(arguments?.getSerializable(ARG_CREATOR_IDS) as String?)
-        publisherIdsFilter =
-            Filter.deserialize(arguments?.getSerializable(ARG_PUBLISHER_IDS) as String?)
-        dateFilterStart = arguments?.getSerializable(ARG_DATE_FILTER_START) as LocalDate?
-        dateFilterEnd = arguments?.getSerializable(ARG_DATE_FILTER_END) as LocalDate?
+        filter = arguments?.getSerializable(ARG_FILTER) as Filter
     }
 
 
@@ -71,7 +54,7 @@ class SeriesListFragment(var callback: Callbacks) : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        viewModel.filter(creatorIdsFilter, publisherIdsFilter, dateFilterStart, dateFilterEnd)
+        viewModel.setFilter(filter)
 
         viewModel.seriesListLiveData.observe(
             viewLifecycleOwner,
@@ -99,7 +82,7 @@ class SeriesListFragment(var callback: Callbacks) : Fragment() {
         view.scheduleLayoutAnimation()
     }
 
-    inner class SeriesAdapter(var seriesList: List<Series>) : RecyclerView.Adapter<SeriesHolder>() {
+    inner class SeriesAdapter(private var seriesList: List<Series>) : RecyclerView.Adapter<SeriesHolder>() {
 
         private var lastPosition = -1
 
@@ -115,7 +98,7 @@ class SeriesListFragment(var callback: Callbacks) : Fragment() {
 
         override fun getItemCount(): Int = seriesList.size
 
-        fun getHolder(view: View) = SeriesHolder(view)
+        private fun getHolder(view: View) = SeriesHolder(view)
     }
 
     inner class SeriesHolder(view: View) : RecyclerView.ViewHolder(view),
@@ -128,7 +111,7 @@ class SeriesListFragment(var callback: Callbacks) : Fragment() {
             itemView.setOnClickListener(this)
         }
 
-        private val coverImageView: ImageView = itemView.findViewById(R.id.list_item_cover)
+        //        private val coverImageView: ImageView = itemView.findViewById(R.id.list_item_cover)
         private val seriesTextView: TextView = itemView.findViewById(R.id.list_item_name)
 
         private val seriesDateRangeTextView: TextView = itemView.findViewById(R.id.list_item_dates)
@@ -157,16 +140,11 @@ class SeriesListFragment(var callback: Callbacks) : Fragment() {
         @JvmStatic
         fun newInstance(
             callback: Callbacks,
-            filter: Filter,
-            dateFilterStart: LocalDate? = null,
-            dateFilterEnd: LocalDate? = null
+            filter: Filter
         ) =
             SeriesListFragment(callback).apply {
                 arguments = Bundle().apply {
-                    putSerializable(ARG_CREATOR_IDS, filter.creatorIds())
-                    putSerializable(ARG_PUBLISHER_IDS, filter.publisherIds())
-                    putSerializable(ARG_DATE_FILTER_START, dateFilterStart)
-                    putSerializable(ARG_DATE_FILTER_END, dateFilterEnd)
+                    putSerializable(ARG_FILTER, filter)
                 }
             }
     }

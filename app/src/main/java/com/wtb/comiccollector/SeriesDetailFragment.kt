@@ -42,7 +42,7 @@ class SeriesDetailFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        seriesId = arguments?.getSerializable(ARG_SERIES_ID) as Int
+        seriesId = arguments?.getSerializable(ARG_SERIES_ID) as Int?
         series = Series()
         publisher = Publisher()
     }

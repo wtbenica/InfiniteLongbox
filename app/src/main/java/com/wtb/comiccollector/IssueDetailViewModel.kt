@@ -6,13 +6,13 @@ private const val TAG = "IssueDetailViewModel"
 
 class IssueDetailViewModel : ViewModel() {
 
-    private val issueRepository: NewIssueRepository = NewIssueRepository.get()
+    private val issueRepository: IssueRepository = IssueRepository.get()
     private val issueIdLiveData = MutableLiveData<Int>()
     private val variantIdLiveData = MutableLiveData<Int?>()
 
     var fullIssueLiveData: LiveData<IssueAndSeries> =
         Transformations.switchMap(issueIdLiveData) { issueId ->
-            issueRepository.getFullIssue(issueId)
+            issueRepository.getIssue(issueId)
         }
 
     var issueStoriesLiveData: LiveData<List<Story>> =
@@ -22,7 +22,7 @@ class IssueDetailViewModel : ViewModel() {
 
     var issueCreditsLiveData: LiveData<List<FullCredit>> =
         Transformations.switchMap(issueIdLiveData) { issueId ->
-            issueRepository.getIssueCredits(issueId)
+            issueRepository.getCreditsByIssue(issueId)
         }
 
     var variantStoriesLiveData: LiveData<List<Story>> =
@@ -37,7 +37,7 @@ class IssueDetailViewModel : ViewModel() {
     var variantCreditsLiveData: LiveData<List<FullCredit>> =
         Transformations.switchMap(variantIdLiveData) { issueId ->
             if (issueId != null) {
-                issueRepository.getIssueCredits(issueId)
+                issueRepository.getCreditsByIssue(issueId)
             } else {
                 liveData { emit(emptyList<FullCredit>()) }
             }

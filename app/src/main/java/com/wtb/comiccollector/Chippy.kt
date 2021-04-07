@@ -12,7 +12,7 @@ private const val TAG = APP + "Chippy"
 class Chippy(context: Context?) : Chip(context) {
 
     lateinit var item: Filterable
-    lateinit var caller: ChipCallbacks
+    private lateinit var caller: ChipCallbacks
 
     constructor(context: Context?, item: Filterable, caller: ChipCallbacks) : this(context) {
         this.item = item
@@ -22,14 +22,7 @@ class Chippy(context: Context?) : Chip(context) {
         this.height = ViewGroup.LayoutParams.WRAP_CONTENT
         this.closeIcon = context?.let { AppCompatResources.getDrawable(it, R.drawable.ic_close) }
         this.isCloseIconVisible = true
-
-        this.setOnCloseIconClickListener(
-            object : OnClickListener {
-                override fun onClick(v: View?) {
-                    caller.chipClosed(this@Chippy, item)
-                }
-            }
-        )
+        this.setOnCloseIconClickListener { caller.chipClosed(this@Chippy, item) }
     }
 
 

@@ -89,4 +89,7 @@ abstract class CreatorDao : BaseDao<Creator>() {
 
     @Query("SELECT * FROM creator WHERE creatorId = :creatorId")
     abstract suspend fun getCreatorSus(vararg creatorId: Int): Creator?
+
+    @Query( "SELECT * FROM creator WHERE creatorId IN (:creatorIds)")
+    abstract fun getCreators(creatorIds: List<Int>?): LiveData<List<Creator>?>
 }

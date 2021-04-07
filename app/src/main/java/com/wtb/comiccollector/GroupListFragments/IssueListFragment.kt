@@ -14,30 +14,21 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.wtb.comiccollector.*
 import com.wtb.comiccollector.GroupListViewModels.IssueListViewModel
-import java.time.LocalDate
 
-private const val TAG = APP + "NewIssueListFragment"
-private const val ARG_SERIES_IDS = "Series Ids"
+private const val TAG = APP + "IssueListFragment"
 
 class IssueListFragment : Fragment() {
-
-    interface Callbacks {
-        fun onIssueSelected(issueId: Int)
-        fun onNewIssue(issueId: Int)
-    }
-
-    private var callbacks: Callbacks? = null
-
-    private var seriesFilterId: Int? = null
-    private var creatorFilterId = mutableSetOf<Int>()
-    private var dateFilterStart: LocalDate? = null
-    private var dateFilterEnd: LocalDate? = null
 
     private val issueListViewModel by lazy {
         ViewModelProvider(this).get(IssueListViewModel::class.java)
     }
 
+    private lateinit var issueList: List<FullIssue>
+
+    private var filter: Filter = Filter()
     private lateinit var issueRecyclerView: RecyclerView
+
+    private var callbacks: Callbacks? = null
     private var adapter: IssueAdapter? = IssueAdapter(emptyList())
 
     override fun onAttach(context: Context) {
@@ -49,12 +40,9 @@ class IssueListFragment : Fragment() {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
 
-        seriesFilterId = (arguments?.getSerializable(ARG_SERIES_IDS) as String?)?.toInt()
-        creatorFilterId = Filter.deserialize(arguments?.getSerializable(ARG_CREATOR_IDS) as String?)
-        dateFilterStart = arguments?.getSerializable(ARG_DATE_FILTER_START) as LocalDate?
-        dateFilterEnd = arguments?.getSerializable(ARG_DATE_FILTER_END) as LocalDate?
+        filter = arguments?.getSerializable(ARG_FILTER) as Filter? ?: Filter()
 
-        val fragment = SeriesDetailFragment.newInstance(seriesFilterId)
+        val fragment = SeriesDetailFragment.newInstance(filter.mSeries?.seriesId)
         childFragmentManager.beginTransaction()
             .replace(R.id.details, fragment)
             .addToBackStack(null)
@@ -77,12 +65,14 @@ class IssueListFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        seriesFilterId?.let { issueListViewModel.loadSeries(it) }
+//        filter.mSeries?.let { issueListViewModel.loadSeries(it) }
+        issueListViewModel.setFilter(filter)
 
         issueListViewModel.issueListLiveData.observe(
             viewLifecycleOwner,
             { issues ->
                 issues?.let {
+                    this.issueList = it
                     updateUI(issues)
                 }
             }
@@ -113,7 +103,7 @@ class IssueListFragment : Fragment() {
             R.id.new_issue -> {
                 // TODO: Find solution to this. If issueNum is default (1), if there already
                 //  exists an issue number 1, then violates unique series/issue restraint in db
-                val issue = seriesFilterId?.let { Issue(seriesId = it) } ?: Issue()
+                val issue = filter.mSeries?.let { Issue(seriesId = it.seriesId) } ?: Issue()
                 issueListViewModel.addIssue(issue)
                 callbacks?.onNewIssue(issue.issueId)
                 true
@@ -175,8 +165,13 @@ class IssueListFragment : Fragment() {
         }
 
         override fun onClick(v: View?) {
-            callbacks?.onIssueSelected(fullIssue.issue.issueId)
+            callbacks?.onIssueSelected(fullIssue.issue.issueId, filter)
         }
+    }
+
+    interface Callbacks {
+        fun onIssueSelected(issueId: Int, filter: Filter)
+        fun onNewIssue(issueId: Int)
     }
 
     companion object {
@@ -184,10 +179,7 @@ class IssueListFragment : Fragment() {
         fun newInstance(filter: Filter) =
             IssueListFragment().apply {
                 arguments = Bundle().apply {
-                    putSerializable(ARG_SERIES_IDS, filter.seriesIds())
-                    putSerializable(ARG_CREATOR_IDS, filter.creatorIds())
-                    putSerializable(ARG_DATE_FILTER_START, dateFilterStart)
-                    putSerializable(ARG_DATE_FILTER_END, dateFilterEnd)
+                    putSerializable(ARG_FILTER, filter)
                 }
             }
     }
