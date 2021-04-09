@@ -50,6 +50,12 @@ const val NIGHTWING = "http://192.168.0.141:8000/"
 const val ALFRED = "http://192.168.0.138:8000/"
 const val BASE_URL = ALFRED
 
+private fun UPDATED_TAG(id: Int, type: String): String = "$type${id}_UPDATED"
+private fun ISSUE_TAG(id: Int) = UPDATED_TAG(id, "ISSUE_")
+private fun SERIES_TAG(id: Int): String = UPDATED_TAG(id, "SERIES_")
+private fun PUBLISHER_TAG(id: Int): String = UPDATED_TAG(id, "PUBLISHER_")
+private fun CREATOR_TAG(id: Int): String = UPDATED_TAG(id, "CREATOR_")
+
 class IssueRepository private constructor(context: Context) {
 
     internal val prefs: SharedPreferences =
@@ -119,7 +125,7 @@ class IssueRepository private constructor(context: Context) {
     fun getIssuesByFilter(filter: Filter): LiveData<List<FullIssue>>? {
         val seriesId = filter.mSeries!!.seriesId
         val creatorIds = filter.mCreators.map { it.creatorId }
-        Log.d(TAG, "$seriesId: $creatorIds")
+        Log.d(TAG, "SeriesId Filter: $seriesId - CreatorId Filter: $creatorIds")
 
         return when {
             filter.hasCreator() -> {
@@ -278,7 +284,7 @@ class IssueRepository private constructor(context: Context) {
 
     inner class CreditUpdater {
         internal fun update(issueId: Int) {
-            if (checkIfStale("${issueId}_updated", ISSUE_LIFETIME)) {
+            if (checkIfStale(ISSUE_TAG(issueId), ISSUE_LIFETIME)) {
                 val storyItemsCall = GlobalScope.async {
                     Log.d(TAG, "WEBSERVICE: storiesByIssue $issueId")
                     apiService.getStoriesByIssue(issueId)
@@ -343,7 +349,7 @@ class IssueRepository private constructor(context: Context) {
     inner class CreatorUpdater {
 
         internal fun update(creatorId: Int) {
-            if (checkIfStale("${creatorId}_updated", CREATOR_LIFETIME)) {
+            if (checkIfStale(CREATOR_TAG(creatorId), CREATOR_LIFETIME)) {
                 refreshNewStyleCredits(creatorId)
                 refreshOldStyleCredits(creatorId)
             }
@@ -416,7 +422,7 @@ class IssueRepository private constructor(context: Context) {
                         CreditExtractor().extractCredits(stories.await())
                     }
                 }.let {
-                    saveTime(prefs, "${creatorId}_UPDATED")
+                    saveTime(prefs, CREATOR_TAG(creatorId))
                 }
             }
         }
@@ -467,15 +473,9 @@ class IssueRepository private constructor(context: Context) {
 
             GlobalScope.launch {
                 val stories1 = stories.await()?.map { it.toRoomModel() }
-                Log.d(TAG, "SIDS: ${stories1?.map { it.storyId }}")
                 val variants1 = variants.await()?.map { it.toRoomModel() } ?: emptyList()
-                Log.d(TAG, "VIDS: ${variants1.map { it.issueId }}")
                 val issues1 = issues.await()?.map { it.toRoomModel() } ?: emptyList()
-                Log.d(TAG, "IIDS: ${issues1.map { it.issueId }}")
                 val credits1 = credits.await()?.map { it.toRoomModel() }
-                Log.d(TAG, "SIDS: ${credits1?.map { it.storyId }}")
-                Log.d(TAG, "NIDS: ${nameDetail.await()}")
-                Log.d(TAG, "NIDS: ${credits1?.map { it.nameDetailId }}")
                 database.transactionDao().upsertSus(
                     stories = stories1,
                     issues = variants1 + issues1,
@@ -488,7 +488,7 @@ class IssueRepository private constructor(context: Context) {
 
     inner class IssueUpdater {
         internal fun update(seriesId: Int) {
-            if (checkIfStale("${seriesId}_updated", ISSUE_LIFETIME))
+            if (checkIfStale(SERIES_TAG(seriesId), ISSUE_LIFETIME))
                 GlobalScope.launch {
                     withContext(Dispatchers.Default) {
                         Log.d(TAG, "WEBSERVICE: issuesBySeries $seriesId")
@@ -496,6 +496,7 @@ class IssueRepository private constructor(context: Context) {
                     }.let { issueItems ->
                         issueDao.upsertSus(issueItems.map { it.toRoomModel() })
                     }
+                    saveTime(prefs, SERIES_TAG(seriesId))
                 }
         }
     }
@@ -816,9 +817,9 @@ class IssueRepository private constructor(context: Context) {
 }
 
 class CombinedLiveData(
-    series: LiveData<List<Series>>,
-    creators: LiveData<List<Creator>>,
-    publishers: LiveData<List<Publisher>>,
+    series: LiveData<List<Series>>?,
+    creators: LiveData<List<Creator>>?,
+    publishers: LiveData<List<Publisher>>?,
     private val combine: (data1: List<Series>?, data2: List<Creator>?, data3: List<Publisher>?) -> List<Filterable>
 ) : MediatorLiveData<List<Filterable>>() {
 
@@ -827,17 +828,23 @@ class CombinedLiveData(
     private var mPublishers: List<Publisher>? = null
 
     init {
-        super.addSource(series) {
-            mSeries = it
-            this.value = combine(mSeries, mCreators, mPublishers)
+        series?.let { liveSeries ->
+            super.addSource(liveSeries) {
+                mSeries = it
+                this.value = combine(mSeries, mCreators, mPublishers)
+            }
         }
-        super.addSource(creators) {
-            mCreators = it
-            value = combine(mSeries, mCreators, mPublishers)
+        creators?.let { liveCreators ->
+            super.addSource(liveCreators) {
+                mCreators = it
+                value = combine(mSeries, mCreators, mPublishers)
+            }
         }
-        super.addSource(publishers) {
-            mPublishers = it
-            value = combine(mSeries, mCreators, mPublishers)
+        publishers?.let { livePublishers ->
+            super.addSource(livePublishers) {
+                mPublishers = it
+                value = combine(mSeries, mCreators, mPublishers)
+            }
         }
     }
 

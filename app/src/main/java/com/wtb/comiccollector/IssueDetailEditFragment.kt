@@ -112,7 +112,7 @@ class IssueDetailEditFragment : Fragment(),
 
         releaseDateTextView = view.findViewById(R.id.release_date_text_view)
 
-        toggleEditButton = view.findViewById(R.id.edit_button) as ImageButton
+        toggleEditButton = view.findViewById(R.id.gcd_link) as ImageButton
 
         issueCreditsLabel = view.findViewById(R.id.issue_credits_box_label) as TextView
 

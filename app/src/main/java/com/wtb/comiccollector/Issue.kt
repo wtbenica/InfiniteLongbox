@@ -3,6 +3,7 @@ package com.wtb.comiccollector
 import android.net.Uri
 import androidx.room.*
 import androidx.room.ForeignKey.CASCADE
+import java.io.Serializable
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
@@ -133,7 +134,7 @@ data class Series(
     var endDate: LocalDate? = null,
     var description: String? = null,
     var publishingFormat: String? = null
-) : DataModel, Filterable {
+) : DataModel, Filterable, Serializable {
 
     override fun id(): Int = seriesId
 

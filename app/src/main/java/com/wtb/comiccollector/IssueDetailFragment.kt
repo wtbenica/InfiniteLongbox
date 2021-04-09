@@ -1,6 +1,7 @@
 package com.wtb.comiccollector
 
 import android.content.Context
+import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
@@ -65,7 +66,7 @@ class IssueDetailFragment : Fragment() {
 
     private lateinit var releaseDateTextView: TextView
 
-    private lateinit var toggleEditButton: ImageButton
+    private lateinit var gcdLinkButton: Button
     private lateinit var coverFile: File
     private lateinit var coverUri: Uri
 
@@ -102,7 +103,7 @@ class IssueDetailFragment : Fragment() {
         issueNumTextView = view.findViewById(R.id.issue_number) as TextView
         issueCreditsFrame = view.findViewById(R.id.issue_credits_table) as ScrollView
         releaseDateTextView = view.findViewById(R.id.release_date_text_view)
-        toggleEditButton = view.findViewById(R.id.edit_button) as ImageButton
+        gcdLinkButton = view.findViewById(R.id.gcd_link) as Button
         variantSpinner = view.findViewById(R.id.variant_spinner) as Spinner
 //        issueCreditsLabel = view.findViewById(R.id.issue_credits_box_label) as TextView
         creditsBox = CreditsBox(requireContext())
@@ -189,7 +190,14 @@ class IssueDetailFragment : Fragment() {
 
     override fun onStart() {
         super.onStart()
-        toggleEditButton.setOnClickListener { toggleEnable() }
+        gcdLinkButton.setOnClickListener {
+            val url = "https://www.comics.org/issue/${fullIssue.issue.issueId}"
+            val intent = Intent().apply {
+                action = Intent.ACTION_VIEW
+                setData(Uri.parse(url))
+            }
+            startActivity(intent)
+        }
 
 
         releaseDateTextView.setOnClickListener {
