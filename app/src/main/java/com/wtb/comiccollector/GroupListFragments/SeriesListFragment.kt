@@ -17,7 +17,7 @@ import com.wtb.comiccollector.GroupListViewModels.SeriesListViewModel
 
 private const val TAG = APP + "SeriesListFragment"
 
-class SeriesListFragment(var callback: Callbacks) : Fragment() {
+class SeriesListFragment(var callback: Callbacks? = null) : Fragment() {
 
     private val viewModel: SeriesListViewModel by lazy {
         ViewModelProvider(this).get(SeriesListViewModel::class.java)
@@ -128,7 +128,7 @@ class SeriesListFragment(var callback: Callbacks) : Fragment() {
 
         override fun onClick(v: View?) {
             Log.d(TAG, "Series Clicked")
-            callback.onSeriesSelected(item)
+            callback?.onSeriesSelected(item)
         }
     }
 

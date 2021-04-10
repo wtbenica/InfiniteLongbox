@@ -62,6 +62,9 @@ data class Issue(
     val coverFileName: String
         get() = "IMG_$issueId.jpg"
 
+    val url: String
+        get() = "https://www.comics.org/issue/$issueId/cover/4/"
+
     override fun id(): Int = issueId
 
     override fun toString(): String {
