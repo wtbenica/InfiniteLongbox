@@ -1,21 +1,49 @@
 package com.wtb.comiccollector
 
+import android.app.Activity
 import android.content.Context
 import android.content.Context.MODE_PRIVATE
 import android.os.Bundle
 import android.util.Log
 import android.view.*
-import android.widget.AdapterView
-import android.widget.ArrayAdapter
-import android.widget.AutoCompleteTextView
-import android.widget.FrameLayout
+import android.view.inputmethod.InputMethodManager
+import android.widget.*
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentTransaction
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.chip.ChipGroup
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.wtb.comiccollector.GroupListFragments.SeriesListFragment
+import com.wtb.comiccollector.database.models.Filterable
+import com.wtb.comiccollector.database.models.Series
 
 private const val TAG = APP + "SearchFragment"
+
+fun Fragment.hideKeyboard() {
+    view?.let { activity?.hideKeyboard(it) }
+}
+
+fun Activity.hideKeyboard() {
+    hideKeyboard(currentFocus ?: View(this))
+}
+
+fun Context.hideKeyboard(view: View) {
+    val inputMethodManager = getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
+    inputMethodManager.hideSoftInputFromWindow(view.windowToken, 0)
+}
+
+fun Fragment.showKeyboard(editTextView: EditText) {
+    view?.let { activity?.showKeyboard(it, editTextView) }
+}
+
+fun Activity.showKeyboard(editTextView: EditText) {
+    showKeyboard(currentFocus ?: View(this), editTextView)
+}
+
+fun Context.showKeyboard(view: View, editTextView: EditText) {
+    val inputMethodManager = getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
+    inputMethodManager.showSoftInput(editTextView, 0)
+}
 
 class SearchFragment : Fragment(), Chippy.ChipCallbacks, SeriesListFragment.Callbacks {
 
@@ -25,9 +53,13 @@ class SearchFragment : Fragment(), Chippy.ChipCallbacks, SeriesListFragment.Call
 
     private val sharedPreferences = context?.getSharedPreferences(SHARED_PREFS, MODE_PRIVATE)
     private var callbacks: Callbacks? = null
-    private lateinit var searchChips: ChipGroup
-    private lateinit var search: AutoCompleteTextView
+
+    private lateinit var searchScrollView: LinearLayout
+    private lateinit var searchChipGroup: ChipGroup
+    private lateinit var searchBox: LinearLayout
+    private lateinit var searchTextView: AutoCompleteTextView
     private lateinit var resultsFrame: FrameLayout
+    private lateinit var fab: FloatingActionButton
     private var filter = Filter()
 
     interface Callbacks
@@ -48,9 +80,12 @@ class SearchFragment : Fragment(), Chippy.ChipCallbacks, SeriesListFragment.Call
     ): View? {
         val view = inflater.inflate(R.layout.search_fragment, container, false)
         Log.d(TAG, "onCreateView")
-        searchChips = view.findViewById(R.id.search_chipgroup) as ChipGroup
-        search = view.findViewById(R.id.search_tv) as AutoCompleteTextView
+        searchScrollView = view.findViewById(R.id.chip_holder) as LinearLayout
+        searchChipGroup = view.findViewById(R.id.search_chipgroup) as ChipGroup
+        searchBox = view.findViewById(R.id.search_box) as LinearLayout
+        searchTextView = view.findViewById(R.id.search_tv) as AutoCompleteTextView
         resultsFrame = view.findViewById(R.id.results_frame) as FrameLayout
+        fab = view.findViewById(R.id.fab) as FloatingActionButton
 
         onUpdate()
 
@@ -66,7 +101,7 @@ class SearchFragment : Fragment(), Chippy.ChipCallbacks, SeriesListFragment.Call
             { filterObjects ->
                 Log.d(TAG, "filterList changed")
                 filterObjects?.let {
-                    search.setAdapter(
+                    searchTextView.setAdapter(
                         ArrayAdapter(
                             requireContext(),
                             android.R.layout.simple_dropdown_item_1line,
@@ -79,7 +114,7 @@ class SearchFragment : Fragment(), Chippy.ChipCallbacks, SeriesListFragment.Call
 
         viewModel.filterLiveData.observe(
             viewLifecycleOwner,
-            {filter ->
+            { filter ->
                 this.filter = filter
                 onUpdate()
             }
@@ -89,13 +124,26 @@ class SearchFragment : Fragment(), Chippy.ChipCallbacks, SeriesListFragment.Call
     override fun onStart() {
         super.onStart()
         Log.d(TAG, "onStart")
-        search.onItemClickListener =
+        searchTextView.onItemClickListener =
             AdapterView.OnItemClickListener { parent, view, position, id ->
                 val item = parent?.adapter?.getItem(position) as Filterable
                 viewModel.addItem(item)
-                search.setText("")
+                searchBox.visibility = View.GONE
+                searchTextView.text.clear()
+                hideKeyboard()
                 onUpdate()
             }
+
+        fab.setOnClickListener {
+            searchBox.visibility = if (searchBox.visibility == View.GONE) {
+                searchTextView.requestFocus()
+                showKeyboard(searchTextView)
+                View.VISIBLE
+            } else {
+                hideKeyboard()
+                View.GONE
+            }
+        }
     }
 
     override fun onDetach() {
@@ -107,8 +155,8 @@ class SearchFragment : Fragment(), Chippy.ChipCallbacks, SeriesListFragment.Call
     private fun addChip(item: Filterable) {
         Log.d(TAG, "adding chip $item")
         val chip = Chippy(context, item, this@SearchFragment)
-        chip.text = item.toString()
-        searchChips.addView(chip)
+        searchScrollView.visibility = View.VISIBLE
+        searchChipGroup.addView(chip)
     }
 
     override fun chipClosed(view: View, item: Filterable) {
@@ -129,8 +177,15 @@ class SearchFragment : Fragment(), Chippy.ChipCallbacks, SeriesListFragment.Call
     }
 
     private fun updateUI() {
-        searchChips.removeAllViews()
-        filter.getAll().forEach { addChip(it) }
+        searchChipGroup.removeAllViews()
+        filter.getAll().let { filters ->
+            if (filters.isEmpty()) {
+                searchScrollView.visibility = View.GONE
+            } else {
+                searchScrollView.visibility = View.VISIBLE
+                filters.forEach { addChip(it) }
+            }
+        }
     }
 
     companion object {

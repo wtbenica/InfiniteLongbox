@@ -1,11 +1,11 @@
-package com.wtb.comiccollector.Daos
+package com.wtb.comiccollector.database.Daos
 
 import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Query
 import com.wtb.comiccollector.DUMMY_ID
 import com.wtb.comiccollector.Filter
-import com.wtb.comiccollector.Series
+import com.wtb.comiccollector.database.models.Series
 import java.time.LocalDate
 
 @Dao

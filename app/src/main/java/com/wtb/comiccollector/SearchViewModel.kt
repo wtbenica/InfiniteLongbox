@@ -3,6 +3,7 @@ package com.wtb.comiccollector
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.wtb.comiccollector.database.models.Filterable
 
 private const val TAG = APP + "SearchViewModel"
 

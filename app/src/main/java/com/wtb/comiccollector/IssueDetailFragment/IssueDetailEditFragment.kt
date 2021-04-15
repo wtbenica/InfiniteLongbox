@@ -13,6 +13,9 @@ import androidx.core.view.children
 import androidx.core.view.contains
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import com.wtb.comiccollector.IssueDetailFragment.IssueDetailFragment
+import com.wtb.comiccollector.IssueDetailViewModel.IssueDetailViewModel
+import com.wtb.comiccollector.database.models.*
 import java.io.File
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -126,7 +129,7 @@ class IssueDetailEditFragment : Fragment(),
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        issueDetailViewModel.fullIssueLiveData.observe(
+        issueDetailViewModel.issueLiveData.observe(
             viewLifecycleOwner,
             { issue ->
                 issue?.let {

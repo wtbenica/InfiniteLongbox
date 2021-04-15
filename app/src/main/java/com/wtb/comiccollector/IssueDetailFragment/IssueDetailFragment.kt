@@ -1,4 +1,4 @@
-package com.wtb.comiccollector
+package com.wtb.comiccollector.IssueDetailFragment
 
 import android.content.Context
 import android.content.Intent
@@ -11,6 +11,11 @@ import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.*
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import com.wtb.comiccollector.*
+import com.wtb.comiccollector.IssueDetailViewModel.IssueDetailViewModel
+import com.wtb.comiccollector.database.models.FullCredit
+import com.wtb.comiccollector.database.models.Series
+import com.wtb.comiccollector.database.models.Story
 import java.io.File
 import java.time.format.DateTimeFormatter
 import java.util.*
@@ -68,7 +73,8 @@ class IssueDetailFragment : Fragment() {
 
     private lateinit var gcdLinkButton: Button
     private lateinit var coverFile: File
-    private lateinit var coverUri: Uri
+    private var coverUri: Uri? = null
+    private var variantUri: Uri? = null
 
     private var saveIssue = true
     private var isEditable: Boolean = true
@@ -115,11 +121,12 @@ class IssueDetailFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        issueDetailViewModel.fullIssueLiveData.observe(
+        issueDetailViewModel.issueLiveData.observe(
             viewLifecycleOwner,
             { issue: IssueAndSeries? ->
                 issue?.let {
                     this.fullIssue = it
+                    this.coverUri = it.issue.coverUri
                     updateUI()
                 }
             }
@@ -142,6 +149,15 @@ class IssueDetailFragment : Fragment() {
                 stories?.let {
                     this.issueStories = it
                     updateUI()
+                }
+            }
+        )
+
+        issueDetailViewModel.variantLiveData.observe(
+            viewLifecycleOwner,
+            { issue ->
+                issue?.let {
+                    this.variantUri = issue.issue.coverUri
                 }
             }
         )
@@ -216,7 +232,7 @@ class IssueDetailFragment : Fragment() {
             ) {
                 parent?.let {
                     val selectedIssueId = (it.getItemAtPosition(position) as Issue).issueId
-                    if (selectedIssueId != issueDetailViewModel.getIssue()) {
+                    if (selectedIssueId != issueDetailViewModel.getIssueId()) {
                         issueDetailViewModel.loadVariant(selectedIssueId)
                     } else {
                         issueDetailViewModel.loadVariant(null)
@@ -258,10 +274,18 @@ class IssueDetailFragment : Fragment() {
         this.fullIssue.issue.releaseDate?.format(DateTimeFormatter.ofPattern("MMMM d, y"))
             ?.let { releaseDateTextView.text = it }
 
-        this.fullIssue.issue.coverUri?.let {
-            coverImageView.setImageURI(this.fullIssue.issue.coverUri)
-            coverImageView.contentDescription = "Issue Cover (set)"
+        updateCover()
+    }
+
+    private fun updateCover() {
+        val uri = when {
+            this.variantUri != null -> this.variantUri
+            this.coverUri != null -> this.coverUri
+            else -> null
         }
+        Log.d(TAG, "setting cover: $uri")
+        coverImageView.setImageURI(uri)
+        coverImageView.contentDescription = "Issue Cover (set)"
     }
 
     private fun toggleEnable() {

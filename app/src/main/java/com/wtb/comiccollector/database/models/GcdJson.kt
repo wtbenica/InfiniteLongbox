@@ -2,6 +2,7 @@ package com.wtb.comiccollector
 
 import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
+import com.wtb.comiccollector.database.models.*
 import java.time.LocalDate
 
 // TODO: do all these val need to be nullable?

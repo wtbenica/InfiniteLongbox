@@ -1,5 +1,6 @@
 package com.wtb.comiccollector
 
+import com.wtb.comiccollector.database.models.*
 import retrofit2.http.GET
 import retrofit2.http.Path
 

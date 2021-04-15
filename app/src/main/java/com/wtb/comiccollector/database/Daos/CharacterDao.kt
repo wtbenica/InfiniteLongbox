@@ -1,8 +1,8 @@
-package com.wtb.comiccollector.Daos
+package com.wtb.comiccollector.database.Daos
 
 import androidx.room.Dao
 import androidx.room.Query
-import com.wtb.comiccollector.Character
+import com.wtb.comiccollector.database.models.Character
 
 @Dao
 abstract class CharacterDao : BaseDao<Character>() {

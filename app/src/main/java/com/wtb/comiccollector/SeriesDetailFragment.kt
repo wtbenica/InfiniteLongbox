@@ -7,10 +7,11 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageButton
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import com.wtb.comiccollector.database.models.Publisher
+import com.wtb.comiccollector.database.models.Series
 
 private const val TAG = "SeriesDetailFragment"
 private const val RESULT_SERIES_INFO = 312
@@ -32,7 +33,6 @@ class SeriesDetailFragment : Fragment() {
     private lateinit var publisher: Publisher
 
     private lateinit var seriesNameTextView: TextView
-    private lateinit var editSeriesButton: ImageButton
     private lateinit var volumeNumTextView: TextView
     private lateinit var publisherTextView: TextView
     private lateinit var dateRangeTextview: TextView
@@ -54,7 +54,6 @@ class SeriesDetailFragment : Fragment() {
         val view = inflater.inflate(R.layout.fragment_series_detail, container, false)
 
         seriesNameTextView = view.findViewById(R.id.details_series_name)
-        editSeriesButton = view.findViewById(R.id.details_edit_series_info)
         volumeNumTextView = view.findViewById(R.id.details_series_volume)
         publisherTextView = view.findViewById(R.id.details_publisher)
         dateRangeTextview = view.findViewById(R.id.details_date_range)
@@ -84,14 +83,6 @@ class SeriesDetailFragment : Fragment() {
                 updateUI()
             }
         )
-
-        editSeriesButton.setOnClickListener {
-            seriesId?.let { id ->
-                val d = SeriesInfoDialogFragment.newInstance(id)
-                d.setTargetFragment(this, RESULT_SERIES_INFO)
-                d.show(parentFragmentManager, DIALOG_SERIES_INFO)
-            }
-        }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

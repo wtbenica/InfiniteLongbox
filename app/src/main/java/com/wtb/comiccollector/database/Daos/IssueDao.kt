@@ -1,4 +1,4 @@
-package com.wtb.comiccollector.Daos
+package com.wtb.comiccollector.database.Daos
 
 import androidx.lifecycle.LiveData
 import androidx.room.Dao
@@ -14,7 +14,7 @@ abstract class IssueDao : BaseDao<Issue>() {
     abstract fun getIssue(issueId: Int): LiveData<Issue?>
 
     @Query("SELECT * FROM issue WHERE issueId=:issueId")
-    abstract suspend fun getIssueSus(issueId: Int): Issue
+    abstract suspend fun getIssueSus(issueId: Int): Issue?
 
     @Query("SELECT * FROM issue WHERE issueId=:issueId OR variantOf=:issueId ORDER BY sortCode")
     abstract suspend fun getVariants(issueId: Int): List<Issue>

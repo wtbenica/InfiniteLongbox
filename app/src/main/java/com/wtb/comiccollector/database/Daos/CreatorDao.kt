@@ -1,9 +1,9 @@
-package com.wtb.comiccollector.Daos
+package com.wtb.comiccollector.database.Daos
 
 import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Query
-import com.wtb.comiccollector.Creator
+import com.wtb.comiccollector.database.models.Creator
 import java.time.LocalDate
 
 @Dao
