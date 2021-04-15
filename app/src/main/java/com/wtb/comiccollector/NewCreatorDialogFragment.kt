@@ -13,6 +13,8 @@ import android.view.ViewGroup
 import android.widget.*
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.ViewModelProvider
+import com.wtb.comiccollector.IssueDetailViewModel.IssueDetailViewModel
+import com.wtb.comiccollector.database.models.Creator
 import java.time.LocalDate
 
 private const val TAG = "NewCreatorDialogFrag"

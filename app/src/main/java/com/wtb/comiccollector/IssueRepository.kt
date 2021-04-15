@@ -21,6 +21,7 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.wtb.comiccollector.database.IssueDatabase
+import com.wtb.comiccollector.database.models.*
 import kotlinx.coroutines.*
 import okhttp3.OkHttpClient
 import org.jsoup.Jsoup
@@ -241,6 +242,7 @@ class IssueRepository private constructor(val context: Context) {
          */
         internal fun update() {
             if (checkIfStale(STATIC_DATA_UPDATED, STATIC_DATA_LIFETIME)) {
+                Log.d(TAG, "StaticUpdater update")
                 val publishers = GlobalScope.async {
                     apiService.getPublishers()
                 }
@@ -296,6 +298,7 @@ class IssueRepository private constructor(val context: Context) {
     inner class CreditUpdater {
         internal fun update(issueId: Int) {
             if (checkIfStale(ISSUE_TAG(issueId), ISSUE_LIFETIME)) {
+                Log.d(TAG, "CreditUpdater update $issueId")
                 val storyItemsCall = GlobalScope.async {
                     Log.d(TAG, "WEBSERVICE: storiesByIssue $issueId")
                     apiService.getStoriesByIssue(issueId)
@@ -359,31 +362,36 @@ class IssueRepository private constructor(val context: Context) {
 
     inner class CoverUpdater {
         internal fun update(issueId: Int) {
-            Log.d(TAG, "CoverUpdater______________________________________________")
+            Log.d(TAG, "CoverUpdater_____________________________")
             GlobalScope.launch {
-                if (needsCover(issueId)) {
-                    Log.d(TAG, "needsCover... starting")
-                    val issue: Issue = issueDao.getIssueSus(issueId)
-                    CoroutineScope(Dispatchers.Default).launch {
-                        kotlin.runCatching {
-                            Log.d(TAG, "Starting connection.....")
-                            val doc = Jsoup.connect(issue.url).get()
-                            val url = URL(doc.getElementsByClass("cover_img")[0].attr("src"))
-                            val image = GlobalScope.async {
-                                url.toBitmap()
-                            }
-                            GlobalScope.launch(Dispatchers.Main) {
-                                val bitmap = image.await().also {
-                                    Log.d(TAG, "Got an image!")
+                val issueDef = GlobalScope.async { issueDao.getIssueSus(issueId) }
+
+                issueDef.await()?.let { issue ->
+                    if (issue.coverUri == null) {
+                        Log.d(TAG, "needsCover... starting")
+                        CoroutineScope(Dispatchers.Default).launch {
+                            kotlin.runCatching {
+                                Log.d(TAG, "Starting connection.....")
+                                val doc = Jsoup.connect(issue?.url).get()
+                                val url = URL(doc.getElementsByClass("cover_img")[0].attr("src"))
+                                val image = GlobalScope.async {
+                                    url.toBitmap()
                                 }
+                                GlobalScope.launch(Dispatchers.Main) {
+                                    val bitmap = image.await().also {
+                                        Log.d(TAG, "Got an image!")
+                                    }
 
-                                bitmap?.apply {
-                                    val savedUri =
-                                        saveToInternalStorage(context, issue.coverFileName)
+                                    bitmap?.apply {
+                                        if (issue != null) {
+                                            val savedUri =
+                                                saveToInternalStorage(context, issue.coverFileName)
 
-                                    issue.coverUri = savedUri
-                                    issueDao.upsertSus(listOf(issue))
-                                    Log.d(TAG, "Saving image $savedUri")
+                                            issue.coverUri = savedUri
+                                            issueDao.upsertSus(listOf(issue))
+                                            Log.d(TAG, "Saving image $savedUri")
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -391,44 +399,36 @@ class IssueRepository private constructor(val context: Context) {
                 }
             }
         }
+    }
 
-        private suspend fun needsCover(issueId: Int): Boolean {
-            val issueCall: Deferred<Issue> = GlobalScope.async {
-                issueDao.getIssueSus(issueId)
-            }
-
-            return issueCall.await().coverUri == null
+    fun URL.toBitmap(): Bitmap? {
+        return try {
+            BitmapFactory.decodeStream(openStream())
+        } catch (e: IOException) {
+            null
         }
+    }
 
-        fun URL.toBitmap(): Bitmap? {
-            return try {
-                BitmapFactory.decodeStream(openStream())
-            } catch (e: IOException) {
-                null
-            }
-        }
+    fun Bitmap.saveToInternalStorage(context: Context, uri: String): Uri? {
+        val wrapper = ContextWrapper(context)
 
-        fun Bitmap.saveToInternalStorage(context: Context, uri: String): Uri? {
-            val wrapper = ContextWrapper(context)
+        var file = wrapper.getDir("images", Context.MODE_PRIVATE)
 
-            var file = wrapper.getDir("images", Context.MODE_PRIVATE)
+        file = File(file, uri)
 
-            file = File(file, uri)
+        return try {
+            val stream = FileOutputStream(file)
 
-            return try {
-                val stream = FileOutputStream(file)
+            compress(Bitmap.CompressFormat.JPEG, 100, stream)
 
-                compress(Bitmap.CompressFormat.JPEG, 100, stream)
+            stream.flush()
 
-                stream.flush()
+            stream.close()
 
-                stream.close()
-
-                Uri.parse(file.absolutePath)
-            } catch (e: IOException) {
-                e.printStackTrace()
-                null
-            }
+            Uri.parse(file.absolutePath)
+        } catch (e: IOException) {
+            e.printStackTrace()
+            null
         }
     }
 

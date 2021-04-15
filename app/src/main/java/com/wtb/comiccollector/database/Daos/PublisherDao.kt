@@ -1,10 +1,10 @@
-package com.wtb.comiccollector.Daos
+package com.wtb.comiccollector.database.Daos
 
 import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Query
 import com.wtb.comiccollector.DUMMY_ID
-import com.wtb.comiccollector.Publisher
+import com.wtb.comiccollector.database.models.Publisher
 
 @Dao
 abstract class PublisherDao : BaseDao<Publisher>() {

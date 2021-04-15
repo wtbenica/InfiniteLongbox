@@ -5,7 +5,11 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
-import com.wtb.comiccollector.*
+import com.wtb.comiccollector.Filter
+import com.wtb.comiccollector.FullIssue
+import com.wtb.comiccollector.Issue
+import com.wtb.comiccollector.IssueRepository
+import com.wtb.comiccollector.database.models.Series
 
 private const val TAG = "NewIssueListViewModel"
 

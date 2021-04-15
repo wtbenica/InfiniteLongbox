@@ -1,11 +1,11 @@
-package com.wtb.comiccollector.Daos
+package com.wtb.comiccollector.database.Daos
 
 import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Query
 import androidx.room.Transaction
-import com.wtb.comiccollector.Credit
-import com.wtb.comiccollector.FullCredit
+import com.wtb.comiccollector.database.models.Credit
+import com.wtb.comiccollector.database.models.FullCredit
 
 @Dao
 abstract class CreditDao : BaseDao<Credit>() {

@@ -1,6 +1,11 @@
-package com.wtb.comiccollector
+package com.wtb.comiccollector.IssueDetailViewModel
 
 import androidx.lifecycle.*
+import com.wtb.comiccollector.AUTO_ID
+import com.wtb.comiccollector.Issue
+import com.wtb.comiccollector.IssueAndSeries
+import com.wtb.comiccollector.IssueRepository
+import com.wtb.comiccollector.database.models.*
 
 private const val TAG = "IssueDetailViewModel"
 
@@ -10,7 +15,7 @@ class IssueDetailViewModel : ViewModel() {
     private val issueIdLiveData = MutableLiveData<Int>()
     private val variantIdLiveData = MutableLiveData<Int?>()
 
-    val fullIssueLiveData: LiveData<IssueAndSeries> =
+    val issueLiveData: LiveData<IssueAndSeries> =
         Transformations.switchMap(issueIdLiveData) { issueId ->
             issueRepository.getIssue(issueId)
         }
@@ -23,6 +28,11 @@ class IssueDetailViewModel : ViewModel() {
     val issueCreditsLiveData: LiveData<List<FullCredit>> =
         Transformations.switchMap(issueIdLiveData) { issueId ->
             issueRepository.getCreditsByIssue(issueId)
+        }
+
+    val variantLiveData: LiveData<IssueAndSeries?> =
+        Transformations.switchMap(variantIdLiveData) { issueId ->
+            issueId?.let { issueRepository.getIssue(it) }
         }
 
     val variantStoriesLiveData: LiveData<List<Story>> =
@@ -61,7 +71,7 @@ class IssueDetailViewModel : ViewModel() {
         issueIdLiveData.value = issueId
     }
 
-    fun getIssue() = issueIdLiveData.value
+    fun getIssueId() = issueIdLiveData.value
 
     fun loadVariant(issueId: Int?) {
         variantIdLiveData.value = AUTO_ID
