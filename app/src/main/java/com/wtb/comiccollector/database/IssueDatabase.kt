@@ -4,7 +4,8 @@ import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import com.wtb.comiccollector.*
-import com.wtb.comiccollector.Daos.*
+import com.wtb.comiccollector.database.Daos.*
+import com.wtb.comiccollector.database.models.*
 
 @Database(
     entities = [Issue::class, Series::class, Creator::class, Role::class, Credit::class,

@@ -7,7 +7,7 @@ import androidx.lifecycle.ViewModel
 import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.Filter
 import com.wtb.comiccollector.IssueRepository
-import com.wtb.comiccollector.Series
+import com.wtb.comiccollector.database.models.Series
 
 private const val TAG = APP + "SeriesListViewModel"
 

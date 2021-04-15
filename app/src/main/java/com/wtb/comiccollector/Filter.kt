@@ -3,6 +3,10 @@ package com.wtb.comiccollector
 import androidx.fragment.app.Fragment
 import com.wtb.comiccollector.GroupListFragments.IssueListFragment
 import com.wtb.comiccollector.GroupListFragments.SeriesListFragment
+import com.wtb.comiccollector.database.models.Creator
+import com.wtb.comiccollector.database.models.Filterable
+import com.wtb.comiccollector.database.models.Publisher
+import com.wtb.comiccollector.database.models.Series
 import java.io.Serializable
 import java.time.LocalDate
 

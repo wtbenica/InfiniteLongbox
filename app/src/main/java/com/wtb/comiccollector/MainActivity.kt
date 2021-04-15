@@ -4,6 +4,9 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.DialogFragment
 import com.wtb.comiccollector.GroupListFragments.IssueListFragment
+import com.wtb.comiccollector.IssueDetailFragment.IssueDetailFragment
+import com.wtb.comiccollector.database.models.Creator
+import com.wtb.comiccollector.database.models.Series
 
 const val APP = "CC_"
 
