@@ -2,9 +2,13 @@ package com.wtb.comiccollector
 
 import android.app.Dialog
 import android.content.Context
+import android.content.ContextWrapper
 import android.content.DialogInterface
 import android.content.SharedPreferences
 import android.database.sqlite.SQLiteConstraintException
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AlertDialog
@@ -19,13 +23,19 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 import com.wtb.comiccollector.database.IssueDatabase
 import kotlinx.coroutines.*
 import okhttp3.OkHttpClient
+import org.jsoup.Jsoup
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import java.io.File
+import java.io.FileOutputStream
+import java.io.IOException
+import java.net.URL
 import java.time.LocalDate
 import java.util.Collections.sort
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import java.util.regex.Pattern
+
 
 const val DUMMY_ID = Int.MAX_VALUE
 
@@ -50,7 +60,13 @@ const val NIGHTWING = "http://192.168.0.141:8000/"
 const val ALFRED = "http://192.168.0.138:8000/"
 const val BASE_URL = ALFRED
 
-class IssueRepository private constructor(context: Context) {
+private fun UPDATED_TAG(id: Int, type: String): String = "$type${id}_UPDATED"
+private fun ISSUE_TAG(id: Int) = UPDATED_TAG(id, "ISSUE_")
+private fun SERIES_TAG(id: Int): String = UPDATED_TAG(id, "SERIES_")
+private fun PUBLISHER_TAG(id: Int): String = UPDATED_TAG(id, "PUBLISHER_")
+private fun CREATOR_TAG(id: Int): String = UPDATED_TAG(id, "CREATOR_")
+
+class IssueRepository private constructor(val context: Context) {
 
     internal val prefs: SharedPreferences =
         context.getSharedPreferences(SHARED_PREFS, Context.MODE_PRIVATE)
@@ -113,13 +129,16 @@ class IssueRepository private constructor(context: Context) {
 
     fun getPublisher(publisherId: Int) = publisherDao.getPublisher(publisherId)
 
-    fun getIssue(issueId: Int): LiveData<IssueAndSeries?> =
-        issueDao.getFullIssue(issueId)
+    fun getIssue(issueId: Int): LiveData<IssueAndSeries?> {
+        CreditUpdater().update(issueId)
+        CoverUpdater().update(issueId)
+        return issueDao.getFullIssue(issueId)
+    }
 
     fun getIssuesByFilter(filter: Filter): LiveData<List<FullIssue>>? {
         val seriesId = filter.mSeries!!.seriesId
         val creatorIds = filter.mCreators.map { it.creatorId }
-        Log.d(TAG, "$seriesId: $creatorIds")
+        Log.d(TAG, "SeriesId Filter: $seriesId - CreatorId Filter: $creatorIds")
 
         return when {
             filter.hasCreator() -> {
@@ -172,10 +191,8 @@ class IssueRepository private constructor(context: Context) {
         return liveData { emit(issueCall.await()) }
     }
 
-    fun getStoriesByIssue(issueId: Int): LiveData<List<Story>> {
-        CreditUpdater().update(issueId)
-        return storyDao.getStories(issueId)
-    }
+    fun getStoriesByIssue(issueId: Int): LiveData<List<Story>> = storyDao.getStories(issueId)
+
 
     fun getCreditsByIssue(issueId: Int): LiveData<List<FullCredit>> =
         creditDao.getIssueCredits(issueId)
@@ -278,7 +295,7 @@ class IssueRepository private constructor(context: Context) {
 
     inner class CreditUpdater {
         internal fun update(issueId: Int) {
-            if (checkIfStale("${issueId}_updated", ISSUE_LIFETIME)) {
+            if (checkIfStale(ISSUE_TAG(issueId), ISSUE_LIFETIME)) {
                 val storyItemsCall = GlobalScope.async {
                     Log.d(TAG, "WEBSERVICE: storiesByIssue $issueId")
                     apiService.getStoriesByIssue(issueId)
@@ -340,10 +357,85 @@ class IssueRepository private constructor(context: Context) {
         }
     }
 
+    inner class CoverUpdater {
+        internal fun update(issueId: Int) {
+            Log.d(TAG, "CoverUpdater______________________________________________")
+            GlobalScope.launch {
+                if (needsCover(issueId)) {
+                    Log.d(TAG, "needsCover... starting")
+                    val issue: Issue = issueDao.getIssueSus(issueId)
+                    CoroutineScope(Dispatchers.Default).launch {
+                        kotlin.runCatching {
+                            Log.d(TAG, "Starting connection.....")
+                            val doc = Jsoup.connect(issue.url).get()
+                            val url = URL(doc.getElementsByClass("cover_img")[0].attr("src"))
+                            val image = GlobalScope.async {
+                                url.toBitmap()
+                            }
+                            GlobalScope.launch(Dispatchers.Main) {
+                                val bitmap = image.await().also {
+                                    Log.d(TAG, "Got an image!")
+                                }
+
+                                bitmap?.apply {
+                                    val savedUri =
+                                        saveToInternalStorage(context, issue.coverFileName)
+
+                                    issue.coverUri = savedUri
+                                    issueDao.upsertSus(listOf(issue))
+                                    Log.d(TAG, "Saving image $savedUri")
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        private suspend fun needsCover(issueId: Int): Boolean {
+            val issueCall: Deferred<Issue> = GlobalScope.async {
+                issueDao.getIssueSus(issueId)
+            }
+
+            return issueCall.await().coverUri == null
+        }
+
+        fun URL.toBitmap(): Bitmap? {
+            return try {
+                BitmapFactory.decodeStream(openStream())
+            } catch (e: IOException) {
+                null
+            }
+        }
+
+        fun Bitmap.saveToInternalStorage(context: Context, uri: String): Uri? {
+            val wrapper = ContextWrapper(context)
+
+            var file = wrapper.getDir("images", Context.MODE_PRIVATE)
+
+            file = File(file, uri)
+
+            return try {
+                val stream = FileOutputStream(file)
+
+                compress(Bitmap.CompressFormat.JPEG, 100, stream)
+
+                stream.flush()
+
+                stream.close()
+
+                Uri.parse(file.absolutePath)
+            } catch (e: IOException) {
+                e.printStackTrace()
+                null
+            }
+        }
+    }
+
     inner class CreatorUpdater {
 
         internal fun update(creatorId: Int) {
-            if (checkIfStale("${creatorId}_updated", CREATOR_LIFETIME)) {
+            if (checkIfStale(CREATOR_TAG(creatorId), CREATOR_LIFETIME)) {
                 refreshNewStyleCredits(creatorId)
                 refreshOldStyleCredits(creatorId)
             }
@@ -416,7 +508,7 @@ class IssueRepository private constructor(context: Context) {
                         CreditExtractor().extractCredits(stories.await())
                     }
                 }.let {
-                    saveTime(prefs, "${creatorId}_UPDATED")
+                    saveTime(prefs, CREATOR_TAG(creatorId))
                 }
             }
         }
@@ -467,15 +559,9 @@ class IssueRepository private constructor(context: Context) {
 
             GlobalScope.launch {
                 val stories1 = stories.await()?.map { it.toRoomModel() }
-                Log.d(TAG, "SIDS: ${stories1?.map { it.storyId }}")
                 val variants1 = variants.await()?.map { it.toRoomModel() } ?: emptyList()
-                Log.d(TAG, "VIDS: ${variants1.map { it.issueId }}")
                 val issues1 = issues.await()?.map { it.toRoomModel() } ?: emptyList()
-                Log.d(TAG, "IIDS: ${issues1.map { it.issueId }}")
                 val credits1 = credits.await()?.map { it.toRoomModel() }
-                Log.d(TAG, "SIDS: ${credits1?.map { it.storyId }}")
-                Log.d(TAG, "NIDS: ${nameDetail.await()}")
-                Log.d(TAG, "NIDS: ${credits1?.map { it.nameDetailId }}")
                 database.transactionDao().upsertSus(
                     stories = stories1,
                     issues = variants1 + issues1,
@@ -488,7 +574,7 @@ class IssueRepository private constructor(context: Context) {
 
     inner class IssueUpdater {
         internal fun update(seriesId: Int) {
-            if (checkIfStale("${seriesId}_updated", ISSUE_LIFETIME))
+            if (checkIfStale(SERIES_TAG(seriesId), ISSUE_LIFETIME))
                 GlobalScope.launch {
                     withContext(Dispatchers.Default) {
                         Log.d(TAG, "WEBSERVICE: issuesBySeries $seriesId")
@@ -496,6 +582,7 @@ class IssueRepository private constructor(context: Context) {
                     }.let { issueItems ->
                         issueDao.upsertSus(issueItems.map { it.toRoomModel() })
                     }
+                    saveTime(prefs, SERIES_TAG(seriesId))
                 }
         }
     }
@@ -816,9 +903,9 @@ class IssueRepository private constructor(context: Context) {
 }
 
 class CombinedLiveData(
-    series: LiveData<List<Series>>,
-    creators: LiveData<List<Creator>>,
-    publishers: LiveData<List<Publisher>>,
+    series: LiveData<List<Series>>?,
+    creators: LiveData<List<Creator>>?,
+    publishers: LiveData<List<Publisher>>?,
     private val combine: (data1: List<Series>?, data2: List<Creator>?, data3: List<Publisher>?) -> List<Filterable>
 ) : MediatorLiveData<List<Filterable>>() {
 
@@ -827,17 +914,23 @@ class CombinedLiveData(
     private var mPublishers: List<Publisher>? = null
 
     init {
-        super.addSource(series) {
-            mSeries = it
-            this.value = combine(mSeries, mCreators, mPublishers)
+        series?.let { liveSeries ->
+            super.addSource(liveSeries) {
+                mSeries = it
+                this.value = combine(mSeries, mCreators, mPublishers)
+            }
         }
-        super.addSource(creators) {
-            mCreators = it
-            value = combine(mSeries, mCreators, mPublishers)
+        creators?.let { liveCreators ->
+            super.addSource(liveCreators) {
+                mCreators = it
+                value = combine(mSeries, mCreators, mPublishers)
+            }
         }
-        super.addSource(publishers) {
-            mPublishers = it
-            value = combine(mSeries, mCreators, mPublishers)
+        publishers?.let { livePublishers ->
+            super.addSource(livePublishers) {
+                mPublishers = it
+                value = combine(mSeries, mCreators, mPublishers)
+            }
         }
     }
 

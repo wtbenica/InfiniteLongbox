@@ -84,20 +84,23 @@
         android:animateLayoutChanges="true"
         android:isScrollContainer="true"
         android:orientation="vertical"
-        app:layout_constraintBottom_toTopOf="@id/edit_button"
+        app:layout_constraintBottom_toTopOf="@id/gcd_link"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/variant_spinner" />
 
-    <ImageButton
-        android:id="@+id/edit_button"
-        android:layout_width="wrap_content"
+    <Button
+        android:id="@+id/gcd_link"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
+        android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
         android:contentDescription="@string/toggle_edit_button"
-        app:layout_constraintEnd_toEndOf="parent"
+        android:gravity="bottom|clip_horizontal|end"
+        android:text="Grand Comic Database (TM)"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:srcCompat="@drawable/ic_issue_edit" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

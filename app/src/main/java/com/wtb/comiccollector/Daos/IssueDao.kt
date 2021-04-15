@@ -13,6 +13,9 @@ abstract class IssueDao : BaseDao<Issue>() {
     @Query("SELECT * FROM issue WHERE issueId=:issueId")
     abstract fun getIssue(issueId: Int): LiveData<Issue?>
 
+    @Query("SELECT * FROM issue WHERE issueId=:issueId")
+    abstract suspend fun getIssueSus(issueId: Int): Issue
+
     @Query("SELECT * FROM issue WHERE issueId=:issueId OR variantOf=:issueId ORDER BY sortCode")
     abstract suspend fun getVariants(issueId: Int): List<Issue>
 
