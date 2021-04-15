@@ -9,7 +9,7 @@ import com.wtb.comiccollector.Daos.*
 @Database(
     entities = [Issue::class, Series::class, Creator::class, Role::class, Credit::class,
         Publisher::class, Story::class, MyCredit::class, StoryType::class, NameDetail::class,
-        Character::class, Appearance::class],
+        Character::class, Appearance::class, Collection::class],
     version = 1
 )
 @TypeConverters(IssueTypeConverters::class)
@@ -27,6 +27,7 @@ abstract class IssueDatabase : RoomDatabase() {
     abstract fun transactionDao(): TransactionDao
     abstract fun characterDao(): CharacterDao
     abstract fun appearanceDao(): AppearanceDao
+    abstract fun collectionDao(): CollectionDao
 }
 
 //val migration_1_2 = object : Migration(1, 2) {

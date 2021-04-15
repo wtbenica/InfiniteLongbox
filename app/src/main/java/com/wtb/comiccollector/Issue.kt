@@ -396,6 +396,23 @@ data class MyCredit(
     override fun id(): Int = creditId
 }
 
+@Entity(
+    foreignKeys = [
+        ForeignKey(
+            entity = Issue::class,
+            parentColumns = arrayOf("issueId"),
+            childColumns = arrayOf("issueId"),
+            onDelete = CASCADE
+        )
+    ]
+)
+data class Collection(
+    @PrimaryKey(autoGenerate = true) val collectionId: Int = AUTO_ID,
+    var issueId: Int
+) : DataModel {
+    override fun id(): Int = collectionId
+}
+
 data class FullIssue(
     @Embedded
     val issue: Issue,
