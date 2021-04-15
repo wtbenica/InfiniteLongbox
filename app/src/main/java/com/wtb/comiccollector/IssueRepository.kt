@@ -21,6 +21,7 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.wtb.comiccollector.database.IssueDatabase
+import com.wtb.comiccollector.database.migration_1_2
 import com.wtb.comiccollector.database.models.*
 import kotlinx.coroutines.*
 import okhttp3.OkHttpClient
@@ -85,6 +86,7 @@ class IssueRepository private constructor(val context: Context) {
     private val nameDetailDao = database.nameDetailDao()
     private val characterDao = database.characterDao()
     private val appearanceDao = database.appearanceDao()
+    private val collectionDao = database.collectionDao()
 
     private val filesDir = context.applicationContext.filesDir
 
@@ -234,7 +236,8 @@ class IssueRepository private constructor(val context: Context) {
                 }
             }
         }
-    ).build()
+    ).addMigrations(migration_1_2)
+        .build()
 
     inner class StaticUpdater {
         /**
@@ -898,6 +901,12 @@ class IssueRepository private constructor(val context: Context) {
     fun deleteCredit(credit: Credit) {
         executor.execute {
             creditDao.delete(credit)
+        }
+    }
+
+    fun addToCollection(issueId: Int) {
+        executor.execute {
+            collectionDao.insert(MyCollection(issueId = issueId))
         }
     }
 }

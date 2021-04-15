@@ -62,7 +62,7 @@ class IssueDetailFragment : Fragment() {
     private lateinit var coverImageView: ImageView
     private lateinit var seriesTextView: TextView
     private lateinit var issueNumTextView: TextView
-
+    private lateinit var collectionButton: Button
     private lateinit var variantSpinner: Spinner
 
     //    private lateinit var issueCreditsLabel: TextView
@@ -110,6 +110,7 @@ class IssueDetailFragment : Fragment() {
         issueCreditsFrame = view.findViewById(R.id.issue_credits_table) as ScrollView
         releaseDateTextView = view.findViewById(R.id.release_date_text_view)
         gcdLinkButton = view.findViewById(R.id.gcd_link) as Button
+        collectionButton = view.findViewById(R.id.collectionButton) as Button
         variantSpinner = view.findViewById(R.id.variant_spinner) as Spinner
 //        issueCreditsLabel = view.findViewById(R.id.issue_credits_box_label) as TextView
         creditsBox = CreditsBox(requireContext())
@@ -215,6 +216,9 @@ class IssueDetailFragment : Fragment() {
             startActivity(intent)
         }
 
+        collectionButton.setOnClickListener {
+            issueDetailViewModel.addToCollection()
+        }
 
         releaseDateTextView.setOnClickListener {
             DatePickerFragment.newInstance(fullIssue.issue.releaseDate).apply {

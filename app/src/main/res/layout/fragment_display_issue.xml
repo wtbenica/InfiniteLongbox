@@ -49,6 +49,17 @@
         app:layout_constraintStart_toEndOf="@+id/issue_cover"
         app:layout_constraintTop_toBottomOf="@+id/issue_series" />
 
+    <Button
+        android:id="@+id/collectionButton"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
+        android:text="ADD TO MY COLLECTION"
+        app:layout_constraintBottom_toBottomOf="@+id/issue_cover"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/issue_cover" />
+
     <View
         android:id="@+id/divider"
         android:layout_width="0dp"

@@ -105,4 +105,8 @@ class IssueDetailViewModel : ViewModel() {
     fun deleteCredit(credit: Credit) {
         issueRepository.deleteCredit(credit)
     }
+
+    fun addToCollection() {
+        variantIdLiveData.value ?: issueIdLiveData.value?.let { issueRepository.addToCollection(it) }
+    }
 }
