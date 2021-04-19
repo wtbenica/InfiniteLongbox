@@ -65,12 +65,12 @@ abstract class IssueDao : BaseDao<Issue>() {
             JOIN series ss ON ss.seriesId = ie.seriesId
             JOIN publisher pr ON pr.publisherId = ss.publisherId
             JOIN namedetail nl ON nl.nameDetailId = ct.nameDetailId
-            WHERE nl.creatorId in (:creatorId) 
+            WHERE nl.creatorId in (:creatorIds) 
             AND ss.seriesId = :seriesId
             ORDER BY ie.sortCode"""
     )
     abstract fun getIssuesBySeriesCreator(
         seriesId: Int,
-        creatorId: List<Int>
+        creatorIds: List<Int>
     ): LiveData<List<FullIssue>>
 }

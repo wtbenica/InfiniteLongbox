@@ -146,11 +146,19 @@ class IssueRepository private constructor(val context: Context) {
         return when {
             filter.hasCreator() -> {
                 CreatorUpdater().updateAll(creatorIds)
-                issueDao.getIssuesBySeriesCreator(seriesId, creatorIds)
+                if (filter.mMyCollection) {
+                    collectionDao.getIssuesBySeriesCreator(seriesId, creatorIds)
+                } else {
+                    issueDao.getIssuesBySeriesCreator(seriesId, creatorIds)
+                }
             }
             filter.hasSeries() -> {
                 IssueUpdater().update(seriesId)
-                issueDao.getIssuesBySeries(seriesId)
+                if (filter.mMyCollection) {
+                    collectionDao.getIssuesBySeries(seriesId)
+                } else {
+                    issueDao.getIssuesBySeries(seriesId)
+                }
             }
             else -> {
                 null
@@ -168,7 +176,11 @@ class IssueRepository private constructor(val context: Context) {
             filter.mSeries?.let { IssueUpdater().update(it.seriesId) }
         }
 
-        return seriesDao.getSeriesByFilter(filter)
+        return if (filter.mMyCollection) {
+            collectionDao.getSeriesByFilter(filter)
+        } else {
+            seriesDao.getSeriesByFilter(filter)
+        }
     }
 
     fun getIssuesBySeries(seriesId: Int): LiveData<List<FullIssue>> {

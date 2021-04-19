@@ -24,4 +24,8 @@ class SearchViewModel : ViewModel() {
         Log.d(TAG, "removeItem $item")
         filterLiveData.value?.removeItem(item)
     }
+
+    fun myCollection(isChecked: Boolean) {
+        filterLiveData.value?.setMyCollection(isChecked)
+    }
 }

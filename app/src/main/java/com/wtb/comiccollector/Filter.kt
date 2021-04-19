@@ -18,6 +18,7 @@ class Filter(
     publishers: MutableSet<Publisher>? = null,
     startDate: LocalDate? = null,
     endDate: LocalDate? = null,
+    myCollection: Boolean = false
 ) : Serializable {
 
     var mCreators: MutableSet<Creator> = creators ?: mutableSetOf()
@@ -25,6 +26,7 @@ class Filter(
     var mPublishers: MutableSet<Publisher> = publishers ?: mutableSetOf()
     var mStartDate: LocalDate = startDate ?: LocalDate.MIN
     var mEndDate: LocalDate = endDate ?: LocalDate.MAX
+    var mMyCollection: Boolean = myCollection
 
     fun hasCreator() = mCreators.isNotEmpty()
     fun hasSeries() = mSeries != null
@@ -53,6 +55,10 @@ class Filter(
 
     private fun removePublisher(vararg publisher: Publisher) {
         mPublishers.removeAll(publisher)
+    }
+
+    fun setMyCollection(value: Boolean) {
+        this.mMyCollection = value
     }
 
     fun addItem(vararg items: Filterable) {
