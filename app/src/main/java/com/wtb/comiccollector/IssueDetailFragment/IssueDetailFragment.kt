@@ -13,6 +13,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.wtb.comiccollector.*
 import com.wtb.comiccollector.IssueDetailViewModel.IssueDetailViewModel
+import com.wtb.comiccollector.database.Daos.Count
 import com.wtb.comiccollector.database.models.FullCredit
 import com.wtb.comiccollector.database.models.Series
 import com.wtb.comiccollector.database.models.Story
@@ -20,7 +21,7 @@ import java.io.File
 import java.time.format.DateTimeFormatter
 import java.util.*
 
-private const val TAG = "IssueDetailFragment"
+private const val TAG = APP + "IssueDetailFragment"
 
 // Bundle Argument Tags
 private const val ARG_ISSUE_ID = "issue_id"
@@ -64,6 +65,7 @@ class IssueDetailFragment : Fragment() {
     private lateinit var issueNumTextView: TextView
     private lateinit var collectionButton: Button
     private lateinit var variantSpinner: Spinner
+    private var isVariant: Boolean = false
 
     //    private lateinit var issueCreditsLabel: TextView
     private lateinit var issueCreditsFrame: ScrollView
@@ -73,6 +75,7 @@ class IssueDetailFragment : Fragment() {
 
     private lateinit var gcdLinkButton: Button
     private lateinit var coverFile: File
+    private var inCollection: Boolean = false
     private var coverUri: Uri? = null
     private var variantUri: Uri? = null
 
@@ -157,8 +160,11 @@ class IssueDetailFragment : Fragment() {
         issueDetailViewModel.variantLiveData.observe(
             viewLifecycleOwner,
             { issue ->
-                issue?.let {
-                    this.variantUri = issue.issue.coverUri
+                issue.let {
+                    this.isVariant = issue != null
+                    this.variantUri = issue?.issue?.coverUri
+                    Log.d(TAG, "varLD changed, setting variantUri: $variantUri")
+                    updateUI()
                 }
             }
         )
@@ -196,13 +202,47 @@ class IssueDetailFragment : Fragment() {
                     )
                     this.issueVariants = it
                     variantSpinner.adapter = adapter
-                    if (it.size == 1) {
-                        variantSpinner.visibility = View.GONE
+                    variantSpinner.visibility = if (it.size <= 1) {
+                        View.GONE
+                    } else {
+                        View.VISIBLE
                     }
                     updateUI()
                 }
             }
         )
+
+        issueDetailViewModel.inCollectionLiveData.observe(
+            viewLifecycleOwner,
+            { count ->
+                if (!isVariant) {
+                    setCollectionButton(count)
+                }
+            }
+        )
+
+        issueDetailViewModel.variantInCollectionLiveData.observe(
+            viewLifecycleOwner,
+            { count ->
+                if (isVariant) {
+                    setCollectionButton(count)
+                }
+            }
+        )
+    }
+
+    private fun setCollectionButton(count: Count) {
+        if (count.count > 0) {
+            this.collectionButton.text = getString(R.string.remove_from_collection)
+            this.collectionButton.setOnClickListener {
+                issueDetailViewModel.removeFromCollection()
+            }
+        } else {
+            this.collectionButton.text = getString(R.string.add_to_collection)
+            this.collectionButton.setOnClickListener {
+                issueDetailViewModel.addToCollection()
+            }
+        }
     }
 
     override fun onStart() {
@@ -237,10 +277,16 @@ class IssueDetailFragment : Fragment() {
                 parent?.let {
                     val selectedIssueId = (it.getItemAtPosition(position) as Issue).issueId
                     if (selectedIssueId != issueDetailViewModel.getIssueId()) {
+                        Log.d(TAG, "ALTERNATE COVER")
                         issueDetailViewModel.loadVariant(selectedIssueId)
+                        isVariant = true
                     } else {
-                        issueDetailViewModel.loadVariant(null)
+                        Log.d(TAG, "PRIMARY COVER ***///***///***")
+                        issueDetailViewModel.clearVariant()
+                        this@IssueDetailFragment.variantUri = null
+                        isVariant = false
                     }
+                    updateCover()
                 }
             }
 
@@ -282,13 +328,16 @@ class IssueDetailFragment : Fragment() {
     }
 
     private fun updateCover() {
-        val uri = when {
-            this.variantUri != null -> this.variantUri
-            this.coverUri != null -> this.coverUri
-            else -> null
+        val uri = when (isVariant) {
+            true -> this.variantUri
+            false -> this.coverUri
         }
-        Log.d(TAG, "setting cover: $uri")
-        coverImageView.setImageURI(uri)
+        Log.d(TAG, "*** setting cover: $uri")
+        if (uri != null) {
+            coverImageView.setImageURI(uri)
+        } else {
+            coverImageView.setImageResource(R.drawable.ic_issue_add_cover)
+        }
         coverImageView.contentDescription = "Issue Cover (set)"
     }
 
