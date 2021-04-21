@@ -20,6 +20,7 @@ import androidx.lifecycle.liveData
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
+import com.wtb.comiccollector.database.Daos.Count
 import com.wtb.comiccollector.database.IssueDatabase
 import com.wtb.comiccollector.database.migration_1_2
 import com.wtb.comiccollector.database.models.*
@@ -387,21 +388,21 @@ class IssueRepository private constructor(val context: Context) {
                         CoroutineScope(Dispatchers.Default).launch {
                             kotlin.runCatching {
                                 Log.d(TAG, "Starting connection.....")
-                                val doc = Jsoup.connect(issue?.url).get()
+                                val doc = Jsoup.connect(issue.url).get()
+                                val no_cover = doc.getElementsByClass("no_cover").size == 1
                                 val url = URL(doc.getElementsByClass("cover_img")[0].attr("src"))
-                                val image = GlobalScope.async {
-                                    url.toBitmap()
-                                }
-                                GlobalScope.launch(Dispatchers.Main) {
-                                    val bitmap = image.await().also {
-                                        Log.d(TAG, "Got an image!")
+                                if (!no_cover) {
+                                    val image = GlobalScope.async {
+                                        url.toBitmap()
                                     }
+                                    GlobalScope.launch(Dispatchers.Main) {
+                                        val bitmap = image.await().also {
+                                            Log.d(TAG, "Got an image!")
+                                        }
 
-                                    bitmap?.apply {
-                                        if (issue != null) {
+                                        bitmap?.apply {
                                             val savedUri =
                                                 saveToInternalStorage(context, issue.coverFileName)
-
                                             issue.coverUri = savedUri
                                             issueDao.upsertSus(listOf(issue))
                                             Log.d(TAG, "Saving image $savedUri")
@@ -921,6 +922,14 @@ class IssueRepository private constructor(val context: Context) {
             collectionDao.insert(MyCollection(issueId = issueId))
         }
     }
+
+    fun removeFromCollection(issueId: Int) {
+        executor.execute {
+            collectionDao.deleteById(issueId)
+        }
+    }
+
+    fun inCollection(issueId: Int): LiveData<Count> = collectionDao.inCollection(issueId)
 }
 
 class CombinedLiveData(

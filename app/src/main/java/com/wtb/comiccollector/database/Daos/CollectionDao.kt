@@ -225,4 +225,25 @@ abstract class CollectionDao : BaseDao<MyCollection>() {
     )
 
     abstract fun getIssuesBySeries(seriesId: Int): LiveData<List<FullIssue>>
+
+    @Query(
+        """
+            SELECT COUNT(*) as count
+            FROM mycollection mc
+            WHERE mc.issueId = :issueId
+        """
+    )
+    abstract fun inCollection(issueId: Int): LiveData<Count>
+
+    @Query(
+        """
+            DELETE FROM mycollection
+            WHERE issueId = :issueId
+        """
+    )
+    abstract fun deleteById(issueId: Int)
 }
+
+data class Count(
+    val count: Int
+)
