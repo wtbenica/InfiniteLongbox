@@ -6,12 +6,9 @@
 
     <ImageView
         android:id="@+id/list_item_cover"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="16dp"
+        android:layout_width="126dp"
+        android:layout_height="195dp"
         android:layout_marginEnd="8dp"
-        android:layout_marginBottom="16dp"
         android:contentDescription="@string/description_issue_cover"
         tools:srcCompat="@tools:sample/avatars" />
 

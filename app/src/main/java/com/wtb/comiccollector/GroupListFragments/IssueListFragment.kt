@@ -160,8 +160,18 @@ class IssueListFragment : Fragment() {
 
         fun bind(issue: FullIssue) {
             this.fullIssue = issue
-            issueNumTextView.text = this.fullIssue.issue.issueNum.toString()
-//            variantNameTextView.text = this.fullIssue.issue.variantName
+            this.coverImageView.scaleType = ImageView.ScaleType.FIT_CENTER
+            if (this.fullIssue.issue.coverUri != null) {
+                this.coverImageView.setImageURI(this.fullIssue.issue.coverUri)
+            } else {
+                coverImageView.setImageResource(R.drawable.ic_issue_add_cover)
+            }
+
+            issueNumTextView.text = if (filter.mMyCollection) {
+                this.fullIssue.issue.toString()
+            } else {
+                this.fullIssue.issue.issueNum.toString()
+            }
         }
 
         override fun onClick(v: View?) {

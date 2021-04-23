@@ -220,7 +220,6 @@ abstract class CollectionDao : BaseDao<MyCollection>() {
             JOIN series ss ON ss.seriesId = ie.seriesId
             JOIN publisher pr ON pr.publisherId = ss.publisherId
             WHERE ss.seriesId=:seriesId
-            AND ie.variantOf IS NULL
             """
     )
 

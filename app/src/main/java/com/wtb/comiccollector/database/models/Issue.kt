@@ -52,9 +52,9 @@ data class Issue(
 
     override fun toString(): String {
         return if (variantName == "") {
-            "Regular"
+            "$issueNum Regular"
         } else {
-            variantName
+            "$issueNum $variantName"
         }
     }
 
