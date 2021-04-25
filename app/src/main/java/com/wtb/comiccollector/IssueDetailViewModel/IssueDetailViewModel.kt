@@ -1,13 +1,12 @@
 package com.wtb.comiccollector.IssueDetailViewModel
 
+import android.util.Log
 import androidx.lifecycle.*
-import com.wtb.comiccollector.AUTO_ID
-import com.wtb.comiccollector.Issue
-import com.wtb.comiccollector.IssueAndSeries
-import com.wtb.comiccollector.IssueRepository
+import com.wtb.comiccollector.*
+import com.wtb.comiccollector.database.Daos.Count
 import com.wtb.comiccollector.database.models.*
 
-private const val TAG = "IssueDetailViewModel"
+private const val TAG = APP + "IssueDetailViewModel"
 
 class IssueDetailViewModel : ViewModel() {
 
@@ -31,23 +30,30 @@ class IssueDetailViewModel : ViewModel() {
         }
 
     val variantLiveData: LiveData<IssueAndSeries?> =
-        Transformations.switchMap(variantIdLiveData) { issueId ->
-            issueId?.let { issueRepository.getIssue(it) }
+        Transformations.switchMap(variantIdLiveData) { variantId ->
+            Log.d(TAG, "Loading variantLD")
+            if (variantId != null) {
+                Log.d(TAG, "Setting variant")
+                variantId.let { issueRepository.getIssue(it) }
+            } else {
+                Log.d(TAG, "Clearing variant")
+                liveData { emit(null as IssueAndSeries?) }
+            }
         }
 
     val variantStoriesLiveData: LiveData<List<Story>> =
-        Transformations.switchMap(variantIdLiveData) { issueId ->
-            if (issueId != null) {
-                issueRepository.getStoriesByIssue(issueId)
+        Transformations.switchMap(variantIdLiveData) { variantId ->
+            if (variantId != null) {
+                issueRepository.getStoriesByIssue(variantId)
             } else {
                 liveData { emit(emptyList<Story>()) }
             }
         }
 
     val variantCreditsLiveData: LiveData<List<FullCredit>> =
-        Transformations.switchMap(variantIdLiveData) { issueId ->
-            if (issueId != null) {
-                issueRepository.getCreditsByIssue(issueId)
+        Transformations.switchMap(variantIdLiveData) { variantId ->
+            if (variantId != null) {
+                issueRepository.getCreditsByIssue(variantId)
             } else {
                 liveData { emit(emptyList<FullCredit>()) }
             }
@@ -56,6 +62,20 @@ class IssueDetailViewModel : ViewModel() {
     val variantsLiveData: LiveData<List<Issue>> =
         Transformations.switchMap(issueIdLiveData) { issueId ->
             issueRepository.getVariants(issueId)
+        }
+
+    val inCollectionLiveData: LiveData<Count> =
+        Transformations.switchMap(issueIdLiveData) { issueId ->
+            issueRepository.inCollection(issueId)
+        }
+
+    val variantInCollectionLiveData: LiveData<Count> =
+        Transformations.switchMap(variantIdLiveData) { variantId ->
+            if (variantId != null) {
+                issueRepository.inCollection(variantId)
+            } else {
+                liveData { emit(Count(0)) }
+            }
         }
 
     var allSeriesLiveData: LiveData<List<Series>> = issueRepository.allSeries
@@ -76,6 +96,11 @@ class IssueDetailViewModel : ViewModel() {
     fun loadVariant(issueId: Int?) {
         variantIdLiveData.value = AUTO_ID
         variantIdLiveData.value = issueId
+    }
+
+    fun clearVariant() {
+        Log.d(TAG, "Clearing variant")
+        variantIdLiveData.value = null
     }
 
     fun updateIssue(issue: Issue) {
@@ -107,6 +132,13 @@ class IssueDetailViewModel : ViewModel() {
     }
 
     fun addToCollection() {
-        variantIdLiveData.value ?: issueIdLiveData.value?.let { issueRepository.addToCollection(it) }
+        (variantIdLiveData.value
+            ?: issueIdLiveData.value)?.let { issueRepository.addToCollection(it) }
+    }
+
+    fun removeFromCollection() {
+        (variantIdLiveData.value
+            ?: issueIdLiveData.value)?.let { issueRepository.removeFromCollection(it)
+        }
     }
 }

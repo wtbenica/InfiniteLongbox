@@ -10,6 +10,7 @@ import java.time.LocalDate
 
 @Dao
 abstract class SeriesDao : BaseDao<Series>() {
+
     @Query("SELECT * FROM series WHERE seriesId=:seriesId")
     abstract fun getSeries(seriesId: Int): LiveData<Series?>
 
@@ -69,24 +70,18 @@ abstract class SeriesDao : BaseDao<Series>() {
         """
         SELECT DISTINCT ss.*
         FROM series ss
-        NATURAL JOIN issue ie
-        NATURAL JOIN credit ct
-        WHERE ss.publisherId IN (:publishers)
-        ORDER BY ss.sortName ASC
-           """
-    )
-    abstract fun getSeriesByPublisher(publishers: MutableSet<Int>): LiveData<List<Series>>
-
-    @Query(
-        """
-        SELECT DISTINCT *
-        FROM series 
-        WHERE publisherId IN (:publishers)
-        AND startDate < :endDate AND endDate > :startDate 
+        JOIN issue ie ON ie.seriesId = ss.seriesId
+        JOIN story sy ON sy.issueId = ie.issueId
+        JOIN credit ct ON ct.storyId = sy.storyId
+        JOIN namedetail nl ON nl.nameDetailId = ct.nameDetailId
+        WHERE nl.creatorId IN (:creatorIds)
+        AND ss.publisherId IN (:publishers)
+        AND ss.startDate < :endDate AND ss.endDate > :startDate 
         ORDER BY startDate ASC, sortName ASC
            """
     )
-    abstract fun getSeriesByPublisherDate(
+    abstract fun getSeriesByCreatorPublisherDates(
+        creatorIds: MutableSet<Int>,
         publishers: MutableSet<Int>,
         startDate: LocalDate,
         endDate: LocalDate
@@ -119,14 +114,12 @@ abstract class SeriesDao : BaseDao<Series>() {
         JOIN credit ct ON ct.storyId = sy.storyId
         JOIN namedetail nl ON nl.nameDetailId = ct.nameDetailId
         WHERE nl.creatorId IN (:creatorIds)
-        AND ss.publisherId IN (:publishers)
         AND ss.startDate < :endDate AND ss.endDate > :startDate 
-        ORDER BY startDate ASC, sortName ASC
+        ORDER BY ss.startDate
            """
     )
-    abstract fun getSeriesByCreatorPublisherDates(
+    abstract fun getSeriesByCreatorDates(
         creatorIds: MutableSet<Int>,
-        publishers: MutableSet<Int>,
         startDate: LocalDate,
         endDate: LocalDate
     ): LiveData<List<Series>>
@@ -145,6 +138,35 @@ abstract class SeriesDao : BaseDao<Series>() {
     )
     abstract fun getSeriesByCreator(creatorIds: MutableSet<Int>): LiveData<List<Series>>
 
+
+    @Query(
+        """
+        SELECT DISTINCT *
+        FROM series 
+        WHERE publisherId IN (:publishers)
+        AND startDate < :endDate AND endDate > :startDate 
+        ORDER BY startDate ASC, sortName ASC
+           """
+    )
+    abstract fun getSeriesByPublisherDate(
+        publishers: MutableSet<Int>,
+        startDate: LocalDate,
+        endDate: LocalDate
+    ): LiveData<List<Series>>
+
+    @Query(
+        """
+        SELECT DISTINCT ss.*
+        FROM series ss
+        JOIN issue ie ON ie.seriesId = ss.seriesId
+        JOIN story sy ON sy.issueId = ie.issueId
+        JOIN credit ct ON ct.storyId = sy.storyId
+        WHERE ss.publisherId IN (:publishers)
+        ORDER BY ss.sortName ASC
+           """
+    )
+    abstract fun getSeriesByPublisher(publishers: MutableSet<Int>): LiveData<List<Series>>
+
     @Query(
         """
         SELECT DISTINCT ss.*
@@ -157,23 +179,4 @@ abstract class SeriesDao : BaseDao<Series>() {
            """
     )
     abstract fun getSeriesByDates(startDate: LocalDate, endDate: LocalDate): LiveData<List<Series>>
-
-    @Query(
-        """
-        SELECT DISTINCT ss.*
-        FROM series ss
-        JOIN issue ie ON ie.seriesId = ss.seriesId
-        JOIN story sy ON sy.issueId = ie.issueId
-        JOIN credit ct ON ct.storyId = sy.storyId
-        JOIN namedetail nl ON nl.nameDetailId = ct.nameDetailId
-        WHERE nl.creatorId IN (:creatorIds)
-        AND ss.startDate < :endDate AND ss.endDate > :startDate 
-        ORDER BY ss.startDate
-           """
-    )
-    abstract fun getSeriesByCreatorDates(
-        creatorIds: MutableSet<Int>,
-        startDate: LocalDate,
-        endDate: LocalDate
-    ): LiveData<List<Series>>
 }

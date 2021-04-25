@@ -8,6 +8,7 @@ import android.util.Log
 import android.view.*
 import android.view.inputmethod.InputMethodManager
 import android.widget.*
+import androidx.appcompat.widget.SwitchCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentTransaction
 import androidx.lifecycle.ViewModelProvider
@@ -54,6 +55,7 @@ class SearchFragment : Fragment(), Chippy.ChipCallbacks, SeriesListFragment.Call
     private val sharedPreferences = context?.getSharedPreferences(SHARED_PREFS, MODE_PRIVATE)
     private var callbacks: Callbacks? = null
 
+    private lateinit var myCollectionSwitch: SwitchCompat
     private lateinit var searchScrollView: LinearLayout
     private lateinit var searchChipGroup: ChipGroup
     private lateinit var searchBox: LinearLayout
@@ -80,6 +82,7 @@ class SearchFragment : Fragment(), Chippy.ChipCallbacks, SeriesListFragment.Call
     ): View? {
         val view = inflater.inflate(R.layout.search_fragment, container, false)
         Log.d(TAG, "onCreateView")
+        myCollectionSwitch = view.findViewById(R.id.my_collection_switch) as SwitchCompat
         searchScrollView = view.findViewById(R.id.chip_holder) as LinearLayout
         searchChipGroup = view.findViewById(R.id.search_chipgroup) as ChipGroup
         searchBox = view.findViewById(R.id.search_box) as LinearLayout
@@ -133,6 +136,11 @@ class SearchFragment : Fragment(), Chippy.ChipCallbacks, SeriesListFragment.Call
                 hideKeyboard()
                 onUpdate()
             }
+
+        myCollectionSwitch.setOnCheckedChangeListener { buttonView, isChecked ->
+            viewModel.myCollection(isChecked)
+            onUpdate()
+        }
 
         fab.setOnClickListener {
             searchBox.visibility = if (searchBox.visibility == View.GONE) {

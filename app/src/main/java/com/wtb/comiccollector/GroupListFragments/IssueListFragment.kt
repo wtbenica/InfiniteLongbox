@@ -5,12 +5,13 @@ import android.os.Bundle
 import android.view.*
 import android.view.animation.AnimationUtils
 import android.view.animation.LayoutAnimationController
+import android.widget.ArrayAdapter
+import android.widget.GridView
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentTransaction
 import androidx.lifecycle.ViewModelProvider
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.wtb.comiccollector.*
 import com.wtb.comiccollector.GroupListViewModels.IssueListViewModel
@@ -26,10 +27,10 @@ class IssueListFragment : Fragment() {
     private lateinit var issueList: List<FullIssue>
 
     private var filter: Filter = Filter()
-    private lateinit var issueRecyclerView: RecyclerView
+    private lateinit var issueGridView: GridView
 
     private var callbacks: Callbacks? = null
-    private var adapter: IssueAdapter? = IssueAdapter(emptyList())
+    private var adapter: GridAdapt? = parentFragment?.context?.let { GridAdapt(it, issueList) }
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -54,11 +55,11 @@ class IssueListFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val view = inflater.inflate(R.layout.fragment_item_list, container, false)
+        val view = inflater.inflate(R.layout.fragment_item_grid, container, false)
 
-        issueRecyclerView = view.findViewById(R.id.results_frame)
-        issueRecyclerView.layoutManager = LinearLayoutManager(context)
-        issueRecyclerView.adapter = adapter
+        issueGridView = view.findViewById(R.id.results_frame)
+//        issueGridView.layoutManager = LinearLayoutManager(context)
+        issueGridView.adapter = adapter
 
         return view
     }
@@ -113,9 +114,9 @@ class IssueListFragment : Fragment() {
     }
 
     private fun updateUI(issues: List<FullIssue>) {
-        adapter = IssueAdapter(issues)
-        issueRecyclerView.adapter = adapter
-        runLayoutAnimation(issueRecyclerView)
+        adapter = parentFragment?.context?.let { GridAdapt(it, issues) }
+        issueGridView.adapter = adapter
+//        runLayoutAnimation(issueGridView)
     }
 
     private fun runLayoutAnimation(view: RecyclerView) {
@@ -127,6 +128,41 @@ class IssueListFragment : Fragment() {
         view.layoutAnimation = controller
         view.adapter?.notifyDataSetChanged()
         view.scheduleLayoutAnimation()
+    }
+
+    private inner class GridAdapt(context: Context, issues: List<FullIssue>) :
+        ArrayAdapter<FullIssue>(context, R.layout.list_item_issue, issues) {
+
+        override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
+            var listItemView = convertView
+
+            if (listItemView == null) {
+                listItemView = LayoutInflater.from(context).inflate(
+                    R.layout.list_item_issue, parent, false
+                )
+            }
+
+            val issue: FullIssue? = getItem(position)
+            val coverImageView: ImageView? = listItemView?.findViewById(R.id.list_item_cover)
+            val issueNumTextView: TextView? = listItemView?.findViewById(R.id.list_item_issue)
+            val variantNameTextView: TextView? = listItemView?.findViewById(R.id.list_item_name)
+
+            coverImageView?.scaleType = ImageView.ScaleType.FIT_CENTER
+            if (issue?.issue?.coverUri != null) {
+                coverImageView?.setImageURI(issue.issue.coverUri)
+                coverImageView?.scaleType = ImageView.ScaleType.FIT_XY
+            } else {
+                coverImageView?.setImageResource(R.drawable.ic_issue_add_cover)
+            }
+
+            issueNumTextView?.text = issue?.issue.toString()
+
+            listItemView?.setOnClickListener {
+                issue?.issue?.issueId?.let { id -> callbacks?.onIssueSelected(id, this@IssueListFragment.filter) }
+            }
+
+            return listItemView!!
+        }
     }
 
     private inner class IssueAdapter(var issues: List<FullIssue>) :
@@ -160,8 +196,18 @@ class IssueListFragment : Fragment() {
 
         fun bind(issue: FullIssue) {
             this.fullIssue = issue
-            issueNumTextView.text = this.fullIssue.issue.issueNum.toString()
-//            variantNameTextView.text = this.fullIssue.issue.variantName
+            this.coverImageView.scaleType = ImageView.ScaleType.FIT_CENTER
+            if (this.fullIssue.issue.coverUri != null) {
+                this.coverImageView.setImageURI(this.fullIssue.issue.coverUri)
+            } else {
+                coverImageView.setImageResource(R.drawable.ic_issue_add_cover)
+            }
+
+            issueNumTextView.text = if (filter.mMyCollection) {
+                this.fullIssue.issue.toString()
+            } else {
+                this.fullIssue.issue.issueNum.toString()
+            }
         }
 
         override fun onClick(v: View?) {
