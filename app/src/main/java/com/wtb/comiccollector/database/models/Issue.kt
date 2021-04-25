@@ -51,8 +51,8 @@ data class Issue(
     override fun id(): Int = issueId
 
     override fun toString(): String {
-        return if (variantName == "") {
-            "$issueNum Regular"
+        return if (variantOf == null) {
+            "$issueNum"
         } else {
             "$issueNum $variantName"
         }
