@@ -19,6 +19,11 @@ class IssueDetailViewModel : ViewModel() {
             issueRepository.getIssue(issueId)
         }
 
+    val issueListLiveData: LiveData<List<FullIssue>> =
+        Transformations.switchMap(issueLiveData) { issue ->
+            issueRepository.getIssuesBySeries(issue.series.seriesId)
+        }
+
     val issueStoriesLiveData: LiveData<List<Story>> =
         Transformations.switchMap(issueIdLiveData) { issueId ->
             issueRepository.getStoriesByIssue(issueId)

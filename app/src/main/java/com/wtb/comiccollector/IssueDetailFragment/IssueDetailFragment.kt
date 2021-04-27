@@ -54,6 +54,8 @@ class IssueDetailFragment : Fragment() {
     private var numUpdates = 0
 
     private lateinit var fullIssue: IssueAndSeries
+    private lateinit var issuesInSeries: List<Int>
+    private var currentPos: Int = 0
     private lateinit var issueCredits: List<FullCredit>
     private lateinit var issueStories: List<Story>
     private lateinit var variantCredits: List<FullCredit>
@@ -72,6 +74,13 @@ class IssueDetailFragment : Fragment() {
     private lateinit var creditsBox: CreditsBox
 
     private lateinit var releaseDateTextView: TextView
+
+    private lateinit var gotoStartButton: Button
+    private lateinit var gotoSkipBackButton: Button
+    private lateinit var gotoPreviousButton: Button
+    private lateinit var gotoNextButton: Button
+    private lateinit var gotoSkipForwardButton: Button
+    private lateinit var gotoEndButton: Button
 
     private lateinit var gcdLinkButton: Button
     private lateinit var coverFile: File
@@ -119,6 +128,15 @@ class IssueDetailFragment : Fragment() {
         creditsBox = CreditsBox(requireContext())
         issueCreditsFrame.addView(creditsBox)
 
+        gotoStartButton = view.findViewById(R.id.goto_start_button) as Button
+        gotoSkipBackButton = view.findViewById(R.id.goto_skip_back_button) as Button
+        gotoPreviousButton = view.findViewById(R.id.goto_previous_button) as Button
+        gotoNextButton = view.findViewById(R.id.goto_next_button) as Button
+        gotoSkipForwardButton = view.findViewById(R.id.goto_skip_forward_button) as Button
+        gotoEndButton = view.findViewById(R.id.goto_end_button) as Button
+
+
+
         return view
     }
 
@@ -132,6 +150,16 @@ class IssueDetailFragment : Fragment() {
                     this.fullIssue = it
                     this.coverUri = it.issue.coverUri
                     updateUI()
+                }
+            }
+        )
+
+        issueDetailViewModel.issueListLiveData.observe(
+            viewLifecycleOwner,
+            { issues ->
+                issues?.let {
+                    this.issuesInSeries = issues.map { it.issue.issueId }
+                    updateNavBar()
                 }
             }
         )
@@ -231,6 +259,17 @@ class IssueDetailFragment : Fragment() {
         )
     }
 
+    private fun updateNavBar() {
+        this.currentPos = this.issuesInSeries.indexOf(this.fullIssue.issue.issueId)
+
+        this.gotoStartButton.isEnabled = currentPos != 0
+        this.gotoSkipBackButton.isEnabled = currentPos >= 10
+        this.gotoPreviousButton.isEnabled = currentPos != 0
+        this.gotoNextButton.isEnabled = currentPos != this.issuesInSeries.size - 1
+        this.gotoSkipForwardButton.isEnabled = currentPos <= this.issuesInSeries.size - 11
+        this.gotoEndButton.isEnabled = currentPos != this.issuesInSeries.size - 1
+    }
+
     private fun setCollectionButton(count: Count) {
         if (count.count > 0) {
             this.collectionButton.text = getString(R.string.remove_from_collection)
@@ -245,6 +284,10 @@ class IssueDetailFragment : Fragment() {
         }
     }
 
+    private fun jumpToIssue(skipNum: Int) {
+        issueDetailViewModel.loadIssue(this.issuesInSeries[currentPos + skipNum])
+    }
+
     override fun onStart() {
         super.onStart()
         gcdLinkButton.setOnClickListener {
@@ -254,6 +297,30 @@ class IssueDetailFragment : Fragment() {
                 setData(Uri.parse(url))
             }
             startActivity(intent)
+        }
+
+        gotoStartButton.setOnClickListener {
+            jumpToIssue(-currentPos)
+        }
+
+        gotoSkipBackButton.setOnClickListener {
+            jumpToIssue(-10)
+        }
+
+        gotoPreviousButton.setOnClickListener {
+            jumpToIssue(-1)
+        }
+
+        gotoNextButton.setOnClickListener {
+            jumpToIssue(1)
+        }
+
+        gotoSkipForwardButton.setOnClickListener {
+            jumpToIssue(10)
+        }
+
+        gotoEndButton.setOnClickListener {
+            jumpToIssue(issuesInSeries.size - currentPos - 1)
         }
 
         collectionButton.setOnClickListener {
