@@ -50,6 +50,12 @@
     <string name="fab_description">Add filter button</string>
     <string name="add_to_collection">Add to Collection</string>
     <string name="remove_from_collection">Remove from Collection</string>
+    <string name="goto_start"><![CDATA[<<<]]></string>
+    <string name="goto_skip_back"><![CDATA[<<]]></string>
+    <string name="goto_one_back"><![CDATA[<]]></string>
+    <string name="goto_one_forward"><![CDATA[>]]></string>
+    <string name="goto_skip_forward"><![CDATA[>>]]></string>
+    <string name="goto_end"><![CDATA[>>>]]></string>
     <string-array name="grouping_options">
         <item>@string/series</item>
         <item>@string/creator</item>
