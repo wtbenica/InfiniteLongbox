@@ -1,4 +1,4 @@
-package com.wtb.comiccollector
+package com.wtb.comiccollector.IssueDetailFragment
 
 import android.app.Activity
 import android.content.Context
@@ -13,7 +13,7 @@ import androidx.core.view.children
 import androidx.core.view.contains
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
-import com.wtb.comiccollector.IssueDetailFragment.IssueDetailFragment
+import com.wtb.comiccollector.*
 import com.wtb.comiccollector.IssueDetailViewModel.IssueDetailViewModel
 import com.wtb.comiccollector.database.models.*
 import java.io.File

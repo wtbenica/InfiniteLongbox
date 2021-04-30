@@ -1,10 +1,9 @@
-package com.wtb.comiccollector
+package com.wtb.comiccollector.database.models
 
 import android.net.Uri
 import androidx.room.*
 import androidx.room.ForeignKey.CASCADE
-import com.wtb.comiccollector.database.models.DataModel
-import com.wtb.comiccollector.database.models.Series
+import com.wtb.comiccollector.DUMMY_ID
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException

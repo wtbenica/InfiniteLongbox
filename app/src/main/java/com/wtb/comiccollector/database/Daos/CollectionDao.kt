@@ -4,7 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Query
 import com.wtb.comiccollector.Filter
-import com.wtb.comiccollector.FullIssue
+import com.wtb.comiccollector.database.models.FullIssue
 import com.wtb.comiccollector.database.models.MyCollection
 import com.wtb.comiccollector.database.models.Series
 import java.time.LocalDate

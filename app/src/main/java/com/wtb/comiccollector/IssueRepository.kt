@@ -389,9 +389,9 @@ class IssueRepository private constructor(val context: Context) {
                             kotlin.runCatching {
                                 Log.d(TAG, "Starting connection.....")
                                 val doc = Jsoup.connect(issue.url).get()
-                                val no_cover = doc.getElementsByClass("no_cover").size == 1
+                                val noCover = doc.getElementsByClass("no_cover").size == 1
                                 val url = URL(doc.getElementsByClass("cover_img")[0].attr("src"))
-                                if (!no_cover) {
+                                if (!noCover) {
                                     val image = GlobalScope.async {
                                         url.toBitmap()
                                     }

@@ -3,7 +3,6 @@ package com.wtb.comiccollector.database.Daos
 import android.util.Log
 import androidx.room.Dao
 import androidx.room.Transaction
-import com.wtb.comiccollector.*
 import com.wtb.comiccollector.database.IssueDatabase
 import com.wtb.comiccollector.database.models.*
 

@@ -9,7 +9,7 @@ import com.wtb.comiccollector.database.models.Series
 class SortSpinner(context: Context, attributeSet: AttributeSet?) :
     AppCompatSpinner(context, attributeSet) {
     init {
-        this.adapter = ArrayAdapter<SortOption>(
+        this.adapter = ArrayAdapter(
             context,
             androidx.appcompat.R.layout.support_simple_spinner_dropdown_item,
             SortOption.values()

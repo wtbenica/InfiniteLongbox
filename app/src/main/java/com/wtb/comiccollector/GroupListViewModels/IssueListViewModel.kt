@@ -6,8 +6,8 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
 import com.wtb.comiccollector.Filter
-import com.wtb.comiccollector.FullIssue
-import com.wtb.comiccollector.Issue
+import com.wtb.comiccollector.database.models.FullIssue
+import com.wtb.comiccollector.database.models.Issue
 import com.wtb.comiccollector.IssueRepository
 import com.wtb.comiccollector.database.models.Series
 

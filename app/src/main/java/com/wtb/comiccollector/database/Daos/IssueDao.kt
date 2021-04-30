@@ -4,9 +4,9 @@ import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Query
 import androidx.room.Transaction
-import com.wtb.comiccollector.FullIssue
-import com.wtb.comiccollector.Issue
-import com.wtb.comiccollector.IssueAndSeries
+import com.wtb.comiccollector.database.models.FullIssue
+import com.wtb.comiccollector.database.models.Issue
+import com.wtb.comiccollector.database.models.IssueAndSeries
 
 @Dao
 abstract class IssueDao : BaseDao<Issue>() {

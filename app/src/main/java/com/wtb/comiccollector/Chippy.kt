@@ -10,11 +10,10 @@ private const val TAG = APP + "Chippy"
 
 class Chippy(context: Context?) : Chip(context) {
 
-    lateinit var item: Filterable
+    var item: Filterable = item
     private lateinit var caller: ChipCallbacks
 
     constructor(context: Context?, item: Filterable, caller: ChipCallbacks) : this(context) {
-        this.item = item
         this.caller = caller
         Log.d(TAG, "Makin Chippy")
         this.text = item.toString()

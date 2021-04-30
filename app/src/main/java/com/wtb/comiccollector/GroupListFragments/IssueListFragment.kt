@@ -15,6 +15,8 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.RecyclerView
 import com.wtb.comiccollector.*
 import com.wtb.comiccollector.GroupListViewModels.IssueListViewModel
+import com.wtb.comiccollector.database.models.FullIssue
+import com.wtb.comiccollector.database.models.Issue
 
 private const val TAG = APP + "IssueListFragment"
 

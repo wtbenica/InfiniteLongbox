@@ -4,7 +4,6 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
-import com.wtb.comiccollector.AUTO_ID
 
 @Entity
 data class Character(

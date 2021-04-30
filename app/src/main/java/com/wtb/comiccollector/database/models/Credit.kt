@@ -1,7 +1,6 @@
 package com.wtb.comiccollector.database.models
 
 import androidx.room.*
-import com.wtb.comiccollector.AUTO_ID
 
 @Entity(
     indices = [
