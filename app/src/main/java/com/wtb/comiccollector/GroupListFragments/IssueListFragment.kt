@@ -5,15 +5,13 @@ import android.os.Bundle
 import android.view.*
 import android.view.animation.AnimationUtils
 import android.view.animation.LayoutAnimationController
-import android.widget.ArrayAdapter
-import android.widget.GridView
-import android.widget.ImageView
-import android.widget.TextView
+import android.widget.*
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentTransaction
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.RecyclerView
 import com.wtb.comiccollector.*
+import com.wtb.comiccollector.Filter
 import com.wtb.comiccollector.GroupListViewModels.IssueListViewModel
 import com.wtb.comiccollector.database.models.FullIssue
 import com.wtb.comiccollector.database.models.Issue
@@ -145,6 +143,7 @@ class IssueListFragment : Fragment() {
             }
 
             val issue: FullIssue? = getItem(position)
+            val layout: LinearLayout? = listItemView?.findViewById(R.id.layout)
             val coverImageView: ImageView? = listItemView?.findViewById(R.id.list_item_cover)
             val issueNumTextView: TextView? = listItemView?.findViewById(R.id.list_item_issue)
             val variantNameTextView: TextView? = listItemView?.findViewById(R.id.list_item_name)
@@ -155,6 +154,10 @@ class IssueListFragment : Fragment() {
                 coverImageView?.scaleType = ImageView.ScaleType.FIT_XY
             } else {
                 coverImageView?.setImageResource(R.drawable.ic_issue_add_cover)
+            }
+
+            if (issue?.myCollection?.collectionId != null) {
+                layout?.setBackgroundResource(R.drawable.green_outline_grey_fill2)
             }
 
             issueNumTextView?.text = issue?.issue.toString()

@@ -100,7 +100,9 @@ data class FullIssue(
     @Embedded
     val issue: Issue,
     val seriesName: String,
-    val publisher: String
+    val publisher: String,
+    @Relation(parentColumn = "issueId", entityColumn = "issueId")
+    var myCollection: MyCollection?
 )
 
 data class IssueAndSeries(

@@ -35,9 +35,10 @@ abstract class IssueDao : BaseDao<Issue>() {
     abstract fun getIssuesByCreator(creatorId: Int): LiveData<List<Issue>>
 
 
+    @Transaction
     @Query(
         """
-            SELECT ie.*, ss.seriesName, pr.publisher 
+            SELECT ie.*, ss.seriesName, pr.publisher
             FROM issue ie
             JOIN series ss ON ss.seriesId = ie.seriesId
             JOIN publisher pr ON pr.publisherId = ss.publisherId
@@ -47,15 +48,19 @@ abstract class IssueDao : BaseDao<Issue>() {
     )
     abstract fun getIssuesBySeries(seriesId: Int): LiveData<List<FullIssue>>
 
+    @Transaction
     @Query(
         """
-            SELECT issue.*, series.seriesName, publisher.publisher 
-            FROM issue NATURAL JOIN series NATURAL JOIN publisher 
-            WHERE seriesId=:seriesId and issueNum=:issueNum
+            SELECT ie.*, ss.seriesName, pr.publisher
+            FROM issue ie
+            JOIN series ss ON ss.seriesId = ie.seriesId
+            JOIN publisher pr ON pr.publisherId = ss.publisherId
+            WHERE ss.seriesId=:seriesId and ie.issueNum=:issueNum
             """
     )
     abstract fun getIssueByDetails(seriesId: Int, issueNum: Int): LiveData<List<FullIssue>>
 
+    @Transaction
     @Query(
         """
             SELECT DISTINCT ie.*, ss.seriesName, pr.publisher
