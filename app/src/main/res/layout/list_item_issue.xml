@@ -1,20 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:background="@color/granite_dark"
-    android:gravity="top"
+    android:layout_row="2"
+    android:background="@drawable/green_outline_grey_fill"
     android:orientation="vertical"
-    android:padding="0dp">
+    android:padding="2dp">
 
-    <ImageView
-        android:id="@+id/list_item_cover"
-        android:layout_width="114dp"
-        android:layout_height="185dp"
-        android:contentDescription="@string/description_issue_cover"
-        android:scaleType="fitXY"
-        tools:srcCompat="@tools:sample/avatars" />
+    <androidx.cardview.widget.CardView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/green_outline_grey_fill"
+        app:cardCornerRadius="8dp"
+        app:cardElevation="2dp">
+
+        <ImageView
+            android:id="@+id/list_item_cover"
+            android:layout_width="114dp"
+            android:layout_height="185dp"
+            android:contentDescription="@string/description_issue_cover"
+            android:scaleType="fitXY"
+            tools:srcCompat="@tools:sample/backgrounds/scenic" />
+    </androidx.cardview.widget.CardView>
 
     <TextView
         android:id="@+id/list_item_issue"
@@ -23,10 +32,10 @@
         android:layout_gravity="center"
         android:padding="4dp"
         android:textAlignment="center"
-        android:textColor="@color/granite_light"
+        android:textColor="@color/granite"
         android:textSize="12sp"
         android:textStyle="bold"
-        tools:text="@string/hint_issue_number" />
+        tools:text="8" />
 
     <TextView
         android:id="@+id/list_item_name"

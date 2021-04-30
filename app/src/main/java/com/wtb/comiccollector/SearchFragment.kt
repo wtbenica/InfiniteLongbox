@@ -55,6 +55,7 @@ class SearchFragment : Fragment(), Chippy.ChipCallbacks, SeriesListFragment.Call
     private val sharedPreferences = context?.getSharedPreferences(SHARED_PREFS, MODE_PRIVATE)
     private var callbacks: Callbacks? = null
 
+    private lateinit var sortSpinner: SortSpinner
     private lateinit var myCollectionSwitch: SwitchCompat
     private lateinit var searchScrollView: LinearLayout
     private lateinit var searchChipGroup: ChipGroup
@@ -82,6 +83,7 @@ class SearchFragment : Fragment(), Chippy.ChipCallbacks, SeriesListFragment.Call
     ): View? {
         val view = inflater.inflate(R.layout.search_fragment, container, false)
         Log.d(TAG, "onCreateView")
+        sortSpinner = view.findViewById(R.id.spinner) as SortSpinner
         myCollectionSwitch = view.findViewById(R.id.my_collection_switch) as SwitchCompat
         searchScrollView = view.findViewById(R.id.chip_holder) as LinearLayout
         searchChipGroup = view.findViewById(R.id.search_chipgroup) as ChipGroup
@@ -152,6 +154,24 @@ class SearchFragment : Fragment(), Chippy.ChipCallbacks, SeriesListFragment.Call
                 View.GONE
             }
         }
+
+        sortSpinner.onItemSelectedListener =
+            object : AdapterView.OnItemSelectedListener {
+                override fun onItemSelected(
+                    parent: AdapterView<*>?,
+                    view: View?,
+                    position: Int,
+                    id: Long
+                ) {
+                    val item = parent?.adapter?.getItem(position) as SortOption
+                    filter.mSortOrder = item.compare
+                    onUpdate()
+                }
+
+                override fun onNothingSelected(parent: AdapterView<*>?) {
+
+                }
+            }
     }
 
     override fun onDetach() {

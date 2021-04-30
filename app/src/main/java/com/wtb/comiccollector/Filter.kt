@@ -18,6 +18,7 @@ class Filter(
     publishers: MutableSet<Publisher>? = null,
     startDate: LocalDate? = null,
     endDate: LocalDate? = null,
+    sortOption: (a: Series, b: Series) -> Int = SortOption.ALPHA.compare,
     myCollection: Boolean = false
 ) : Serializable {
 
@@ -26,6 +27,7 @@ class Filter(
     var mPublishers: MutableSet<Publisher> = publishers ?: mutableSetOf()
     var mStartDate: LocalDate = startDate ?: LocalDate.MIN
     var mEndDate: LocalDate = endDate ?: LocalDate.MAX
+    var mSortOrder: (a: Series, b: Series) -> Int = sortOption
     var mMyCollection: Boolean = myCollection
 
     fun hasCreator() = mCreators.isNotEmpty()

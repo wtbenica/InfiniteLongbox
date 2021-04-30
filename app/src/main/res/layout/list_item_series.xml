@@ -5,6 +5,7 @@
     style="@style/myListItem"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:background="@drawable/blue_outline_white_background"
     android:layout_marginTop="@dimen/margin_list_item_vert"
     android:layout_marginBottom="@dimen/margin_list_item_vert"
     android:layout_marginStart="@dimen/margin_outside"
@@ -14,7 +15,7 @@
     <LinearLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:padding="16dp"
+        android:padding="8dp"
         android:orientation="vertical"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -24,8 +25,8 @@
             android:id="@+id/list_item_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textColor="@android:color/secondary_text_light"
-            android:textSize="14sp"
+            android:textColor="@color/granite_dark"
+            android:textSize="18sp"
             android:textStyle="bold"
             tool:hint="@string/hint_series_title" />
 
@@ -33,7 +34,8 @@
             android:id="@+id/list_item_dates"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            tool:hint="(1990-2005)" />
+            tool:hint="(1990-2005)"
+            android:textSize="16sp"/>
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

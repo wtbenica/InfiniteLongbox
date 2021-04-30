@@ -5,30 +5,43 @@
     android:layout_height="match_parent">
 
     <LinearLayout
+        android:id="@+id/switch_holder"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/switch_holder"
-        android:paddingStart="8dp"
-        android:paddingEnd="8dp"
         android:gravity="end"
-        android:elevation="0dp"
-        android:background="@color/granite_light"
+        android:padding="8dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:labelFor="@id/spinner"
+            android:gravity="center"
+            android:layout_marginEnd="8dp"
+            android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle2"
+            android:text="@string/sort" />
+
+        <com.wtb.comiccollector.SortSpinner
+            android:id="@+id/spinner"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:layout_weight="1" />
 
         <androidx.appcompat.widget.SwitchCompat
             android:id="@+id/my_collection_switch"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="My Collection"/>
+            android:layout_weight=".1"
+            android:text="@string/my_collection" />
     </LinearLayout>
 
     <FrameLayout
         android:id="@+id/results_frame"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:background="@color/granite_light"
         app:layout_constraintBottom_toTopOf="@id/chip_holder"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -40,7 +53,6 @@
         android:id="@+id/chip_holder"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/granite_dark"
         android:paddingStart="8dp"
         android:paddingEnd="8dp"
         android:visibility="gone"
@@ -60,8 +72,6 @@
         android:id="@+id/search_box"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/granite_dark"
-        android:padding="8dp"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -71,11 +81,7 @@
             android:id="@+id/search_tv"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@drawable/blue_outline_white_background"
-            android:elevation="2dp"
-            android:hint="@string/search"
-            android:padding="16dp"
-            android:textColor="@color/light_black" />
+            android:hint="@string/search" />
     </LinearLayout>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton

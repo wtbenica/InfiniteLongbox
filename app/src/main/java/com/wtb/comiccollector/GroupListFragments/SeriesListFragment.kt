@@ -12,8 +12,11 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.wtb.comiccollector.*
+import com.wtb.comiccollector.APP
+import com.wtb.comiccollector.ARG_FILTER
+import com.wtb.comiccollector.Filter
 import com.wtb.comiccollector.GroupListViewModels.SeriesListViewModel
+import com.wtb.comiccollector.R
 import com.wtb.comiccollector.database.models.Series
 
 private const val TAG = APP + "SeriesListFragment"
@@ -62,6 +65,7 @@ class SeriesListFragment(var callback: Callbacks? = null) : Fragment() {
             { objectList ->
                 objectList?.let {
                     this.seriesList = it
+                    this.seriesList = this.seriesList.sortedWith(filter.mSortOrder)
                     updateUI()
                 }
             }
