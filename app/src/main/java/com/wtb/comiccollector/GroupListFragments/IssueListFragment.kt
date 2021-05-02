@@ -58,7 +58,6 @@ class IssueListFragment : Fragment() {
         val view = inflater.inflate(R.layout.fragment_item_grid, container, false)
 
         issueGridView = view.findViewById(R.id.results_frame)
-//        issueGridView.layoutManager = LinearLayoutManager(context)
         issueGridView.adapter = adapter
 
         return view
@@ -66,7 +65,6 @@ class IssueListFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-//        filter.mSeries?.let { issueListViewModel.loadSeries(it) }
         issueListViewModel.setFilter(filter)
 
         issueListViewModel.issueListLiveData.observe(
@@ -74,7 +72,8 @@ class IssueListFragment : Fragment() {
             { issues ->
                 issues?.let {
                     this.issueList = it
-                    updateUI(issues)
+                    this.issueList = this.issueList.sortedWith(filter.mSortOrder)
+                    updateUI()
                 }
             }
         )
@@ -113,8 +112,8 @@ class IssueListFragment : Fragment() {
         }
     }
 
-    private fun updateUI(issues: List<FullIssue>) {
-        adapter = parentFragment?.context?.let { GridAdapt(it, issues) }
+    private fun updateUI() {
+        adapter = parentFragment?.context?.let { GridAdapt(it, this.issueList) }
         issueGridView.adapter = adapter
 //        runLayoutAnimation(issueGridView)
     }
@@ -158,6 +157,8 @@ class IssueListFragment : Fragment() {
 
             if (issue?.myCollection?.collectionId != null) {
                 layout?.setBackgroundResource(R.drawable.green_outline_grey_fill2)
+            } else {
+                layout?.setBackgroundResource(R.drawable.green_outline_grey_fill)
             }
 
             issueNumTextView?.text = issue?.issue.toString()

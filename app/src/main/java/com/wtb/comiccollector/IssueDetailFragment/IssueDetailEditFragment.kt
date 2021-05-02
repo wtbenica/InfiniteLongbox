@@ -15,6 +15,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.wtb.comiccollector.*
 import com.wtb.comiccollector.IssueDetailViewModel.IssueDetailViewModel
+import com.wtb.comiccollector.Views.SimpleTextWatcher
 import com.wtb.comiccollector.database.models.*
 import java.io.File
 import java.time.LocalDate

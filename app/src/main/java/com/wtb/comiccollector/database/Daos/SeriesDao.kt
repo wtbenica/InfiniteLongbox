@@ -1,12 +1,16 @@
 package com.wtb.comiccollector.database.Daos
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Query
+import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.DUMMY_ID
 import com.wtb.comiccollector.Filter
 import com.wtb.comiccollector.database.models.Series
 import java.time.LocalDate
+
+private const val TAG = APP + "SeriesDao"
 
 @Dao
 abstract class SeriesDao : BaseDao<Series>() {
@@ -17,7 +21,9 @@ abstract class SeriesDao : BaseDao<Series>() {
     @Query("SELECT * FROM series WHERE seriesId != $DUMMY_ID ORDER BY sortName ASC")
     abstract fun getAllSeries(): LiveData<List<Series>>
 
+
     fun getSeriesByFilter(filter: Filter): LiveData<List<Series>> {
+        Log.d(TAG, "getSeriesByFilter")
         return if (filter.hasCreator()) {
             if (filter.hasPublisher()) {
                 if (filter.hasDateFilter()) {
@@ -28,9 +34,9 @@ abstract class SeriesDao : BaseDao<Series>() {
                         filter.mEndDate
                     )
                 } else {
-                    getSeriesByCreatorPublisher(filter.mCreators.map { it.creatorId }
-                        .toMutableSet(), filter
-                        .mPublishers.map { it.publisherId }.toMutableSet()
+                    getSeriesByCreatorPublisher(
+                        filter.mCreators.map { it.creatorId }.toMutableSet(),
+                        filter.mPublishers.map { it.publisherId }.toMutableSet()
                     )
                 }
             } else {

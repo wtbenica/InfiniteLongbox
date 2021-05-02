@@ -386,7 +386,7 @@ class IssueDetailFragment : Fragment() {
 
         issueNumTextView.text = fullIssue.issue.issueNum.toString()
 
-        this.fullIssue.issue.releaseDate?.format(DateTimeFormatter.ofPattern("MMMM d, y"))
+        this.fullIssue.issue.releaseDate?.format(DateTimeFormatter.ofPattern("MMM d, y"))
             ?.let { releaseDateTextView.text = it }
 
         updateCover()
@@ -404,10 +404,6 @@ class IssueDetailFragment : Fragment() {
             coverImageView.setImageResource(R.drawable.ic_issue_add_cover)
         }
         coverImageView.contentDescription = "Issue Cover (set)"
-    }
-
-    private fun toggleEnable() {
-
     }
 
     companion object {

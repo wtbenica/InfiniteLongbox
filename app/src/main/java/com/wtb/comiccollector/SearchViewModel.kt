@@ -17,12 +17,18 @@ class SearchViewModel : ViewModel() {
 
     fun addItem(item: Filterable) {
         Log.d(TAG, "addItem $item")
-        filterLiveData.value?.addItem(item)
+        val newVal = filterLiveData.value
+        newVal?.addItem(item)
+        filterLiveData.value = newVal
+//        filterLiveData.value?.addItem(item)
     }
 
     fun removeItem(item: Filterable) {
         Log.d(TAG, "removeItem $item")
-        filterLiveData.value?.removeItem(item)
+        val newVal = filterLiveData.value
+        newVal?.removeItem(item)
+        filterLiveData.value = newVal
+//        filterLiveData.value?.removeItem(item)
     }
 
     fun myCollection(isChecked: Boolean) {

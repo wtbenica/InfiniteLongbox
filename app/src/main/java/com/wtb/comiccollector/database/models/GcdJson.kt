@@ -143,7 +143,7 @@ class GcdIssue(
     @SerializedName("publication_date")
     @Expose
     val publicationDate: String?,
-    @SerializedName("key_date")
+    @SerializedName("on_sale_date")
     @Expose
     val onSaleDate: String,
     @SerializedName("no_barcode")

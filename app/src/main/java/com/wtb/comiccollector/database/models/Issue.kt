@@ -40,12 +40,15 @@ data class Issue(
     var variantName: String = "",
     var variantOf: Int? = null,
     var sortCode: Int = 0
-) : DataModel {
+) : DataModel, Filterable {
     val coverFileName: String
         get() = "IMG_$issueId.jpg"
 
     val url: String
         get() = "https://www.comics.org/issue/$issueId/"
+
+    override fun sortValue(): String = issueNum.toString()
+
 
     override fun id(): Int = issueId
 
@@ -103,7 +106,12 @@ data class FullIssue(
     val publisher: String,
     @Relation(parentColumn = "issueId", entityColumn = "issueId")
     var myCollection: MyCollection?
-)
+) : Filterable {
+    override fun sortValue(): String = issue.issueNum.toString()
+
+    override fun id(): Int = issue.issueId
+
+}
 
 data class IssueAndSeries(
     @Embedded

@@ -1,9 +1,10 @@
-package com.wtb.comiccollector
+package com.wtb.comiccollector.Views
 
 import android.content.Context
 import android.util.Log
 import android.view.View
 import com.google.android.material.chip.Chip
+import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.database.models.Filterable
 
 private const val TAG = APP + "Chippy"

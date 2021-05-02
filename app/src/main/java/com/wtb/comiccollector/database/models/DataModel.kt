@@ -12,6 +12,3 @@ interface Filterable : DataModel, Comparable<Filterable> {
     }
 }
 
-fun <E: Filterable> MutableSet<E>.ids(): String {
-    return (this.map { it.id() }).toString()
-}

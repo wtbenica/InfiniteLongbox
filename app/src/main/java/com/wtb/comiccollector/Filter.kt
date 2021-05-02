@@ -18,7 +18,6 @@ class Filter(
     publishers: MutableSet<Publisher>? = null,
     startDate: LocalDate? = null,
     endDate: LocalDate? = null,
-    sortOption: (a: Series, b: Series) -> Int = SortOption.ALPHA.compare,
     myCollection: Boolean = false
 ) : Serializable {
 
@@ -27,11 +26,16 @@ class Filter(
     var mPublishers: MutableSet<Publisher> = publishers ?: mutableSetOf()
     var mStartDate: LocalDate = startDate ?: LocalDate.MIN
     var mEndDate: LocalDate = endDate ?: LocalDate.MAX
-    var mSortOrder: (a: Series, b: Series) -> Int = sortOption
     var mMyCollection: Boolean = myCollection
+    var mSortOption: SortOption = if (returnsIssueList()) {
+        issueSortOptions[0]
+    } else {
+        seriesSortOptions[0]
+    }
+    var mSortOrder: (Filterable, Filterable) -> Int = mSortOption.compare
 
     fun hasCreator() = mCreators.isNotEmpty()
-    fun hasSeries() = mSeries != null
+    fun returnsIssueList() = mSeries != null
     fun hasPublisher() = mPublishers.isNotEmpty()
     fun hasDateFilter() = mStartDate != LocalDate.MIN || mEndDate != LocalDate.MAX
 
@@ -88,6 +92,11 @@ class Filter(
             null -> SeriesListFragment.newInstance(callback, this)
             else -> IssueListFragment.newInstance(this)
         }
+    }
+
+    fun getSortOptions(): List<SortOption> = when (mSeries) {
+        null -> seriesSortOptions
+        else -> issueSortOptions
     }
 
     fun updateCreators(creators: List<Creator>?) {

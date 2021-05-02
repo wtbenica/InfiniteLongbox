@@ -7,6 +7,7 @@ import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.database.models.DataModel
 
 private const val TAG = APP + "BaseDao"
+const val REQUEST_LIMIT = 20
 
 /**
  * BaseDao provides generic insert, update, delete, and upsert (insert if not exist, else update)

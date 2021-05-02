@@ -12,11 +12,8 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.wtb.comiccollector.APP
-import com.wtb.comiccollector.ARG_FILTER
-import com.wtb.comiccollector.Filter
+import com.wtb.comiccollector.*
 import com.wtb.comiccollector.GroupListViewModels.SeriesListViewModel
-import com.wtb.comiccollector.R
 import com.wtb.comiccollector.database.models.Series
 
 private const val TAG = APP + "SeriesListFragment"
@@ -64,8 +61,11 @@ class SeriesListFragment(var callback: Callbacks? = null) : Fragment() {
             viewLifecycleOwner,
             { objectList ->
                 objectList?.let {
+                    Log.d(TAG, "series list updated")
                     this.seriesList = it
-                    this.seriesList = this.seriesList.sortedWith(filter.mSortOrder)
+                    if (filter.mSortOrder != seriesSortOptions[0].compare) {
+                        this.seriesList = this.seriesList.sortedWith(filter.mSortOrder)
+                    }
                     updateUI()
                 }
             }
@@ -87,7 +87,8 @@ class SeriesListFragment(var callback: Callbacks? = null) : Fragment() {
         view.scheduleLayoutAnimation()
     }
 
-    inner class SeriesAdapter(private var seriesList: List<Series>) : RecyclerView.Adapter<SeriesHolder>() {
+    inner class SeriesAdapter(private var seriesList: List<Series>) :
+        RecyclerView.Adapter<SeriesHolder>() {
 
         private var lastPosition = -1
 

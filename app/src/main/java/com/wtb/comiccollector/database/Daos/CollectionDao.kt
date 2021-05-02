@@ -1,13 +1,17 @@
 package com.wtb.comiccollector.database.Daos
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Query
+import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.Filter
 import com.wtb.comiccollector.database.models.FullIssue
 import com.wtb.comiccollector.database.models.MyCollection
 import com.wtb.comiccollector.database.models.Series
 import java.time.LocalDate
+
+private const val TAG = APP + "CollectionDao"
 
 @Dao
 abstract class CollectionDao : BaseDao<MyCollection>() {
@@ -24,6 +28,7 @@ abstract class CollectionDao : BaseDao<MyCollection>() {
     abstract fun getAllSeries(): LiveData<List<Series>>
 
     fun getSeriesByFilter(filter: Filter): LiveData<List<Series>> {
+        Log.d(TAG, "getSeriesByFilter")
         return if (filter.hasCreator()) {
             if (filter.hasPublisher()) {
                 if (filter.hasDateFilter()) {
