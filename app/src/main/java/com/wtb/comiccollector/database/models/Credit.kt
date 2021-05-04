@@ -35,9 +35,7 @@ data class Credit(
     var storyId: Int,
     var nameDetailId: Int,
     var roleId: Int
-) : DataModel {
-    override fun id(): Int = creditId
-}
+) : DataModel
 
 @Entity(
     indices = [
@@ -72,9 +70,7 @@ data class MyCredit(
     var storyId: Int,
     var creatorId: Int,
     var roleId: Int
-) : DataModel {
-    override fun id(): Int = creditId
-}
+) : DataModel
 
 @Entity(
     foreignKeys = [
@@ -98,18 +94,14 @@ data class Story(
     var notes: String? = null,
     var sequenceNumber: Int = 0,
     val issueId: Int,
-) : DataModel {
-    override fun id(): Int = storyId
-}
+) : DataModel
 
 @Entity
 data class StoryType(
     @PrimaryKey(autoGenerate = true) val typeId: Int = AUTO_ID,
     val name: String,
     val sortCode: Int
-) : DataModel {
-    override fun id(): Int = typeId
-}
+) : DataModel
 
 @Entity
 data class Role(
@@ -118,8 +110,6 @@ data class Role(
     var sortOrder: Int
 ) : DataModel {
     override fun toString(): String = roleName
-
-    override fun id(): Int = roleId
 
     companion object {
         enum class Name(val value: Int) {

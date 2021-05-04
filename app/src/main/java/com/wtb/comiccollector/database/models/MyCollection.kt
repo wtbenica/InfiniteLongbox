@@ -21,7 +21,5 @@ import androidx.room.PrimaryKey
 data class MyCollection(
     @PrimaryKey(autoGenerate = true) val collectionId: Int = AUTO_ID,
     var issueId: Int
-) : DataModel {
-    override fun id(): Int = collectionId
-}
+) : DataModel
 

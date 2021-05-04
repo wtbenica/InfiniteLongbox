@@ -11,7 +11,6 @@ data class Character(
     var name: String,
     var aka: String? = null
 ) : DataModel {
-    override fun id(): Int = characterId
 
     val sortName: String
         get() {
@@ -49,6 +48,4 @@ data class Appearance(
     val storyId: Int,
     val characterId: Int,
     val details: String?
-) : DataModel {
-    override fun id(): Int = appearanceId
-}
+) : DataModel

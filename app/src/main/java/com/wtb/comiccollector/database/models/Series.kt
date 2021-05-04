@@ -32,11 +32,12 @@ data class Series(
     var endDate: LocalDate? = null,
     var description: String? = null,
     var publishingFormat: String? = null
-) : DataModel, Filterable, Serializable {
+) : FilterOption, Serializable {
 
-    override fun id(): Int = seriesId
-
-    override fun sortValue(): String = seriesName
+    override fun compareTo(other: FilterOption): Int = when (other) {
+        is Series -> this.seriesName.compareTo(other.seriesName)
+        else -> 1
+    }
 
     override fun toString(): String = "$seriesName $dateRange"
 
@@ -51,7 +52,6 @@ data class Series(
                 ) ?: " "
             })"
         } ?: ""
-
 }
 
 @Entity(
@@ -62,10 +62,14 @@ data class Series(
 data class Publisher(
     @PrimaryKey(autoGenerate = true) val publisherId: Int = AUTO_ID,
     val publisher: String = ""
-) : Filterable {
-    override fun sortValue(): String = publisher
+) : FilterOption {
 
-    override fun id(): Int = publisherId
+    override fun compareTo(other: FilterOption): Int =
+        when (other) {
+            is Series -> -1
+            is Publisher -> this.publisher.compareTo(other.publisher)
+            else -> 1 // is Creator
+        }
 
     override fun toString(): String {
         return publisher

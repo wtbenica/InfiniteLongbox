@@ -16,8 +16,7 @@ import com.google.android.material.chip.ChipGroup
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.wtb.comiccollector.GroupListFragments.SeriesListFragment
 import com.wtb.comiccollector.Views.Chippy
-import com.wtb.comiccollector.database.models.Filterable
-import com.wtb.comiccollector.database.models.Series
+import com.wtb.comiccollector.database.models.*
 
 private const val TAG = APP + "SearchFragment"
 
@@ -139,7 +138,7 @@ class SearchFragment : Fragment(), Chippy.ChipCallbacks, SeriesListFragment.Call
         searchTextView.onItemClickListener =
             AdapterView.OnItemClickListener { parent, view, position, id ->
                 Log.d(TAG, "searchTextView item clicked")
-                val item = parent?.adapter?.getItem(position) as Filterable
+                val item = parent?.adapter?.getItem(position) as FilterOption
                 viewModel.addItem(item)
                 searchBox.visibility = View.GONE
                 searchTextView.text.clear()
@@ -190,14 +189,14 @@ class SearchFragment : Fragment(), Chippy.ChipCallbacks, SeriesListFragment.Call
         callbacks = null
     }
 
-    private fun addChip(item: Filterable) {
+    private fun addChip(item: FilterOption) {
         Log.d(TAG, "adding chip $item")
         val chip = Chippy(context, item, this@SearchFragment)
         searchChipFrame.visibility = View.VISIBLE
         searchChipGroup.addView(chip)
     }
 
-    override fun chipClosed(view: View, item: Filterable) {
+    override fun chipClosed(view: View, item: FilterOption) {
         Log.d(TAG, "chipClosed $item")
         viewModel.removeItem(item)
         onUpdate()

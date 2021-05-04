@@ -10,11 +10,13 @@ data class Creator(
     @PrimaryKey(autoGenerate = true) val creatorId: Int = AUTO_ID,
     var name: String,
     var sortName: String
-) : Filterable {
+) : FilterOption {
 
-    override fun id(): Int = creatorId
-
-    override fun sortValue(): String = name
+    override fun compareTo(other: FilterOption): Int = when (other) {
+            is Series -> -1
+            is Creator -> this.sortName.compareTo(other.sortName)
+            else -> 1 // is Publisher
+        }
 
     override fun toString(): String {
         return name
@@ -38,6 +40,4 @@ data class NameDetail(
     @PrimaryKey(autoGenerate = true) val nameDetailId: Int = AUTO_ID,
     var creatorId: Int,
     var name: String
-) : DataModel {
-    override fun id(): Int = nameDetailId
-}
+) : DataModel

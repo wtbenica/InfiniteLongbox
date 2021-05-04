@@ -60,21 +60,6 @@ class SeriesListFragment(var callback: Callbacks? = null) : Fragment() {
         return view
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
-//        viewModel.seriesListLiveData.observe(
-//            viewLifecycleOwner,
-//            { objectList ->
-//                objectList?.let {
-//                    Log.d(TAG, "series list updated: $it")
-//                    this.seriesList = it
-//                    updateUI()
-//                }
-//            }
-//        )
-    }
-
     private fun updateUI() {
 
     }
@@ -89,7 +74,7 @@ class SeriesListFragment(var callback: Callbacks? = null) : Fragment() {
         view.scheduleLayoutAnimation()
     }
 
-    inner class SeriesAdapter() :
+    inner class SeriesAdapter :
         PagedListAdapter<Series, SeriesHolder>(DIFF_CALLBACK) {
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SeriesHolder =

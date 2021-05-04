@@ -5,16 +5,16 @@ import android.util.Log
 import android.view.View
 import com.google.android.material.chip.Chip
 import com.wtb.comiccollector.APP
-import com.wtb.comiccollector.database.models.Filterable
+import com.wtb.comiccollector.database.models.FilterOption
 
 private const val TAG = APP + "Chippy"
 
 class Chippy(context: Context?) : Chip(context) {
 
-    lateinit var item: Filterable
+    lateinit var item: FilterOption
     private lateinit var caller: ChipCallbacks
 
-    constructor(context: Context?, item: Filterable, caller: ChipCallbacks) : this(context) {
+    constructor(context: Context?, item: FilterOption, caller: ChipCallbacks) : this(context) {
         this.item = item
         this.caller = caller
         Log.d(TAG, "Makin Chippy")
@@ -24,6 +24,6 @@ class Chippy(context: Context?) : Chip(context) {
     }
 
     interface ChipCallbacks {
-        fun chipClosed(view: View, item: Filterable)
+        fun chipClosed(view: View, item: FilterOption)
     }
 }

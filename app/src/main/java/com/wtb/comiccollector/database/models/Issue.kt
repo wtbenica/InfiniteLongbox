@@ -40,17 +40,12 @@ data class Issue(
     var variantName: String = "",
     var variantOf: Int? = null,
     var sortCode: Int = 0
-) : DataModel, Filterable {
+) : DataModel, Comparable<Issue> {
     val coverFileName: String
         get() = "IMG_$issueId.jpg"
 
     val url: String
         get() = "https://www.comics.org/issue/$issueId/"
-
-    override fun sortValue(): String = issueNum.toString()
-
-
-    override fun id(): Int = issueId
 
     override fun toString(): String {
         return if (variantOf == null) {
@@ -96,8 +91,9 @@ data class Issue(
             return res
         }
     }
-}
 
+    override fun compareTo(other: Issue): Int = this.issueNum.compareTo(other.issueNum)
+}
 
 data class FullIssue(
     @Embedded
@@ -106,12 +102,7 @@ data class FullIssue(
     val publisher: String,
     @Relation(parentColumn = "issueId", entityColumn = "issueId")
     var myCollection: MyCollection?
-) : Filterable {
-    override fun sortValue(): String = issue.issueNum.toString()
-
-    override fun id(): Int = issue.issueId
-
-}
+) : DataModel
 
 data class IssueAndSeries(
     @Embedded

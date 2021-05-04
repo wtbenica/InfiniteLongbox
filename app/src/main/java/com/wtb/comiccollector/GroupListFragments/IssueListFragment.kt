@@ -72,7 +72,6 @@ class IssueListFragment : Fragment() {
             { issues ->
                 issues?.let {
                     this.issueList = it
-                    this.issueList = this.issueList.sortedWith(filter.mSortOrder)
                     updateUI()
                 }
             }

@@ -4,7 +4,7 @@ import androidx.fragment.app.Fragment
 import com.wtb.comiccollector.GroupListFragments.IssueListFragment
 import com.wtb.comiccollector.GroupListFragments.SeriesListFragment
 import com.wtb.comiccollector.database.models.Creator
-import com.wtb.comiccollector.database.models.Filterable
+import com.wtb.comiccollector.database.models.FilterOption
 import com.wtb.comiccollector.database.models.Publisher
 import com.wtb.comiccollector.database.models.Series
 import java.io.Serializable
@@ -33,7 +33,6 @@ class Filter(
     var mEndDate: LocalDate = endDate ?: LocalDate.MAX
     var mMyCollection: Boolean = myCollection
     var mSortOption: SortOption = getSortOptions()[0]
-    var mSortOrder: (Filterable, Filterable) -> Int = mSortOption.compare
 
 
     fun hasCreator() = mCreators.isNotEmpty()
@@ -70,7 +69,7 @@ class Filter(
         this.mMyCollection = value
     }
 
-    fun addItem(vararg items: Filterable) {
+    fun addItem(vararg items: FilterOption) {
         items.forEach { item ->
             when (item) {
                 is Series -> addSeries(item)
@@ -80,7 +79,7 @@ class Filter(
         }
     }
 
-    fun removeItem(vararg items: Filterable) {
+    fun removeItem(vararg items: FilterOption) {
         items.forEach { item ->
             when (item) {
                 is Series -> removeSeries()
@@ -116,7 +115,7 @@ class Filter(
         mSeries = series
     }
 
-    fun getAll(): Set<Filterable> =
+    fun getAll(): Set<FilterOption> =
         if (mSeries != null) {
             mCreators + mPublishers + mSeries!!
         } else {
@@ -132,7 +131,6 @@ class Filter(
         result = 31 * result + mEndDate.hashCode()
         result = 31 * result + mMyCollection.hashCode()
         result = 31 * result + mSortOption.hashCode()
-        result = 31 * result + mSortOrder.hashCode()
         return result
     }
 

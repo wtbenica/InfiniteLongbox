@@ -121,9 +121,9 @@ class IssueRepository private constructor(val context: Context) {
         publishers = allPublishers,
         combine = { series: List<Series?>?, creators: List<Creator>?, publishers:
         List<Publisher>? ->
-            val res = (series as List<Filterable?>? ?: emptyList()) + (creators as List<Filterable>?
-                ?: emptyList()) + (publishers as List<Filterable>? ?: emptyList())
-            val x = res.mapNotNull { it }
+            val res = (series as List<FilterOption?>? ?: emptyList()) + (creators as List<FilterOption>?
+                ?: emptyList()) + (publishers as List<FilterOption>? ?: emptyList())
+            val x: List<FilterOption> = res.mapNotNull { it }
             sort(x)
             x
         })
@@ -952,8 +952,8 @@ class CombinedLiveData(
     private val combine: (
         data1: List<Series>?, data2: List<Creator>?, data3:
         List<Publisher>?
-    ) -> List<Filterable>
-) : MediatorLiveData<List<Filterable>>() {
+    ) -> List<FilterOption>
+) : MediatorLiveData<List<FilterOption>>() {
 
     private var mSeries: List<Series>? = null
     private var mCreators: List<Creator>? = null
