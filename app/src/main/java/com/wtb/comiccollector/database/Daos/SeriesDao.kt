@@ -42,7 +42,7 @@ abstract class SeriesDao : BaseDao<Series>() {
         var containsCondition = false
 
         tableJoinString +=
-            "SELECT * " +
+            "SELECT DISTINCT ss.* " +
                     "FROM series ss "
 
         if (filter.hasPublisher()) {

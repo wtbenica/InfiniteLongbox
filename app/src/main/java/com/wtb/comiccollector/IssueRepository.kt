@@ -188,7 +188,7 @@ class IssueRepository private constructor(val context: Context) {
         }
 
         return if (filter.mMyCollection) {
-            seriesDao.getSeriesByFilter(filter)
+            collectionDao.getSeriesByFilter(filter)
         } else {
             seriesDao.getSeriesByFilter(filter)
         }

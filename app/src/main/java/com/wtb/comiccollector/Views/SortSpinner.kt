@@ -32,20 +32,20 @@ class IssueSortOption(
 ) : SortOption(tag, sortColumn, compare)
 
 val issueSortOptions: List<SortOption> = listOf(
-    IssueSortOption("0-9", "issueNum ASC") { a: Filterable, b: Filterable ->
+    IssueSortOption("Issue Number (Low to High)", "issueNum ASC") { a: Filterable, b: Filterable ->
         a.sortValue().compareTo(b.sortValue())
     },
-    IssueSortOption("9-0", "issueNum DESC") { a: Filterable, b: Filterable ->
+    IssueSortOption("Issue Number (High to Low)", "issueNum DESC") { a: Filterable, b: Filterable ->
         b.sortValue().compareTo(a.sortValue())
     },
-    IssueSortOption("Date - Earliest", "releaseDate ASC") { a: Filterable, b: Filterable ->
+    IssueSortOption("Date (Oldest to Newest)", "releaseDate ASC") { a: Filterable, b: Filterable ->
         if (a is FullIssue && b is FullIssue && a.issue.releaseDate != null && b.issue.releaseDate != null) {
             a.issue.releaseDate!!.compareTo(b.issue.releaseDate)
         } else {
             a.sortValue().compareTo(b.sortValue())
         }
     },
-    IssueSortOption("Date - Most Recent", "releaseDate DESC") { a: Filterable, b: Filterable ->
+    IssueSortOption("Date (Newest to Oldest)", "releaseDate DESC") { a: Filterable, b: Filterable ->
         if (a is FullIssue && b is FullIssue && a.issue.releaseDate != null && b.issue.releaseDate != null) {
             b.issue.releaseDate!!.compareTo(a.issue.releaseDate)
         } else {
