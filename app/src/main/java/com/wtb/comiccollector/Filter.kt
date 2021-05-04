@@ -21,18 +21,20 @@ class Filter(
     myCollection: Boolean = false
 ) : Serializable {
 
+    override fun equals(other: Any?): Boolean {
+        return other is Filter && hashCode() == other.hashCode()
+    }
+
+    var mCurrentItems: Int = 0
     var mCreators: MutableSet<Creator> = creators ?: mutableSetOf()
     var mSeries: Series? = series
     var mPublishers: MutableSet<Publisher> = publishers ?: mutableSetOf()
     var mStartDate: LocalDate = startDate ?: LocalDate.MIN
     var mEndDate: LocalDate = endDate ?: LocalDate.MAX
     var mMyCollection: Boolean = myCollection
-    var mSortOption: SortOption = if (returnsIssueList()) {
-        issueSortOptions[0]
-    } else {
-        seriesSortOptions[0]
-    }
+    var mSortOption: SortOption = getSortOptions()[0]
     var mSortOrder: (Filterable, Filterable) -> Int = mSortOption.compare
+
 
     fun hasCreator() = mCreators.isNotEmpty()
     fun returnsIssueList() = mSeries != null
@@ -53,6 +55,7 @@ class Filter(
 
     private fun removeSeries() {
         this.mSeries = null
+        mSortOption = getSortOptions()[0]
     }
 
     private fun addPublisher(vararg publisher: Publisher) {
@@ -119,6 +122,19 @@ class Filter(
         } else {
             mCreators + mPublishers
         }
+
+    override fun hashCode(): Int {
+        var result =  mCurrentItems
+        result = 31 * result + mCreators.hashCode()
+        result = 31 * result + (mSeries?.hashCode() ?: 0)
+        result = 31 * result + mPublishers.hashCode()
+        result = 31 * result + mStartDate.hashCode()
+        result = 31 * result + mEndDate.hashCode()
+        result = 31 * result + mMyCollection.hashCode()
+        result = 31 * result + mSortOption.hashCode()
+        result = 31 * result + mSortOrder.hashCode()
+        return result
+    }
 
     companion object {
         fun deserialize(str: String?): MutableSet<Int> {

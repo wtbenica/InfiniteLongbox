@@ -6,6 +6,7 @@ import android.util.Log
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.wtb.comiccollector.APP
+import com.wtb.comiccollector.database.Daos.REQUEST_LIMIT
 
 private const val TAG = APP + "EndlessRecyclerView"
 
@@ -14,8 +15,7 @@ class EndlessRecyclerView(context: Context, attributeSet: AttributeSet) :
 
     private var loading: Boolean = true
     private var previousTotal: Int = 0
-    private var visibleThreshold: Int = 5
-    private var pastVisibleItems: Int = 0
+    private var visibleThreshold: Int = REQUEST_LIMIT / 2
     private var firstVisibleItem: Int = 0
     private var visibleItemCount: Int = 0
     private var totalItemCount: Int = 0
@@ -36,7 +36,7 @@ class EndlessRecyclerView(context: Context, attributeSet: AttributeSet) :
                 }
 
                 if (loading) {
-                    if (totalItemCount > previousTotal) {
+                    if (totalItemCount >= previousTotal) {
                         loading = false
                         previousTotal = totalItemCount
                     }

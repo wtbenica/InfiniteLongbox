@@ -17,6 +17,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.liveData
+import androidx.paging.DataSource
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
@@ -109,7 +110,7 @@ class IssueRepository private constructor(val context: Context) {
         retrofit.create(Webservice::class.java)
     }
 
-    var allSeries: LiveData<List<Series>> = seriesDao.getAllSeries()
+    var allSeries  = seriesDao.getAllOfThem()
     val allPublishers: LiveData<List<Publisher>> = publisherDao.getPublishersList()
     val allCreators: LiveData<List<Creator>> = creatorDao.getCreatorsList()
     val allRoles: LiveData<List<Role>> = roleDao.getRoleList()
@@ -118,11 +119,13 @@ class IssueRepository private constructor(val context: Context) {
         series = allSeries,
         creators = allCreators,
         publishers = allPublishers,
-        combine = { series: List<Series>?, creators: List<Creator>?, publishers: List<Publisher>? ->
-            val res = (series as List<Filterable>? ?: emptyList()) + (creators as List<Filterable>?
+        combine = { series: List<Series?>?, creators: List<Creator>?, publishers:
+        List<Publisher>? ->
+            val res = (series as List<Filterable?>? ?: emptyList()) + (creators as List<Filterable>?
                 ?: emptyList()) + (publishers as List<Filterable>? ?: emptyList())
-            sort(res)
-            res
+            val x = res.mapNotNull { it }
+            sort(x)
+            x
         })
 
     init {
@@ -167,8 +170,14 @@ class IssueRepository private constructor(val context: Context) {
         }
     }
 
-    fun getSeriesByFilter(filter: Filter): LiveData<List<Series>> {
-        Log.d(TAG, "getSeriesByFilter")
+    fun getSeriesByFilter(filter: Filter): DataSource.Factory<Int, Series> {
+        Log.d(
+            TAG,
+            "getSeriesByFilter: ${filter.hasCreator()} ${filter.hasPublisher()} ${
+                filter
+                    .hasDateFilter()
+            } ${filter.mSeries == null} ${filter.mSortOption.tag}"
+        )
         if (filter.hasCreator()) {
             val updater = CreatorUpdater()
             filter.mCreators.forEach { updater.update(it.creatorId) }
@@ -179,7 +188,7 @@ class IssueRepository private constructor(val context: Context) {
         }
 
         return if (filter.mMyCollection) {
-            collectionDao.getSeriesByFilter(filter)
+            seriesDao.getSeriesByFilter(filter)
         } else {
             seriesDao.getSeriesByFilter(filter)
         }
@@ -940,7 +949,10 @@ class CombinedLiveData(
     series: LiveData<List<Series>>?,
     creators: LiveData<List<Creator>>?,
     publishers: LiveData<List<Publisher>>?,
-    private val combine: (data1: List<Series>?, data2: List<Creator>?, data3: List<Publisher>?) -> List<Filterable>
+    private val combine: (
+        data1: List<Series>?, data2: List<Creator>?, data3:
+        List<Publisher>?
+    ) -> List<Filterable>
 ) : MediatorLiveData<List<Filterable>>() {
 
     private var mSeries: List<Series>? = null

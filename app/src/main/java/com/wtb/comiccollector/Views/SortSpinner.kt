@@ -15,6 +15,7 @@ class SortSpinner(context: Context, attributeSet: AttributeSet?) :
 
 abstract class SortOption(
     val tag: String,
+    val sortColumn: String,
     pCompare: (Filterable, Filterable) -> Int
 ) {
     var compare = { a: Filterable, b: Filterable ->
@@ -25,24 +26,26 @@ abstract class SortOption(
     override fun toString() = tag
 }
 
-class IssueSortOption(tag: String, compare: (a: Filterable, b: Filterable) -> Int) :
-    SortOption(tag, compare)
+class IssueSortOption(
+    tag: String, sortColumn: String, compare: (a: Filterable, b: Filterable) ->
+    Int
+) : SortOption(tag, sortColumn, compare)
 
 val issueSortOptions: List<SortOption> = listOf(
-    IssueSortOption("0-9") { a: Filterable, b: Filterable ->
+    IssueSortOption("0-9", "issueNum ASC") { a: Filterable, b: Filterable ->
         a.sortValue().compareTo(b.sortValue())
     },
-    IssueSortOption("9-0") { a: Filterable, b: Filterable ->
+    IssueSortOption("9-0", "issueNum DESC") { a: Filterable, b: Filterable ->
         b.sortValue().compareTo(a.sortValue())
     },
-    IssueSortOption("Date - Earliest") { a: Filterable, b: Filterable ->
+    IssueSortOption("Date - Earliest", "releaseDate ASC") { a: Filterable, b: Filterable ->
         if (a is FullIssue && b is FullIssue && a.issue.releaseDate != null && b.issue.releaseDate != null) {
             a.issue.releaseDate!!.compareTo(b.issue.releaseDate)
         } else {
             a.sortValue().compareTo(b.sortValue())
         }
     },
-    IssueSortOption("Date - Most Recent") { a: Filterable, b: Filterable ->
+    IssueSortOption("Date - Most Recent", "releaseDate DESC") { a: Filterable, b: Filterable ->
         if (a is FullIssue && b is FullIssue && a.issue.releaseDate != null && b.issue.releaseDate != null) {
             b.issue.releaseDate!!.compareTo(a.issue.releaseDate)
         } else {
@@ -51,24 +54,26 @@ val issueSortOptions: List<SortOption> = listOf(
     }
 )
 
-class SeriesSortOption(tag: String, compare: (a: Filterable, b: Filterable) -> Int) :
-    SortOption(tag, compare)
+class SeriesSortOption(
+    tag: String, sortColumn: String, compare: (a: Filterable, b: Filterable) ->
+    Int
+) : SortOption(tag, sortColumn, compare)
 
 val seriesSortOptions: List<SortOption> = listOf(
-    SeriesSortOption("A-Z") { a: Filterable, b: Filterable ->
+    SeriesSortOption("A-Z", "seriesName ASC") { a: Filterable, b: Filterable ->
         a.sortValue().compareTo(b.sortValue())
     },
-    SeriesSortOption("Z-A") { a: Filterable, b: Filterable ->
+    SeriesSortOption("Z-A", "seriesName DESC") { a: Filterable, b: Filterable ->
         b.sortValue().compareTo(a.sortValue())
     },
-    SeriesSortOption("Date - Earliest") { a: Filterable, b: Filterable ->
+    SeriesSortOption("Date - Earliest", "startDate ASC") { a: Filterable, b: Filterable ->
         if (a is Series && b is Series && a.startDate != null && b.startDate != null) {
             a.startDate!!.compareTo(b.startDate)
         } else {
             a.sortValue().compareTo(b.sortValue())
         }
     },
-    SeriesSortOption("Date - Most Recent") { a: Filterable, b: Filterable ->
+    SeriesSortOption("Date - Most Recent", "startDate DESC") { a: Filterable, b: Filterable ->
         if (a is Series && b is Series && a.startDate != null && b.startDate != null) {
             b.startDate!!.compareTo(a.startDate)
         } else {

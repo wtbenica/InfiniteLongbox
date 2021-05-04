@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Query
+import androidx.room.Transaction
 import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.Filter
 import com.wtb.comiccollector.database.models.FullIssue
@@ -16,6 +17,7 @@ private const val TAG = APP + "CollectionDao"
 @Dao
 abstract class CollectionDao : BaseDao<MyCollection>() {
 
+    @Transaction
     @Query(
         """
             SELECT DISTINCT ss.* 

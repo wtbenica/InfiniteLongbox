@@ -76,7 +76,7 @@ data class Issue(
                 } catch (e: DateTimeParseException) {
                     try {
                         LocalDate.parse(
-                            newDate.subSequence(0, 8).toString() + "-01",
+                            newDate.subSequence(0, newDate.length).toString() + "-01",
                             DateTimeFormatter.ofPattern(("uuuu-MM-dd"))
                         )
                     } catch (e: DateTimeParseException) {

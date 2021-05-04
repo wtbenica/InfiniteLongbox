@@ -20,7 +20,6 @@ class SearchViewModel : ViewModel() {
         val newVal = filterLiveData.value
         newVal?.addItem(item)
         filterLiveData.value = newVal
-//        filterLiveData.value?.addItem(item)
     }
 
     fun removeItem(item: Filterable) {
@@ -28,7 +27,6 @@ class SearchViewModel : ViewModel() {
         val newVal = filterLiveData.value
         newVal?.removeItem(item)
         filterLiveData.value = newVal
-//        filterLiveData.value?.removeItem(item)
     }
 
     fun myCollection(isChecked: Boolean) {

@@ -121,12 +121,12 @@ class SearchFragment : Fragment(), Chippy.ChipCallbacks, SeriesListFragment.Call
         viewModel.filterLiveData.observe(
             viewLifecycleOwner,
             { filter ->
-                Log.d(TAG, "filter changed")
+                Log.d(TAG, "filter changed ${filter.getSortOptions()}")
                 this.filter = filter
                 sortSpinner.adapter = ArrayAdapter(
                     requireContext(),
                     androidx.appcompat.R.layout.support_simple_spinner_dropdown_item,
-                    filter.getSortOptions()
+                    this.filter.getSortOptions()
                 )
                 onUpdate()
             }
@@ -227,7 +227,7 @@ class SearchFragment : Fragment(), Chippy.ChipCallbacks, SeriesListFragment.Call
         }
 
         val indexOf = filter.getSortOptions().indexOf(filter.mSortOption)
-        Log.d(TAG, "Setting sortSpinner to pos $indexOf")
+        Log.d(TAG, "Setting sortSpinner to pos $indexOf ${filter.mSortOption}")
         sortSpinner.setSelection(indexOf)
     }
 
