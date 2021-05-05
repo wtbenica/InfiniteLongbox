@@ -43,6 +43,7 @@
         android:id="@+id/results_frame"
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:background="@color/white"
         app:layout_constraintBottom_toTopOf="@id/chip_holder"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -50,31 +51,45 @@
 
     </FrameLayout>
 
+
     <LinearLayout
         android:id="@+id/chip_holder"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingStart="8dp"
-        android:paddingEnd="8dp"
+        android:background="@color/white"
+        android:orientation="vertical"
         android:visibility="gone"
         app:layout_constraintBottom_toTopOf="@id/search_box"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
 
-        <com.google.android.material.chip.ChipGroup
-            android:id="@+id/search_chipgroup"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:elevation="2dp" />
+        <View
+            android:id="@+id/divider4"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="?android:attr/listDivider" />
 
+        <HorizontalScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/search_chipgroup"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:elevation="2dp"
+                android:padding="8dp"
+                app:singleLine="true" />
+
+        </HorizontalScrollView>
     </LinearLayout>
 
     <LinearLayout
         android:id="@+id/search_box"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/lime"
-        android:elevation="1dp"
+        android:background="@color/white"
+        android:elevation="8dp"
         android:padding="8dp"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -85,7 +100,8 @@
             android:id="@+id/search_tv"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@drawable/blue_outline"
+            android:background="@drawable/primary_outline_white_background"
+            android:elevation="1dp"
             android:hint="@string/search"
             android:padding="16dp" />
     </LinearLayout>
@@ -97,6 +113,7 @@
         android:layout_marginEnd="32dp"
         android:layout_marginBottom="32dp"
         android:contentDescription="@string/fab_description"
+        android:elevation="16dp"
         android:src="@drawable/ic_filter"
         app:fabSize="normal"
         app:layout_constraintBottom_toTopOf="@id/chip_holder"

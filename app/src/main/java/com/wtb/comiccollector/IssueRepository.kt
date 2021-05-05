@@ -18,10 +18,13 @@ import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.liveData
 import androidx.paging.DataSource
+import androidx.paging.PagedList
+import androidx.paging.toLiveData
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.wtb.comiccollector.database.Daos.Count
+import com.wtb.comiccollector.database.Daos.REQUEST_LIMIT
 import com.wtb.comiccollector.database.IssueDatabase
 import com.wtb.comiccollector.database.migration_1_2
 import com.wtb.comiccollector.database.models.*
@@ -110,7 +113,7 @@ class IssueRepository private constructor(val context: Context) {
         retrofit.create(Webservice::class.java)
     }
 
-    var allSeries  = seriesDao.getAllOfThem()
+    var allSeries = seriesDao.getAllOfThem()
     val allPublishers: LiveData<List<Publisher>> = publisherDao.getPublishersList()
     val allCreators: LiveData<List<Creator>> = creatorDao.getCreatorsList()
     val allRoles: LiveData<List<Role>> = roleDao.getRoleList()
@@ -121,8 +124,9 @@ class IssueRepository private constructor(val context: Context) {
         publishers = allPublishers,
         combine = { series: List<Series?>?, creators: List<Creator>?, publishers:
         List<Publisher>? ->
-            val res = (series as List<FilterOption?>? ?: emptyList()) + (creators as List<FilterOption>?
-                ?: emptyList()) + (publishers as List<FilterOption>? ?: emptyList())
+            val res =
+                (series as List<FilterOption?>? ?: emptyList()) + (creators as List<FilterOption>?
+                    ?: emptyList()) + (publishers as List<FilterOption>? ?: emptyList())
             val x: List<FilterOption> = res.mapNotNull { it }
             sort(x)
             x
@@ -142,32 +146,19 @@ class IssueRepository private constructor(val context: Context) {
         return issueDao.getFullIssue(issueId)
     }
 
-    fun getIssuesByFilter(filter: Filter): LiveData<List<FullIssue>>? {
+    fun getIssuesByFilter(filter: Filter): LiveData<PagedList<FullIssue>> {
         val seriesId = filter.mSeries!!.seriesId
         val creatorIds = filter.mCreators.map { it.creatorId }
         Log.d(TAG, "SeriesId Filter: $seriesId - CreatorId Filter: $creatorIds")
 
-        return when {
-            filter.hasCreator() -> {
-                CreatorUpdater().updateAll(creatorIds)
-                if (filter.mMyCollection) {
-                    collectionDao.getIssuesBySeriesCreator(seriesId, creatorIds)
-                } else {
-                    issueDao.getIssuesBySeriesCreator(seriesId, creatorIds)
-                }
-            }
-            filter.returnsIssueList() -> {
-                IssueUpdater().update(seriesId)
-                if (filter.mMyCollection) {
-                    collectionDao.getIssuesBySeries(seriesId)
-                } else {
-                    issueDao.getIssuesBySeries(seriesId)
-                }
-            }
-            else -> {
-                null
-            }
+        if (filter.hasCreator()) {
+            CreatorUpdater().updateAll(creatorIds)
         }
+
+        IssueUpdater().update(seriesId)
+
+        return issueDao.getIssuesByFilter(filter).toLiveData(pageSize = REQUEST_LIMIT)
+
     }
 
     fun getSeriesByFilter(filter: Filter): DataSource.Factory<Int, Series> {

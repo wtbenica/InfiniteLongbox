@@ -46,6 +46,8 @@ data class Issue(
 
     val url: String
         get() = "https://www.comics.org/issue/$issueId/"
+    override val id: Int
+        get() = issueId
 
     override fun toString(): String {
         return if (variantOf == null) {
@@ -102,7 +104,7 @@ data class FullIssue(
     val publisher: String,
     @Relation(parentColumn = "issueId", entityColumn = "issueId")
     var myCollection: MyCollection?
-) : DataModel
+)
 
 data class IssueAndSeries(
     @Embedded

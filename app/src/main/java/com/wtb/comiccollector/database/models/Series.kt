@@ -39,6 +39,9 @@ data class Series(
         else -> 1
     }
 
+    override val id: Int
+        get() = seriesId
+
     override fun toString(): String = "$seriesName $dateRange"
 
     val fullDescription: String
@@ -70,6 +73,9 @@ data class Publisher(
             is Publisher -> this.publisher.compareTo(other.publisher)
             else -> 1 // is Creator
         }
+
+    override val id: Int
+        get() = publisherId
 
     override fun toString(): String {
         return publisher

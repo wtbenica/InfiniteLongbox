@@ -18,6 +18,9 @@ data class Creator(
             else -> 1 // is Publisher
         }
 
+    override val id: Int
+        get() = creatorId
+
     override fun toString(): String {
         return name
     }
@@ -40,4 +43,7 @@ data class NameDetail(
     @PrimaryKey(autoGenerate = true) val nameDetailId: Int = AUTO_ID,
     var creatorId: Int,
     var name: String
-) : DataModel
+) : DataModel {
+    override val id: Int
+        get() = nameDetailId
+}

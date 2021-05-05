@@ -35,7 +35,10 @@ data class Credit(
     var storyId: Int,
     var nameDetailId: Int,
     var roleId: Int
-) : DataModel
+) : DataModel {
+    override val id: Int
+        get() = creditId
+}
 
 @Entity(
     indices = [
@@ -70,7 +73,10 @@ data class MyCredit(
     var storyId: Int,
     var creatorId: Int,
     var roleId: Int
-) : DataModel
+) : DataModel {
+    override val id: Int
+        get() = creditId
+}
 
 @Entity(
     foreignKeys = [
@@ -94,14 +100,20 @@ data class Story(
     var notes: String? = null,
     var sequenceNumber: Int = 0,
     val issueId: Int,
-) : DataModel
+) : DataModel {
+    override val id: Int
+        get() = storyId
+}
 
 @Entity
 data class StoryType(
     @PrimaryKey(autoGenerate = true) val typeId: Int = AUTO_ID,
     val name: String,
     val sortCode: Int
-) : DataModel
+) : DataModel {
+    override val id: Int
+        get() = typeId
+}
 
 @Entity
 data class Role(
@@ -109,6 +121,9 @@ data class Role(
     var roleName: String = "",
     var sortOrder: Int
 ) : DataModel {
+    override val id: Int
+        get() = roleId
+
     override fun toString(): String = roleName
 
     companion object {

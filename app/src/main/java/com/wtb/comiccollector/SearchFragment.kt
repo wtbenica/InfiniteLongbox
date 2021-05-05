@@ -16,6 +16,7 @@ import com.google.android.material.chip.ChipGroup
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.wtb.comiccollector.GroupListFragments.SeriesListFragment
 import com.wtb.comiccollector.Views.Chippy
+import com.wtb.comiccollector.Views.SortOption
 import com.wtb.comiccollector.database.models.*
 
 private const val TAG = APP + "SearchFragment"

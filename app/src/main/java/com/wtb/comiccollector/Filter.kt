@@ -3,6 +3,9 @@ package com.wtb.comiccollector
 import androidx.fragment.app.Fragment
 import com.wtb.comiccollector.GroupListFragments.IssueListFragment
 import com.wtb.comiccollector.GroupListFragments.SeriesListFragment
+import com.wtb.comiccollector.Views.SortOption
+import com.wtb.comiccollector.Views.issueSortOptions
+import com.wtb.comiccollector.Views.seriesSortOptions
 import com.wtb.comiccollector.database.models.Creator
 import com.wtb.comiccollector.database.models.FilterOption
 import com.wtb.comiccollector.database.models.Publisher

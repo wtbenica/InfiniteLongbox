@@ -1,6 +1,5 @@
 package com.wtb.comiccollector.database.Daos
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.paging.DataSource
 import androidx.room.Dao
@@ -32,10 +31,7 @@ abstract class SeriesDao : BaseDao<Series>() {
     abstract fun getAllOfThem(): LiveData<List<Series>>
 
     fun getSeriesByFilter(filter: Filter): DataSource.Factory<Int, Series> {
-        Log.d(
-            TAG,
-            "Series By Filter: ${filter.hasDateFilter()} ${filter.hasPublisher()} $filter.hasCreator()}"
-        )
+
         var tableJoinString = String()
         var conditionsString = String()
         val args: ArrayList<Any> = arrayListOf()
@@ -48,10 +44,7 @@ abstract class SeriesDao : BaseDao<Series>() {
         if (filter.hasPublisher()) {
             tableJoinString += "JOIN publisher pr ON ss.publisherId = pr.publisherId "
 
-            val publisherList = filter.mPublishers.map { it.publisherId }.toString().replace(
-                "[",
-                "("
-            ).replace("]", ")")
+            val publisherList = modelsToSqlIdString(filter.mPublishers)
 
             conditionsString += "WHERE pr.publisherId IN $publisherList "
             containsCondition = true
@@ -71,10 +64,7 @@ abstract class SeriesDao : BaseDao<Series>() {
                         "JOIN credit ct on ct.storyId = sy.storyId " +
                         "JOIN namedetail nl on nl.nameDetailId = ct.nameDetailId "
 
-            val creatorsList = filter.mCreators.map { it.creatorId }.toString().replace(
-                "[", "" +
-                        "("
-            ).replace("]", ")")
+            val creatorsList = modelsToSqlIdString(filter.mCreators)
 
             conditionsString += "nl.creatorId IN $creatorsList "
         }
@@ -98,4 +88,5 @@ abstract class SeriesDao : BaseDao<Series>() {
 
         return getSeriesByQuery(query)
     }
+
 }

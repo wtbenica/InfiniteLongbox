@@ -21,6 +21,9 @@ data class Character(
                 "$shortName, The [$aka]"
             }
         }
+
+    override val id: Int
+        get() = characterId
 }
 
 @Entity(
@@ -48,4 +51,7 @@ data class Appearance(
     val storyId: Int,
     val characterId: Int,
     val details: String?
-) : DataModel
+) : DataModel {
+    override val id: Int
+        get() = appearanceId
+}

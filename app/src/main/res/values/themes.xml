@@ -10,7 +10,7 @@
 
         <!-- Secondary brand color. -->
         <item name="colorSecondary">@color/lime</item>
-        <item name="colorSecondaryVariant">@color/granite_light</item>
+        <item name="colorSecondaryVariant">@color/lime_light</item>
         <item name="colorOnSecondary">@color/light_black</item>
 
         <!-- Status bar color. -->
@@ -41,17 +41,17 @@
         <item name="backgroundTint">@null</item>
         <item name="android:textColor">@color/light_black</item>
         <item name="android:textStyle">bold</item>
-        <item name="android:background">@drawable/green_outline_grey_fill</item>
+        <item name="android:background">@drawable/blue_outline</item>
     </style>
 
     <style name="mySpinnerStyle" parent="Widget.AppCompat.Spinner">
-        <item name="android:background">@drawable/blue_outline</item>
-        <item name="android:popupBackground">@drawable/blue_outline</item>
+        <item name="android:background">@drawable/secondary_outline_white_background</item>
+        <item name="android:popupBackground">@drawable/secondary_outline_white_background</item>
     </style>
 
 
     <style name="myListItem">
-        <item name="android:background">@drawable/blue_outline</item>
+        <item name="android:elevation">1dp</item>
     </style>
 
 

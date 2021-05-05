@@ -6,9 +6,11 @@ import android.view.*
 import android.view.animation.AnimationUtils
 import android.view.animation.LayoutAnimationController
 import android.widget.*
+import androidx.cardview.widget.CardView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentTransaction
 import androidx.lifecycle.ViewModelProvider
+import androidx.paging.PagedList
 import androidx.recyclerview.widget.RecyclerView
 import com.wtb.comiccollector.*
 import com.wtb.comiccollector.Filter
@@ -24,7 +26,7 @@ class IssueListFragment : Fragment() {
         ViewModelProvider(this).get(IssueListViewModel::class.java)
     }
 
-    private lateinit var issueList: List<FullIssue>
+    private lateinit var issueList: PagedList<FullIssue>
 
     private var filter: Filter = Filter()
     private lateinit var issueGridView: GridView
@@ -141,7 +143,7 @@ class IssueListFragment : Fragment() {
             }
 
             val issue: FullIssue? = getItem(position)
-            val layout: LinearLayout? = listItemView?.findViewById(R.id.layout)
+            val layout: CardView? = listItemView?.findViewById(R.id.layout)
             val coverImageView: ImageView? = listItemView?.findViewById(R.id.list_item_cover)
             val issueNumTextView: TextView? = listItemView?.findViewById(R.id.list_item_issue)
             val variantNameTextView: TextView? = listItemView?.findViewById(R.id.list_item_name)
@@ -154,12 +156,12 @@ class IssueListFragment : Fragment() {
                 coverImageView?.setImageResource(R.drawable.ic_issue_add_cover)
             }
 
-            if (issue?.myCollection?.collectionId != null) {
-                layout?.setBackgroundResource(R.drawable.green_outline_grey_fill2)
-            } else {
-                layout?.setBackgroundResource(R.drawable.green_outline_grey_fill)
-            }
-
+//            if (issue?.myCollection?.collectionId != null) {
+//                layout?.setBackgroundResource(R.drawable.secondary_outline_white_background)
+//            } else {
+//                layout?.setBackgroundResource(R.drawable.primary_outline_white_background)
+//            }
+//
             issueNumTextView?.text = issue?.issue.toString()
 
             listItemView?.setOnClickListener {

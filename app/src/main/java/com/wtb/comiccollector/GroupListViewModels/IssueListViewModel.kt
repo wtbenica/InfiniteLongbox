@@ -5,10 +5,11 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
+import androidx.paging.PagedList
 import com.wtb.comiccollector.Filter
+import com.wtb.comiccollector.IssueRepository
 import com.wtb.comiccollector.database.models.FullIssue
 import com.wtb.comiccollector.database.models.Issue
-import com.wtb.comiccollector.IssueRepository
 import com.wtb.comiccollector.database.models.Series
 
 private const val TAG = "NewIssueListViewModel"
@@ -23,7 +24,7 @@ class IssueListViewModel : ViewModel() {
             issueRepository.getSeries(seriesId)
         }
 
-    var issueListLiveData: LiveData<List<FullIssue>> =
+    var issueListLiveData: LiveData<PagedList<FullIssue>> =
         Transformations.switchMap(filterLiveData) { filter ->
             filter?.let { issueRepository.getIssuesByFilter(it) }
         }

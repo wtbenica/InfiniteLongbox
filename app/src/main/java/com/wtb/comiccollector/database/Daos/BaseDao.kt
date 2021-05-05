@@ -82,4 +82,10 @@ abstract class BaseDao<T : DataModel> {
         }
 
     }
+
+    protected fun <T: DataModel> modelsToSqlIdString(mCreators: MutableSet<T>) =
+        mCreators.map { it.id }.toString().replace(
+            "[", "" +
+                    "("
+        ).replace("]", ")")
 }

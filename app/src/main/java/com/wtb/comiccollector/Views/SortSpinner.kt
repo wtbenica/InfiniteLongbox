@@ -1,8 +1,9 @@
-package com.wtb.comiccollector
+package com.wtb.comiccollector.Views
 
 import android.content.Context
 import android.util.AttributeSet
 import androidx.appcompat.widget.AppCompatSpinner
+import com.wtb.comiccollector.APP
 
 private const val TAG = APP + "SortSpinner"
 
@@ -31,8 +32,8 @@ class SeriesSortOption(
     tag: String, sortColumn: String) : SortOption(tag, sortColumn)
 
 val seriesSortOptions: List<SortOption> = listOf(
-    SeriesSortOption("A-Z", "seriesName ASC"),
-    SeriesSortOption("Z-A", "seriesName DESC"),
-    SeriesSortOption("Date - Earliest", "startDate ASC"),
-    SeriesSortOption("Date - Most Recent", "startDate DESC")
+    SeriesSortOption("Series Name (A-Z)", "seriesName ASC"),
+    SeriesSortOption("Series Name (Z-A)", "seriesName DESC"),
+    SeriesSortOption("Date (Oldest to Newest)", "startDate ASC"),
+    SeriesSortOption("Date (Newest to Oldest)", "startDate DESC")
 )
