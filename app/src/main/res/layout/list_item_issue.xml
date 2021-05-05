@@ -1,36 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/layout"
     android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:background="@color/granite_dark"
-    android:gravity="top"
-    android:orientation="vertical"
-    android:padding="0dp">
+    android:layout_height="wrap_content" >
 
-    <ImageView
-        android:id="@+id/list_item_cover"
-        android:layout_width="114dp"
-        android:layout_height="185dp"
-        android:contentDescription="@string/description_issue_cover"
-        android:scaleType="fitXY"
-        tools:srcCompat="@tools:sample/avatars" />
-
-    <TextView
-        android:id="@+id/list_item_issue"
-        android:layout_width="match_parent"
+    <LinearLayout
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:padding="4dp"
-        android:textAlignment="center"
-        android:textColor="@color/granite_light"
-        android:textSize="12sp"
-        android:textStyle="bold"
-        tools:text="@string/hint_issue_number" />
+        android:orientation="vertical">
 
-    <TextView
-        android:id="@+id/list_item_name"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:visibility="gone" />
-</LinearLayout>
+        <ImageView
+            android:id="@+id/list_item_cover"
+            android:layout_width="114dp"
+            android:layout_height="185dp"
+            android:contentDescription="@string/description_issue_cover"
+            android:scaleType="fitXY" />
+
+        <TextView
+            android:id="@+id/list_item_issue"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:padding="4dp"
+            android:textAlignment="center"
+            android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle2"
+            android:textSize="12sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/list_item_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone" />
+    </LinearLayout>
+</androidx.cardview.widget.CardView>

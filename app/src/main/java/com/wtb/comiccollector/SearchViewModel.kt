@@ -3,7 +3,7 @@ package com.wtb.comiccollector
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.wtb.comiccollector.database.models.Filterable
+import com.wtb.comiccollector.database.models.FilterOption
 
 private const val TAG = APP + "SearchViewModel"
 
@@ -15,14 +15,18 @@ class SearchViewModel : ViewModel() {
 
     var filterLiveData = MutableLiveData(Filter())
 
-    fun addItem(item: Filterable) {
+    fun addItem(item: FilterOption) {
         Log.d(TAG, "addItem $item")
-        filterLiveData.value?.addItem(item)
+        val newVal = filterLiveData.value
+        newVal?.addItem(item)
+        filterLiveData.value = newVal
     }
 
-    fun removeItem(item: Filterable) {
+    fun removeItem(item: FilterOption) {
         Log.d(TAG, "removeItem $item")
-        filterLiveData.value?.removeItem(item)
+        val newVal = filterLiveData.value
+        newVal?.removeItem(item)
+        filterLiveData.value = newVal
     }
 
     fun myCollection(isChecked: Boolean) {

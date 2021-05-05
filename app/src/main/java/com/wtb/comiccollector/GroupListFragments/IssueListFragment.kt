@@ -5,16 +5,18 @@ import android.os.Bundle
 import android.view.*
 import android.view.animation.AnimationUtils
 import android.view.animation.LayoutAnimationController
-import android.widget.ArrayAdapter
-import android.widget.GridView
-import android.widget.ImageView
-import android.widget.TextView
+import android.widget.*
+import androidx.cardview.widget.CardView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentTransaction
 import androidx.lifecycle.ViewModelProvider
+import androidx.paging.PagedList
 import androidx.recyclerview.widget.RecyclerView
 import com.wtb.comiccollector.*
+import com.wtb.comiccollector.Filter
 import com.wtb.comiccollector.GroupListViewModels.IssueListViewModel
+import com.wtb.comiccollector.database.models.FullIssue
+import com.wtb.comiccollector.database.models.Issue
 
 private const val TAG = APP + "IssueListFragment"
 
@@ -24,7 +26,7 @@ class IssueListFragment : Fragment() {
         ViewModelProvider(this).get(IssueListViewModel::class.java)
     }
 
-    private lateinit var issueList: List<FullIssue>
+    private lateinit var issueList: PagedList<FullIssue>
 
     private var filter: Filter = Filter()
     private lateinit var issueGridView: GridView
@@ -58,7 +60,6 @@ class IssueListFragment : Fragment() {
         val view = inflater.inflate(R.layout.fragment_item_grid, container, false)
 
         issueGridView = view.findViewById(R.id.results_frame)
-//        issueGridView.layoutManager = LinearLayoutManager(context)
         issueGridView.adapter = adapter
 
         return view
@@ -66,7 +67,6 @@ class IssueListFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-//        filter.mSeries?.let { issueListViewModel.loadSeries(it) }
         issueListViewModel.setFilter(filter)
 
         issueListViewModel.issueListLiveData.observe(
@@ -74,7 +74,7 @@ class IssueListFragment : Fragment() {
             { issues ->
                 issues?.let {
                     this.issueList = it
-                    updateUI(issues)
+                    updateUI()
                 }
             }
         )
@@ -113,8 +113,8 @@ class IssueListFragment : Fragment() {
         }
     }
 
-    private fun updateUI(issues: List<FullIssue>) {
-        adapter = parentFragment?.context?.let { GridAdapt(it, issues) }
+    private fun updateUI() {
+        adapter = parentFragment?.context?.let { GridAdapt(it, this.issueList) }
         issueGridView.adapter = adapter
 //        runLayoutAnimation(issueGridView)
     }
@@ -143,6 +143,7 @@ class IssueListFragment : Fragment() {
             }
 
             val issue: FullIssue? = getItem(position)
+            val layout: CardView? = listItemView?.findViewById(R.id.layout)
             val coverImageView: ImageView? = listItemView?.findViewById(R.id.list_item_cover)
             val issueNumTextView: TextView? = listItemView?.findViewById(R.id.list_item_issue)
             val variantNameTextView: TextView? = listItemView?.findViewById(R.id.list_item_name)
@@ -155,6 +156,12 @@ class IssueListFragment : Fragment() {
                 coverImageView?.setImageResource(R.drawable.ic_issue_add_cover)
             }
 
+//            if (issue?.myCollection?.collectionId != null) {
+//                layout?.setBackgroundResource(R.drawable.secondary_outline_white_background)
+//            } else {
+//                layout?.setBackgroundResource(R.drawable.primary_outline_white_background)
+//            }
+//
             issueNumTextView?.text = issue?.issue.toString()
 
             listItemView?.setOnClickListener {

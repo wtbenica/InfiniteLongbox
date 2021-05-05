@@ -15,8 +15,9 @@ import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.chip.ChipGroup
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.wtb.comiccollector.GroupListFragments.SeriesListFragment
-import com.wtb.comiccollector.database.models.Filterable
-import com.wtb.comiccollector.database.models.Series
+import com.wtb.comiccollector.Views.Chippy
+import com.wtb.comiccollector.Views.SortOption
+import com.wtb.comiccollector.database.models.*
 
 private const val TAG = APP + "SearchFragment"
 
@@ -55,8 +56,9 @@ class SearchFragment : Fragment(), Chippy.ChipCallbacks, SeriesListFragment.Call
     private val sharedPreferences = context?.getSharedPreferences(SHARED_PREFS, MODE_PRIVATE)
     private var callbacks: Callbacks? = null
 
+    private lateinit var sortSpinner: Spinner
     private lateinit var myCollectionSwitch: SwitchCompat
-    private lateinit var searchScrollView: LinearLayout
+    private lateinit var searchChipFrame: LinearLayout
     private lateinit var searchChipGroup: ChipGroup
     private lateinit var searchBox: LinearLayout
     private lateinit var searchTextView: AutoCompleteTextView
@@ -82,8 +84,9 @@ class SearchFragment : Fragment(), Chippy.ChipCallbacks, SeriesListFragment.Call
     ): View? {
         val view = inflater.inflate(R.layout.search_fragment, container, false)
         Log.d(TAG, "onCreateView")
+        sortSpinner = view.findViewById(R.id.spinner) as Spinner
         myCollectionSwitch = view.findViewById(R.id.my_collection_switch) as SwitchCompat
-        searchScrollView = view.findViewById(R.id.chip_holder) as LinearLayout
+        searchChipFrame = view.findViewById(R.id.chip_holder) as LinearLayout
         searchChipGroup = view.findViewById(R.id.search_chipgroup) as ChipGroup
         searchBox = view.findViewById(R.id.search_box) as LinearLayout
         searchTextView = view.findViewById(R.id.search_tv) as AutoCompleteTextView
@@ -118,7 +121,13 @@ class SearchFragment : Fragment(), Chippy.ChipCallbacks, SeriesListFragment.Call
         viewModel.filterLiveData.observe(
             viewLifecycleOwner,
             { filter ->
+                Log.d(TAG, "filter changed ${filter.getSortOptions()}")
                 this.filter = filter
+                sortSpinner.adapter = ArrayAdapter(
+                    requireContext(),
+                    androidx.appcompat.R.layout.support_simple_spinner_dropdown_item,
+                    this.filter.getSortOptions()
+                )
                 onUpdate()
             }
         )
@@ -129,7 +138,8 @@ class SearchFragment : Fragment(), Chippy.ChipCallbacks, SeriesListFragment.Call
         Log.d(TAG, "onStart")
         searchTextView.onItemClickListener =
             AdapterView.OnItemClickListener { parent, view, position, id ->
-                val item = parent?.adapter?.getItem(position) as Filterable
+                Log.d(TAG, "searchTextView item clicked")
+                val item = parent?.adapter?.getItem(position) as FilterOption
                 viewModel.addItem(item)
                 searchBox.visibility = View.GONE
                 searchTextView.text.clear()
@@ -138,6 +148,7 @@ class SearchFragment : Fragment(), Chippy.ChipCallbacks, SeriesListFragment.Call
             }
 
         myCollectionSwitch.setOnCheckedChangeListener { buttonView, isChecked ->
+            Log.d(TAG, "myCollection switch toggled")
             viewModel.myCollection(isChecked)
             onUpdate()
         }
@@ -152,6 +163,25 @@ class SearchFragment : Fragment(), Chippy.ChipCallbacks, SeriesListFragment.Call
                 View.GONE
             }
         }
+
+        sortSpinner.onItemSelectedListener =
+            object : AdapterView.OnItemSelectedListener {
+                override fun onItemSelected(
+                    parent: AdapterView<*>?,
+                    view: View?,
+                    position: Int,
+                    id: Long
+                ) {
+                    Log.d(TAG, "sort spinner item selected")
+                    val item = parent?.adapter?.getItem(position) as SortOption
+                    filter.mSortOption = item
+                    onUpdate()
+                }
+
+                override fun onNothingSelected(parent: AdapterView<*>?) {
+
+                }
+            }
     }
 
     override fun onDetach() {
@@ -160,14 +190,14 @@ class SearchFragment : Fragment(), Chippy.ChipCallbacks, SeriesListFragment.Call
         callbacks = null
     }
 
-    private fun addChip(item: Filterable) {
+    private fun addChip(item: FilterOption) {
         Log.d(TAG, "adding chip $item")
         val chip = Chippy(context, item, this@SearchFragment)
-        searchScrollView.visibility = View.VISIBLE
+        searchChipFrame.visibility = View.VISIBLE
         searchChipGroup.addView(chip)
     }
 
-    override fun chipClosed(view: View, item: Filterable) {
+    override fun chipClosed(view: View, item: FilterOption) {
         Log.d(TAG, "chipClosed $item")
         viewModel.removeItem(item)
         onUpdate()
@@ -185,15 +215,20 @@ class SearchFragment : Fragment(), Chippy.ChipCallbacks, SeriesListFragment.Call
     }
 
     private fun updateUI() {
+        Log.d(TAG, "updateUI")
         searchChipGroup.removeAllViews()
         filter.getAll().let { filters ->
             if (filters.isEmpty()) {
-                searchScrollView.visibility = View.GONE
+                searchChipFrame.visibility = View.GONE
             } else {
-                searchScrollView.visibility = View.VISIBLE
+                searchChipFrame.visibility = View.VISIBLE
                 filters.forEach { addChip(it) }
             }
         }
+
+        val indexOf = filter.getSortOptions().indexOf(filter.mSortOption)
+        Log.d(TAG, "Setting sortSpinner to pos $indexOf ${filter.mSortOption}")
+        sortSpinner.setSelection(indexOf)
     }
 
     companion object {

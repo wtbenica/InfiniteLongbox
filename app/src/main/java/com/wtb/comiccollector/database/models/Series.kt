@@ -4,7 +4,6 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
-import com.wtb.comiccollector.AUTO_ID
 import java.io.Serializable
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -33,11 +32,15 @@ data class Series(
     var endDate: LocalDate? = null,
     var description: String? = null,
     var publishingFormat: String? = null
-) : DataModel, Filterable, Serializable {
+) : FilterOption, Serializable {
 
-    override fun id(): Int = seriesId
+    override fun compareTo(other: FilterOption): Int = when (other) {
+        is Series -> this.seriesName.compareTo(other.seriesName)
+        else -> 1
+    }
 
-    override fun sortValue(): String = seriesName
+    override val id: Int
+        get() = seriesId
 
     override fun toString(): String = "$seriesName $dateRange"
 
@@ -52,7 +55,6 @@ data class Series(
                 ) ?: " "
             })"
         } ?: ""
-
 }
 
 @Entity(
@@ -63,10 +65,17 @@ data class Series(
 data class Publisher(
     @PrimaryKey(autoGenerate = true) val publisherId: Int = AUTO_ID,
     val publisher: String = ""
-) : Filterable {
-    override fun sortValue(): String = publisher
+) : FilterOption {
 
-    override fun id(): Int = publisherId
+    override fun compareTo(other: FilterOption): Int =
+        when (other) {
+            is Series -> -1
+            is Publisher -> this.publisher.compareTo(other.publisher)
+            else -> 1 // is Creator
+        }
+
+    override val id: Int
+        get() = publisherId
 
     override fun toString(): String {
         return publisher

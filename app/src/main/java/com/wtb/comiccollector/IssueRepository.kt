@@ -17,10 +17,14 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.liveData
+import androidx.paging.DataSource
+import androidx.paging.PagedList
+import androidx.paging.toLiveData
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.wtb.comiccollector.database.Daos.Count
+import com.wtb.comiccollector.database.Daos.REQUEST_LIMIT
 import com.wtb.comiccollector.database.IssueDatabase
 import com.wtb.comiccollector.database.migration_1_2
 import com.wtb.comiccollector.database.models.*
@@ -109,7 +113,7 @@ class IssueRepository private constructor(val context: Context) {
         retrofit.create(Webservice::class.java)
     }
 
-    var allSeries: LiveData<List<Series>> = seriesDao.getAllSeries()
+    var allSeries = seriesDao.getAllOfThem()
     val allPublishers: LiveData<List<Publisher>> = publisherDao.getPublishersList()
     val allCreators: LiveData<List<Creator>> = creatorDao.getCreatorsList()
     val allRoles: LiveData<List<Role>> = roleDao.getRoleList()
@@ -118,11 +122,14 @@ class IssueRepository private constructor(val context: Context) {
         series = allSeries,
         creators = allCreators,
         publishers = allPublishers,
-        combine = { series: List<Series>?, creators: List<Creator>?, publishers: List<Publisher>? ->
-            val res = (series as List<Filterable>? ?: emptyList()) + (creators as List<Filterable>?
-                ?: emptyList()) + (publishers as List<Filterable>? ?: emptyList())
-            sort(res)
-            res
+        combine = { series: List<Series?>?, creators: List<Creator>?, publishers:
+        List<Publisher>? ->
+            val res =
+                (series as List<FilterOption?>? ?: emptyList()) + (creators as List<FilterOption>?
+                    ?: emptyList()) + (publishers as List<FilterOption>? ?: emptyList())
+            val x: List<FilterOption> = res.mapNotNull { it }
+            sort(x)
+            x
         })
 
     init {
@@ -139,41 +146,35 @@ class IssueRepository private constructor(val context: Context) {
         return issueDao.getFullIssue(issueId)
     }
 
-    fun getIssuesByFilter(filter: Filter): LiveData<List<FullIssue>>? {
+    fun getIssuesByFilter(filter: Filter): LiveData<PagedList<FullIssue>> {
         val seriesId = filter.mSeries!!.seriesId
         val creatorIds = filter.mCreators.map { it.creatorId }
         Log.d(TAG, "SeriesId Filter: $seriesId - CreatorId Filter: $creatorIds")
 
-        return when {
-            filter.hasCreator() -> {
-                CreatorUpdater().updateAll(creatorIds)
-                if (filter.mMyCollection) {
-                    collectionDao.getIssuesBySeriesCreator(seriesId, creatorIds)
-                } else {
-                    issueDao.getIssuesBySeriesCreator(seriesId, creatorIds)
-                }
-            }
-            filter.hasSeries() -> {
-                IssueUpdater().update(seriesId)
-                if (filter.mMyCollection) {
-                    collectionDao.getIssuesBySeries(seriesId)
-                } else {
-                    issueDao.getIssuesBySeries(seriesId)
-                }
-            }
-            else -> {
-                null
-            }
+        if (filter.hasCreator()) {
+            CreatorUpdater().updateAll(creatorIds)
         }
+
+        IssueUpdater().update(seriesId)
+
+        return issueDao.getIssuesByFilter(filter).toLiveData(pageSize = REQUEST_LIMIT)
+
     }
 
-    fun getSeriesByFilter(filter: Filter): LiveData<List<Series>> {
+    fun getSeriesByFilter(filter: Filter): DataSource.Factory<Int, Series> {
+        Log.d(
+            TAG,
+            "getSeriesByFilter: ${filter.hasCreator()} ${filter.hasPublisher()} ${
+                filter
+                    .hasDateFilter()
+            } ${filter.mSeries == null} ${filter.mSortOption.tag}"
+        )
         if (filter.hasCreator()) {
             val updater = CreatorUpdater()
             filter.mCreators.forEach { updater.update(it.creatorId) }
         }
 
-        if (filter.hasSeries()) {
+        if (filter.returnsIssueList()) {
             filter.mSeries?.let { IssueUpdater().update(it.seriesId) }
         }
 
@@ -293,8 +294,10 @@ class IssueRepository private constructor(val context: Context) {
         }
 
         private suspend fun updateSeries() {
+
             var page = 0
             var stop = false
+
             do {
                 withContext(Dispatchers.Default) {
                     apiService.getSeries(page)
@@ -307,6 +310,7 @@ class IssueRepository private constructor(val context: Context) {
                 }
                 page += 1
             } while (!stop)
+
             saveTime(prefs, SERIES_LIST_UPDATED)
         }
     }
@@ -389,9 +393,9 @@ class IssueRepository private constructor(val context: Context) {
                             kotlin.runCatching {
                                 Log.d(TAG, "Starting connection.....")
                                 val doc = Jsoup.connect(issue.url).get()
-                                val no_cover = doc.getElementsByClass("no_cover").size == 1
+                                val noCover = doc.getElementsByClass("no_cover").size == 1
                                 val url = URL(doc.getElementsByClass("cover_img")[0].attr("src"))
-                                if (!no_cover) {
+                                if (!noCover) {
                                     val image = GlobalScope.async {
                                         url.toBitmap()
                                     }
@@ -936,8 +940,11 @@ class CombinedLiveData(
     series: LiveData<List<Series>>?,
     creators: LiveData<List<Creator>>?,
     publishers: LiveData<List<Publisher>>?,
-    private val combine: (data1: List<Series>?, data2: List<Creator>?, data3: List<Publisher>?) -> List<Filterable>
-) : MediatorLiveData<List<Filterable>>() {
+    private val combine: (
+        data1: List<Series>?, data2: List<Creator>?, data3:
+        List<Publisher>?
+    ) -> List<FilterOption>
+) : MediatorLiveData<List<FilterOption>>() {
 
     private var mSeries: List<Series>? = null
     private var mCreators: List<Creator>? = null

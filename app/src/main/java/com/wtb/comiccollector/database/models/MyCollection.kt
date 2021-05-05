@@ -4,8 +4,6 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
-import com.wtb.comiccollector.AUTO_ID
-import com.wtb.comiccollector.Issue
 
 @Entity(
     foreignKeys = [
@@ -24,6 +22,7 @@ data class MyCollection(
     @PrimaryKey(autoGenerate = true) val collectionId: Int = AUTO_ID,
     var issueId: Int
 ) : DataModel {
-    override fun id(): Int = collectionId
+    override val id: Int
+        get() = collectionId
 }
 

@@ -4,7 +4,6 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
-import com.wtb.comiccollector.AUTO_ID
 
 @Entity
 data class Character(
@@ -12,7 +11,6 @@ data class Character(
     var name: String,
     var aka: String? = null
 ) : DataModel {
-    override fun id(): Int = characterId
 
     val sortName: String
         get() {
@@ -23,6 +21,9 @@ data class Character(
                 "$shortName, The [$aka]"
             }
         }
+
+    override val id: Int
+        get() = characterId
 }
 
 @Entity(
@@ -51,5 +52,6 @@ data class Appearance(
     val characterId: Int,
     val details: String?
 ) : DataModel {
-    override fun id(): Int = appearanceId
+    override val id: Int
+        get() = appearanceId
 }

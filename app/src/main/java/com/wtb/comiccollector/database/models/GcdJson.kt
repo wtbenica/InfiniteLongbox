@@ -1,8 +1,7 @@
-package com.wtb.comiccollector
+package com.wtb.comiccollector.database.models
 
 import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
-import com.wtb.comiccollector.database.models.*
 import java.time.LocalDate
 
 // TODO: do all these val need to be nullable?
@@ -144,7 +143,7 @@ class GcdIssue(
     @SerializedName("publication_date")
     @Expose
     val publicationDate: String?,
-    @SerializedName("key_date")
+    @SerializedName("on_sale_date")
     @Expose
     val onSaleDate: String,
     @SerializedName("no_barcode")

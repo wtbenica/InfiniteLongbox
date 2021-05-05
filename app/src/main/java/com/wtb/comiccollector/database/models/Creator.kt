@@ -4,18 +4,22 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
-import com.wtb.comiccollector.AUTO_ID
 
 @Entity
 data class Creator(
     @PrimaryKey(autoGenerate = true) val creatorId: Int = AUTO_ID,
     var name: String,
     var sortName: String
-) : Filterable {
+) : FilterOption {
 
-    override fun id(): Int = creatorId
+    override fun compareTo(other: FilterOption): Int = when (other) {
+            is Series -> -1
+            is Creator -> this.sortName.compareTo(other.sortName)
+            else -> 1 // is Publisher
+        }
 
-    override fun sortValue(): String = name
+    override val id: Int
+        get() = creatorId
 
     override fun toString(): String {
         return name
@@ -40,5 +44,6 @@ data class NameDetail(
     var creatorId: Int,
     var name: String
 ) : DataModel {
-    override fun id(): Int = nameDetailId
+    override val id: Int
+        get() = nameDetailId
 }

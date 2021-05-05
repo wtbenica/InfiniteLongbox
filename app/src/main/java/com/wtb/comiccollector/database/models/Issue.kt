@@ -1,10 +1,9 @@
-package com.wtb.comiccollector
+package com.wtb.comiccollector.database.models
 
 import android.net.Uri
 import androidx.room.*
 import androidx.room.ForeignKey.CASCADE
-import com.wtb.comiccollector.database.models.DataModel
-import com.wtb.comiccollector.database.models.Series
+import com.wtb.comiccollector.DUMMY_ID
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
@@ -41,14 +40,14 @@ data class Issue(
     var variantName: String = "",
     var variantOf: Int? = null,
     var sortCode: Int = 0
-) : DataModel {
+) : DataModel, Comparable<Issue> {
     val coverFileName: String
         get() = "IMG_$issueId.jpg"
 
     val url: String
         get() = "https://www.comics.org/issue/$issueId/"
-
-    override fun id(): Int = issueId
+    override val id: Int
+        get() = issueId
 
     override fun toString(): String {
         return if (variantOf == null) {
@@ -74,7 +73,7 @@ data class Issue(
                 } catch (e: DateTimeParseException) {
                     try {
                         LocalDate.parse(
-                            newDate.subSequence(0, 8).toString() + "-01",
+                            newDate.subSequence(0, newDate.length).toString() + "-01",
                             DateTimeFormatter.ofPattern(("uuuu-MM-dd"))
                         )
                     } catch (e: DateTimeParseException) {
@@ -94,14 +93,17 @@ data class Issue(
             return res
         }
     }
-}
 
+    override fun compareTo(other: Issue): Int = this.issueNum.compareTo(other.issueNum)
+}
 
 data class FullIssue(
     @Embedded
     val issue: Issue,
     val seriesName: String,
-    val publisher: String
+    val publisher: String,
+    @Relation(parentColumn = "issueId", entityColumn = "issueId")
+    var myCollection: MyCollection?
 )
 
 data class IssueAndSeries(

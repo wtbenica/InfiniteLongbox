@@ -14,9 +14,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.wtb.comiccollector.*
 import com.wtb.comiccollector.IssueDetailViewModel.IssueDetailViewModel
 import com.wtb.comiccollector.database.Daos.Count
-import com.wtb.comiccollector.database.models.FullCredit
-import com.wtb.comiccollector.database.models.Series
-import com.wtb.comiccollector.database.models.Story
+import com.wtb.comiccollector.database.models.*
 import java.io.File
 import java.time.format.DateTimeFormatter
 import java.util.*
@@ -294,7 +292,7 @@ class IssueDetailFragment : Fragment() {
             val url = "https://www.comics.org/issue/${fullIssue.issue.issueId}"
             val intent = Intent().apply {
                 action = Intent.ACTION_VIEW
-                setData(Uri.parse(url))
+                data = Uri.parse(url)
             }
             startActivity(intent)
         }
@@ -388,7 +386,7 @@ class IssueDetailFragment : Fragment() {
 
         issueNumTextView.text = fullIssue.issue.issueNum.toString()
 
-        this.fullIssue.issue.releaseDate?.format(DateTimeFormatter.ofPattern("MMMM d, y"))
+        this.fullIssue.issue.releaseDate?.format(DateTimeFormatter.ofPattern("MMM d, y"))
             ?.let { releaseDateTextView.text = it }
 
         updateCover()
@@ -406,10 +404,6 @@ class IssueDetailFragment : Fragment() {
             coverImageView.setImageResource(R.drawable.ic_issue_add_cover)
         }
         coverImageView.contentDescription = "Issue Cover (set)"
-    }
-
-    private fun toggleEnable() {
-
     }
 
     companion object {

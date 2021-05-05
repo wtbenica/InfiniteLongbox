@@ -1,4 +1,4 @@
-package com.wtb.comiccollector
+package com.wtb.comiccollector.Views
 
 import android.text.Editable
 import android.text.TextWatcher

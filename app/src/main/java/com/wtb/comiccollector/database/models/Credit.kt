@@ -1,7 +1,6 @@
 package com.wtb.comiccollector.database.models
 
 import androidx.room.*
-import com.wtb.comiccollector.AUTO_ID
 
 @Entity(
     indices = [
@@ -37,7 +36,8 @@ data class Credit(
     var nameDetailId: Int,
     var roleId: Int
 ) : DataModel {
-    override fun id(): Int = creditId
+    override val id: Int
+        get() = creditId
 }
 
 @Entity(
@@ -74,7 +74,8 @@ data class MyCredit(
     var creatorId: Int,
     var roleId: Int
 ) : DataModel {
-    override fun id(): Int = creditId
+    override val id: Int
+        get() = creditId
 }
 
 @Entity(
@@ -100,7 +101,8 @@ data class Story(
     var sequenceNumber: Int = 0,
     val issueId: Int,
 ) : DataModel {
-    override fun id(): Int = storyId
+    override val id: Int
+        get() = storyId
 }
 
 @Entity
@@ -109,7 +111,8 @@ data class StoryType(
     val name: String,
     val sortCode: Int
 ) : DataModel {
-    override fun id(): Int = typeId
+    override val id: Int
+        get() = typeId
 }
 
 @Entity
@@ -118,9 +121,10 @@ data class Role(
     var roleName: String = "",
     var sortOrder: Int
 ) : DataModel {
-    override fun toString(): String = roleName
+    override val id: Int
+        get() = roleId
 
-    override fun id(): Int = roleId
+    override fun toString(): String = roleName
 
     companion object {
         enum class Name(val value: Int) {

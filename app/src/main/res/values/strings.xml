@@ -56,6 +56,8 @@
     <string name="goto_one_forward"><![CDATA[>]]></string>
     <string name="goto_skip_forward"><![CDATA[>>]]></string>
     <string name="goto_end"><![CDATA[>>>]]></string>
+    <string name="sort">Sort</string>
+    <string name="my_collection">My Collection</string>
     <string-array name="grouping_options">
         <item>@string/series</item>
         <item>@string/creator</item>

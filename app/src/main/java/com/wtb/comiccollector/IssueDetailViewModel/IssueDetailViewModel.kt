@@ -2,7 +2,8 @@ package com.wtb.comiccollector.IssueDetailViewModel
 
 import android.util.Log
 import androidx.lifecycle.*
-import com.wtb.comiccollector.*
+import com.wtb.comiccollector.APP
+import com.wtb.comiccollector.IssueRepository
 import com.wtb.comiccollector.database.Daos.Count
 import com.wtb.comiccollector.database.models.*
 

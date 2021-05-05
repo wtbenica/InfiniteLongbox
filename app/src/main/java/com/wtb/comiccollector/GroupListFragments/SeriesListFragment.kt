@@ -9,11 +9,18 @@ import android.view.animation.AnimationUtils
 import android.view.animation.LayoutAnimationController
 import android.widget.TextView
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.paging.PagedList
+import androidx.paging.PagedListAdapter
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.wtb.comiccollector.*
+import com.wtb.comiccollector.APP
+import com.wtb.comiccollector.ARG_FILTER
+import com.wtb.comiccollector.Filter
 import com.wtb.comiccollector.GroupListViewModels.SeriesListViewModel
+import com.wtb.comiccollector.R
 import com.wtb.comiccollector.database.models.Series
 
 private const val TAG = APP + "SeriesListFragment"
@@ -24,7 +31,7 @@ class SeriesListFragment(var callback: Callbacks? = null) : Fragment() {
         ViewModelProvider(this).get(SeriesListViewModel::class.java)
     }
 
-    private lateinit var seriesList: List<Series>
+    private var seriesList: PagedList<Series>? = null
 
     private var filter = Filter()
     private lateinit var itemListRecyclerView: RecyclerView
@@ -34,6 +41,7 @@ class SeriesListFragment(var callback: Callbacks? = null) : Fragment() {
         setHasOptionsMenu(true)
 
         filter = arguments?.getSerializable(ARG_FILTER) as Filter
+        viewModel.setFilter(filter)
     }
 
 
@@ -43,34 +51,17 @@ class SeriesListFragment(var callback: Callbacks? = null) : Fragment() {
     ): View? {
         val view = inflater.inflate(R.layout.fragment_item_list, container, false)
 
-        seriesList = emptyList()
-
         itemListRecyclerView = view.findViewById(R.id.results_frame) as RecyclerView
         itemListRecyclerView.layoutManager = LinearLayoutManager(context)
-        itemListRecyclerView.adapter = SeriesAdapter(seriesList)
+        val adapter = SeriesAdapter()
+        itemListRecyclerView.adapter = adapter
+        viewModel.seriesListLiveData.observe(viewLifecycleOwner, Observer(adapter::submitList))
 
         return view
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
-        viewModel.setFilter(filter)
-
-        viewModel.seriesListLiveData.observe(
-            viewLifecycleOwner,
-            { objectList ->
-                objectList?.let {
-                    this.seriesList = it
-                    updateUI()
-                }
-            }
-        )
-    }
-
     private fun updateUI() {
-        itemListRecyclerView.adapter = SeriesAdapter(seriesList)
-        runLayoutAnimation(itemListRecyclerView)
+
     }
 
     private fun runLayoutAnimation(view: RecyclerView) {
@@ -83,27 +74,21 @@ class SeriesListFragment(var callback: Callbacks? = null) : Fragment() {
         view.scheduleLayoutAnimation()
     }
 
-    inner class SeriesAdapter(private var seriesList: List<Series>) : RecyclerView.Adapter<SeriesHolder>() {
+    inner class SeriesAdapter :
+        PagedListAdapter<Series, SeriesHolder>(DIFF_CALLBACK) {
 
-        private var lastPosition = -1
-
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SeriesHolder {
-            val view = layoutInflater.inflate(R.layout.list_item_series, parent, false)
-            return getHolder(view)
-        }
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SeriesHolder =
+            SeriesHolder(parent)
 
         override fun onBindViewHolder(holder: SeriesHolder, position: Int) {
-            val item = seriesList[position]
-            holder.bind(item)
+            getItem(position)?.let { holder.bind(it) }
         }
-
-        override fun getItemCount(): Int = seriesList.size
-
-        private fun getHolder(view: View) = SeriesHolder(view)
     }
 
-    inner class SeriesHolder(view: View) : RecyclerView.ViewHolder(view),
-        View.OnClickListener {
+    inner class SeriesHolder(parent: ViewGroup) : RecyclerView.ViewHolder(
+        LayoutInflater.from
+            (parent.context).inflate(R.layout.list_item_series, parent, false)
+    ), View.OnClickListener {
 
         lateinit var item: Series
 
@@ -148,5 +133,14 @@ class SeriesListFragment(var callback: Callbacks? = null) : Fragment() {
                     putSerializable(ARG_FILTER, filter)
                 }
             }
+
+        private val DIFF_CALLBACK = object : DiffUtil.ItemCallback<Series>() {
+            override fun areItemsTheSame(oldItem: Series, newItem: Series): Boolean =
+                oldItem.seriesId == newItem.seriesId
+
+
+            override fun areContentsTheSame(oldItem: Series, newItem: Series): Boolean =
+                oldItem == newItem
+        }
     }
 }

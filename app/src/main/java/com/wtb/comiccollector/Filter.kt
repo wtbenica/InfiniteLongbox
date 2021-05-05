@@ -3,8 +3,11 @@ package com.wtb.comiccollector
 import androidx.fragment.app.Fragment
 import com.wtb.comiccollector.GroupListFragments.IssueListFragment
 import com.wtb.comiccollector.GroupListFragments.SeriesListFragment
+import com.wtb.comiccollector.Views.SortOption
+import com.wtb.comiccollector.Views.issueSortOptions
+import com.wtb.comiccollector.Views.seriesSortOptions
 import com.wtb.comiccollector.database.models.Creator
-import com.wtb.comiccollector.database.models.Filterable
+import com.wtb.comiccollector.database.models.FilterOption
 import com.wtb.comiccollector.database.models.Publisher
 import com.wtb.comiccollector.database.models.Series
 import java.io.Serializable
@@ -21,15 +24,22 @@ class Filter(
     myCollection: Boolean = false
 ) : Serializable {
 
+    override fun equals(other: Any?): Boolean {
+        return other is Filter && hashCode() == other.hashCode()
+    }
+
+    var mCurrentItems: Int = 0
     var mCreators: MutableSet<Creator> = creators ?: mutableSetOf()
     var mSeries: Series? = series
     var mPublishers: MutableSet<Publisher> = publishers ?: mutableSetOf()
     var mStartDate: LocalDate = startDate ?: LocalDate.MIN
     var mEndDate: LocalDate = endDate ?: LocalDate.MAX
     var mMyCollection: Boolean = myCollection
+    var mSortOption: SortOption = getSortOptions()[0]
+
 
     fun hasCreator() = mCreators.isNotEmpty()
-    fun hasSeries() = mSeries != null
+    fun returnsIssueList() = mSeries != null
     fun hasPublisher() = mPublishers.isNotEmpty()
     fun hasDateFilter() = mStartDate != LocalDate.MIN || mEndDate != LocalDate.MAX
 
@@ -47,6 +57,7 @@ class Filter(
 
     private fun removeSeries() {
         this.mSeries = null
+        mSortOption = getSortOptions()[0]
     }
 
     private fun addPublisher(vararg publisher: Publisher) {
@@ -61,7 +72,7 @@ class Filter(
         this.mMyCollection = value
     }
 
-    fun addItem(vararg items: Filterable) {
+    fun addItem(vararg items: FilterOption) {
         items.forEach { item ->
             when (item) {
                 is Series -> addSeries(item)
@@ -71,7 +82,7 @@ class Filter(
         }
     }
 
-    fun removeItem(vararg items: Filterable) {
+    fun removeItem(vararg items: FilterOption) {
         items.forEach { item ->
             when (item) {
                 is Series -> removeSeries()
@@ -88,6 +99,11 @@ class Filter(
         }
     }
 
+    fun getSortOptions(): List<SortOption> = when (mSeries) {
+        null -> seriesSortOptions
+        else -> issueSortOptions
+    }
+
     fun updateCreators(creators: List<Creator>?) {
         mCreators.clear()
         creators?.let { mCreators.addAll(it) }
@@ -102,12 +118,24 @@ class Filter(
         mSeries = series
     }
 
-    fun getAll(): Set<Filterable> =
+    fun getAll(): Set<FilterOption> =
         if (mSeries != null) {
             mCreators + mPublishers + mSeries!!
         } else {
             mCreators + mPublishers
         }
+
+    override fun hashCode(): Int {
+        var result =  mCurrentItems
+        result = 31 * result + mCreators.hashCode()
+        result = 31 * result + (mSeries?.hashCode() ?: 0)
+        result = 31 * result + mPublishers.hashCode()
+        result = 31 * result + mStartDate.hashCode()
+        result = 31 * result + mEndDate.hashCode()
+        result = 31 * result + mMyCollection.hashCode()
+        result = 31 * result + mSortOption.hashCode()
+        return result
+    }
 
     companion object {
         fun deserialize(str: String?): MutableSet<Int> {
