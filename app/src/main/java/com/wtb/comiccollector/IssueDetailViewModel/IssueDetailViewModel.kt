@@ -15,14 +15,14 @@ class IssueDetailViewModel : ViewModel() {
     private val issueIdLiveData = MutableLiveData<Int>()
     private val variantIdLiveData = MutableLiveData<Int?>()
 
-    val issueLiveData: LiveData<IssueAndSeries> =
+    val issueLiveData: LiveData<FullIssue> =
         Transformations.switchMap(issueIdLiveData) { issueId ->
             issueRepository.getIssue(issueId)
         }
 
     val issueListLiveData: LiveData<List<FullIssue>> =
         Transformations.switchMap(issueLiveData) { issue ->
-            issueRepository.getIssuesBySeries(issue.series.seriesId)
+            issueRepository.getIssuesBySeries(issue.seriesAndPublisher.series.seriesId)
         }
 
     val issueStoriesLiveData: LiveData<List<Story>> =
@@ -35,7 +35,7 @@ class IssueDetailViewModel : ViewModel() {
             issueRepository.getCreditsByIssue(issueId)
         }
 
-    val variantLiveData: LiveData<IssueAndSeries?> =
+    val variantLiveData: LiveData<FullIssue?> =
         Transformations.switchMap(variantIdLiveData) { variantId ->
             Log.d(TAG, "Loading variantLD")
             if (variantId != null) {
@@ -43,7 +43,7 @@ class IssueDetailViewModel : ViewModel() {
                 variantId.let { issueRepository.getIssue(it) }
             } else {
                 Log.d(TAG, "Clearing variant")
-                liveData { emit(null as IssueAndSeries?) }
+                liveData { emit(null as FullIssue?) }
             }
         }
 

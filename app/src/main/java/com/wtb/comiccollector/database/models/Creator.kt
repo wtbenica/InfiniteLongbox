@@ -1,9 +1,6 @@
 package com.wtb.comiccollector.database.models
 
-import androidx.room.Entity
-import androidx.room.ForeignKey
-import androidx.room.Index
-import androidx.room.PrimaryKey
+import androidx.room.*
 
 @Entity
 data class Creator(
@@ -47,3 +44,11 @@ data class NameDetail(
     override val id: Int
         get() = nameDetailId
 }
+
+data class FullCreator(
+    @Embedded
+    val creator: Creator,
+
+    @Relation(parentColumn = "creatorId", entityColumn = "creatorId")
+    var nameDetail: NameDetail
+)

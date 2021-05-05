@@ -55,7 +55,7 @@ class IssueDetailEditFragment : Fragment(),
 
     private var numUpdates = 0
 
-    private lateinit var fullIssue: IssueAndSeries
+    private lateinit var fullIssue: FullIssue
     private lateinit var issueCredits: List<FullCredit>
 
     private lateinit var seriesList: List<Series>
@@ -92,7 +92,7 @@ class IssueDetailEditFragment : Fragment(),
         isEditable = arguments?.getSerializable(ARG_EDITABLE) as Boolean
         seriesList = emptyList()
 
-        fullIssue = IssueAndSeries(Issue(), Series())
+        fullIssue = FullIssue(Issue(), SeriesAndPublisher(Series(), Publisher()), null)
         issueCredits = emptyList()
 
         issueDetailViewModel.loadIssue(arguments?.getSerializable(ARG_ISSUE_ID) as Int)
@@ -207,21 +207,24 @@ class IssueDetailEditFragment : Fragment(),
             requestCode == RESULT_NEW_WRITER && data != null -> {
                 val myCredit: FullCredit? = getCredit("Writer")
                 myCredit?.let { fullCredit ->
-                    fullCredit.credit.nameDetailId = data.getSerializableExtra(ARG_CREATOR_ID) as Int
+                    fullCredit.credit.nameDetailId =
+                        data.getSerializableExtra(ARG_CREATOR_ID) as Int
                     issueDetailViewModel.upsertCredit(fullCredit.credit)
                 }
             }
             requestCode == RESULT_NEW_PENCILLER && data != null -> {
                 val myCredit: FullCredit? = getCredit("Penciller")
                 myCredit?.let { fullCredit ->
-                    fullCredit.credit.nameDetailId = data.getSerializableExtra(ARG_CREATOR_ID) as Int
+                    fullCredit.credit.nameDetailId =
+                        data.getSerializableExtra(ARG_CREATOR_ID) as Int
                     issueDetailViewModel.upsertCredit(fullCredit.credit)
                 }
             }
             requestCode == RESULT_NEW_INKER && data != null -> {
                 val myCredit: FullCredit? = getCredit("Inker")
                 myCredit?.let { fullCredit ->
-                    fullCredit.credit.nameDetailId = data.getSerializableExtra(ARG_CREATOR_ID) as Int
+                    fullCredit.credit.nameDetailId =
+                        data.getSerializableExtra(ARG_CREATOR_ID) as Int
                     issueDetailViewModel.upsertCredit(fullCredit.credit)
                 }
             }
@@ -232,7 +235,10 @@ class IssueDetailEditFragment : Fragment(),
         Log.d(TAG, "onStop")
         super.onStop()
         saveChanges()
-        if (fullIssue.issue.seriesId == AUTO_ID || fullIssue.series.seriesName == "New Series") {
+        if (fullIssue.issue.seriesId == AUTO_ID || fullIssue.series.seriesName
+            == "New " +
+            "Series"
+        ) {
             issueDetailViewModel.deleteIssue(fullIssue.issue)
         }
     }
@@ -290,7 +296,14 @@ class IssueDetailEditFragment : Fragment(),
         numUpdates += 1
         Log.d(TAG, "$numUpdates updates *****************************************************")
 
-        seriesSpinner.setSelection(maxOf(0, seriesList.indexOf(fullIssue.series)))
+        seriesSpinner.setSelection(
+            maxOf(
+                0, seriesList.indexOf(
+                    fullIssue
+                        .series
+                )
+            )
+        )
 
         // Update creators table
         creditsBox.displayCredit(issueCredits)

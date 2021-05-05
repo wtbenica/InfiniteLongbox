@@ -1,9 +1,6 @@
 package com.wtb.comiccollector.database.models
 
-import androidx.room.Entity
-import androidx.room.ForeignKey
-import androidx.room.Index
-import androidx.room.PrimaryKey
+import androidx.room.*
 import java.io.Serializable
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -81,3 +78,11 @@ data class Publisher(
         return publisher
     }
 }
+
+data class SeriesAndPublisher(
+    @Embedded
+    val series: Series,
+
+    @Relation(parentColumn = "publisherId", entityColumn = "publisherId")
+    var publisher: Publisher
+)

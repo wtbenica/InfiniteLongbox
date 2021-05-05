@@ -100,19 +100,16 @@ data class Issue(
 data class FullIssue(
     @Embedded
     val issue: Issue,
-    val seriesName: String,
-    val publisher: String,
+
+    @Relation(parentColumn = "seriesId", entityColumn = "seriesId", entity = Series::class)
+    var seriesAndPublisher: SeriesAndPublisher,
+
     @Relation(parentColumn = "issueId", entityColumn = "issueId")
     var myCollection: MyCollection?
-)
+) {
+    val series: Series
+        get() = seriesAndPublisher.series
 
-data class IssueAndSeries(
-    @Embedded
-    val issue: Issue,
-
-    @Relation(
-        parentColumn = "seriesId",
-        entityColumn = "seriesId"
-    )
-    var series: Series
-)
+    val publisher: Publisher
+        get() = seriesAndPublisher.publisher
+}

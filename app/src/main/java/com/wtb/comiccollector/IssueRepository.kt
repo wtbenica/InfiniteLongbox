@@ -140,7 +140,7 @@ class IssueRepository private constructor(val context: Context) {
 
     fun getPublisher(publisherId: Int) = publisherDao.getPublisher(publisherId)
 
-    fun getIssue(issueId: Int): LiveData<IssueAndSeries?> {
+    fun getIssue(issueId: Int): LiveData<FullIssue?> {
         CreditUpdater().update(issueId)
         CoverUpdater().update(issueId)
         return issueDao.getFullIssue(issueId)

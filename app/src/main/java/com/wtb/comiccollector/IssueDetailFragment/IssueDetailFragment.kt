@@ -51,7 +51,7 @@ class IssueDetailFragment : Fragment() {
 
     private var numUpdates = 0
 
-    private lateinit var fullIssue: IssueAndSeries
+    private lateinit var fullIssue: FullIssue
     private lateinit var issuesInSeries: List<Int>
     private var currentPos: Int = 0
     private lateinit var issueCredits: List<FullCredit>
@@ -97,7 +97,7 @@ class IssueDetailFragment : Fragment() {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
 
-        fullIssue = IssueAndSeries(Issue(), Series())
+        fullIssue = FullIssue(Issue(), SeriesAndPublisher(Series(), Publisher()), null)
         issueCredits = emptyList()
         issueStories = emptyList()
         variantCredits = emptyList()
@@ -143,7 +143,7 @@ class IssueDetailFragment : Fragment() {
 
         issueDetailViewModel.issueLiveData.observe(
             viewLifecycleOwner,
-            { issue: IssueAndSeries? ->
+            { issue: FullIssue? ->
                 issue?.let {
                     this.fullIssue = it
                     this.coverUri = it.issue.coverUri
