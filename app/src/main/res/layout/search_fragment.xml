@@ -43,7 +43,7 @@
         android:id="@+id/results_frame"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:background="@color/white"
+        android:background="?attr/colorPrimaryVariant"
         app:layout_constraintBottom_toTopOf="@id/chip_holder"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -56,9 +56,8 @@
         android:id="@+id/chip_holder"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/white"
+        android:background="?attr/colorPrimaryVariant"
         android:orientation="vertical"
-        android:visibility="gone"
         app:layout_constraintBottom_toTopOf="@id/search_box"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
@@ -67,7 +66,7 @@
             android:id="@+id/divider4"
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:background="?android:attr/listDivider" />
+            android:background="@drawable/accent_divider" />
 
         <HorizontalScrollView
             android:layout_width="match_parent"
@@ -78,7 +77,10 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:elevation="2dp"
-                android:padding="8dp"
+                android:paddingTop="4dp"
+                android:paddingBottom="8dp"
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp"
                 app:singleLine="true" />
 
         </HorizontalScrollView>
@@ -88,7 +90,7 @@
         android:id="@+id/search_box"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/white"
+        android:background="?attr/colorPrimaryVariant"
         android:elevation="8dp"
         android:padding="8dp"
         android:visibility="gone"

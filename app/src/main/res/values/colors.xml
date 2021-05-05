@@ -2,11 +2,11 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
-    <color name="granite">#3b5969</color>
-    <color name="granite_light">#688697</color>
-    <color name="granite_dark">#0f303e</color>
-    <color name="lime">#a6f900</color>
-    <color name="lime_light">#ddff56</color>
-    <color name="lime_dark">#70c600</color>
+    <color name="granite">#607d8b</color>
+    <color name="granite_light">#cfd8dc</color>
+    <color name="granite_dark">#455a64</color>
+    <color name="lime">#94ff66</color>
+    <color name="lime_light">#c9ff98</color>
+    <color name="lime_dark">#5ecb33</color>
     <color name="light_black">#212121</color>
 </resources>
