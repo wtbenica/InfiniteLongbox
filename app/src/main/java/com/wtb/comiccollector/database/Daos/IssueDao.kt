@@ -11,6 +11,7 @@ import androidx.sqlite.db.SimpleSQLiteQuery
 import androidx.sqlite.db.SupportSQLiteQuery
 import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.Filter
+import com.wtb.comiccollector.database.models.Cover
 import com.wtb.comiccollector.database.models.FullIssue
 import com.wtb.comiccollector.database.models.Issue
 
@@ -29,7 +30,7 @@ abstract class IssueDao : BaseDao<Issue>() {
 
     @Transaction
     @Query(
-        "SELECT ie.*, ss.*, pr.* " +
+        "SELECT ie.* " +
                 "FROM issue ie " +
                 "JOIN series ss ON ie.seriesId = ss.seriesId " +
                 "JOIN publisher pr ON ss.publisherId = pr.publisherId " +
@@ -102,7 +103,7 @@ abstract class IssueDao : BaseDao<Issue>() {
     @Transaction
     @Query(
         """
-            SELECT ie.*, ss.seriesName, pr.publisher
+            SELECT ie.*
             FROM issue ie
             JOIN series ss ON ss.seriesId = ie.seriesId
             JOIN publisher pr ON pr.publisherId = ss.publisherId
@@ -111,4 +112,11 @@ abstract class IssueDao : BaseDao<Issue>() {
             """
     )
     abstract fun getIssuesBySeries(seriesId: Int): LiveData<List<FullIssue>>
+}
+
+@Dao
+abstract class CoverDao : BaseDao<Cover>() {
+
+    @Query("SELECT cr.* FROM cover cr WHERE cr.issueId = :issueId")
+    abstract fun getCoverByIssueId(issueId: Int): LiveData<Cover?>
 }

@@ -27,6 +27,8 @@ import com.wtb.comiccollector.database.Daos.Count
 import com.wtb.comiccollector.database.Daos.REQUEST_LIMIT
 import com.wtb.comiccollector.database.IssueDatabase
 import com.wtb.comiccollector.database.migration_1_2
+import com.wtb.comiccollector.database.migration_2_3
+import com.wtb.comiccollector.database.migration_3_4
 import com.wtb.comiccollector.database.models.*
 import kotlinx.coroutines.*
 import okhttp3.OkHttpClient
@@ -92,6 +94,7 @@ class IssueRepository private constructor(val context: Context) {
     private val characterDao = database.characterDao()
     private val appearanceDao = database.appearanceDao()
     private val collectionDao = database.collectionDao()
+    private val coverDao = database.coverDao()
 
     private val filesDir = context.applicationContext.filesDir
 
@@ -157,18 +160,15 @@ class IssueRepository private constructor(val context: Context) {
 
         IssueUpdater().update(seriesId)
 
-        return issueDao.getIssuesByFilter(filter).toLiveData(pageSize = REQUEST_LIMIT)
-
+        return if (filter.mMyCollection) {
+            collectionDao.getIssuesByFilter(filter).toLiveData(pageSize = REQUEST_LIMIT)
+        } else {
+            issueDao.getIssuesByFilter(filter).toLiveData(pageSize = REQUEST_LIMIT)
+        }
     }
 
     fun getSeriesByFilter(filter: Filter): DataSource.Factory<Int, Series> {
-        Log.d(
-            TAG,
-            "getSeriesByFilter: ${filter.hasCreator()} ${filter.hasPublisher()} ${
-                filter
-                    .hasDateFilter()
-            } ${filter.mSeries == null} ${filter.mSortOption.tag}"
-        )
+
         if (filter.hasCreator()) {
             val updater = CreatorUpdater()
             filter.mCreators.forEach { updater.update(it.creatorId) }
@@ -183,11 +183,6 @@ class IssueRepository private constructor(val context: Context) {
         } else {
             seriesDao.getSeriesByFilter(filter)
         }
-    }
-
-    fun getIssuesBySeries(seriesId: Int): LiveData<List<FullIssue>> {
-        IssueUpdater().update(seriesId)
-        return issueDao.getIssuesBySeries(seriesId)
     }
 
     fun getVariants(issueId: Int): LiveData<List<Issue>> {
@@ -214,6 +209,7 @@ class IssueRepository private constructor(val context: Context) {
     fun getCreditsByIssue(issueId: Int): LiveData<List<FullCredit>> =
         creditDao.getIssueCredits(issueId)
 
+    fun getCoverByIssueId(issueId: Int): LiveData<Cover?> = coverDao.getCoverByIssueId(issueId)
 /*
     FUTURE IMPLEMENTATION
     fun getCoverImage(issue: Issue): File = File(filesDir, issue.coverFileName)
@@ -250,7 +246,7 @@ class IssueRepository private constructor(val context: Context) {
                 }
             }
         }
-    ).addMigrations(migration_1_2)
+    ).addMigrations(migration_1_2, migration_2_3, migration_3_4)
         .build()
 
     inner class StaticUpdater {
@@ -410,6 +406,10 @@ class IssueRepository private constructor(val context: Context) {
                                             issue.coverUri = savedUri
                                             issueDao.upsertSus(listOf(issue))
                                             Log.d(TAG, "Saving image $savedUri")
+
+                                            val cover =
+                                                Cover(issueId = issueId, coverUri = savedUri)
+                                            coverDao.upsertSus(listOf(cover))
                                         }
                                     }
                                 }
@@ -903,6 +903,16 @@ class IssueRepository private constructor(val context: Context) {
         }
     }
 
+    fun saveCover(vararg cover: Cover) {
+        executor.execute {
+            try {
+                coverDao.upsert(cover.asList())
+            } catch (e: SQLiteConstraintException) {
+                Log.d(TAG, "addCover: $e")
+            }
+        }
+    }
+
     fun deleteSeries(series: Series) {
         executor.execute {
             seriesDao.delete(series)
@@ -930,6 +940,12 @@ class IssueRepository private constructor(val context: Context) {
     fun removeFromCollection(issueId: Int) {
         executor.execute {
             collectionDao.deleteById(issueId)
+        }
+    }
+
+    fun deleteCover(cover: Cover) {
+        executor.execute {
+            coverDao.delete(cover)
         }
     }
 
