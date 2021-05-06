@@ -7,7 +7,7 @@ data class Creator(
     @PrimaryKey(autoGenerate = true) val creatorId: Int = AUTO_ID,
     var name: String,
     var sortName: String
-) : FilterOption {
+) : FilterOption() {
 
     override fun compareTo(other: FilterOption): Int = when (other) {
             is Series -> -1
@@ -40,7 +40,7 @@ data class NameDetail(
     @PrimaryKey(autoGenerate = true) val nameDetailId: Int = AUTO_ID,
     var creatorId: Int,
     var name: String
-) : DataModel {
+) : DataModel() {
     override val id: Int
         get() = nameDetailId
 }

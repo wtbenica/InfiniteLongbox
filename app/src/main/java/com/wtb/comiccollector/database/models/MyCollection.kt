@@ -11,7 +11,7 @@ import androidx.room.PrimaryKey
             entity = Issue::class,
             parentColumns = arrayOf("issueId"),
             childColumns = arrayOf("issueId"),
-            onDelete = ForeignKey.CASCADE
+            onDelete = ForeignKey.NO_ACTION
         )
     ],
     indices = [
@@ -21,7 +21,7 @@ import androidx.room.PrimaryKey
 data class MyCollection(
     @PrimaryKey(autoGenerate = true) val collectionId: Int = AUTO_ID,
     var issueId: Int
-) : DataModel {
+) : DataModel() {
     override val id: Int
         get() = collectionId
 }

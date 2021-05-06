@@ -29,7 +29,7 @@ data class Series(
     var endDate: LocalDate? = null,
     var description: String? = null,
     var publishingFormat: String? = null
-) : FilterOption, Serializable {
+) : FilterOption(), Serializable {
 
     override fun compareTo(other: FilterOption): Int = when (other) {
         is Series -> this.seriesName.compareTo(other.seriesName)
@@ -62,7 +62,7 @@ data class Series(
 data class Publisher(
     @PrimaryKey(autoGenerate = true) val publisherId: Int = AUTO_ID,
     val publisher: String = ""
-) : FilterOption {
+) : FilterOption() {
 
     override fun compareTo(other: FilterOption): Int =
         when (other) {

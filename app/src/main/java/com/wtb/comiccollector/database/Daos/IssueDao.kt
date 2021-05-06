@@ -22,6 +22,7 @@ abstract class IssueDao : BaseDao<Issue>() {
     @Query("SELECT * FROM issue WHERE issueId=:issueId")
     abstract fun getIssue(issueId: Int): LiveData<Issue?>
 
+    @Transaction
     @Query(
         """SELECT ie.*  
         FROM issue ie 
