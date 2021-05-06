@@ -381,37 +381,55 @@ class IssueRepository private constructor(val context: Context) {
             Log.d(TAG, "CoverUpdater_____________________________")
             GlobalScope.launch {
                 val issueDef = GlobalScope.async { issueDao.getIssueSus(issueId) }
-
+                Log.d(TAG, "MADE IT THIS FAR!")
                 issueDef.await()?.let { issue ->
                     if (issue.coverUri == null) {
-                        Log.d(TAG, "needsCover... starting")
+                        Log.d(TAG, "COVER UPDATER needsCover... starting")
                         CoroutineScope(Dispatchers.Default).launch {
                             kotlin.runCatching {
-                                Log.d(TAG, "Starting connection.....")
-                                val doc = Jsoup.connect(issue.url).get()
+                                Log.d(TAG, "COVER UPDATER Starting connection.....")
+                                val doc = Jsoup.connect(issue.issue.url).get()
                                 val noCover = doc.getElementsByClass("no_cover").size == 1
-                                val url = URL(doc.getElementsByClass("cover_img")[0].attr("src"))
-                                if (!noCover) {
+
+                                val coverImgElements = doc.getElementsByClass("cover_img")
+                                val wraparoundElements =
+                                    doc.getElementsByClass("wraparound_cover_img")
+                                val elements = if (coverImgElements.size > 0) {
+                                    coverImgElements
+                                } else if (wraparoundElements.size > 0) {
+                                    wraparoundElements
+                                } else {
+                                    null
+                                }
+
+                                val src = elements?.get(0)?.attr("src")
+
+                                val url = src?.let { URL(it) }
+
+                                if (!noCover && url != null) {
                                     val image = GlobalScope.async {
                                         url.toBitmap()
                                     }
                                     GlobalScope.launch(Dispatchers.Main) {
                                         val bitmap = image.await().also {
-                                            Log.d(TAG, "Got an image!")
+                                            Log.d(TAG, "COVER UPDATER Got an image!")
                                         }
 
                                         bitmap?.apply {
-                                            val savedUri =
-                                                saveToInternalStorage(context, issue.coverFileName)
-                                            issue.coverUri = savedUri
-                                            issueDao.upsertSus(listOf(issue))
-                                            Log.d(TAG, "Saving image $savedUri")
+                                            val savedUri: Uri? =
+                                                saveToInternalStorage(
+                                                    context,
+                                                    issue.issue.coverFileName
+                                                )
 
+                                            Log.d(TAG, "COVER UPDATER Saving image $savedUri")
                                             val cover =
                                                 Cover(issueId = issueId, coverUri = savedUri)
                                             coverDao.upsertSus(listOf(cover))
                                         }
                                     }
+                                } else {
+                                    Log.d(TAG, "COVER UPDATER No Cover Found")
                                 }
                             }
                         }

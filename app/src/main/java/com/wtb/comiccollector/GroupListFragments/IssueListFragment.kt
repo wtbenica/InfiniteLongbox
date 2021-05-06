@@ -149,8 +149,8 @@ class IssueListFragment : Fragment() {
             val variantNameTextView: TextView? = listItemView?.findViewById(R.id.list_item_name)
 
             coverImageView?.scaleType = ImageView.ScaleType.FIT_CENTER
-            if (issue?.issue?.coverUri != null) {
-                coverImageView?.setImageURI(issue.issue.coverUri)
+            if (issue?.coverUri != null) {
+                coverImageView?.setImageURI(issue.coverUri)
                 coverImageView?.scaleType = ImageView.ScaleType.FIT_XY
             } else {
                 coverImageView?.setImageResource(R.drawable.ic_issue_add_cover)
@@ -204,8 +204,8 @@ class IssueListFragment : Fragment() {
         fun bind(issue: FullIssue) {
             this.fullIssue = issue
             this.coverImageView.scaleType = ImageView.ScaleType.FIT_CENTER
-            if (this.fullIssue.issue.coverUri != null) {
-                this.coverImageView.setImageURI(this.fullIssue.issue.coverUri)
+            if (this.fullIssue.coverUri != null) {
+                this.coverImageView.setImageURI(this.fullIssue.coverUri)
             } else {
                 coverImageView.setImageResource(R.drawable.ic_issue_add_cover)
             }

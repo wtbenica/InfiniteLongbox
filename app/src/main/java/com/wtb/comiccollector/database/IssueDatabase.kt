@@ -65,10 +65,27 @@ val migration_2_3 = object : Migration(2, 3) {
     }
 }
 
-val migration_3_4 = object : Migration(3, 4) {
+val migration_3_4 = SimpleMigration(
+    3, 4,
+    """CREATE UNIQUE INDEX IF NOT EXISTS index_Cover_issueId 
+        ON Cover(issueId)"""
+)
+
+val migration_4_5 = SimpleMigration(
+    4, 5,
+    """CREATE TABLE IF NOT EXISTS 'issue_backup'(
+        
+        )"""
+
+)
+
+class SimpleMigration(from_version: Int, to_version: Int, vararg val sql: String) : Migration(
+    from_version,
+    to_version
+) {
     override fun migrate(database: SupportSQLiteDatabase) {
-        database.execSQL(
-            """CREATE UNIQUE INDEX IF NOT EXISTS index_Cover_issueId ON Cover(issueId)"""
-        )
+        sql.forEach {
+            database.execSQL(it)
+        }
     }
 }

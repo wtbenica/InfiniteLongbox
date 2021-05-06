@@ -40,7 +40,7 @@ data class Issue(
     var variantName: String = "",
     var variantOf: Int? = null,
     var sortCode: Int = 0
-) : DataModel, Comparable<Issue> {
+) : DataModel {
 
     val coverFileName: String
         get() = "IMG_$issueId.jpg"
@@ -95,8 +95,6 @@ data class Issue(
             return res
         }
     }
-
-    override fun compareTo(other: Issue): Int = this.issueNum.compareTo(other.issueNum)
 }
 
 data class FullIssue(
@@ -107,13 +105,19 @@ data class FullIssue(
     var seriesAndPublisher: SeriesAndPublisher,
 
     @Relation(parentColumn = "issueId", entityColumn = "issueId")
-    var myCollection: MyCollection?
+    var cover: Cover? = null,
+
+    @Relation(parentColumn = "issueId", entityColumn = "issueId")
+    var myCollection: MyCollection? = null
 ) {
     val series: Series
         get() = seriesAndPublisher.series
 
     val publisher: Publisher
         get() = seriesAndPublisher.publisher
+
+    val coverUri: Uri?
+        get() = cover?.coverUri
 }
 
 @Entity(
