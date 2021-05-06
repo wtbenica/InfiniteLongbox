@@ -146,7 +146,7 @@ class IssueDetailFragment : Fragment() {
             { issue: FullIssue? ->
                 issue?.let {
                     this.fullIssue = it
-                    this.coverUri = it.issue.coverUri
+                    this.coverUri = it.coverUri
                     updateUI()
                 }
             }
@@ -156,7 +156,7 @@ class IssueDetailFragment : Fragment() {
             viewLifecycleOwner,
             { issues ->
                 issues?.let {
-                    this.issuesInSeries = issues.map { it.issue.issueId }
+                    this.issuesInSeries = issues.mapNotNull { it?.issue?.issueId }
                     updateNavBar()
                 }
             }
@@ -188,7 +188,7 @@ class IssueDetailFragment : Fragment() {
             { issue ->
                 issue.let {
                     this.isVariant = issue != null
-                    this.variantUri = issue?.issue?.coverUri
+                    this.variantUri = issue?.coverUri
                     Log.d(TAG, "varLD changed, setting variantUri: $variantUri")
                     updateUI()
                 }

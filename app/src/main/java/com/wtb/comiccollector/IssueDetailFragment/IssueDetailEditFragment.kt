@@ -92,7 +92,7 @@ class IssueDetailEditFragment : Fragment(),
         isEditable = arguments?.getSerializable(ARG_EDITABLE) as Boolean
         seriesList = emptyList()
 
-        fullIssue = FullIssue(Issue(), SeriesAndPublisher(Series(), Publisher()), null)
+        fullIssue = FullIssue(Issue(), SeriesAndPublisher(Series(), Publisher()))
         issueCredits = emptyList()
 
         issueDetailViewModel.loadIssue(arguments?.getSerializable(ARG_ISSUE_ID) as Int)
@@ -313,8 +313,8 @@ class IssueDetailEditFragment : Fragment(),
         this.fullIssue.issue.releaseDate?.format(DateTimeFormatter.ofPattern("MMMM d, y"))
             ?.let { releaseDateTextView.text = it }
 
-        this.fullIssue.issue.coverUri?.let {
-            coverImageView.setImageURI(this.fullIssue.issue.coverUri)
+        this.fullIssue.coverUri?.let {
+            coverImageView.setImageURI(this.fullIssue.coverUri)
             coverImageView.contentDescription = "Issue Cover (set)"
         }
     }

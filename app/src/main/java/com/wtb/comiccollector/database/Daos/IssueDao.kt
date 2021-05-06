@@ -11,6 +11,7 @@ import androidx.sqlite.db.SimpleSQLiteQuery
 import androidx.sqlite.db.SupportSQLiteQuery
 import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.Filter
+import com.wtb.comiccollector.database.models.Cover
 import com.wtb.comiccollector.database.models.FullIssue
 import com.wtb.comiccollector.database.models.Issue
 
@@ -21,15 +22,23 @@ abstract class IssueDao : BaseDao<Issue>() {
     @Query("SELECT * FROM issue WHERE issueId=:issueId")
     abstract fun getIssue(issueId: Int): LiveData<Issue?>
 
-    @Query("SELECT * FROM issue WHERE issueId=:issueId")
-    abstract suspend fun getIssueSus(issueId: Int): Issue?
+    @Query(
+        """SELECT ie.*  
+        FROM issue ie 
+        JOIN series ss ON ie.seriesId = ss.seriesId 
+        JOIN publisher pr ON ss.publisherId = pr.publisherId
+        LEFT JOIN mycollection mn ON ie.issueId = mn.issueId
+        LEFT JOIN cover cr ON ie.issueId = cr.coverId
+        WHERE ie.issueId=:issueId"""
+    )
+    abstract suspend fun getIssueSus(issueId: Int): FullIssue?
 
     @Query("SELECT * FROM issue WHERE issueId=:issueId OR variantOf=:issueId ORDER BY sortCode")
     abstract suspend fun getVariants(issueId: Int): List<Issue>
 
     @Transaction
     @Query(
-        "SELECT ie.*, ss.*, pr.* " +
+        "SELECT ie.* " +
                 "FROM issue ie " +
                 "JOIN series ss ON ie.seriesId = ss.seriesId " +
                 "JOIN publisher pr ON ss.publisherId = pr.publisherId " +
@@ -102,7 +111,7 @@ abstract class IssueDao : BaseDao<Issue>() {
     @Transaction
     @Query(
         """
-            SELECT ie.*, ss.seriesName, pr.publisher
+            SELECT ie.*
             FROM issue ie
             JOIN series ss ON ss.seriesId = ie.seriesId
             JOIN publisher pr ON pr.publisherId = ss.publisherId
@@ -111,4 +120,11 @@ abstract class IssueDao : BaseDao<Issue>() {
             """
     )
     abstract fun getIssuesBySeries(seriesId: Int): LiveData<List<FullIssue>>
+}
+
+@Dao
+abstract class CoverDao : BaseDao<Cover>() {
+
+    @Query("SELECT cr.* FROM cover cr WHERE cr.issueId = :issueId")
+    abstract fun getCoverByIssueId(issueId: Int): LiveData<Cover?>
 }

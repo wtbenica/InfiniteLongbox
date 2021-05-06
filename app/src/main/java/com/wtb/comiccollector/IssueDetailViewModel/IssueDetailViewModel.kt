@@ -2,7 +2,9 @@ package com.wtb.comiccollector.IssueDetailViewModel
 
 import android.util.Log
 import androidx.lifecycle.*
+import androidx.paging.PagedList
 import com.wtb.comiccollector.APP
+import com.wtb.comiccollector.Filter
 import com.wtb.comiccollector.IssueRepository
 import com.wtb.comiccollector.database.Daos.Count
 import com.wtb.comiccollector.database.models.*
@@ -20,9 +22,9 @@ class IssueDetailViewModel : ViewModel() {
             issueRepository.getIssue(issueId)
         }
 
-    val issueListLiveData: LiveData<List<FullIssue>> =
+    val issueListLiveData: LiveData<PagedList<FullIssue>> =
         Transformations.switchMap(issueLiveData) { issue ->
-            issueRepository.getIssuesBySeries(issue.seriesAndPublisher.series.seriesId)
+            issueRepository.getIssuesByFilter(Filter(series = issue.series))
         }
 
     val issueStoriesLiveData: LiveData<List<Story>> =
@@ -137,6 +139,10 @@ class IssueDetailViewModel : ViewModel() {
         issueRepository.deleteCredit(credit)
     }
 
+    fun upsertCover(cover: Cover) {
+        issueRepository.saveCover(cover)
+    }
+
     fun addToCollection() {
         (variantIdLiveData.value
             ?: issueIdLiveData.value)?.let { issueRepository.addToCollection(it) }
@@ -144,7 +150,8 @@ class IssueDetailViewModel : ViewModel() {
 
     fun removeFromCollection() {
         (variantIdLiveData.value
-            ?: issueIdLiveData.value)?.let { issueRepository.removeFromCollection(it)
+            ?: issueIdLiveData.value)?.let {
+            issueRepository.removeFromCollection(it)
         }
     }
 }
