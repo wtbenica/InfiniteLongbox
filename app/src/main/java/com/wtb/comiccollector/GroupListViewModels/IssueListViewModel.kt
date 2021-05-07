@@ -37,4 +37,8 @@ class IssueListViewModel : ViewModel() {
         Log.d(TAG, "addIssue")
         issueRepository.saveIssue(issue)
     }
+
+    fun updateIssue(issue: FullIssue?) {
+        issueRepository.updateIssue(issue)
+    }
 }
