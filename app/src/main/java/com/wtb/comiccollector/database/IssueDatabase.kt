@@ -79,7 +79,7 @@ val migration_4_5 = SimpleMigration(
 
 )
 
-class SimpleMigration(from_version: Int, to_version: Int, vararg val sql: String) : Migration(
+class SimpleMigration(from_version: Int, to_version: Int, private vararg val sql: String) : Migration(
     from_version,
     to_version
 ) {

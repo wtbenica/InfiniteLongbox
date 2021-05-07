@@ -48,9 +48,7 @@ abstract class IssueDao : BaseDao<Issue>() {
     abstract fun getFullIssue(issueId: Int): LiveData<FullIssue?>
 
     @RawQuery(
-        observedEntities = arrayOf(
-            FullIssue::class
-        )
+        observedEntities = [FullIssue::class]
     )
     abstract fun getFullIssuesByQuery(query: SupportSQLiteQuery): DataSource.Factory<Int, FullIssue>
 

@@ -100,9 +100,7 @@ abstract class CreatorDao : BaseDao<Creator>() {
     abstract fun getCreators(creatorIds: List<Int>?): LiveData<List<Creator>?>
 
     @RawQuery(
-        observedEntities = arrayOf(
-            Creator::class
-        )
+        observedEntities = [Creator::class]
     )
     abstract fun getCreatorsByQuery(query: SupportSQLiteQuery): LiveData<List<Creator>>
 

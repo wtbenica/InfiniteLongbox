@@ -23,9 +23,7 @@ abstract class CollectionDao : BaseDao<MyCollection>() {
 
     @Transaction
     @RawQuery(
-        observedEntities = arrayOf(
-            FullIssue::class
-        )
+        observedEntities = [FullIssue::class]
     )
     abstract fun getFullIssuesByQuery(query: SupportSQLiteQuery): DataSource.Factory<Int, FullIssue>
 
@@ -87,9 +85,7 @@ abstract class CollectionDao : BaseDao<MyCollection>() {
 
     @Transaction
     @RawQuery(
-        observedEntities = arrayOf(
-            Series::class
-        )
+        observedEntities = [Series::class]
     )
     abstract fun getSeriesByQuery(query: SupportSQLiteQuery): DataSource.Factory<Int, Series>
 
@@ -143,10 +139,10 @@ abstract class CollectionDao : BaseDao<MyCollection>() {
         }
 
         if (filter.hasDateFilter()) {
-            if (containsCondition) {
-                conditionsString += "AND "
+            conditionsString += if (containsCondition) {
+                "AND "
             } else {
-                conditionsString += "WHERE "
+                "WHERE "
             }
 
             conditionsString += "ss.startDate < ? AND ss.endDate > ? "

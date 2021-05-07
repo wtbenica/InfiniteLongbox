@@ -22,9 +22,7 @@ abstract class SeriesDao : BaseDao<Series>() {
     abstract fun getSeries(seriesId: Int): LiveData<Series?>
 
     @RawQuery(
-        observedEntities = arrayOf(
-            Series::class
-        )
+        observedEntities = [Series::class]
     )
     abstract fun getSeriesByQuery(query: SupportSQLiteQuery): DataSource.Factory<Int, Series>
 

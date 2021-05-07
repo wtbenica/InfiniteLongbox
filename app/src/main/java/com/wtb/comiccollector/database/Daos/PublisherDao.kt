@@ -23,9 +23,7 @@ abstract class PublisherDao : BaseDao<Publisher>() {
     abstract fun getPublishers(publisherIds: List<Int>?): LiveData<List<Publisher>?>
 
     @RawQuery(
-        observedEntities = arrayOf(
-            Publisher::class
-        )
+        observedEntities = [Publisher::class]
     )
     abstract fun getPublishersByQuery(query: SupportSQLiteQuery): LiveData<List<Publisher>>
 

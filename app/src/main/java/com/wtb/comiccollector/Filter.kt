@@ -43,7 +43,7 @@ class Filter(
     fun hasDateFilter() = mStartDate != LocalDate.MIN || mEndDate != LocalDate.MAX
     fun isEmpty(): Boolean {
         return mCreators.isEmpty() && mSeries == null && mPublishers.isEmpty() && mStartDate ==
-                LocalDate.MIN && mEndDate == LocalDate.MAX && mMyCollection == false
+                LocalDate.MIN && mEndDate == LocalDate.MAX && !mMyCollection
     }
 
     private fun addCreator(vararg creator: Creator) {
