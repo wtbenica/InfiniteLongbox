@@ -130,9 +130,22 @@ class IssueRepository private constructor(val context: Context) {
             null
         }
 
-        val creatorsList = allCreators
+        val creatorsList = if (filter.isEmpty()) {
+            allCreators
+        } else if (filter.mCreators.isEmpty()) {
+            creatorDao.getCreatorsByFilter(filter)
+        } else {
+            null
+        }
 
-        val publishersList = allPublishers
+        val publishersList = if (filter.isEmpty()) {
+            allPublishers
+        } else if (filter.mPublishers.isEmpty()) {
+            publisherDao.getPublishersByFilter(filter)
+        } else {
+            null
+        }
+
         return CombinedLiveData(
             series = seriesList,
             creators = creatorsList,

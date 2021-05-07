@@ -3,7 +3,6 @@ package com.wtb.comiccollector.database.models
 import android.net.Uri
 import androidx.room.*
 import androidx.room.ForeignKey.CASCADE
-import androidx.room.ForeignKey.NO_ACTION
 import com.wtb.comiccollector.DUMMY_ID
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -127,7 +126,7 @@ data class FullIssue(
             entity = Issue::class,
             parentColumns = arrayOf("issueId"),
             childColumns = arrayOf("issueId"),
-            onDelete = NO_ACTION
+            onDelete = CASCADE
         ),
     ],
     indices = [
