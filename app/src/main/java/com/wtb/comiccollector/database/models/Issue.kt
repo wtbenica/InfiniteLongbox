@@ -39,8 +39,8 @@ data class Issue(
     var upc: Long? = null,
     var variantName: String = "",
     var variantOf: Int? = null,
-    var sortCode: Int = 0
-) : DataModel {
+    var sortCode: Int = 0,
+) : DataModel() {
 
     val coverFileName: String
         get() = "IMG_$issueId.jpg"
@@ -137,7 +137,7 @@ data class Cover(
     @PrimaryKey(autoGenerate = true) val coverId: Int = AUTO_ID,
     var issueId: Int,
     var coverUri: Uri? = null
-) : DataModel {
+) : DataModel() {
     override val id: Int
         get() = coverId
 }

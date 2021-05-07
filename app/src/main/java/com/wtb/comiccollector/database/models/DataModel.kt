@@ -1,7 +1,13 @@
 package com.wtb.comiccollector.database.models
 
-interface DataModel {
-    val id: Int
+import java.time.LocalDateTime
+
+abstract class DataModel {
+    init {
+        val lastUpdated = LocalDateTime.now()
+    }
+
+    abstract val id: Int
 }
 
-interface FilterOption: DataModel, Comparable<FilterOption>
+abstract class FilterOption: DataModel(), Comparable<FilterOption>

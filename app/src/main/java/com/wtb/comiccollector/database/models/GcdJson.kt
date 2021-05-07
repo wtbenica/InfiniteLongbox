@@ -157,7 +157,7 @@ class GcdIssue(
     val variantName: String,
     @SerializedName("variant_of")
     @Expose
-    val variantOf: Int?
+    val variantOf: Int?,
 ) : GcdJson<Issue> {
     override fun toRoomModel(pk: Int): Issue {
         return Issue(

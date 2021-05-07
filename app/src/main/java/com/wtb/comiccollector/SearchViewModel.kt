@@ -2,6 +2,7 @@ package com.wtb.comiccollector
 
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
 import com.wtb.comiccollector.database.models.FilterOption
 
@@ -11,9 +12,12 @@ class SearchViewModel : ViewModel() {
 
     private val issueRepository: IssueRepository = IssueRepository.get()
 
-    val filterOptionsLiveData = issueRepository.everything
-
     var filterLiveData = MutableLiveData(Filter())
+
+
+    val filterOptionsLiveData = Transformations.switchMap(filterLiveData) {
+        issueRepository.filterOptions(it)
+    }
 
     fun addItem(item: FilterOption) {
         Log.d(TAG, "addItem $item")

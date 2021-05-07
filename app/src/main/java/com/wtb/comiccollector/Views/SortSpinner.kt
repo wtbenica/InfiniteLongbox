@@ -32,8 +32,8 @@ class SeriesSortOption(
     tag: String, sortColumn: String) : SortOption(tag, sortColumn)
 
 val seriesSortOptions: List<SortOption> = listOf(
-    SeriesSortOption("Series Name (A-Z)", "seriesName ASC"),
-    SeriesSortOption("Series Name (Z-A)", "seriesName DESC"),
+    SeriesSortOption("Series Name (A-Z)", "sortName ASC"),
+    SeriesSortOption("Series Name (Z-A)", "sortName DESC"),
     SeriesSortOption("Date (Oldest to Newest)", "startDate ASC"),
     SeriesSortOption("Date (Newest to Oldest)", "startDate DESC")
 )

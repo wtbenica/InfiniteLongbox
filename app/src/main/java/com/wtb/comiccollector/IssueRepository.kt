@@ -121,19 +121,46 @@ class IssueRepository private constructor(val context: Context) {
     val allCreators: LiveData<List<Creator>> = creatorDao.getCreatorsList()
     val allRoles: LiveData<List<Role>> = roleDao.getRoleList()
 
-    val everything = CombinedLiveData(
-        series = allSeries,
-        creators = allCreators,
-        publishers = allPublishers,
-        combine = { series: List<Series?>?, creators: List<Creator>?, publishers:
-        List<Publisher>? ->
-            val res =
-                (series as List<FilterOption?>? ?: emptyList()) + (creators as List<FilterOption>?
-                    ?: emptyList()) + (publishers as List<FilterOption>? ?: emptyList())
-            val x: List<FilterOption> = res.mapNotNull { it }
-            sort(x)
-            x
-        })
+    fun filterOptions(filter: Filter): CombinedLiveData {
+        val seriesList = if (filter.isEmpty()) {
+            allSeries
+        } else if (filter.mSeries == null) {
+            seriesDao.getSeriesByFilter(filter).toLiveData(REQUEST_LIMIT)
+        } else {
+            null
+        }
+
+        val creatorsList = if (filter.isEmpty()) {
+            allCreators
+        } else if (filter.mCreators.isEmpty()) {
+            creatorDao.getCreatorsByFilter(filter)
+        } else {
+            null
+        }
+
+        val publishersList = if (filter.isEmpty()) {
+            allPublishers
+        } else if (filter.mPublishers.isEmpty()) {
+            publisherDao.getPublishersByFilter(filter)
+        } else {
+            null
+        }
+
+        return CombinedLiveData(
+            series = seriesList,
+            creators = creatorsList,
+            publishers = publishersList,
+            combine = { series: List<Series>?, creators: List<Creator>?, publishers:
+            List<Publisher>? ->
+                val res =
+                    (series?.toList() as List<FilterOption?>?
+                        ?: emptyList()) + (creators as List<FilterOption>?
+                        ?: emptyList()) + (publishers as List<FilterOption>? ?: emptyList())
+                val x: List<FilterOption> = res.mapNotNull { it }
+                sort(x)
+                x
+            })
+    }
 
     init {
         StaticUpdater().update()
@@ -971,11 +998,12 @@ class IssueRepository private constructor(val context: Context) {
 }
 
 class CombinedLiveData(
-    series: LiveData<List<Series>>?,
+    series: LiveData<out List<Series>>?,
     creators: LiveData<List<Creator>>?,
     publishers: LiveData<List<Publisher>>?,
     private val combine: (
-        data1: List<Series>?, data2: List<Creator>?, data3:
+        List<Series>?,
+        List<Creator>?,
         List<Publisher>?
     ) -> List<FilterOption>
 ) : MediatorLiveData<List<FilterOption>>() {

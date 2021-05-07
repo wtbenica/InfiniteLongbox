@@ -28,7 +28,6 @@ class Filter(
         return other is Filter && hashCode() == other.hashCode()
     }
 
-    var mCurrentItems: Int = 0
     var mCreators: MutableSet<Creator> = creators ?: mutableSetOf()
     var mSeries: Series? = series
     var mPublishers: MutableSet<Publisher> = publishers ?: mutableSetOf()
@@ -42,6 +41,10 @@ class Filter(
     fun returnsIssueList() = mSeries != null
     fun hasPublisher() = mPublishers.isNotEmpty()
     fun hasDateFilter() = mStartDate != LocalDate.MIN || mEndDate != LocalDate.MAX
+    fun isEmpty(): Boolean {
+        return mCreators.isEmpty() && mSeries == null && mPublishers.isEmpty() && mStartDate ==
+                LocalDate.MIN && mEndDate == LocalDate.MAX && mMyCollection == false
+    }
 
     private fun addCreator(vararg creator: Creator) {
         mCreators.addAll(creator)
@@ -126,8 +129,7 @@ class Filter(
         }
 
     override fun hashCode(): Int {
-        var result =  mCurrentItems
-        result = 31 * result + mCreators.hashCode()
+        var result = mCreators.hashCode()
         result = 31 * result + (mSeries?.hashCode() ?: 0)
         result = 31 * result + mPublishers.hashCode()
         result = 31 * result + mStartDate.hashCode()
