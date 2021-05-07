@@ -10,9 +10,10 @@ data class Creator(
 ) : FilterOption() {
 
     override fun compareTo(other: FilterOption): Int = when (other) {
-            is Series -> -1
+            is Series -> this.sortName.compareTo(other.seriesName)
             is Creator -> this.sortName.compareTo(other.sortName)
-            else -> 1 // is Publisher
+            is Publisher -> this.sortName.compareTo(other.publisher)
+            else -> 1
         }
 
     override val id: Int

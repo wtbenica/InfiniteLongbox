@@ -143,6 +143,7 @@ class IssueListFragment : Fragment() {
             }
 
             val issue: FullIssue? = getItem(position)
+            issueListViewModel.updateIssue(issue)
             val layout: CardView? = listItemView?.findViewById(R.id.layout)
             val coverImageView: ImageView? = listItemView?.findViewById(R.id.list_item_cover)
             val issueNumTextView: TextView? = listItemView?.findViewById(R.id.list_item_issue)

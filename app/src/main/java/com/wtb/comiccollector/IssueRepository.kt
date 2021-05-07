@@ -995,6 +995,13 @@ class IssueRepository private constructor(val context: Context) {
     }
 
     fun inCollection(issueId: Int): LiveData<Count> = collectionDao.inCollection(issueId)
+
+    fun updateIssue(issue: FullIssue?) {
+        if (issue != null) {
+            CoverUpdater().update(issue.issue.issueId)
+            CreditUpdater().update(issue.issue.issueId)
+        }
+    }
 }
 
 class CombinedLiveData(

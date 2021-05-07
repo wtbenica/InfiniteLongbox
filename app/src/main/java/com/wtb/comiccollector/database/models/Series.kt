@@ -33,6 +33,8 @@ data class Series(
 
     override fun compareTo(other: FilterOption): Int = when (other) {
         is Series -> this.seriesName.compareTo(other.seriesName)
+        is Publisher -> this.seriesName.compareTo(other.publisher)
+        is Creator -> this.seriesName.compareTo(other.sortName)
         else -> 1
     }
 
@@ -66,9 +68,10 @@ data class Publisher(
 
     override fun compareTo(other: FilterOption): Int =
         when (other) {
-            is Series -> -1
             is Publisher -> this.publisher.compareTo(other.publisher)
-            else -> 1 // is Creator
+            is Series -> this.publisher.compareTo(other.sortName ?: other.seriesName)
+            is Creator -> this.publisher.compareTo(other.sortName)
+            else -> 1
         }
 
     override val id: Int
