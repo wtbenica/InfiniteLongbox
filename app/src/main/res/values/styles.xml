@@ -1,4 +1,45 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <style name="myButtonBarStyle" parent="Widget.AppCompat.ButtonBar">
+        <item name="android:backgroundTint">@color/lime</item>
+    </style>
 
+    <style name="myButtonStyle" parent="Widget.MaterialComponents.Button.TextButton">
+
+    </style>
+
+    <style name="myButtonBarButtonStyle" parent="Widget.MaterialComponents.Button.TextButton">
+        <item name="android:textSize">24sp</item>
+        <item name="android:textScaleX">.8</item>
+    </style>
+
+    <style name="mySpinnerStyle" parent="Widget.AppCompat.Spinner">
+        <item name="android:background">@drawable/green_outline_grey_fill2</item>
+        <item name="android:popupBackground">@drawable/green_outline_grey_fill2</item>
+    </style>
+
+    <style name="myAutoCompleteStyle" parent="Widget.AppCompat.AutoCompleteTextView">
+        <item name="android:background">@drawable/green_outline_grey_fill2</item>
+        <item name="android:popupBackground">@drawable/green_outline_grey_fill2</item>
+    </style>
+
+
+    <style name="myListItem">
+        <item name="android:elevation">1dp</item>
+    </style>
+
+    <style name="myChip" parent="Widget.MaterialComponents.Chip.Entry">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="chipStrokeColor">@color/black</item>
+        <item name="chipStrokeWidth">1dp</item>
+        <item name="chipBackgroundColor">?attr/colorSecondaryVariant</item>
+        <item name="android:textAppearance">@style/myChipText</item>
+    </style>
+
+
+    <style name="myChipText" parent="TextAppearance.MaterialComponents.Chip">
+        <item name="android:textSize">14sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
 </resources>

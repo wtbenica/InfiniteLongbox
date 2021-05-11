@@ -187,8 +187,6 @@
         android:id="@+id/gcd_link"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
-        android:layout_marginBottom="8dp"
         android:contentDescription="@string/toggle_edit_button"
         android:gravity="bottom|clip_horizontal|end"
         android:text="@string/grand_comic_database_tm"
