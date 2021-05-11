@@ -455,49 +455,62 @@ class IssueDetailFragment : Fragment() {
             }
     }
 
-
     inner class StoryRow(context: Context, val story: Story) : LinearLayout(context) {
         init {
             orientation = VERTICAL
             layoutParams = LayoutParams(MATCH_PARENT, WRAP_CONTENT)
 
-            val t = listOf(
-                story.feature, story.title, story.synopsis, story.characters, story.notes,
-                story.sequenceNumber
-            )
+            layoutInflater.inflate(R.layout.story_box, this, true)
 
-            if (story.title != "" || story.storyType == STORY_TYPE_COVER)
-                this.addView(TextView(context).apply {
-                    text = if (story.storyType == STORY_TYPE_COVER) {
-                        "Cover"
-                    } else {
-                        story.title.toString()
-                    }
-                    layoutParams = LayoutParams(MATCH_PARENT, WRAP_CONTENT)
-                    textSize = 18.0F
-                    setTextAppearance(R.style.TextAppearance_MaterialComponents_Headline6)
-                })
+            val storyDetailButton: ImageButton = findViewById(R.id.story_dropdown_button)
+            val storyDetailBox: LinearLayout = findViewById(R.id.story_details_box)
+            storyDetailButton.setOnClickListener(toggleVisibility(storyDetailBox))
 
-            if (story.synopsis != "")
-                this.addView(TextView(context).apply {
-                    text = story.synopsis
-                    layoutParams = LayoutParams(MATCH_PARENT, WRAP_CONTENT)
-                })
+            if (story.synopsis != null && story.synopsis != "") {
+                val synopsisButton: ImageButton = findViewById(R.id.synopsis_dropdown_button)
+                val synopsis = findViewById(R.id.synopsis) as TextView
+                synopsis.text = story.synopsis
+                synopsisButton.setOnClickListener(toggleVisibility(synopsis))
+            } else {
+                val synopsisBox = findViewById(R.id.synopsis_box) as LinearLayout
+                synopsisBox.visibility = GONE
+            }
 
-            if (story.characters != "")
-                this.addView(TextView(context).apply {
-                    text = story.characters
-                    layoutParams = LayoutParams(MATCH_PARENT, WRAP_CONTENT)
-                })
+            if (story.characters != null && story.characters != "") {
+                val charactersButton: ImageButton = findViewById(R.id.characters_dropdown_button)
+                val characters = findViewById(R.id.characters) as TextView
+                characters.text = story.characters
+                charactersButton.setOnClickListener(toggleVisibility(characters))
+            } else {
+                val charactersBox = findViewById(R.id.characters_box) as LinearLayout
+                charactersBox.visibility = GONE
+            }
+            val storyTitle = findViewById(R.id.story_title) as TextView
+            storyTitle.text = if (story.storyType == STORY_TYPE_COVER) {
+                "Cover"
+            } else {
+                story.title
+            }
+        }
+
+        fun <T : View> toggleVisibility(view: T): (v: View) -> Unit {
+            val function: (v: View) -> Unit = {
+                if (view.visibility == GONE) {
+                    view.visibility = VISIBLE
+                } else {
+                    view.visibility = GONE
+                }
+            }
+            return function
         }
     }
 
-    inner class CreditsRow(context: Context, private val fullCredit: FullCredit) :
-        TableRow(context) {
+    inner class CreditsRow(context: Context, private val fullCredit: FullCredit) : TableRow(context) {
         init {
             this.addView(TextView(context).apply {
                 layoutParams = LayoutParams(WRAP_CONTENT, WRAP_CONTENT)
                 text = fullCredit.role.roleName
+                setPaddingRelative(16, 4, 16, 4)
                 setTextAppearance(R.style.TextAppearance_MaterialComponents_Subtitle1)
             })
             this.addView(TextView(context).apply {

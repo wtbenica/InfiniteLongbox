@@ -58,6 +58,11 @@
     <string name="goto_end"><![CDATA[>>>]]></string>
     <string name="sort">Sort</string>
     <string name="my_collection">My Collection</string>
+    <string name="synopsis">Synopsis</string>
+    <string name="story_dropdown_button">Expand story information table</string>
+    <string name="synopsis_dropdown_button">Show story synopsis</string>
+    <string name="characters">Characters</string>
+    <string name="characters_dropdown_button">Show character appearances</string>
     <string-array name="grouping_options">
         <item>@string/series</item>
         <item>@string/creator</item>

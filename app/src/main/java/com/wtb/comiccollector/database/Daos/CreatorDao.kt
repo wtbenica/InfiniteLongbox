@@ -131,7 +131,6 @@ abstract class CreatorDao : BaseDao<Creator>() {
 
             if (filter.hasPublisher()) {
                 tableJoinString +=
-                    "JOIN series ss ON ie.seriesId = ss.seriesId " +
                             "JOIN publisher pr ON ss.publisherId = pr.publisherId "
 
                 val publisherList = modelsToSqlIdString(filter.mPublishers)

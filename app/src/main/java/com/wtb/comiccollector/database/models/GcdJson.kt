@@ -272,7 +272,7 @@ class GcdStory(
             characters = characters,
             synopsis = synopsis,
             notes = notes,
-            sequenceNumber = 0,
+            sequenceNumber = sequenceNumber,
             issueId = issueId
         )
     }

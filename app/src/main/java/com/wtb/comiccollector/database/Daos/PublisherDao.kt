@@ -53,10 +53,12 @@ abstract class PublisherDao : BaseDao<Publisher>() {
                     "JOIN story sy ON sy.issueId = ie.issueId " +
                             "JOIN credit ct ON ct.storyId = sy.storyId " +
                             "JOIN nameDetail nd ON ct.nameDetailId = nd.nameDetailId " +
-                            "JOIN creator cr ON cr.creatorId = nd.creatorId"
+                            "JOIN creator cr ON cr.creatorId = nd.creatorId "
+
+                val creatorIds = modelsToSqlIdString(filter.mCreators)
 
                 conditionsString +=
-                    "WHERE cr.creatorId IN ${filter.mCreators}"
+                    "AND cr.creatorId IN $creatorIds"
             }
 
             if (filter.hasDateFilter()) {

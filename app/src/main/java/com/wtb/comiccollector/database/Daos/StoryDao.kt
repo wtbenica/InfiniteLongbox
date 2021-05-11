@@ -15,7 +15,7 @@ abstract class StoryDao : BaseDao<Story>() {
             JOIN storytype type ON type.typeId = st.storyType
             WHERE iss.issueId = :issueId
             AND (st.storyType = 19 OR st.storyType= 6)
-            ORDER BY type.sortCode, storyType
+            ORDER BY sequenceNumber
         """
     )
     abstract fun getStories(issueId: Int): LiveData<List<Story>>

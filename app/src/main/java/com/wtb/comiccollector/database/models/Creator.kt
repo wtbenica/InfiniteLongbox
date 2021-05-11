@@ -8,13 +8,8 @@ data class Creator(
     var name: String,
     var sortName: String
 ) : FilterOption() {
-
-    override fun compareTo(other: FilterOption): Int = when (other) {
-            is Series -> this.sortName.compareTo(other.seriesName)
-            is Creator -> this.sortName.compareTo(other.sortName)
-            is Publisher -> this.sortName.compareTo(other.publisher)
-            else -> 1
-        }
+    override val compareValue: String
+        get() = sortName
 
     override val id: Int
         get() = creatorId

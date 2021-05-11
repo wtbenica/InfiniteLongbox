@@ -21,6 +21,7 @@
         <item name="android:spinnerStyle">@style/mySpinnerStyle</item>
         <item name="buttonBarButtonStyle">@style/myButtonBarButtonStyle</item>
         <item name="buttonBarStyle">@style/myButtonBarStyle</item>
+        <item name="autoCompleteTextViewStyle">@style/myAutoCompleteStyle</item>
         <!--        <item name="buttonBarButtonStyle">@style/myButtonBarButtonStyle</item>-->
         <item name="chipStyle">@style/myChip</item>
 
@@ -44,15 +45,19 @@
     </style>
 
     <style name="mySpinnerStyle" parent="Widget.AppCompat.Spinner">
-        <item name="android:background">@drawable/secondary_outline_white_background</item>
-        <item name="android:popupBackground">@drawable/secondary_outline_white_background</item>
+        <item name="android:background">@drawable/green_outline_grey_fill2</item>
+        <item name="android:popupBackground">@drawable/green_outline_grey_fill2</item>
+    </style>
+
+    <style name="myAutoCompleteStyle" parent="Widget.AppCompat.AutoCompleteTextView">
+        <item name="android:background">@drawable/green_outline_grey_fill2</item>
+        <item name="android:popupBackground">@drawable/green_outline_grey_fill2</item>
     </style>
 
 
     <style name="myListItem">
         <item name="android:elevation">1dp</item>
     </style>
-
 
     <style name="myChip" parent="Widget.MaterialComponents.Chip.Entry">
         <item name="android:layout_width">wrap_content</item>
@@ -61,7 +66,6 @@
         <item name="chipStrokeWidth">1dp</item>
         <item name="chipBackgroundColor">?attr/colorSecondaryVariant</item>
         <item name="android:textAppearance">@style/myChipText</item>
-        <item name="android:textColor">@color/cardview_dark_background</item>
     </style>
 
 

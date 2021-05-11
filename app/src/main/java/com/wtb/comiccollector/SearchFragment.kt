@@ -8,6 +8,7 @@ import android.util.Log
 import android.view.*
 import android.view.inputmethod.InputMethodManager
 import android.widget.*
+import androidx.appcompat.widget.AppCompatAutoCompleteTextView
 import androidx.appcompat.widget.SwitchCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentTransaction
@@ -89,7 +90,7 @@ class SearchFragment : Fragment(), Chippy.ChipCallbacks, SeriesListFragment.Call
         searchChipFrame = view.findViewById(R.id.chip_holder) as LinearLayout
         searchChipGroup = view.findViewById(R.id.search_chipgroup) as ChipGroup
         searchBox = view.findViewById(R.id.search_box) as LinearLayout
-        searchTextView = view.findViewById(R.id.search_tv) as AutoCompleteTextView
+        searchTextView = (view.findViewById(R.id.search_tv) as AutoCompleteTextView)
         resultsFrame = view.findViewById(R.id.results_frame) as FrameLayout
         fab = view.findViewById(R.id.fab) as FloatingActionButton
 
@@ -248,3 +249,6 @@ class SearchFragment : Fragment(), Chippy.ChipCallbacks, SeriesListFragment.Call
     }
 }
 
+class AutoComplete(context: Context) : AppCompatAutoCompleteTextView(context) {
+
+}
