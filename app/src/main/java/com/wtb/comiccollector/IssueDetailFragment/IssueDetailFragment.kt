@@ -10,7 +10,7 @@ import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.*
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
+import androidx.fragment.app.viewModels
 import com.wtb.comiccollector.*
 import com.wtb.comiccollector.IssueDetailViewModel.IssueDetailViewModel
 import com.wtb.comiccollector.database.Daos.Count
@@ -89,9 +89,7 @@ class IssueDetailFragment : Fragment() {
     private var saveIssue = true
     private var isEditable: Boolean = true
 
-    private val issueDetailViewModel: IssueDetailViewModel by lazy {
-        ViewModelProvider(this).get(IssueDetailViewModel::class.java)
-    }
+    private val issueDetailViewModel: IssueDetailViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -156,7 +154,7 @@ class IssueDetailFragment : Fragment() {
             viewLifecycleOwner,
             { issues ->
                 issues?.let {
-                    this.issuesInSeries = issues.mapNotNull { it?.issue?.issueId }
+                    this.issuesInSeries = issues.map { it.issue.issueId }
                     updateNavBar()
                 }
             }

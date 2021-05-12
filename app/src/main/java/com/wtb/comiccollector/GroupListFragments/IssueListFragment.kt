@@ -9,30 +9,28 @@ import android.widget.*
 import androidx.cardview.widget.CardView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentTransaction
-import androidx.lifecycle.ViewModelProvider
-import androidx.paging.PagedList
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.wtb.comiccollector.*
 import com.wtb.comiccollector.Filter
 import com.wtb.comiccollector.GroupListViewModels.IssueListViewModel
 import com.wtb.comiccollector.database.models.FullIssue
 import com.wtb.comiccollector.database.models.Issue
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 
 private const val TAG = APP + "IssueListFragment"
 
 class IssueListFragment : Fragment() {
 
-    private val issueListViewModel by lazy {
-        ViewModelProvider(this).get(IssueListViewModel::class.java)
-    }
-
-    private lateinit var issueList: PagedList<FullIssue>
+    private val issueListViewModel: IssueListViewModel by viewModels()
 
     private var filter: Filter = Filter()
-    private lateinit var issueGridView: GridView
+    private lateinit var issueGridView: RecyclerView
 
     private var callbacks: Callbacks? = null
-    private var adapter: GridAdapt? = parentFragment?.context?.let { GridAdapt(it, issueList) }
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -57,10 +55,16 @@ class IssueListFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val view = inflater.inflate(R.layout.fragment_item_grid, container, false)
+        val view = inflater.inflate(R.layout.fragment_item_list, container, false)
 
-        issueGridView = view.findViewById(R.id.results_frame)
+        issueGridView = view.findViewById(R.id.results_frame) as RecyclerView
+        issueGridView.layoutManager = GridLayoutManager(context, 2, RecyclerView.VERTICAL, false)
+        val adapter = IssAdapter()
         issueGridView.adapter = adapter
+
+        lifecycleScope.launch {
+            issueListViewModel.issueList(filter).collectLatest { adapter.submitData(it) }
+        }
 
         return view
     }
@@ -69,16 +73,16 @@ class IssueListFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         issueListViewModel.setFilter(filter)
 
-        issueListViewModel.issueListLiveData.observe(
-            viewLifecycleOwner,
-            { issues ->
-                issues?.let {
-                    this.issueList = it
-                    updateUI()
-                }
-            }
-        )
-
+//        issueListViewModel.issueListLiveData.observe(
+//            viewLifecycleOwner,
+//            { issues ->
+//                issues?.let {
+//                    this.issueList = it
+//                    updateUI()
+//                }
+//            }
+//        )
+//
         issueListViewModel.seriesLiveData.observe(
             viewLifecycleOwner,
             {
@@ -113,12 +117,12 @@ class IssueListFragment : Fragment() {
         }
     }
 
-    private fun updateUI() {
-        adapter = parentFragment?.context?.let { GridAdapt(it, this.issueList) }
-        issueGridView.adapter = adapter
-//        runLayoutAnimation(issueGridView)
-    }
-
+    //    private fun updateUI() {
+//        adapter = parentFragment?.context?.let { GridAdapt(it, this.issueList) }
+//        issueGridView.adapter = adapter
+////        runLayoutAnimation(issueGridView)
+//    }
+//
     private fun runLayoutAnimation(view: RecyclerView) {
         val context = view.context
         val controller: LayoutAnimationController = AnimationUtils.loadLayoutAnimation(
@@ -166,7 +170,12 @@ class IssueListFragment : Fragment() {
             issueNumTextView?.text = issue?.issue.toString()
 
             listItemView?.setOnClickListener {
-                issue?.issue?.issueId?.let { id -> callbacks?.onIssueSelected(id, this@IssueListFragment.filter) }
+                issue?.issue?.issueId?.let { id ->
+                    callbacks?.onIssueSelected(
+                        id,
+                        this@IssueListFragment.filter
+                    )
+                }
             }
 
             return listItemView!!

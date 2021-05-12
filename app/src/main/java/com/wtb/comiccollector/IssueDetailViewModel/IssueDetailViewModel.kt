@@ -2,7 +2,6 @@ package com.wtb.comiccollector.IssueDetailViewModel
 
 import android.util.Log
 import androidx.lifecycle.*
-import androidx.paging.PagedList
 import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.Filter
 import com.wtb.comiccollector.IssueRepository
@@ -22,9 +21,9 @@ class IssueDetailViewModel : ViewModel() {
             issueRepository.getIssue(issueId)
         }
 
-    val issueListLiveData: LiveData<PagedList<FullIssue>> =
+    val issueListLiveData =
         Transformations.switchMap(issueLiveData) { issue ->
-            issueRepository.getIssuesByFilter(Filter(series = issue.series))
+            issueRepository.getIssuesByFilter2(Filter(series = issue.series))
         }
 
     val issueStoriesLiveData: LiveData<List<Story>> =
