@@ -6,6 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:animateLayoutChanges="true"
+    android:background="?attr/colorPrimaryVariant"
     android:orientation="vertical">
 
     <LinearLayout
@@ -13,7 +14,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:animateLayoutChanges="true"
-        android:background="@color/granite"
+        android:background="?attr/colorPrimaryDark"
         android:gravity="center_vertical"
         android:orientation="horizontal"
         android:paddingStart="16dp"
@@ -26,7 +27,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:textColor="@android:color/white"
+            android:textColor="?attr/colorOnPrimary"
             android:textSize="18sp"
             android:textStyle="bold"
             tools:text="Cover" />
@@ -35,7 +36,7 @@
             android:id="@+id/story_dropdown_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@color/granite"
+            android:background="#00000000"
             android:contentDescription="@string/story_dropdown_button"
             app:srcCompat="@drawable/ic_baseline_arrow_drop_down_24" />
 
@@ -47,7 +48,8 @@
         android:layout_height="wrap_content"
         android:animateLayoutChanges="true"
         android:orientation="vertical"
-        android:visibility="gone">
+        android:visibility="gone"
+        tools:visibility="visible">
 
         <LinearLayout
             android:id="@+id/synopsis_box"
@@ -61,7 +63,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:animateLayoutChanges="true"
-                android:background="@color/granite_light"
+                android:background="?attr/colorPrimary"
                 android:gravity="center_vertical"
                 android:orientation="horizontal"
                 android:paddingStart="16dp"
@@ -74,7 +76,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="@string/synopsis"
-                    android:textColor="@color/granite_dark"
+                    android:textColor="?attr/colorOnPrimary"
                     android:textSize="14sp"
                     android:textStyle="bold" />
 
@@ -82,7 +84,7 @@
                     android:id="@+id/synopsis_dropdown_button"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:background="@color/granite_light"
+                    android:background="#00000000"
                     android:contentDescription="@string/synopsis_dropdown_button"
                     app:srcCompat="@drawable/ic_baseline_arrow_drop_down_24" />
 
@@ -93,7 +95,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:padding="16dp"
-                android:visibility="gone" />
+                android:visibility="gone"
+                tools:visibility="visible" />
         </LinearLayout>
 
         <LinearLayout
@@ -108,7 +111,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:animateLayoutChanges="true"
-                android:background="@color/granite_light"
+                android:background="?attr/colorPrimary"
                 android:gravity="center_vertical"
                 android:orientation="horizontal"
                 android:paddingStart="16dp"
@@ -121,7 +124,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="@string/characters"
-                    android:textColor="@color/granite_dark"
+                    android:textColor="?attr/colorOnPrimary"
                     android:textSize="14sp"
                     android:textStyle="bold" />
 
@@ -129,7 +132,7 @@
                     android:id="@+id/characters_dropdown_button"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:background="@color/granite_light"
+                    android:background="#00000000"
                     android:contentDescription="@string/characters_dropdown_button"
                     app:srcCompat="@drawable/ic_baseline_arrow_drop_down_24" />
 
@@ -140,7 +143,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:padding="16dp"
-                android:visibility="gone" />
+                android:visibility="gone"
+                tools:visibility="visible" />
         </LinearLayout>
     </LinearLayout>
 </LinearLayout>

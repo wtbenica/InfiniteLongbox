@@ -18,7 +18,7 @@ import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.liveData
 import androidx.paging.DataSource
-import androidx.paging.PagedList
+import androidx.paging.PagingSource
 import androidx.paging.toLiveData
 import androidx.room.Room
 import androidx.room.RoomDatabase
@@ -168,7 +168,7 @@ class IssueRepository private constructor(val context: Context) {
 
     fun getSeries(seriesId: Int): LiveData<Series?> = seriesDao.getSeries(seriesId)
 
-    fun getPublisher(publisherId: Int) = publisherDao.getPublisher(publisherId)
+    fun getPublisher(publisherId: Int): LiveData<Publisher?> = publisherDao.getPublisher(publisherId)
 
     fun getIssue(issueId: Int): LiveData<FullIssue?> {
         CreditUpdater().update(issueId)
@@ -176,7 +176,7 @@ class IssueRepository private constructor(val context: Context) {
         return issueDao.getFullIssue(issueId)
     }
 
-    fun getIssuesByFilter(filter: Filter): LiveData<PagedList<FullIssue>> {
+    fun getIssuesByFilter(filter: Filter): PagingSource<Int, FullIssue> {
         val seriesId = filter.mSeries!!.seriesId
         val creatorIds = filter.mCreators.map { it.creatorId }
         Log.d(TAG, "SeriesId Filter: $seriesId - CreatorId Filter: $creatorIds")
@@ -188,9 +188,27 @@ class IssueRepository private constructor(val context: Context) {
         IssueUpdater().update(seriesId)
 
         return if (filter.mMyCollection) {
-            collectionDao.getIssuesByFilter(filter).toLiveData(pageSize = REQUEST_LIMIT)
+            issueDao.getIssuesByFilter(filter)
         } else {
-            issueDao.getIssuesByFilter(filter).toLiveData(pageSize = REQUEST_LIMIT)
+            issueDao.getIssuesByFilter(filter)
+        }
+    }
+
+    fun getIssuesByFilter2(filter: Filter): LiveData<List<FullIssue>> {
+        val seriesId = filter.mSeries!!.seriesId
+        val creatorIds = filter.mCreators.map { it.creatorId }
+        Log.d(TAG, "SeriesId Filter: $seriesId - CreatorId Filter: $creatorIds")
+
+        if (filter.hasCreator()) {
+            CreatorUpdater().updateAll(creatorIds)
+        }
+
+        IssueUpdater().update(seriesId)
+
+        return if (filter.mMyCollection) {
+            issueDao.getIssuesByFilter2(filter)
+        } else {
+            issueDao.getIssuesByFilter2(filter)
         }
     }
 

@@ -2,7 +2,6 @@ package com.wtb.comiccollector.IssueDetailViewModel
 
 import android.util.Log
 import androidx.lifecycle.*
-import androidx.paging.PagedList
 import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.Filter
 import com.wtb.comiccollector.IssueRepository
@@ -14,6 +13,7 @@ private const val TAG = APP + "IssueDetailViewModel"
 class IssueDetailViewModel : ViewModel() {
 
     private val issueRepository: IssueRepository = IssueRepository.get()
+
     private val issueIdLiveData = MutableLiveData<Int>()
     private val variantIdLiveData = MutableLiveData<Int?>()
 
@@ -22,11 +22,22 @@ class IssueDetailViewModel : ViewModel() {
             issueRepository.getIssue(issueId)
         }
 
-    val issueListLiveData: LiveData<PagedList<FullIssue>> =
+        val issueListLiveData =
         Transformations.switchMap(issueLiveData) { issue ->
-            issueRepository.getIssuesByFilter(Filter(series = issue.series))
+            issueRepository.getIssuesByFilter2(Filter(series = issue.series))
         }
 
+
+//    lateinit var issueListLiveData: PagingSource<Int, FullIssue>
+//
+//    init {
+//        issueLiveData.observeForever(object : Observer<FullIssue> {
+//            override fun onChanged(t: FullIssue?) {
+//                issueListLiveData = issueRepository.getIssuesByFilter(Filter(series = t?.series))
+//            }
+//        })
+//    }
+//
     val issueStoriesLiveData: LiveData<List<Story>> =
         Transformations.switchMap(issueIdLiveData) { issueId ->
             issueRepository.getStoriesByIssue(issueId)

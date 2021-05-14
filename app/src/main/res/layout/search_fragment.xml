@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -8,6 +9,7 @@
         android:id="@+id/switch_holder"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="?attr/colorPrimary"
         android:gravity="end"
         android:orientation="horizontal"
         android:padding="8dp"
@@ -17,15 +19,16 @@
 
         <TextView
             android:layout_width="wrap_content"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:layout_marginEnd="8dp"
             android:gravity="center"
-            android:labelFor="@id/spinner"
+            android:labelFor="@id/sort_spinner"
             android:text="@string/sort"
-            android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle2" />
+            android:textAppearance="@style/mySwitchTextAppearance"
+            android:textColor="?attr/colorOnPrimary" />
 
         <Spinner
-            android:id="@+id/spinner"
+            android:id="@+id/sort_spinner"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_marginEnd="8dp"
@@ -36,14 +39,16 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight=".1"
-            android:text="@string/my_collection" />
+            android:text="@string/my_collection"
+            android:textColor="?attr/colorOnPrimary"
+            tools:checked="true" />
     </LinearLayout>
 
     <FrameLayout
         android:id="@+id/results_frame"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:background="?attr/colorPrimaryVariant"
+        android:background="@color/white"
         app:layout_constraintBottom_toTopOf="@id/chip_holder"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -52,39 +57,30 @@
     </FrameLayout>
 
 
-    <LinearLayout
+    <HorizontalScrollView
         android:id="@+id/chip_holder"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="?attr/colorPrimary"
         android:orientation="vertical"
+        android:visibility="gone"
         app:layout_constraintBottom_toTopOf="@id/search_box"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent">
+        app:layout_constraintStart_toStartOf="parent"
+        tools:visibility="visible">
 
-        <View
-            android:id="@+id/divider4"
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@drawable/accent_divider" />
+        <com.google.android.material.chip.ChipGroup
+            android:id="@+id/search_chipgroup"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:elevation="2dp"
+            android:paddingStart="8dp"
+            android:paddingTop="4dp"
+            android:paddingEnd="8dp"
+            android:paddingBottom="8dp"
+            app:singleLine="true" />
 
-        <HorizontalScrollView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <com.google.android.material.chip.ChipGroup
-                android:id="@+id/search_chipgroup"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:elevation="2dp"
-                android:paddingTop="4dp"
-                android:paddingBottom="8dp"
-                android:paddingStart="8dp"
-                android:paddingEnd="8dp"
-                app:singleLine="true" />
-
-        </HorizontalScrollView>
-    </LinearLayout>
+    </HorizontalScrollView>
 
     <LinearLayout
         android:id="@+id/search_box"
@@ -96,15 +92,18 @@
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent">
+        app:layout_constraintStart_toStartOf="parent"
+        tools:visibility="visible">
 
         <AutoCompleteTextView
             android:id="@+id/search_tv"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="?attr/dropdownListPreferredItemHeight"
             android:elevation="1dp"
             android:hint="@string/search"
-            android:padding="16dp" />
+            android:padding="8dp"
+            android:textColor="?attr/colorOnSecondary"
+            tools:text="Potato Latke" />
     </LinearLayout>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -116,6 +115,7 @@
         android:contentDescription="@string/fab_description"
         android:elevation="16dp"
         android:src="@drawable/ic_filter"
+        android:tint="#000000"
         app:fabSize="normal"
         app:layout_constraintBottom_toTopOf="@id/chip_holder"
         app:layout_constraintEnd_toEndOf="parent" />
