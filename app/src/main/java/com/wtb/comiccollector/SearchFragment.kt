@@ -59,7 +59,7 @@ class SearchFragment : Fragment(), Chippy.ChipCallbacks, SeriesListFragment.Call
 
     private lateinit var sortSpinner: Spinner
     private lateinit var myCollectionSwitch: SwitchCompat
-    private lateinit var searchChipFrame: LinearLayout
+    private lateinit var searchChipFrame: HorizontalScrollView
     private lateinit var searchChipGroup: ChipGroup
     private lateinit var searchBox: LinearLayout
     private lateinit var searchTextView: AutoCompleteTextView
@@ -85,9 +85,9 @@ class SearchFragment : Fragment(), Chippy.ChipCallbacks, SeriesListFragment.Call
     ): View? {
         val view = inflater.inflate(R.layout.search_fragment, container, false)
         Log.d(TAG, "onCreateView")
-        sortSpinner = view.findViewById(R.id.spinner) as Spinner
+        sortSpinner = view.findViewById(R.id.sort_spinner) as Spinner
         myCollectionSwitch = view.findViewById(R.id.my_collection_switch) as SwitchCompat
-        searchChipFrame = view.findViewById(R.id.chip_holder) as LinearLayout
+        searchChipFrame = view.findViewById(R.id.chip_holder) as HorizontalScrollView
         searchChipGroup = view.findViewById(R.id.search_chipgroup) as ChipGroup
         searchBox = view.findViewById(R.id.search_box) as LinearLayout
         searchTextView = (view.findViewById(R.id.search_tv) as AutoCompleteTextView)

@@ -19,6 +19,7 @@ class MainActivity : AppCompatActivity(),
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        setSupportActionBar(findViewById(R.id.action_bar))
 
         val currentFragment = supportFragmentManager.findFragmentById(R.id.fragment_container)
 
@@ -31,7 +32,7 @@ class MainActivity : AppCompatActivity(),
         }
     }
 
-    override fun onIssueSelected(issueId: Int, filter: Filter) {
+    override fun onIssueSelected(issueId: Int) {
         val fragment = IssueDetailFragment.newInstance(issueId, false)
         supportFragmentManager
             .beginTransaction()

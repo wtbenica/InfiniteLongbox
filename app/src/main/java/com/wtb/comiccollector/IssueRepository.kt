@@ -168,7 +168,7 @@ class IssueRepository private constructor(val context: Context) {
 
     fun getSeries(seriesId: Int): LiveData<Series?> = seriesDao.getSeries(seriesId)
 
-    fun getPublisher(publisherId: Int) = publisherDao.getPublisher(publisherId)
+    fun getPublisher(publisherId: Int): LiveData<Publisher?> = publisherDao.getPublisher(publisherId)
 
     fun getIssue(issueId: Int): LiveData<FullIssue?> {
         CreditUpdater().update(issueId)
