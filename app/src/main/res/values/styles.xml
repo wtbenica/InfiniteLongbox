@@ -1,26 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="myActionBarStyle" parent="Widget.AppCompat.Toolbar">
-        <item name="android:background">?attr/colorPrimaryDark</item>
-        <item name="titleTextAppearance">@style/myActionBarTextStyle</item>
+    <style name="mCardView" parent="Widget.MaterialComponents.CardView">
+        <item name="cardCornerRadius">4dp</item>
+        <item name="cardElevation">2dp</item>
+        <item name="cardUseCompatPadding">true</item>
     </style>
 
-    <style name="myActionBarTextStyle" parent="TextAppearance.MaterialComponents.Headline5">
-        <item name="android:textColor">@color/white</item>
+    <style name="myActionBarStyle" parent="Widget.AppCompat.ActionBar.Solid">
+        <item name="android:background">?attr/colorPrimaryDark</item>
+        <item name="titleTextColor">?attr/colorOnPrimary</item>
+        <item name="titleTextAppearance">@style/myActionBarText</item>
+    </style>
+
+    <style name="myActionBarText" parent="TextAppearance.AppCompat.Widget.ActionBar.Title">
+        <item name="android:textSize">24sp</item>
         <item name="android:textStyle">bold</item>
     </style>
 
     <style name="mySwitchStyle" parent="Widget.AppCompat.CompoundButton.Switch">
-        <item name="android:textAppearance">@style/mySwitchTextAppearance</item>
-    </style>
-
-    <style name="mySwitchTextAppearance" parent="TextAppearance.AppCompat.Button">
         <item name="android:textColor">?attr/colorOnSecondary</item>
+        <item name="android:textStyle">bold</item>
+
+        <item name="android:switchTextAppearance">@style/mySwitchTextAppearance</item>
     </style>
 
+    <style name="mySwitchTextAppearance" parent="TextAppearance.AppCompat.Widget.Switch">
+
+    </style>
     <style name="myButtonBarStyle" parent="Widget.AppCompat.ButtonBar">
-        <item name="android:backgroundTint">?attr/colorAccent</item>
+
     </style>
 
     <style name="myButtonStyle" parent="Widget.MaterialComponents.Button.TextButton">
@@ -28,48 +37,38 @@
     </style>
 
     <style name="myButtonBarButtonStyle" parent="Widget.MaterialComponents.Button.TextButton">
-        <item name="android:textSize">8sp</item>
-        <item name="android:textScaleX">.8</item>
+
     </style>
 
     <style name="mySpinnerStyle" parent="Widget.AppCompat.Spinner">
-        <item name="android:background">@drawable/green_outline_grey_fill2</item>
-        <item name="android:popupBackground">@drawable/green_outline_grey_fill2</item>
-        <item name="android:textAppearance">@style/widgetTextStyle</item>
-        <item name="android:textColor">?attr/colorOnSecondary</item>
+        <item name="android:background">@drawable/accent_outline_white_background</item>
+        <item name="android:paddingStart">8dp</item>
+        <item name="android:paddingEnd">8dp</item>
     </style>
 
     <style name="myAutoCompleteStyle" parent="Widget.AppCompat.AutoCompleteTextView">
-        <item name="android:background">@drawable/green_outline_grey_fill2</item>
-        <item name="android:popupBackground">@drawable/green_outline_grey_fill2</item>
-        <item name="android:textAppearance">@style/widgetTextStyle</item>
-        <item name="android:layout_height">?attr/dropdownListPreferredItemHeight</item>
+        <item name="android:background">@drawable/accent_outline_white_background</item>
+        <item name="android:paddingStart">16dp</item>
+        <item name="paddingEnd">16dp</item>
     </style>
 
     <style name="widgetTextStyle" parent="TextAppearance.AppCompat.Widget.TextView.SpinnerItem">
-        <item name="android:editTextColor">?attr/colorAccent</item>
-        <item name="android:textColor">?attr/colorOnSecondary</item>
     </style>
 
 
-    <style name="myListItem">
-        <item name="android:elevation">1dp</item>
-    </style>
-
-    <style name="myChip" parent="Widget.MaterialComponents.Chip.Entry">
-        <item name="android:layout_width">wrap_content</item>
-        <item name="android:layout_height">wrap_content</item>
+    <style name="myNewChip" parent="Widget.MaterialComponents.Chip.Entry">
         <item name="chipStrokeColor">@color/black</item>
         <item name="chipStrokeWidth">1dp</item>
         <item name="chipBackgroundColor">?attr/colorAccent</item>
+        <item name="android:textColor">?attr/colorOnSecondary</item>
         <item name="android:textAppearance">@style/myChipText</item>
     </style>
 
-
     <style name="myChipText" parent="TextAppearance.MaterialComponents.Chip">
-        <item name="android:textSize">14sp</item>
         <item name="android:textStyle">bold</item>
-        <item name="android:textColor">?attr/colorOnSecondary</item>
-        <item name="android:alpha">1</item>
+    </style>
+
+    <style name="myAutoCompletePopupStyle" parent="Widget.AppCompat.ListPopupWindow">
+        <item name="android:background">@drawable/accent_outline_white_background</item>
     </style>
 </resources>

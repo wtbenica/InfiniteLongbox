@@ -1,5 +1,6 @@
 package com.wtb.comiccollector
 
+import android.util.Log
 import androidx.fragment.app.Fragment
 import com.wtb.comiccollector.GroupListFragments.IssueListFragment
 import com.wtb.comiccollector.GroupListFragments.SeriesListFragment
@@ -14,6 +15,8 @@ import java.io.Serializable
 import java.time.LocalDate
 
 const val ARG_FILTER = "Filter"
+
+private const val TAG = APP + "Filter_SortChipGroup"
 
 class Filter(
     creators: MutableSet<Creator>? = null,
@@ -30,12 +33,18 @@ class Filter(
 
     var mCreators: MutableSet<Creator> = creators ?: mutableSetOf()
     var mSeries: Series? = series
+        set(value) {
+            if (getSortOptions(value) != getSortOptions()) {
+                mSortOption = getSortOptions(value)[0]
+            }
+
+            field = value
+        }
     var mPublishers: MutableSet<Publisher> = publishers ?: mutableSetOf()
     var mStartDate: LocalDate = startDate ?: LocalDate.MIN
     var mEndDate: LocalDate = endDate ?: LocalDate.MAX
     var mMyCollection: Boolean = myCollection
     var mSortOption: SortOption = getSortOptions()[0]
-
 
     fun hasCreator() = mCreators.isNotEmpty()
     fun returnsIssueList() = mSeries != null
@@ -102,9 +111,14 @@ class Filter(
         }
     }
 
-    fun getSortOptions(): List<SortOption> = when (mSeries) {
-        null -> seriesSortOptions
-        else -> issueSortOptions
+    fun getSortOptions(series: Series? = mSeries): List<SortOption> {
+
+        Log.d(TAG, "MSERIES $series")
+
+        return when (series) {
+            null -> seriesSortOptions
+            else -> issueSortOptions
+        }
     }
 
     fun updateCreators(creators: List<Creator>?) {

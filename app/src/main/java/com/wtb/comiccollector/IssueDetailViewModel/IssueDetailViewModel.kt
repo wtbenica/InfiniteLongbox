@@ -24,7 +24,7 @@ class IssueDetailViewModel : ViewModel() {
 
         val issueListLiveData =
         Transformations.switchMap(issueLiveData) { issue ->
-            issueRepository.getIssuesByFilter2(Filter(series = issue.series))
+            issueRepository.getIssuesByFilterLiveData(Filter(series = issue.series))
         }
 
 

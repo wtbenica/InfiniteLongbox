@@ -145,6 +145,9 @@ class IssueDetailFragment : Fragment() {
                 issue?.let {
                     this.fullIssue = it
                     this.coverUri = it.coverUri
+                    (requireActivity() as MainActivity).supportActionBar?.apply {
+                        it.let { title = "${issue.series.seriesName} #${issue.issue.issueNum}" }
+                    }
                     updateUI()
                 }
             }

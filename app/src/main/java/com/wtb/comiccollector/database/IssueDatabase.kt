@@ -71,18 +71,11 @@ val migration_3_4 = SimpleMigration(
         ON Cover(issueId)"""
 )
 
-val migration_4_5 = SimpleMigration(
-    4, 5,
-    """CREATE TABLE IF NOT EXISTS 'issue_backup'(
-        
-        )"""
-
-)
-
-class SimpleMigration(from_version: Int, to_version: Int, private vararg val sql: String) : Migration(
-    from_version,
-    to_version
-) {
+class SimpleMigration(from_version: Int, to_version: Int, private vararg val sql: String) :
+    Migration(
+        from_version,
+        to_version
+    ) {
     override fun migrate(database: SupportSQLiteDatabase) {
         sql.forEach {
             database.execSQL(it)

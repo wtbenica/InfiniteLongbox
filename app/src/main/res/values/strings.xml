@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">ComicCollector</string>
+    <string name="app_name">Infinite Longbox</string>
     <string name="add_issue">Add Issue</string>
     <string name="delete_issue">Delete Issue</string>
     <string name="hint_series_title">Series title</string>

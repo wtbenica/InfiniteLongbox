@@ -69,6 +69,9 @@ data class Credit(
     ]
 )
 data class MyCredit(
+    // TODO: Change name on next database update
+    // TODO: Actually, it looks like this whole thing is wrong. needs to fk to nameDetail not
+    //  creator
     @PrimaryKey(autoGenerate = true) val creditId: Int = AUTO_ID,
     var storyId: Int,
     var creatorId: Int,

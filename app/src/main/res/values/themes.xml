@@ -1,6 +1,6 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
-    <style name="Theme.ComicCollector" parent="Theme.AppCompat.Light.NoActionBar">
+    <style name="Theme.ComicCollector" parent="Theme.MaterialComponents.Light.NoActionBar">
 
         <!-- Primary brand color. -->
         <item name="colorPrimary">@color/fantasia</item>
@@ -19,14 +19,16 @@
 
         <!-- Customize your theme here. -->
         <item name="android:windowBackground">@color/white</item>
+        <item name="actionBarStyle">@style/myActionBarStyle</item>
+        <item name="materialCardViewStyle">@style/mCardView</item>
+        <item name="cardViewStyle">@style/mCardView</item>
         <item name="materialButtonStyle">@style/myButtonStyle</item>
         <item name="android:spinnerStyle">@style/mySpinnerStyle</item>
-        <item name="buttonBarButtonStyle">@style/myButtonBarButtonStyle</item>
-        <item name="buttonBarStyle">@style/myButtonBarStyle</item>
+        <item name="android:buttonBarButtonStyle">@style/myButtonBarButtonStyle</item>
+        <item name="android:buttonBarStyle">@style/myButtonBarStyle</item>
         <item name="autoCompleteTextViewStyle">@style/myAutoCompleteStyle</item>
-        <item name="toolbarStyle">@style/myActionBarStyle</item>
+        <item name="android:toolbarStyle">@style/myActionBarStyle</item>
         <item name="switchStyle">@style/mySwitchStyle</item>
-        <!--        <item name="buttonBarButtonStyle">@style/myButtonBarButtonStyle</item>-->
-        <item name="chipStyle">@style/myChip</item>
+        <item name="chipStyle">@style/myNewChip</item>
     </style>
 </resources>

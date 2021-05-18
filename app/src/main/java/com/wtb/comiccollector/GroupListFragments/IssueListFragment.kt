@@ -31,7 +31,7 @@ class IssueListFragment : Fragment() {
 
     private val issueListViewModel: IssueListViewModel by viewModels()
 
-    private var filter: Filter = Filter()
+    private lateinit var filter: Filter
     private lateinit var issueGridView: RecyclerView
 
     private var callbacks: Callbacks? = null

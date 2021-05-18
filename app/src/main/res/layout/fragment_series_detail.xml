@@ -5,44 +5,26 @@
     android:id="@+id/details"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="?attr/colorPrimary"
-    android:padding="8dp"
-    app:layout_constraintEnd_toEndOf="parent"
-    app:layout_constraintStart_toStartOf="parent"
-    app:layout_constraintTop_toTopOf="parent">
-
-    <TextView
-        android:id="@+id/details_series_name"
-        style="@style/TextAppearance.MaterialComponents.Headline5"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:textColor="?attr/colorOnPrimary"
-        android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:text="Doom Patrol" />
+    android:padding="8dp">
 
     <TextView
         android:id="@+id/label_volume"
-        style="@style/TextAppearance.MaterialComponents.Subtitle2"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
         android:text="@string/hint_volume"
-        android:textColor="?attr/colorOnPrimary"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/details_series_name" />
+        app:layout_constraintTop_toTopOf="parent"
+        tools:layout_editor_absoluteY="43dp" />
 
     <TextView
         android:id="@+id/details_series_volume"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:textColor="?attr/colorOnPrimary"
         app:layout_constraintStart_toEndOf="@id/label_volume"
-        app:layout_constraintTop_toBottomOf="@+id/details_series_name"
+        app:layout_constraintTop_toTopOf="@id/label_volume"
+        app:layout_constraintBottom_toBottomOf="@id/label_volume"
+        tools:layout_editor_absoluteY="43dp"
         tools:text="vol. 1" />
 
     <TextView
@@ -50,21 +32,18 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:textColor="?attr/colorOnPrimary"
+        app:layout_constraintTop_toTopOf="@id/details_series_volume"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/details_series_volume"
-        app:layout_constraintTop_toBottomOf="@+id/details_series_name"
+        app:layout_constraintStart_toEndOf="@id/details_series_volume"
+        tools:layout_editor_absoluteY="43dp"
         tools:text="Feb. 1994" />
 
     <TextView
         android:id="@+id/label_publisher"
-        style="@style/TextAppearance.MaterialComponents.Subtitle2"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:text="@string/hint_publisher"
-        android:textColor="?attr/colorOnPrimary"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/label_volume" />
 
@@ -74,7 +53,6 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
-        android:textColor="?attr/colorOnPrimary"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@id/label_publisher"
         app:layout_constraintTop_toBottomOf="@+id/details_series_volume"
@@ -82,27 +60,26 @@
 
     <TextView
         android:id="@+id/label_description"
-        style="@style/TextAppearance.MaterialComponents.Subtitle2"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:text="@string/label_description"
-        android:textColor="?attr/colorOnPrimary"
         android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/details_publisher" />
+        app:layout_constraintTop_toBottomOf="@+id/details_publisher"
+        tools:visibility="visible" />
 
     <TextView
         android:id="@+id/details_description"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:textColor="?attr/colorOnPrimary"
         android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/label_description"
-        tools:text="A guy whose brain is stuck in a robot body goes on adventures with a ragtag group of fellow outcasts." />
+        tools:text="A guy whose brain is stuck in a robot body goes on adventures with a ragtag group of fellow outcasts."
+        tools:visibility="visible" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

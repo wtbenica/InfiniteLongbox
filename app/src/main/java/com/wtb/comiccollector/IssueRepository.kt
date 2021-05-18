@@ -176,28 +176,31 @@ class IssueRepository private constructor(val context: Context) {
         return issueDao.getFullIssue(issueId)
     }
 
-    fun getIssuesByFilter(filter: Filter): PagingSource<Int, FullIssue> {
-        val seriesId = filter.mSeries!!.seriesId
-        val creatorIds = filter.mCreators.map { it.creatorId }
-        Log.d(TAG, "SeriesId Filter: $seriesId - CreatorId Filter: $creatorIds")
+    fun getIssuesByFilterPagingSource(filter: Filter): PagingSource<Int, FullIssue> {
+        val mSeries = filter.mSeries
+        if (mSeries != null) {
+            val seriesId = mSeries.seriesId
+            val creatorIds = filter.mCreators.map { it.creatorId }
 
-        if (filter.hasCreator()) {
-            CreatorUpdater().updateAll(creatorIds)
-        }
+            if (filter.hasCreator()) {
+                CreatorUpdater().updateAll(creatorIds)
+            }
 
-        IssueUpdater().update(seriesId)
+            IssueUpdater().update(seriesId)
 
-        return if (filter.mMyCollection) {
-            issueDao.getIssuesByFilter(filter)
+            return if (filter.mMyCollection) {
+                issueDao.getIssuesByFilter(filter)
+            } else {
+                issueDao.getIssuesByFilter(filter)
+            }
         } else {
-            issueDao.getIssuesByFilter(filter)
+            throw IllegalArgumentException("Filter seriesId shouldn't be null")
         }
     }
 
-    fun getIssuesByFilter2(filter: Filter): LiveData<List<FullIssue>> {
+    fun getIssuesByFilterLiveData(filter: Filter): LiveData<List<FullIssue>> {
         val seriesId = filter.mSeries!!.seriesId
         val creatorIds = filter.mCreators.map { it.creatorId }
-        Log.d(TAG, "SeriesId Filter: $seriesId - CreatorId Filter: $creatorIds")
 
         if (filter.hasCreator()) {
             CreatorUpdater().updateAll(creatorIds)

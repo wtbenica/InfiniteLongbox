@@ -24,18 +24,20 @@ class IssueListViewModel : ViewModel() {
     private val filterLiveData = MutableLiveData<Filter?>(null)
 
     var seriesLiveData: LiveData<Series?> =
-        Transformations.switchMap(seriesIdLiveData) { seriesId ->
-            issueRepository.getSeries(seriesId)
+        Transformations.switchMap(filterLiveData) {
+            it?.let { filter ->
+                filter.mSeries?.seriesId?.let { id -> issueRepository.getSeries(id) }
+            }
         }
 
-    fun issueList(filter: Filter) : Flow<PagingData<FullIssue>> = Pager(
+    fun issueList(filter: Filter): Flow<PagingData<FullIssue>> = Pager(
         config = PagingConfig(
             pageSize = REQUEST_LIMIT,
             enablePlaceholders = true,
             maxSize = 200
         )
     ) {
-        issueRepository.getIssuesByFilter(filter)
+        issueRepository.getIssuesByFilterPagingSource(filter)
     }.flow
 
     fun setFilter(filter: Filter) {

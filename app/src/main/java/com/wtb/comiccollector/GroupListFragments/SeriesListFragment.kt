@@ -16,11 +16,8 @@ import androidx.paging.PagedListAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.wtb.comiccollector.APP
-import com.wtb.comiccollector.ARG_FILTER
-import com.wtb.comiccollector.Filter
+import com.wtb.comiccollector.*
 import com.wtb.comiccollector.GroupListViewModels.SeriesListViewModel
-import com.wtb.comiccollector.R
 import com.wtb.comiccollector.database.models.Series
 
 private const val TAG = APP + "SeriesListFragment"
@@ -56,6 +53,9 @@ class SeriesListFragment(var callback: Callbacks? = null) : Fragment() {
         val adapter = SeriesAdapter()
         itemListRecyclerView.adapter = adapter
         viewModel.seriesListLiveData.observe(viewLifecycleOwner, Observer(adapter::submitList))
+
+        (requireActivity() as MainActivity).supportActionBar?.title = requireContext()
+            .applicationInfo.loadLabel(requireContext().packageManager).toString()
 
         return view
     }
@@ -93,7 +93,6 @@ class SeriesListFragment(var callback: Callbacks? = null) : Fragment() {
         lateinit var item: Series
 
         init {
-            @Suppress("LeakingThis")
             itemView.setOnClickListener(this)
         }
 
