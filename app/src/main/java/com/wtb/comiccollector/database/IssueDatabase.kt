@@ -11,7 +11,7 @@ import com.wtb.comiccollector.database.models.Issue
 
 @Database(
     entities = [Issue::class, Series::class, Creator::class, Role::class, Credit::class,
-        Publisher::class, Story::class, MyCredit::class, StoryType::class, NameDetail::class,
+        Publisher::class, Story::class, ExtractedCredit::class, StoryType::class, NameDetail::class,
         Character::class, Appearance::class, MyCollection::class, Cover::class],
     version = 4
 )

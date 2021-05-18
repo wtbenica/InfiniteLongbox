@@ -19,6 +19,9 @@ interface Webservice {
     @GET("/db_query/stories/{storyIds}/credits")
     suspend fun getCreditsByStories(@Path("storyIds") storyIds: List<Int>): List<Item<GcdCredit, Credit>>
 
+    @GET("/db_query/stories/{storyIds}/extracts")
+    suspend fun getExtractedCreditsByStories(@Path("storyIds") storyIds: List<Int>): List<Item<GcdCredit, Credit>>
+
     // GET Stories
     @GET("/db_query/issue/{issueId}/stories")
     suspend fun getStoriesByIssue(@Path("issueId") issueId: Int): List<Item<GcdStory, Story>>

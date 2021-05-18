@@ -17,9 +17,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.liveData
-import androidx.paging.DataSource
-import androidx.paging.PagingSource
-import androidx.paging.toLiveData
+import androidx.paging.*
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
@@ -121,11 +119,19 @@ class IssueRepository private constructor(val context: Context) {
     val allCreators: LiveData<List<Creator>> = creatorDao.getCreatorsList()
     val allRoles: LiveData<List<Role>> = roleDao.getRoleList()
 
-    fun filterOptions(filter: Filter): CombinedLiveData {
-        val seriesList = if (filter.isEmpty()) {
+    fun filterOptions(filter: Filter): AllFiltersLiveData {
+        val ee: LiveData<PagingData<Series>> = Pager(
+            PagingConfig(REQUEST_LIMIT),
+            null,
+            seriesDao.getSeriesByFilter(filter).asPagingSourceFactory(
+                Dispatchers.IO
+            )
+        ).liveData
+
+        val seriesList: LiveData<List<Series>>? = if (filter.isEmpty()) {
             allSeries
         } else if (filter.mSeries == null) {
-            seriesDao.getSeriesByFilter(filter).toLiveData(REQUEST_LIMIT)
+            null
         } else {
             null
         }
@@ -146,7 +152,7 @@ class IssueRepository private constructor(val context: Context) {
             null
         }
 
-        return CombinedLiveData(
+        return AllFiltersLiveData(
             series = seriesList,
             creators = creatorsList,
             publishers = publishersList,
@@ -168,7 +174,8 @@ class IssueRepository private constructor(val context: Context) {
 
     fun getSeries(seriesId: Int): LiveData<Series?> = seriesDao.getSeries(seriesId)
 
-    fun getPublisher(publisherId: Int): LiveData<Publisher?> = publisherDao.getPublisher(publisherId)
+    fun getPublisher(publisherId: Int): LiveData<Publisher?> =
+        publisherDao.getPublisher(publisherId)
 
     fun getIssue(issueId: Int): LiveData<FullIssue?> {
         CreditUpdater().update(issueId)
@@ -253,9 +260,14 @@ class IssueRepository private constructor(val context: Context) {
 
     fun getStoriesByIssue(issueId: Int): LiveData<List<Story>> = storyDao.getStories(issueId)
 
-
-    fun getCreditsByIssue(issueId: Int): LiveData<List<FullCredit>> =
-        creditDao.getIssueCredits(issueId)
+    fun getCreditsByIssue(issueId: Int) = AllCreditsLiveData(
+        creditDao.getIssueCredits(issueId),
+        creditDao.getIssueExtractedCredits(issueId),
+        combine = { credits1: List<FullCredit>?, credits2: List<FullCredit>? ->
+            val res = (credits1 ?: emptyList()) + (credits2 ?: emptyList())
+            sort(res)
+            res
+        })
 
     fun getCoverByIssueId(issueId: Int): LiveData<Cover?> = coverDao.getCoverByIssueId(issueId)
 /*
@@ -401,13 +413,49 @@ class IssueRepository private constructor(val context: Context) {
                     }
                 }
 
+                val extractedCreditItemsCall = GlobalScope.async {
+                    storyItemsCall.await().let { storyItems ->
+                        if (storyItems.isNotEmpty()) {
+                            Log.d(TAG, "WEBSERVICE: extractedCreditsByStories $storyItems")
+                            apiService.getExtractedCreditsByStories(storyItems.map { item -> item.pk })
+                        } else {
+                            null
+                        }
+                    }
+                }
+
+                val extractedNameDetailItemsCall = GlobalScope.async {
+                    extractedCreditItemsCall.await()?.let { creditItems ->
+                        if (creditItems.isNotEmpty()) {
+                            Log.d(TAG, "WEBSERVICE: nameDetails $creditItems")
+                            apiService.getNameDetailsByIds(creditItems.map { it.fields.nameDetailId })
+                        } else {
+                            null
+                        }
+                    }
+                }
+
+                val extractedCreatorItemsCall = GlobalScope.async {
+                    extractedNameDetailItemsCall.await()?.let { nameDetailItems ->
+                        if (nameDetailItems.isNotEmpty()) {
+                            Log.d(TAG, "WEBSERVICE: creator $nameDetailItems")
+                            apiService.getCreator(nameDetailItems.map { it.fields.creatorId })
+                        } else {
+                            null
+                        }
+                    }
+                }
+
                 GlobalScope.launch {
                     withContext(Dispatchers.Default) {
                         val stories = storyItemsCall.await().map { it.toRoomModel() }
                         val credits = creditItemsCall.await()?.map { it.toRoomModel() }
-                        val nameDetails =
-                            nameDetailItemsCall.await()?.map { it.toRoomModel() }
+                        val nameDetails = nameDetailItemsCall.await()?.map { it.toRoomModel() }
                         val creators = creatorItemsCall.await()?.map { it.toRoomModel() }
+                        val extracts = extractedCreditItemsCall.await()?.map { it.toRoomModel() }
+                        val eNameDetails =
+                            extractedNameDetailItemsCall.await()?.map { it.toRoomModel() }
+                        val eCreators = extractedCreatorItemsCall.await()?.map { it.toRoomModel() }
 
                         database.transactionDao().upsertSus(
                             stories = stories,
@@ -417,7 +465,7 @@ class IssueRepository private constructor(val context: Context) {
                         )
                     }.let {
 //                        CharacterExtractor().extractCharacters(storyItems.await())
-                        CreditExtractor().extractCredits(storyItemsCall.await())
+//                        CreditExtractor().extractCredits(storyItemsCall.await())
                     }
                 }
             }
@@ -1025,7 +1073,41 @@ class IssueRepository private constructor(val context: Context) {
     }
 }
 
-class CombinedLiveData(
+class AllCreditsLiveData(
+    credits: LiveData<List<FullCredit>>?,
+    extractedCredits: LiveData<List<FullCredit>>?,
+    private val combine: (List<FullCredit>?, List<FullCredit>?) -> List<FullCredit>
+) : MediatorLiveData<List<FullCredit>>() {
+
+    private var mCredits: List<FullCredit>? = null
+    private var eCredits: List<FullCredit>? = null
+
+    init {
+        credits?.let { creditsLiveData ->
+            super.addSource(creditsLiveData) {
+                mCredits = it
+                this.value = combine(mCredits, eCredits)
+            }
+
+        }
+        extractedCredits?.let { creditsLiveData ->
+            super.addSource(creditsLiveData) {
+                eCredits = it
+                this.value = combine(mCredits, eCredits)
+            }
+        }
+    }
+
+    override fun <S : Any?> addSource(source: LiveData<S>, onChanged: Observer<in S>) {
+        throw UnsupportedOperationException()
+    }
+
+    override fun <S : Any?> removeSource(toRemote: LiveData<S>) {
+        throw UnsupportedOperationException()
+    }
+}
+
+class AllFiltersLiveData(
     series: LiveData<out List<Series>>?,
     creators: LiveData<List<Creator>>?,
     publishers: LiveData<List<Publisher>>?,

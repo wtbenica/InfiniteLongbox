@@ -12,7 +12,7 @@ abstract class CreditDao : BaseDao<Credit>() {
     @Transaction
     @Query(
         """
-            SELECT cr.*, c.*
+            SELECT cr.*, c.*, st.sortCode
             FROM credit cr
             JOIN story sr on cr.storyId = sr.storyId
             JOIN storytype st on st.typeId = sr.storyType
@@ -28,12 +28,28 @@ abstract class CreditDao : BaseDao<Credit>() {
     @Transaction
     @Query(
         """
-            SELECT cr.*, c.*
-            FROM credit cr
-            JOIN namedetail nd ON nd.nameDetailId = cr.nameDetailId
+            SELECT ecr.*, c.*, st.sortCode
+            FROM extractedcredit ecr
+            JOIN story sr on ecr.storyId = sr.storyId
+            JOIN storytype st on st.typeId = sr.storyType
+            JOIN role ON ecr.roleId = role.roleId
+            JOIN namedetail nd ON nd.nameDetailId = ecr.nameDetailId
             JOIN creator c on c.creatorId = nd.creatorId
-            WHERE cr.nameDetailId = :nameDetailId
+            WHERE sr.issueId = :issueId
+            ORDER BY st.sortCode, sr.sequenceNumber, role.sortOrder
         """
     )
-    abstract suspend fun getIssueCreditsByNameDetailSus(nameDetailId: Int): List<FullCredit>
+    abstract fun getIssueExtractedCredits(issueId: Int): LiveData<List<FullCredit>>
+
+//    @Transaction
+//    @Query(
+//        """
+//            SELECT cr.*, c.*
+//            FROM credit cr
+//            JOIN namedetail nd ON nd.nameDetailId = cr.nameDetailId
+//            JOIN creator c on c.creatorId = nd.creatorId
+//            WHERE cr.nameDetailId = :nameDetailId
+//        """
+//    )
+//    abstract suspend fun getIssueCreditsByNameDetailSus(nameDetailId: Int): List<FullCredit>
 }

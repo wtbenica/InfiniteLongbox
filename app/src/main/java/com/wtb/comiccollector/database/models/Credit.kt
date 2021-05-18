@@ -42,9 +42,9 @@ data class Credit(
 
 @Entity(
     indices = [
-        Index(value = ["storyId", "creatorId", "roleId"], unique = true),
+        Index(value = ["storyId", "nameDetailId", "roleId"], unique = true),
         Index(value = ["storyId"]),
-        Index(value = ["creatorId"]),
+        Index(value = ["nameDetailId"]),
         Index(value = ["roleId"])
     ],
     foreignKeys = [
@@ -55,9 +55,9 @@ data class Credit(
             onDelete = ForeignKey.CASCADE
         ),
         ForeignKey(
-            entity = Creator::class,
-            parentColumns = arrayOf("creatorId"),
-            childColumns = arrayOf("creatorId"),
+            entity = NameDetail::class,
+            parentColumns = arrayOf("nameDetailId"),
+            childColumns = arrayOf("nameDetailId"),
             onDelete = ForeignKey.CASCADE
         ),
         ForeignKey(
@@ -68,13 +68,10 @@ data class Credit(
         )
     ]
 )
-data class MyCredit(
-    // TODO: Change name on next database update
-    // TODO: Actually, it looks like this whole thing is wrong. needs to fk to nameDetail not
-    //  creator
+data class ExtractedCredit(
     @PrimaryKey(autoGenerate = true) val creditId: Int = AUTO_ID,
     var storyId: Int,
-    var creatorId: Int,
+    var nameDetailId: Int,
     var roleId: Int
 ) : DataModel() {
     override val id: Int
@@ -163,4 +160,21 @@ data class FullCredit(
         entityColumn = "storyId"
     )
     val story: Story,
-)
+
+    val sortCode: Int
+) : Comparable<FullCredit> {
+    override fun compareTo(other: FullCredit): Int {
+        val sortCodeCompare = this.sortCode.compareTo(other.sortCode)
+
+        return if (sortCodeCompare == 0) {
+            val seqNumCompare = this.story.sequenceNumber.compareTo(other.story.sequenceNumber)
+            if (seqNumCompare == 0) {
+                this.role.sortOrder.compareTo(other.role.sortOrder)
+            } else {
+                seqNumCompare
+            }
+        } else {
+            sortCodeCompare
+        }
+    }
+}
