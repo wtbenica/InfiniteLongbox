@@ -1,16 +1,29 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
-    <style name="Theme.ComicCollector" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
+    <style name="Theme.ComicCollector" parent="Theme.MaterialComponents.NoActionBar">
         <!-- Primary brand color. -->
         <item name="colorPrimary">@color/fantasia_dark</item>
         <item name="colorPrimaryVariant">@color/fantasia</item>
         <item name="colorOnPrimary">@color/white</item>
         <!-- Secondary brand color. -->
-        <item name="colorSecondary">@color/amnesia_dark</item>
+        <item name="colorSecondary">@color/amnesia_light</item>
         <item name="colorSecondaryVariant">@color/amnesia</item>
+        <item name="colorAccent">@color/amnesia_dark</item>
         <item name="colorOnSecondary">@color/light_black</item>
         <!-- Status bar color. -->
         <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimaryVariant</item>
         <!-- Customize your theme here. -->
+        <item name="android:windowBackground">#7E7E7E</item>
+        <item name="actionBarStyle">@style/myActionBarStyle</item>
+        <item name="materialCardViewStyle">@style/mCardView</item>
+        <item name="cardViewStyle">@style/mCardView</item>
+        <item name="materialButtonStyle">@style/myButtonStyle</item>
+        <item name="android:spinnerStyle">@style/mySpinnerStyle</item>
+        <item name="android:buttonBarButtonStyle">@style/myButtonBarButtonStyle</item>
+        <item name="android:buttonBarStyle">@style/myButtonBarStyle</item>
+        <item name="autoCompleteTextViewStyle">@style/myAutoCompleteStyle</item>
+        <item name="android:toolbarStyle">@style/myActionBarStyle</item>
+        <item name="switchStyle">@style/mySwitchStyle</item>
+        <item name="chipStyle">@style/myNewChip</item>
     </style>
 </resources>
