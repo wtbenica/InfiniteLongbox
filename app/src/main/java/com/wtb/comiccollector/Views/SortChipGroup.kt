@@ -7,6 +7,7 @@ import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
 import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.Filter
+import com.wtb.comiccollector.SortOption
 
 private const val TAG = APP + "SortChipGroup"
 

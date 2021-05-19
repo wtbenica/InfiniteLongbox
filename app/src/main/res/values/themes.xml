@@ -31,4 +31,13 @@
         <item name="switchStyle">@style/mySwitchStyle</item>
         <item name="chipStyle">@style/myNewChip</item>
     </style>
+
+    <style name="Theme.ComicCollector.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <style name="Theme.ComicCollector.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+
+    <style name="Theme.ComicCollector.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 </resources>

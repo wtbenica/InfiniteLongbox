@@ -4,9 +4,6 @@ import android.util.Log
 import androidx.fragment.app.Fragment
 import com.wtb.comiccollector.GroupListFragments.IssueListFragment
 import com.wtb.comiccollector.GroupListFragments.SeriesListFragment
-import com.wtb.comiccollector.Views.SortOption
-import com.wtb.comiccollector.Views.issueSortOptions
-import com.wtb.comiccollector.Views.seriesSortOptions
 import com.wtb.comiccollector.database.models.Creator
 import com.wtb.comiccollector.database.models.FilterOption
 import com.wtb.comiccollector.database.models.Publisher
@@ -164,3 +161,31 @@ class Filter(
         }
     }
 }
+
+abstract class SortOption(
+    val tag: String,
+    val sortColumn: String
+) {
+
+    override fun toString() = tag
+}
+
+class IssueSortOption(
+    tag: String, sortColumn: String) : SortOption(tag, sortColumn)
+
+val issueSortOptions: List<SortOption> = listOf(
+    IssueSortOption("Issue Number (Low to High)", "issueNum ASC"),
+    IssueSortOption("Issue Number (High to Low)", "issueNum DESC"),
+    IssueSortOption("Date (Oldest to Newest)", "releaseDate ASC"),
+    IssueSortOption("Date (Newest to Oldest)", "releaseDate DESC")
+)
+
+class SeriesSortOption(
+    tag: String, sortColumn: String) : SortOption(tag, sortColumn)
+
+val seriesSortOptions: List<SortOption> = listOf(
+    SeriesSortOption("Series Name (A-Z)", "sortName ASC"),
+    SeriesSortOption("Series Name (Z-A)", "sortName DESC"),
+    SeriesSortOption("Date (Oldest to Newest)", "startDate ASC"),
+    SeriesSortOption("Date (Newest to Oldest)", "startDate DESC")
+)
