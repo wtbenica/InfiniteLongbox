@@ -13,7 +13,7 @@ import com.wtb.comiccollector.database.models.Issue
     entities = [Issue::class, Series::class, Creator::class, Role::class, Credit::class,
         Publisher::class, Story::class, ExtractedCredit::class, StoryType::class, NameDetail::class,
         Character::class, Appearance::class, MyCollection::class, Cover::class],
-    version = 4
+    version = 5
 )
 @TypeConverters(IssueTypeConverters::class)
 
@@ -69,6 +69,25 @@ val migration_3_4 = SimpleMigration(
     3, 4,
     """CREATE UNIQUE INDEX IF NOT EXISTS index_Cover_issueId 
         ON Cover(issueId)"""
+)
+
+val migration_4_5 = SimpleMigration(
+    4, 5,
+    """
+        CREATE TABLE IF NOT EXISTS ExtractedCredit(
+        creditId INTEGER NOT NULL PRIMARY KEY,
+        storyId INTEGER NOT NULL REFERENCES Story(storyId) ON DELETE CASCADE,
+        nameDetailId INTEGER NOT NULL REFERENCES NameDetail(nameDetailId) ON DELETE CASCADE,
+        roleId INTEGER NOT NULL REFERENCES Role(roleId) ON DELETE CASCADE
+        );""",
+    """CREATE INDEX IF NOT EXISTS index_ExtractedCredit_storyId ON ExtractedCredit
+        (storyId)""",
+    """CREATE INDEX IF NOT EXISTS index_ExtractedCredit_nameDetailId ON ExtractedCredit
+        (nameDetailId)""",
+    """CREATE INDEX IF NOT EXISTS index_ExtractedCredit_roleId ON ExtractedCredit
+        (roleId)""",
+    """CREATE UNIQUE INDEX IF NOT EXISTS index_ExtractedCredit_storyId_nameDetailId_roleId ON 
+        ExtractedCredit(storyId, nameDetailId, roleId)"""
 )
 
 class SimpleMigration(from_version: Int, to_version: Int, private vararg val sql: String) :

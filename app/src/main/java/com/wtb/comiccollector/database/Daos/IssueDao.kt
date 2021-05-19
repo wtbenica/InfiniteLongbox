@@ -50,9 +50,11 @@ abstract class IssueDao : BaseDao<Issue>() {
     @RawQuery(
         observedEntities = [FullIssue::class]
     )
-    abstract fun getFullIssuesByQuery(query: SupportSQLiteQuery): PagingSource<Int, FullIssue>
+    abstract fun getFullIssuesByQueryPagingSource(query: SupportSQLiteQuery): PagingSource<Int, FullIssue>
 
-    fun getIssuesByFilter(filter: Filter): PagingSource<Int, FullIssue> {
+    fun getIssuesByFilterPagingSource(filter: Filter): PagingSource<Int, FullIssue> {
+
+        val mSeries = filter.mSeries
 
         var tableJoinString = String()
         var conditionsString = String()
@@ -66,7 +68,7 @@ abstract class IssueDao : BaseDao<Issue>() {
                     "JOIN publisher pr ON ss.publisherId = pr.publisherId "
 
         conditionsString +=
-            "WHERE ss.seriesId = ${filter.mSeries?.seriesId} "
+            "WHERE ss.seriesId = ${mSeries?.seriesId} "
 
         if (filter.hasPublisher()) {
             val publisherList = modelsToSqlIdString(filter.mPublishers)
@@ -104,15 +106,15 @@ abstract class IssueDao : BaseDao<Issue>() {
 
         Log.d(TAG, tableJoinString + conditionsString)
         Log.d(TAG, query.sql)
-        return getFullIssuesByQuery(query)
+        return getFullIssuesByQueryPagingSource(query)
     }
 
     @RawQuery(
         observedEntities = [FullIssue::class]
     )
-    abstract fun getFullIssuesByQuery2(query: SupportSQLiteQuery): LiveData<List<FullIssue>>
+    abstract fun getFullIssuesByQueryLiveData(query: SupportSQLiteQuery): LiveData<List<FullIssue>>
 
-    fun getIssuesByFilter2(filter: Filter): LiveData<List<FullIssue>> {
+    fun getIssuesByFilterLiveData(filter: Filter): LiveData<List<FullIssue>> {
 
         var tableJoinString = String()
         var conditionsString = String()
@@ -164,7 +166,7 @@ abstract class IssueDao : BaseDao<Issue>() {
 
         Log.d(TAG, tableJoinString + conditionsString)
         Log.d(TAG, query.sql)
-        return getFullIssuesByQuery2(query)
+        return getFullIssuesByQueryLiveData(query)
     }
 
     @Transaction

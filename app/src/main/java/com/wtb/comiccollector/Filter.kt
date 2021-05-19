@@ -64,7 +64,11 @@ class Filter(
     }
 
     private fun addSeries(series: Series) {
+        val old = this.mSeries
         this.mSeries = series
+        if (old == null) {
+            mSortOption = getSortOptions()[0]
+        }
     }
 
     private fun removeSeries() {

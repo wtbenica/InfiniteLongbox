@@ -9,16 +9,18 @@ import android.view.animation.AnimationUtils
 import android.view.animation.LayoutAnimationController
 import android.widget.TextView
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.paging.PagedList
-import androidx.paging.PagedListAdapter
+import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.wtb.comiccollector.*
 import com.wtb.comiccollector.GroupListViewModels.SeriesListViewModel
 import com.wtb.comiccollector.database.models.Series
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 
 private const val TAG = APP + "SeriesListFragment"
 
@@ -52,7 +54,10 @@ class SeriesListFragment(var callback: Callbacks? = null) : Fragment() {
         itemListRecyclerView.layoutManager = LinearLayoutManager(context)
         val adapter = SeriesAdapter()
         itemListRecyclerView.adapter = adapter
-        viewModel.seriesListLiveData.observe(viewLifecycleOwner, Observer(adapter::submitList))
+
+        lifecycleScope.launch {
+            viewModel.seriesList(filter).collectLatest { adapter.submitData(it) }
+        }
 
         (requireActivity() as MainActivity).supportActionBar?.title = requireContext()
             .applicationInfo.loadLabel(requireContext().packageManager).toString()
@@ -75,7 +80,7 @@ class SeriesListFragment(var callback: Callbacks? = null) : Fragment() {
     }
 
     inner class SeriesAdapter :
-        PagedListAdapter<Series, SeriesHolder>(DIFF_CALLBACK) {
+        PagingDataAdapter<Series, SeriesHolder>(DIFF_CALLBACK) {
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SeriesHolder =
             SeriesHolder(parent)
