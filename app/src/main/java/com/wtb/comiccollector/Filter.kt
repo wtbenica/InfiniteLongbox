@@ -42,7 +42,6 @@ class Filter(
     var mEndDate: LocalDate = endDate ?: LocalDate.MAX
     var mMyCollection: Boolean = myCollection
     var mSortOption: SortOption = getSortOptions()[0]
-
     fun hasCreator() = mCreators.isNotEmpty()
     fun returnsIssueList() = mSeries != null
     fun hasPublisher() = mPublishers.isNotEmpty()
@@ -105,7 +104,7 @@ class Filter(
         }
     }
 
-    fun getFragment(callback: SeriesListFragment.Callbacks): Fragment {
+    fun getFragment(callback: SeriesListFragment.SeriesListCallbacks): Fragment {
         return when (mSeries) {
             null -> SeriesListFragment.newInstance(callback, this)
             else -> IssueListFragment.newInstance(this)

@@ -14,7 +14,6 @@ class SearchViewModel : ViewModel() {
 
     var filterLiveData = MutableLiveData(Filter())
 
-
     val filterOptionsLiveData = Transformations.switchMap(filterLiveData) {
         issueRepository.filterOptions(it)
     }
@@ -33,7 +32,15 @@ class SearchViewModel : ViewModel() {
         filterLiveData.value = newVal
     }
 
+    fun setSortOption(sortOption: SortOption) {
+        val newVal = filterLiveData.value
+        newVal?.mSortOption = sortOption
+        filterLiveData.value = newVal
+    }
+
     fun myCollection(isChecked: Boolean) {
-        filterLiveData.value?.setMyCollection(isChecked)
+        val newVal = filterLiveData.value
+        newVal?.setMyCollection(isChecked)
+        filterLiveData.value = newVal
     }
 }

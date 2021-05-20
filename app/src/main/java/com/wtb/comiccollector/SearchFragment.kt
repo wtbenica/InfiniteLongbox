@@ -49,7 +49,7 @@ fun Context.showKeyboard(view: View, editTextView: EditText) {
     inputMethodManager.showSoftInput(editTextView, 0)
 }
 
-class SearchFragment : Fragment(), Chippy.ChipCallbacks, SeriesListFragment.Callbacks {
+class SearchFragment : Fragment(), Chippy.ChipCallbacks, SeriesListFragment.SeriesListCallbacks {
 
     private val viewModel by lazy {
         ViewModelProvider(this).get(SearchViewModel::class.java)
@@ -70,6 +70,8 @@ class SearchFragment : Fragment(), Chippy.ChipCallbacks, SeriesListFragment.Call
     private lateinit var resultsFrame: FrameLayout
     private lateinit var fab: FloatingActionButton
     private var filter = Filter()
+
+    private var showFilter: Boolean = false
 
     interface Callbacks
 
@@ -100,8 +102,6 @@ class SearchFragment : Fragment(), Chippy.ChipCallbacks, SeriesListFragment.Call
         searchTextView = (view.findViewById(R.id.search_tv) as AutoCompleteTextView)
         resultsFrame = view.findViewById(R.id.results_frame) as FrameLayout
         fab = view.findViewById(R.id.fab) as FloatingActionButton
-
-        onUpdate()
 
         return view
     }
@@ -144,41 +144,18 @@ class SearchFragment : Fragment(), Chippy.ChipCallbacks, SeriesListFragment.Call
                 Log.d(TAG, "searchTextView item clicked")
                 val item = parent?.adapter?.getItem(position) as FilterOption
                 viewModel.addItem(item)
-                searchBox.visibility = View.GONE
                 searchTextView.text.clear()
                 hideKeyboard()
-                onUpdate()
             }
 
         myCollectionSwitch.setOnCheckedChangeListener { buttonView, isChecked ->
             Log.d(TAG, "myCollection switch toggled")
             viewModel.myCollection(isChecked)
-            filterBox.visibility = if (isChecked) {
-                View.VISIBLE
-            } else {
-                minOf(View.GONE, searchBox.visibility)
-            }
-            onUpdate()
         }
 
         fab.setOnClickListener {
-            searchBox.visibility = if (searchBox.visibility == View.GONE) {
-                searchTextView.requestFocus()
-                showKeyboard(searchTextView)
-                View.VISIBLE
-            } else {
-                hideKeyboard()
-                View.GONE
-            }
-
-            sortCardThing.visibility = searchBox.visibility
-            sortLabelImageView.visibility = sortCardThing.visibility
-
-            filterBox.visibility = if (myCollectionSwitch.isChecked) {
-                View.VISIBLE
-            } else {
-                minOf(View.GONE, sortChipGroup.visibility)
-            }
+            showFilter = !showFilter
+            updateFilterBox()
         }
 
         sortChipGroup.setOnCheckedChangeListener { group, checkedId ->
@@ -186,9 +163,7 @@ class SearchFragment : Fragment(), Chippy.ChipCallbacks, SeriesListFragment.Call
                 view?.findViewById<SortChipGroup.SortChip>(checkedId)?.sortOption?.let {
                     if (it != filter.mSortOption) {
                         Log.d(TAG, "Sort $it")
-                        filter.mSortOption = it
-                        Log.d(TAG, "Sort2 ${filter.mSortOption}")
-                        onUpdate()
+                        viewModel.setSortOption(it)
                     }
                 }
             }
@@ -211,12 +186,11 @@ class SearchFragment : Fragment(), Chippy.ChipCallbacks, SeriesListFragment.Call
     override fun chipClosed(view: View, item: FilterOption) {
         Log.d(TAG, "chipClosed $item")
         viewModel.removeItem(item)
-        onUpdate()
     }
 
     private fun onUpdate() {
         Log.d(TAG, "onUpdate")
-        updateUI()
+        updateFilterBox()
         val fragment = filter.getFragment(this)
         childFragmentManager.beginTransaction()
             .replace(R.id.results_frame, fragment)
@@ -225,8 +199,8 @@ class SearchFragment : Fragment(), Chippy.ChipCallbacks, SeriesListFragment.Call
             .commit()
     }
 
-    private fun updateUI() {
-        Log.d(TAG, "updateUI")
+    private fun updateFilterBox() {
+        Log.d(TAG, "updateFilterbox")
         searchChipGroup.removeAllViews()
         filter.getAll().let { filters ->
             if (filters.isEmpty()) {
@@ -236,12 +210,24 @@ class SearchFragment : Fragment(), Chippy.ChipCallbacks, SeriesListFragment.Call
                 filters.forEach { addChip(it) }
             }
         }
+
+        myCollectionSwitch.visibility = if (showFilter || myCollectionSwitch.isChecked) {
+            View.VISIBLE
+        } else {
+            View.GONE
+        }
+
+        sortCardThing.visibility = if (showFilter) {
+            View.VISIBLE
+        } else {
+            View.GONE
+        }
+        sortLabelImageView.visibility = sortCardThing.visibility
+        searchBox.visibility = sortLabelImageView.visibility
     }
 
     override fun onSeriesSelected(series: Series) {
         viewModel.addItem(series)
-        addChip(series)
-        onUpdate()
     }
 
     companion object {

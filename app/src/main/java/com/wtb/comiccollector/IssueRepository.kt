@@ -60,7 +60,7 @@ private const val CREATOR_LIFETIME: Long = 7
 const val EXTERNAL = "http://24.176.172.169/"
 const val NIGHTWING = "http://192.168.0.141:8000/"
 const val ALFRED = "http://192.168.0.138:8000/"
-const val BASE_URL = ALFRED
+const val BASE_URL = NIGHTWING
 
 private fun UPDATED_TAG(id: Int, type: String): String = "$type${id}_UPDATED"
 private fun ISSUE_TAG(id: Int) = UPDATED_TAG(id, "ISSUE_")
