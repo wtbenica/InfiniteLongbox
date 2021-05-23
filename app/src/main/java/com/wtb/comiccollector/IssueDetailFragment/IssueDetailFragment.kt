@@ -11,6 +11,7 @@ import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.*
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.asLiveData
 import com.wtb.comiccollector.*
 import com.wtb.comiccollector.IssueDetailViewModel.IssueDetailViewModel
 import com.wtb.comiccollector.database.Daos.Count
@@ -52,7 +53,7 @@ class IssueDetailFragment : Fragment() {
     private var numUpdates = 0
 
     private lateinit var fullIssue: FullIssue
-    private lateinit var issuesInSeries: List<Int>
+    private var issuesInSeries: List<Int> = emptyList()
     private var currentPos: Int = 0
     private lateinit var issueCredits: List<FullCredit>
     private lateinit var issueStories: List<Story>
@@ -155,10 +156,12 @@ class IssueDetailFragment : Fragment() {
 
         issueDetailViewModel.issueListLiveData.observe(
             viewLifecycleOwner,
-            { issues ->
-                issues?.let {
-                    this.issuesInSeries = issues.map { it.issue.issueId }
-                    updateNavBar()
+            { flowIssues ->
+                flowIssues.asLiveData().let { ldIssues ->
+                    ldIssues.value?.let { issues->
+                        this.issuesInSeries = issues.map { it.issue.issueId }
+                        updateNavBar()
+                    }
                 }
             }
         )
@@ -260,13 +263,14 @@ class IssueDetailFragment : Fragment() {
 
     private fun updateNavBar() {
         this.currentPos = this.issuesInSeries.indexOf(this.fullIssue.issue.issueId)
+        val found = currentPos != -1
 
-        this.gotoStartButton.isEnabled = currentPos != 0
-        this.gotoSkipBackButton.isEnabled = currentPos >= 10
-        this.gotoPreviousButton.isEnabled = currentPos != 0
-        this.gotoNextButton.isEnabled = currentPos != this.issuesInSeries.size - 1
-        this.gotoSkipForwardButton.isEnabled = currentPos <= this.issuesInSeries.size - 11
-        this.gotoEndButton.isEnabled = currentPos != this.issuesInSeries.size - 1
+        this.gotoStartButton.isEnabled = (currentPos != 0) && found
+        this.gotoSkipBackButton.isEnabled = (currentPos >= 10) && found
+        this.gotoPreviousButton.isEnabled = (currentPos != 0) && found
+        this.gotoNextButton.isEnabled = (currentPos != this.issuesInSeries.size - 1) && found
+        this.gotoSkipForwardButton.isEnabled = (currentPos <= this.issuesInSeries.size - 11) && found
+        this.gotoEndButton.isEnabled = (currentPos != this.issuesInSeries.size - 1) && found
     }
 
     private fun setCollectionButton(count: Count) {

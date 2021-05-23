@@ -51,14 +51,18 @@ abstract class SeriesDao : BaseDao<Series>() {
 
         if (filter.hasCreator()) {
             tableJoinString +=
-                "JOIN issue ie on ie.seriesId = ss.seriesId " +
-                        "JOIN story sy on sy.issueId = ie.issueId " +
-                        "JOIN credit ct on ct.storyId = sy.storyId " +
-                        "JOIN namedetail nl on nl.nameDetailId = ct.nameDetailId "
+                """JOIN issue ie on ie.seriesId = ss.seriesId 
+                    JOIN story sy on sy.issueId = ie.issueId 
+                    LEFT JOIN credit ct on ct.storyId = sy.storyId 
+                    LEFT JOIN namedetail nl on nl.nameDetailId = ct.nameDetailId 
+                    LEFT JOIN excredit ect on ect.storyId = sy.storyId
+                    LEFT JOIN namedetail nl2 on nl2.nameDetailId = ect.nameDetailId """
 
             val creatorsList = modelsToSqlIdString(filter.mCreators)
 
-            conditionsString += "AND nl.creatorId IN $creatorsList "
+            conditionsString +=
+                """AND (nl.creatorId IN $creatorsList 
+                OR nl2.creatorId in $creatorsList)"""
         }
 
         if (filter.hasDateFilter()) {

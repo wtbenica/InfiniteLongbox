@@ -85,13 +85,13 @@ data class Issue(
                                 DateTimeFormatter.ofPattern("uuuu-MM-dd")
                             )
                         } catch (e: DateTimeParseException) {
-                            throw e
+                            e.printStackTrace()
+                            null
                         }
                     }
-                } catch (e: DateTimeParseException) {
-                    throw e
                 }
             }
+
             return res
         }
     }

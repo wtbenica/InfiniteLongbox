@@ -14,6 +14,7 @@ import com.wtb.comiccollector.Filter
 import com.wtb.comiccollector.database.models.Cover
 import com.wtb.comiccollector.database.models.FullIssue
 import com.wtb.comiccollector.database.models.Issue
+import kotlinx.coroutines.flow.Flow
 
 private const val TAG = APP + "IssueDao"
 
@@ -79,12 +80,15 @@ abstract class IssueDao : BaseDao<Issue>() {
         if (filter.hasCreator()) {
             tableJoinString +=
                 "JOIN story sy on sy.issueId = ie.issueId " +
-                        "JOIN credit ct on ct.storyId = sy.storyId " +
-                        "JOIN namedetail nl on nl.nameDetailId = ct.nameDetailId "
+                        "LEFT JOIN credit ct on ct.storyId = sy.storyId " +
+                        "LEFT JOIN namedetail nl on nl.nameDetailId = ct.nameDetailId " +
+                        "LEFT JOIN excredit ect on ect.storyId = sy.storyId " +
+                        "LEFT JOIN namedetail nl2 on nl2.nameDetailId = ect.nameDetailId "
 
             val creatorsList = modelsToSqlIdString(filter.mCreators)
 
-            conditionsString += "AND nl.creatorId IN $creatorsList "
+            conditionsString += "AND (nl.creatorId IN $creatorsList " +
+                    "OR nl2.creatorId IN $creatorsList) "
         }
 
         if (filter.hasDateFilter()) {
@@ -112,9 +116,9 @@ abstract class IssueDao : BaseDao<Issue>() {
     @RawQuery(
         observedEntities = [FullIssue::class]
     )
-    abstract fun getFullIssuesByQueryLiveData(query: SupportSQLiteQuery): LiveData<List<FullIssue>>
+    abstract fun getFullIssuesByQueryLiveData(query: SupportSQLiteQuery): Flow<List<FullIssue>>
 
-    fun getIssuesByFilterLiveData(filter: Filter): LiveData<List<FullIssue>> {
+    fun getIssuesByFilterLiveData(filter: Filter): Flow<List<FullIssue>> {
 
         var tableJoinString = String()
         var conditionsString = String()

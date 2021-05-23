@@ -18,13 +18,13 @@ interface Webservice {
 
     @GET("/db_query/name_detail/{nameDetailIds}/extracts")
     suspend fun getExtractedCreditsByNameDetail(@Path("nameDetailIds") nameDetailIds: List<Int>):
-            List<Item<GcdCredit, Credit>>
+            List<Item<GcdExCredit, ExCredit>>
 
     @GET("/db_query/stories/{storyIds}/credits")
     suspend fun getCreditsByStories(@Path("storyIds") storyIds: List<Int>): List<Item<GcdCredit, Credit>>
 
     @GET("/db_query/stories/{storyIds}/extracts")
-    suspend fun getExtractedCreditsByStories(@Path("storyIds") storyIds: List<Int>): List<Item<GcdCredit, Credit>>
+    suspend fun getExtractedCreditsByStories(@Path("storyIds") storyIds: List<Int>): List<Item<GcdExCredit, ExCredit>>
 
     // GET Stories
     @GET("/db_query/issue/{issueId}/stories")

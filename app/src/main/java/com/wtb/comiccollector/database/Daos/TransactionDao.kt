@@ -11,7 +11,7 @@ abstract class TransactionDao(private val database: IssueDatabase) {
 
     @Transaction
     open suspend fun upsertStatic(
-        publishers: List<Publisher>? =null,
+        publishers: List<Publisher>? = null,
         roles: List<Role>? = null,
         storyTypes: List<StoryType>? = null,
     ) {
@@ -46,17 +46,20 @@ abstract class TransactionDao(private val database: IssueDatabase) {
         creators: List<Creator>? = null,
         nameDetails: List<NameDetail>? = null,
         credits: List<Credit>? = null,
+        exCredits: List<ExCredit>? = null,
         issues: List<Issue>? = null
     ) {
-        Log.d("Trans", "1----------------------------------------------------------1")
+        Log.d("Trans", "1------------------------------------------------------issue")
         issues?.let { database.issueDao().upsertSus(it) }
-        Log.d("Trans", "2----------------------------------------------------------1")
+        Log.d("Trans", "2------------------------------------------------------story")
         stories?.let { database.storyDao().upsertSus(it) }
-        Log.d("Trans", "3----------------------------------------------------------1")
+        Log.d("Trans", "3----------------------------------------------------creator")
         creators?.let { database.creatorDao().upsertSus(it) }
-        Log.d("Trans", "4----------------------------------------------------------1")
+        Log.d("Trans", "4-------------------------------------------------namedetail")
         nameDetails?.let { database.nameDetailDao().upsertSus(it) }
-        Log.d("Trans", "5----------------------------------------------------------1")
+        Log.d("Trans", "5----------------------------------------------------credits")
         credits?.let { database.creditDao().upsertSus(it) }
+        Log.d("Trans", "6--------------------------------------------------excredits")
+        exCredits?.let { database.exCreditDao().upsertSus(it) }
     }
 }

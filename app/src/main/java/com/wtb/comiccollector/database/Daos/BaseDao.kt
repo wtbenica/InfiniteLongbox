@@ -65,7 +65,7 @@ abstract class BaseDao<T : DataModel> {
 
         try {
             val insertResult = insert(objList)
-
+            Log.d(TAG, "upsertSus insertResult: $insertResult")
             val updateList = mutableListOf<T>()
 
             for (i in insertResult.indices) {
@@ -73,12 +73,12 @@ abstract class BaseDao<T : DataModel> {
                     updateList.add(objList[i])
                 }
             }
-
+            Log.d(TAG, "upsertSus updateList: $updateList")
             if (updateList.isNotEmpty()) {
                 update(updateList)
             }
         } catch (e: SQLiteConstraintException) {
-            Log.d(TAG, "upsert Credit: $e")
+            Log.d(TAG, "upsert: $e $objList")
         }
 
     }

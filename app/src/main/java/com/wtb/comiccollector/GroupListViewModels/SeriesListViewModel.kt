@@ -36,6 +36,7 @@ class SeriesListViewModel : ViewModel() {
         issueRepository.getSeriesByFilter(filter)
     }.flow
 
+
     fun setFilter(filter: Filter) {
         filterLiveData.value = filter
     }

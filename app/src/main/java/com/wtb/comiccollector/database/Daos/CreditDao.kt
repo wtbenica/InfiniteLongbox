@@ -25,22 +25,6 @@ abstract class CreditDao : BaseDao<Credit>() {
     )
     abstract fun getIssueCredits(issueId: Int): LiveData<List<FullCredit>>
 
-    @Transaction
-    @Query(
-        """
-            SELECT ecr.*, c.*, st.sortCode
-            FROM extractedcredit ecr
-            JOIN story sr on ecr.storyId = sr.storyId
-            JOIN storytype st on st.typeId = sr.storyType
-            JOIN role ON ecr.roleId = role.roleId
-            JOIN namedetail nd ON nd.nameDetailId = ecr.nameDetailId
-            JOIN creator c on c.creatorId = nd.creatorId
-            WHERE sr.issueId = :issueId
-            ORDER BY st.sortCode, sr.sequenceNumber, role.sortOrder
-        """
-    )
-    abstract fun getIssueExtractedCredits(issueId: Int): LiveData<List<FullCredit>>
-
 //    @Transaction
 //    @Query(
 //        """
