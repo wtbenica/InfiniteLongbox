@@ -3,6 +3,7 @@ package com.wtb.comiccollector.GroupListFragments
 import android.content.Context
 import android.graphics.Rect
 import android.os.Bundle
+import android.util.Log
 import android.view.*
 import android.view.animation.AnimationUtils
 import android.view.animation.LayoutAnimationController
@@ -236,12 +237,14 @@ class IssueListFragment : Fragment() {
 
     companion object {
         @JvmStatic
-        fun newInstance(filter: Filter) =
-            IssueListFragment().apply {
+        fun newInstance(filter: Filter): IssueListFragment {
+            Log.d(TAG, "newInstance: ${filter.mSeries}")
+            return IssueListFragment().apply {
                 arguments = Bundle().apply {
                     putSerializable(ARG_FILTER, filter)
                 }
             }
+        }
     }
 
 

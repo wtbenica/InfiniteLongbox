@@ -45,7 +45,7 @@ const val DUMMY_ID = Int.MAX_VALUE
 
 private const val DATABASE_NAME = "issue-database"
 private const val TAG = APP + "IssueRepository"
-private const val DEBUG = true
+private const val DEBUG = false
 
 internal const val SHARED_PREFS = "CCPrefs"
 
@@ -211,7 +211,7 @@ class IssueRepository private constructor(val context: Context) {
     }
 
     fun getSeriesByFilter(filter: Filter): PagingSource<Int, Series> {
-        Log.d(TAG, "getSeriesByFilter")
+        Log.d(TAG, "getSeriesByFilter ${filter.mSeries} ${filter.getSortOptions()}")
         val mSeries = filter.mSeries
         if (mSeries == null) {
             val creatorIds = filter.mCreators.map { it.creatorId }
@@ -225,7 +225,7 @@ class IssueRepository private constructor(val context: Context) {
 
             return seriesDao.getSeriesByFilter(filter)
         } else {
-            throw java.lang.IllegalArgumentException("Filter seriesId should be null")
+            throw java.lang.IllegalArgumentException("Filter seriesId should be null $filter")
         }
     }
 
@@ -242,7 +242,7 @@ class IssueRepository private constructor(val context: Context) {
 
             return seriesDao.getSeriesByFilterLiveData(filter)
         } else {
-            throw java.lang.IllegalArgumentException("Filter seriesId should be null")
+            throw java.lang.IllegalArgumentException("Filter seriesId should be null $filter")
         }
     }
 
@@ -320,7 +320,7 @@ class IssueRepository private constructor(val context: Context) {
          *  Updates publisher, series, role, and storytype tables
          */
         internal fun update() {
-            if (checkIfStale(STATIC_DATA_UPDATED, STATIC_DATA_LIFETIME)) {
+            if (checkIfStale(STATIC_DATA_UPDATED, STATIC_DATA_LIFETIME) && false) {
                 Log.d(TAG, "StaticUpdater update")
                 val publishers = CoroutineScope(Dispatchers.IO).async {
                     apiService.getPublishers()

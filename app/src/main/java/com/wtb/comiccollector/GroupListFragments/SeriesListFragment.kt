@@ -11,7 +11,6 @@ import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
-import androidx.paging.PagedList
 import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -29,8 +28,6 @@ class SeriesListFragment(var callback: SeriesListCallbacks? = null) : Fragment()
     private val viewModel: SeriesListViewModel by lazy {
         ViewModelProvider(this).get(SeriesListViewModel::class.java)
     }
-
-    private var seriesList: PagedList<Series>? = null
 
     private var filter = Filter()
     private lateinit var itemListRecyclerView: RecyclerView
@@ -131,12 +128,14 @@ class SeriesListFragment(var callback: SeriesListCallbacks? = null) : Fragment()
         fun newInstance(
             callback: SeriesListCallbacks,
             filter: Filter
-        ) =
-            SeriesListFragment(callback).apply {
+        ): SeriesListFragment {
+            Log.d(TAG, "newInstance: ${filter.mSeries}")
+            return SeriesListFragment(callback).apply {
                 arguments = Bundle().apply {
                     putSerializable(ARG_FILTER, filter)
                 }
             }
+        }
 
         private val DIFF_CALLBACK = object : DiffUtil.ItemCallback<Series>() {
             override fun areItemsTheSame(oldItem: Series, newItem: Series): Boolean =

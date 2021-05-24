@@ -1,6 +1,5 @@
 package com.wtb.comiccollector.database.Daos
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.paging.PagingSource
 import androidx.room.Dao
@@ -108,8 +107,6 @@ abstract class IssueDao : BaseDao<Issue>() {
             args.toArray()
         )
 
-        Log.d(TAG, tableJoinString + conditionsString)
-        Log.d(TAG, query.sql)
         return getFullIssuesByQueryPagingSource(query)
     }
 
@@ -168,8 +165,6 @@ abstract class IssueDao : BaseDao<Issue>() {
             args.toArray()
         )
 
-        Log.d(TAG, tableJoinString + conditionsString)
-        Log.d(TAG, query.sql)
         return getFullIssuesByQueryLiveData(query)
     }
 

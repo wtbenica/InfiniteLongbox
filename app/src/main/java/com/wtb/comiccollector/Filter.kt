@@ -1,6 +1,5 @@
 package com.wtb.comiccollector
 
-import android.util.Log
 import androidx.fragment.app.Fragment
 import com.wtb.comiccollector.GroupListFragments.IssueListFragment
 import com.wtb.comiccollector.GroupListFragments.SeriesListFragment
@@ -84,7 +83,7 @@ class Filter(
         this.mMyCollection = value
     }
 
-    fun addItem(vararg items: FilterOption) {
+    fun addFilter(vararg items: FilterOption) {
         items.forEach { item ->
             when (item) {
                 is Series -> addSeries(item)
@@ -94,7 +93,7 @@ class Filter(
         }
     }
 
-    fun removeItem(vararg items: FilterOption) {
+    fun removeFilter(vararg items: FilterOption) {
         items.forEach { item ->
             when (item) {
                 is Series -> removeSeries()
@@ -104,22 +103,19 @@ class Filter(
         }
     }
 
-    fun getFragment(callback: SeriesListFragment.SeriesListCallbacks): Fragment {
-        return when (mSeries) {
+    fun getFragment(callback: SeriesListFragment.SeriesListCallbacks): Fragment =
+        when (mSeries) {
             null -> SeriesListFragment.newInstance(callback, this)
             else -> IssueListFragment.newInstance(this)
         }
-    }
 
-    fun getSortOptions(series: Series? = mSeries): List<SortOption> {
 
-        Log.d(TAG, "MSERIES $series")
-
-        return when (series) {
+    fun getSortOptions(series: Series? = mSeries): List<SortOption> =
+        when (series) {
             null -> seriesSortOptions
             else -> issueSortOptions
         }
-    }
+
 
     fun updateCreators(creators: List<Creator>?) {
         mCreators.clear()
@@ -153,12 +149,14 @@ class Filter(
         return result
     }
 
-    companion object {
-        fun deserialize(str: String?): MutableSet<Int> {
-            return str?.removePrefix("[")?.removeSuffix("]")?.split(", ")
-                ?.mapNotNull { it.toIntOrNull() }?.toMutableSet() ?: mutableSetOf()
-        }
-    }
+    override fun toString(): String = "Series: $mSeries"
+
+//    companion object {
+//        fun deserialize(str: String?): MutableSet<Int> {
+//            return str?.removePrefix("[")?.removeSuffix("]")?.split(", ")
+//                ?.mapNotNull { it.toIntOrNull() }?.toMutableSet() ?: mutableSetOf()
+//        }
+//    }
 }
 
 abstract class SortOption(
@@ -170,7 +168,8 @@ abstract class SortOption(
 }
 
 class IssueSortOption(
-    tag: String, sortColumn: String) : SortOption(tag, sortColumn)
+    tag: String, sortColumn: String
+) : SortOption(tag, sortColumn)
 
 val issueSortOptions: List<SortOption> = listOf(
     IssueSortOption("Issue Number (Low to High)", "issueNum ASC"),
@@ -180,7 +179,8 @@ val issueSortOptions: List<SortOption> = listOf(
 )
 
 class SeriesSortOption(
-    tag: String, sortColumn: String) : SortOption(tag, sortColumn)
+    tag: String, sortColumn: String
+) : SortOption(tag, sortColumn)
 
 val seriesSortOptions: List<SortOption> = listOf(
     SeriesSortOption("Series Name (A-Z)", "sortName ASC"),
