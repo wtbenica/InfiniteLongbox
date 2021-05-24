@@ -18,17 +18,17 @@ class SearchViewModel : ViewModel() {
         issueRepository.filterOptions(it)
     }
 
-    fun addItem(item: FilterOption) {
+    fun addFilterItem(item: FilterOption) {
         Log.d(TAG, "addItem $item")
         val newVal = filterLiveData.value
-        newVal?.addItem(item)
+        newVal?.addFilter(item)
         filterLiveData.value = newVal
     }
 
-    fun removeItem(item: FilterOption) {
+    fun removeFilterItem(item: FilterOption) {
         Log.d(TAG, "removeItem $item")
         val newVal = filterLiveData.value
-        newVal?.removeItem(item)
+        newVal?.removeFilter(item)
         filterLiveData.value = newVal
     }
 

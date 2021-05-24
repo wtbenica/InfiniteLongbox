@@ -68,7 +68,7 @@ data class Credit(
         )
     ]
 )
-data class ExtractedCredit(
+data class ExCredit(
     @PrimaryKey(autoGenerate = true) val creditId: Int = AUTO_ID,
     var storyId: Int,
     var nameDetailId: Int,

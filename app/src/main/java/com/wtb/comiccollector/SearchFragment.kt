@@ -143,7 +143,7 @@ class SearchFragment : Fragment(), Chippy.ChipCallbacks, SeriesListFragment.Seri
             AdapterView.OnItemClickListener { parent, view, position, id ->
                 Log.d(TAG, "searchTextView item clicked")
                 val item = parent?.adapter?.getItem(position) as FilterOption
-                viewModel.addItem(item)
+                viewModel.addFilterItem(item)
                 searchTextView.text.clear()
                 hideKeyboard()
             }
@@ -185,7 +185,7 @@ class SearchFragment : Fragment(), Chippy.ChipCallbacks, SeriesListFragment.Seri
 
     override fun chipClosed(view: View, item: FilterOption) {
         Log.d(TAG, "chipClosed $item")
-        viewModel.removeItem(item)
+        viewModel.removeFilterItem(item)
     }
 
     private fun onUpdate() {
@@ -227,7 +227,7 @@ class SearchFragment : Fragment(), Chippy.ChipCallbacks, SeriesListFragment.Seri
     }
 
     override fun onSeriesSelected(series: Series) {
-        viewModel.addItem(series)
+        viewModel.addFilterItem(series)
     }
 
     companion object {

@@ -11,9 +11,9 @@ import com.wtb.comiccollector.database.models.Issue
 
 @Database(
     entities = [Issue::class, Series::class, Creator::class, Role::class, Credit::class,
-        Publisher::class, Story::class, ExtractedCredit::class, StoryType::class, NameDetail::class,
+        Publisher::class, Story::class, ExCredit::class, StoryType::class, NameDetail::class,
         Character::class, Appearance::class, MyCollection::class, Cover::class],
-    version = 5
+    version = 6
 )
 @TypeConverters(IssueTypeConverters::class)
 
@@ -25,6 +25,7 @@ abstract class IssueDatabase : RoomDatabase() {
     abstract fun publisherDao(): PublisherDao
     abstract fun roleDao(): RoleDao
     abstract fun creditDao(): CreditDao
+    abstract fun exCreditDao(): ExCreditDao
     abstract fun storyTypeDao(): StoryTypeDao
     abstract fun nameDetailDao(): NameDetailDao
     abstract fun transactionDao(): TransactionDao
@@ -88,6 +89,10 @@ val migration_4_5 = SimpleMigration(
         (roleId)""",
     """CREATE UNIQUE INDEX IF NOT EXISTS index_ExtractedCredit_storyId_nameDetailId_roleId ON 
         ExtractedCredit(storyId, nameDetailId, roleId)"""
+)
+
+val migration_5_6 = SimpleMigration(
+    5, 6, "ALTER TABLE ExtractedCredit RENAME TO ExCredit"
 )
 
 class SimpleMigration(from_version: Int, to_version: Int, private vararg val sql: String) :

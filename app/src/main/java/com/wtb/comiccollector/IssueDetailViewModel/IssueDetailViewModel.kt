@@ -22,13 +22,18 @@ class IssueDetailViewModel : ViewModel() {
             issueRepository.getIssue(issueId)
         }
 
-        val issueListLiveData =
-        Transformations.switchMap(issueLiveData) { issue ->
-            issueRepository.getIssuesByFilterLiveData(Filter(series = issue.series))
+    val issueListLiveData = issueLiveData.switchMap { issue: FullIssue ->
+        liveData(context = viewModelScope.coroutineContext) {
+            emit(issueRepository.getIssuesByFilterLiveData(Filter(series = issue.series)))
         }
+    }
 
+//    val issueListLiveData = Transformations.switchMap(issueLiveData) { issue ->
+//        issueRepository.getIssuesByFilterLiveData(Filter(series = issue.series)).asLiveData()
+//    }
+//
 
-//    lateinit var issueListLiveData: PagingSource<Int, FullIssue>
+    //    lateinit var issueListLiveData: PagingSource<Int, FullIssue>
 //
 //    init {
 //        issueLiveData.observeForever(object : Observer<FullIssue> {

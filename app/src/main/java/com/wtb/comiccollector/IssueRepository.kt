@@ -25,6 +25,7 @@ import com.wtb.comiccollector.database.*
 import com.wtb.comiccollector.database.Daos.Count
 import com.wtb.comiccollector.database.models.*
 import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.Flow
 import okhttp3.OkHttpClient
 import org.jsoup.Jsoup
 import retrofit2.Retrofit
@@ -44,7 +45,7 @@ const val DUMMY_ID = Int.MAX_VALUE
 
 private const val DATABASE_NAME = "issue-database"
 private const val TAG = APP + "IssueRepository"
-
+private const val DEBUG = false
 
 internal const val SHARED_PREFS = "CCPrefs"
 
@@ -60,7 +61,7 @@ private const val CREATOR_LIFETIME: Long = 7
 const val EXTERNAL = "http://24.176.172.169/"
 const val NIGHTWING = "http://192.168.0.141:8000/"
 const val ALFRED = "http://192.168.0.138:8000/"
-const val BASE_URL = NIGHTWING
+const val BASE_URL = ALFRED
 
 private fun UPDATED_TAG(id: Int, type: String): String = "$type${id}_UPDATED"
 private fun ISSUE_TAG(id: Int) = UPDATED_TAG(id, "ISSUE_")
@@ -82,6 +83,7 @@ class IssueRepository private constructor(val context: Context) {
     private val roleDao = database.roleDao()
     private val storyDao = database.storyDao()
     private val creditDao = database.creditDao()
+    private val exCreditDao = database.exCreditDao()
     private val storyTypeDao = database.storyTypeDao()
     private val nameDetailDao = database.nameDetailDao()
     private val characterDao = database.characterDao()
@@ -178,7 +180,9 @@ class IssueRepository private constructor(val context: Context) {
             val creatorIds = filter.mCreators.map { it.creatorId }
 
             if (filter.hasCreator()) {
-                CreatorUpdater().updateAll(creatorIds)
+                CoroutineScope(Dispatchers.IO).launch {
+                    CreatorUpdater().updateAll(creatorIds)
+                }
             }
 
             IssueUpdater().update(seriesId)
@@ -187,7 +191,7 @@ class IssueRepository private constructor(val context: Context) {
         return issueDao.getIssuesByFilterPagingSource(filter)
     }
 
-    fun getIssuesByFilterLiveData(filter: Filter): LiveData<List<FullIssue>> {
+    fun getIssuesByFilterLiveData(filter: Filter): Flow<List<FullIssue>> {
         val mSeries = filter.mSeries
 
         if (mSeries != null) {
@@ -195,28 +199,33 @@ class IssueRepository private constructor(val context: Context) {
             val creatorIds = filter.mCreators.map { it.creatorId }
 
             if (filter.hasCreator()) {
-                CreatorUpdater().updateAll(creatorIds)
+                CoroutineScope(Dispatchers.IO).launch {
+                    CreatorUpdater().updateAll(creatorIds)
+                }
             }
 
             IssueUpdater().update(seriesId)
-
         }
 
         return issueDao.getIssuesByFilterLiveData(filter)
     }
 
     fun getSeriesByFilter(filter: Filter): PagingSource<Int, Series> {
+        Log.d(TAG, "getSeriesByFilter ${filter.mSeries} ${filter.getSortOptions()}")
         val mSeries = filter.mSeries
         if (mSeries == null) {
             val creatorIds = filter.mCreators.map { it.creatorId }
 
             if (filter.hasCreator()) {
-                CreatorUpdater().updateAll(creatorIds)
+                Log.d(TAG, "Filter has creator")
+                CoroutineScope(Dispatchers.IO).launch {
+                    CreatorUpdater().updateAll(creatorIds)
+                }
             }
 
             return seriesDao.getSeriesByFilter(filter)
         } else {
-            throw java.lang.IllegalArgumentException("Filter seriesId should be null")
+            throw java.lang.IllegalArgumentException("Filter seriesId should be null $filter")
         }
     }
 
@@ -226,21 +235,23 @@ class IssueRepository private constructor(val context: Context) {
             val creatorIds = filter.mCreators.map { it.creatorId }
 
             if (filter.hasCreator()) {
-                CreatorUpdater().updateAll(creatorIds)
+                CoroutineScope(Dispatchers.IO).launch {
+                    CreatorUpdater().updateAll(creatorIds)
+                }
             }
 
             return seriesDao.getSeriesByFilterLiveData(filter)
         } else {
-            throw java.lang.IllegalArgumentException("Filter seriesId should be null")
+            throw java.lang.IllegalArgumentException("Filter seriesId should be null $filter")
         }
     }
 
     fun getVariants(issueId: Int): LiveData<List<Issue>> {
-        val variantsCall = GlobalScope.async {
+        val variantsCall = CoroutineScope(Dispatchers.IO).async {
             issueDao.getVariants(issueId)
         }
 
-        val issueCall = GlobalScope.async {
+        val issueCall = CoroutineScope(Dispatchers.IO).async {
             variantsCall.await().let {
                 if (it.size == 1 && it[0].variantOf != null) {
                     issueDao.getVariants(it[0].variantOf!!)
@@ -257,7 +268,7 @@ class IssueRepository private constructor(val context: Context) {
 
     fun getCreditsByIssue(issueId: Int) = AllCreditsLiveData(
         creditDao.getIssueCredits(issueId),
-        creditDao.getIssueExtractedCredits(issueId),
+        exCreditDao.getIssueExtractedCredits(issueId),
         combine = { credits1: List<FullCredit>?, credits2: List<FullCredit>? ->
             val res = (credits1 ?: emptyList()) + (credits2 ?: emptyList())
             sort(res)
@@ -301,7 +312,7 @@ class IssueRepository private constructor(val context: Context) {
                 }
             }
         }
-    ).addMigrations(migration_1_2, migration_2_3, migration_3_4, migration_4_5)
+    ).addMigrations(migration_1_2, migration_2_3, migration_3_4, migration_4_5, migration_5_6)
         .build()
 
     inner class StaticUpdater {
@@ -309,35 +320,34 @@ class IssueRepository private constructor(val context: Context) {
          *  Updates publisher, series, role, and storytype tables
          */
         internal fun update() {
-            if (checkIfStale(STATIC_DATA_UPDATED, STATIC_DATA_LIFETIME)) {
+            if (checkIfStale(STATIC_DATA_UPDATED, STATIC_DATA_LIFETIME) && false) {
                 Log.d(TAG, "StaticUpdater update")
-                val publishers = GlobalScope.async {
+                val publishers = CoroutineScope(Dispatchers.IO).async {
                     apiService.getPublishers()
                 }
 
-                val roles = GlobalScope.async {
+                val roles = CoroutineScope(Dispatchers.IO).async {
                     apiService.getRoles()
                 }
 
-                val storyTypes = GlobalScope.async {
+                val storyTypes = CoroutineScope(Dispatchers.IO).async {
                     apiService.getStoryTypes()
                 }
 
-                GlobalScope.launch {
-                    withContext(Dispatchers.Default) {
-                        database.transactionDao().upsertStatic(
-                            publishers = publishers.await().map { it.toRoomModel() },
-                            roles = roles.await().map { it.toRoomModel() },
-                            storyTypes = storyTypes.await().map { it.toRoomModel() }
-                        )
-                    }.let {
-                        saveTime(prefs, STATIC_DATA_UPDATED)
-                        updateSeries()
-                    }
+                CoroutineScope(Dispatchers.IO).launch {
+                    database.transactionDao().upsertStatic(
+                        publishers = publishers.await().map { it.toRoomModel() },
+                        roles = roles.await().map { it.toRoomModel() },
+                        storyTypes = storyTypes.await().map { it.toRoomModel() }
+                    )
+                        .let {
+                            saveTime(prefs, STATIC_DATA_UPDATED)
+                            updateSeries()
+                        }
                 }
             } else {
                 if (checkIfStale(SERIES_LIST_UPDATED, SERIES_LIST_LIFETIME)) {
-                    GlobalScope.launch {
+                    CoroutineScope(Dispatchers.IO).launch {
                         updateSeries()
                     }
                 }
@@ -350,9 +360,7 @@ class IssueRepository private constructor(val context: Context) {
             var stop = false
 
             do {
-                withContext(Dispatchers.Default) {
-                    apiService.getSeries(page)
-                }.let { seriesItems ->
+                apiService.getSeries(page).let { seriesItems ->
                     if (seriesItems.isEmpty()) {
                         stop = true
                     } else {
@@ -370,18 +378,21 @@ class IssueRepository private constructor(val context: Context) {
      * Updates an issues credits
      */
     inner class IssueCreditUpdater {
+        internal fun updateAll(issueIds: List<Int>) {
+            issueIds.forEach { update(it) }
+        }
+
         internal fun update(issueId: Int) {
             if (checkIfStale(ISSUE_TAG(issueId), ISSUE_LIFETIME)) {
                 Log.d(TAG, "CreditUpdater update $issueId")
-                val storyItemsCall = GlobalScope.async {
-                    Log.d(TAG, "WEBSERVICE: storiesByIssue")
+
+                val storyItemsCall = CoroutineScope(Dispatchers.IO).async {
                     apiService.getStoriesByIssue(issueId)
                 }
 
-                val creditItemsCall = GlobalScope.async {
+                val creditItemsCall = CoroutineScope(Dispatchers.IO).async {
                     storyItemsCall.await().let { storyItems ->
                         if (storyItems.isNotEmpty()) {
-                            Log.d(TAG, "WEBSERVICE: creditsByStories")
                             apiService.getCreditsByStories(storyItems.map { item -> item.pk })
                         } else {
                             null
@@ -389,10 +400,9 @@ class IssueRepository private constructor(val context: Context) {
                     }
                 }
 
-                val nameDetailItemsCall = GlobalScope.async {
+                val nameDetailItemsCall = CoroutineScope(Dispatchers.IO).async {
                     creditItemsCall.await()?.let { creditItems ->
                         if (creditItems.isNotEmpty()) {
-                            Log.d(TAG, "WEBSERVICE: nameDetails")
                             apiService.getNameDetailsByIds(creditItems.map { it.fields.nameDetailId })
                         } else {
                             null
@@ -400,7 +410,7 @@ class IssueRepository private constructor(val context: Context) {
                     }
                 }
 
-                val creatorItemsCall = GlobalScope.async {
+                val creatorItemsCall = CoroutineScope(Dispatchers.IO).async {
                     nameDetailItemsCall.await()?.let { nameDetailItems ->
                         if (nameDetailItems.isNotEmpty()) {
                             Log.d(TAG, "WEBSERVICE: creator")
@@ -411,7 +421,7 @@ class IssueRepository private constructor(val context: Context) {
                     }
                 }
 
-                val extractedCreditItemsCall = GlobalScope.async {
+                val extractedCreditItemsCall = CoroutineScope(Dispatchers.IO).async {
                     storyItemsCall.await().let { storyItems ->
                         if (storyItems.isNotEmpty()) {
                             Log.d(TAG, "WEBSERVICE: extractedCreditsByStories")
@@ -422,7 +432,7 @@ class IssueRepository private constructor(val context: Context) {
                     }
                 }
 
-                val extractedNameDetailItemsCall = GlobalScope.async {
+                val extractedNameDetailItemsCall = CoroutineScope(Dispatchers.IO).async {
                     extractedCreditItemsCall.await()?.let { creditItems ->
                         if (creditItems.isNotEmpty()) {
                             Log.d(TAG, "WEBSERVICE: extractedNameDetails")
@@ -433,7 +443,7 @@ class IssueRepository private constructor(val context: Context) {
                     }
                 }
 
-                val extractedCreatorItemsCall = GlobalScope.async {
+                val extractedCreatorItemsCall = CoroutineScope(Dispatchers.IO).async {
                     extractedNameDetailItemsCall.await()?.let { nameDetailItems ->
                         if (nameDetailItems.isNotEmpty()) {
                             Log.d(TAG, "WEBSERVICE: extractedCreator")
@@ -444,27 +454,33 @@ class IssueRepository private constructor(val context: Context) {
                     }
                 }
 
-                GlobalScope.launch {
-                    withContext(Dispatchers.Default) {
-                        val stories = storyItemsCall.await().map { it.toRoomModel() }
-                        val credits = creditItemsCall.await()?.map { it.toRoomModel() }
-                        val nameDetails = nameDetailItemsCall.await()?.map { it.toRoomModel() }
-                        val creators = creatorItemsCall.await()?.map { it.toRoomModel() }
-                        val extracts = extractedCreditItemsCall.await()?.map { it.toRoomModel() }
-                        val eNameDetails =
-                            extractedNameDetailItemsCall.await()?.map { it.toRoomModel() }
-                        val eCreators = extractedCreatorItemsCall.await()?.map { it.toRoomModel() }
+                CoroutineScope(Dispatchers.IO).launch {
+                    val stories = storyItemsCall.await().map { it.toRoomModel() }
+                    val credits = creditItemsCall.await()?.map { it.toRoomModel() } ?: emptyList()
+                    val nameDetails =
+                        nameDetailItemsCall.await()?.map { it.toRoomModel() } ?: emptyList()
+                    val creators = creatorItemsCall.await()?.map { it.toRoomModel() } ?: emptyList()
+                    val extracts =
+                        extractedCreditItemsCall.await()?.map { it.toRoomModel() } ?: emptyList()
+                    val eNameDetails =
+                        extractedNameDetailItemsCall.await()?.map { it.toRoomModel() }
+                            ?: emptyList()
+                    val eCreators =
+                        extractedCreatorItemsCall.await()?.map { it.toRoomModel() } ?: emptyList()
+                    val allCreators = creators + eCreators
+                    val allNameDetails = nameDetails + eNameDetails
 
-                        database.transactionDao().upsertSus(
-                            stories = stories,
-                            credits = credits,
-                            nameDetails = nameDetails,
-                            creators = creators
-                        )
-                    }.let {
+                    database.transactionDao().upsertSus(
+                        stories = stories,
+                        credits = credits,
+                        exCredits = extracts,
+                        nameDetails = allNameDetails,
+                        creators = allCreators,
+                    )
+                        .let {
 //                        CharacterExtractor().extractCharacters(storyItems.await())
 //                        CreditExtractor().extractCredits(storyItemsCall.await())
-                    }
+                        }
                 }
             }
         }
@@ -473,13 +489,14 @@ class IssueRepository private constructor(val context: Context) {
     inner class IssueCoverUpdater {
         internal fun update(issueId: Int) {
             Log.d(TAG, "CoverUpdater_____________________________")
-            GlobalScope.launch {
-                val issueDef = GlobalScope.async { issueDao.getIssueSus(issueId) }
+            CoroutineScope(Dispatchers.IO).launch {
+                val issueDef =
+                    CoroutineScope(Dispatchers.IO).async { issueDao.getIssueSus(issueId) }
                 Log.d(TAG, "MADE IT THIS FAR!")
                 issueDef.await()?.let { issue ->
                     if (issue.coverUri == null) {
                         Log.d(TAG, "COVER UPDATER needsCover... starting")
-                        CoroutineScope(Dispatchers.Default).launch {
+                        CoroutineScope(Dispatchers.IO).launch {
                             kotlin.runCatching {
                                 Log.d(TAG, "COVER UPDATER Starting connection.....")
                                 val doc = Jsoup.connect(issue.issue.url).get()
@@ -501,10 +518,10 @@ class IssueRepository private constructor(val context: Context) {
                                 val url = src?.let { URL(it) }
 
                                 if (!noCover && url != null) {
-                                    val image = GlobalScope.async {
+                                    val image = CoroutineScope(Dispatchers.IO).async {
                                         url.toBitmap()
                                     }
-                                    GlobalScope.launch(Dispatchers.Main) {
+                                    CoroutineScope(Dispatchers.Default).launch {
                                         val bitmap = image.await().also {
                                             Log.d(TAG, "COVER UPDATER Got an image!")
                                         }
@@ -566,129 +583,153 @@ class IssueRepository private constructor(val context: Context) {
 
     inner class CreatorUpdater {
 
-        internal fun update(creatorId: Int) {
-            refreshCredits(creatorId)
-        }
-
         internal fun updateAll(creatorIds: List<Int>) {
             creatorIds.forEach { update(it) }
         }
 
+        internal fun update(creatorId: Int) {
+            if (checkIfStale(CREATOR_TAG(creatorId), CREATOR_LIFETIME)) {
+                Log.d(TAG, "CreatorUpdater update $creatorId")
+                refreshCredits(creatorId)
+            }
+        }
+
         private fun refreshCredits(creatorId: Int) {
-            val nameDetailCall = GlobalScope.async {
+
+            val nameDetailCall = CoroutineScope(Dispatchers.IO).async {
                 nameDetailDao.getNameDetailByCreatorIdSus(creatorId)
             }
 
-            val creditsCall = GlobalScope.async {
+            val creditsCall = CoroutineScope(Dispatchers.IO).async {
                 nameDetailCall.await()?.let { nameDetails ->
-                    Log.d(TAG, "WEBSERVICE: creditsByNameDetail")
                     apiService.getCreditsByNameDetail(nameDetails.map { it.nameDetailId })
                 }
             }
 
-            val storiesCall = GlobalScope.async {
-                creditsCall.await()?.let {
-                    val storyIds = it.map { item -> item.toRoomModel().storyId }
+            val storiesCall = CoroutineScope(Dispatchers.IO).async {
+                creditsCall.await()?.let { gcdCredits ->
+                    val storyIds = gcdCredits.map { item -> item.toRoomModel().storyId }
                     if (storyIds.isNotEmpty()) {
-                        Log.d(TAG, "WEBSERVICE: stories $storyIds")
+                        Log.d(TAG, "Found stories")
                         apiService.getStories(storyIds)
+                    } else {
+                        Log.d(TAG, "No find stories?")
+                        null
+                    }
+                }
+            }
+
+            val issuesCall = CoroutineScope(Dispatchers.IO).async {
+                storiesCall.await()?.let { gcdStories ->
+                    val issueIds = gcdStories.map { item -> item.toRoomModel().issueId }
+                    if (issueIds.isNotEmpty()) {
+                        apiService.getIssues(issueIds)
                     } else {
                         null
                     }
                 }
             }
 
-            val issuesCall: Deferred<List<Item<GcdIssue, Issue>>?> = GlobalScope.async {
-                storiesCall.await()?.let {
-                    val issueIds = it.map { item -> item.toRoomModel().issueId }
-                    Log.d(TAG, "WEBSERVICE: issues (from stories NEW) $issueIds")
-                    apiService.getIssues(issueIds)
-                }
-            }
-
-            val variantsCall: Deferred<List<Item<GcdIssue, Issue>>?> = GlobalScope.async {
+            CoroutineScope(Dispatchers.IO).launch {
                 issuesCall.await()?.let {
-                    val issueIds = it.mapNotNull { item -> item.toRoomModel().variantOf }
-                    if (issueIds.isNotEmpty()) {
-                        Log.d(TAG, "WEBSERVICE: issues (from variantOf NEW) $issueIds")
-                        apiService.getIssues(issueIds)
-                    } else {
-                        null
-                    }
+                    IssueCreditUpdater().updateAll( it.map { item -> item.pk })
                 }
             }
 
-            val extractedCreditsCall = GlobalScope.async {
-                nameDetailCall.await()?.let { nameDetails ->
-                    Log.d(TAG, "WEBSERVICE: creditsByNameDetail")
-                    apiService.getExtractedCreditsByNameDetail(nameDetails.map { it.nameDetailId })
-                }
-            }
-
-
-            val extractedStoriesCall = GlobalScope.async {
-                extractedCreditsCall.await()?.let {
-                    val storyIds = it.map { item -> item.toRoomModel().storyId }
-                    if (storyIds.isNotEmpty()) {
-                        Log.d(TAG, "WEBSERVICE: stories $storyIds")
-                        apiService.getStories(storyIds)
-                    } else {
-                        null
-                    }
-                }
-            }
-
-            val extractedIssuesCall: Deferred<List<Item<GcdIssue, Issue>>?> = GlobalScope.async {
-                extractedStoriesCall.await()?.let {
-                    val issueIds = it.map { item -> item.toRoomModel().issueId }
-                    Log.d(TAG, "WEBSERVICE: issues (from stories NEW) $issueIds")
-                    apiService.getIssues(issueIds)
-                }
-            }
-
-            val extractedVariantsCall: Deferred<List<Item<GcdIssue, Issue>>?> = GlobalScope.async {
-                extractedIssuesCall.await()?.let {
-                    val issueIds = it.mapNotNull { item -> item.toRoomModel().variantOf }
-                    if (issueIds.isNotEmpty()) {
-                        Log.d(TAG, "WEBSERVICE: issues (from variantOf NEW) $issueIds")
-                        apiService.getIssues(issueIds)
-                    } else {
-                        null
-                    }
-                }
-            }
-
-            GlobalScope.launch {
-                val stories = storiesCall.await()?.map { it.toRoomModel() } ?: emptyList()
-                val exStories =
-                    extractedStoriesCall.await()?.map { it.toRoomModel() } ?: emptyList()
-                val variants =
-                    variantsCall.await()?.map { it.toRoomModel() } ?: emptyList() ?: emptyList()
-                val exVariants =
-                    extractedVariantsCall.await()?.map { it.toRoomModel() } ?: emptyList()
-                val issues = issuesCall.await()?.map { it.toRoomModel() } ?: emptyList()
-                val exIssues = extractedIssuesCall.await()?.map { it.toRoomModel() } ?: emptyList()
-                val credits = creditsCall.await()?.map { it.toRoomModel() } ?: emptyList()
-                val exCredits =
-                    extractedCreditsCall.await()?.map { it.toRoomModel() } ?: emptyList()
-                database.transactionDao().upsertSus(
-                    stories = stories + exStories,
-                    issues = variants + issues + exVariants + exIssues,
-                    credits = credits + exCredits
-                )
-            }
-
+//            val variantsCall = CoroutineScope(Dispatchers.IO).async {
+//                issuesCall.await()?.let {
+//                    val issueIds = it.mapNotNull { item -> item.toRoomModel().variantOf }
+//                    if (issueIds.isNotEmpty()) {
+//                        apiService.getIssues(issueIds)
+//                    } else {
+//                        null
+//                    }
+//                }
+//            }
+//
+//            val extractedCreditsCall = CoroutineScope(Dispatchers.IO).async {
+//                nameDetailCall.await()?.let { nameDetails ->
+//                    apiService.getExtractedCreditsByNameDetail(nameDetails.map {
+//                        Log.d(TAG, "Refreshing extracts by name detail ${it.name}")
+//                        it.nameDetailId
+//                    })
+//                }
+//            }
+//
+//
+//            val extractedStoriesCall = CoroutineScope(Dispatchers.IO).async {
+//                extractedCreditsCall.await()?.let {
+//                    val credits = it.map { item -> item.toRoomModel() }
+//                    val storyIds = credits.map { credit -> credit.storyId }
+//                    if (storyIds.isNotEmpty()) {
+//                        Log.d(TAG, "Found extracts")
+//                        apiService.getStories(storyIds)
+//                    } else {
+//                        Log.d(TAG, "No ex stories found")
+//                        null
+//                    }
+//                }
+//            }
+//
+//            val extractedIssuesCall: Deferred<List<Item<GcdIssue, Issue>>?> =
+//                CoroutineScope(Dispatchers.IO).async {
+//                    extractedStoriesCall.await()?.let {
+//                        val issueIds = it.map { item -> item.toRoomModel().issueId }
+//                        if (issueIds.isNotEmpty()) {
+//                            Log.d(TAG, "Extract Issues FOUND ${issueIds.size}")
+//                            apiService.getIssues(issueIds)
+//                        } else {
+//                            Log.d(TAG, "Extract Issues EMPTY")
+//                            null
+//                        }
+//                    }
+//                }
+//
+//            val extractedVariantsCall: Deferred<List<Item<GcdIssue, Issue>>?> =
+//                CoroutineScope(Dispatchers.IO).async {
+//                    extractedIssuesCall.await()?.let {
+//                        val issueIds = it.mapNotNull { item -> item.toRoomModel().variantOf }
+//                        if (issueIds.isNotEmpty()) {
+//                            Log.d(TAG, "Extract Variants FOUND ${issueIds.size}")
+//                            apiService.getIssues(issueIds)
+//                        } else {
+//                            Log.d(TAG, "Extract Variants EMPTY")
+//                            null
+//                        }
+//                    }
+//                }
+//
+//            CoroutineScope(Dispatchers.IO).launch {
+//                val stories = storiesCall.await()?.map { it.toRoomModel() } ?: emptyList()
+//                val exStories =
+//                    extractedStoriesCall.await()?.map { it.toRoomModel() } ?: emptyList()
+//                val variants =
+//                    variantsCall.await()?.map { it.toRoomModel() } ?: emptyList() ?: emptyList()
+//                val exVariants =
+//                    extractedVariantsCall.await()?.map { it.toRoomModel() } ?: emptyList()
+//                val issues = issuesCall.await()?.map { it.toRoomModel() } ?: emptyList()
+//                val exIssues =
+//                    extractedIssuesCall.await()?.map { it.toRoomModel() } ?: emptyList()
+//                val credits = creditsCall.await()?.map { it.toRoomModel() } ?: emptyList()
+//                val exCredits =
+//                    extractedCreditsCall.await()?.map { it.toRoomModel() } ?: emptyList()
+//                val nameDetails: List<NameDetail>? = nameDetailCall.await()
+//                database.transactionDao().upsertSus(
+//                    stories = stories + exStories,
+//                    issues = variants + issues + exVariants + exIssues,
+//                    nameDetails = nameDetails,
+//                    credits = credits,
+//                    exCredits = exCredits
+//                )
+//            }
         }
     }
 
     inner class IssueUpdater {
         internal fun update(seriesId: Int) {
             if (checkIfStale(SERIES_TAG(seriesId), ISSUE_LIFETIME))
-                GlobalScope.launch {
-                    withContext(Dispatchers.Default) {
-                        Log.d(TAG, "WEBSERVICE: issuesBySeries $seriesId")
-                        apiService.getIssuesBySeries(seriesId)
-                    }.let { issueItems ->
+                CoroutineScope(Dispatchers.IO).launch {
+                    apiService.getIssuesBySeries(seriesId).let { issueItems ->
                         issueDao.upsertSus(issueItems.map { it.toRoomModel() })
                     }
                     saveTime(prefs, SERIES_TAG(seriesId))
@@ -704,7 +745,7 @@ class IssueRepository private constructor(val context: Context) {
                 val characters = story.characters.split("; ")
 
                 characters.forEach { character ->
-                    GlobalScope.launch {
+                    CoroutineScope(Dispatchers.Default).launch {
                         makeCharacterCredit(character, gcdStory.pk)
                     }
                 }
@@ -723,7 +764,7 @@ class IssueRepository private constructor(val context: Context) {
 
             val name = characterName.replace(Regex("\\s*\\([^)]*\\)\\s*"), "")
 
-            val character = GlobalScope.async {
+            val character = CoroutineScope(Dispatchers.IO).async {
                 characterDao.getCharacterByInfo(name)
             }
 
@@ -890,13 +931,13 @@ class IssueRepository private constructor(val context: Context) {
 //        }
 //    }
 //
-    // TODO: This should probably get moved out of SharedPreferences and stored with each record.
+// TODO: This should probably get moved out of SharedPreferences and stored with each record.
 //  The tradeoff: an extra local db query vs. having a larger prefs which will end up having
 //  a value for every item in the database.
     private fun checkIfStale(prefsKey: String, shelfLife: Long): Boolean {
         val lastUpdated = LocalDate.parse(prefs.getString(prefsKey, "${LocalDate.MIN}"))
         Log.d(TAG, "$prefsKey ${lastUpdated.plusDays(14)}")
-        return lastUpdated.plusDays(shelfLife) < LocalDate.now()
+        return DEBUG || lastUpdated.plusDays(shelfLife) < LocalDate.now()
     }
 
     class DuplicateFragment : DialogFragment() {
