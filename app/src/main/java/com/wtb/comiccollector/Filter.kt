@@ -162,7 +162,7 @@ class Filter(
 abstract class SortOption(
     val tag: String,
     val sortColumn: String
-) {
+): Serializable {
 
     override fun toString() = tag
 }
