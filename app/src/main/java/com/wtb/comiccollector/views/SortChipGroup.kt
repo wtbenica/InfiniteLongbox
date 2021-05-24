@@ -23,24 +23,22 @@ class SortChipGroup(context: Context, attributeSet: AttributeSet) :
     internal var filter: Filter? = null
         set(value) {
             removeAllViews()
-            if (value != null) {
-                value.getSortOptions().forEach { sortOption ->
-                    addView(SortChip(context).also { sortChip ->
-                        sortChip.sortOption = sortOption
-                        if (value.mSortOption == sortOption) {
-                            sortChip.isChecked = true
-                            Log.d(
-                                TAG,
-                                "MATCHY MATCHY ${value.mSortOption} $sortOption ${value.mSeries}"
-                            )
-                        } else {
-                            Log.d(
-                                TAG,
-                                "NO MATCHY ${value.mSortOption} $sortOption ${value.mSeries}"
-                            )
-                        }
-                    })
-                }
+            value?.getSortOptions()?.forEach { sortOption ->
+                addView(SortChip(context).also { sortChip ->
+                    sortChip.sortOption = sortOption
+                    if (value.mSortOption == sortOption) {
+                        sortChip.isChecked = true
+                        Log.d(
+                            TAG,
+                            "MATCHY MATCHY ${value.mSortOption} $sortOption ${value.mSeries}"
+                        )
+                    } else {
+                        Log.d(
+                            TAG,
+                            "NO MATCHY ${value.mSortOption} $sortOption ${value.mSeries}"
+                        )
+                    }
+                })
             }
 
             field = value

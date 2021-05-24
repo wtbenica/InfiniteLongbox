@@ -20,9 +20,9 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.wtb.comiccollector.*
-import com.wtb.comiccollector.GroupListViewModels.IssueListViewModel
 import com.wtb.comiccollector.database.models.FullIssue
 import com.wtb.comiccollector.database.models.Issue
+import com.wtb.comiccollector.item_lists.view_models.IssueListViewModel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -248,9 +248,9 @@ class IssueListFragment : Fragment() {
     }
 
 
-    class ItemOffsetDecoration(val itemOffset: Int) : RecyclerView.ItemDecoration() {
+    class ItemOffsetDecoration(itemOffset: Int) : RecyclerView.ItemDecoration() {
         private var mItemOffset = itemOffset
-        private var spanCount = 2;
+        private var spanCount = 2
 
         override fun getItemOffsets(
             outRect: Rect,
@@ -273,7 +273,6 @@ class IssueListFragment : Fragment() {
         ), View.OnClickListener {
 
         private var fullIssue: FullIssue? = null
-            private set
 
         private val coverImageView: ImageView = itemView.findViewById(R.id.list_item_cover)
         private val issueNumTextView: TextView = itemView.findViewById(R.id.list_item_issue)
@@ -310,7 +309,7 @@ class IssueListFragment : Fragment() {
 
     }
 
-    inner class IssAdapter() :
+    inner class IssAdapter :
         PagingDataAdapter<FullIssue, IssViewHolder>(diffCallback) {
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): IssViewHolder {

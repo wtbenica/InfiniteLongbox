@@ -12,9 +12,9 @@ import android.widget.*
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.wtb.comiccollector.*
-import com.wtb.comiccollector.IssueDetailViewModel.IssueDetailViewModel
 import com.wtb.comiccollector.database.Daos.Count
 import com.wtb.comiccollector.database.models.*
+import com.wtb.comiccollector.issue_details.view_models.IssueDetailViewModel
 import java.io.File
 import java.time.format.DateTimeFormatter
 import java.util.*
@@ -469,24 +469,24 @@ class IssueDetailFragment : Fragment() {
 
             if (story.synopsis != null && story.synopsis != "") {
                 val synopsisButton: ImageButton = findViewById(R.id.synopsis_dropdown_button)
-                val synopsis = findViewById(R.id.synopsis) as TextView
+                val synopsis = findViewById<TextView>(R.id.synopsis)
                 synopsis.text = story.synopsis
                 synopsisButton.setOnClickListener(toggleVisibility(synopsis))
             } else {
-                val synopsisBox = findViewById(R.id.synopsis_box) as LinearLayout
+                val synopsisBox = findViewById<LinearLayout>(R.id.synopsis_box)
                 synopsisBox.visibility = GONE
             }
 
             if (story.characters != null && story.characters != "") {
                 val charactersButton: ImageButton = findViewById(R.id.characters_dropdown_button)
-                val characters = findViewById(R.id.characters) as TextView
+                val characters = findViewById<TextView>(R.id.characters)
                 characters.text = story.characters
                 charactersButton.setOnClickListener(toggleVisibility(characters))
             } else {
-                val charactersBox = findViewById(R.id.characters_box) as LinearLayout
+                val charactersBox = findViewById<LinearLayout>(R.id.characters_box)
                 charactersBox.visibility = GONE
             }
-            val storyTitle = findViewById(R.id.story_title) as TextView
+            val storyTitle = findViewById<TextView>(R.id.story_title)
             storyTitle.text = if (story.storyType == STORY_TYPE_COVER) {
                 "Cover"
             } else {
@@ -494,15 +494,14 @@ class IssueDetailFragment : Fragment() {
             }
         }
 
-        fun <T : View> toggleVisibility(view: T): (v: View) -> Unit {
-            val function: (v: View) -> Unit = {
+        private fun <T : View> toggleVisibility(view: T): (v: View) -> Unit {
+            return {
                 if (view.visibility == GONE) {
                     view.visibility = VISIBLE
                 } else {
                     view.visibility = GONE
                 }
             }
-            return function
         }
     }
 

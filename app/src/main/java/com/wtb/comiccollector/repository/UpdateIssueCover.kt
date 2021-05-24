@@ -42,12 +42,10 @@ class IssueCoverUpdater(val database: IssueDatabase, val context: Context) {
                             val coverImgElements = doc.getElementsByClass("cover_img")
                             val wraparoundElements =
                                 doc.getElementsByClass("wraparound_cover_img")
-                            val elements = if (coverImgElements.size > 0) {
-                                coverImgElements
-                            } else if (wraparoundElements.size > 0) {
-                                wraparoundElements
-                            } else {
-                                null
+                            val elements = when {
+                                coverImgElements.size > 0   -> coverImgElements
+                                wraparoundElements.size > 0 -> wraparoundElements
+                                else                        -> null
                             }
 
                             val src = elements?.get(0)?.attr("src")

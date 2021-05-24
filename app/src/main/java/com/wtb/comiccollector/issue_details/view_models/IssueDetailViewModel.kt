@@ -17,13 +17,13 @@ class IssueDetailViewModel : ViewModel() {
     private val issueIdLiveData = MutableLiveData<Int>()
     private val variantIdLiveData = MutableLiveData<Int?>()
 
-    val issueLiveData: LiveData<FullIssue> =
+    internal val issueLiveData: LiveData<FullIssue?> =
         Transformations.switchMap(issueIdLiveData) { issueId ->
             issueRepository.getIssue(issueId)
         }
 
-    val issueListLiveData = issueLiveData.switchMap { issue: FullIssue ->
-        issueRepository.getIssuesByFilterFlow(Filter(series = issue.series))
+    val issueListLiveData = issueLiveData.switchMap { issue: FullIssue? ->
+        issueRepository.getIssuesByFilterFlow(Filter(series = issue?.series))
             .asLiveData(viewModelScope.coroutineContext)
     }
 

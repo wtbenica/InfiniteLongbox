@@ -1,4 +1,4 @@
-package com.wtb.comiccollector.issue_details
+package com.wtb.comiccollector.issue_details.fragments
 
 import android.app.Activity
 import android.content.Context
@@ -14,9 +14,9 @@ import androidx.core.view.contains
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.wtb.comiccollector.*
-import com.wtb.comiccollector.IssueDetailViewModel.IssueDetailViewModel
-import com.wtb.comiccollector.views.SimpleTextWatcher
 import com.wtb.comiccollector.database.models.*
+import com.wtb.comiccollector.issue_details.view_models.IssueDetailViewModel
+import com.wtb.comiccollector.views.SimpleTextWatcher
 import java.io.File
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -46,7 +46,7 @@ private const val ADD_SERIES_ID = -2
 
 /**
  * A simple [Fragment] subclass.
- * Use the [IssueDetailFragment.newInstance] factory method to
+ * Use the [IssueDetailEditFragment.newInstance] factory method to
  * create an instance of this fragment.
  */
 // TODO: Do I need a separate fragment for editing vs viewing or can I do it all in this one?

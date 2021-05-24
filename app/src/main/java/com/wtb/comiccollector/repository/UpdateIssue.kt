@@ -7,7 +7,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-class UpdateIssue(val webservice: Webservice, val database: IssueDatabase, val prefs: SharedPreferences) {
+class UpdateIssue(private val webservice: Webservice, val database: IssueDatabase, val prefs: SharedPreferences) {
     internal fun update(seriesId: Int) {
         if (IssueRepository.checkIfStale(SERIES_TAG(seriesId), ISSUE_LIFETIME, prefs))
             CoroutineScope(Dispatchers.IO).launch {

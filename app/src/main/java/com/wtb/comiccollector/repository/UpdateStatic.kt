@@ -13,7 +13,7 @@ import kotlinx.coroutines.launch
 private const val TAG = APP + "StaticUpdater"
 
 class StaticUpdater(
-    val webservice: Webservice,
+    private val webservice: Webservice,
     val database: IssueDatabase,
     val prefs: SharedPreferences
 ) {

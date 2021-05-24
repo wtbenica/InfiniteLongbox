@@ -113,29 +113,26 @@ class IssueRepository private constructor(val context: Context) {
     val allRoles: LiveData<List<Role>> = roleDao.getRoleList()
 
     fun filterOptions(filter: Filter): AllFiltersLiveData {
-        val seriesList = if (filter.isEmpty()) {
-            allSeries
-        } else if (filter.mSeries == null) {
-            seriesDao.getSeriesByFilterLiveData(filter)
-        } else {
-            null
-        }
+        val seriesList =
+            when {
+                filter.isEmpty()       -> allSeries
+                filter.mSeries == null -> seriesDao.getSeriesByFilterLiveData(filter)
+                else                   -> null
+            }
 
-        val creatorsList = if (filter.isEmpty()) {
-            allCreators
-        } else if (filter.mCreators.isEmpty()) {
-            creatorDao.getCreatorsByFilter(filter)
-        } else {
-            null
-        }
+        val creatorsList =
+            when {
+                filter.isEmpty()           -> allCreators
+                filter.mCreators.isEmpty() -> creatorDao.getCreatorsByFilter(filter)
+                else                       -> null
+            }
 
-        val publishersList = if (filter.isEmpty()) {
-            allPublishers
-        } else if (filter.mPublishers.isEmpty()) {
-            publisherDao.getPublishersByFilter(filter)
-        } else {
-            null
-        }
+        val publishersList =
+            when {
+                filter.isEmpty()             -> allPublishers
+                filter.mPublishers.isEmpty() -> publisherDao.getPublishersByFilter(filter)
+                else                         -> null
+            }
 
         return AllFiltersLiveData(
             series = seriesList,

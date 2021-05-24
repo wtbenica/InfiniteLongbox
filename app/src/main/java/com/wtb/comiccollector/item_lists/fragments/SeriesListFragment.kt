@@ -16,8 +16,8 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.wtb.comiccollector.*
-import com.wtb.comiccollector.GroupListViewModels.SeriesListViewModel
 import com.wtb.comiccollector.database.models.Series
+import com.wtb.comiccollector.item_lists.view_models.SeriesListViewModel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
