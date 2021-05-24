@@ -64,11 +64,11 @@ internal fun CREATOR_TAG(id: Int): String = UPDATED_TAG(id, "CREATOR_")
 
 class IssueRepository private constructor(val context: Context) {
 
-    internal val prefs: SharedPreferences =
+    private val prefs: SharedPreferences =
         context.getSharedPreferences(SHARED_PREFS, Context.MODE_PRIVATE)
 
     private val executor = Executors.newSingleThreadExecutor()
-    internal val database: IssueDatabase = buildDatabase(context)
+    private val database: IssueDatabase = buildDatabase(context)
     private val seriesDao = database.seriesDao()
     private val issueDao = database.issueDao()
     private val creatorDao = database.creatorDao()
@@ -104,7 +104,7 @@ class IssueRepository private constructor(val context: Context) {
         retrofit.create(Webservice::class.java)
     }
 
-    var allSeries: LiveData<List<Series>> = seriesDao.getAllOfThem()
+    val allSeries: LiveData<List<Series>> = seriesDao.getAllOfThem()
     val allPublishers: LiveData<List<Publisher>> = publisherDao.getPublishersList()
     val allCreators: LiveData<List<Creator>> = creatorDao.getCreatorsList()
     val allRoles: LiveData<List<Role>> = roleDao.getRoleList()
@@ -184,7 +184,7 @@ class IssueRepository private constructor(val context: Context) {
         return issueDao.getIssuesByFilterPagingSource(filter)
     }
 
-    fun getIssuesByFilterLiveData(filter: Filter): Flow<List<FullIssue>> {
+    fun getIssuesByFilterFlow(filter: Filter): Flow<List<FullIssue>> {
         val mSeries = filter.mSeries
 
         if (mSeries != null) {
@@ -200,17 +200,15 @@ class IssueRepository private constructor(val context: Context) {
             IssueUpdater(apiService, database, prefs).update(seriesId)
         }
 
-        return issueDao.getIssuesByFilterLiveData(filter)
+        return issueDao.getIssuesByFilterFlow(filter)
     }
 
-    fun getSeriesByFilter(filter: Filter): PagingSource<Int, Series> {
-        Log.d(TAG, "getSeriesByFilter ${filter.mSeries} ${filter.getSortOptions()}")
+    fun getSeriesByFilterPagingSource(filter: Filter): PagingSource<Int, Series> {
         val mSeries = filter.mSeries
         if (mSeries == null) {
             val creatorIds = filter.mCreators.map { it.creatorId }
 
             if (filter.hasCreator()) {
-                Log.d(TAG, "Filter has creator")
                 CoroutineScope(Dispatchers.IO).launch {
                     CreatorUpdater(apiService, database, prefs).updateAll(creatorIds)
                 }
@@ -309,10 +307,6 @@ class IssueRepository private constructor(val context: Context) {
     ).addMigrations(migration_1_2, migration_2_3, migration_3_4, migration_4_5, migration_5_6)
         .build()
 
-    //
-// TODO: This should probably get moved out of SharedPreferences and stored with each record.
-//  The tradeoff: an extra local db query vs. having a larger prefs which will end up having
-//  a value for every item in the database.
     class DuplicateFragment : DialogFragment() {
         override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
             return activity?.let {
@@ -345,9 +339,11 @@ class IssueRepository private constructor(val context: Context) {
             editor.apply()
         }
 
+        // TODO: This should probably get moved out of SharedPreferences and stored with each record.
+        //  The tradeoff: an extra local db query vs. having a larger prefs which will end up having
+        //  a value for every item in the database.
         fun checkIfStale(prefsKey: String, shelfLife: Long, prefs: SharedPreferences): Boolean {
             val lastUpdated = LocalDate.parse(prefs.getString(prefsKey, "${LocalDate.MIN}"))
-            Log.d(TAG, "$prefsKey ${lastUpdated.plusDays(14)}")
             return DEBUG || lastUpdated.plusDays(shelfLife) < LocalDate.now()
         }
     }

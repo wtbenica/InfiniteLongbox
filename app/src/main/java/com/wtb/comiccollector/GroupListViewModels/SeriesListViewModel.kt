@@ -33,7 +33,7 @@ class SeriesListViewModel : ViewModel() {
             maxSize = 200
         )
     ) {
-        issueRepository.getSeriesByFilter(filter)
+        issueRepository.getSeriesByFilterPagingSource(filter)
     }.flow
 
 

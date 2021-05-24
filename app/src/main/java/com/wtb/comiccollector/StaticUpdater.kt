@@ -54,7 +54,6 @@ class StaticUpdater(
     }
 
     private suspend fun updateSeries() {
-
         var page = 0
         var stop = false
 

@@ -11,7 +11,6 @@ import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.*
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.asLiveData
 import com.wtb.comiccollector.*
 import com.wtb.comiccollector.IssueDetailViewModel.IssueDetailViewModel
 import com.wtb.comiccollector.database.Daos.Count
@@ -156,13 +155,9 @@ class IssueDetailFragment : Fragment() {
 
         issueDetailViewModel.issueListLiveData.observe(
             viewLifecycleOwner,
-            { flowIssues ->
-                flowIssues.asLiveData().let { ldIssues ->
-                    ldIssues.value?.let { issues->
-                        this.issuesInSeries = issues.map { it.issue.issueId }
-                        updateNavBar()
-                    }
-                }
+            { issues: List<FullIssue> ->
+                this.issuesInSeries = issues.map { it.issue.issueId }
+                updateNavBar()
             }
         )
 
@@ -269,7 +264,8 @@ class IssueDetailFragment : Fragment() {
         this.gotoSkipBackButton.isEnabled = (currentPos >= 10) && found
         this.gotoPreviousButton.isEnabled = (currentPos != 0) && found
         this.gotoNextButton.isEnabled = (currentPos != this.issuesInSeries.size - 1) && found
-        this.gotoSkipForwardButton.isEnabled = (currentPos <= this.issuesInSeries.size - 11) && found
+        this.gotoSkipForwardButton.isEnabled =
+            (currentPos <= this.issuesInSeries.size - 11) && found
         this.gotoEndButton.isEnabled = (currentPos != this.issuesInSeries.size - 1) && found
     }
 

@@ -23,11 +23,16 @@ class IssueDetailViewModel : ViewModel() {
         }
 
     val issueListLiveData = issueLiveData.switchMap { issue: FullIssue ->
-        liveData(context = viewModelScope.coroutineContext) {
-            emit(issueRepository.getIssuesByFilterLiveData(Filter(series = issue.series)))
-        }
+        issueRepository.getIssuesByFilterFlow(Filter(series = issue.series))
+            .asLiveData(viewModelScope.coroutineContext)
     }
 
+//    val issueListLiveData = issueLiveData.switchMap { issue: FullIssue ->
+//        liveData(context = viewModelScope.coroutineContext) {
+//            emit(issueRepository.getIssuesByFilterFlow(Filter(series = issue.series)))
+//        }
+//    }
+//
 //    val issueListLiveData = Transformations.switchMap(issueLiveData) { issue ->
 //        issueRepository.getIssuesByFilterLiveData(Filter(series = issue.series)).asLiveData()
 //    }

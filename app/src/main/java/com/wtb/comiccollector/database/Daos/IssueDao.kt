@@ -115,7 +115,7 @@ abstract class IssueDao : BaseDao<Issue>() {
     )
     abstract fun getFullIssuesByQueryLiveData(query: SupportSQLiteQuery): Flow<List<FullIssue>>
 
-    fun getIssuesByFilterLiveData(filter: Filter): Flow<List<FullIssue>> {
+    fun getIssuesByFilterFlow(filter: Filter): Flow<List<FullIssue>> {
 
         var tableJoinString = String()
         var conditionsString = String()
