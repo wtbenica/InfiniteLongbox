@@ -1,4 +1,4 @@
-package com.wtb.comiccollector.GroupListViewModels
+package com.wtb.comiccollector.item_lists.view_models
 
 import android.util.Log
 import androidx.lifecycle.LiveData
@@ -9,7 +9,7 @@ import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import com.wtb.comiccollector.Filter
-import com.wtb.comiccollector.IssueRepository
+import com.wtb.comiccollector.repository.IssueRepository
 import com.wtb.comiccollector.database.Daos.REQUEST_LIMIT
 import com.wtb.comiccollector.database.models.FullIssue
 import com.wtb.comiccollector.database.models.Issue

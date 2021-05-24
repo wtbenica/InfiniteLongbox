@@ -1,4 +1,4 @@
-package com.wtb.comiccollector.GroupListViewModels
+package com.wtb.comiccollector.item_lists.view_models
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -9,9 +9,9 @@ import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.Filter
-import com.wtb.comiccollector.IssueRepository
 import com.wtb.comiccollector.database.Daos.REQUEST_LIMIT
 import com.wtb.comiccollector.database.models.Series
+import com.wtb.comiccollector.repository.IssueRepository
 import kotlinx.coroutines.flow.Flow
 
 private const val TAG = APP + "SeriesListViewModel"

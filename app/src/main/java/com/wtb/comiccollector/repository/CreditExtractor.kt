@@ -1,4 +1,4 @@
-package com.wtb.comiccollector
+package com.wtb.comiccollector.repository
 
 class CreditExtractor {
 //        suspend fun extractCredits(stories: List<Item<GcdStory, Story>>?) {

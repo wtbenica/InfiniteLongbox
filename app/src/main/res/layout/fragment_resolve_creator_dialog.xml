@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     tools:context=".ResolveCreatorDialogFragment">
 
-    <com.wtb.comiccollector.Views.EndlessRecyclerView
+    <com.wtb.comiccollector.views.EndlessRecyclerView
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 

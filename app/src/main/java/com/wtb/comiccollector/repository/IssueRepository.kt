@@ -1,4 +1,4 @@
-package com.wtb.comiccollector
+package com.wtb.comiccollector.repository
 
 import android.app.Dialog
 import android.content.Context
@@ -17,6 +17,9 @@ import androidx.paging.PagingSource
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
+import com.wtb.comiccollector.APP
+import com.wtb.comiccollector.Filter
+import com.wtb.comiccollector.Webservice
 import com.wtb.comiccollector.database.*
 import com.wtb.comiccollector.database.Daos.Count
 import com.wtb.comiccollector.database.models.*

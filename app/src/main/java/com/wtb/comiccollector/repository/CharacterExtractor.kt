@@ -1,4 +1,4 @@
-package com.wtb.comiccollector
+package com.wtb.comiccollector.repository
 
 import com.wtb.comiccollector.database.IssueDatabase
 import com.wtb.comiccollector.database.models.*
