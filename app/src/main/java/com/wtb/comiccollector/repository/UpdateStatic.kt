@@ -1,7 +1,9 @@
-package com.wtb.comiccollector
+package com.wtb.comiccollector.repository
 
 import android.content.SharedPreferences
 import android.util.Log
+import com.wtb.comiccollector.APP
+import com.wtb.comiccollector.Webservice
 import com.wtb.comiccollector.database.IssueDatabase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers

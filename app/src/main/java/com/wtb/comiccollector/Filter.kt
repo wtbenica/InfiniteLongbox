@@ -1,8 +1,8 @@
 package com.wtb.comiccollector
 
 import androidx.fragment.app.Fragment
-import com.wtb.comiccollector.GroupListFragments.IssueListFragment
-import com.wtb.comiccollector.GroupListFragments.SeriesListFragment
+import com.wtb.comiccollector.item_lists.IssueListFragment
+import com.wtb.comiccollector.item_lists.SeriesListFragment
 import com.wtb.comiccollector.database.models.Creator
 import com.wtb.comiccollector.database.models.FilterOption
 import com.wtb.comiccollector.database.models.Publisher

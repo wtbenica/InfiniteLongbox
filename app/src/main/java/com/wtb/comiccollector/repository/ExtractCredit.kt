@@ -1,6 +1,6 @@
-package com.wtb.comiccollector
+package com.wtb.comiccollector.repository
 
-class CreditExtractor {
+class ExtractCredit {
 //        suspend fun extractCredits(stories: List<Item<GcdStory, Story>>?) {
 //            stories?.forEach { gcdStory ->
 //                val story = gcdStory.fields

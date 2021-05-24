@@ -1,4 +1,4 @@
-package com.wtb.comiccollector
+package com.wtb.comiccollector.repository
 
 import android.content.Context
 import android.content.ContextWrapper
@@ -6,6 +6,7 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.util.Log
+import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.database.IssueDatabase
 import com.wtb.comiccollector.database.models.Cover
 import kotlinx.coroutines.CoroutineScope

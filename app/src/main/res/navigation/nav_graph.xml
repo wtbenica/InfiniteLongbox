@@ -5,7 +5,7 @@
 
     <fragment
         android:id="@+id/seriesListFragment"
-        android:name="com.wtb.comiccollector.GroupListFragments.SeriesListFragment"
+        android:name="com.wtb.comiccollector.item_lists.fragments.SeriesListFragment"
         android:label="SeriesListFragment" >
         <action
             android:id="@+id/action_seriesListFragment_to_issueListFragment"
@@ -16,7 +16,7 @@
     </fragment>
     <fragment
         android:id="@+id/issueListFragment"
-        android:name="com.wtb.comiccollector.GroupListFragments.IssueListFragment"
+        android:name="com.wtb.comiccollector.item_lists.fragments.IssueListFragment"
         android:label="IssueListFragment" >
         <action
             android:id="@+id/action_issueListFragment_to_issueDetailFragment"
@@ -27,7 +27,7 @@
     </fragment>
     <fragment
         android:id="@+id/issueDetailFragment"
-        android:name="com.wtb.comiccollector.IssueDetailFragment"
+        android:name="com.wtb.comiccollector.issue_details.fragments.IssueDetailFragment"
         android:label="IssueDetailFragment" >
         <action
             android:id="@+id/action_issueDetailFragment_to_datePickerFragment"

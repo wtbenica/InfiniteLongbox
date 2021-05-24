@@ -16,10 +16,11 @@ import androidx.fragment.app.FragmentTransaction
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.chip.ChipGroup
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import com.wtb.comiccollector.GroupListFragments.SeriesListFragment
-import com.wtb.comiccollector.Views.Chippy
-import com.wtb.comiccollector.Views.SortChipGroup
+import com.wtb.comiccollector.item_lists.SeriesListFragment
+import com.wtb.comiccollector.views.Chippy
+import com.wtb.comiccollector.views.SortChipGroup
 import com.wtb.comiccollector.database.models.*
+import com.wtb.comiccollector.repository.SHARED_PREFS
 
 private const val TAG = APP + "SearchFragment"
 

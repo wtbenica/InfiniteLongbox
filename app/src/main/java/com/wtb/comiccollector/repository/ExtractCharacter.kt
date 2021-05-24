@@ -1,11 +1,11 @@
-package com.wtb.comiccollector
+package com.wtb.comiccollector.repository
 
 import com.wtb.comiccollector.database.IssueDatabase
 import com.wtb.comiccollector.database.models.*
 import kotlinx.coroutines.*
 import java.util.regex.Pattern
 
-class CharacterExtractor(val database: IssueDatabase) {
+class ExtractCharacter(val database: IssueDatabase) {
     suspend fun extractCharacters(stories: List<Item<GcdStory, Story>>?) {
         stories?.forEach { gcdStory ->
             val story = gcdStory.fields

@@ -5,6 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
 import com.wtb.comiccollector.database.models.FilterOption
+import com.wtb.comiccollector.repository.IssueRepository
 
 private const val TAG = APP + "SearchViewModel"
 

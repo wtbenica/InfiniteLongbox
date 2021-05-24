@@ -8,7 +8,7 @@ import androidx.room.RawQuery
 import androidx.sqlite.db.SimpleSQLiteQuery
 import androidx.sqlite.db.SupportSQLiteQuery
 import com.wtb.comiccollector.APP
-import com.wtb.comiccollector.DUMMY_ID
+import com.wtb.comiccollector.repository.DUMMY_ID
 import com.wtb.comiccollector.Filter
 import com.wtb.comiccollector.database.models.Series
 import java.util.*

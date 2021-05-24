@@ -65,7 +65,7 @@
                 android:padding="0dp"
                 android:scrollbars="none">
 
-                <com.wtb.comiccollector.Views.SortChipGroup
+                <com.wtb.comiccollector.views.SortChipGroup
                     android:id="@+id/sort_chip_group"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -92,7 +92,7 @@
                         android:layout_height="wrap_content"
                         android:text="@string/label_description" />
 
-                </com.wtb.comiccollector.Views.SortChipGroup>
+                </com.wtb.comiccollector.views.SortChipGroup>
 
             </HorizontalScrollView>
         </androidx.cardview.widget.CardView>

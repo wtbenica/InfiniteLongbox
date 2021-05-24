@@ -1,4 +1,4 @@
-package com.wtb.comiccollector.GroupListFragments
+package com.wtb.comiccollector.item_lists.fragments
 
 import android.content.Context
 import android.graphics.Rect

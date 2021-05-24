@@ -1,4 +1,4 @@
-package com.wtb.comiccollector.GroupListFragments
+package com.wtb.comiccollector.item_lists.fragments
 
 import android.os.Bundle
 import android.util.Log

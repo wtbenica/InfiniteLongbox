@@ -1,4 +1,4 @@
-package com.wtb.comiccollector.IssueDetailFragment
+package com.wtb.comiccollector.issue_details.fragments
 
 import android.content.Context
 import android.content.Intent
