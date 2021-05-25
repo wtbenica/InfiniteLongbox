@@ -5,10 +5,11 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
-    <LinearLayout android:orientation="vertical"
+    <LinearLayout
         android:id="@+id/this_part_of_filter"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/switch_holder"
@@ -150,8 +151,8 @@
                 android:layout_height="?attr/dropdownListPreferredItemHeight"
                 android:elevation="1dp"
                 android:hint="@string/search"
-                android:padding="8dp"
                 android:popupBackground="@drawable/accent_outline_white_background"
+                android:textAppearance="?android:attr/textAppearanceLargePopupMenu"
                 android:textColor="?attr/colorOnSecondary"
                 tools:text="Potato Latke" />
         </LinearLayout>

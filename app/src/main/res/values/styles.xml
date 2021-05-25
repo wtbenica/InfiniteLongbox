@@ -49,7 +49,7 @@
     <style name="myAutoCompleteStyle" parent="Widget.AppCompat.AutoCompleteTextView">
         <item name="android:background">@drawable/accent_outline_white_background</item>
         <item name="android:paddingStart">16dp</item>
-        <item name="paddingEnd">16dp</item>
+        <item name="android:paddingEnd">16dp</item>
     </style>
 
     <style name="widgetTextStyle" parent="TextAppearance.AppCompat.Widget.TextView.SpinnerItem">

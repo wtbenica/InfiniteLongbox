@@ -5,6 +5,7 @@ import android.util.AttributeSet
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.widget.*
 import androidx.appcompat.widget.SwitchCompat
 import androidx.cardview.widget.CardView
@@ -18,10 +19,40 @@ import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.Filter
 import com.wtb.comiccollector.R
 import com.wtb.comiccollector.SearchViewModel
+import com.wtb.comiccollector.database.models.Creator
 import com.wtb.comiccollector.database.models.FilterOption
+import com.wtb.comiccollector.database.models.Publisher
+import com.wtb.comiccollector.database.models.Series
 import com.wtb.comiccollector.item_lists.fragments.SeriesListFragment
 
 private const val TAG = APP + "FilterView"
+
+class MonkeyAdapter(
+    ctx: Context,
+    items: List<FilterOption>
+) : ArrayAdapter<FilterOption>(ctx, R.layout.filter_option_auto_complete, items) {
+
+    override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
+
+        val view = convertView ?: View.inflate(context, R.layout.filter_option_auto_complete, null)
+
+        val itemText: TextView = view.findViewById(R.id.item_text)
+        val optionTypeText: TextView = view.findViewById(R.id.filter_option_type)
+
+        val filterOption: FilterOption? = getItem(position)
+
+        itemText.setText(filterOption?.toString())
+
+        optionTypeText.text = when (filterOption) {
+            is Series    -> "Series"
+            is Creator   -> "Creator"
+            is Publisher -> "Publisher"
+            else         -> ""
+        }
+
+        return view
+    }
+}
 
 class FilterView(ctx: Context, attributeSet: AttributeSet) :
     LinearLayout(ctx, attributeSet), Chippy.ChipCallbacks {
@@ -66,15 +97,7 @@ class FilterView(ctx: Context, attributeSet: AttributeSet) :
         viewModel.filterOptionsLiveData.observe(
             ctx as LifecycleOwner,
             { filterObjects ->
-                filterObjects?.let {
-                    searchTextView.setAdapter(
-                        ArrayAdapter(
-                            ctx,
-                            android.R.layout.simple_dropdown_item_1line,
-                            it
-                        )
-                    )
-                }
+                filterObjects?.let { searchTextView.setAdapter(MonkeyAdapter(ctx, it)) }
             }
         )
 
@@ -153,7 +176,7 @@ class FilterView(ctx: Context, attributeSet: AttributeSet) :
     fun toggleVisibility() {
         showFilter = !showFilter
         when (showFilter) {
-            true -> callback?.showKeyboard(searchTextView)
+            true  -> callback?.showKeyboard(searchTextView)
             false -> callback?.hideKeyboard()
         }
         updateViews()
