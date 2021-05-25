@@ -98,7 +98,7 @@ abstract class IssueDao : BaseDao<Issue>() {
 
         if (filter.mMyCollection) {
             tableJoinString += "JOIN mycollection mc ON mc.issueId = ie.issueId "
-        } else {
+        } else if (!filter.hasCreator()){
             conditionsString += "AND ie.variantOf IS NULL "
         }
 

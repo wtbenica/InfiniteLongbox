@@ -120,6 +120,7 @@ class IssueRepository private constructor(val context: Context) {
 
     fun getSeries(seriesId: Int): LiveData<Series?> = seriesDao.getSeries(seriesId)
 
+    @Throws(IllegalArgumentException::class)
     fun getSeriesByFilterPagingSource(filter: Filter): PagingSource<Int, Series> {
         val mSeries = filter.mSeries
         if (mSeries == null) {

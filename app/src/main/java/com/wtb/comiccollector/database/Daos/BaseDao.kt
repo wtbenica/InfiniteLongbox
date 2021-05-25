@@ -78,7 +78,7 @@ abstract class BaseDao<T : DataModel> {
     }
 
     @Transaction
-    open suspend fun upsertSus(objList: List<T>) {
+    open suspend fun upsertSusOld(objList: List<T>) {
         try {
             val insertResult: List<Long> = insertSus(objList)
             val updateList = mutableListOf<T>()
@@ -94,6 +94,17 @@ abstract class BaseDao<T : DataModel> {
             }
         } catch (sqlEx: SQLiteConstraintException) {
             Log.d(TAG, "upsert: ${this.javaClass} $sqlEx $objList")
+        }
+    }
+
+    @Transaction
+    open suspend fun upsertSus(objList: List<T>) {
+        for (obj in objList) {
+            try {
+                insert(obj)
+            } catch (sqlEx: SQLiteConstraintException) {
+                update(obj)
+            }
         }
     }
 
