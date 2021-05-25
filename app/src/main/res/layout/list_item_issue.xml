@@ -5,10 +5,14 @@
     android:id="@+id/layout"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    app:cardUseCompatPadding="true"
     app:cardCornerRadius="8dp"
-    app:cardUseCompatPadding="true">
+    app:cardPreventCornerOverlap="false"
+    android:background="@drawable/card_background"
+    android:orientation="vertical">
 
     <LinearLayout
+        android:id="@+id/wrapper"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical">

@@ -126,7 +126,7 @@ class CreatorUpdater(
 
         CoroutineScope(Dispatchers.IO).launch {
             coroutineScope {
-                async {
+                withContext(Dispatchers.IO) {
                     val stories = storiesCall.await()?.map { it.toRoomModel() } ?: emptyList()
                     val exStories =
                         extractedStoriesCall.await()?.map { it.toRoomModel() } ?: emptyList()
@@ -159,7 +159,7 @@ class CreatorUpdater(
                     )
 
                     Log.d(TAG, "FINISHING $creatorId ${nameDetails?.get(0)?.name}")
-                }.await().let {
+                }.let {
                     IssueRepository.saveTime(prefs, CREATOR_TAG(creatorId))
                     Log.d(TAG, "DONE UPDATING CREATOR $creatorId")
                 }

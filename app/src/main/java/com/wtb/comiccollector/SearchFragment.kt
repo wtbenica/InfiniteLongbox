@@ -59,7 +59,7 @@ class SearchFragment : Fragment(), SeriesListFragment.SeriesListCallbacks,
         val view = inflater.inflate(R.layout.search_fragment, container, false)
         Log.d(TAG, "onCreateView")
         sortLabelImageView = view.findViewById(R.id.imageView) as ImageView
-        filterView = view.findViewById<FilterView?>(R.id.filter_view)
+        filterView = view.findViewById(R.id.filter_view)
         filterView.callback = this
         resultsFrame = view.findViewById(R.id.results_frame) as FrameLayout
         fab = view.findViewById(R.id.fab) as FloatingActionButton

@@ -5,6 +5,4 @@ import com.wtb.comiccollector.APP
 
 private const val TAG = APP + "FilterViewModel"
 
-class FilterViewModel: ViewModel() {
-
-}
+class FilterViewModel: ViewModel()

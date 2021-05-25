@@ -1,13 +1,13 @@
 package com.wtb.comiccollector.item_lists.fragments
 
 import android.content.Context
-import android.graphics.Color
 import android.graphics.Rect
 import android.os.Bundle
 import android.util.Log
 import android.util.TypedValue
 import android.view.*
 import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.cardview.widget.CardView
 import androidx.fragment.app.Fragment
@@ -139,6 +139,7 @@ class IssueListFragment : Fragment() {
 
         private val coverImageView: ImageView = itemView.findViewById(R.id.list_item_cover)
         private val issueNumTextView: TextView = itemView.findViewById(R.id.list_item_issue)
+        private val wrapper = itemView.findViewById<LinearLayout>(R.id.wrapper)
         private val layout: CardView = itemView.findViewById(R.id.layout)
 
         init {
@@ -157,14 +158,18 @@ class IssueListFragment : Fragment() {
             }
 
             val value = TypedValue()
-            context?.theme?.resolveAttribute(R.attr.colorSecondaryVariant, value, true)
+            context?.theme?.resolveAttribute(R.attr.colorPrimaryMuted, value, true)
 
             if (fullIssue?.myCollection?.collectionId != null) {
-                issueNumTextView.setTextColor(Color.WHITE)
-                layout.setCardBackgroundColor(Color.BLACK)
+                wrapper.setBackgroundResource(R.drawable.card_background_in_collection)
+                layout.cardElevation = 32F
+//                issueNumTextView.setTextColor(Color.WHITE)
+//                layout.setCardBackgroundColor(Color.BLACK)
             } else {
-                issueNumTextView.setTextColor(Color.BLACK)
-                layout.setCardBackgroundColor(Color.WHITE)
+                wrapper.setBackgroundResource(R.drawable.card_background_regular)
+                layout.cardElevation = 1F
+//                issueNumTextView.setTextColor(Color.BLACK)
+//                layout.setCardBackgroundColor(Color.WHITE)
             }
 
             issueNumTextView.text = this.fullIssue?.issue.toString()

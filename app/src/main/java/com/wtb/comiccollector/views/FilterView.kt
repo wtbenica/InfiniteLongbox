@@ -8,6 +8,7 @@ import android.view.View
 import android.widget.*
 import androidx.appcompat.widget.SwitchCompat
 import androidx.cardview.widget.CardView
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelProvider
@@ -22,8 +23,8 @@ import com.wtb.comiccollector.item_lists.fragments.SeriesListFragment
 
 private const val TAG = APP + "FilterView"
 
-class FilterView(context: Context, attributeSet: AttributeSet) :
-    LinearLayout(context, attributeSet), Chippy.ChipCallbacks {
+class FilterView(ctx: Context, attributeSet: AttributeSet) :
+    LinearLayout(ctx, attributeSet), Chippy.ChipCallbacks {
 
     private var filter: Filter? = null
         set(value) {
@@ -33,7 +34,7 @@ class FilterView(context: Context, attributeSet: AttributeSet) :
 
     var callback: FilterCallback? = null
     private val viewModel by lazy {
-        ViewModelProvider(context as ViewModelStoreOwner).get(SearchViewModel::class.java)
+        ViewModelProvider(ctx as ViewModelStoreOwner).get(SearchViewModel::class.java)
     }
     private var showFilter: Boolean = false
 
@@ -45,9 +46,10 @@ class FilterView(context: Context, attributeSet: AttributeSet) :
     private var sortCardThing: CardView
     private var searchBox: LinearLayout
     private var searchTextView: AutoCompleteTextView
+    private var switchHolder: ConstraintLayout
 
     init {
-        val inflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+        val inflater = ctx.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
 
         val view = inflater.inflate(R.layout.filter_view, this)
 
@@ -58,15 +60,16 @@ class FilterView(context: Context, attributeSet: AttributeSet) :
         sortChipGroup = view.findViewById(R.id.sort_chip_group) as SortChipGroup
         sortCardThing = view.findViewById(R.id.sort_card_thing) as CardView
         searchBox = view.findViewById(R.id.search_box) as LinearLayout
-        searchTextView = (view.findViewById(R.id.search_tv) as AutoCompleteTextView)
+        searchTextView = view.findViewById(R.id.search_tv) as AutoCompleteTextView
+        switchHolder = view.findViewById(R.id.switch_holder) as ConstraintLayout
 
         viewModel.filterOptionsLiveData.observe(
-            context as LifecycleOwner,
+            ctx as LifecycleOwner,
             { filterObjects ->
                 filterObjects?.let {
                     searchTextView.setAdapter(
                         ArrayAdapter(
-                            context,
+                            ctx,
                             android.R.layout.simple_dropdown_item_1line,
                             it
                         )
@@ -76,7 +79,7 @@ class FilterView(context: Context, attributeSet: AttributeSet) :
         )
 
         viewModel.filterLiveData.observe(
-            context as LifecycleOwner,
+            ctx as LifecycleOwner,
             { filter ->
                 Log.d(TAG, "filter changed ${filter.getSortOptions()}")
                 this.filter = filter
@@ -132,7 +135,7 @@ class FilterView(context: Context, attributeSet: AttributeSet) :
             }
         }
 
-        myCollectionSwitch.visibility = if (showFilter || myCollectionSwitch.isChecked) {
+        switchHolder.visibility = if (showFilter || myCollectionSwitch.isChecked) {
             View.VISIBLE
         } else {
             View.GONE
