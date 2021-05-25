@@ -1,4 +1,4 @@
-package com.wtb.comiccollector.GroupListFragments
+package com.wtb.comiccollector.item_lists.fragments
 
 import android.os.Bundle
 import android.util.Log
@@ -9,29 +9,25 @@ import android.view.animation.AnimationUtils
 import android.view.animation.LayoutAnimationController
 import android.widget.TextView
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import androidx.paging.PagedList
-import androidx.paging.PagedListAdapter
+import androidx.lifecycle.lifecycleScope
+import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.wtb.comiccollector.APP
-import com.wtb.comiccollector.ARG_FILTER
-import com.wtb.comiccollector.Filter
-import com.wtb.comiccollector.GroupListViewModels.SeriesListViewModel
-import com.wtb.comiccollector.R
+import com.wtb.comiccollector.*
 import com.wtb.comiccollector.database.models.Series
+import com.wtb.comiccollector.item_lists.view_models.SeriesListViewModel
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 
 private const val TAG = APP + "SeriesListFragment"
 
-class SeriesListFragment(var callback: Callbacks? = null) : Fragment() {
+class SeriesListFragment(var callback: SeriesListCallbacks? = null) : Fragment() {
 
     private val viewModel: SeriesListViewModel by lazy {
         ViewModelProvider(this).get(SeriesListViewModel::class.java)
     }
-
-    private var seriesList: PagedList<Series>? = null
 
     private var filter = Filter()
     private lateinit var itemListRecyclerView: RecyclerView
@@ -55,7 +51,13 @@ class SeriesListFragment(var callback: Callbacks? = null) : Fragment() {
         itemListRecyclerView.layoutManager = LinearLayoutManager(context)
         val adapter = SeriesAdapter()
         itemListRecyclerView.adapter = adapter
-        viewModel.seriesListLiveData.observe(viewLifecycleOwner, Observer(adapter::submitList))
+
+        lifecycleScope.launch {
+            viewModel.seriesList(filter).collectLatest { adapter.submitData(it) }
+        }
+
+        (requireActivity() as MainActivity).supportActionBar?.title = requireContext()
+            .applicationInfo.loadLabel(requireContext().packageManager).toString()
 
         return view
     }
@@ -75,7 +77,7 @@ class SeriesListFragment(var callback: Callbacks? = null) : Fragment() {
     }
 
     inner class SeriesAdapter :
-        PagedListAdapter<Series, SeriesHolder>(DIFF_CALLBACK) {
+        PagingDataAdapter<Series, SeriesHolder>(DIFF_CALLBACK) {
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SeriesHolder =
             SeriesHolder(parent)
@@ -93,7 +95,6 @@ class SeriesListFragment(var callback: Callbacks? = null) : Fragment() {
         lateinit var item: Series
 
         init {
-            @Suppress("LeakingThis")
             itemView.setOnClickListener(this)
         }
 
@@ -118,21 +119,23 @@ class SeriesListFragment(var callback: Callbacks? = null) : Fragment() {
         }
     }
 
-    interface Callbacks {
+    interface SeriesListCallbacks {
         fun onSeriesSelected(series: Series)
     }
 
     companion object {
         @JvmStatic
         fun newInstance(
-            callback: Callbacks,
+            callback: SeriesListCallbacks,
             filter: Filter
-        ) =
-            SeriesListFragment(callback).apply {
+        ): SeriesListFragment {
+            Log.d(TAG, "newInstance: ${filter.mSeries}")
+            return SeriesListFragment(callback).apply {
                 arguments = Bundle().apply {
                     putSerializable(ARG_FILTER, filter)
                 }
             }
+        }
 
         private val DIFF_CALLBACK = object : DiffUtil.ItemCallback<Series>() {
             override fun areItemsTheSame(oldItem: Series, newItem: Series): Boolean =

@@ -3,7 +3,7 @@ package com.wtb.comiccollector.database.models
 import android.net.Uri
 import androidx.room.*
 import androidx.room.ForeignKey.CASCADE
-import com.wtb.comiccollector.DUMMY_ID
+import com.wtb.comiccollector.repository.DUMMY_ID
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
@@ -85,13 +85,13 @@ data class Issue(
                                 DateTimeFormatter.ofPattern("uuuu-MM-dd")
                             )
                         } catch (e: DateTimeParseException) {
-                            throw e
+                            e.printStackTrace()
+                            null
                         }
                     }
-                } catch (e: DateTimeParseException) {
-                    throw e
                 }
             }
+
             return res
         }
     }

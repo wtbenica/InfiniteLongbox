@@ -2,4 +2,5 @@
 <resources>
     <dimen name="margin_list_item_vert">4dp</dimen>
     <dimen name="margin_outside">8dp</dimen>
+    <dimen name="fab_margin">16dp</dimen>
 </resources>

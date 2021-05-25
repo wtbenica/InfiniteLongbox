@@ -1,8 +1,9 @@
 package com.wtb.comiccollector.database.models
 
+import java.io.Serializable
 import java.time.LocalDateTime
 
-abstract class DataModel {
+abstract class DataModel: Serializable {
     init {
         val lastUpdated = LocalDateTime.now()
     }

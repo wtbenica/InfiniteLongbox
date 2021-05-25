@@ -1,6 +1,5 @@
 package com.wtb.comiccollector.database.Daos
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.paging.PagingSource
 import androidx.room.Dao
@@ -14,6 +13,7 @@ import com.wtb.comiccollector.Filter
 import com.wtb.comiccollector.database.models.Cover
 import com.wtb.comiccollector.database.models.FullIssue
 import com.wtb.comiccollector.database.models.Issue
+import kotlinx.coroutines.flow.Flow
 
 private const val TAG = APP + "IssueDao"
 
@@ -50,9 +50,11 @@ abstract class IssueDao : BaseDao<Issue>() {
     @RawQuery(
         observedEntities = [FullIssue::class]
     )
-    abstract fun getFullIssuesByQuery(query: SupportSQLiteQuery): PagingSource<Int, FullIssue>
+    abstract fun getFullIssuesByQueryPagingSource(query: SupportSQLiteQuery): PagingSource<Int, FullIssue>
 
-    fun getIssuesByFilter(filter: Filter): PagingSource<Int, FullIssue> {
+    fun getIssuesByFilterPagingSource(filter: Filter): PagingSource<Int, FullIssue> {
+
+        val mSeries = filter.mSeries
 
         var tableJoinString = String()
         var conditionsString = String()
@@ -66,7 +68,7 @@ abstract class IssueDao : BaseDao<Issue>() {
                     "JOIN publisher pr ON ss.publisherId = pr.publisherId "
 
         conditionsString +=
-            "WHERE ss.seriesId = ${filter.mSeries?.seriesId} "
+            "WHERE ss.seriesId = ${mSeries?.seriesId} "
 
         if (filter.hasPublisher()) {
             val publisherList = modelsToSqlIdString(filter.mPublishers)
@@ -77,12 +79,15 @@ abstract class IssueDao : BaseDao<Issue>() {
         if (filter.hasCreator()) {
             tableJoinString +=
                 "JOIN story sy on sy.issueId = ie.issueId " +
-                        "JOIN credit ct on ct.storyId = sy.storyId " +
-                        "JOIN namedetail nl on nl.nameDetailId = ct.nameDetailId "
+                        "LEFT JOIN credit ct on ct.storyId = sy.storyId " +
+                        "LEFT JOIN namedetail nl on nl.nameDetailId = ct.nameDetailId " +
+                        "LEFT JOIN excredit ect on ect.storyId = sy.storyId " +
+                        "LEFT JOIN namedetail nl2 on nl2.nameDetailId = ect.nameDetailId "
 
             val creatorsList = modelsToSqlIdString(filter.mCreators)
 
-            conditionsString += "AND nl.creatorId IN $creatorsList "
+            conditionsString += "AND (nl.creatorId IN $creatorsList " +
+                    "OR nl2.creatorId IN $creatorsList) "
         }
 
         if (filter.hasDateFilter()) {
@@ -93,7 +98,7 @@ abstract class IssueDao : BaseDao<Issue>() {
 
         if (filter.mMyCollection) {
             tableJoinString += "JOIN mycollection mc ON mc.issueId = ie.issueId "
-        } else {
+        } else if (!filter.hasCreator()){
             conditionsString += "AND ie.variantOf IS NULL "
         }
 
@@ -102,17 +107,15 @@ abstract class IssueDao : BaseDao<Issue>() {
             args.toArray()
         )
 
-        Log.d(TAG, tableJoinString + conditionsString)
-        Log.d(TAG, query.sql)
-        return getFullIssuesByQuery(query)
+        return getFullIssuesByQueryPagingSource(query)
     }
 
     @RawQuery(
         observedEntities = [FullIssue::class]
     )
-    abstract fun getFullIssuesByQuery2(query: SupportSQLiteQuery): LiveData<List<FullIssue>>
+    abstract fun getFullIssuesByQueryLiveData(query: SupportSQLiteQuery): Flow<List<FullIssue>>
 
-    fun getIssuesByFilter2(filter: Filter): LiveData<List<FullIssue>> {
+    fun getIssuesByFilterFlow(filter: Filter): Flow<List<FullIssue>> {
 
         var tableJoinString = String()
         var conditionsString = String()
@@ -162,9 +165,7 @@ abstract class IssueDao : BaseDao<Issue>() {
             args.toArray()
         )
 
-        Log.d(TAG, tableJoinString + conditionsString)
-        Log.d(TAG, query.sql)
-        return getFullIssuesByQuery2(query)
+        return getFullIssuesByQueryLiveData(query)
     }
 
     @Transaction

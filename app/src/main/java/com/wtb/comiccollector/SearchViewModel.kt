@@ -5,6 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
 import com.wtb.comiccollector.database.models.FilterOption
+import com.wtb.comiccollector.repository.IssueRepository
 
 private const val TAG = APP + "SearchViewModel"
 
@@ -14,26 +15,33 @@ class SearchViewModel : ViewModel() {
 
     var filterLiveData = MutableLiveData(Filter())
 
-
     val filterOptionsLiveData = Transformations.switchMap(filterLiveData) {
-        issueRepository.filterOptions(it)
+        issueRepository.getValidFilterOptions(it)
     }
 
-    fun addItem(item: FilterOption) {
+    fun addFilterItem(item: FilterOption) {
         Log.d(TAG, "addItem $item")
         val newVal = filterLiveData.value
-        newVal?.addItem(item)
+        newVal?.addFilter(item)
         filterLiveData.value = newVal
     }
 
-    fun removeItem(item: FilterOption) {
+    fun removeFilterItem(item: FilterOption) {
         Log.d(TAG, "removeItem $item")
         val newVal = filterLiveData.value
-        newVal?.removeItem(item)
+        newVal?.removeFilter(item)
+        filterLiveData.value = newVal
+    }
+
+    fun setSortOption(sortOption: SortOption) {
+        val newVal = filterLiveData.value
+        newVal?.mSortOption = sortOption
         filterLiveData.value = newVal
     }
 
     fun myCollection(isChecked: Boolean) {
-        filterLiveData.value?.setMyCollection(isChecked)
+        val newVal = filterLiveData.value
+        newVal?.setMyCollection(isChecked)
+        filterLiveData.value = newVal
     }
 }

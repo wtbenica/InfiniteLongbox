@@ -1,8 +1,9 @@
-package com.wtb.comiccollector.GroupListFragments
+package com.wtb.comiccollector.item_lists.fragments
 
 import android.content.Context
 import android.graphics.Rect
 import android.os.Bundle
+import android.util.Log
 import android.view.*
 import android.view.animation.AnimationUtils
 import android.view.animation.LayoutAnimationController
@@ -19,9 +20,9 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.wtb.comiccollector.*
-import com.wtb.comiccollector.GroupListViewModels.IssueListViewModel
 import com.wtb.comiccollector.database.models.FullIssue
 import com.wtb.comiccollector.database.models.Issue
+import com.wtb.comiccollector.item_lists.view_models.IssueListViewModel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -31,7 +32,7 @@ class IssueListFragment : Fragment() {
 
     private val issueListViewModel: IssueListViewModel by viewModels()
 
-    private var filter: Filter = Filter()
+    private lateinit var filter: Filter
     private lateinit var issueGridView: RecyclerView
 
     private var callbacks: Callbacks? = null
@@ -236,18 +237,20 @@ class IssueListFragment : Fragment() {
 
     companion object {
         @JvmStatic
-        fun newInstance(filter: Filter) =
-            IssueListFragment().apply {
+        fun newInstance(filter: Filter): IssueListFragment {
+            Log.d(TAG, "newInstance: ${filter.mSeries}")
+            return IssueListFragment().apply {
                 arguments = Bundle().apply {
                     putSerializable(ARG_FILTER, filter)
                 }
             }
+        }
     }
 
 
-    class ItemOffsetDecoration(val itemOffset: Int) : RecyclerView.ItemDecoration() {
+    class ItemOffsetDecoration(itemOffset: Int) : RecyclerView.ItemDecoration() {
         private var mItemOffset = itemOffset
-        private var spanCount = 2;
+        private var spanCount = 2
 
         override fun getItemOffsets(
             outRect: Rect,
@@ -270,7 +273,6 @@ class IssueListFragment : Fragment() {
         ), View.OnClickListener {
 
         private var fullIssue: FullIssue? = null
-            private set
 
         private val coverImageView: ImageView = itemView.findViewById(R.id.list_item_cover)
         private val issueNumTextView: TextView = itemView.findViewById(R.id.list_item_issue)
@@ -307,7 +309,7 @@ class IssueListFragment : Fragment() {
 
     }
 
-    inner class IssAdapter() :
+    inner class IssAdapter :
         PagingDataAdapter<FullIssue, IssViewHolder>(diffCallback) {
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): IssViewHolder {

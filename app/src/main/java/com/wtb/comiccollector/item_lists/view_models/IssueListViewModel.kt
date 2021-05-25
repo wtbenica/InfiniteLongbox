@@ -1,4 +1,4 @@
-package com.wtb.comiccollector.GroupListViewModels
+package com.wtb.comiccollector.item_lists.view_models
 
 import android.util.Log
 import androidx.lifecycle.LiveData
@@ -9,7 +9,7 @@ import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import com.wtb.comiccollector.Filter
-import com.wtb.comiccollector.IssueRepository
+import com.wtb.comiccollector.repository.IssueRepository
 import com.wtb.comiccollector.database.Daos.REQUEST_LIMIT
 import com.wtb.comiccollector.database.models.FullIssue
 import com.wtb.comiccollector.database.models.Issue
@@ -24,18 +24,20 @@ class IssueListViewModel : ViewModel() {
     private val filterLiveData = MutableLiveData<Filter?>(null)
 
     var seriesLiveData: LiveData<Series?> =
-        Transformations.switchMap(seriesIdLiveData) { seriesId ->
-            issueRepository.getSeries(seriesId)
+        Transformations.switchMap(filterLiveData) {
+            it?.let { filter ->
+                filter.mSeries?.seriesId?.let { id -> issueRepository.getSeries(id) }
+            }
         }
 
-    fun issueList(filter: Filter) : Flow<PagingData<FullIssue>> = Pager(
+    fun issueList(filter: Filter): Flow<PagingData<FullIssue>> = Pager(
         config = PagingConfig(
             pageSize = REQUEST_LIMIT,
             enablePlaceholders = true,
             maxSize = 200
         )
     ) {
-        issueRepository.getIssuesByFilter(filter)
+        issueRepository.getIssuesByFilterPagingSource(filter)
     }.flow
 
     fun setFilter(filter: Filter) {

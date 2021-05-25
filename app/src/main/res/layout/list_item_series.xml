@@ -2,50 +2,39 @@
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tool="http://schemas.android.com/tools"
+    app:cardCornerRadius="8dp"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_marginStart="16dp"
-    android:layout_marginTop="8dp"
-    android:layout_marginEnd="16dp"
-    android:layout_marginBottom="4dp"
-    app:cardElevation="4dp">
+    android:layout_height="wrap_content">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@drawable/card_background">
+        android:padding="8dp">
 
         <LinearLayout
+            style="@style/SeriesLayout"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:paddingStart="16dp"
-            android:paddingTop="8dp"
-            android:paddingEnd="16dp"
-            android:paddingBottom="8dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
             <TextView
                 android:id="@+id/list_item_name"
+                style="@style/SeriesTitleText"
+                android:paddingBottom="8dp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:fontFamily="sans-serif-condensed"
-                android:shadowColor="?attr/colorPrimaryDark"
-                android:shadowDx="0"
-                android:shadowDy="0"
-                android:shadowRadius="1"
-                android:textAppearance="@android:style/TextAppearance.Material.Title"
-                android:textColor="?attr/colorOnSecondary"
+                android:singleLine="true"
                 tool:hint="@string/hint_series_title"
-                tool:textColor="?attr/colorPrimaryVariant"/>
+                tool:textColor="?attr/colorPrimaryVariant" />
 
             <TextView
                 android:id="@+id/list_item_dates"
+                style="@style/SeriesSubtitle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textAppearance="@android:style/TextAppearance.Material.Small"
                 tool:hint="(1990-2005)" />
         </LinearLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>

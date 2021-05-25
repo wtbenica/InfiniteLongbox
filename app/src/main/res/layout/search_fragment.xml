@@ -1,110 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
-
-    <LinearLayout
-        android:id="@+id/switch_holder"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="?attr/colorPrimary"
-        android:gravity="end"
-        android:orientation="horizontal"
-        android:padding="8dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="8dp"
-            android:gravity="center"
-            android:labelFor="@id/sort_spinner"
-            android:text="@string/sort"
-            android:textAppearance="@style/mySwitchTextAppearance"
-            android:textColor="?attr/colorOnPrimary" />
-
-        <Spinner
-            android:id="@+id/sort_spinner"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_marginEnd="8dp"
-            android:layout_weight="1" />
-
-        <androidx.appcompat.widget.SwitchCompat
-            android:id="@+id/my_collection_switch"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight=".1"
-            android:text="@string/my_collection"
-            android:textColor="?attr/colorOnPrimary"
-            tools:checked="true" />
-    </LinearLayout>
 
     <FrameLayout
         android:id="@+id/results_frame"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:background="@color/white"
-        app:layout_constraintBottom_toTopOf="@id/chip_holder"
+        android:background="#F8F8F8"
+        app:layout_constraintBottom_toTopOf="@id/filter_view"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/switch_holder">
+        app:layout_constraintTop_toTopOf="parent">
 
     </FrameLayout>
 
-
-    <HorizontalScrollView
-        android:id="@+id/chip_holder"
+    <include
+        android:id="@+id/filter_view"
+        layout="@layout/filter_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="?attr/colorPrimary"
-        android:orientation="vertical"
-        android:visibility="gone"
-        app:layout_constraintBottom_toTopOf="@id/search_box"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        tools:visibility="visible">
-
-        <com.google.android.material.chip.ChipGroup
-            android:id="@+id/search_chipgroup"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:elevation="2dp"
-            android:paddingStart="8dp"
-            android:paddingTop="4dp"
-            android:paddingEnd="8dp"
-            android:paddingBottom="8dp"
-            app:singleLine="true" />
-
-    </HorizontalScrollView>
-
-    <LinearLayout
-        android:id="@+id/search_box"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="?attr/colorPrimary"
-        android:elevation="8dp"
-        android:padding="8dp"
-        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        tools:visibility="visible">
-
-        <AutoCompleteTextView
-            android:id="@+id/search_tv"
-            android:layout_width="match_parent"
-            android:layout_height="?attr/dropdownListPreferredItemHeight"
-            android:elevation="1dp"
-            android:hint="@string/search"
-            android:padding="8dp"
-            android:textColor="?attr/colorOnSecondary"
-            tools:text="Potato Latke" />
-    </LinearLayout>
+        app:layout_constraintStart_toStartOf="parent" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab"
@@ -117,7 +36,7 @@
         android:src="@drawable/ic_filter"
         android:tint="#000000"
         app:fabSize="normal"
-        app:layout_constraintBottom_toTopOf="@id/chip_holder"
+        app:layout_constraintBottom_toTopOf="@id/filter_view"
         app:layout_constraintEnd_toEndOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

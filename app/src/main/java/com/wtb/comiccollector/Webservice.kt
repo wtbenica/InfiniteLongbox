@@ -13,11 +13,18 @@ interface Webservice {
     suspend fun getIssues(@Path("issueIds") issueIds: List<Int>): List<Item<GcdIssue, Issue>>
 
     // GET Credits
-    @GET("/db_query/creator/{nameDetailIds}/credits")
+    @GET("/db_query/name_detail/{nameDetailIds}/credits")
     suspend fun getCreditsByNameDetail(@Path("nameDetailIds") nameDetailIds: List<Int>): List<Item<GcdCredit, Credit>>
+
+    @GET("/db_query/name_detail/{nameDetailIds}/extracts")
+    suspend fun getExtractedCreditsByNameDetail(@Path("nameDetailIds") nameDetailIds: List<Int>):
+            List<Item<GcdExCredit, ExCredit>>
 
     @GET("/db_query/stories/{storyIds}/credits")
     suspend fun getCreditsByStories(@Path("storyIds") storyIds: List<Int>): List<Item<GcdCredit, Credit>>
+
+    @GET("/db_query/stories/{storyIds}/extracts")
+    suspend fun getExtractedCreditsByStories(@Path("storyIds") storyIds: List<Int>): List<Item<GcdExCredit, ExCredit>>
 
     // GET Stories
     @GET("/db_query/issue/{issueId}/stories")
@@ -58,6 +65,10 @@ interface Webservice {
     @GET("/db_query/name_details/creator_ids/{creatorIds}")
     suspend fun getNameDetailsByCreatorIds(@Path("creatorIds") creatorIds: List<Int>):
             List<Item<GcdNameDetail, NameDetail>>
+
+    @GET("db_query/series/{seriesIds}")
+    suspend fun getSeriesByIds(@Path("seriesIds") seriesIds: List<Int>): List<Item<GcdSeries,
+            Series>>
 
 }
 

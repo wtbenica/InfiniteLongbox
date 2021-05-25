@@ -6,6 +6,7 @@ import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
 import com.wtb.comiccollector.database.models.Publisher
 import com.wtb.comiccollector.database.models.Series
+import com.wtb.comiccollector.repository.IssueRepository
 
 private const val TAG = "IssueDetailViewModel"
 

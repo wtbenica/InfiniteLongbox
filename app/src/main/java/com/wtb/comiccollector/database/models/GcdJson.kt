@@ -194,6 +194,27 @@ class GcdCredit(
     }
 }
 
+class GcdExCredit(
+    @SerializedName("creator")
+    @Expose
+    val nameDetailId: Int,
+    @SerializedName("credit_type")
+    @Expose
+    val roleId: Int,
+    @SerializedName("story")
+    @Expose
+    val storyId: Int
+) : GcdJson<ExCredit> {
+    override fun toRoomModel(pk: Int): ExCredit {
+        return ExCredit(
+            creditId = pk,
+            storyId = storyId,
+            nameDetailId = nameDetailId,
+            roleId = roleId,
+        )
+    }
+}
+
 enum class RoleKey(val pos: Int) {
     ID(0), NAME(1)
 }

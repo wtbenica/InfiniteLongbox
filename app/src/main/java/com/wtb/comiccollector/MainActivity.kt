@@ -3,10 +3,10 @@ package com.wtb.comiccollector
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.DialogFragment
-import com.wtb.comiccollector.GroupListFragments.IssueListFragment
-import com.wtb.comiccollector.IssueDetailFragment.IssueDetailFragment
 import com.wtb.comiccollector.database.models.Creator
 import com.wtb.comiccollector.database.models.Series
+import com.wtb.comiccollector.issue_details.fragments.IssueDetailFragment
+import com.wtb.comiccollector.item_lists.fragments.IssueListFragment
 
 const val APP = "CC_"
 
@@ -37,10 +37,10 @@ class MainActivity : AppCompatActivity(),
         supportFragmentManager
             .beginTransaction()
             .setCustomAnimations(
-                R.anim.fragment_open_enter,
-                R.anim.fragment_fade_exit,
-                R.anim.fragment_open_enter,
-                R.anim.fragment_fade_exit
+                R.anim.nav_default_pop_enter_anim,
+                R.anim.nav_default_pop_exit_anim,
+                R.anim.nav_default_pop_enter_anim,
+                R.anim.nav_default_pop_exit_anim
             )
             .replace(R.id.fragment_container, fragment)
             .addToBackStack(null)
@@ -53,10 +53,10 @@ class MainActivity : AppCompatActivity(),
         supportFragmentManager
             .beginTransaction()
             .setCustomAnimations(
-                R.anim.fragment_open_enter,
-                R.anim.fragment_fade_exit,
-                R.anim.fragment_open_enter,
-                R.anim.fragment_fade_exit
+                R.anim.nav_default_pop_enter_anim,
+                R.anim.nav_default_pop_exit_anim,
+                R.anim.nav_default_pop_enter_anim,
+                R.anim.nav_default_pop_exit_anim
             )
             .replace(R.id.fragment_container, fragment)
             .addToBackStack(null)

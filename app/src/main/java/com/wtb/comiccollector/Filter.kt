@@ -1,19 +1,18 @@
 package com.wtb.comiccollector
 
 import androidx.fragment.app.Fragment
-import com.wtb.comiccollector.GroupListFragments.IssueListFragment
-import com.wtb.comiccollector.GroupListFragments.SeriesListFragment
-import com.wtb.comiccollector.Views.SortOption
-import com.wtb.comiccollector.Views.issueSortOptions
-import com.wtb.comiccollector.Views.seriesSortOptions
 import com.wtb.comiccollector.database.models.Creator
 import com.wtb.comiccollector.database.models.FilterOption
 import com.wtb.comiccollector.database.models.Publisher
 import com.wtb.comiccollector.database.models.Series
+import com.wtb.comiccollector.item_lists.fragments.IssueListFragment
+import com.wtb.comiccollector.item_lists.fragments.SeriesListFragment
 import java.io.Serializable
 import java.time.LocalDate
 
 const val ARG_FILTER = "Filter"
+
+private const val TAG = APP + "Filter_SortChipGroup"
 
 class Filter(
     creators: MutableSet<Creator>? = null,
@@ -30,13 +29,18 @@ class Filter(
 
     var mCreators: MutableSet<Creator> = creators ?: mutableSetOf()
     var mSeries: Series? = series
+        set(value) {
+            if (getSortOptions(value) != getSortOptions()) {
+                mSortOption = getSortOptions(value)[0]
+            }
+
+            field = value
+        }
     var mPublishers: MutableSet<Publisher> = publishers ?: mutableSetOf()
     var mStartDate: LocalDate = startDate ?: LocalDate.MIN
     var mEndDate: LocalDate = endDate ?: LocalDate.MAX
     var mMyCollection: Boolean = myCollection
     var mSortOption: SortOption = getSortOptions()[0]
-
-
     fun hasCreator() = mCreators.isNotEmpty()
     fun returnsIssueList() = mSeries != null
     fun hasPublisher() = mPublishers.isNotEmpty()
@@ -55,7 +59,11 @@ class Filter(
     }
 
     private fun addSeries(series: Series) {
+        val old = this.mSeries
         this.mSeries = series
+        if (old == null) {
+            mSortOption = getSortOptions()[0]
+        }
     }
 
     private fun removeSeries() {
@@ -75,7 +83,7 @@ class Filter(
         this.mMyCollection = value
     }
 
-    fun addItem(vararg items: FilterOption) {
+    fun addFilter(vararg items: FilterOption) {
         items.forEach { item ->
             when (item) {
                 is Series -> addSeries(item)
@@ -85,7 +93,7 @@ class Filter(
         }
     }
 
-    fun removeItem(vararg items: FilterOption) {
+    fun removeFilter(vararg items: FilterOption) {
         items.forEach { item ->
             when (item) {
                 is Series -> removeSeries()
@@ -95,17 +103,19 @@ class Filter(
         }
     }
 
-    fun getFragment(callback: SeriesListFragment.Callbacks): Fragment {
-        return when (mSeries) {
+    fun getFragment(callback: SeriesListFragment.SeriesListCallbacks): Fragment =
+        when (mSeries) {
             null -> SeriesListFragment.newInstance(callback, this)
             else -> IssueListFragment.newInstance(this)
         }
-    }
 
-    fun getSortOptions(): List<SortOption> = when (mSeries) {
-        null -> seriesSortOptions
-        else -> issueSortOptions
-    }
+
+    fun getSortOptions(series: Series? = mSeries): List<SortOption> =
+        when (series) {
+            null -> seriesSortOptions
+            else -> issueSortOptions
+        }
+
 
     fun updateCreators(creators: List<Creator>?) {
         mCreators.clear()
@@ -139,10 +149,42 @@ class Filter(
         return result
     }
 
-    companion object {
-        fun deserialize(str: String?): MutableSet<Int> {
-            return str?.removePrefix("[")?.removeSuffix("]")?.split(", ")
-                ?.mapNotNull { it.toIntOrNull() }?.toMutableSet() ?: mutableSetOf()
-        }
-    }
+    override fun toString(): String = "Series: $mSeries"
+
+//    companion object {
+//        fun deserialize(str: String?): MutableSet<Int> {
+//            return str?.removePrefix("[")?.removeSuffix("]")?.split(", ")
+//                ?.mapNotNull { it.toIntOrNull() }?.toMutableSet() ?: mutableSetOf()
+//        }
+//    }
 }
+
+abstract class SortOption(
+    val tag: String,
+    val sortColumn: String
+): Serializable {
+
+    override fun toString() = tag
+}
+
+class IssueSortOption(
+    tag: String, sortColumn: String
+) : SortOption(tag, sortColumn)
+
+val issueSortOptions: List<SortOption> = listOf(
+    IssueSortOption("Issue Number (Low to High)", "issueNum ASC"),
+    IssueSortOption("Issue Number (High to Low)", "issueNum DESC"),
+    IssueSortOption("Date (Oldest to Newest)", "releaseDate ASC"),
+    IssueSortOption("Date (Newest to Oldest)", "releaseDate DESC")
+)
+
+class SeriesSortOption(
+    tag: String, sortColumn: String
+) : SortOption(tag, sortColumn)
+
+val seriesSortOptions: List<SortOption> = listOf(
+    SeriesSortOption("Series Name (A-Z)", "sortName ASC"),
+    SeriesSortOption("Series Name (Z-A)", "sortName DESC"),
+    SeriesSortOption("Date (Oldest to Newest)", "startDate ASC"),
+    SeriesSortOption("Date (Newest to Oldest)", "startDate DESC")
+)

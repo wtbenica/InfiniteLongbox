@@ -1,12 +1,12 @@
-package com.wtb.comiccollector.IssueDetailViewModel
+package com.wtb.comiccollector.issue_details.view_models
 
 import android.util.Log
 import androidx.lifecycle.*
 import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.Filter
-import com.wtb.comiccollector.IssueRepository
 import com.wtb.comiccollector.database.Daos.Count
 import com.wtb.comiccollector.database.models.*
+import com.wtb.comiccollector.repository.IssueRepository
 
 private const val TAG = APP + "IssueDetailViewModel"
 
@@ -17,18 +17,28 @@ class IssueDetailViewModel : ViewModel() {
     private val issueIdLiveData = MutableLiveData<Int>()
     private val variantIdLiveData = MutableLiveData<Int?>()
 
-    val issueLiveData: LiveData<FullIssue> =
+    internal val issueLiveData: LiveData<FullIssue?> =
         Transformations.switchMap(issueIdLiveData) { issueId ->
             issueRepository.getIssue(issueId)
         }
 
-        val issueListLiveData =
-        Transformations.switchMap(issueLiveData) { issue ->
-            issueRepository.getIssuesByFilter2(Filter(series = issue.series))
-        }
+    val issueListLiveData = issueLiveData.switchMap { issue: FullIssue? ->
+        issueRepository.getIssuesByFilterFlow(Filter(series = issue?.series))
+            .asLiveData(viewModelScope.coroutineContext)
+    }
 
+//    val issueListLiveData = issueLiveData.switchMap { issue: FullIssue ->
+//        liveData(context = viewModelScope.coroutineContext) {
+//            emit(issueRepository.getIssuesByFilterFlow(Filter(series = issue.series)))
+//        }
+//    }
+//
+//    val issueListLiveData = Transformations.switchMap(issueLiveData) { issue ->
+//        issueRepository.getIssuesByFilterLiveData(Filter(series = issue.series)).asLiveData()
+//    }
+//
 
-//    lateinit var issueListLiveData: PagingSource<Int, FullIssue>
+    //    lateinit var issueListLiveData: PagingSource<Int, FullIssue>
 //
 //    init {
 //        issueLiveData.observeForever(object : Observer<FullIssue> {

@@ -32,7 +32,6 @@ class SeriesDetailFragment : Fragment() {
     private lateinit var series: Series
     private lateinit var publisher: Publisher
 
-    private lateinit var seriesNameTextView: TextView
     private lateinit var volumeNumTextView: TextView
     private lateinit var publisherTextView: TextView
     private lateinit var dateRangeTextview: TextView
@@ -53,7 +52,6 @@ class SeriesDetailFragment : Fragment() {
     ): View? {
         val view = inflater.inflate(R.layout.fragment_series_detail, container, false)
 
-        seriesNameTextView = view.findViewById(R.id.details_series_name)
         volumeNumTextView = view.findViewById(R.id.details_series_volume)
         publisherTextView = view.findViewById(R.id.details_publisher)
         dateRangeTextview = view.findViewById(R.id.details_date_range)
@@ -98,7 +96,6 @@ class SeriesDetailFragment : Fragment() {
 
     private fun updateUI() {
         Log.d(TAG, "updateUI: ${series.seriesName} ${publisher.publisher} ${series.volume}")
-        seriesNameTextView.text = series.seriesName
         volumeNumTextView.text = series.volume.toString()
         publisherTextView.text = publisher.publisher
         dateRangeTextview.text = series.dateRange

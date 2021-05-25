@@ -11,9 +11,9 @@ import com.wtb.comiccollector.database.models.Issue
 
 @Database(
     entities = [Issue::class, Series::class, Creator::class, Role::class, Credit::class,
-        Publisher::class, Story::class, MyCredit::class, StoryType::class, NameDetail::class,
+        Publisher::class, Story::class, ExCredit::class, StoryType::class, NameDetail::class,
         Character::class, Appearance::class, MyCollection::class, Cover::class],
-    version = 4
+    version = 6
 )
 @TypeConverters(IssueTypeConverters::class)
 
@@ -25,6 +25,7 @@ abstract class IssueDatabase : RoomDatabase() {
     abstract fun publisherDao(): PublisherDao
     abstract fun roleDao(): RoleDao
     abstract fun creditDao(): CreditDao
+    abstract fun exCreditDao(): ExCreditDao
     abstract fun storyTypeDao(): StoryTypeDao
     abstract fun nameDetailDao(): NameDetailDao
     abstract fun transactionDao(): TransactionDao
@@ -73,16 +74,32 @@ val migration_3_4 = SimpleMigration(
 
 val migration_4_5 = SimpleMigration(
     4, 5,
-    """CREATE TABLE IF NOT EXISTS 'issue_backup'(
-        
-        )"""
-
+    """
+        CREATE TABLE IF NOT EXISTS ExtractedCredit(
+        creditId INTEGER NOT NULL PRIMARY KEY,
+        storyId INTEGER NOT NULL REFERENCES Story(storyId) ON DELETE CASCADE,
+        nameDetailId INTEGER NOT NULL REFERENCES NameDetail(nameDetailId) ON DELETE CASCADE,
+        roleId INTEGER NOT NULL REFERENCES Role(roleId) ON DELETE CASCADE
+        );""",
+    """CREATE INDEX IF NOT EXISTS index_ExtractedCredit_storyId ON ExtractedCredit
+        (storyId)""",
+    """CREATE INDEX IF NOT EXISTS index_ExtractedCredit_nameDetailId ON ExtractedCredit
+        (nameDetailId)""",
+    """CREATE INDEX IF NOT EXISTS index_ExtractedCredit_roleId ON ExtractedCredit
+        (roleId)""",
+    """CREATE UNIQUE INDEX IF NOT EXISTS index_ExtractedCredit_storyId_nameDetailId_roleId ON 
+        ExtractedCredit(storyId, nameDetailId, roleId)"""
 )
 
-class SimpleMigration(from_version: Int, to_version: Int, private vararg val sql: String) : Migration(
-    from_version,
-    to_version
-) {
+val migration_5_6 = SimpleMigration(
+    5, 6, "ALTER TABLE ExtractedCredit RENAME TO ExCredit"
+)
+
+class SimpleMigration(from_version: Int, to_version: Int, private vararg val sql: String) :
+    Migration(
+        from_version,
+        to_version
+    ) {
     override fun migrate(database: SupportSQLiteDatabase) {
         sql.forEach {
             database.execSQL(it)

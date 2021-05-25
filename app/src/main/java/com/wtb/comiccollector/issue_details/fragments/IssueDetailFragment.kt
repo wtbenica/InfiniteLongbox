@@ -1,4 +1,4 @@
-package com.wtb.comiccollector.IssueDetailFragment
+package com.wtb.comiccollector.issue_details.fragments
 
 import android.content.Context
 import android.content.Intent
@@ -12,9 +12,9 @@ import android.widget.*
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.wtb.comiccollector.*
-import com.wtb.comiccollector.IssueDetailViewModel.IssueDetailViewModel
 import com.wtb.comiccollector.database.Daos.Count
 import com.wtb.comiccollector.database.models.*
+import com.wtb.comiccollector.issue_details.view_models.IssueDetailViewModel
 import java.io.File
 import java.time.format.DateTimeFormatter
 import java.util.*
@@ -52,7 +52,7 @@ class IssueDetailFragment : Fragment() {
     private var numUpdates = 0
 
     private lateinit var fullIssue: FullIssue
-    private lateinit var issuesInSeries: List<Int>
+    private var issuesInSeries: List<Int> = emptyList()
     private var currentPos: Int = 0
     private lateinit var issueCredits: List<FullCredit>
     private lateinit var issueStories: List<Story>
@@ -145,6 +145,9 @@ class IssueDetailFragment : Fragment() {
                 issue?.let {
                     this.fullIssue = it
                     this.coverUri = it.coverUri
+                    (requireActivity() as MainActivity).supportActionBar?.apply {
+                        it.let { title = "${issue.series.seriesName} #${issue.issue.issueNum}" }
+                    }
                     updateUI()
                 }
             }
@@ -152,11 +155,9 @@ class IssueDetailFragment : Fragment() {
 
         issueDetailViewModel.issueListLiveData.observe(
             viewLifecycleOwner,
-            { issues ->
-                issues?.let {
-                    this.issuesInSeries = issues.map { it.issue.issueId }
-                    updateNavBar()
-                }
+            { issues: List<FullIssue> ->
+                this.issuesInSeries = issues.map { it.issue.issueId }
+                updateNavBar()
             }
         )
 
@@ -257,13 +258,15 @@ class IssueDetailFragment : Fragment() {
 
     private fun updateNavBar() {
         this.currentPos = this.issuesInSeries.indexOf(this.fullIssue.issue.issueId)
+        val found = currentPos != -1
 
-        this.gotoStartButton.isEnabled = currentPos != 0
-        this.gotoSkipBackButton.isEnabled = currentPos >= 10
-        this.gotoPreviousButton.isEnabled = currentPos != 0
-        this.gotoNextButton.isEnabled = currentPos != this.issuesInSeries.size - 1
-        this.gotoSkipForwardButton.isEnabled = currentPos <= this.issuesInSeries.size - 11
-        this.gotoEndButton.isEnabled = currentPos != this.issuesInSeries.size - 1
+        this.gotoStartButton.isEnabled = (currentPos != 0) && found
+        this.gotoSkipBackButton.isEnabled = (currentPos >= 10) && found
+        this.gotoPreviousButton.isEnabled = (currentPos != 0) && found
+        this.gotoNextButton.isEnabled = (currentPos != this.issuesInSeries.size - 1) && found
+        this.gotoSkipForwardButton.isEnabled =
+            (currentPos <= this.issuesInSeries.size - 11) && found
+        this.gotoEndButton.isEnabled = (currentPos != this.issuesInSeries.size - 1) && found
     }
 
     private fun setCollectionButton(count: Count) {
@@ -466,24 +469,24 @@ class IssueDetailFragment : Fragment() {
 
             if (story.synopsis != null && story.synopsis != "") {
                 val synopsisButton: ImageButton = findViewById(R.id.synopsis_dropdown_button)
-                val synopsis = findViewById(R.id.synopsis) as TextView
+                val synopsis = findViewById<TextView>(R.id.synopsis)
                 synopsis.text = story.synopsis
                 synopsisButton.setOnClickListener(toggleVisibility(synopsis))
             } else {
-                val synopsisBox = findViewById(R.id.synopsis_box) as LinearLayout
+                val synopsisBox = findViewById<LinearLayout>(R.id.synopsis_box)
                 synopsisBox.visibility = GONE
             }
 
             if (story.characters != null && story.characters != "") {
                 val charactersButton: ImageButton = findViewById(R.id.characters_dropdown_button)
-                val characters = findViewById(R.id.characters) as TextView
+                val characters = findViewById<TextView>(R.id.characters)
                 characters.text = story.characters
                 charactersButton.setOnClickListener(toggleVisibility(characters))
             } else {
-                val charactersBox = findViewById(R.id.characters_box) as LinearLayout
+                val charactersBox = findViewById<LinearLayout>(R.id.characters_box)
                 charactersBox.visibility = GONE
             }
-            val storyTitle = findViewById(R.id.story_title) as TextView
+            val storyTitle = findViewById<TextView>(R.id.story_title)
             storyTitle.text = if (story.storyType == STORY_TYPE_COVER) {
                 "Cover"
             } else {
@@ -491,15 +494,14 @@ class IssueDetailFragment : Fragment() {
             }
         }
 
-        fun <T : View> toggleVisibility(view: T): (v: View) -> Unit {
-            val function: (v: View) -> Unit = {
+        private fun <T : View> toggleVisibility(view: T): (v: View) -> Unit {
+            return {
                 if (view.visibility == GONE) {
                     view.visibility = VISIBLE
                 } else {
                     view.visibility = GONE
                 }
             }
-            return function
         }
     }
 
