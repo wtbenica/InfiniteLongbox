@@ -19,9 +19,14 @@ abstract class BaseDao<T : DataModel> {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     abstract fun insert(obj: T): Long
 
-    @Transaction
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    abstract suspend fun insertSus(obj: T): Long
+
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     abstract fun insert(obj: List<T>): List<Long>
+
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    abstract suspend fun insertSus(obj: List<T>): List<Long>
 
     @Update
     abstract fun update(obj: T)
@@ -44,24 +49,15 @@ abstract class BaseDao<T : DataModel> {
     }
 
     @Transaction
-    open fun upsert(objList: List<T>) {
-
-        val insertResult = insert(objList)
-        val updateList = mutableListOf<T>()
-
-        for (i in insertResult.indices) {
-            if (insertResult[i] == -1L) {
-                updateList.add(objList[i])
-            }
-        }
-
-        if (updateList.isNotEmpty()) {
-            update(updateList)
+    open suspend fun upsertSus(obj: T) {
+        val id = insert(obj)
+        if (id == -1L) {
+            update(obj)
         }
     }
 
     @Transaction
-    open suspend fun upsertSus(objList: List<T>) {
+    open fun upsert(objList: List<T>) {
 
         try {
             val insertResult = insert(objList)
@@ -72,16 +68,36 @@ abstract class BaseDao<T : DataModel> {
                     updateList.add(objList[i])
                 }
             }
+
             if (updateList.isNotEmpty()) {
                 update(updateList)
             }
-        } catch (e: SQLiteConstraintException) {
-            Log.d(TAG, "upsert: $e $objList")
+        } catch (sqlEx: SQLiteConstraintException) {
+            Log.d(TAG, "upsert: ${this.javaClass} $sqlEx $objList")
         }
-
     }
 
-    protected fun <T: DataModel> modelsToSqlIdString(mCreators: MutableSet<T>) =
+    @Transaction
+    open suspend fun upsertSus(objList: List<T>) {
+        try {
+            val insertResult: List<Long> = insertSus(objList)
+            val updateList = mutableListOf<T>()
+
+            for (i in insertResult.indices) {
+                if (insertResult[i] == -1L) {
+                    updateList.add(objList[i])
+                }
+            }
+
+            if (updateList.isNotEmpty()) {
+                update(updateList)
+            }
+        } catch (sqlEx: SQLiteConstraintException) {
+            Log.d(TAG, "upsert: ${this.javaClass} $sqlEx $objList")
+        }
+    }
+
+    protected fun <T : DataModel> modelsToSqlIdString(mCreators: MutableSet<T>) =
         mCreators.map { it.id }.toString().replace(
             "[", "" +
                     "("

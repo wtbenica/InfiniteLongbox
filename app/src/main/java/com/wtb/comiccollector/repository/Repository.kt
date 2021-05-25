@@ -71,7 +71,9 @@ class IssueRepository private constructor(val context: Context) {
         context.getSharedPreferences(SHARED_PREFS, Context.MODE_PRIVATE)
 
     private val executor = Executors.newSingleThreadExecutor()
+
     private val database: IssueDatabase = buildDatabase(context)
+
     private val seriesDao = database.seriesDao()
     private val issueDao = database.issueDao()
     private val creatorDao = database.creatorDao()
@@ -107,57 +109,50 @@ class IssueRepository private constructor(val context: Context) {
         retrofit.create(Webservice::class.java)
     }
 
+    init {
+        StaticUpdater(apiService, database, prefs).update()
+    }
+
     val allSeries: LiveData<List<Series>> = seriesDao.getAllOfThem()
     val allPublishers: LiveData<List<Publisher>> = publisherDao.getPublishersList()
     val allCreators: LiveData<List<Creator>> = creatorDao.getCreatorsList()
     val allRoles: LiveData<List<Role>> = roleDao.getRoleList()
 
-    fun filterOptions(filter: Filter): AllFiltersLiveData {
-        val seriesList =
-            when {
-                filter.isEmpty()       -> allSeries
-                filter.mSeries == null -> seriesDao.getSeriesByFilterLiveData(filter)
-                else                   -> null
-            }
-
-        val creatorsList =
-            when {
-                filter.isEmpty()           -> allCreators
-                filter.mCreators.isEmpty() -> creatorDao.getCreatorsByFilter(filter)
-                else                       -> null
-            }
-
-        val publishersList =
-            when {
-                filter.isEmpty()             -> allPublishers
-                filter.mPublishers.isEmpty() -> publisherDao.getPublishersByFilter(filter)
-                else                         -> null
-            }
-
-        return AllFiltersLiveData(
-            series = seriesList,
-            creators = creatorsList,
-            publishers = publishersList,
-            combine = { series: List<Series>?, creators: List<Creator>?, publishers:
-            List<Publisher>? ->
-                val res =
-                    (series?.toList() as List<FilterOption?>?
-                        ?: emptyList()) + (creators as List<FilterOption>?
-                        ?: emptyList()) + (publishers as List<FilterOption>? ?: emptyList())
-                val x: List<FilterOption> = res.mapNotNull { it }
-                sort(x)
-                x
-            })
-    }
-
-    init {
-        StaticUpdater(apiService, database, prefs).update()
-    }
-
     fun getSeries(seriesId: Int): LiveData<Series?> = seriesDao.getSeries(seriesId)
 
-    fun getPublisher(publisherId: Int): LiveData<Publisher?> =
-        publisherDao.getPublisher(publisherId)
+    fun getSeriesByFilterPagingSource(filter: Filter): PagingSource<Int, Series> {
+        val mSeries = filter.mSeries
+        if (mSeries == null) {
+            val creatorIds = filter.mCreators.map { it.creatorId }
+
+            if (filter.hasCreator()) {
+                CoroutineScope(Dispatchers.IO).launch {
+                    CreatorUpdater(apiService, database, prefs).updateAll(creatorIds)
+                }
+            }
+
+            return seriesDao.getSeriesByFilter(filter)
+        } else {
+            throw java.lang.IllegalArgumentException("Filter seriesId should be null $filter")
+        }
+    }
+
+    fun getSeriesByFilterLiveData(filter: Filter): LiveData<List<Series>> {
+        val mSeries = filter.mSeries
+        if (mSeries == null) {
+            val creatorIds = filter.mCreators.map { it.creatorId }
+
+            if (filter.hasCreator()) {
+                CoroutineScope(Dispatchers.IO).launch {
+                    CreatorUpdater(apiService, database, prefs).updateAll(creatorIds)
+                }
+            }
+
+            return seriesDao.getSeriesByFilterLiveData(filter)
+        } else {
+            throw java.lang.IllegalArgumentException("Filter seriesId should be null $filter")
+        }
+    }
 
     fun getIssue(issueId: Int): LiveData<FullIssue?> {
         IssueCreditUpdater(apiService, database, prefs).update(issueId)
@@ -203,40 +198,6 @@ class IssueRepository private constructor(val context: Context) {
         return issueDao.getIssuesByFilterFlow(filter)
     }
 
-    fun getSeriesByFilterPagingSource(filter: Filter): PagingSource<Int, Series> {
-        val mSeries = filter.mSeries
-        if (mSeries == null) {
-            val creatorIds = filter.mCreators.map { it.creatorId }
-
-            if (filter.hasCreator()) {
-                CoroutineScope(Dispatchers.IO).launch {
-                    CreatorUpdater(apiService, database, prefs).updateAll(creatorIds)
-                }
-            }
-
-            return seriesDao.getSeriesByFilter(filter)
-        } else {
-            throw java.lang.IllegalArgumentException("Filter seriesId should be null $filter")
-        }
-    }
-
-    fun getSeriesByFilterLiveData(filter: Filter): LiveData<List<Series>> {
-        val mSeries = filter.mSeries
-        if (mSeries == null) {
-            val creatorIds = filter.mCreators.map { it.creatorId }
-
-            if (filter.hasCreator()) {
-                CoroutineScope(Dispatchers.IO).launch {
-                    CreatorUpdater(apiService, database, prefs).updateAll(creatorIds)
-                }
-            }
-
-            return seriesDao.getSeriesByFilterLiveData(filter)
-        } else {
-            throw java.lang.IllegalArgumentException("Filter seriesId should be null $filter")
-        }
-    }
-
     fun getVariants(issueId: Int): LiveData<List<Issue>> {
         val variantsCall = CoroutineScope(Dispatchers.IO).async {
             issueDao.getVariants(issueId)
@@ -267,6 +228,47 @@ class IssueRepository private constructor(val context: Context) {
         })
 
     fun getCoverByIssueId(issueId: Int): LiveData<Cover?> = coverDao.getCoverByIssueId(issueId)
+
+    fun getValidFilterOptions(filter: Filter): AllFiltersLiveData {
+        val seriesList =
+            when {
+                filter.isEmpty()       -> allSeries
+                filter.mSeries == null -> seriesDao.getSeriesByFilterLiveData(filter)
+                else                   -> null
+            }
+
+        val creatorsList =
+            when {
+                filter.isEmpty()           -> allCreators
+                filter.mCreators.isEmpty() -> creatorDao.getCreatorsByFilter(filter)
+                else                       -> null
+            }
+
+        val publishersList =
+            when {
+                filter.isEmpty()             -> allPublishers
+                filter.mPublishers.isEmpty() -> publisherDao.getPublishersByFilter(filter)
+                else                         -> null
+            }
+
+        return AllFiltersLiveData(
+            series = seriesList,
+            creators = creatorsList,
+            publishers = publishersList,
+            combine = { series: List<Series>?, creators: List<Creator>?, publishers:
+            List<Publisher>? ->
+                val res =
+                    (series?.toList() as List<FilterOption?>?
+                        ?: emptyList()) + (creators as List<FilterOption>?
+                        ?: emptyList()) + (publishers as List<FilterOption>? ?: emptyList())
+                val x: List<FilterOption> = res.mapNotNull { it }
+                sort(x)
+                x
+            })
+    }
+
+    fun getPublisher(publisherId: Int): LiveData<Publisher?> =
+        publisherDao.getPublisher(publisherId)
 
 /*
     FUTURE IMPLEMENTATION

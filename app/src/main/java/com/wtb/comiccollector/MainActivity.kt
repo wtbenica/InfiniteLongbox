@@ -3,10 +3,10 @@ package com.wtb.comiccollector
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.DialogFragment
-import com.wtb.comiccollector.item_lists.IssueListFragment
-import com.wtb.comiccollector.issue_details.IssueDetailFragment
 import com.wtb.comiccollector.database.models.Creator
 import com.wtb.comiccollector.database.models.Series
+import com.wtb.comiccollector.issue_details.fragments.IssueDetailFragment
+import com.wtb.comiccollector.item_lists.fragments.IssueListFragment
 
 const val APP = "CC_"
 

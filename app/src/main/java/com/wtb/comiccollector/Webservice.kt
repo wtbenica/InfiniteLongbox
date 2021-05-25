@@ -66,5 +66,9 @@ interface Webservice {
     suspend fun getNameDetailsByCreatorIds(@Path("creatorIds") creatorIds: List<Int>):
             List<Item<GcdNameDetail, NameDetail>>
 
+    @GET("db_query/series/{seriesIds}")
+    suspend fun getSeriesByIds(@Path("seriesIds") seriesIds: List<Int>): List<Item<GcdSeries,
+            Series>>
+
 }
 

@@ -16,7 +16,7 @@ class SearchViewModel : ViewModel() {
     var filterLiveData = MutableLiveData(Filter())
 
     val filterOptionsLiveData = Transformations.switchMap(filterLiveData) {
-        issueRepository.filterOptions(it)
+        issueRepository.getValidFilterOptions(it)
     }
 
     fun addFilterItem(item: FilterOption) {

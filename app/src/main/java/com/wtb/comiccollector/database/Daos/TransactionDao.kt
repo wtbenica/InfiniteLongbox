@@ -3,8 +3,11 @@ package com.wtb.comiccollector.database.Daos
 import android.util.Log
 import androidx.room.Dao
 import androidx.room.Transaction
+import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.database.IssueDatabase
 import com.wtb.comiccollector.database.models.*
+
+private const val TAG = APP + "TransactionDao"
 
 @Dao
 abstract class TransactionDao(private val database: IssueDatabase) {
@@ -28,15 +31,15 @@ abstract class TransactionDao(private val database: IssueDatabase) {
         credits: List<Credit>? = null,
         issues: List<Issue>? = null
     ) {
-        Log.d("Trans", "1----------------------------------------------------------1")
+        Log.d(TAG, "1----------------------------------------------------------1")
         issues?.let { database.issueDao().upsert(it) }
-        Log.d("Trans", "2----------------------------------------------------------1")
+        Log.d(TAG, "2----------------------------------------------------------1")
         stories?.let { database.storyDao().upsert(it) }
-        Log.d("Trans", "3----------------------------------------------------------1")
+        Log.d(TAG, "3----------------------------------------------------------1")
         creators?.let { database.creatorDao().upsert(it) }
-        Log.d("Trans", "4----------------------------------------------------------1")
+        Log.d(TAG, "4----------------------------------------------------------1")
         nameDetails?.let { database.nameDetailDao().upsert(it) }
-        Log.d("Trans", "5----------------------------------------------------------1")
+        Log.d(TAG, "5----------------------------------------------------------1")
         credits?.let { database.creditDao().upsert(it) }
     }
 
@@ -47,19 +50,22 @@ abstract class TransactionDao(private val database: IssueDatabase) {
         nameDetails: List<NameDetail>? = null,
         credits: List<Credit>? = null,
         exCredits: List<ExCredit>? = null,
-        issues: List<Issue>? = null
+        issues: List<Issue>? = null,
+        series: List<Series>? = null
     ) {
-        Log.d("Trans", "1------------------------------------------------------issue")
+        Log.d(TAG, "upsert series $series")
+        series?.let { database.seriesDao().upsertSus(it) }
+        Log.d(TAG, "upsert issue $issues")
         issues?.let { database.issueDao().upsertSus(it) }
-        Log.d("Trans", "2------------------------------------------------------story")
+        Log.d(TAG, "upsert story")
         stories?.let { database.storyDao().upsertSus(it) }
-        Log.d("Trans", "3----------------------------------------------------creator")
+        Log.d(TAG, "upsert creator")
         creators?.let { database.creatorDao().upsertSus(it) }
-        Log.d("Trans", "4-------------------------------------------------namedetail")
+        Log.d(TAG, "upsert namedetail")
         nameDetails?.let { database.nameDetailDao().upsertSus(it) }
-        Log.d("Trans", "5----------------------------------------------------credits")
+        Log.d(TAG, "upsert credits")
         credits?.let { database.creditDao().upsertSus(it) }
-        Log.d("Trans", "6--------------------------------------------------excredits")
+        Log.d(TAG, "upsert excredits")
         exCredits?.let { database.exCreditDao().upsertSus(it) }
     }
 }

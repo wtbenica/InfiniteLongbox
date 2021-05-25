@@ -25,11 +25,7 @@ class IssueCreditUpdater(
     }
 
     internal fun update(issueId: Int) {
-        if (IssueRepository.checkIfStale(
-                ISSUE_TAG(issueId), ISSUE_LIFETIME,
-                prefs
-            )
-        ) {
+        if (IssueRepository.checkIfStale(ISSUE_TAG(issueId), ISSUE_LIFETIME, prefs)) {
             Log.d(TAG, "CreditUpdater update $issueId")
 
             val storyItemsCall = CoroutineScope(Dispatchers.IO).async {
