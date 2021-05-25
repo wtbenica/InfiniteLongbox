@@ -10,6 +10,10 @@
     <color name="fantasia_text">#EDEDED</color>
     <color name="amnesia">#FFC107</color>
     <color name="amnesia_dark">#FFB700</color>
-    <color name="amnesia_light">#FFD392</color>
+    <color name="amnesia_light">#FFF766</color>
     <color name="amnesia_text">#444444</color>
+
+    <color name="fantasia_muted">#82C8D1</color>
+    <color name="fantasia_dark_muted">#669FA5</color>
+    <color name="fantasia_light_muted">#D1EFF3</color>
 </resources>
