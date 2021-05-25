@@ -30,6 +30,10 @@
         <item name="android:toolbarStyle">@style/myActionBarStyle</item>
         <item name="switchStyle">@style/mySwitchStyle</item>
         <item name="chipStyle">@style/myNewChip</item>
+
+        <item name="colorPrimaryMuted">@color/fantasia_muted</item>
+        <item name="colorPrimaryDarkMuted">@color/fantasia_dark_muted</item>
+        <item name="colorPrimaryLightMuted">@color/fantasia_light_muted</item>
     </style>
 
     <style name="Theme.ComicCollector.NoActionBar">

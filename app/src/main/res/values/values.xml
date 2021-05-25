@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <attr name="colorPrimaryMuted" format="reference"/>
+    <attr name="colorPrimaryDarkMuted" format="reference"/>
+    <attr name="colorPrimaryLightMuted" format="reference"/>
+</resources>
