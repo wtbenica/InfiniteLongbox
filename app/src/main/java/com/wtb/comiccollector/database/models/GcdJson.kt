@@ -56,7 +56,10 @@ class GcdSeries(
     val publisher: Int?,
     @SerializedName("publishing_format")
     @Expose
-    val publishingFormat: String?
+    val publishingFormat: String?,
+    @SerializedName("tracking_notes")
+    @Expose
+    val trackingNotes: String?
 ) : GcdJson<Series> {
     override fun toString(): String {
         return "$name ($yearBegan - $yearEnded)"
@@ -69,7 +72,7 @@ class GcdSeries(
             sortName = sortName,
             publisherId = publisher ?: AUTO_ID,
             startDate = when (yearBeganUncertain as Int) {
-                0 -> LocalDate.of(
+                0    -> LocalDate.of(
                     yearBegan ?: LocalDate.MIN.year,
                     1,
                     1
@@ -77,7 +80,7 @@ class GcdSeries(
                 else -> null
             },
             endDate = when (yearEndedUncertain) {
-                0 -> yearEnded?.let {
+                0    -> yearEnded?.let {
                     LocalDate.of(
                         it,
                         1,
@@ -86,7 +89,8 @@ class GcdSeries(
                 }
                 else -> null
             },
-            publishingFormat = publishingFormat
+            publishingFormat = publishingFormat,
+            description = trackingNotes
         )
     }
 }

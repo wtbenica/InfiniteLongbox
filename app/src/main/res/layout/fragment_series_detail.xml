@@ -12,6 +12,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="@string/hint_volume"
+        android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         tools:layout_editor_absoluteY="43dp" />
@@ -21,9 +22,9 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
+        app:layout_constraintBottom_toBottomOf="@id/label_volume"
         app:layout_constraintStart_toEndOf="@id/label_volume"
         app:layout_constraintTop_toTopOf="@id/label_volume"
-        app:layout_constraintBottom_toBottomOf="@id/label_volume"
         tools:layout_editor_absoluteY="43dp"
         tools:text="vol. 1" />
 
@@ -32,9 +33,9 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
-        app:layout_constraintTop_toTopOf="@id/details_series_volume"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@id/details_series_volume"
+        app:layout_constraintTop_toTopOf="@id/details_series_volume"
         tools:layout_editor_absoluteY="43dp"
         tools:text="Feb. 1994" />
 
@@ -44,6 +45,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:text="@string/hint_publisher"
+        android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/label_volume" />
 
@@ -64,7 +66,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:text="@string/label_description"
-        android:visibility="gone"
+        android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/details_publisher"
@@ -75,11 +77,21 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/label_description"
         tools:text="A guy whose brain is stuck in a robot body goes on adventures with a ragtag group of fellow outcasts."
         tools:visibility="visible" />
+
+    <View
+        android:id="@+id/divider3"
+        android:layout_width="0dp"
+        android:layout_height="1dp"
+        android:layout_marginTop="8dp"
+        android:background="?android:attr/colorAccent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/details_description" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

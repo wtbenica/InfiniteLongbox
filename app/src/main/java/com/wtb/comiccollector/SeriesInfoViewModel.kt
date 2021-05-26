@@ -6,39 +6,39 @@ import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
 import com.wtb.comiccollector.database.models.Publisher
 import com.wtb.comiccollector.database.models.Series
-import com.wtb.comiccollector.repository.IssueRepository
+import com.wtb.comiccollector.repository.Repository
 
 private const val TAG = "IssueDetailViewModel"
 
 class SeriesInfoViewModel : ViewModel() {
 
-    private val issueRepository: IssueRepository = IssueRepository.get()
+    private val repository: Repository = Repository.get()
     private val seriesIdLiveData = MutableLiveData<Int>()
     private val publisherIdLiveData = MutableLiveData<Int>()
 
     var seriesLiveData: LiveData<Series?> =
         Transformations.switchMap(seriesIdLiveData) { seriesId ->
-            issueRepository.getSeries(seriesId)
+            repository.getSeries(seriesId)
         }
 
     var publisherLiveData: LiveData<Publisher?> =
         Transformations.switchMap(publisherIdLiveData) { publisherId ->
-            issueRepository.getPublisher(publisherId)
+            repository.getPublisher(publisherId)
         }
 
-    var allPublishersLiveData: LiveData<List<Publisher>> = issueRepository.allPublishers
+    var allPublishersLiveData: LiveData<List<Publisher>> = repository.allPublishers
 
     fun updateSeries(series: Series) {
-        issueRepository.saveSeries(series)
+        repository.saveSeries(series)
     }
 
     fun addSeries(series: Series) {
         // TODO: Check if series exists
-        issueRepository.saveSeries(series)
+        repository.saveSeries(series)
     }
 
     fun deleteSeries(series: Series) {
-        issueRepository.deleteSeries(series)
+        repository.deleteSeries(series)
     }
 
     fun loadSeries(seriesId: Int) {

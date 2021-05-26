@@ -45,7 +45,11 @@ class IssueListFragment : Fragment() {
 
         filter = arguments?.getSerializable(ARG_FILTER) as Filter? ?: Filter()
 
-        val fragment = SeriesDetailFragment.newInstance(filter.mSeries?.seriesId)
+        updateSeriesDetailFragment(filter.mSeries?.seriesId)
+    }
+
+    private fun updateSeriesDetailFragment(seriesId: Int?) {
+        val fragment = SeriesDetailFragment.newInstance(seriesId)
 
         childFragmentManager.beginTransaction()
             .replace(R.id.details, fragment)

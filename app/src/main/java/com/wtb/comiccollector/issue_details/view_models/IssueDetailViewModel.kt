@@ -8,24 +8,24 @@ import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.Filter
 import com.wtb.comiccollector.database.Daos.Count
 import com.wtb.comiccollector.database.models.*
-import com.wtb.comiccollector.repository.IssueRepository
+import com.wtb.comiccollector.repository.Repository
 
 private const val TAG = APP + "IssueDetailViewModel"
 
 class IssueDetailViewModel : ViewModel() {
 
-    private val issueRepository: IssueRepository = IssueRepository.get()
+    private val repository: Repository = Repository.get()
 
     private val issueIdLiveData = MutableLiveData<Int>()
     private val variantIdLiveData = MutableLiveData<Int?>()
 
     internal val issueLiveData: LiveData<FullIssue?> =
         Transformations.switchMap(issueIdLiveData) { issueId ->
-            issueRepository.getIssue(issueId)
+            repository.getIssue(issueId)
         }
 
     val issueListLiveData = issueLiveData.switchMap { issue: FullIssue? ->
-        issueRepository.getIssuesByFilterFlow(Filter(series = issue?.series))
+        repository.getIssuesByFilterFlow(Filter(series = issue?.series))
             .asLiveData(viewModelScope.coroutineContext)
     }
 
@@ -52,12 +52,12 @@ class IssueDetailViewModel : ViewModel() {
 //
     val issueStoriesLiveData: LiveData<List<Story>> =
         Transformations.switchMap(issueIdLiveData) { issueId ->
-            issueRepository.getStoriesByIssue(issueId)
+            repository.getStoriesByIssue(issueId)
         }
 
     val issueCreditsLiveData: LiveData<List<FullCredit>> =
         Transformations.switchMap(issueIdLiveData) { issueId ->
-            issueRepository.getCreditsByIssue(issueId)
+            repository.getCreditsByIssue(issueId)
         }
 
     val variantLiveData: LiveData<FullIssue?> =
@@ -65,7 +65,7 @@ class IssueDetailViewModel : ViewModel() {
             Log.d(TAG, "Loading variantLD")
             if (variantId != null) {
                 Log.d(TAG, "Setting variant")
-                variantId.let { issueRepository.getIssue(it) }
+                variantId.let { repository.getIssue(it) }
             } else {
                 Log.d(TAG, "Clearing variant")
                 liveData { emit(null as FullIssue?) }
@@ -75,7 +75,7 @@ class IssueDetailViewModel : ViewModel() {
     val variantStoriesLiveData: LiveData<List<Story>> =
         Transformations.switchMap(variantIdLiveData) { variantId ->
             if (variantId != null) {
-                issueRepository.getStoriesByIssue(variantId)
+                repository.getStoriesByIssue(variantId)
             } else {
                 liveData { emit(emptyList<Story>()) }
             }
@@ -84,7 +84,7 @@ class IssueDetailViewModel : ViewModel() {
     val variantCreditsLiveData: LiveData<List<FullCredit>> =
         Transformations.switchMap(variantIdLiveData) { variantId ->
             if (variantId != null) {
-                issueRepository.getCreditsByIssue(variantId)
+                repository.getCreditsByIssue(variantId)
             } else {
                 liveData { emit(emptyList<FullCredit>()) }
             }
@@ -92,30 +92,30 @@ class IssueDetailViewModel : ViewModel() {
 
     val variantsLiveData: LiveData<List<Issue>> =
         Transformations.switchMap(issueIdLiveData) { issueId ->
-            issueRepository.getVariants(issueId)
+            repository.getVariants(issueId)
         }
 
     val inCollectionLiveData: LiveData<Count> =
         Transformations.switchMap(issueIdLiveData) { issueId ->
-            issueRepository.inCollection(issueId)
+            repository.inCollection(issueId)
         }
 
     val variantInCollectionLiveData: LiveData<Count> =
         Transformations.switchMap(variantIdLiveData) { variantId ->
             if (variantId != null) {
-                issueRepository.inCollection(variantId)
+                repository.inCollection(variantId)
             } else {
                 liveData { emit(Count(0)) }
             }
         }
 
-    var allSeriesLiveData: LiveData<List<Series>> = issueRepository.allSeries
+    var allSeriesLiveData: LiveData<List<Series>> = repository.allSeries
 
-    var allPublishersLiveData: LiveData<List<Publisher>> = issueRepository.allPublishers
+    var allPublishersLiveData: LiveData<List<Publisher>> = repository.allPublishers
 
-    var allCreatorsLiveData: LiveData<List<Creator>> = issueRepository.allCreators
+    var allCreatorsLiveData: LiveData<List<Creator>> = repository.allCreators
 
-    var allRolesLiveData: LiveData<List<Role>> = issueRepository.allRoles
+    var allRolesLiveData: LiveData<List<Role>> = repository.allRoles
 
     fun loadIssue(issueId: Int) {
         issueIdLiveData.value = AUTO_ID
@@ -135,46 +135,46 @@ class IssueDetailViewModel : ViewModel() {
     }
 
     fun updateIssue(issue: Issue) {
-        issueRepository.saveIssue(issue)
+        repository.saveIssue(issue)
     }
 
     fun deleteIssue(issue: Issue) {
-        issueRepository.deleteIssue(issue)
+        repository.deleteIssue(issue)
     }
 
     fun upsertSeries(series: Series) {
-        issueRepository.saveSeries(series)
+        repository.saveSeries(series)
     }
 
     fun upsertCreator(creator: Creator) {
-        issueRepository.saveCreator(creator)
+        repository.saveCreator(creator)
     }
 
     fun upsertCredit(credit: Credit) {
-        issueRepository.saveCredit(credit)
+        repository.saveCredit(credit)
     }
 
     fun deleteSeries(series: Series) {
-        issueRepository.deleteSeries(series)
+        repository.deleteSeries(series)
     }
 
     fun deleteCredit(credit: Credit) {
-        issueRepository.deleteCredit(credit)
+        repository.deleteCredit(credit)
     }
 
     fun upsertCover(cover: Cover) {
-        issueRepository.saveCover(cover)
+        repository.saveCover(cover)
     }
 
     fun addToCollection() {
         (variantIdLiveData.value
-            ?: issueIdLiveData.value)?.let { issueRepository.addToCollection(it) }
+            ?: issueIdLiveData.value)?.let { repository.addToCollection(it) }
     }
 
     fun removeFromCollection() {
         (variantIdLiveData.value
             ?: issueIdLiveData.value)?.let {
-            issueRepository.removeFromCollection(it)
+            repository.removeFromCollection(it)
         }
     }
 }

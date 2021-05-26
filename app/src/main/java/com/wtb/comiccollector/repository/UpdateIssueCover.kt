@@ -21,7 +21,7 @@ import java.net.URL
 
 private const val TAG = APP + "IssueCoverUpdater"
 
-class IssueCoverUpdater(val database: IssueDatabase, val context: Context) {
+class UpdateIssueCover(val database: IssueDatabase, val context: Context) {
     internal fun update(issueId: Int) {
         Log.d(TAG, "CoverUpdater_____________________________")
         CoroutineScope(Dispatchers.IO).launch {

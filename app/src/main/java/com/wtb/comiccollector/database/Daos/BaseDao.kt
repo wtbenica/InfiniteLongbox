@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.room.*
 import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.database.models.DataModel
+import com.wtb.comiccollector.database.models.Series
 
 private const val TAG = APP + "BaseDao"
 const val REQUEST_LIMIT = 40
@@ -70,7 +71,9 @@ abstract class BaseDao<T : DataModel> {
             }
 
             if (updateList.isNotEmpty()) {
-                update(updateList)
+                for (obj in updateList) {
+                    update(obj)
+                }
             }
         } catch (sqlEx: SQLiteConstraintException) {
             Log.d(TAG, "upsert: ${this.javaClass} $sqlEx $objList")
@@ -78,13 +81,21 @@ abstract class BaseDao<T : DataModel> {
     }
 
     @Transaction
-    open suspend fun upsertSusOld(objList: List<T>) {
+    open suspend fun upsertSus(objList: List<T>) {
         try {
             val insertResult: List<Long> = insertSus(objList)
             val updateList = mutableListOf<T>()
 
             for (i in insertResult.indices) {
+                val obj = objList[i]
+                if (obj is Series) {
+                    Log.d(TAG, "UPSERT INSERT SERIES DESCRIPTION: ${obj.description}")
+                }
+
                 if (insertResult[i] == -1L) {
+                    if (obj is Series) {
+                        Log.d(TAG, "UPSERT UPDATE SERIES DESCRIPTION: ${obj.description}")
+                    }
                     updateList.add(objList[i])
                 }
             }
@@ -98,12 +109,18 @@ abstract class BaseDao<T : DataModel> {
     }
 
     @Transaction
-    open suspend fun upsertSus(objList: List<T>) {
+    open suspend fun upsertSusBad(objList: List<T>) {
         for (obj in objList) {
             try {
                 insert(obj)
+                if (obj is Series) {
+                    Log.d(TAG, "UPSERT INSERT SERIES DESCRIPTION: ${obj.description}")
+                }
             } catch (sqlEx: SQLiteConstraintException) {
                 update(obj)
+                if (obj is Series) {
+                    Log.d(TAG, "UPSERT UPDATE SERIES DESCRIPTION: ${obj.description} $sqlEx")
+                }
             }
         }
     }

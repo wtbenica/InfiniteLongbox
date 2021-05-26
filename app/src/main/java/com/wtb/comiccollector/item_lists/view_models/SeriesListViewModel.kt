@@ -11,18 +11,18 @@ import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.Filter
 import com.wtb.comiccollector.database.Daos.REQUEST_LIMIT
 import com.wtb.comiccollector.database.models.Series
-import com.wtb.comiccollector.repository.IssueRepository
+import com.wtb.comiccollector.repository.Repository
 import kotlinx.coroutines.flow.Flow
 
 private const val TAG = APP + "SeriesListViewModel"
 
 class SeriesListViewModel : ViewModel() {
-    private val issueRepository: IssueRepository = IssueRepository.get()
+    private val repository: Repository = Repository.get()
     private val filterLiveData = MutableLiveData<Filter?>(null)
 
     var seriesListLiveData: LiveData<List<Series>> = Transformations.switchMap(filterLiveData) {
         it?.let { filter ->
-            issueRepository.getSeriesByFilterLiveData(filter)
+            repository.getSeriesByFilterLiveData(filter)
         }
     }
 
@@ -33,7 +33,7 @@ class SeriesListViewModel : ViewModel() {
             maxSize = 200
         )
     ) {
-        issueRepository.getSeriesByFilterPagingSource(filter)
+        repository.getSeriesByFilterPagingSource(filter)
     }.flow
 
 

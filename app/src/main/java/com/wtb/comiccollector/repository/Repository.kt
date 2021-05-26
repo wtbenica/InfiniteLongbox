@@ -40,7 +40,7 @@ import java.util.concurrent.TimeUnit
 const val DUMMY_ID = Int.MAX_VALUE
 
 private const val DATABASE_NAME = "issue-database"
-private const val TAG = APP + "IssueRepository"
+private const val TAG = APP + "Repository"
 private const val DEBUG = false
 
 internal const val SHARED_PREFS = "CCPrefs"
@@ -65,7 +65,7 @@ internal fun ISSUE_TAG(id: Int) = UPDATED_TAG(id, "ISSUE_")
 internal fun PUBLISHER_TAG(id: Int): String = UPDATED_TAG(id, "PUBLISHER_")
 internal fun CREATOR_TAG(id: Int): String = UPDATED_TAG(id, "CREATOR_")
 
-class IssueRepository private constructor(val context: Context) {
+class Repository private constructor(val context: Context) {
 
     private val prefs: SharedPreferences =
         context.getSharedPreferences(SHARED_PREFS, Context.MODE_PRIVATE)
@@ -128,7 +128,7 @@ class IssueRepository private constructor(val context: Context) {
 
             if (filter.hasCreator()) {
                 CoroutineScope(Dispatchers.IO).launch {
-                    CreatorUpdater(apiService, database, prefs).updateAll(creatorIds)
+                    UpdateCreator(apiService, database, prefs).updateAll(creatorIds)
                 }
             }
 
@@ -145,7 +145,7 @@ class IssueRepository private constructor(val context: Context) {
 
             if (filter.hasCreator()) {
                 CoroutineScope(Dispatchers.IO).launch {
-                    CreatorUpdater(apiService, database, prefs).updateAll(creatorIds)
+                    UpdateCreator(apiService, database, prefs).updateAll(creatorIds)
                 }
             }
 
@@ -156,8 +156,8 @@ class IssueRepository private constructor(val context: Context) {
     }
 
     fun getIssue(issueId: Int): LiveData<FullIssue?> {
-        IssueCreditUpdater(apiService, database, prefs).update(issueId)
-        IssueCoverUpdater(database, context).update(issueId)
+        UpdateIssueCredit(apiService, database, prefs).update(issueId)
+        UpdateIssueCover(database, context).update(issueId)
         return issueDao.getFullIssue(issueId)
     }
 
@@ -170,11 +170,11 @@ class IssueRepository private constructor(val context: Context) {
 
             if (filter.hasCreator()) {
                 CoroutineScope(Dispatchers.IO).launch {
-                    CreatorUpdater(apiService, database, prefs).updateAll(creatorIds)
+                    UpdateCreator(apiService, database, prefs).updateAll(creatorIds)
                 }
             }
 
-            UpdateIssue(apiService, database, prefs).update(seriesId)
+            UpdateSeries(apiService, database, prefs).update(seriesId)
         }
 
         return issueDao.getIssuesByFilterPagingSource(filter)
@@ -189,11 +189,11 @@ class IssueRepository private constructor(val context: Context) {
 
             if (filter.hasCreator()) {
                 CoroutineScope(Dispatchers.IO).launch {
-                    CreatorUpdater(apiService, database, prefs).updateAll(creatorIds)
+                    UpdateCreator(apiService, database, prefs).updateAll(creatorIds)
                 }
             }
 
-            UpdateIssue(apiService, database, prefs).update(seriesId)
+            UpdateSeries(apiService, database, prefs).update(seriesId)
         }
 
         return issueDao.getIssuesByFilterFlow(filter)
@@ -323,15 +323,15 @@ class IssueRepository private constructor(val context: Context) {
     }
 
     companion object {
-        private var INSTANCE: IssueRepository? = null
+        private var INSTANCE: Repository? = null
 
         fun initialize(context: Context) {
             if (INSTANCE == null) {
-                INSTANCE = IssueRepository(context)
+                INSTANCE = Repository(context)
             }
         }
 
-        fun get(): IssueRepository {
+        fun get(): Repository {
             return INSTANCE
                 ?: throw IllegalStateException("IssueRepository must be initialized")
         }
@@ -461,8 +461,8 @@ class IssueRepository private constructor(val context: Context) {
 
     fun updateIssue(issue: FullIssue?) {
         if (issue != null) {
-            IssueCoverUpdater(database, context).update(issue.issue.issueId)
-            IssueCreditUpdater(apiService, database, prefs).update(issue.issue.issueId)
+            UpdateIssueCover(database, context).update(issue.issue.issueId)
+            UpdateIssueCredit(apiService, database, prefs).update(issue.issue.issueId)
         }
     }
 }

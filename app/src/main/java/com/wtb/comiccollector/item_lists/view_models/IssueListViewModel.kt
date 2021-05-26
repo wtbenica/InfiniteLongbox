@@ -9,7 +9,7 @@ import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import com.wtb.comiccollector.Filter
-import com.wtb.comiccollector.repository.IssueRepository
+import com.wtb.comiccollector.repository.Repository
 import com.wtb.comiccollector.database.Daos.REQUEST_LIMIT
 import com.wtb.comiccollector.database.models.FullIssue
 import com.wtb.comiccollector.database.models.Issue
@@ -19,14 +19,14 @@ import kotlinx.coroutines.flow.Flow
 private const val TAG = "NewIssueListViewModel"
 
 class IssueListViewModel : ViewModel() {
-    private val issueRepository: IssueRepository = IssueRepository.get()
+    private val repository: Repository = Repository.get()
     private val seriesIdLiveData = MutableLiveData<Int>()
     private val filterLiveData = MutableLiveData<Filter?>(null)
 
     var seriesLiveData: LiveData<Series?> =
         Transformations.switchMap(filterLiveData) {
             it?.let { filter ->
-                filter.mSeries?.seriesId?.let { id -> issueRepository.getSeries(id) }
+                filter.mSeries?.seriesId?.let { id -> repository.getSeries(id) }
             }
         }
 
@@ -37,7 +37,7 @@ class IssueListViewModel : ViewModel() {
             maxSize = 200
         )
     ) {
-        issueRepository.getIssuesByFilterPagingSource(filter)
+        repository.getIssuesByFilterPagingSource(filter)
     }.flow
 
     fun setFilter(filter: Filter) {
@@ -46,10 +46,10 @@ class IssueListViewModel : ViewModel() {
 
     fun addIssue(issue: Issue) {
         Log.d(TAG, "addIssue")
-        issueRepository.saveIssue(issue)
+        repository.saveIssue(issue)
     }
 
     fun updateIssue(issue: FullIssue?) {
-        issueRepository.updateIssue(issue)
+        repository.updateIssue(issue)
     }
 }

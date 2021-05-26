@@ -21,7 +21,7 @@ class StaticUpdater(
      *  Updates publisher, series, role, and storytype tables
      */
     internal fun update() {
-        if (IssueRepository.checkIfStale(STATIC_DATA_UPDATED, STATIC_DATA_LIFETIME, prefs)) {
+        if (Repository.checkIfStale(STATIC_DATA_UPDATED, STATIC_DATA_LIFETIME, prefs)) {
             Log.d(TAG, "StaticUpdater update")
             val publishers = CoroutineScope(Dispatchers.IO).async {
                 webservice.getPublishers()
@@ -42,12 +42,12 @@ class StaticUpdater(
                     storyTypes = storyTypes.await().map { it.toRoomModel() }
                 )
                     .let {
-                        IssueRepository.saveTime(prefs, STATIC_DATA_UPDATED)
+                        Repository.saveTime(prefs, STATIC_DATA_UPDATED)
                         updateSeries()
                     }
             }
         } else {
-            if (IssueRepository.checkIfStale(SERIES_LIST_UPDATED, SERIES_LIST_LIFETIME, prefs)) {
+            if (Repository.checkIfStale(SERIES_LIST_UPDATED, SERIES_LIST_LIFETIME, prefs)) {
                 CoroutineScope(Dispatchers.IO).launch {
                     updateSeries()
                 }
@@ -64,12 +64,15 @@ class StaticUpdater(
                 if (seriesItems.isEmpty()) {
                     stop = true
                 } else {
-                    database.seriesDao().upsertSus(seriesItems.map { it.toRoomModel() })
+                    database.seriesDao().upsertSus(seriesItems.map {
+                        Log.d(TAG, "DOWNLOAD SERIES TRACKING_NOTES: ${it.fields.trackingNotes}")
+                        it.toRoomModel()
+                    })
                 }
             }
             page += 1
         } while (!stop)
 
-        IssueRepository.saveTime(prefs, SERIES_LIST_UPDATED)
+        Repository.saveTime(prefs, SERIES_LIST_UPDATED)
     }
 }
