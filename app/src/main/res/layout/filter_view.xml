@@ -3,18 +3,21 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:animateLayoutChanges="true">
 
     <LinearLayout
         android:id="@+id/this_part_of_filter"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:animateLayoutChanges="true"
         android:orientation="vertical">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/switch_holder"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:animateLayoutChanges="true"
             android:background="?attr/colorPrimaryVariant"
             android:elevation="1dp"
             android:padding="8dp"
@@ -28,6 +31,7 @@
                 android:id="@+id/my_collection_switch"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:animateLayoutChanges="true"
                 android:text="@string/my_collection"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -38,6 +42,7 @@
                 android:id="@+id/imageView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:animateLayoutChanges="true"
                 android:visibility="visible"
                 app:layout_constraintBottom_toBottomOf="@id/sort_card_thing"
                 app:layout_constraintStart_toStartOf="parent"
@@ -51,6 +56,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
                 android:layout_marginTop="8dp"
+                android:animateLayoutChanges="true"
                 android:elevation="32dp"
                 android:visibility="visible"
                 app:cardCornerRadius="32dp"
@@ -64,6 +70,7 @@
                     android:id="@+id/sort_holder"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:animateLayoutChanges="true"
                     android:background="@drawable/accent_outline_white_background"
                     android:padding="0dp"
                     android:scrollbars="none">
@@ -72,6 +79,7 @@
                         android:id="@+id/sort_chip_group"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:animateLayoutChanges="true"
                         android:paddingStart="8dp"
                         android:paddingEnd="8dp">
 
@@ -105,6 +113,7 @@
             android:id="@+id/chip_holder"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:animateLayoutChanges="true"
             android:background="?attr/colorPrimary"
             android:elevation="2dp"
             android:visibility="visible"
@@ -117,6 +126,7 @@
                 android:id="@+id/search_chipgroup"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:animateLayoutChanges="true"
                 android:paddingStart="8dp"
                 android:paddingTop="4dp"
                 android:paddingEnd="8dp"
@@ -136,6 +146,7 @@
             android:id="@+id/search_box"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:animateLayoutChanges="true"
             android:background="?attr/colorPrimary"
             android:elevation="2dp"
             android:padding="8dp"
@@ -149,6 +160,7 @@
                 android:id="@+id/search_tv"
                 android:layout_width="match_parent"
                 android:layout_height="?attr/dropdownListPreferredItemHeight"
+                android:animateLayoutChanges="true"
                 android:elevation="1dp"
                 android:hint="@string/search"
                 android:popupBackground="@drawable/accent_outline_white_background"

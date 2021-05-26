@@ -171,14 +171,15 @@ class FilterView(ctx: Context, attributeSet: AttributeSet) :
         }
         sortLabelImageView.visibility = sortCardThing.visibility
         searchBox.visibility = sortLabelImageView.visibility
-    }
 
-    fun toggleVisibility() {
-        showFilter = !showFilter
         when (showFilter) {
             true  -> callback?.showKeyboard(searchTextView)
             false -> callback?.hideKeyboard()
         }
+    }
+
+    fun toggleVisibility() {
+        showFilter = !showFilter
         updateViews()
     }
 
