@@ -151,11 +151,13 @@ class IssueDetailEditFragment : Fragment(),
             }
         )
 
-        issueDetailViewModel.allSeriesLiveData.observe(viewLifecycleOwner,
+        issueDetailViewModel.allSeriesLiveData.observe(
+            viewLifecycleOwner,
             { allSeries ->
                 allSeries?.let {
                     val thisList = it + Series(
-                        seriesId = ADD_SERIES_ID, publisherId = AUTO_ID
+                        seriesId = ADD_SERIES_ID,
+                        publisherId = AUTO_ID
                     )
                     val adapter = ArrayAdapter(
                         requireContext(),
@@ -168,7 +170,8 @@ class IssueDetailEditFragment : Fragment(),
                 }
             })
 
-        issueDetailViewModel.allRolesLiveData.observe(viewLifecycleOwner,
+        issueDetailViewModel.allRolesLiveData.observe(
+            viewLifecycleOwner,
             { allRoles ->
                 rolesList = allRoles
             })
@@ -256,7 +259,7 @@ class IssueDetailEditFragment : Fragment(),
                 requireActivity().onBackPressed()
                 true
             }
-            else -> super.onOptionsItemSelected(item)
+            else              -> super.onOptionsItemSelected(item)
         }
     }
 
@@ -557,7 +560,7 @@ class IssueDetailEditFragment : Fragment(),
                         creatorsList
                     )
                     if (fullCredit != null) {
-                        creatorSpinner.setSelection(creatorsList.indexOf(fullCredit.creator))
+                        creatorSpinner.setSelection(creatorsList.indexOf(fullCredit.fullCreator.creator))
                     }
                 }
             )
