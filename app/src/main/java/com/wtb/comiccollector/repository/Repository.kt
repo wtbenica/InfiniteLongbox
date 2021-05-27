@@ -20,8 +20,8 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.Filter
 import com.wtb.comiccollector.Webservice
-import com.wtb.comiccollector.database.*
 import com.wtb.comiccollector.database.Daos.Count
+import com.wtb.comiccollector.database.IssueDatabase
 import com.wtb.comiccollector.database.models.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -118,9 +118,8 @@ class Repository private constructor(val context: Context) {
     val allCreators: LiveData<List<Creator>> = creatorDao.getCreatorsList()
     val allRoles: LiveData<List<Role>> = roleDao.getRoleList()
 
-    fun getSeries(seriesId: Int): LiveData<Series?> = seriesDao.getSeries(seriesId)
+    fun getSeries(seriesId: Int): LiveData<FullSeries?> = seriesDao.getSeries(seriesId)
 
-    @Throws(IllegalArgumentException::class)
     fun getSeriesByFilterPagingSource(filter: Filter): PagingSource<Int, Series> {
         val mSeries = filter.mSeries
         if (mSeries == null) {
@@ -301,13 +300,13 @@ class Repository private constructor(val context: Context) {
                             seriesName = "Dummy Series",
                             publisherId = DUMMY_ID,
                             startDate = LocalDate.MIN,
-                            endDate = LocalDate.MIN
+                            endDate = LocalDate.MIN,
                         )
                     )
                 }
             }
         }
-    ).addMigrations(migration_1_2, migration_2_3, migration_3_4, migration_4_5, migration_5_6)
+    ).addMigrations()
         .build()
 
     class DuplicateFragment : DialogFragment() {

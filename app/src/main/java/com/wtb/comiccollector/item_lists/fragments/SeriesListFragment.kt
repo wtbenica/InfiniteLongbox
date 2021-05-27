@@ -1,5 +1,6 @@
 package com.wtb.comiccollector.item_lists.fragments
 
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -7,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AnimationUtils
 import android.view.animation.LayoutAnimationController
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
@@ -100,7 +102,7 @@ class SeriesListFragment(var callback: SeriesListCallbacks? = null) : Fragment()
 
         //        private val coverImageView: ImageView = itemView.findViewById(R.id.list_item_cover)
         private val seriesTextView: TextView = itemView.findViewById(R.id.list_item_name)
-
+        private val seriesImageView: ImageView = itemView.findViewById(R.id.series_imageview)
         private val seriesDateRangeTextView: TextView = itemView.findViewById(R.id.list_item_dates)
 
         init {
@@ -110,6 +112,19 @@ class SeriesListFragment(var callback: SeriesListCallbacks? = null) : Fragment()
         fun bind(item: Series) {
             this.item = item
             seriesTextView.text = this.item.seriesName
+            val firstIssue = this.item.firstIssueId
+
+            val uri: Uri? = if (firstIssue != null) {
+                null
+//                firstIssue.coverUri
+            } else {
+                null
+            }
+
+            if (uri != null) {
+                uri.let { seriesImageView.setImageURI(it) }
+            }
+
             seriesDateRangeTextView.text = this.item.dateRange
         }
 
