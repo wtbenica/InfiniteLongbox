@@ -59,7 +59,10 @@ class GcdSeries(
     val publishingFormat: String?,
     @SerializedName("tracking_notes")
     @Expose
-    val trackingNotes: String?
+    val trackingNotes: String?,
+    @SerializedName("first_issue")
+    @Expose
+    val firstIssueId: Int?
 ) : GcdJson<Series> {
     override fun toString(): String {
         return "$name ($yearBegan - $yearEnded)"
@@ -90,7 +93,8 @@ class GcdSeries(
                 else -> null
             },
             publishingFormat = publishingFormat,
-            description = trackingNotes
+            description = trackingNotes,
+            firstIssueId = firstIssueId
         )
     }
 }
