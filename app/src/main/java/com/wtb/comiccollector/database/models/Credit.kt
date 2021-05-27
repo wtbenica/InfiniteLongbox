@@ -149,17 +149,12 @@ data class FullCredit(
 
     @Relation(
         parentColumn = "nameDetailId",
-        entityColumn = "nameDetailId"
+        entityColumn = "nameDetailId",
+        entity = NameDetail::class
     )
-    var nameDetail: NameDetail,
+    var nameDetail: NameDetailAndCreator,
 
-    @Embedded
-    val creator: Creator,
-
-    @Relation(
-        parentColumn = "roleId",
-        entityColumn = "roleId"
-    )
+    @Relation(parentColumn = "roleId", entityColumn = "roleId")
     val role: Role,
 
     @Relation(parentColumn = "storyId", entityColumn = "storyId")

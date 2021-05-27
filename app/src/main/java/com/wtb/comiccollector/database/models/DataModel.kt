@@ -1,9 +1,9 @@
 package com.wtb.comiccollector.database.models
 
 import java.io.Serializable
-import java.time.LocalDateTime
+import java.time.LocalDate
 
-abstract class DataModel(var lastUpdated: LocalDateTime = LocalDateTime.now()) : Serializable {
+abstract class DataModel(var lastUpdated: LocalDate = LocalDate.now()) : Serializable {
 
     abstract val id: Int
 }

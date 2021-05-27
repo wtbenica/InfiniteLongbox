@@ -41,6 +41,14 @@ data class NameDetail(
         get() = nameDetailId
 }
 
+data class NameDetailAndCreator(
+    @Embedded
+    val nameDetail: NameDetail,
+
+    @Relation(parentColumn = "creatorId", entityColumn = "creatorId")
+    var creator: Creator
+)
+
 data class FullCreator(
     @Embedded
     val creator: Creator,

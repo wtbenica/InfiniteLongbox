@@ -515,7 +515,7 @@ class IssueDetailFragment : Fragment() {
                 setTextAppearance(R.style.TextAppearance_MaterialComponents_Subtitle1)
             })
             this.addView(TextView(context).apply {
-                text = fullCredit.creator.name
+                text = fullCredit.nameDetail.creator.name
                 layoutParams = LayoutParams(WRAP_CONTENT, WRAP_CONTENT)
             })
         }

@@ -560,7 +560,7 @@ class IssueDetailEditFragment : Fragment(),
                         creatorsList
                     )
                     if (fullCredit != null) {
-                        creatorSpinner.setSelection(creatorsList.indexOf(fullCredit.fullCreator.creator))
+                        creatorSpinner.setSelection(creatorsList.indexOf(fullCredit.nameDetail.creator))
                     }
                 }
             )
