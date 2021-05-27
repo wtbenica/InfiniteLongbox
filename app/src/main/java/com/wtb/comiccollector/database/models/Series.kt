@@ -12,11 +12,11 @@ import java.time.format.DateTimeFormatter
             parentColumns = arrayOf("publisherId"),
             childColumns = arrayOf("publisherId"),
             onDelete = ForeignKey.CASCADE
-        )
+        ),
     ],
     indices = [
         Index(value = ["seriesName"]),
-        Index(value = ["publisherId"])
+        Index(value = ["publisherId"]),
     ]
 )
 data class Series(
@@ -28,7 +28,8 @@ data class Series(
     var startDate: LocalDate? = null,
     var endDate: LocalDate? = null,
     var description: String? = null,
-    var publishingFormat: String? = null
+    var publishingFormat: String? = null,
+    val firstIssueId: Int? = null
 ) : FilterOption(), Serializable {
 
     override val compareValue: String
@@ -67,9 +68,9 @@ data class Publisher(
     override fun compareTo(other: FilterOption): Int =
         when (other) {
             is Publisher -> this.publisher.compareTo(other.publisher)
-            is Series -> this.publisher.compareTo(other.sortName ?: other.seriesName)
-            is Creator -> this.publisher.compareTo(other.sortName)
-            else -> 1
+            is Series    -> this.publisher.compareTo(other.sortName ?: other.seriesName)
+            is Creator   -> this.publisher.compareTo(other.sortName)
+            else         -> 1
         }
 
     override val id: Int
@@ -86,4 +87,15 @@ data class SeriesAndPublisher(
 
     @Relation(parentColumn = "publisherId", entityColumn = "publisherId")
     var publisher: Publisher
+)
+
+data class FullSeries(
+    @Embedded
+    val series: Series,
+
+    @Relation(parentColumn = "publisherId", entityColumn = "publisherId")
+    var publisher: Publisher,
+
+    @Relation(parentColumn = "firstIssueId", entityColumn = "issueId", entity = Issue::class)
+    var firstIssue: FullIssue?
 )
