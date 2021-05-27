@@ -118,7 +118,7 @@ class Repository private constructor(val context: Context) {
     val allCreators: LiveData<List<Creator>> = creatorDao.getCreatorsList()
     val allRoles: LiveData<List<Role>> = roleDao.getRoleList()
 
-    fun getSeries(seriesId: Int): LiveData<FullSeries?> = seriesDao.getSeries(seriesId)
+    fun getSeries(seriesId: Int): LiveData<Series?> = seriesDao.getSeries(seriesId)
 
     fun getSeriesByFilterPagingSource(filter: Filter): PagingSource<Int, Series> {
         val mSeries = filter.mSeries
