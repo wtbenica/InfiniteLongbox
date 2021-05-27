@@ -120,7 +120,7 @@ class Repository private constructor(val context: Context) {
 
     fun getSeries(seriesId: Int): LiveData<Series?> = seriesDao.getSeries(seriesId)
 
-    fun getSeriesByFilterPagingSource(filter: Filter): PagingSource<Int, Series> {
+    fun getSeriesByFilterPagingSource(filter: Filter): PagingSource<Int, FullSeries> {
         val mSeries = filter.mSeries
         if (mSeries == null) {
             val creatorIds = filter.mCreators.map { it.creatorId }
@@ -133,7 +133,8 @@ class Repository private constructor(val context: Context) {
 
             return seriesDao.getSeriesByFilter(filter)
         } else {
-            throw java.lang.IllegalArgumentException("Filter seriesId should be null $filter")
+//            throw java.lang.IllegalArgumentException("getSeriesByFilterPagingSource: Filter seriesId should be null $filter")
+            return seriesDao.getSeriesByFilter(filter)
         }
     }
 
@@ -150,7 +151,7 @@ class Repository private constructor(val context: Context) {
 
             return seriesDao.getSeriesByFilterLiveData(filter)
         } else {
-            throw java.lang.IllegalArgumentException("Filter seriesId should be null $filter")
+            throw java.lang.IllegalArgumentException("getSeriesByFilterLiveData: Filter seriesId should be null $filter")
         }
     }
 

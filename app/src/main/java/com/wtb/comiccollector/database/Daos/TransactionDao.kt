@@ -53,9 +53,9 @@ abstract class TransactionDao(private val database: IssueDatabase) {
         issues: List<Issue>? = null,
         series: List<Series>? = null
     ) {
-        Log.d(TAG, "upsert series $series")
+        Log.d(TAG, "upsert series ${series?.size}")
         series?.let { database.seriesDao().upsertSus(it) }
-        Log.d(TAG, "upsert issue $issues")
+        Log.d(TAG, "upsert issue ${issues?.size}")
         issues?.let { database.issueDao().upsertSus(it) }
         Log.d(TAG, "upsert story")
         stories?.let { database.storyDao().upsertSus(it) }

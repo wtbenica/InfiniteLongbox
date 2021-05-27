@@ -5,7 +5,6 @@ import android.util.Log
 import androidx.room.*
 import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.database.models.DataModel
-import com.wtb.comiccollector.database.models.Series
 
 private const val TAG = APP + "BaseDao"
 const val REQUEST_LIMIT = 40
@@ -62,6 +61,7 @@ abstract class BaseDao<T : DataModel> {
 
         try {
             val insertResult = insert(objList)
+            Log.d(TAG, "upsert: insertResult: ${insertResult.size}")
             val updateList = mutableListOf<T>()
 
             for (i in insertResult.indices) {
@@ -69,50 +69,30 @@ abstract class BaseDao<T : DataModel> {
                     updateList.add(objList[i])
                 }
             }
+            Log.d(TAG, "upsert: updateList: ${updateList.size}")
 
             if (updateList.isNotEmpty()) {
                 for (obj in updateList) {
+                    Log.d(TAG, "upsert: updating: $obj")
                     update(obj)
                 }
             }
         } catch (sqlEx: SQLiteConstraintException) {
-            Log.d(TAG, "upsert: ${this.javaClass} $sqlEx $objList")
+            Log.d(TAG, "upsert(objList): ${this.javaClass} $sqlEx ${objList[0]} ${objList.size}")
         }
     }
 
     @Transaction
     open suspend fun upsertSus(objList: List<T>) {
-        try {
-            val insertResult: List<Long> = insertSus(objList)
-            val updateList = mutableListOf<T>()
-
-            for (i in insertResult.indices) {
-                if (insertResult[i] == -1L) {
-                    updateList.add(objList[i])
-                }
-            }
-
-            if (updateList.isNotEmpty()) {
-                update(updateList)
-            }
-        } catch (sqlEx: SQLiteConstraintException) {
-            Log.d(TAG, "upsert: ${this.javaClass} $sqlEx $objList")
-        }
-    }
-
-    @Transaction
-    open suspend fun upsertSusBad(objList: List<T>) {
         for (obj in objList) {
             try {
-                insert(obj)
-                if (obj is Series) {
-                    Log.d(TAG, "UPSERT INSERT SERIES DESCRIPTION: ${obj.description}")
+                Log.d(TAG, "321 INSERTING ${obj.id}")
+                if (insert(obj) == -1L) {
+                    Log.d(TAG, "321 UPSERTING ${obj.id}")
+                    upsert(obj)
                 }
             } catch (sqlEx: SQLiteConstraintException) {
-                update(obj)
-                if (obj is Series) {
-                    Log.d(TAG, "UPSERT UPDATE SERIES DESCRIPTION: ${obj.description} $sqlEx")
-                }
+                Log.d(TAG, "upsertSus(objList): ${obj.id} $sqlEx")
             }
         }
     }

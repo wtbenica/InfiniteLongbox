@@ -18,9 +18,9 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.wtb.comiccollector.*
+import com.wtb.comiccollector.database.models.FullSeries
 import com.wtb.comiccollector.database.models.Series
 import com.wtb.comiccollector.item_lists.view_models.SeriesListViewModel
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 private const val TAG = APP + "SeriesListFragment"
@@ -54,9 +54,17 @@ class SeriesListFragment(var callback: SeriesListCallbacks? = null) : Fragment()
         val adapter = SeriesAdapter()
         itemListRecyclerView.adapter = adapter
 
-        lifecycleScope.launch {
-            viewModel.seriesList(filter).collectLatest { adapter.submitData(it) }
-        }
+//        lifecycleScope.launch {
+//            viewModel.seriesList(filter).collectLatest { adapter.submitData(it) }
+//        }
+//
+        viewModel.seriesList.observe(
+            viewLifecycleOwner,
+            {
+                lifecycleScope.launch {
+                    adapter.submitData(it)
+                }
+            })
 
         (requireActivity() as MainActivity).supportActionBar?.title = requireContext()
             .applicationInfo.loadLabel(requireContext().packageManager).toString()
@@ -79,7 +87,7 @@ class SeriesListFragment(var callback: SeriesListCallbacks? = null) : Fragment()
     }
 
     inner class SeriesAdapter :
-        PagingDataAdapter<Series, SeriesHolder>(DIFF_CALLBACK) {
+        PagingDataAdapter<FullSeries, SeriesHolder>(DIFF_CALLBACK) {
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SeriesHolder =
             SeriesHolder(parent)
@@ -94,7 +102,7 @@ class SeriesListFragment(var callback: SeriesListCallbacks? = null) : Fragment()
             (parent.context).inflate(R.layout.list_item_series, parent, false)
     ), View.OnClickListener {
 
-        lateinit var item: Series
+        lateinit var item: FullSeries
 
         init {
             itemView.setOnClickListener(this)
@@ -109,28 +117,25 @@ class SeriesListFragment(var callback: SeriesListCallbacks? = null) : Fragment()
             itemView.setOnClickListener(this)
         }
 
-        fun bind(item: Series) {
+        fun bind(item: FullSeries) {
             this.item = item
-            seriesTextView.text = this.item.seriesName
-            val firstIssue = this.item.firstIssueId
+            seriesTextView.text = this.item.series.seriesName
+            val firstIssue = this.item.firstIssue
 
             val uri: Uri? = if (firstIssue != null) {
-                null
-//                firstIssue.coverUri
+                firstIssue.coverUri
             } else {
                 null
             }
 
-            if (uri != null) {
-                uri.let { seriesImageView.setImageURI(it) }
-            }
+            uri.let { seriesImageView.setImageURI(it) }
 
-            seriesDateRangeTextView.text = this.item.dateRange
+            seriesDateRangeTextView.text = this.item.series.dateRange
         }
 
         override fun onClick(v: View?) {
             Log.d(TAG, "Series Clicked")
-            callback?.onSeriesSelected(item)
+            callback?.onSeriesSelected(item.series)
         }
     }
 
@@ -152,12 +157,12 @@ class SeriesListFragment(var callback: SeriesListCallbacks? = null) : Fragment()
             }
         }
 
-        private val DIFF_CALLBACK = object : DiffUtil.ItemCallback<Series>() {
-            override fun areItemsTheSame(oldItem: Series, newItem: Series): Boolean =
-                oldItem.seriesId == newItem.seriesId
+        private val DIFF_CALLBACK = object : DiffUtil.ItemCallback<FullSeries>() {
+            override fun areItemsTheSame(oldItem: FullSeries, newItem: FullSeries): Boolean =
+                oldItem.series.seriesId == newItem.series.seriesId
 
 
-            override fun areContentsTheSame(oldItem: Series, newItem: Series): Boolean =
+            override fun areContentsTheSame(oldItem: FullSeries, newItem: FullSeries): Boolean =
                 oldItem == newItem
         }
     }
