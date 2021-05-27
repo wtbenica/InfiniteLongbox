@@ -2,7 +2,6 @@ package com.wtb.comiccollector.views
 
 import android.content.Context
 import android.util.AttributeSet
-import android.util.Log
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
 import com.wtb.comiccollector.APP
@@ -28,15 +27,6 @@ class SortChipGroup(context: Context, attributeSet: AttributeSet) :
                     sortChip.sortOption = sortOption
                     if (value.mSortOption == sortOption) {
                         sortChip.isChecked = true
-                        Log.d(
-                            TAG,
-                            "MATCHY MATCHY ${value.mSortOption} $sortOption ${value.mSeries}"
-                        )
-                    } else {
-                        Log.d(
-                            TAG,
-                            "NO MATCHY ${value.mSortOption} $sortOption ${value.mSeries}"
-                        )
                     }
                 })
             }
