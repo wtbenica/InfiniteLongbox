@@ -34,7 +34,6 @@ data class Issue(
     @PrimaryKey(autoGenerate = true) val issueId: Int = AUTO_ID,
     var seriesId: Int = DUMMY_ID,
     var issueNum: Int = 1,
-    var coverUri: Uri? = null,
     var releaseDate: LocalDate? = null,
     var upc: Long? = null,
     var variantName: String = "",
