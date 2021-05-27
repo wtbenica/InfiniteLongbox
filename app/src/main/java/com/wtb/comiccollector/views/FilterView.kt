@@ -128,7 +128,6 @@ class FilterView(ctx: Context, attributeSet: AttributeSet) :
             if (checkedId >= 0) {
                 view?.findViewById<SortChipGroup.SortChip>(checkedId)?.sortOption?.let {
                     if (it != filter?.mSortOption) {
-                        Log.d(TAG, "Sort $it")
                         viewModel.setSortOption(it)
                     }
                 }
