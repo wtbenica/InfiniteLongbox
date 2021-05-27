@@ -87,15 +87,7 @@ abstract class BaseDao<T : DataModel> {
             val updateList = mutableListOf<T>()
 
             for (i in insertResult.indices) {
-                val obj = objList[i]
-                if (obj is Series) {
-                    Log.d(TAG, "UPSERT INSERT SERIES DESCRIPTION: ${obj.description}")
-                }
-
                 if (insertResult[i] == -1L) {
-                    if (obj is Series) {
-                        Log.d(TAG, "UPSERT UPDATE SERIES DESCRIPTION: ${obj.description}")
-                    }
                     updateList.add(objList[i])
                 }
             }
