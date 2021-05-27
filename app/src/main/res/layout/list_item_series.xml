@@ -2,40 +2,55 @@
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tool="http://schemas.android.com/tools"
-    app:cardCornerRadius="8dp"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:background="@drawable/card_background"
+    app:cardCornerRadius="8dp"
+    app:cardPreventCornerOverlap="false"
+    app:cardUseCompatPadding="true">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:padding="8dp">
+        android:layout_height="wrap_content">
 
-        <LinearLayout
-            style="@style/SeriesLayout"
-            android:layout_width="0dp"
+        <ImageView
+            android:id="@+id/series_imageview"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:adjustViewBounds="true"
+            android:scaleType="center" />
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
+            android:padding="8dp">
 
-            <TextView
-                android:id="@+id/list_item_name"
-                style="@style/SeriesTitleText"
-                android:paddingBottom="8dp"
-                android:layout_width="match_parent"
+            <LinearLayout
+                style="@style/SeriesLayout"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:singleLine="true"
-                tool:hint="@string/hint_series_title"
-                tool:textColor="?attr/colorPrimaryVariant" />
+                android:orientation="vertical"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
 
-            <TextView
-                android:id="@+id/list_item_dates"
-                style="@style/SeriesSubtitle"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                tool:hint="(1990-2005)" />
-        </LinearLayout>
-    </androidx.constraintlayout.widget.ConstraintLayout>
+                <TextView
+                    android:id="@+id/list_item_name"
+                    style="@style/SeriesTitleText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingBottom="8dp"
+                    android:singleLine="true"
+                    tool:hint="@string/hint_series_title"
+                    tool:textColor="?attr/colorPrimaryVariant" />
+
+                <TextView
+                    android:id="@+id/list_item_dates"
+                    style="@style/SeriesSubtitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    tool:hint="(1990-2005)" />
+            </LinearLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </LinearLayout>
 </androidx.cardview.widget.CardView>
