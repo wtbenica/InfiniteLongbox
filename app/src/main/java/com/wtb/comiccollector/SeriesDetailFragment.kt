@@ -10,6 +10,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import com.wtb.comiccollector.database.models.FullSeries
 import com.wtb.comiccollector.database.models.Publisher
 import com.wtb.comiccollector.database.models.Series
 
@@ -95,8 +96,6 @@ class SeriesDetailFragment : Fragment() {
     }
 
     private fun updateUI() {
-        Log.d(TAG, "updateUI: ${series.seriesName} ${publisher.publisher} ${series.volume} " +
-                "DESC: *** ${series.description} ***")
         volumeNumTextView.text = series.volume.toString()
         publisherTextView.text = publisher.publisher
         dateRangeTextview.text = series.dateRange
