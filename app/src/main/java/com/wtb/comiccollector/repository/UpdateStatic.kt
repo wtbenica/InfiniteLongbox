@@ -65,7 +65,6 @@ class StaticUpdater(
                     stop = true
                 } else {
                     database.seriesDao().upsertSus(seriesItems.map {
-                        Log.d(TAG, "DOWNLOAD SERIES TRACKING_NOTES: ${it.fields.trackingNotes}")
                         it.toRoomModel()
                     })
                 }
