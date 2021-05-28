@@ -1,6 +1,5 @@
 package com.wtb.comiccollector.item_lists.view_models
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
@@ -44,7 +43,6 @@ class SeriesListViewModel : ViewModel() {
     }
 
     fun setFilter(filter: Filter) {
-        Log.d(TAG, "setFilter: ${filter.mSeries}")
         filterLiveData.value = filter
     }
 }

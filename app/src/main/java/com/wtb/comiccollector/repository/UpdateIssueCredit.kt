@@ -1,7 +1,6 @@
 package com.wtb.comiccollector.repository
 
 import android.content.SharedPreferences
-import android.util.Log
 import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.Webservice
 import com.wtb.comiccollector.database.IssueDatabase
@@ -10,7 +9,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 
-private const val TAG = APP + "IssueCreditUpdater"
+private const val TAG = APP + "UpdateIssueCredit"
 
 /***
  * Updates an issues credits
@@ -26,8 +25,6 @@ class UpdateIssueCredit(
 
     internal fun update(issueId: Int) {
         if (Repository.checkIfStale(ISSUE_TAG(issueId), ISSUE_LIFETIME, prefs)) {
-            Log.d(TAG, "CreditUpdater update $issueId")
-
             val storyItemsCall = CoroutineScope(Dispatchers.IO).async {
                 apiService.getStoriesByIssue(issueId)
             }

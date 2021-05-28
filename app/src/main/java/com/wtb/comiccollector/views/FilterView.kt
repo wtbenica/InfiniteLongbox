@@ -2,7 +2,6 @@ package com.wtb.comiccollector.views
 
 import android.content.Context
 import android.util.AttributeSet
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -104,7 +103,6 @@ class FilterView(ctx: Context, attributeSet: AttributeSet) :
         viewModel.filterLiveData.observe(
             ctx as LifecycleOwner,
             { filter ->
-                Log.d(TAG, "filter changed ${filter.getSortOptions()}")
                 this.filter = filter
                 sortChipGroup.filter = filter
             }
@@ -112,7 +110,6 @@ class FilterView(ctx: Context, attributeSet: AttributeSet) :
 
         searchTextView.onItemClickListener =
             AdapterView.OnItemClickListener { parent, v, position, id ->
-                Log.d(TAG, "searchTextView item clicked")
                 val item = parent?.adapter?.getItem(position) as FilterOption
                 viewModel.addFilterItem(item)
                 searchTextView.text.clear()
@@ -120,7 +117,6 @@ class FilterView(ctx: Context, attributeSet: AttributeSet) :
             }
 
         myCollectionSwitch.setOnCheckedChangeListener { buttonView, isChecked ->
-            Log.d(TAG, "myCollection switch toggled")
             viewModel.myCollection(isChecked)
         }
 
@@ -136,7 +132,6 @@ class FilterView(ctx: Context, attributeSet: AttributeSet) :
     }
 
     private fun onFilterChanged() {
-        Log.d(TAG, "onUpdate")
         updateViews()
 
         val fragment =
@@ -146,7 +141,6 @@ class FilterView(ctx: Context, attributeSet: AttributeSet) :
     }
 
     private fun updateViews() {
-        Log.d(TAG, "updateViews")
         searchChipGroup.removeAllViews()
         filter?.getAll()?.let { filters ->
             if (filters.isEmpty()) {
@@ -183,14 +177,12 @@ class FilterView(ctx: Context, attributeSet: AttributeSet) :
     }
 
     private fun addChip(item: FilterOption) {
-        Log.d(TAG, "adding chip $item")
         val chip = Chippy(context, item, this)
         searchChipFrame.visibility = View.VISIBLE
         searchChipGroup.addView(chip)
     }
 
     override fun chipClosed(view: View, item: FilterOption) {
-        Log.d(TAG, "chipClosed $item")
         viewModel.removeFilterItem(item)
     }
 

@@ -188,7 +188,6 @@ class IssueDetailFragment : Fragment() {
                 issue.let {
                     this.isVariant = issue != null
                     this.variantUri = issue?.coverUri
-                    Log.d(TAG, "varLD changed, setting variantUri: $variantUri")
                     updateUI()
                 }
             }
@@ -343,11 +342,9 @@ class IssueDetailFragment : Fragment() {
                 parent?.let {
                     val selectedIssueId = (it.getItemAtPosition(position) as Issue).issueId
                     if (selectedIssueId != issueDetailViewModel.getIssueId()) {
-                        Log.d(TAG, "ALTERNATE COVER")
                         issueDetailViewModel.loadVariant(selectedIssueId)
                         isVariant = true
                     } else {
-                        Log.d(TAG, "PRIMARY COVER ***///***///***")
                         issueDetailViewModel.clearVariant()
                         this@IssueDetailFragment.variantUri = null
                         isVariant = false
@@ -404,7 +401,6 @@ class IssueDetailFragment : Fragment() {
         } else {
             coverImageView.setImageResource(R.drawable.ic_issue_add_cover)
         }
-        coverImageView.contentDescription = "Issue Cover (set)"
     }
 
     companion object {

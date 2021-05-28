@@ -1,6 +1,5 @@
 package com.wtb.comiccollector
 
-import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
@@ -20,14 +19,12 @@ class SearchViewModel : ViewModel() {
     }
 
     fun addFilterItem(item: FilterOption) {
-        Log.d(TAG, "addItem $item")
         val newVal = filterLiveData.value
         newVal?.addFilter(item)
         filterLiveData.value = newVal
     }
 
     fun removeFilterItem(item: FilterOption) {
-        Log.d(TAG, "removeItem $item")
         val newVal = filterLiveData.value
         newVal?.removeFilter(item)
         filterLiveData.value = newVal

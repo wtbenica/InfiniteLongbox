@@ -4,7 +4,7 @@ import android.database.sqlite.SQLiteConstraintException
 import android.util.Log
 import androidx.room.*
 import com.wtb.comiccollector.APP
-import com.wtb.comiccollector.database.models.DataModel
+import com.wtb.comiccollector.database.models.*
 
 private const val TAG = APP + "BaseDao"
 const val REQUEST_LIMIT = 40
@@ -61,7 +61,6 @@ abstract class BaseDao<T : DataModel> {
 
         try {
             val insertResult = insert(objList)
-            Log.d(TAG, "upsert: insertResult: ${insertResult.size}")
             val updateList = mutableListOf<T>()
 
             for (i in insertResult.indices) {
@@ -69,11 +68,9 @@ abstract class BaseDao<T : DataModel> {
                     updateList.add(objList[i])
                 }
             }
-            Log.d(TAG, "upsert: updateList: ${updateList.size}")
 
             if (updateList.isNotEmpty()) {
                 for (obj in updateList) {
-                    Log.d(TAG, "upsert: updating: $obj")
                     update(obj)
                 }
             }
@@ -85,14 +82,21 @@ abstract class BaseDao<T : DataModel> {
     @Transaction
     open suspend fun upsertSus(objList: List<T>) {
         for (obj in objList) {
+            val classname = when (obj) {
+                is Series -> "Series"
+                is Issue  -> "Issue"
+                is Creator    -> "Creator"
+                is Story      -> "Story"
+                is NameDetail -> "NameDetail"
+                else -> "Other"
+            }
+
             try {
-                Log.d(TAG, "321 INSERTING ${obj.id}")
                 if (insert(obj) == -1L) {
-                    Log.d(TAG, "321 UPSERTING ${obj.id}")
                     upsert(obj)
                 }
             } catch (sqlEx: SQLiteConstraintException) {
-                Log.d(TAG, "upsertSus(objList): ${obj.id} $sqlEx")
+                Log.d(TAG, "upsertSus(objList): $classname${obj.id} $sqlEx")
             }
         }
     }

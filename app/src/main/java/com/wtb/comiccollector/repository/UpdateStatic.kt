@@ -1,7 +1,6 @@
 package com.wtb.comiccollector.repository
 
 import android.content.SharedPreferences
-import android.util.Log
 import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.Webservice
 import com.wtb.comiccollector.database.IssueDatabase
@@ -22,7 +21,6 @@ class StaticUpdater(
      */
     internal fun update() {
         if (Repository.checkIfStale(STATIC_DATA_UPDATED, STATIC_DATA_LIFETIME, prefs)) {
-            Log.d(TAG, "StaticUpdater update")
             val publishers = CoroutineScope(Dispatchers.IO).async {
                 webservice.getPublishers()
             }

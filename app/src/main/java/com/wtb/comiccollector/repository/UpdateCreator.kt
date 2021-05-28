@@ -1,7 +1,6 @@
 package com.wtb.comiccollector.repository
 
 import android.content.SharedPreferences
-import android.util.Log
 import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.Webservice
 import com.wtb.comiccollector.database.IssueDatabase
@@ -17,34 +16,28 @@ class UpdateCreator(
 ) {
 
     internal fun updateAll(creatorIds: List<Int>) {
-        Log.d(TAG, "updateAll")
         creatorIds.forEach { update(it) }
     }
 
     private fun update(creatorId: Int) {
         if (Repository.checkIfStale(CREATOR_TAG(creatorId), CREATOR_LIFETIME, prefs)) {
-            Log.d(TAG, "update $creatorId")
             refreshCredits(creatorId)
         }
     }
 
     private fun refreshCredits(creatorId: Int) {
-        Log.d(TAG, "refreshCredits $creatorId")
         val nameDetailCall = CoroutineScope(Dispatchers.IO).async {
-            Log.d(TAG, "refreshCredits nameDetailCall $creatorId")
             database.nameDetailDao().getNameDetailByCreatorId(creatorId)
         }
 
         val creditsCall = CoroutineScope(Dispatchers.IO).async {
             nameDetailCall.await()?.let { nameDetails ->
-                Log.d(TAG, "refreshCredits creditsCall $creatorId")
                 apiService.getCreditsByNameDetail(nameDetails.map { it.nameDetailId })
             }
         }
 
         val storiesCall = CoroutineScope(Dispatchers.IO).async {
             creditsCall.await()?.let { gcdCredits ->
-                Log.d(TAG, "refreshCredits storiesCall $creatorId")
                 val storyIds = gcdCredits.map { item -> item.toRoomModel().storyId }
                 if (storyIds.isNotEmpty()) {
                     apiService.getStories(storyIds)
@@ -56,7 +49,6 @@ class UpdateCreator(
 
         val issuesCall = CoroutineScope(Dispatchers.IO).async {
             storiesCall.await()?.let { gcdStories ->
-                Log.d(TAG, "refreshCredits issuesCall $creatorId")
                 val issueIds = gcdStories.map { item -> item.toRoomModel().issueId }
                 if (issueIds.isNotEmpty()) {
                     apiService.getIssues(issueIds)
@@ -68,7 +60,6 @@ class UpdateCreator(
 
         val variantsCall = CoroutineScope(Dispatchers.IO).async {
             issuesCall.await()?.let {
-                Log.d(TAG, "refreshCredits variantsCall $creatorId")
                 val issueIds = it.mapNotNull { item -> item.toRoomModel().variantOf }
                 if (issueIds.isNotEmpty()) {
                     apiService.getIssues(issueIds)
@@ -80,7 +71,6 @@ class UpdateCreator(
 
         val exCreditsCall = CoroutineScope(Dispatchers.IO).async {
             nameDetailCall.await()?.let { nameDetails ->
-                Log.d(TAG, "refreshCredits exCreditsCall $creatorId")
                 apiService.getExtractedCreditsByNameDetail(nameDetails.map {
                     it.nameDetailId
                 })
@@ -90,7 +80,6 @@ class UpdateCreator(
 
         val exStoriesCall = CoroutineScope(Dispatchers.IO).async {
             exCreditsCall.await()?.let {
-                Log.d(TAG, "refreshCredits exStoriesCall $creatorId")
                 val credits = it.map { item -> item.toRoomModel() }
                 val storyIds = credits.map { credit -> credit.storyId }
                 if (storyIds.isNotEmpty()) {
@@ -103,13 +92,10 @@ class UpdateCreator(
 
         val exIssuesCall = CoroutineScope(Dispatchers.IO).async {
             exStoriesCall.await()?.let {
-                Log.d(TAG, "refreshCredits exIssuesCall $creatorId")
                 val issueIds = it.map { item -> item.toRoomModel().issueId }
                 if (issueIds.isNotEmpty()) {
-                    Log.d(TAG, "Extract Issues FOUND ${issueIds.size}")
                     apiService.getIssues(issueIds)
                 } else {
-                    Log.d(TAG, "Extract Issues EMPTY")
                     null
                 }
             }
@@ -118,7 +104,6 @@ class UpdateCreator(
         val exVariantsCall =
             CoroutineScope(Dispatchers.IO).async {
                 exIssuesCall.await()?.let {
-                    Log.d(TAG, "refreshCredits exVariantsCall $creatorId")
                     val issueIds = it.mapNotNull { item -> item.toRoomModel().variantOf }
                     if (issueIds.isNotEmpty()) {
                         apiService.getIssues(issueIds)
@@ -131,7 +116,6 @@ class UpdateCreator(
         CoroutineScope(Dispatchers.IO).launch {
             coroutineScope {
                 withContext(Dispatchers.IO) {
-                    Log.d(TAG, "refreshCredits upsert $creatorId")
                     val stories = storiesCall.await()?.map { it.toRoomModel() } ?: emptyList()
                     val exStories =
                         exStoriesCall.await()?.map { it.toRoomModel() } ?: emptyList()
@@ -162,11 +146,8 @@ class UpdateCreator(
                         exCredits = exCredits,
                         series = series
                     )
-
-                    Log.d(TAG, "FINISHING $creatorId ${nameDetails?.get(0)?.name}")
                 }.let {
                     Repository.saveTime(prefs, CREATOR_TAG(creatorId))
-                    Log.d(TAG, "DONE UPDATING CREATOR $creatorId")
                 }
             }
         }

@@ -3,7 +3,6 @@ package com.wtb.comiccollector
 import android.app.Activity
 import android.content.Context
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -49,7 +48,6 @@ class SearchFragment : Fragment(), SeriesListFragment.SeriesListCallbacks,
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        Log.d(TAG, "onCreate")
     }
 
     override fun onCreateView(
@@ -57,7 +55,6 @@ class SearchFragment : Fragment(), SeriesListFragment.SeriesListCallbacks,
         savedInstanceState: Bundle?
     ): View? {
         val view = inflater.inflate(R.layout.search_fragment, container, false)
-        Log.d(TAG, "onCreateView")
         sortLabelImageView = view.findViewById(R.id.imageView) as ImageView
         filterView = view.findViewById(R.id.filter_view)
         filterView.callback = this
@@ -69,12 +66,10 @@ class SearchFragment : Fragment(), SeriesListFragment.SeriesListCallbacks,
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        Log.d(TAG, "onViewCreated")
     }
 
     override fun onStart() {
         super.onStart()
-        Log.d(TAG, "onStart")
         fab.setOnClickListener {
             filterView.toggleVisibility()
         }
@@ -83,7 +78,6 @@ class SearchFragment : Fragment(), SeriesListFragment.SeriesListCallbacks,
 
     override fun onDetach() {
         super.onDetach()
-        Log.d(TAG, "onDetach")
         callbacks = null
     }
 

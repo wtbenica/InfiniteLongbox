@@ -2,7 +2,6 @@ package com.wtb.comiccollector.item_lists.fragments
 
 import android.net.Uri
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -134,7 +133,6 @@ class SeriesListFragment(var callback: SeriesListCallbacks? = null) : Fragment()
         }
 
         override fun onClick(v: View?) {
-            Log.d(TAG, "Series Clicked")
             callback?.onSeriesSelected(item.series)
         }
     }
@@ -149,7 +147,6 @@ class SeriesListFragment(var callback: SeriesListCallbacks? = null) : Fragment()
             callback: SeriesListCallbacks,
             filter: Filter
         ): SeriesListFragment {
-            Log.d(TAG, "newInstance: ${filter.mSeries}")
             return SeriesListFragment(callback).apply {
                 arguments = Bundle().apply {
                     putSerializable(ARG_FILTER, filter)

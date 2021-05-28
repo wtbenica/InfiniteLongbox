@@ -1,7 +1,6 @@
 package com.wtb.comiccollector.repository
 
 import android.content.SharedPreferences
-import android.util.Log
 import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.Webservice
 import com.wtb.comiccollector.database.IssueDatabase
@@ -13,7 +12,6 @@ private const val TAG = APP + "UpdateSeries"
 
 class UpdateSeries(private val webservice: Webservice, val database: IssueDatabase, val prefs: SharedPreferences) {
     internal fun update(seriesId: Int) {
-        Log.d(TAG, "update $seriesId")
         if (Repository.checkIfStale(SERIES_TAG(seriesId), ISSUE_LIFETIME, prefs))
             CoroutineScope(Dispatchers.IO).launch {
                 webservice.getIssuesBySeries(seriesId).let { issueItems ->

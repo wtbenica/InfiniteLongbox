@@ -3,7 +3,6 @@ package com.wtb.comiccollector.item_lists.fragments
 import android.content.Context
 import android.graphics.Rect
 import android.os.Bundle
-import android.util.Log
 import android.util.TypedValue
 import android.view.*
 import android.widget.ImageView
@@ -214,7 +213,6 @@ class IssueListFragment : Fragment() {
     companion object {
         @JvmStatic
         fun newInstance(filter: Filter): IssueListFragment {
-            Log.d(TAG, "newInstance: ${filter.mSeries}")
             return IssueListFragment().apply {
                 arguments = Bundle().apply {
                     putSerializable(ARG_FILTER, filter)
