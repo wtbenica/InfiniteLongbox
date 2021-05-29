@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.room.*
 import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.database.models.DataModel
+import com.wtb.comiccollector.database.models.Issue
 
 private const val TAG = APP + "BaseDao"
 const val REQUEST_LIMIT = 40
@@ -70,41 +71,60 @@ abstract class BaseDao<T : DataModel> {
             }
 
             if (updateList.isNotEmpty()) {
-                update(updateList)
+                for (obj in updateList) {
+                    update(obj)
+                }
             }
         } catch (sqlEx: SQLiteConstraintException) {
-            Log.d(TAG, "upsert: ${this.javaClass} $sqlEx $objList")
+            Log.d(TAG, "upsert(objList): ${this.javaClass} $sqlEx ${objList[0]} ${objList.size}")
         }
     }
 
+    //    @Transaction
+//    open suspend fun upsertSus(objList: List<T>) {
+//        for (obj in objList) {
+//            val classname = when (obj) {
+//                is Series -> "Series"
+//                is Issue  -> "Issue"
+//                is Creator    -> "Creator"
+//                is Story      -> "Story"
+//                is NameDetail -> "NameDetail"
+//                else -> "Other"
+//            }
+//
+//            try {
+//                if (insert(obj) == -1L) {
+//                    upsert(obj)
+//                }
+//            } catch (sqlEx: SQLiteConstraintException) {
+//                Log.d(TAG, "upsertSus(objList): $classname${obj.id} $sqlEx")
+//            }
+//        }
+//    }
+//
     @Transaction
-    open suspend fun upsertSusOld(objList: List<T>) {
+    open suspend fun upsertSus(objList: List<T>) {
+
         try {
             val insertResult: List<Long> = insertSus(objList)
             val updateList = mutableListOf<T>()
 
+            Log.d(TAG, "${objList[0]::class} ${insertResult.count { it == -1L }} / ${insertResult
+                .size}")
             for (i in insertResult.indices) {
                 if (insertResult[i] == -1L) {
-                    updateList.add(objList[i])
+                    val element = objList[i]
+                    updateList.add(element)
+                    if (element is Issue) {
+                        Log.d(TAG, "CONFLICT ON ${element.dumpMe()}")
+                    }
                 }
             }
-
-            if (updateList.isNotEmpty()) {
-                update(updateList)
-            }
+            Log.d(TAG, "UPDATE_LIST: ${updateList.size}")
+            update(updateList)
+            Log.d(TAG, "upsertSus updating done, so any UGHs are okay")
         } catch (sqlEx: SQLiteConstraintException) {
-            Log.d(TAG, "upsert: ${this.javaClass} $sqlEx $objList")
-        }
-    }
-
-    @Transaction
-    open suspend fun upsertSus(objList: List<T>) {
-        for (obj in objList) {
-            try {
-                insert(obj)
-            } catch (sqlEx: SQLiteConstraintException) {
-                update(obj)
-            }
+            Log.d(TAG, "UGH $sqlEx ${sqlEx.stackTrace} ${sqlEx.message}")
         }
     }
 

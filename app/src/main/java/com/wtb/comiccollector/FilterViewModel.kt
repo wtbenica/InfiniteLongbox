@@ -1,33 +1,30 @@
 package com.wtb.comiccollector
 
-import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
 import com.wtb.comiccollector.database.models.FilterOption
-import com.wtb.comiccollector.repository.IssueRepository
+import com.wtb.comiccollector.repository.Repository
 
-private const val TAG = APP + "SearchViewModel"
+private const val TAG = APP + "FilterViewModel"
 
-class SearchViewModel : ViewModel() {
+class FilterViewModel : ViewModel() {
 
-    private val issueRepository: IssueRepository = IssueRepository.get()
+    private val repository: Repository = Repository.get()
 
     var filterLiveData = MutableLiveData(Filter())
 
     val filterOptionsLiveData = Transformations.switchMap(filterLiveData) {
-        issueRepository.getValidFilterOptions(it)
+        repository.getValidFilterOptions(it)
     }
 
     fun addFilterItem(item: FilterOption) {
-        Log.d(TAG, "addItem $item")
         val newVal = filterLiveData.value
         newVal?.addFilter(item)
         filterLiveData.value = newVal
     }
 
     fun removeFilterItem(item: FilterOption) {
-        Log.d(TAG, "removeItem $item")
         val newVal = filterLiveData.value
         newVal?.removeFilter(item)
         filterLiveData.value = newVal

@@ -20,8 +20,8 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.Filter
 import com.wtb.comiccollector.Webservice
-import com.wtb.comiccollector.database.*
 import com.wtb.comiccollector.database.Daos.Count
+import com.wtb.comiccollector.database.IssueDatabase
 import com.wtb.comiccollector.database.models.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -40,8 +40,8 @@ import java.util.concurrent.TimeUnit
 const val DUMMY_ID = Int.MAX_VALUE
 
 private const val DATABASE_NAME = "issue-database"
-private const val TAG = APP + "IssueRepository"
-private const val DEBUG = false
+private const val TAG = APP + "Repository"
+const val DEBUG = true
 
 internal const val SHARED_PREFS = "CCPrefs"
 
@@ -65,7 +65,7 @@ internal fun ISSUE_TAG(id: Int) = UPDATED_TAG(id, "ISSUE_")
 internal fun PUBLISHER_TAG(id: Int): String = UPDATED_TAG(id, "PUBLISHER_")
 internal fun CREATOR_TAG(id: Int): String = UPDATED_TAG(id, "CREATOR_")
 
-class IssueRepository private constructor(val context: Context) {
+class Repository private constructor(val context: Context) {
 
     private val prefs: SharedPreferences =
         context.getSharedPreferences(SHARED_PREFS, Context.MODE_PRIVATE)
@@ -120,21 +120,23 @@ class IssueRepository private constructor(val context: Context) {
 
     fun getSeries(seriesId: Int): LiveData<Series?> = seriesDao.getSeries(seriesId)
 
-    @Throws(IllegalArgumentException::class)
-    fun getSeriesByFilterPagingSource(filter: Filter): PagingSource<Int, Series> {
+    fun getSeriesByFilterPagingSource(filter: Filter): PagingSource<Int, FullSeries> {
         val mSeries = filter.mSeries
         if (mSeries == null) {
             val creatorIds = filter.mCreators.map { it.creatorId }
 
             if (filter.hasCreator()) {
                 CoroutineScope(Dispatchers.IO).launch {
-                    CreatorUpdater(apiService, database, prefs).updateAll(creatorIds)
+                    Log.d(TAG, "getSeriesByFilterPagingSource UpdateCreator all ${creatorIds.size}")
+                    UpdateCreator(apiService, database, prefs).updateAll(creatorIds)
                 }
             }
 
             return seriesDao.getSeriesByFilter(filter)
         } else {
-            throw java.lang.IllegalArgumentException("Filter seriesId should be null $filter")
+            Log.d(TAG, "getSeriesByFilterPagingSource: Wasn't expecting to see a series here")
+//            throw java.lang.IllegalArgumentException("getSeriesByFilterPagingSource: Filter seriesId should be null $filter")
+            return seriesDao.getSeriesByFilter(filter)
         }
     }
 
@@ -145,19 +147,20 @@ class IssueRepository private constructor(val context: Context) {
 
             if (filter.hasCreator()) {
                 CoroutineScope(Dispatchers.IO).launch {
-                    CreatorUpdater(apiService, database, prefs).updateAll(creatorIds)
+                    Log.d(TAG, "getSeriesByFilterLiveData")
+                    UpdateCreator(apiService, database, prefs).updateAll(creatorIds)
                 }
             }
 
             return seriesDao.getSeriesByFilterLiveData(filter)
         } else {
-            throw java.lang.IllegalArgumentException("Filter seriesId should be null $filter")
+            throw java.lang.IllegalArgumentException("getSeriesByFilterLiveData: Filter seriesId should be null $filter")
         }
     }
 
     fun getIssue(issueId: Int): LiveData<FullIssue?> {
-        IssueCreditUpdater(apiService, database, prefs).update(issueId)
-        IssueCoverUpdater(database, context).update(issueId)
+        UpdateIssueCredit(apiService, database, prefs).update(issueId)
+        UpdateIssueCover(database, context).update(issueId)
         return issueDao.getFullIssue(issueId)
     }
 
@@ -170,11 +173,12 @@ class IssueRepository private constructor(val context: Context) {
 
             if (filter.hasCreator()) {
                 CoroutineScope(Dispatchers.IO).launch {
-                    CreatorUpdater(apiService, database, prefs).updateAll(creatorIds)
+                    UpdateCreator(apiService, database, prefs).updateAll(creatorIds)
                 }
             }
 
-            UpdateIssue(apiService, database, prefs).update(seriesId)
+            Log.d(TAG, "issuesbyfilter pagingsource")
+            UpdateSeries(apiService, database, prefs).update(seriesId)
         }
 
         return issueDao.getIssuesByFilterPagingSource(filter)
@@ -189,11 +193,12 @@ class IssueRepository private constructor(val context: Context) {
 
             if (filter.hasCreator()) {
                 CoroutineScope(Dispatchers.IO).launch {
-                    CreatorUpdater(apiService, database, prefs).updateAll(creatorIds)
+                    UpdateCreator(apiService, database, prefs).updateAll(creatorIds)
                 }
             }
 
-            UpdateIssue(apiService, database, prefs).update(seriesId)
+            Log.d(TAG, "issuesbyfilter flow")
+            UpdateSeries(apiService, database, prefs).update(seriesId)
         }
 
         return issueDao.getIssuesByFilterFlow(filter)
@@ -301,13 +306,13 @@ class IssueRepository private constructor(val context: Context) {
                             seriesName = "Dummy Series",
                             publisherId = DUMMY_ID,
                             startDate = LocalDate.MIN,
-                            endDate = LocalDate.MIN
+                            endDate = LocalDate.MIN,
                         )
                     )
                 }
             }
         }
-    ).addMigrations(migration_1_2, migration_2_3, migration_3_4, migration_4_5, migration_5_6)
+    ).addMigrations()
         .build()
 
     class DuplicateFragment : DialogFragment() {
@@ -323,15 +328,15 @@ class IssueRepository private constructor(val context: Context) {
     }
 
     companion object {
-        private var INSTANCE: IssueRepository? = null
+        private var INSTANCE: Repository? = null
 
         fun initialize(context: Context) {
             if (INSTANCE == null) {
-                INSTANCE = IssueRepository(context)
+                INSTANCE = Repository(context)
             }
         }
 
-        fun get(): IssueRepository {
+        fun get(): Repository {
             return INSTANCE
                 ?: throw IllegalStateException("IssueRepository must be initialized")
         }
@@ -461,8 +466,8 @@ class IssueRepository private constructor(val context: Context) {
 
     fun updateIssue(issue: FullIssue?) {
         if (issue != null) {
-            IssueCoverUpdater(database, context).update(issue.issue.issueId)
-            IssueCreditUpdater(apiService, database, prefs).update(issue.issue.issueId)
+            UpdateIssueCover(database, context).update(issue.issue.issueId)
+            UpdateIssueCredit(apiService, database, prefs).update(issue.issue.issueId)
         }
     }
 }

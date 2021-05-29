@@ -3,7 +3,6 @@ package com.wtb.comiccollector.item_lists.fragments
 import android.content.Context
 import android.graphics.Rect
 import android.os.Bundle
-import android.util.Log
 import android.util.TypedValue
 import android.view.*
 import android.widget.ImageView
@@ -45,7 +44,11 @@ class IssueListFragment : Fragment() {
 
         filter = arguments?.getSerializable(ARG_FILTER) as Filter? ?: Filter()
 
-        val fragment = SeriesDetailFragment.newInstance(filter.mSeries?.seriesId)
+        updateSeriesDetailFragment(filter.mSeries?.seriesId)
+    }
+
+    private fun updateSeriesDetailFragment(seriesId: Int?) {
+        val fragment = SeriesDetailFragment.newInstance(seriesId)
 
         childFragmentManager.beginTransaction()
             .replace(R.id.details, fragment)
@@ -64,12 +67,6 @@ class IssueListFragment : Fragment() {
         val itemDecoration = ItemOffsetDecoration(24)
         issueGridView.addItemDecoration(itemDecoration)
         issueGridView.layoutManager = GridLayoutManager(context, 2)
-        val adapter = IssueAdapter()
-        issueGridView.adapter = adapter
-
-        lifecycleScope.launch {
-            issueListViewModel.issueList(filter).collectLatest { adapter.submitData(it) }
-        }
 
         return view
     }
@@ -77,7 +74,22 @@ class IssueListFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         issueListViewModel.setFilter(filter)
+        val adapter = IssueAdapter()
+        issueGridView.adapter = adapter
 
+        lifecycleScope.launch {
+            issueListViewModel.issueList()?.collectLatest { adapter.submitData(it) }
+        }
+
+//        issueListViewModel.issueList.observe(
+//            viewLifecycleOwner,
+//            {
+//                lifecycleScope.launch {
+//                    adapter.submitData(it)
+//                }
+//            }
+//        )
+//
         issueListViewModel.seriesLiveData.observe(
             viewLifecycleOwner,
             {
@@ -210,7 +222,6 @@ class IssueListFragment : Fragment() {
     companion object {
         @JvmStatic
         fun newInstance(filter: Filter): IssueListFragment {
-            Log.d(TAG, "newInstance: ${filter.mSeries}")
             return IssueListFragment().apply {
                 arguments = Bundle().apply {
                     putSerializable(ARG_FILTER, filter)

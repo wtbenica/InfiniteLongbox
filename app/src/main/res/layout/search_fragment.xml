@@ -9,17 +9,16 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:background="#F8F8F8"
-        app:layout_constraintBottom_toTopOf="@id/filter_view"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-
-    </FrameLayout>
+        app:layout_constraintTop_toTopOf="parent" />
 
     <com.wtb.comiccollector.views.FilterView
         android:id="@+id/filter_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="#0000ffff"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />

@@ -3,14 +3,12 @@ package com.wtb.comiccollector
 import android.app.Activity
 import android.content.Context
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import android.widget.FrameLayout
-import android.widget.ImageView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentTransaction
 import com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -35,7 +33,6 @@ class SearchFragment : Fragment(), SeriesListFragment.SeriesListCallbacks,
 
     private var callbacks: Callbacks? = null
 
-    private lateinit var sortLabelImageView: ImageView
     private lateinit var filterView: FilterView
     private lateinit var resultsFrame: FrameLayout
     private lateinit var fab: FloatingActionButton
@@ -47,34 +44,22 @@ class SearchFragment : Fragment(), SeriesListFragment.SeriesListCallbacks,
         callbacks = context as Callbacks?
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        Log.d(TAG, "onCreate")
-    }
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         val view = inflater.inflate(R.layout.search_fragment, container, false)
-        Log.d(TAG, "onCreateView")
-        sortLabelImageView = view.findViewById(R.id.imageView) as ImageView
-        filterView = view.findViewById(R.id.filter_view)
-        filterView.callback = this
+        filterView = (view.findViewById(R.id.filter_view) as FilterView).apply {
+            callback = this@SearchFragment
+        }
         resultsFrame = view.findViewById(R.id.results_frame) as FrameLayout
         fab = view.findViewById(R.id.fab) as FloatingActionButton
 
         return view
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        Log.d(TAG, "onViewCreated")
-    }
-
     override fun onStart() {
         super.onStart()
-        Log.d(TAG, "onStart")
         fab.setOnClickListener {
             filterView.toggleVisibility()
         }
@@ -83,7 +68,6 @@ class SearchFragment : Fragment(), SeriesListFragment.SeriesListCallbacks,
 
     override fun onDetach() {
         super.onDetach()
-        Log.d(TAG, "onDetach")
         callbacks = null
     }
 
@@ -101,9 +85,9 @@ class SearchFragment : Fragment(), SeriesListFragment.SeriesListCallbacks,
         }
     }
 
-    override fun onResultFragmentChanged(fragment: Fragment) {
+    override fun onFilterChanged(filter: Filter) {
         childFragmentManager.beginTransaction()
-            .replace(R.id.results_frame, fragment)
+            .replace(R.id.results_frame, filter.getFragment(this))
             .addToBackStack(null)
             .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
             .commit()

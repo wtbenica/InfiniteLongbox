@@ -1,6 +1,5 @@
 package com.wtb.comiccollector.database.Daos
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.paging.DataSource
 import androidx.room.Dao
@@ -78,8 +77,6 @@ abstract class CollectionDao : BaseDao<MyCollection>() {
             args.toArray()
         )
 
-        Log.d(TAG, tableJoinString + conditionsString)
-        Log.d(TAG, query.sql)
         return getFullIssuesByQuery(query)
     }
 
@@ -90,10 +87,6 @@ abstract class CollectionDao : BaseDao<MyCollection>() {
     abstract fun getSeriesByQuery(query: SupportSQLiteQuery): DataSource.Factory<Int, Series>
 
     fun getSeriesByFilter(filter: Filter): DataSource.Factory<Int, Series> {
-        Log.d(
-            TAG,
-            "Series By Filter: ${filter.hasDateFilter()} ${filter.hasPublisher()} ${filter.hasCreator()}"
-        )
         var tableJoinString = String()
         var conditionsString = String()
         val args: ArrayList<Any> = arrayListOf()

@@ -19,23 +19,19 @@ import java.io.FileOutputStream
 import java.io.IOException
 import java.net.URL
 
-private const val TAG = APP + "IssueCoverUpdater"
+private const val TAG = APP + "UpdateIssueCover"
 
-class IssueCoverUpdater(val database: IssueDatabase, val context: Context) {
+class UpdateIssueCover(val database: IssueDatabase, val context: Context) {
     internal fun update(issueId: Int) {
-        Log.d(TAG, "CoverUpdater_____________________________")
         CoroutineScope(Dispatchers.IO).launch {
             val issueDef =
                 CoroutineScope(Dispatchers.IO).async {
                     database.issueDao().getIssueSus(issueId)
                 }
-            Log.d(TAG, "MADE IT THIS FAR!")
             issueDef.await()?.let { issue ->
                 if (issue.coverUri == null) {
-                    Log.d(TAG, "COVER UPDATER needsCover... starting")
                     CoroutineScope(Dispatchers.IO).launch {
                         kotlin.runCatching {
-                            Log.d(TAG, "COVER UPDATER Starting connection.....")
                             val doc = Jsoup.connect(issue.issue.url).get()
                             val noCover = doc.getElementsByClass("no_cover").size == 1
 
@@ -57,9 +53,7 @@ class IssueCoverUpdater(val database: IssueDatabase, val context: Context) {
                                     url.toBitmap()
                                 }
                                 CoroutineScope(Dispatchers.Default).launch {
-                                    val bitmap = image.await().also {
-                                        Log.d(TAG, "COVER UPDATER Got an image!")
-                                    }
+                                    val bitmap = image.await()
 
                                     bitmap?.apply {
                                         val savedUri: Uri? =
@@ -68,7 +62,6 @@ class IssueCoverUpdater(val database: IssueDatabase, val context: Context) {
                                                 issue.issue.coverFileName
                                             )
 
-                                        Log.d(TAG, "COVER UPDATER Saving image $savedUri")
                                         val cover =
                                             Cover(issueId = issueId, coverUri = savedUri)
                                         database.coverDao().upsertSus(listOf(cover))

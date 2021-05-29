@@ -26,10 +26,11 @@
         <item name="android:spinnerStyle">@style/mySpinnerStyle</item>
         <item name="android:buttonBarButtonStyle">@style/myButtonBarButtonStyle</item>
         <item name="android:buttonBarStyle">@style/myButtonBarStyle</item>
-        <item name="autoCompleteTextViewStyle">@style/myAutoCompleteStyle</item>
         <item name="android:toolbarStyle">@style/myActionBarStyle</item>
         <item name="switchStyle">@style/mySwitchStyle</item>
         <item name="chipStyle">@style/myNewChip</item>
+        <item name="floatingActionButtonStyle">@style/myFabStyle</item>
+        <item name="autoCompleteTextViewStyle">@style/myAutoCompleteStyle</item>
 
         <item name="colorPrimaryMuted">@color/fantasia_muted</item>
         <item name="colorPrimaryDarkMuted">@color/fantasia_dark_muted</item>

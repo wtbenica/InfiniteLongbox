@@ -2,6 +2,13 @@ package com.wtb.comiccollector.database.models
 
 import androidx.room.*
 
+abstract class CreditX : DataModel() {
+    abstract val creditId: Int
+    abstract var storyId: Int
+    abstract var nameDetailId: Int
+    abstract var roleId: Int
+};
+
 @Entity(
     indices = [
         Index(value = ["storyId", "nameDetailId", "roleId"], unique = true),
@@ -30,12 +37,12 @@ import androidx.room.*
         )
     ]
 )
-data class Credit(
-    @PrimaryKey(autoGenerate = true) val creditId: Int = AUTO_ID,
-    var storyId: Int,
-    var nameDetailId: Int,
-    var roleId: Int
-) : DataModel() {
+class Credit(
+    @PrimaryKey(autoGenerate = true) override val creditId: Int = AUTO_ID,
+    override var storyId: Int,
+    override var nameDetailId: Int,
+    override var roleId: Int
+) : CreditX() {
     override val id: Int
         get() = creditId
 }
@@ -69,11 +76,11 @@ data class Credit(
     ]
 )
 data class ExCredit(
-    @PrimaryKey(autoGenerate = true) val creditId: Int = AUTO_ID,
-    var storyId: Int,
-    var nameDetailId: Int,
-    var roleId: Int
-) : DataModel() {
+    @PrimaryKey(autoGenerate = true) override val creditId: Int = AUTO_ID,
+    override var storyId: Int,
+    override var nameDetailId: Int,
+    override var roleId: Int
+) : CreditX() {
     override val id: Int
         get() = creditId
 }
@@ -142,23 +149,15 @@ data class FullCredit(
 
     @Relation(
         parentColumn = "nameDetailId",
-        entityColumn = "nameDetailId"
+        entityColumn = "nameDetailId",
+        entity = NameDetail::class
     )
-    var nameDetail: NameDetail,
+    var nameDetail: NameDetailAndCreator,
 
-    @Embedded
-    val creator: Creator,
-
-    @Relation(
-        parentColumn = "roleId",
-        entityColumn = "roleId"
-    )
+    @Relation(parentColumn = "roleId", entityColumn = "roleId")
     val role: Role,
 
-    @Relation(
-        parentColumn = "storyId",
-        entityColumn = "storyId"
-    )
+    @Relation(parentColumn = "storyId", entityColumn = "storyId")
     val story: Story,
 
     val sortCode: Int

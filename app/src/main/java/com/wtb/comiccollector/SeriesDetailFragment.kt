@@ -10,10 +10,11 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import com.wtb.comiccollector.database.models.FullSeries
 import com.wtb.comiccollector.database.models.Publisher
 import com.wtb.comiccollector.database.models.Series
 
-private const val TAG = "SeriesDetailFragment"
+private const val TAG = APP + "SeriesDetailFragment"
 private const val RESULT_SERIES_INFO = 312
 private const val DIALOG_SERIES_INFO = "DIALOG_EDIT_SERIES"
 
@@ -95,15 +96,19 @@ class SeriesDetailFragment : Fragment() {
     }
 
     private fun updateUI() {
-        Log.d(TAG, "updateUI: ${series.seriesName} ${publisher.publisher} ${series.volume}")
         volumeNumTextView.text = series.volume.toString()
         publisherTextView.text = publisher.publisher
         dateRangeTextview.text = series.dateRange
 
         series.description?.let {
-            descriptionTextView.text = it
-            descriptionLabelTextView.visibility = TextView.VISIBLE
-            descriptionTextView.visibility = TextView.VISIBLE
+            if (it != "") {
+                descriptionTextView.text = it
+                descriptionLabelTextView.visibility = TextView.VISIBLE
+                descriptionTextView.visibility = TextView.VISIBLE
+            } else {
+                descriptionLabelTextView.visibility = TextView.GONE
+                descriptionTextView.visibility = TextView.GONE
+            }
         }
     }
 

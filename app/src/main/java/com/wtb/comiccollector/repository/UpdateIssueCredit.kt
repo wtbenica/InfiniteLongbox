@@ -1,7 +1,6 @@
 package com.wtb.comiccollector.repository
 
 import android.content.SharedPreferences
-import android.util.Log
 import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.Webservice
 import com.wtb.comiccollector.database.IssueDatabase
@@ -10,12 +9,12 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 
-private const val TAG = APP + "IssueCreditUpdater"
+private const val TAG = APP + "UpdateIssueCredit"
 
 /***
  * Updates an issues credits
  */
-class IssueCreditUpdater(
+class UpdateIssueCredit(
     val apiService: Webservice,
     val database: IssueDatabase,
     val prefs: SharedPreferences
@@ -25,9 +24,7 @@ class IssueCreditUpdater(
     }
 
     internal fun update(issueId: Int) {
-        if (IssueRepository.checkIfStale(ISSUE_TAG(issueId), ISSUE_LIFETIME, prefs)) {
-            Log.d(TAG, "CreditUpdater update $issueId")
-
+        if (Repository.checkIfStale(ISSUE_TAG(issueId), ISSUE_LIFETIME, prefs)) {
             val storyItemsCall = CoroutineScope(Dispatchers.IO).async {
                 apiService.getStoriesByIssue(issueId)
             }
@@ -55,7 +52,6 @@ class IssueCreditUpdater(
             val creatorItemsCall = CoroutineScope(Dispatchers.IO).async {
                 nameDetailItemsCall.await()?.let { nameDetailItems ->
                     if (nameDetailItems.isNotEmpty()) {
-                        Log.d(TAG, "WEBSERVICE: creator")
                         apiService.getCreator(nameDetailItems.map { it.fields.creatorId })
                     } else {
                         null
@@ -66,7 +62,6 @@ class IssueCreditUpdater(
             val extractedCreditItemsCall = CoroutineScope(Dispatchers.IO).async {
                 storyItemsCall.await().let { storyItems ->
                     if (storyItems.isNotEmpty()) {
-                        Log.d(TAG, "WEBSERVICE: extractedCreditsByStories")
                         apiService.getExtractedCreditsByStories(storyItems.map { item -> item.pk })
                     } else {
                         null
@@ -77,7 +72,6 @@ class IssueCreditUpdater(
             val extractedNameDetailItemsCall = CoroutineScope(Dispatchers.IO).async {
                 extractedCreditItemsCall.await()?.let { creditItems ->
                     if (creditItems.isNotEmpty()) {
-                        Log.d(TAG, "WEBSERVICE: extractedNameDetails")
                         apiService.getNameDetailsByIds(creditItems.map { it.fields.nameDetailId })
                     } else {
                         null
@@ -88,7 +82,6 @@ class IssueCreditUpdater(
             val extractedCreatorItemsCall = CoroutineScope(Dispatchers.IO).async {
                 extractedNameDetailItemsCall.await()?.let { nameDetailItems ->
                     if (nameDetailItems.isNotEmpty()) {
-                        Log.d(TAG, "WEBSERVICE: extractedCreator")
                         apiService.getCreator(nameDetailItems.map { it.fields.creatorId })
                     } else {
                         null

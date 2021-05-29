@@ -8,8 +8,7 @@
     app:cardUseCompatPadding="true"
     app:cardCornerRadius="8dp"
     app:cardPreventCornerOverlap="false"
-    android:background="@drawable/card_background"
-    android:orientation="vertical">
+    android:background="@drawable/card_background">
 
     <LinearLayout
         android:id="@+id/wrapper"

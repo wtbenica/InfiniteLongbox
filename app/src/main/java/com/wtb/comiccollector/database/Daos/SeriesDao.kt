@@ -8,9 +8,10 @@ import androidx.room.RawQuery
 import androidx.sqlite.db.SimpleSQLiteQuery
 import androidx.sqlite.db.SupportSQLiteQuery
 import com.wtb.comiccollector.APP
-import com.wtb.comiccollector.repository.DUMMY_ID
 import com.wtb.comiccollector.Filter
+import com.wtb.comiccollector.database.models.FullSeries
 import com.wtb.comiccollector.database.models.Series
+import com.wtb.comiccollector.repository.DUMMY_ID
 import java.util.*
 
 private const val TAG = APP + "SeriesDao"
@@ -27,9 +28,9 @@ abstract class SeriesDao : BaseDao<Series>() {
     @RawQuery(
         observedEntities = [Series::class]
     )
-    abstract fun getSeriesByQuery(query: SupportSQLiteQuery): PagingSource<Int, Series>
+    abstract fun getSeriesByQuery(query: SupportSQLiteQuery): PagingSource<Int, FullSeries>
 
-    fun getSeriesByFilter(filter: Filter): PagingSource<Int, Series> {
+    fun getSeriesByFilter(filter: Filter): PagingSource<Int, FullSeries> {
 
         var tableJoinString = String()
         var conditionsString = String()
