@@ -9,6 +9,7 @@ import com.wtb.comiccollector.Filter
 import com.wtb.comiccollector.database.Daos.Count
 import com.wtb.comiccollector.database.models.*
 import com.wtb.comiccollector.repository.Repository
+import kotlinx.coroutines.flow.Flow
 
 private const val TAG = APP + "IssueDetailViewModel"
 
@@ -24,11 +25,19 @@ class IssueDetailViewModel : ViewModel() {
             repository.getIssue(issueId)
         }
 
-    val issueListLiveData = issueLiveData.switchMap { issue: FullIssue? ->
-        repository.getIssuesByFilterFlow(Filter(series = issue?.series))
-            .asLiveData(viewModelScope.coroutineContext)
-    }
+    //    val issueListLiveData = issueLiveData.switchMap { issue: FullIssue? ->
+//        repository.getIssuesByFilterFlow(Filter(series = issue?.series))
+//            .asLiveData(viewModelScope.coroutineContext)
+//    }
+//
 
+    fun issueList(series: Series?): Flow<List<FullIssue>>? {
+        val issueValue = issueLiveData.value
+        Log.d(TAG, "issueList() issueValue: $issueValue")
+        return issueValue?.let { issue ->
+            repository.getIssuesByFilterFlow(Filter(series = series))
+        }
+    }
 //    val issueListLiveData = issueLiveData.switchMap { issue: FullIssue ->
 //        liveData(context = viewModelScope.coroutineContext) {
 //            emit(issueRepository.getIssuesByFilterFlow(Filter(series = issue.series)))

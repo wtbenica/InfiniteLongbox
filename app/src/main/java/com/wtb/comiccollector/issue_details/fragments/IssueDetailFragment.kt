@@ -11,10 +11,14 @@ import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.*
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import com.wtb.comiccollector.*
 import com.wtb.comiccollector.database.Daos.Count
 import com.wtb.comiccollector.database.models.*
 import com.wtb.comiccollector.issue_details.view_models.IssueDetailViewModel
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 import java.io.File
 import java.time.format.DateTimeFormatter
 import java.util.*
@@ -50,6 +54,8 @@ private const val STORY_TYPE_COVER = 6
 class IssueDetailFragment : Fragment() {
 
     private var numUpdates = 0
+
+    private var theJob: Job? = null
 
     private lateinit var fullIssue: FullIssue
     private var issuesInSeries: List<Int> = emptyList()
@@ -148,19 +154,40 @@ class IssueDetailFragment : Fragment() {
                     (requireActivity() as MainActivity).supportActionBar?.apply {
                         it.let { title = "${issue.series.seriesName} #${issue.issue.issueNum}" }
                     }
+                    theJob?.cancel()
+                    theJob = lifecycleScope.launch {
+                        issueDetailViewModel.issueList(this@IssueDetailFragment.fullIssue.series)
+                            ?.collectLatest { issues ->
+                                this@IssueDetailFragment.issuesInSeries =
+                                    issues.map { it.issue.issueId }
+                                updateNavBar()
+                            }
+                    }
                     updateUI()
                 }
             }
         )
 
-        issueDetailViewModel.issueListLiveData.observe(
-            viewLifecycleOwner,
-            { issues: List<FullIssue> ->
-                this.issuesInSeries = issues.map { it.issue.issueId }
-                updateNavBar()
-            }
-        )
-
+//        lifecycleScope.launch {
+//            issueDetailViewModel.issueList(issueDetailViewModel.issueLiveData.value?.series)
+//                ?.collectLatest { issues: List<FullIssue> ->
+//                    val issueIds = issues.map { it: FullIssue ->
+//                        it.issue.issueId
+//                    }
+//                    this@IssueDetailFragment.issuesInSeries = issueIds
+//                    Log.d(TAG, "issuesInSeries: $issueIds")
+//                    updateNavBar()
+//                }
+//        }
+//
+//        issueDetailViewModel.issueListLiveData.observe(
+//            viewLifecycleOwner,
+//            { issues: List<FullIssue> ->
+//                this.issuesInSeries = issues.map { it.issue.issueId }
+//                updateNavBar()
+//            }
+//        )
+//
         issueDetailViewModel.issueCreditsLiveData.observe(
             viewLifecycleOwner,
             { credits: List<FullCredit>? ->
@@ -256,6 +283,7 @@ class IssueDetailFragment : Fragment() {
     }
 
     private fun updateNavBar() {
+        Log.d(TAG, "updateNavBar")
         this.currentPos = this.issuesInSeries.indexOf(this.fullIssue.issue.issueId)
         val found = currentPos != -1
 
@@ -372,7 +400,7 @@ class IssueDetailFragment : Fragment() {
                 requireActivity().onBackPressed()
                 true
             }
-            else -> super.onOptionsItemSelected(item)
+            else              -> super.onOptionsItemSelected(item)
         }
     }
 
