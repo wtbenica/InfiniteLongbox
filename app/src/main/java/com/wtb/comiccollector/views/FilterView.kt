@@ -114,6 +114,8 @@ class FilterView(ctx: Context, attributeSet: AttributeSet) :
 
         filterItems.forEach { addChip(it) }
 
+        myCollectionSwitch.isChecked = filter.mMyCollection
+        
         topSection.visibility = if (showFilter || myCollectionSwitch.isChecked) {
             View.VISIBLE
         } else {

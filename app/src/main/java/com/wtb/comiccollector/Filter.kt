@@ -20,7 +20,7 @@ class Filter(
     publishers: MutableSet<Publisher>? = null,
     startDate: LocalDate? = null,
     endDate: LocalDate? = null,
-    myCollection: Boolean = false
+    myCollection: Boolean = true
 ) : Serializable {
 
     constructor(filter: Filter) : this(

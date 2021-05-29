@@ -18,7 +18,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:animateLayoutChanges="true"
-            android:background="?attr/colorPrimaryVariant"
+            android:background="#DD888899"
             android:elevation="1dp"
             android:orientation="vertical"
             android:padding="8dp"
@@ -107,7 +107,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:animateLayoutChanges="true"
-            android:background="?attr/colorPrimary"
+            android:background="#DD666677"
             android:orientation="vertical"
             android:padding="8dp">
 
@@ -140,6 +140,8 @@
                 android:layout_height="?attr/dropdownListPreferredItemHeight"
                 android:animateLayoutChanges="true"
                 android:elevation="1dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="8dp"
                 android:hint="@string/search"
                 android:popupBackground="@drawable/accent_outline_white_background"
                 android:textAppearance="?android:attr/textAppearanceLargePopupMenu"

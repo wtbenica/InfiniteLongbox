@@ -41,7 +41,7 @@ const val DUMMY_ID = Int.MAX_VALUE
 
 private const val DATABASE_NAME = "issue-database"
 private const val TAG = APP + "Repository"
-const val DEBUG = false
+const val DEBUG = true
 
 internal const val SHARED_PREFS = "CCPrefs"
 
@@ -177,6 +177,7 @@ class Repository private constructor(val context: Context) {
                 }
             }
 
+            Log.d(TAG, "issuesbyfilter pagingsource")
             UpdateSeries(apiService, database, prefs).update(seriesId)
         }
 
@@ -196,6 +197,7 @@ class Repository private constructor(val context: Context) {
                 }
             }
 
+            Log.d(TAG, "issuesbyfilter flow")
             UpdateSeries(apiService, database, prefs).update(seriesId)
         }
 
