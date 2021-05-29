@@ -34,8 +34,18 @@ abstract class IssueDao : BaseDao<Issue>() {
     )
     abstract suspend fun getIssueSus(issueId: Int): FullIssue?
 
-    @Query("SELECT * FROM issue WHERE issueId=:issueId OR variantOf=:issueId ORDER BY sortCode")
-    abstract suspend fun getVariants(issueId: Int): List<Issue>
+    @Query(
+        """SELECT ie.* FROM issue ie
+            JOIN issue ie2 ON ie2.issueId = ie.issueId
+            WHERE ie.issueId=:issueId 
+            OR ie.variantOf=:issueId 
+            OR (ie.issueId=:issueId
+            AND (ie2.issueId = ie.variantOf
+            OR ie2.variantOf = ie.variantOf ))
+            ORDER BY sortCode
+            """
+    )
+    abstract fun getVariants(issueId: Int): Flow<List<Issue>>
 
     @Transaction
     @Query(
@@ -46,6 +56,26 @@ abstract class IssueDao : BaseDao<Issue>() {
                 "WHERE issueId = :issueId"
     )
     abstract fun getFullIssue(issueId: Int): LiveData<FullIssue?>
+
+    @Transaction
+    @Query(
+        "SELECT ie.* " +
+                "FROM issue ie " +
+                "JOIN series ss ON ie.seriesId = ss.seriesId " +
+                "JOIN publisher pr ON ss.publisherId = pr.publisherId " +
+                "WHERE issueId = :issueId"
+    )
+    abstract suspend fun getFullIssue2(issueId: Int): FullIssue?
+
+    @Transaction
+    @Query(
+        "SELECT ie.* " +
+                "FROM issue ie " +
+                "JOIN series ss ON ie.seriesId = ss.seriesId " +
+                "JOIN publisher pr ON ss.publisherId = pr.publisherId " +
+                "WHERE issueId = :issueId"
+    )
+    abstract fun getFullIssue3(issueId: Int): Flow<FullIssue?>
 
     @RawQuery(
         observedEntities = [FullIssue::class]
@@ -98,7 +128,7 @@ abstract class IssueDao : BaseDao<Issue>() {
 
         if (filter.mMyCollection) {
             tableJoinString += "JOIN mycollection mc ON mc.issueId = ie.issueId "
-        } else if (!filter.hasCreator()){
+        } else if (!filter.hasCreator()) {
             conditionsString += "AND ie.variantOf IS NULL "
         }
 
@@ -108,6 +138,64 @@ abstract class IssueDao : BaseDao<Issue>() {
         )
 
         return getFullIssuesByQueryPagingSource(query)
+    }
+
+    @RawQuery(
+        observedEntities = [FullIssue::class]
+    )
+    abstract fun getFullIssuesByQuery(query: SupportSQLiteQuery): Flow<List<FullIssue>>
+
+    fun getIssuesByFilter(filter: Filter): Flow<List<FullIssue>> {
+
+        var tableJoinString = String()
+        var conditionsString = String()
+        val args: ArrayList<Any> = arrayListOf()
+        var containsCondition = false
+
+        tableJoinString +=
+            "SELECT DISTINCT ie.*, ss.seriesName, pr.publisher " +
+                    "FROM issue ie " +
+                    "JOIN series ss ON ie.seriesId = ss.seriesId " +
+                    "JOIN publisher pr ON ss.publisherId = pr.publisherId "
+
+        conditionsString +=
+            "WHERE ss.seriesId = ${filter.mSeries?.seriesId} "
+
+        if (filter.hasPublisher()) {
+            val publisherList = modelsToSqlIdString(filter.mPublishers)
+
+            conditionsString += "AND pr.publisherId IN $publisherList "
+        }
+
+        if (filter.hasCreator()) {
+            tableJoinString +=
+                "JOIN story sy on sy.issueId = ie.issueId " +
+                        "JOIN credit ct on ct.storyId = sy.storyId " +
+                        "JOIN namedetail nl on nl.nameDetailId = ct.nameDetailId "
+
+            val creatorsList = modelsToSqlIdString(filter.mCreators)
+
+            conditionsString += "AND nl.creatorId IN $creatorsList "
+        }
+
+        if (filter.hasDateFilter()) {
+            conditionsString += "AND ss.startDate < ? AND ss.endDate > ? "
+            args.add(filter.mEndDate)
+            args.add(filter.mStartDate)
+        }
+
+        if (filter.mMyCollection) {
+            tableJoinString += "JOIN mycollection mc ON mc.issueId = ie.issueId "
+        } else {
+            conditionsString += "AND ie.variantOf IS NULL "
+        }
+
+        val query = SimpleSQLiteQuery(
+            tableJoinString + conditionsString + "ORDER BY ${filter.mSortOption.sortColumn}",
+            args.toArray()
+        )
+
+        return getFullIssuesByQuery(query)
     }
 
     @RawQuery(

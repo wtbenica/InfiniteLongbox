@@ -20,7 +20,8 @@ class Filter(
     publishers: MutableSet<Publisher>? = null,
     startDate: LocalDate? = null,
     endDate: LocalDate? = null,
-    myCollection: Boolean = true
+    myCollection: Boolean = true,
+    sortOption: SortOption? = null
 ) : Serializable {
 
     constructor(filter: Filter) : this(
@@ -29,7 +30,8 @@ class Filter(
         filter.mPublishers,
         filter.mStartDate,
         filter.mEndDate,
-        filter.mMyCollection
+        filter.mMyCollection,
+        filter.mSortOption
     )
 
     fun clone() : Filter {
@@ -53,7 +55,7 @@ class Filter(
     var mStartDate: LocalDate = startDate ?: LocalDate.MIN
     var mEndDate: LocalDate = endDate ?: LocalDate.MAX
     var mMyCollection: Boolean = myCollection
-    var mSortOption: SortOption = getSortOptions()[0]
+    var mSortOption: SortOption = sortOption ?: getSortOptions()[0]
     fun hasCreator() = mCreators.isNotEmpty()
     fun returnsIssueList() = mSeries != null
     fun hasPublisher() = mPublishers.isNotEmpty()

@@ -32,7 +32,7 @@ class IssueListViewModel : ViewModel() {
 
     fun issueList(): Flow<PagingData<FullIssue>>? {
         val filterValue = this.filterLiveData.value
-
+        Log.d(TAG, "issueList() filterValue: $filterValue")
         return filterValue?.let { filter ->
             Pager(
                 config = PagingConfig(
@@ -46,21 +46,6 @@ class IssueListViewModel : ViewModel() {
         }
     }
 
-    //    val issueList: LiveData<PagingData<FullIssue>> = Transformations.switchMap(filterLiveData)
-//    {
-//        it?.let { filter ->
-//            Pager(
-//                config = PagingConfig(
-//                    pageSize = REQUEST_LIMIT,
-//                    enablePlaceholders = true,
-//                    maxSize = 200
-//                )
-//            ) {
-//                repository.getIssuesByFilterPagingSource(filter)
-//            }.liveData
-//        }
-//    }
-//
     fun setFilter(filter: Filter) {
         filterLiveData.value = filter.clone()
     }

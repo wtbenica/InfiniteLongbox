@@ -11,14 +11,13 @@ import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.*
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.asLiveData
 import com.wtb.comiccollector.*
 import com.wtb.comiccollector.database.Daos.Count
 import com.wtb.comiccollector.database.models.*
 import com.wtb.comiccollector.issue_details.view_models.IssueDetailViewModel
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.launch
 import java.io.File
 import java.time.format.DateTimeFormatter
 import java.util.*
@@ -51,6 +50,7 @@ private const val STORY_TYPE_COVER = 6
  * create an instance of this fragment.
  */
 // TODO: Do I need a separate fragment for editing vs viewing or can I do it all in this one?
+@ExperimentalCoroutinesApi
 class IssueDetailFragment : Fragment() {
 
     private var numUpdates = 0
@@ -142,52 +142,35 @@ class IssueDetailFragment : Fragment() {
         return view
     }
 
+    @ExperimentalCoroutinesApi
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        issueDetailViewModel.issueLiveData.observe(
+        issueDetailViewModel.issue.asLiveData().observe(
             viewLifecycleOwner,
-            { issue: FullIssue? ->
-                issue?.let {
-                    this.fullIssue = it
-                    this.coverUri = it.coverUri
+            {
+                Log.d(TAG, "FULLISSUE: $it")
+                it?.let { issue ->
+                    this@IssueDetailFragment.fullIssue = issue
+                    this@IssueDetailFragment.coverUri = issue.coverUri
                     (requireActivity() as MainActivity).supportActionBar?.apply {
                         it.let { title = "${issue.series.seriesName} #${issue.issue.issueNum}" }
-                    }
-                    theJob?.cancel()
-                    theJob = lifecycleScope.launch {
-                        issueDetailViewModel.issueList(this@IssueDetailFragment.fullIssue.series)
-                            ?.collectLatest { issues ->
-                                this@IssueDetailFragment.issuesInSeries =
-                                    issues.map { it.issue.issueId }
-                                updateNavBar()
-                            }
                     }
                     updateUI()
                 }
             }
         )
 
-//        lifecycleScope.launch {
-//            issueDetailViewModel.issueList(issueDetailViewModel.issueLiveData.value?.series)
-//                ?.collectLatest { issues: List<FullIssue> ->
-//                    val issueIds = issues.map { it: FullIssue ->
-//                        it.issue.issueId
-//                    }
-//                    this@IssueDetailFragment.issuesInSeries = issueIds
-//                    Log.d(TAG, "issuesInSeries: $issueIds")
-//                    updateNavBar()
-//                }
-//        }
-//
-//        issueDetailViewModel.issueListLiveData.observe(
-//            viewLifecycleOwner,
-//            { issues: List<FullIssue> ->
-//                this.issuesInSeries = issues.map { it.issue.issueId }
-//                updateNavBar()
-//            }
-//        )
-//
+        issueDetailViewModel.issueList.observe(
+            viewLifecycleOwner,
+            { issues ->
+                this@IssueDetailFragment.issuesInSeries = issues.map { it.issue.issueId }
+                Log.d(TAG, "ISSUESINSERIES: ${this@IssueDetailFragment.issuesInSeries}")
+                updateNavBar()
+            }
+        )
+
+
         issueDetailViewModel.issueCreditsLiveData.observe(
             viewLifecycleOwner,
             { credits: List<FullCredit>? ->
@@ -209,7 +192,7 @@ class IssueDetailFragment : Fragment() {
             }
         )
 
-        issueDetailViewModel.variantLiveData.observe(
+        issueDetailViewModel.variant.observe(
             viewLifecycleOwner,
             { issue ->
                 issue.let {

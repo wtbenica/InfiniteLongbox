@@ -12,7 +12,6 @@ import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.Observer
-import androidx.lifecycle.liveData
 import androidx.paging.PagingSource
 import androidx.room.Room
 import androidx.room.RoomDatabase
@@ -25,8 +24,8 @@ import com.wtb.comiccollector.database.IssueDatabase
 import com.wtb.comiccollector.database.models.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
@@ -41,7 +40,7 @@ const val DUMMY_ID = Int.MAX_VALUE
 
 private const val DATABASE_NAME = "issue-database"
 private const val TAG = APP + "Repository"
-const val DEBUG = true
+const val DEBUG = false
 
 internal const val SHARED_PREFS = "CCPrefs"
 
@@ -164,6 +163,18 @@ class Repository private constructor(val context: Context) {
         return issueDao.getFullIssue(issueId)
     }
 
+    suspend fun getIssue2(issueId: Int): FullIssue? {
+        UpdateIssueCredit(apiService, database, prefs).update(issueId)
+        UpdateIssueCover(database, context).update(issueId)
+        return issueDao.getFullIssue2(issueId)
+    }
+
+    fun getIssue3(issueId: Int): Flow<FullIssue?> {
+        UpdateIssueCredit(apiService, database, prefs).update(issueId)
+        UpdateIssueCover(database, context).update(issueId)
+        return issueDao.getFullIssue3(issueId)
+    }
+
     fun getIssuesByFilterPagingSource(filter: Filter): PagingSource<Int, FullIssue> {
         val mSeries = filter.mSeries
 
@@ -204,35 +215,48 @@ class Repository private constructor(val context: Context) {
         return issueDao.getIssuesByFilterFlow(filter)
     }
 
-    fun getVariants(issueId: Int): LiveData<List<Issue>> {
-        val variantsCall = CoroutineScope(Dispatchers.IO).async {
-            issueDao.getVariants(issueId)
-        }
+    fun getIssuesByFilter(filter: Filter): Flow<List<FullIssue>> {
+        val mSeries = filter.mSeries
 
-        val issueCall = CoroutineScope(Dispatchers.IO).async {
-            variantsCall.await().let {
-                if (it.size == 1 && it[0].variantOf != null) {
-                    issueDao.getVariants(it[0].variantOf!!)
-                } else {
-                    it
+        if (mSeries != null) {
+            val seriesId = mSeries.seriesId
+            val creatorIds = filter.mCreators.map { it.creatorId }
+
+            if (filter.hasCreator()) {
+                CoroutineScope(Dispatchers.IO).launch {
+                    UpdateCreator(apiService, database, prefs).updateAll(creatorIds)
                 }
             }
+
+            Log.d(TAG, "issuesbyfilter flow")
+            UpdateSeries(apiService, database, prefs).update(seriesId)
         }
 
-        return liveData { emit(issueCall.await()) }
+        return issueDao.getIssuesByFilter(filter)
     }
 
-    fun getStoriesByIssue(issueId: Int): LiveData<List<Story>> = storyDao.getStories(issueId)
+    fun getVariants(issueId: Int): Flow<List<Issue>> = issueDao.getVariants(issueId)
 
-    fun getCreditsByIssue(issueId: Int) = AllCreditsLiveData(
+    fun getStoriesByIssue(issueId: Int): Flow<List<Story>> = storyDao.getStories(issueId)
+
+    fun getCreditsByIssue(issueId: Int): Flow<List<FullCredit>> = combine(
         creditDao.getIssueCredits(issueId),
-        exCreditDao.getIssueExtractedCredits(issueId),
-        combine = { credits1: List<FullCredit>?, credits2: List<FullCredit>? ->
-            val res = (credits1 ?: emptyList()) + (credits2 ?: emptyList())
-            sort(res)
-            res
-        })
+        exCreditDao.getIssueExtractedCredits(issueId)
+    ) { credits1: List<FullCredit>?, credits2: List<FullCredit>? ->
+        val res = (credits1 ?: emptyList()) + (credits2 ?: emptyList())
+        sort(res)
+        res
+    }
 
+    //    fun getCreditsByIssue(issueId: Int) = AllCreditsLiveData(
+//        creditDao.getIssueCredits(issueId),
+//        exCreditDao.getIssueExtractedCredits(issueId),
+//        combine = { credits1: List<FullCredit>?, credits2: List<FullCredit>? ->
+//            val res = (credits1 ?: emptyList()) + (credits2 ?: emptyList())
+//            sort(res)
+//            res
+//        })
+//
     fun getCoverByIssueId(issueId: Int): LiveData<Cover?> = coverDao.getCoverByIssueId(issueId)
 
     fun getValidFilterOptions(filter: Filter): AllFiltersLiveData {
@@ -462,7 +486,7 @@ class Repository private constructor(val context: Context) {
         }
     }
 
-    fun inCollection(issueId: Int): LiveData<Count> = collectionDao.inCollection(issueId)
+    fun inCollection(issueId: Int): Flow<Count> = collectionDao.inCollection(issueId)
 
     fun updateIssue(issue: FullIssue?) {
         if (issue != null) {

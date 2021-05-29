@@ -1,9 +1,9 @@
 package com.wtb.comiccollector.database.Daos
 
-import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Query
 import com.wtb.comiccollector.database.models.Story
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 abstract class StoryDao : BaseDao<Story>() {
@@ -18,5 +18,5 @@ abstract class StoryDao : BaseDao<Story>() {
             ORDER BY sequenceNumber
         """
     )
-    abstract fun getStories(issueId: Int): LiveData<List<Story>>
+    abstract fun getStories(issueId: Int): Flow<List<Story>>
 }
