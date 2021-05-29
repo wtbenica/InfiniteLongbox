@@ -58,6 +58,10 @@ data class Issue(
         }
     }
 
+    fun dumpMe(): String {
+        return "Issue(num:$issueNum, ser:$seriesId, var:$variantOf"
+    }
+
     companion object {
         fun formatDate(date: String): LocalDate? {
             val res: LocalDate?

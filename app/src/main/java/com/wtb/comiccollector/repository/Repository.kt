@@ -127,12 +127,14 @@ class Repository private constructor(val context: Context) {
 
             if (filter.hasCreator()) {
                 CoroutineScope(Dispatchers.IO).launch {
+                    Log.d(TAG, "getSeriesByFilterPagingSource UpdateCreator all ${creatorIds.size}")
                     UpdateCreator(apiService, database, prefs).updateAll(creatorIds)
                 }
             }
 
             return seriesDao.getSeriesByFilter(filter)
         } else {
+            Log.d(TAG, "getSeriesByFilterPagingSource: Wasn't expecting to see a series here")
 //            throw java.lang.IllegalArgumentException("getSeriesByFilterPagingSource: Filter seriesId should be null $filter")
             return seriesDao.getSeriesByFilter(filter)
         }
@@ -145,6 +147,7 @@ class Repository private constructor(val context: Context) {
 
             if (filter.hasCreator()) {
                 CoroutineScope(Dispatchers.IO).launch {
+                    Log.d(TAG, "getSeriesByFilterLiveData")
                     UpdateCreator(apiService, database, prefs).updateAll(creatorIds)
                 }
             }

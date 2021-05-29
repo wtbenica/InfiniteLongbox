@@ -23,6 +23,19 @@ class Filter(
     myCollection: Boolean = false
 ) : Serializable {
 
+    constructor(filter: Filter) : this(
+        filter.mCreators,
+        filter.mSeries,
+        filter.mPublishers,
+        filter.mStartDate,
+        filter.mEndDate,
+        filter.mMyCollection
+    )
+
+    fun clone() : Filter {
+        return Filter(this)
+    }
+
     override fun equals(other: Any?): Boolean {
         return other is Filter && hashCode() == other.hashCode()
     }
@@ -59,16 +72,11 @@ class Filter(
     }
 
     private fun addSeries(series: Series) {
-        val old = this.mSeries
         this.mSeries = series
-        if (old == null) {
-            mSortOption = getSortOptions()[0]
-        }
     }
 
     private fun removeSeries() {
         this.mSeries = null
-        mSortOption = getSortOptions()[0]
     }
 
     private fun addPublisher(vararg publisher: Publisher) {
@@ -86,8 +94,8 @@ class Filter(
     fun addFilter(vararg items: FilterOption) {
         items.forEach { item ->
             when (item) {
-                is Series -> addSeries(item)
-                is Creator -> addCreator(item)
+                is Series    -> addSeries(item)
+                is Creator   -> addCreator(item)
                 is Publisher -> addPublisher(item)
             }
         }
@@ -96,8 +104,8 @@ class Filter(
     fun removeFilter(vararg items: FilterOption) {
         items.forEach { item ->
             when (item) {
-                is Series -> removeSeries()
-                is Creator -> removeCreator(item)
+                is Series    -> removeSeries()
+                is Creator   -> removeCreator(item)
                 is Publisher -> removePublisher(item)
             }
         }
@@ -162,7 +170,7 @@ class Filter(
 abstract class SortOption(
     val tag: String,
     val sortColumn: String
-): Serializable {
+) : Serializable {
 
     override fun toString() = tag
 }

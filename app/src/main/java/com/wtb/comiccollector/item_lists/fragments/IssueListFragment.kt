@@ -67,12 +67,6 @@ class IssueListFragment : Fragment() {
         val itemDecoration = ItemOffsetDecoration(24)
         issueGridView.addItemDecoration(itemDecoration)
         issueGridView.layoutManager = GridLayoutManager(context, 2)
-        val adapter = IssueAdapter()
-        issueGridView.adapter = adapter
-
-        lifecycleScope.launch {
-            issueListViewModel.issueList(filter).collectLatest { adapter.submitData(it) }
-        }
 
         return view
     }
@@ -80,7 +74,22 @@ class IssueListFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         issueListViewModel.setFilter(filter)
+        val adapter = IssueAdapter()
+        issueGridView.adapter = adapter
 
+        lifecycleScope.launch {
+            issueListViewModel.issueList()?.collectLatest { adapter.submitData(it) }
+        }
+
+//        issueListViewModel.issueList.observe(
+//            viewLifecycleOwner,
+//            {
+//                lifecycleScope.launch {
+//                    adapter.submitData(it)
+//                }
+//            }
+//        )
+//
         issueListViewModel.seriesLiveData.observe(
             viewLifecycleOwner,
             {

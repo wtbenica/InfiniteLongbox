@@ -6,9 +6,9 @@ import androidx.lifecycle.ViewModel
 import com.wtb.comiccollector.database.models.FilterOption
 import com.wtb.comiccollector.repository.Repository
 
-private const val TAG = APP + "SearchViewModel"
+private const val TAG = APP + "FilterViewModel"
 
-class SearchViewModel : ViewModel() {
+class FilterViewModel : ViewModel() {
 
     private val repository: Repository = Repository.get()
 

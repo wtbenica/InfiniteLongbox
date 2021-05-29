@@ -20,6 +20,7 @@ import com.wtb.comiccollector.*
 import com.wtb.comiccollector.database.models.FullSeries
 import com.wtb.comiccollector.database.models.Series
 import com.wtb.comiccollector.item_lists.view_models.SeriesListViewModel
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 private const val TAG = APP + "SeriesListFragment"
@@ -38,7 +39,6 @@ class SeriesListFragment(var callback: SeriesListCallbacks? = null) : Fragment()
         setHasOptionsMenu(true)
 
         filter = arguments?.getSerializable(ARG_FILTER) as Filter
-        viewModel.setFilter(filter)
     }
 
 
@@ -50,25 +50,30 @@ class SeriesListFragment(var callback: SeriesListCallbacks? = null) : Fragment()
 
         itemListRecyclerView = view.findViewById(R.id.results_frame) as RecyclerView
         itemListRecyclerView.layoutManager = LinearLayoutManager(context)
-        val adapter = SeriesAdapter()
-        itemListRecyclerView.adapter = adapter
-
-//        lifecycleScope.launch {
-//            viewModel.seriesList(filter).collectLatest { adapter.submitData(it) }
-//        }
-//
-        viewModel.seriesList.observe(
-            viewLifecycleOwner,
-            {
-                lifecycleScope.launch {
-                    adapter.submitData(it)
-                }
-            })
 
         (requireActivity() as MainActivity).supportActionBar?.title = requireContext()
             .applicationInfo.loadLabel(requireContext().packageManager).toString()
 
         return view
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        viewModel.setFilter(filter)
+        val adapter = SeriesAdapter()
+        itemListRecyclerView.adapter = adapter
+
+        lifecycleScope.launch {
+            viewModel.seriesList()?.collectLatest { adapter.submitData(it) }
+        }
+
+//        viewModel.seriesList.observe(
+//            viewLifecycleOwner,
+//            {
+//                lifecycleScope.launch {
+//                    adapter.submitData(it)
+//                }
+//            })
     }
 
     private fun updateUI() {

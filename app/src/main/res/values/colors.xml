@@ -4,13 +4,13 @@
     <color name="white">#FFFFFFFF</color>
     <color name="light_black">#434343</color>
 
-    <color name="fantasia">#00BCD4</color>
+    <color name="fantasia">#4DD0E1</color>
     <color name="fantasia_dark">#0097A7</color>
     <color name="fantasia_light">#B2EBF2</color>
     <color name="fantasia_text">#EDEDED</color>
-    <color name="amnesia">#FFC107</color>
-    <color name="amnesia_dark">#FFB700</color>
-    <color name="amnesia_light">#FFF766</color>
+    <color name="amnesia">#FFE082</color>
+    <color name="amnesia_dark">#FBE09C</color>
+    <color name="amnesia_light">#FFF8E1</color>
     <color name="amnesia_text">#444444</color>
 
     <color name="fantasia_muted">#82C8D1</color>
