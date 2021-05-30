@@ -33,6 +33,7 @@ abstract class IssueDatabase : RoomDatabase() {
     abstract fun characterDao(): CharacterDao
     abstract fun appearanceDao(): AppearanceDao
     abstract fun collectionDao(): CollectionDao
+    abstract fun coverDao(): CoverDao
 }
 
 class SimpleMigration(from_version: Int, to_version: Int, private vararg val sql: String) :

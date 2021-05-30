@@ -22,7 +22,7 @@ abstract class SeriesDao : BaseDao<Series>() {
     @RawQuery(
         observedEntities = [Series::class]
     )
-    abstract fun getSeriesByQueryFlow(query: SupportSQLiteQuery): Flow<List<Series>>
+    abstract fun getSeriesByQuery(query: SupportSQLiteQuery): Flow<List<Series>>
 
     fun getSeriesByFilterFlow(filter: Filter): Flow<List<Series>> {
 
@@ -72,7 +72,7 @@ abstract class SeriesDao : BaseDao<Series>() {
             args.toArray()
         )
 
-        return getSeriesByQueryFlow(query)
+        return getSeriesByQuery(query)
     }
 
     @Query("SELECT * FROM series WHERE seriesId=:seriesId")
@@ -82,12 +82,10 @@ abstract class SeriesDao : BaseDao<Series>() {
     abstract fun getAllOfThem(): Flow<List<Series>>
 
     // PAGING SOURCE FUNCITONS
-    @RawQuery(
-        observedEntities = [Series::class]
-    )
-    abstract fun getSeriesByQuery(query: SupportSQLiteQuery): PagingSource<Int, FullSeries>
+    @RawQuery(observedEntities = [Series::class])
+    abstract fun getSeriesByQueryPagingSource(query: SupportSQLiteQuery): PagingSource<Int, FullSeries>
 
-    fun getSeriesByFilter(filter: Filter): PagingSource<Int, FullSeries> {
+    fun getSeriesByFilterPagingSource(filter: Filter): PagingSource<Int, FullSeries> {
 
         var tableJoinString = String()
         var conditionsString = String()
@@ -139,7 +137,7 @@ abstract class SeriesDao : BaseDao<Series>() {
             args.toArray()
         )
 
-        return getSeriesByQuery(query)
+        return getSeriesByQueryPagingSource(query)
     }
 
 }

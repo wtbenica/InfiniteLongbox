@@ -12,7 +12,9 @@ import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.Observer
-import androidx.paging.PagingSource
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.PagingData
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
@@ -20,6 +22,7 @@ import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.Filter
 import com.wtb.comiccollector.Webservice
 import com.wtb.comiccollector.database.Daos.Count
+import com.wtb.comiccollector.database.Daos.REQUEST_LIMIT
 import com.wtb.comiccollector.database.IssueDatabase
 import com.wtb.comiccollector.database.models.*
 import kotlinx.coroutines.CoroutineScope
@@ -119,19 +122,25 @@ class Repository private constructor(val context: Context) {
 
     fun getSeries(seriesId: Int): Flow<Series?> = seriesDao.getSeries(seriesId)
 
-    fun getSeriesByFilterPagingSource(filter: Filter): PagingSource<Int, FullSeries> {
+    fun getSeriesByFilterPaged(filter: Filter): Flow<PagingData<FullSeries>> {
         val mSeries = filter.mSeries
         if (mSeries == null) {
             refreshFilterOptions(mSeries, filter.mCreators)
-            return seriesDao.getSeriesByFilter(filter)
         } else {
             Log.d(TAG, "getSeriesByFilterPagingSource: Wasn't expecting to see a series here")
 //            throw java.lang.IllegalArgumentException("getSeriesByFilterPagingSource: Filter seriesId should be null $filter")
-            return seriesDao.getSeriesByFilter(filter)
         }
+
+        return Pager(
+            config = PagingConfig(
+                pageSize = REQUEST_LIMIT,
+                enablePlaceholders = true
+            ),
+            pagingSourceFactory = { seriesDao.getSeriesByFilterPagingSource(filter) }
+        ).flow
     }
 
-    fun getSeriesByFilterLiveData(filter: Filter): Flow<List<Series>> {
+    fun getSeriesByFilter(filter: Filter): Flow<List<Series>> {
         val mSeries = filter.mSeries
         if (mSeries == null) {
             refreshFilterOptions(mSeries, filter.mCreators)
@@ -142,8 +151,8 @@ class Repository private constructor(val context: Context) {
     }
 
     fun getIssue(issueId: Int): Flow<FullIssue?> {
-        UpdateIssueCredit(apiService, database, prefs).update(issueId)
-        UpdateIssueCover(database, context).update(issueId)
+        UpdateIssueCredit(apiService, database, prefs).update(issueId = issueId)
+        UpdateIssueCover(database, context).update(issueId = issueId)
         return issueDao.getFullIssue(issueId = issueId)
     }
 
@@ -155,12 +164,14 @@ class Repository private constructor(val context: Context) {
         return issueDao.getIssuesByFilter(filter = filter)
     }
 
-    fun getIssuesByFilterPagingSource(filter: Filter): PagingSource<Int, FullIssue> {
+    fun getIssuesByFilterPagingSource(filter: Filter): Flow<PagingData<FullIssue>> {
         val mSeries = filter.mSeries
         if (mSeries != null) {
-            refreshFilterOptions(mSeries, filter.mCreators)
+            refreshFilterOptions(series = mSeries, creators = filter.mCreators)
         }
-        return issueDao.getIssuesByFilterPagingSource(filter = filter)
+        return Pager(
+            config = PagingConfig(pageSize = REQUEST_LIMIT, enablePlaceholders = true),
+            pagingSourceFactory = { issueDao.getIssuesByFilterPagingSource(filter = filter) }).flow
     }
 
     private fun refreshFilterOptions(
@@ -171,11 +182,19 @@ class Repository private constructor(val context: Context) {
 
         if (creatorIds.isNotEmpty()) {
             CoroutineScope(Dispatchers.IO).launch {
-                UpdateCreator(apiService, database, prefs).updateAll(creatorIds)
+                UpdateCreator(
+                    apiService = apiService,
+                    database = database,
+                    prefs = prefs
+                ).updateAll(creatorIds = creatorIds)
             }
         }
 
-        series?.let { UpdateSeries(apiService, database, prefs).update(it.seriesId) }
+        series?.let { UpdateSeries(
+            webservice = apiService,
+            database = database,
+            prefs = prefs
+        ).update(seriesId = it.seriesId) }
     }
 
     fun getVariants(issueId: Int): Flow<List<Issue>> = issueDao.getVariants(issueId)
