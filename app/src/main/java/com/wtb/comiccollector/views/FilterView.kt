@@ -11,6 +11,7 @@ import androidx.appcompat.widget.SwitchCompat
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStoreOwner
+import androidx.lifecycle.asLiveData
 import com.google.android.material.chip.ChipGroup
 import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.Filter
@@ -21,9 +22,11 @@ import com.wtb.comiccollector.database.models.FilterOption
 import com.wtb.comiccollector.database.models.Publisher
 import com.wtb.comiccollector.database.models.Series
 import com.wtb.comiccollector.item_lists.fragments.SeriesListFragment
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 private const val TAG = APP + "FilterView"
 
+@ExperimentalCoroutinesApi
 class FilterView(ctx: Context, attributeSet: AttributeSet) :
     LinearLayout(ctx, attributeSet), Chippy.ChipCallbacks {
 
@@ -63,21 +66,37 @@ class FilterView(ctx: Context, attributeSet: AttributeSet) :
         sortChipGroup = view.findViewById(R.id.sort_chip_group) as SortChipGroup
         filterTextView = view.findViewById(R.id.search_tv) as AutoCompleteTextView
 
-        viewModel.filterOptionsLiveData.observe(
+        viewModel.filterOptions.observe(
             ctx as LifecycleOwner,
             { filterObjects ->
                 filterObjects?.let { filterTextView.setAdapter(FilterOptionsAdapter(ctx, it)) }
             }
         )
 
-        viewModel.filterLiveData.observe(
+        viewModel.filter.asLiveData().observe(
             ctx as LifecycleOwner,
             { filter ->
+                Log.d(TAG, "THIS SHOULD BE CHANGING FILTER _FILTER!!!")
                 this.filter = filter
                 sortChipGroup.filter = filter
             }
         )
 
+//        viewModel.filter.collectLatest { filter ->
+//            Log.d(TAG, "THIS SHOULD BE CHANGING FILTER _FILTER!!!")
+//            this.filter = filter
+//            sortChipGroup.filter = filter
+//        }
+//
+//        viewModel.filter.observe(
+//            ctx as LifecycleOwner,
+//            { filter ->
+//                Log.d(TAG, "THIS SHOULD BE CHANGING FILTER _FILTER!!!")
+//                this.filter = filter
+//                sortChipGroup.filter = filter
+//            }
+//        )
+//
         filterTextView.onItemClickListener =
             AdapterView.OnItemClickListener { parent, v, position, id ->
                 val item = parent?.adapter?.getItem(position) as FilterOption
@@ -115,7 +134,7 @@ class FilterView(ctx: Context, attributeSet: AttributeSet) :
         filterItems.forEach { addChip(it) }
 
         myCollectionSwitch.isChecked = filter.mMyCollection
-        
+
         topSection.visibility = if (showFilter || myCollectionSwitch.isChecked) {
             View.VISIBLE
         } else {

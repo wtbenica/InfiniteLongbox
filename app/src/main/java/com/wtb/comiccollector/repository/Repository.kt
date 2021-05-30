@@ -26,6 +26,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
@@ -112,25 +113,17 @@ class Repository private constructor(val context: Context) {
         StaticUpdater(apiService, database, prefs).update()
     }
 
-    val allSeries: LiveData<List<Series>> = seriesDao.getAllOfThem()
-    val allPublishers: LiveData<List<Publisher>> = publisherDao.getPublishersList()
-    val allCreators: LiveData<List<Creator>> = creatorDao.getCreatorsList()
-    val allRoles: LiveData<List<Role>> = roleDao.getRoleList()
+    val allSeries: Flow<List<Series>> = seriesDao.getAllOfThem()
+    val allPublishers: Flow<List<Publisher>> = publisherDao.getPublishersList()
+    val allCreators: Flow<List<Creator>> = creatorDao.getCreatorsList()
+    val allRoles: Flow<List<Role>> = roleDao.getRoleList()
 
-    fun getSeries(seriesId: Int): LiveData<Series?> = seriesDao.getSeries(seriesId)
+    fun getSeries(seriesId: Int): Flow<Series?> = seriesDao.getSeries(seriesId)
 
     fun getSeriesByFilterPagingSource(filter: Filter): PagingSource<Int, FullSeries> {
         val mSeries = filter.mSeries
         if (mSeries == null) {
-            val creatorIds = filter.mCreators.map { it.creatorId }
-
-            if (filter.hasCreator()) {
-                CoroutineScope(Dispatchers.IO).launch {
-                    Log.d(TAG, "getSeriesByFilterPagingSource UpdateCreator all ${creatorIds.size}")
-                    UpdateCreator(apiService, database, prefs).updateAll(creatorIds)
-                }
-            }
-
+            refreshFilterOptions(mSeries, filter.mCreators)
             return seriesDao.getSeriesByFilter(filter)
         } else {
             Log.d(TAG, "getSeriesByFilterPagingSource: Wasn't expecting to see a series here")
@@ -139,100 +132,51 @@ class Repository private constructor(val context: Context) {
         }
     }
 
-    fun getSeriesByFilterLiveData(filter: Filter): LiveData<List<Series>> {
+    fun getSeriesByFilterLiveData(filter: Filter): Flow<List<Series>> {
         val mSeries = filter.mSeries
         if (mSeries == null) {
-            val creatorIds = filter.mCreators.map { it.creatorId }
-
-            if (filter.hasCreator()) {
-                CoroutineScope(Dispatchers.IO).launch {
-                    Log.d(TAG, "getSeriesByFilterLiveData")
-                    UpdateCreator(apiService, database, prefs).updateAll(creatorIds)
-                }
-            }
-
-            return seriesDao.getSeriesByFilterLiveData(filter)
+            refreshFilterOptions(mSeries, filter.mCreators)
+            return seriesDao.getSeriesByFilterFlow(filter)
         } else {
             throw java.lang.IllegalArgumentException("getSeriesByFilterLiveData: Filter seriesId should be null $filter")
         }
     }
 
-    fun getIssue(issueId: Int): LiveData<FullIssue?> {
+    fun getIssue(issueId: Int): Flow<FullIssue?> {
         UpdateIssueCredit(apiService, database, prefs).update(issueId)
         UpdateIssueCover(database, context).update(issueId)
-        return issueDao.getFullIssue(issueId)
-    }
-
-    suspend fun getIssue2(issueId: Int): FullIssue? {
-        UpdateIssueCredit(apiService, database, prefs).update(issueId)
-        UpdateIssueCover(database, context).update(issueId)
-        return issueDao.getFullIssue2(issueId)
-    }
-
-    fun getIssue3(issueId: Int): Flow<FullIssue?> {
-        UpdateIssueCredit(apiService, database, prefs).update(issueId)
-        UpdateIssueCover(database, context).update(issueId)
-        return issueDao.getFullIssue3(issueId)
-    }
-
-    fun getIssuesByFilterPagingSource(filter: Filter): PagingSource<Int, FullIssue> {
-        val mSeries = filter.mSeries
-
-        if (mSeries != null) {
-            val seriesId = mSeries.seriesId
-            val creatorIds = filter.mCreators.map { it.creatorId }
-
-            if (filter.hasCreator()) {
-                CoroutineScope(Dispatchers.IO).launch {
-                    UpdateCreator(apiService, database, prefs).updateAll(creatorIds)
-                }
-            }
-
-            Log.d(TAG, "issuesbyfilter pagingsource")
-            UpdateSeries(apiService, database, prefs).update(seriesId)
-        }
-
-        return issueDao.getIssuesByFilterPagingSource(filter)
-    }
-
-    fun getIssuesByFilterFlow(filter: Filter): Flow<List<FullIssue>> {
-        val mSeries = filter.mSeries
-
-        if (mSeries != null) {
-            val seriesId = mSeries.seriesId
-            val creatorIds = filter.mCreators.map { it.creatorId }
-
-            if (filter.hasCreator()) {
-                CoroutineScope(Dispatchers.IO).launch {
-                    UpdateCreator(apiService, database, prefs).updateAll(creatorIds)
-                }
-            }
-
-            Log.d(TAG, "issuesbyfilter flow")
-            UpdateSeries(apiService, database, prefs).update(seriesId)
-        }
-
-        return issueDao.getIssuesByFilterFlow(filter)
+        return issueDao.getFullIssue3(issueId = issueId)
     }
 
     fun getIssuesByFilter(filter: Filter): Flow<List<FullIssue>> {
         val mSeries = filter.mSeries
-
         if (mSeries != null) {
-            val seriesId = mSeries.seriesId
-            val creatorIds = filter.mCreators.map { it.creatorId }
+            refreshFilterOptions(series = mSeries, creators = filter.mCreators)
+        }
+        return issueDao.getIssuesByFilter(filter = filter)
+    }
 
-            if (filter.hasCreator()) {
-                CoroutineScope(Dispatchers.IO).launch {
-                    UpdateCreator(apiService, database, prefs).updateAll(creatorIds)
-                }
+    fun getIssuesByFilterPagingSource(filter: Filter): PagingSource<Int, FullIssue> {
+        val mSeries = filter.mSeries
+        if (mSeries != null) {
+            refreshFilterOptions(mSeries, filter.mCreators)
+        }
+        return issueDao.getIssuesByFilterPagingSource(filter = filter)
+    }
+
+    private fun refreshFilterOptions(
+        series: Series?,
+        creators: Set<Creator>
+    ) {
+        val creatorIds = creators.map { it.creatorId }
+
+        if (creatorIds.isNotEmpty()) {
+            CoroutineScope(Dispatchers.IO).launch {
+                UpdateCreator(apiService, database, prefs).updateAll(creatorIds)
             }
-
-            Log.d(TAG, "issuesbyfilter flow")
-            UpdateSeries(apiService, database, prefs).update(seriesId)
         }
 
-        return issueDao.getIssuesByFilter(filter)
+        series?.let { UpdateSeries(apiService, database, prefs).update(it.seriesId) }
     }
 
     fun getVariants(issueId: Int): Flow<List<Issue>> = issueDao.getVariants(issueId)
@@ -248,56 +192,81 @@ class Repository private constructor(val context: Context) {
         res
     }
 
-    //    fun getCreditsByIssue(issueId: Int) = AllCreditsLiveData(
-//        creditDao.getIssueCredits(issueId),
-//        exCreditDao.getIssueExtractedCredits(issueId),
-//        combine = { credits1: List<FullCredit>?, credits2: List<FullCredit>? ->
-//            val res = (credits1 ?: emptyList()) + (credits2 ?: emptyList())
-//            sort(res)
-//            res
-//        })
-//
-    fun getCoverByIssueId(issueId: Int): LiveData<Cover?> = coverDao.getCoverByIssueId(issueId)
+    fun getCoverByIssueId(issueId: Int): LiveData<Cover?> =
+        coverDao.getCoverByIssueId(issueId)
 
-    fun getValidFilterOptions(filter: Filter): AllFiltersLiveData {
-        val seriesList =
+    fun getValidFilterOptions(filter: Filter): Flow<List<FilterOption>> {
+        val seriesList: Flow<List<FilterOption>> =
             when {
                 filter.isEmpty()       -> allSeries
-                filter.mSeries == null -> seriesDao.getSeriesByFilterLiveData(filter)
-                else                   -> null
+                filter.mSeries == null -> seriesDao.getSeriesByFilterFlow(filter)
+                else                   -> flow { emit(emptyList<FilterOption>()) }
             }
 
-        val creatorsList =
+        val creatorsList: Flow<List<FilterOption>> =
             when {
                 filter.isEmpty()           -> allCreators
                 filter.mCreators.isEmpty() -> creatorDao.getCreatorsByFilter(filter)
-                else                       -> null
+                else                       -> flow { emit(emptyList<FilterOption>()) }
             }
 
-        val publishersList =
+        val publishersList: Flow<List<FilterOption>> =
             when {
                 filter.isEmpty()             -> allPublishers
                 filter.mPublishers.isEmpty() -> publisherDao.getPublishersByFilter(filter)
-                else                         -> null
+                else                         -> flow { emit(emptyList<FilterOption>()) }
             }
 
-        return AllFiltersLiveData(
-            series = seriesList,
-            creators = creatorsList,
-            publishers = publishersList,
-            combine = { series: List<Series>?, creators: List<Creator>?, publishers:
-            List<Publisher>? ->
-                val res =
-                    (series?.toList() as List<FilterOption?>?
-                        ?: emptyList()) + (creators as List<FilterOption>?
-                        ?: emptyList()) + (publishers as List<FilterOption>? ?: emptyList())
-                val x: List<FilterOption> = res.mapNotNull { it }
-                sort(x)
-                x
-            })
+        return combine(
+            seriesList,
+            creatorsList,
+            publishersList
+        ) { series: List<FilterOption>, creators: List<FilterOption>, publishers: List<FilterOption> ->
+            val res = series + creators + publishers
+            sort(res)
+            res
+        }
     }
 
-    fun getPublisher(publisherId: Int): LiveData<Publisher?> =
+//    fun getValidFilterOptions(filter: Filter): AllFiltersLiveData {
+//        val seriesList =
+//            when {
+//                filter.isEmpty()       -> allSeries
+//                filter.mSeries == null -> seriesDao.getSeriesByFilterFlow(filter)
+//                else                   -> null
+//            }
+//
+//        val creatorsList =
+//            when {
+//                filter.isEmpty()           -> allCreators
+//                filter.mCreators.isEmpty() -> creatorDao.getCreatorsByFilter(filter)
+//                else                       -> null
+//            }
+//
+//        val publishersList =
+//            when {
+//                filter.isEmpty()             -> allPublishers
+//                filter.mPublishers.isEmpty() -> publisherDao.getPublishersByFilter(filter)
+//                else                         -> null
+//            }
+//
+//        return AllFiltersLiveData(
+//            series = seriesList,
+//            creators = creatorsList,
+//            publishers = publishersList,
+//            combine = { series: List<Series>?, creators: List<Creator>?, publishers:
+//            List<Publisher>? ->
+//                val res =
+//                    (series?.toList() as List<FilterOption?>?
+//                        ?: emptyList()) + (creators as List<FilterOption>?
+//                        ?: emptyList()) + (publishers as List<FilterOption>? ?: emptyList())
+//                val x: List<FilterOption> = res.mapNotNull { it }
+//                sort(x)
+//                x
+//            })
+//    }
+
+    fun getPublisher(publisherId: Int): Flow<Publisher?> =
         publisherDao.getPublisher(publisherId)
 
 /*
@@ -374,7 +343,11 @@ class Repository private constructor(val context: Context) {
         // TODO: This should probably get moved out of SharedPreferences and stored with each record.
         //  The tradeoff: an extra local db query vs. having a larger prefs which will end up having
         //  a value for every item in the database.
-        fun checkIfStale(prefsKey: String, shelfLife: Long, prefs: SharedPreferences): Boolean {
+        fun checkIfStale(
+            prefsKey: String,
+            shelfLife: Long,
+            prefs: SharedPreferences
+        ): Boolean {
             val lastUpdated = LocalDate.parse(prefs.getString(prefsKey, "${LocalDate.MIN}"))
             return DEBUG || lastUpdated.plusDays(shelfLife) < LocalDate.now()
         }

@@ -1,33 +1,33 @@
 package com.wtb.comiccollector.database.Daos
 
-import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Query
 import androidx.room.RawQuery
 import androidx.sqlite.db.SimpleSQLiteQuery
 import androidx.sqlite.db.SupportSQLiteQuery
-import com.wtb.comiccollector.repository.DUMMY_ID
 import com.wtb.comiccollector.Filter
 import com.wtb.comiccollector.database.models.Publisher
+import com.wtb.comiccollector.repository.DUMMY_ID
+import kotlinx.coroutines.flow.Flow
 import java.util.*
 
 @Dao
 abstract class PublisherDao : BaseDao<Publisher>() {
     @Query("SELECT * FROM publisher WHERE publisherId = :publisherId")
-    abstract fun getPublisher(publisherId: Int): LiveData<Publisher?>
+    abstract fun getPublisher(publisherId: Int): Flow<Publisher?>
 
     @Query("SELECT * FROM publisher WHERE publisherId != $DUMMY_ID ORDER BY publisher ASC")
-    abstract fun getPublishersList(): LiveData<List<Publisher>>
+    abstract fun getPublishersList(): Flow<List<Publisher>>
 
     @Query("SELECT * FROM publisher WHERE publisherId IN (:publisherIds)")
-    abstract fun getPublishers(publisherIds: List<Int>?): LiveData<List<Publisher>?>
+    abstract fun getPublishers(publisherIds: List<Int>?): Flow<List<Publisher>?>
 
     @RawQuery(
         observedEntities = [Publisher::class]
     )
-    abstract fun getPublishersByQuery(query: SupportSQLiteQuery): LiveData<List<Publisher>>
+    abstract fun getPublishersByQuery(query: SupportSQLiteQuery): Flow<List<Publisher>>
 
-    fun getPublishersByFilter(filter: Filter): LiveData<List<Publisher>> {
+    fun getPublishersByFilter(filter: Filter): Flow<List<Publisher>> {
         val mSeries = filter.mSeries
         var tableJoinString = String()
         var conditionsString = String()

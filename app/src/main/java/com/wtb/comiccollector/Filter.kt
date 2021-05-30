@@ -15,9 +15,9 @@ const val ARG_FILTER = "Filter"
 private const val TAG = APP + "Filter_SortChipGroup"
 
 class Filter(
-    creators: MutableSet<Creator>? = null,
+    creators: Set<Creator>? = null,
     series: Series? = null,
-    publishers: MutableSet<Publisher>? = null,
+    publishers: Set<Publisher>? = null,
     startDate: LocalDate? = null,
     endDate: LocalDate? = null,
     myCollection: Boolean = true,
@@ -42,7 +42,7 @@ class Filter(
         return other is Filter && hashCode() == other.hashCode()
     }
 
-    var mCreators: MutableSet<Creator> = creators ?: mutableSetOf()
+    var mCreators: Set<Creator> = creators ?: setOf()
     var mSeries: Series? = series
         set(value) {
             if (getSortOptions(value) != getSortOptions()) {
@@ -51,7 +51,7 @@ class Filter(
 
             field = value
         }
-    var mPublishers: MutableSet<Publisher> = publishers ?: mutableSetOf()
+    var mPublishers: Set<Publisher> = publishers ?: setOf()
     var mStartDate: LocalDate = startDate ?: LocalDate.MIN
     var mEndDate: LocalDate = endDate ?: LocalDate.MAX
     var mMyCollection: Boolean = myCollection
@@ -66,11 +66,13 @@ class Filter(
     }
 
     private fun addCreator(vararg creator: Creator) {
-        mCreators.addAll(creator)
+        val newCreators = mCreators + creator.toSet()
+        mCreators = newCreators
     }
 
     private fun removeCreator(vararg creator: Creator) {
-        mCreators.removeAll(creator)
+        val newCreators = mCreators - creator.toSet()
+        mCreators = newCreators
     }
 
     private fun addSeries(series: Series) {
@@ -82,11 +84,13 @@ class Filter(
     }
 
     private fun addPublisher(vararg publisher: Publisher) {
-        mPublishers.addAll(publisher)
+        val newPublishers = mPublishers + publisher.toSet()
+        mPublishers = newPublishers
     }
 
     private fun removePublisher(vararg publisher: Publisher) {
-        mPublishers.removeAll(publisher)
+        val newPublishers = mPublishers - publisher.toSet()
+        mPublishers = newPublishers
     }
 
     fun setMyCollection(value: Boolean) {
@@ -128,13 +132,11 @@ class Filter(
 
 
     fun updateCreators(creators: List<Creator>?) {
-        mCreators.clear()
-        creators?.let { mCreators.addAll(it) }
+        creators?.let { mCreators = it.toSet() }
     }
 
     fun updatePublishers(publishers: List<Publisher>?) {
-        mPublishers.clear()
-        publishers?.let { mPublishers.addAll(it) }
+        publishers?.let { mPublishers = it.toSet() }
     }
 
     fun updateSeries(series: Series?) {

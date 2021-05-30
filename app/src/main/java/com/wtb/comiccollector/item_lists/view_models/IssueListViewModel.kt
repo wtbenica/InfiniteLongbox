@@ -1,10 +1,7 @@
 package com.wtb.comiccollector.item_lists.view_models
 
 import android.util.Log
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Transformations
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.*
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
@@ -26,7 +23,7 @@ class IssueListViewModel : ViewModel() {
     var seriesLiveData: LiveData<Series?> =
         Transformations.switchMap(filterLiveData) {
             it?.let { filter ->
-                filter.mSeries?.seriesId?.let { id -> repository.getSeries(id) }
+                filter.mSeries?.seriesId?.let { id -> repository.getSeries(id).asLiveData() }
             }
         }
 

@@ -1,6 +1,5 @@
 package com.wtb.comiccollector.database.Daos
 
-import androidx.lifecycle.LiveData
 import androidx.paging.PagingSource
 import androidx.room.Dao
 import androidx.room.Query
@@ -12,6 +11,7 @@ import com.wtb.comiccollector.Filter
 import com.wtb.comiccollector.database.models.FullSeries
 import com.wtb.comiccollector.database.models.Series
 import com.wtb.comiccollector.repository.DUMMY_ID
+import kotlinx.coroutines.flow.Flow
 import java.util.*
 
 private const val TAG = APP + "SeriesDao"
@@ -20,10 +20,10 @@ private const val TAG = APP + "SeriesDao"
 abstract class SeriesDao : BaseDao<Series>() {
 
     @Query("SELECT * FROM series WHERE seriesId=:seriesId")
-    abstract fun getSeries(seriesId: Int): LiveData<Series?>
+    abstract fun getSeries(seriesId: Int): Flow<Series?>
 
     @Query("SELECT * FROM series")
-    abstract fun getAllOfThem(): LiveData<List<Series>>
+    abstract fun getAllOfThem(): Flow<List<Series>>
 
     @RawQuery(
         observedEntities = [Series::class]
@@ -88,9 +88,9 @@ abstract class SeriesDao : BaseDao<Series>() {
     @RawQuery(
         observedEntities = [Series::class]
     )
-    abstract fun getSeriesByQueryLiveData(query: SupportSQLiteQuery): LiveData<List<Series>>
+    abstract fun getSeriesByQueryFlow(query: SupportSQLiteQuery): Flow<List<Series>>
 
-    fun getSeriesByFilterLiveData(filter: Filter): LiveData<List<Series>> {
+    fun getSeriesByFilterFlow(filter: Filter): Flow<List<Series>> {
 
         var tableJoinString = String()
         var conditionsString = String()
@@ -138,6 +138,6 @@ abstract class SeriesDao : BaseDao<Series>() {
             args.toArray()
         )
 
-        return getSeriesByQueryLiveData(query)
+        return getSeriesByQueryFlow(query)
     }
 }

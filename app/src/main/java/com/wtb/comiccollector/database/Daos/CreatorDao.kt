@@ -6,9 +6,10 @@ import androidx.room.Query
 import androidx.room.RawQuery
 import androidx.sqlite.db.SimpleSQLiteQuery
 import androidx.sqlite.db.SupportSQLiteQuery
-import com.wtb.comiccollector.repository.DUMMY_ID
 import com.wtb.comiccollector.Filter
 import com.wtb.comiccollector.database.models.Creator
+import com.wtb.comiccollector.repository.DUMMY_ID
+import kotlinx.coroutines.flow.Flow
 import java.time.LocalDate
 import java.util.*
 
@@ -32,7 +33,7 @@ abstract class CreatorDao : BaseDao<Creator>() {
     ): LiveData<List<Creator>>
 
     @Query("SELECT * FROM creator ORDER BY sortName ASC")
-    abstract fun getCreatorsList(): LiveData<List<Creator>>
+    abstract fun getCreatorsList(): Flow<List<Creator>>
 
     @Query(
         """
@@ -47,7 +48,7 @@ abstract class CreatorDao : BaseDao<Creator>() {
             AND c.name LIKE :text
         """
     )
-    abstract fun getCreatorBySeriesAndPartial(seriesId: Int, text: String): LiveData<List<Creator>>
+    abstract fun getCreatorBySeriesAndPartial(seriesId: Int, text: String): Flow<List<Creator>>
 
     @Query(
         """
@@ -61,7 +62,7 @@ abstract class CreatorDao : BaseDao<Creator>() {
             WHERE s.seriesId = :seriesId
         """
     )
-    abstract fun getCreatorBySeries(seriesId: Int): LiveData<List<Creator>>
+    abstract fun getCreatorBySeries(seriesId: Int): Flow<List<Creator>>
 
     @Query(
         """
@@ -79,7 +80,7 @@ abstract class CreatorDao : BaseDao<Creator>() {
             WHERE cr.name = :creator
         """
     )
-    abstract fun getCreatorByName(creator: String): LiveData<Creator?>
+    abstract fun getCreatorByName(creator: String): Flow<Creator?>
 
     @Query(
         """
@@ -91,20 +92,20 @@ abstract class CreatorDao : BaseDao<Creator>() {
     abstract suspend fun getCreatorByNameSus(creator: String): List<Creator>?
 
     @Query("SELECT * FROM creator WHERE creatorId = :creatorId")
-    abstract fun getCreator(vararg creatorId: Int): LiveData<Creator?>
+    abstract fun getCreator(vararg creatorId: Int): Flow<Creator?>
 
     @Query("SELECT * FROM creator WHERE creatorId = :creatorId")
     abstract suspend fun getCreatorSus(vararg creatorId: Int): Creator?
 
     @Query("SELECT * FROM creator WHERE creatorId IN (:creatorIds)")
-    abstract fun getCreators(creatorIds: List<Int>?): LiveData<List<Creator>?>
+    abstract fun getCreators(creatorIds: List<Int>?): Flow<List<Creator>?>
 
     @RawQuery(
         observedEntities = [Creator::class]
     )
-    abstract fun getCreatorsByQuery(query: SupportSQLiteQuery): LiveData<List<Creator>>
+    abstract fun getCreatorsByQuery(query: SupportSQLiteQuery): Flow<List<Creator>>
 
-    fun getCreatorsByFilter(filter: Filter): LiveData<List<Creator>> {
+    fun getCreatorsByFilter(filter: Filter): Flow<List<Creator>> {
         val mSeries = filter.mSeries
 
         var tableJoinString = String()

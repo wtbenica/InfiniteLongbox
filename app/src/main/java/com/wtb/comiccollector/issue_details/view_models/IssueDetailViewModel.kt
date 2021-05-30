@@ -34,7 +34,7 @@ class IssueDetailViewModel : ViewModel() {
     val variantId: StateFlow<Int> = _variantId
 
     val issue: StateFlow<FullIssue?> = issueId.flatMapLatest { id ->
-        repository.getIssue3(id)
+        repository.getIssue(id)
     }.stateIn(
         scope = viewModelScope,
         started = WhileSubscribed(5000),
@@ -43,7 +43,7 @@ class IssueDetailViewModel : ViewModel() {
 
     val variant: LiveData<FullIssue?> =
         variantId.flatMapLatest { id ->
-            repository.getIssue3(id)
+            repository.getIssue(id)
         }.asLiveData()
 
     val issueList: LiveData<List<FullIssue>> = issue.flatMapLatest { fullIssue ->
@@ -109,13 +109,13 @@ class IssueDetailViewModel : ViewModel() {
     /***
      * This stuff is only used in the issue edit fragment, iow: not used
      */
-    var allSeriesLiveData: LiveData<List<Series>> = repository.allSeries
+    var allSeriesLiveData: LiveData<List<Series>> = repository.allSeries.asLiveData()
 
-    var allPublishersLiveData: LiveData<List<Publisher>> = repository.allPublishers
+    var allPublishersLiveData: LiveData<List<Publisher>> = repository.allPublishers.asLiveData()
 
-    var allCreatorsLiveData: LiveData<List<Creator>> = repository.allCreators
+    var allCreatorsLiveData: LiveData<List<Creator>> = repository.allCreators.asLiveData()
 
-    var allRolesLiveData: LiveData<List<Role>> = repository.allRoles
+    var allRolesLiveData: LiveData<List<Role>> = repository.allRoles.asLiveData()
 
     fun updateIssue(issue: Issue) {
         repository.saveIssue(issue)
