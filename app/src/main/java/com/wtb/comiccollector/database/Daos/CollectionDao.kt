@@ -1,6 +1,5 @@
 package com.wtb.comiccollector.database.Daos
 
-import androidx.lifecycle.LiveData
 import androidx.paging.DataSource
 import androidx.room.Dao
 import androidx.room.Query
@@ -13,6 +12,7 @@ import com.wtb.comiccollector.Filter
 import com.wtb.comiccollector.database.models.FullIssue
 import com.wtb.comiccollector.database.models.MyCollection
 import com.wtb.comiccollector.database.models.Series
+import kotlinx.coroutines.flow.Flow
 import java.util.*
 
 private const val TAG = APP + "CollectionDao"
@@ -158,7 +158,7 @@ abstract class CollectionDao : BaseDao<MyCollection>() {
             WHERE mc.issueId = :issueId
         """
     )
-    abstract fun inCollection(issueId: Int): LiveData<Count>
+    abstract fun inCollection(issueId: Int): Flow<Count>
 
     @Query(
         """

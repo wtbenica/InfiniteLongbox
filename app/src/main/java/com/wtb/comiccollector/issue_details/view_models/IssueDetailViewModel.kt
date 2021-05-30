@@ -3,145 +3,119 @@
 package com.wtb.comiccollector.issue_details.view_models
 
 import android.util.Log
-import androidx.lifecycle.*
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.asLiveData
+import androidx.lifecycle.viewModelScope
 import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.Filter
 import com.wtb.comiccollector.database.Daos.Count
 import com.wtb.comiccollector.database.models.*
+import com.wtb.comiccollector.repository.DUMMY_ID
 import com.wtb.comiccollector.repository.Repository
-import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted.Companion.WhileSubscribed
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.stateIn
 
 private const val TAG = APP + "IssueDetailViewModel"
 
+@ExperimentalCoroutinesApi
 class IssueDetailViewModel : ViewModel() {
 
     private val repository: Repository = Repository.get()
 
-    private val issueIdLiveData = MutableLiveData<Int>()
-    private val variantIdLiveData = MutableLiveData<Int?>()
+    private val _issueId = MutableStateFlow<Int>(DUMMY_ID)
+    private val _variantId = MutableStateFlow<Int>(DUMMY_ID)
 
-    internal val issueLiveData: LiveData<FullIssue?> =
-        Transformations.switchMap(issueIdLiveData) { issueId ->
-            repository.getIssue(issueId)
-        }
+    val issueId: StateFlow<Int> = _issueId
+    val variantId: StateFlow<Int> = _variantId
 
-    //    val issueListLiveData = issueLiveData.switchMap { issue: FullIssue? ->
-//        repository.getIssuesByFilterFlow(Filter(series = issue?.series))
-//            .asLiveData(viewModelScope.coroutineContext)
-//    }
-//
+    val issue: StateFlow<FullIssue?> = issueId.flatMapLatest { id ->
+        repository.getIssue(id)
+    }.stateIn(
+        scope = viewModelScope,
+        started = WhileSubscribed(5000),
+        initialValue = null
+    )
 
-    fun issueList(series: Series?): Flow<List<FullIssue>>? {
-        val issueValue = issueLiveData.value
-        Log.d(TAG, "issueList() issueValue: $issueValue")
-        return issueValue?.let { issue ->
-            repository.getIssuesByFilterFlow(Filter(series = series))
-        }
-    }
-//    val issueListLiveData = issueLiveData.switchMap { issue: FullIssue ->
-//        liveData(context = viewModelScope.coroutineContext) {
-//            emit(issueRepository.getIssuesByFilterFlow(Filter(series = issue.series)))
-//        }
-//    }
-//
-//    val issueListLiveData = Transformations.switchMap(issueLiveData) { issue ->
-//        issueRepository.getIssuesByFilterLiveData(Filter(series = issue.series)).asLiveData()
-//    }
-//
+    val variant: LiveData<FullIssue?> =
+        variantId.flatMapLatest { id ->
+            repository.getIssue(id)
+        }.asLiveData()
 
-    //    lateinit var issueListLiveData: PagingSource<Int, FullIssue>
-//
-//    init {
-//        issueLiveData.observeForever(object : Observer<FullIssue> {
-//            override fun onChanged(t: FullIssue?) {
-//                issueListLiveData = issueRepository.getIssuesByFilter(Filter(series = t?.series))
-//            }
-//        })
-//    }
-//
+    val issueList: LiveData<List<FullIssue>> = issue.flatMapLatest { fullIssue ->
+        repository.getIssuesByFilter(Filter(series = fullIssue?.series, myCollection = false))
+    }.asLiveData()
+
     val issueStoriesLiveData: LiveData<List<Story>> =
-        Transformations.switchMap(issueIdLiveData) { issueId ->
-            repository.getStoriesByIssue(issueId)
-        }
+        issueId.flatMapLatest { issueId -> repository.getStoriesByIssue(issueId) }.asLiveData()
 
     val issueCreditsLiveData: LiveData<List<FullCredit>> =
-        Transformations.switchMap(issueIdLiveData) { issueId ->
-            repository.getCreditsByIssue(issueId)
-        }
-
-    val variantLiveData: LiveData<FullIssue?> =
-        Transformations.switchMap(variantIdLiveData) { variantId ->
-            Log.d(TAG, "Loading variantLD")
-            if (variantId != null) {
-                Log.d(TAG, "Setting variant")
-                variantId.let { repository.getIssue(it) }
-            } else {
-                Log.d(TAG, "Clearing variant")
-                liveData { emit(null as FullIssue?) }
-            }
-        }
+        issueId.flatMapLatest { issueId -> repository.getCreditsByIssue(issueId) }.asLiveData()
 
     val variantStoriesLiveData: LiveData<List<Story>> =
-        Transformations.switchMap(variantIdLiveData) { variantId ->
-            if (variantId != null) {
-                repository.getStoriesByIssue(variantId)
-            } else {
-                liveData { emit(emptyList<Story>()) }
-            }
-        }
+        variantId.flatMapLatest { issueId -> repository.getStoriesByIssue(issueId) }.asLiveData()
 
     val variantCreditsLiveData: LiveData<List<FullCredit>> =
-        Transformations.switchMap(variantIdLiveData) { variantId ->
-            if (variantId != null) {
-                repository.getCreditsByIssue(variantId)
-            } else {
-                liveData { emit(emptyList<FullCredit>()) }
-            }
-        }
+        variantId.flatMapLatest { issueId -> repository.getCreditsByIssue(issueId) }.asLiveData()
 
     val variantsLiveData: LiveData<List<Issue>> =
-        Transformations.switchMap(issueIdLiveData) { issueId ->
-            repository.getVariants(issueId)
-        }
+        issueId.flatMapLatest { id -> repository.getVariants(id) }.asLiveData()
 
     val inCollectionLiveData: LiveData<Count> =
-        Transformations.switchMap(issueIdLiveData) { issueId ->
-            repository.inCollection(issueId)
-        }
+        issueId.flatMapLatest { repository.inCollection(it) }.asLiveData()
 
     val variantInCollectionLiveData: LiveData<Count> =
-        Transformations.switchMap(variantIdLiveData) { variantId ->
-            if (variantId != null) {
-                repository.inCollection(variantId)
-            } else {
-                liveData { emit(Count(0)) }
-            }
-        }
-
-    var allSeriesLiveData: LiveData<List<Series>> = repository.allSeries
-
-    var allPublishersLiveData: LiveData<List<Publisher>> = repository.allPublishers
-
-    var allCreatorsLiveData: LiveData<List<Creator>> = repository.allCreators
-
-    var allRolesLiveData: LiveData<List<Role>> = repository.allRoles
+        variantId.flatMapLatest { repository.inCollection(it) }.asLiveData()
 
     fun loadIssue(issueId: Int) {
-        issueIdLiveData.value = AUTO_ID
-        issueIdLiveData.value = issueId
+        _issueId.value = issueId
     }
 
-    fun getIssueId() = issueIdLiveData.value
+    fun getIssueId() = issueId.value
 
     fun loadVariant(issueId: Int?) {
-        variantIdLiveData.value = AUTO_ID
-        variantIdLiveData.value = issueId
+        _variantId.value = issueId ?: DUMMY_ID
     }
 
     fun clearVariant() {
         Log.d(TAG, "Clearing variant")
-        variantIdLiveData.value = null
+        _variantId.value = DUMMY_ID
     }
+
+    fun addToCollection() {
+        val currentIssueId = if (variantId.value == DUMMY_ID) {
+            issueId.value
+        } else {
+            variantId.value
+        }
+        repository.addToCollection(currentIssueId)
+    }
+
+
+    fun removeFromCollection() {
+        val currentIssueId = if (variantId.value == DUMMY_ID) {
+            issueId.value
+        } else {
+            variantId.value
+        }
+        repository.removeFromCollection(currentIssueId)
+    }
+
+
+    /***
+     * This stuff is only used in the issue edit fragment, iow: not used
+     */
+    var allSeriesLiveData: LiveData<List<Series>> = repository.allSeries.asLiveData()
+
+    var allPublishersLiveData: LiveData<List<Publisher>> = repository.allPublishers.asLiveData()
+
+    var allCreatorsLiveData: LiveData<List<Creator>> = repository.allCreators.asLiveData()
+
+    var allRolesLiveData: LiveData<List<Role>> = repository.allRoles.asLiveData()
 
     fun updateIssue(issue: Issue) {
         repository.saveIssue(issue)
@@ -169,21 +143,5 @@ class IssueDetailViewModel : ViewModel() {
 
     fun deleteCredit(credit: Credit) {
         repository.deleteCredit(credit)
-    }
-
-    fun upsertCover(cover: Cover) {
-        repository.saveCover(cover)
-    }
-
-    fun addToCollection() {
-        (variantIdLiveData.value
-            ?: issueIdLiveData.value)?.let { repository.addToCollection(it) }
-    }
-
-    fun removeFromCollection() {
-        (variantIdLiveData.value
-            ?: issueIdLiveData.value)?.let {
-            repository.removeFromCollection(it)
-        }
     }
 }

@@ -32,6 +32,10 @@ class SeriesListFragment(var callback: SeriesListCallbacks? = null) : Fragment()
     }
 
     private var filter = Filter()
+        set(value) {
+            field = value
+            viewModel.setFilter(filter)
+        }
     private lateinit var itemListRecyclerView: RecyclerView
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -59,21 +63,13 @@ class SeriesListFragment(var callback: SeriesListCallbacks? = null) : Fragment()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        viewModel.setFilter(filter)
+
         val adapter = SeriesAdapter()
         itemListRecyclerView.adapter = adapter
 
         lifecycleScope.launch {
             viewModel.seriesList()?.collectLatest { adapter.submitData(it) }
         }
-
-//        viewModel.seriesList.observe(
-//            viewLifecycleOwner,
-//            {
-//                lifecycleScope.launch {
-//                    adapter.submitData(it)
-//                }
-//            })
     }
 
     private fun updateUI() {

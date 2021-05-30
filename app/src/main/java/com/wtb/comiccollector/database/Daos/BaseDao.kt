@@ -80,28 +80,6 @@ abstract class BaseDao<T : DataModel> {
         }
     }
 
-    //    @Transaction
-//    open suspend fun upsertSus(objList: List<T>) {
-//        for (obj in objList) {
-//            val classname = when (obj) {
-//                is Series -> "Series"
-//                is Issue  -> "Issue"
-//                is Creator    -> "Creator"
-//                is Story      -> "Story"
-//                is NameDetail -> "NameDetail"
-//                else -> "Other"
-//            }
-//
-//            try {
-//                if (insert(obj) == -1L) {
-//                    upsert(obj)
-//                }
-//            } catch (sqlEx: SQLiteConstraintException) {
-//                Log.d(TAG, "upsertSus(objList): $classname${obj.id} $sqlEx")
-//            }
-//        }
-//    }
-//
     @Transaction
     open suspend fun upsertSus(objList: List<T>) {
 
@@ -128,8 +106,8 @@ abstract class BaseDao<T : DataModel> {
         }
     }
 
-    protected fun <T : DataModel> modelsToSqlIdString(mCreators: MutableSet<T>) =
-        mCreators.map { it.id }.toString().replace(
+    protected fun <T : DataModel> modelsToSqlIdString(models: Collection<T>) =
+        models.map { it.id }.toString().replace(
             "[", "" +
                     "("
         ).replace("]", ")")

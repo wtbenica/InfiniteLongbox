@@ -1,11 +1,11 @@
 package com.wtb.comiccollector.database.Daos
 
-import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Query
 import androidx.room.Transaction
 import com.wtb.comiccollector.database.models.ExCredit
 import com.wtb.comiccollector.database.models.FullCredit
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 abstract class ExCreditDao : BaseDao<ExCredit>() {
@@ -24,5 +24,5 @@ abstract class ExCreditDao : BaseDao<ExCredit>() {
             ORDER BY st.sortCode, sr.sequenceNumber, role.sortOrder
         """
     )
-    abstract fun getIssueExtractedCredits(issueId: Int): LiveData<List<FullCredit>>
+    abstract fun getIssueExtractedCredits(issueId: Int): Flow<List<FullCredit>>
 }
