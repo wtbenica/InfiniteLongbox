@@ -87,7 +87,6 @@ class Repository private constructor(val context: Context) {
     private val characterDao = database.characterDao()
     private val appearanceDao = database.appearanceDao()
     private val collectionDao = database.collectionDao()
-    private val coverDao = database.coverDao()
 
     private val filesDir = context.applicationContext.filesDir
 
@@ -145,7 +144,7 @@ class Repository private constructor(val context: Context) {
     fun getIssue(issueId: Int): Flow<FullIssue?> {
         UpdateIssueCredit(apiService, database, prefs).update(issueId)
         UpdateIssueCover(database, context).update(issueId)
-        return issueDao.getFullIssue3(issueId = issueId)
+        return issueDao.getFullIssue(issueId = issueId)
     }
 
     fun getIssuesByFilter(filter: Filter): Flow<List<FullIssue>> {
@@ -192,9 +191,6 @@ class Repository private constructor(val context: Context) {
         res
     }
 
-    fun getCoverByIssueId(issueId: Int): LiveData<Cover?> =
-        coverDao.getCoverByIssueId(issueId)
-
     fun getValidFilterOptions(filter: Filter): Flow<List<FilterOption>> {
         val seriesList: Flow<List<FilterOption>> =
             when {
@@ -227,44 +223,6 @@ class Repository private constructor(val context: Context) {
             res
         }
     }
-
-//    fun getValidFilterOptions(filter: Filter): AllFiltersLiveData {
-//        val seriesList =
-//            when {
-//                filter.isEmpty()       -> allSeries
-//                filter.mSeries == null -> seriesDao.getSeriesByFilterFlow(filter)
-//                else                   -> null
-//            }
-//
-//        val creatorsList =
-//            when {
-//                filter.isEmpty()           -> allCreators
-//                filter.mCreators.isEmpty() -> creatorDao.getCreatorsByFilter(filter)
-//                else                       -> null
-//            }
-//
-//        val publishersList =
-//            when {
-//                filter.isEmpty()             -> allPublishers
-//                filter.mPublishers.isEmpty() -> publisherDao.getPublishersByFilter(filter)
-//                else                         -> null
-//            }
-//
-//        return AllFiltersLiveData(
-//            series = seriesList,
-//            creators = creatorsList,
-//            publishers = publishersList,
-//            combine = { series: List<Series>?, creators: List<Creator>?, publishers:
-//            List<Publisher>? ->
-//                val res =
-//                    (series?.toList() as List<FilterOption?>?
-//                        ?: emptyList()) + (creators as List<FilterOption>?
-//                        ?: emptyList()) + (publishers as List<FilterOption>? ?: emptyList())
-//                val x: List<FilterOption> = res.mapNotNull { it }
-//                sort(x)
-//                x
-//            })
-//    }
 
     fun getPublisher(publisherId: Int): Flow<Publisher?> =
         publisherDao.getPublisher(publisherId)
@@ -413,16 +371,6 @@ class Repository private constructor(val context: Context) {
         }
     }
 
-    fun saveCover(vararg cover: Cover) {
-        executor.execute {
-            try {
-                coverDao.upsert(cover.asList())
-            } catch (e: SQLiteConstraintException) {
-                Log.d(TAG, "addCover: $e")
-            }
-        }
-    }
-
     fun deleteSeries(series: Series) {
         executor.execute {
             seriesDao.delete(series)
@@ -450,12 +398,6 @@ class Repository private constructor(val context: Context) {
     fun removeFromCollection(issueId: Int) {
         executor.execute {
             collectionDao.deleteById(issueId)
-        }
-    }
-
-    fun deleteCover(cover: Cover) {
-        executor.execute {
-            coverDao.delete(cover)
         }
     }
 

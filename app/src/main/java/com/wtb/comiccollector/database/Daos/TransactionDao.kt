@@ -23,21 +23,6 @@ abstract class TransactionDao(private val database: IssueDatabase) {
         storyTypes?.let { database.storyTypeDao().upsertSus(it) }
     }
 
-    //    @Transaction
-//    open fun upsert(
-//        stories: List<Story>? = null,
-//        creators: List<Creator>? = null,
-//        nameDetails: List<NameDetail>? = null,
-//        credits: List<Credit>? = null,
-//        issues: List<Issue>? = null
-//    ) {
-//        issues?.let { database.issueDao().upsert(it) }
-//        stories?.let { database.storyDao().upsert(it) }
-//        creators?.let { database.creatorDao().upsert(it) }
-//        nameDetails?.let { database.nameDetailDao().upsert(it) }
-//        credits?.let { database.creditDao().upsert(it) }
-//    }
-//
     @Transaction
     open suspend fun upsertSus(
         stories: List<Story>? = null,

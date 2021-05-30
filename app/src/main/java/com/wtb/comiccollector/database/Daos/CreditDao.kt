@@ -24,16 +24,4 @@ abstract class CreditDao : BaseDao<Credit>() {
         """
     )
     abstract fun getIssueCredits(issueId: Int): Flow<List<FullCredit>>
-
-//    @Transaction
-//    @Query(
-//        """
-//            SELECT cr.*, c.*
-//            FROM credit cr
-//            JOIN namedetail nd ON nd.nameDetailId = cr.nameDetailId
-//            JOIN creator c on c.creatorId = nd.creatorId
-//            WHERE cr.nameDetailId = :nameDetailId
-//        """
-//    )
-//    abstract suspend fun getIssueCreditsByNameDetailSus(nameDetailId: Int): List<FullCredit>
 }

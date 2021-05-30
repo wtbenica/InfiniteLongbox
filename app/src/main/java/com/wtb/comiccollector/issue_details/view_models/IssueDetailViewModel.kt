@@ -144,9 +144,4 @@ class IssueDetailViewModel : ViewModel() {
     fun deleteCredit(credit: Credit) {
         repository.deleteCredit(credit)
     }
-
-    fun upsertCover(cover: Cover) {
-        repository.saveCover(cover)
-    }
-
 }
