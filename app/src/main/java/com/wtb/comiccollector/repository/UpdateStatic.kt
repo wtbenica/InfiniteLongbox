@@ -20,7 +20,7 @@ class StaticUpdater(
      *  Updates publisher, series, role, and storytype tables
      */
     internal fun update() {
-        if (Repository.checkIfStale(STATIC_DATA_UPDATED, STATIC_DATA_LIFETIME, prefs)) {
+        if (Repository.checkIfStale(STATIC_DATA_UPDATED, STATIC_DATA_LIFETIME, prefs) && !DEBUG) {
             val publishers = CoroutineScope(Dispatchers.IO).async {
                 webservice.getPublishers()
             }
@@ -45,7 +45,11 @@ class StaticUpdater(
                     }
             }
         } else {
-            if (Repository.checkIfStale(SERIES_LIST_UPDATED, SERIES_LIST_LIFETIME, prefs)) {
+            if (Repository.checkIfStale(
+                    SERIES_LIST_UPDATED,
+                    SERIES_LIST_LIFETIME,
+                    prefs
+                ) && !DEBUG) {
                 CoroutineScope(Dispatchers.IO).launch {
                     updateSeries()
                 }

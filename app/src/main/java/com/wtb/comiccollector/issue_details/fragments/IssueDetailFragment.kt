@@ -11,13 +11,14 @@ import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.*
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.asLiveData
+import androidx.lifecycle.lifecycleScope
 import com.wtb.comiccollector.*
 import com.wtb.comiccollector.database.Daos.Count
 import com.wtb.comiccollector.database.models.*
 import com.wtb.comiccollector.issue_details.view_models.IssueDetailViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.collect
 import java.io.File
 import java.time.format.DateTimeFormatter
 import java.util.*
@@ -108,6 +109,19 @@ class IssueDetailFragment : Fragment() {
         variantStories = emptyList()
 
         issueDetailViewModel.loadIssue(arguments?.getSerializable(ARG_ISSUE_ID) as Int)
+
+        lifecycleScope.launchWhenCreated {
+            issueDetailViewModel.issue.collect {
+                it?.let { issue ->
+                    this@IssueDetailFragment.fullIssue = issue
+                    this@IssueDetailFragment.coverUri = issue.coverUri
+                    (requireActivity() as MainActivity).supportActionBar?.apply {
+                        it.let { title = "${issue.series.seriesName} #${issue.issue.issueNum}" }
+                    }
+                    this@IssueDetailFragment.updateUI()
+                }
+            }
+        }
     }
 
     override fun onCreateView(
@@ -146,26 +160,27 @@ class IssueDetailFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        issueDetailViewModel.issue.asLiveData().observe(
-            viewLifecycleOwner,
-            {
-                Log.d(TAG, "FULLISSUE: $it")
-                it?.let { issue ->
-                    this@IssueDetailFragment.fullIssue = issue
-                    this@IssueDetailFragment.coverUri = issue.coverUri
-                    (requireActivity() as MainActivity).supportActionBar?.apply {
-                        it.let { title = "${issue.series.seriesName} #${issue.issue.issueNum}" }
-                    }
-                    updateUI()
-                }
-            }
-        )
-
+//        issueDetailViewModel.issue.asLiveData().observe(
+//            viewLifecycleOwner,
+//            {
+//                Log.d(TAG, "FULLISSUE: $it")
+//                it?.let { issue ->
+//                    this@IssueDetailFragment.fullIssue = issue
+//                    this@IssueDetailFragment.coverUri = issue.coverUri
+//                    (requireActivity() as MainActivity).supportActionBar?.apply {
+//                        it.let {
+//                            title = "${issue.series.seriesName} #${issue.issue.issueNum}"
+//                        }
+//                    }
+//                    updateUI()
+//                }
+//            }
+//        )
+//
         issueDetailViewModel.issueList.observe(
             viewLifecycleOwner,
             { issues ->
                 this@IssueDetailFragment.issuesInSeries = issues.map { it.issue.issueId }
-                Log.d(TAG, "ISSUESINSERIES: ${this@IssueDetailFragment.issuesInSeries}")
                 updateNavBar()
             }
         )
@@ -273,7 +288,8 @@ class IssueDetailFragment : Fragment() {
         this.gotoStartButton.isEnabled = (currentPos != 0) && found
         this.gotoSkipBackButton.isEnabled = (currentPos >= 10) && found
         this.gotoPreviousButton.isEnabled = (currentPos != 0) && found
-        this.gotoNextButton.isEnabled = (currentPos != this.issuesInSeries.size - 1) && found
+        this.gotoNextButton.isEnabled =
+            (currentPos != this.issuesInSeries.size - 1) && found
         this.gotoSkipForwardButton.isEnabled =
             (currentPos <= this.issuesInSeries.size - 11) && found
         this.gotoEndButton.isEnabled = (currentPos != this.issuesInSeries.size - 1) && found
@@ -343,31 +359,33 @@ class IssueDetailFragment : Fragment() {
             }
         }
 
-        variantSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(
-                parent: AdapterView<*>?,
-                view: View?,
-                position: Int,
-                id: Long
-            ) {
-                parent?.let {
-                    val selectedIssueId = (it.getItemAtPosition(position) as Issue).issueId
-                    if (selectedIssueId != issueDetailViewModel.getIssueId()) {
-                        issueDetailViewModel.loadVariant(selectedIssueId)
-                        isVariant = true
-                    } else {
-                        issueDetailViewModel.clearVariant()
-                        this@IssueDetailFragment.variantUri = null
-                        isVariant = false
+        variantSpinner.onItemSelectedListener =
+            object : AdapterView.OnItemSelectedListener {
+                override fun onItemSelected(
+                    parent: AdapterView<*>?,
+                    view: View?,
+                    position: Int,
+                    id: Long
+                ) {
+                    parent?.let {
+                        val selectedIssueId =
+                            (it.getItemAtPosition(position) as Issue).issueId
+                        if (selectedIssueId != issueDetailViewModel.getIssueId()) {
+                            issueDetailViewModel.loadVariant(selectedIssueId)
+                            isVariant = true
+                        } else {
+                            issueDetailViewModel.clearVariant()
+                            this@IssueDetailFragment.variantUri = null
+                            isVariant = false
+                        }
+                        updateCover()
                     }
-                    updateCover()
+                }
+
+                override fun onNothingSelected(parent: AdapterView<*>?) {
+
                 }
             }
-
-            override fun onNothingSelected(parent: AdapterView<*>?) {
-
-            }
-        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -389,7 +407,7 @@ class IssueDetailFragment : Fragment() {
 
     private fun updateUI() {
         numUpdates += 1
-        Log.d(TAG, "$numUpdates updates *****************************************************")
+        Log.d(TAG, "$numUpdates updates ***********")
 
         seriesTextView.text = fullIssue.series.seriesName
 
@@ -406,7 +424,6 @@ class IssueDetailFragment : Fragment() {
             true -> this.variantUri
             false -> this.coverUri
         }
-        Log.d(TAG, "*** setting cover: $uri")
         if (uri != null) {
             coverImageView.setImageURI(uri)
         } else {
@@ -449,7 +466,10 @@ class IssueDetailFragment : Fragment() {
             }
         }
 
-        private fun combineCredits(original: List<Story>, variant: List<Story>): List<Story> =
+        private fun combineCredits(
+            original: List<Story>,
+            variant: List<Story>
+        ): List<Story> =
             if (STORY_TYPE_COVER in variant.map { it.storyType }) {
                 original.mapNotNull {
                     if (it.storyType != STORY_TYPE_COVER) {
@@ -475,7 +495,8 @@ class IssueDetailFragment : Fragment() {
             storyDetailButton.setOnClickListener(toggleVisibility(storyDetailBox))
 
             if (story.synopsis != null && story.synopsis != "") {
-                val synopsisButton: ImageButton = findViewById(R.id.synopsis_dropdown_button)
+                val synopsisButton: ImageButton =
+                    findViewById(R.id.synopsis_dropdown_button)
                 val synopsis = findViewById<TextView>(R.id.synopsis)
                 synopsis.text = story.synopsis
                 synopsisButton.setOnClickListener(toggleVisibility(synopsis))
@@ -485,7 +506,8 @@ class IssueDetailFragment : Fragment() {
             }
 
             if (story.characters != null && story.characters != "") {
-                val charactersButton: ImageButton = findViewById(R.id.characters_dropdown_button)
+                val charactersButton: ImageButton =
+                    findViewById(R.id.characters_dropdown_button)
                 val characters = findViewById<TextView>(R.id.characters)
                 characters.text = story.characters
                 charactersButton.setOnClickListener(toggleVisibility(characters))

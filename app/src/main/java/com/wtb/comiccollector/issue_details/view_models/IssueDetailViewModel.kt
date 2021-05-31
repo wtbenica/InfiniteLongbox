@@ -60,7 +60,8 @@ class IssueDetailViewModel : ViewModel() {
         variantId.flatMapLatest { issueId -> repository.getStoriesByIssue(issueId) }.asLiveData()
 
     val variantCreditsLiveData: LiveData<List<FullCredit>> =
-        variantId.flatMapLatest { issueId -> repository.getCreditsByIssue(issueId) }.asLiveData()
+        variantId.flatMapLatest { issueId -> repository.getCreditsByIssue(issueId) }
+            .asLiveData()
 
     val variantsLiveData: LiveData<List<Issue>> =
         issueId.flatMapLatest { id -> repository.getVariants(id) }.asLiveData()

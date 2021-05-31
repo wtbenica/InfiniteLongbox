@@ -1,7 +1,6 @@
 package com.wtb.comiccollector.repository
 
 import android.content.SharedPreferences
-import android.util.Log
 import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.Webservice
 import com.wtb.comiccollector.database.IssueDatabase
@@ -19,12 +18,8 @@ class UpdateSeries(
     internal fun update(seriesId: Int) {
         if (Repository.checkIfStale(SERIES_TAG(seriesId), ISSUE_LIFETIME, prefs))
             CoroutineScope(Dispatchers.IO).launch {
-                Log.d(TAG, "Updating another series $seriesId")
                 webservice.getIssuesBySeries(seriesId).let { issueItems ->
-                    database.issueDao().upsertSus(issueItems.map {
-                        Log.d(TAG, "Updating another series $seriesId ${it.fields.number}")
-                        it.toRoomModel()
-                    })
+                    database.issueDao().upsertSus(issueItems.map { it.toRoomModel() })
                 }
                 Repository.saveTime(prefs, SERIES_TAG(seriesId))
             }

@@ -9,7 +9,7 @@ data class Creator(
     var sortName: String
 ) : FilterOption() {
     override val compareValue: String
-        get() = sortName
+        get() = name
 
     override val id: Int
         get() = creatorId

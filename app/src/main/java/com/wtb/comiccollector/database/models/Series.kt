@@ -65,14 +65,14 @@ data class Publisher(
     override val compareValue: String
         get() = publisher
 
-    override fun compareTo(other: FilterOption): Int =
-        when (other) {
-            is Publisher -> this.publisher.compareTo(other.publisher)
-            is Series    -> this.publisher.compareTo(other.sortName ?: other.seriesName)
-            is Creator   -> this.publisher.compareTo(other.sortName)
-            else         -> 1
-        }
-
+//    override fun compareTo(other: FilterOption): Int =
+//        when (other) {
+//            is Publisher -> this.publisher.compareTo(other.publisher)
+//            is Series    -> this.publisher.compareTo(other.sortName ?: other.seriesName)
+//            is Creator   -> this.publisher.compareTo(other.sortName)
+//            else         -> 1
+//        }
+//
     override val id: Int
         get() = publisherId
 

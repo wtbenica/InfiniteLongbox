@@ -34,10 +34,6 @@ class Filter(
         filter.mSortOption
     )
 
-    fun clone() : Filter {
-        return Filter(this)
-    }
-
     override fun equals(other: Any?): Boolean {
         return other is Filter && hashCode() == other.hashCode()
     }

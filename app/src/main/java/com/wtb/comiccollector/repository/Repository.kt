@@ -9,9 +9,6 @@ import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MediatorLiveData
-import androidx.lifecycle.Observer
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
@@ -125,6 +122,7 @@ class Repository private constructor(val context: Context) {
     fun getSeriesByFilterPaged(filter: Filter): Flow<PagingData<FullSeries>> {
         val mSeries = filter.mSeries
         if (mSeries == null) {
+            Log.d(TAG, "getSeriesByFilterPaged calling refreshFilterOptions")
             refreshFilterOptions(mSeries, filter.mCreators)
         } else {
             Log.d(TAG, "getSeriesByFilterPagingSource: Wasn't expecting to see a series here")
@@ -143,6 +141,7 @@ class Repository private constructor(val context: Context) {
     fun getSeriesByFilter(filter: Filter): Flow<List<Series>> {
         val mSeries = filter.mSeries
         if (mSeries == null) {
+            Log.d(TAG, "getSeriesByFilter calling refreshFilterOptions")
             refreshFilterOptions(mSeries, filter.mCreators)
             return seriesDao.getSeriesByFilterFlow(filter)
         } else {
@@ -151,33 +150,36 @@ class Repository private constructor(val context: Context) {
     }
 
     fun getIssue(issueId: Int): Flow<FullIssue?> {
-        UpdateIssueCredit(apiService, database, prefs).update(issueId = issueId)
+        Log.d(TAG, "getIssue: $issueId")
         UpdateIssueCover(database, context).update(issueId = issueId)
+        UpdateIssueCredit(apiService, database, prefs).update(issueId = issueId)
         return issueDao.getFullIssue(issueId = issueId)
     }
 
     fun getIssuesByFilter(filter: Filter): Flow<List<FullIssue>> {
         val mSeries = filter.mSeries
         if (mSeries != null) {
+            Log.d(TAG, "getIssuesByFilter calling refreshFilterOptions")
             refreshFilterOptions(series = mSeries, creators = filter.mCreators)
         }
         return issueDao.getIssuesByFilter(filter = filter)
     }
 
-    fun getIssuesByFilterPagingSource(filter: Filter): Flow<PagingData<FullIssue>> {
+    fun getIssuesByFilterPaged(filter: Filter): Flow<PagingData<FullIssue>> {
         val mSeries = filter.mSeries
+
         if (mSeries != null) {
+            Log.d(TAG, "getIssuesByFilterPaged calling refreshFilterOptions")
             refreshFilterOptions(series = mSeries, creators = filter.mCreators)
         }
+
         return Pager(
             config = PagingConfig(pageSize = REQUEST_LIMIT, enablePlaceholders = true),
-            pagingSourceFactory = { issueDao.getIssuesByFilterPagingSource(filter = filter) }).flow
+            pagingSourceFactory = { issueDao.getIssuesByFilterPagingSource(filter = filter) }
+        ).flow
     }
 
-    private fun refreshFilterOptions(
-        series: Series?,
-        creators: Set<Creator>
-    ) {
+    private fun refreshFilterOptions(series: Series?, creators: Set<Creator>) {
         val creatorIds = creators.map { it.creatorId }
 
         if (creatorIds.isNotEmpty()) {
@@ -190,11 +192,10 @@ class Repository private constructor(val context: Context) {
             }
         }
 
-        series?.let { UpdateSeries(
-            webservice = apiService,
-            database = database,
-            prefs = prefs
-        ).update(seriesId = it.seriesId) }
+        series?.let {
+            UpdateSeries(webservice = apiService, database = database, prefs = prefs)
+                .update(seriesId = it.seriesId)
+        }
     }
 
     fun getVariants(issueId: Int): Flow<List<Issue>> = issueDao.getVariants(issueId)
@@ -237,7 +238,7 @@ class Repository private constructor(val context: Context) {
             creatorsList,
             publishersList
         ) { series: List<FilterOption>, creators: List<FilterOption>, publishers: List<FilterOption> ->
-            val res = series + creators + publishers
+            val res: List<FilterOption> = series + creators + publishers
             sort(res)
             res
         }
@@ -427,84 +428,5 @@ class Repository private constructor(val context: Context) {
             UpdateIssueCover(database, context).update(issue.issue.issueId)
             UpdateIssueCredit(apiService, database, prefs).update(issue.issue.issueId)
         }
-    }
-}
-
-class AllCreditsLiveData(
-    credits: LiveData<List<FullCredit>>?,
-    extractedCredits: LiveData<List<FullCredit>>?,
-    private val combine: (List<FullCredit>?, List<FullCredit>?) -> List<FullCredit>
-) : MediatorLiveData<List<FullCredit>>() {
-
-    private var mCredits: List<FullCredit>? = null
-    private var eCredits: List<FullCredit>? = null
-
-    init {
-        credits?.let { creditsLiveData ->
-            super.addSource(creditsLiveData) {
-                mCredits = it
-                this.value = combine(mCredits, eCredits)
-            }
-
-        }
-        extractedCredits?.let { creditsLiveData ->
-            super.addSource(creditsLiveData) {
-                eCredits = it
-                this.value = combine(mCredits, eCredits)
-            }
-        }
-    }
-
-    override fun <S : Any?> addSource(source: LiveData<S>, onChanged: Observer<in S>) {
-        throw UnsupportedOperationException()
-    }
-
-    override fun <S : Any?> removeSource(toRemote: LiveData<S>) {
-        throw UnsupportedOperationException()
-    }
-}
-
-class AllFiltersLiveData(
-    series: LiveData<out List<Series>>?,
-    creators: LiveData<List<Creator>>?,
-    publishers: LiveData<List<Publisher>>?,
-    private val combine: (
-        List<Series>?,
-        List<Creator>?,
-        List<Publisher>?
-    ) -> List<FilterOption>
-) : MediatorLiveData<List<FilterOption>>() {
-
-    private var mSeries: List<Series>? = null
-    private var mCreators: List<Creator>? = null
-    private var mPublishers: List<Publisher>? = null
-
-    init {
-        series?.let { liveSeries ->
-            super.addSource(liveSeries) {
-                mSeries = it
-                this.value = combine(mSeries, mCreators, mPublishers)
-            }
-        }
-        creators?.let { liveCreators ->
-            super.addSource(liveCreators) {
-                mCreators = it
-                value = combine(mSeries, mCreators, mPublishers)
-            }
-        }
-        publishers?.let { livePublishers ->
-            super.addSource(livePublishers) {
-                mPublishers = it
-                value = combine(mSeries, mCreators, mPublishers)
-            }
-        }
-    }
-
-    override fun <S : Any?> addSource(source: LiveData<S>, onChanged: Observer<in S>) {
-        throw UnsupportedOperationException()
-    }
-
-    override fun <S : Any?> removeSource(toRemote: LiveData<S>) {
-        throw UnsupportedOperationException()
     }
 }

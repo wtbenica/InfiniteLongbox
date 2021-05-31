@@ -28,12 +28,12 @@ class IssueListViewModel : ViewModel() {
         val filterValue = this.filterLiveData.value
         Log.d(TAG, "issueList() filterValue: $filterValue")
         return filterValue?.let { filter ->
-            repository.getIssuesByFilterPagingSource(filter)
+            repository.getIssuesByFilterPaged(filter)
         }
     }
 
     fun setFilter(filter: Filter) {
-        filterLiveData.value = filter.clone()
+        filterLiveData.value = filter
     }
 
     fun addIssue(issue: Issue) {

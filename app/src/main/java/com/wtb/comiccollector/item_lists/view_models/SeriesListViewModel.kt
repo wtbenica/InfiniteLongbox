@@ -40,6 +40,6 @@ class SeriesListViewModel : ViewModel() {
     }
 
     fun setFilter(filter: Filter) {
-        filterLiveData.value = filter.clone()
+        filterLiveData.value = filter
     }
 }

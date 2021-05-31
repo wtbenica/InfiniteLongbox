@@ -5,7 +5,6 @@ import android.util.Log
 import androidx.room.*
 import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.database.models.DataModel
-import com.wtb.comiccollector.database.models.Issue
 
 private const val TAG = APP + "BaseDao"
 const val REQUEST_LIMIT = 40
@@ -87,20 +86,23 @@ abstract class BaseDao<T : DataModel> {
             val insertResult: List<Long> = insertSus(objList)
             val updateList = mutableListOf<T>()
 
-            Log.d(TAG, "${objList[0]::class} ${insertResult.count { it == -1L }} / ${insertResult
-                .size}")
+            val objClass = if (objList.size >0) {
+                objList[0]::class.toString().split(".").last()
+            } else {
+                "Empty List"
+            }
+            Log.d(
+                TAG,
+                "${objClass} Num Inserted: ${insertResult.count { it == -1L }} / ${insertResult
+                    .size}"
+            )
             for (i in insertResult.indices) {
                 if (insertResult[i] == -1L) {
                     val element = objList[i]
                     updateList.add(element)
-                    if (element is Issue) {
-                        Log.d(TAG, "CONFLICT ON ${element.dumpMe()}")
-                    }
                 }
             }
-            Log.d(TAG, "UPDATE_LIST: ${updateList.size}")
             update(updateList)
-            Log.d(TAG, "upsertSus updating done, so any UGHs are okay")
         } catch (sqlEx: SQLiteConstraintException) {
             Log.d(TAG, "UGH $sqlEx ${sqlEx.stackTrace} ${sqlEx.message}")
         }

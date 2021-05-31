@@ -28,10 +28,11 @@ abstract class IssueDao : BaseDao<Issue>() {
         var containsCondition = false
 
         tableJoinString +=
-            "SELECT DISTINCT ie.*, ss.seriesName, pr.publisher " +
-                    "FROM issue ie " +
-                    "JOIN series ss ON ie.seriesId = ss.seriesId " +
-                    "JOIN publisher pr ON ss.publisherId = pr.publisherId "
+            """SELECT DISTINCT ie.*, ss.seriesName, pr.publisher 
+                FROM issue ie 
+                JOIN series ss ON ie.seriesId = ss.seriesId 
+                JOIN publisher pr ON ss.publisherId = pr.publisherId 
+                LEFT JOIN cover cr ON ie.issueId = cr.coverId """
 
         conditionsString +=
             "WHERE ss.seriesId = ${filter.mSeries?.seriesId} "

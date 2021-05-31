@@ -81,15 +81,6 @@ class IssueListFragment : Fragment() {
             issueListViewModel.issueList()?.collectLatest { adapter.submitData(it) }
         }
 
-//        issueListViewModel.issueList.observe(
-//            viewLifecycleOwner,
-//            {
-//                lifecycleScope.launch {
-//                    adapter.submitData(it)
-//                }
-//            }
-//        )
-//
         issueListViewModel.seriesLiveData.observe(
             viewLifecycleOwner,
             {
