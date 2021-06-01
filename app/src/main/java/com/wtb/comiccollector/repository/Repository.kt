@@ -24,6 +24,7 @@ import com.wtb.comiccollector.database.IssueDatabase
 import com.wtb.comiccollector.database.models.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flow
@@ -151,8 +152,13 @@ class Repository private constructor(val context: Context) {
 
     fun getIssue(issueId: Int): Flow<FullIssue?> {
         Log.d(TAG, "getIssue: $issueId")
-        UpdateIssueCover(database, context).update(issueId = issueId)
-        UpdateIssueCredit(apiService, database, prefs).update(issueId = issueId)
+        CoroutineScope(Dispatchers.IO).launch {
+            async {
+                UpdateIssueCover(database, context).update(issueId = issueId)
+            }.await().let {
+                UpdateIssueCredit(apiService, database, prefs).update(issueId = issueId)
+            }
+        }
         return issueDao.getFullIssue(issueId = issueId)
     }
 
@@ -426,7 +432,6 @@ class Repository private constructor(val context: Context) {
     fun updateIssue(issue: FullIssue?) {
         if (issue != null) {
             UpdateIssueCover(database, context).update(issue.issue.issueId)
-            UpdateIssueCredit(apiService, database, prefs).update(issue.issue.issueId)
         }
     }
 }

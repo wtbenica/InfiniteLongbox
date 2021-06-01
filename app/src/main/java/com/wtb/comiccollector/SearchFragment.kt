@@ -15,6 +15,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.wtb.comiccollector.database.models.Series
 import com.wtb.comiccollector.item_lists.fragments.SeriesListFragment
 import com.wtb.comiccollector.views.FilterView
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 private const val TAG = APP + "SearchFragment"
 
@@ -28,6 +29,7 @@ fun Context.showKeyboard(view: View, focus: EditText) {
     inputMethodManager.showSoftInput(focus, 0)
 }
 
+@ExperimentalCoroutinesApi
 class SearchFragment : Fragment(), SeriesListFragment.SeriesListCallbacks,
     FilterView.FilterCallback {
 
