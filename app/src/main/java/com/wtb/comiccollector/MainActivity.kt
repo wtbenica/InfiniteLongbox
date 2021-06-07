@@ -1,15 +1,24 @@
 package com.wtb.comiccollector
 
+import android.net.ConnectivityManager
+import android.net.Network
+import android.net.NetworkCapabilities
 import android.os.Bundle
+import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.DialogFragment
+import androidx.lifecycle.MutableLiveData
 import com.wtb.comiccollector.database.models.Creator
 import com.wtb.comiccollector.database.models.Series
 import com.wtb.comiccollector.issue_details.fragments.IssueDetailFragment
 import com.wtb.comiccollector.item_lists.fragments.IssueListFragment
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.Job
 
 const val APP = "CC_"
+private const val TAG = APP + "MainActivity"
 
+@ExperimentalCoroutinesApi
 class MainActivity : AppCompatActivity(),
     IssueListFragment.Callbacks,
     SearchFragment.Callbacks,
@@ -30,6 +39,44 @@ class MainActivity : AppCompatActivity(),
                 .add(R.id.fragment_container, fragment)
                 .commit()
         }
+
+        val connManager = getSystemService(ConnectivityManager::class.java)
+
+        connManager.registerDefaultNetworkCallback(object : ConnectivityManager.NetworkCallback() {
+            override fun onAvailable(network: Network) {
+                super.onAvailable(network)
+                Log.d(TAG, "NetworkCallback onAvailable")
+                hasConnection.postValue(true)
+                activeJob?.cancel()
+            }
+
+            override fun onLost(network: Network) {
+                super.onLost(network)
+                Log.d(TAG, "NetworkCallback onLost")
+                hasConnection.postValue(false)
+
+                activeJob?.let { job ->
+                    if (job.isCancelled) {
+                        job.start()
+                    }
+                }
+            }
+
+            override fun onUnavailable() {
+                super.onUnavailable()
+                Log.d(TAG, "NetworkCallback onUnavailable")
+                hasConnection.postValue(true)
+            }
+
+            override fun onCapabilitiesChanged(
+                network: Network,
+                networkCapabilities: NetworkCapabilities
+            ) {
+                super.onCapabilitiesChanged(network, networkCapabilities)
+                hasUnmeteredConnection.postValue(networkCapabilities.hasCapability(
+                    NetworkCapabilities.NET_CAPABILITY_NOT_METERED))
+            }
+        })
     }
 
     override fun onIssueSelected(issueId: Int) {
@@ -76,5 +123,17 @@ class MainActivity : AppCompatActivity(),
     override fun onCancelClick(dialog: DialogFragment) {
         // TODO: MainActivity onCancelClick
         dialog.dismiss()
+    }
+
+    companion object {
+        internal var activeJob: Job? = null
+        internal val hasConnection = MutableLiveData(false)
+        internal val hasUnmeteredConnection = MutableLiveData(false)
+
+        init {
+            hasConnection.observeForever {
+                Log.d(TAG, "HAS CONNECTION: $it")
+            }
+        }
     }
 }

@@ -24,7 +24,7 @@ abstract class SeriesDao : BaseDao<Series>() {
     )
     abstract fun getSeriesByQuery(query: SupportSQLiteQuery): Flow<List<Series>>
 
-    fun getSeriesByFilterFlow(filter: Filter): Flow<List<Series>> {
+    fun getSeriesByFilter(filter: Filter): Flow<List<Series>> {
 
         var tableJoinString = String()
         var conditionsString = String()

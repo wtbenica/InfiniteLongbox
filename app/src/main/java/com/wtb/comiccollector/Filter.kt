@@ -157,7 +157,8 @@ class Filter(
         return result
     }
 
-    override fun toString(): String = "Series: $mSeries"
+    override fun toString(): String = "Series: $mSeries Creators: ${mCreators.size} Pubs: " +
+            "${mPublishers.size} MyCol: $mMyCollection"
 
 //    companion object {
 //        fun deserialize(str: String?): MutableSet<Int> {

@@ -20,11 +20,13 @@ import com.wtb.comiccollector.*
 import com.wtb.comiccollector.database.models.FullSeries
 import com.wtb.comiccollector.database.models.Series
 import com.wtb.comiccollector.item_lists.view_models.SeriesListViewModel
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 private const val TAG = APP + "SeriesListFragment"
 
+@ExperimentalCoroutinesApi
 class SeriesListFragment(var callback: SeriesListCallbacks? = null) : Fragment() {
 
     private val viewModel: SeriesListViewModel by lazy {
@@ -54,6 +56,9 @@ class SeriesListFragment(var callback: SeriesListCallbacks? = null) : Fragment()
 
         itemListRecyclerView = view.findViewById(R.id.results_frame) as RecyclerView
         itemListRecyclerView.layoutManager = LinearLayoutManager(context)
+
+        val itemDecoration = IssueListFragment.ItemOffsetDecoration(24)
+        itemListRecyclerView.addItemDecoration(itemDecoration)
 
         (requireActivity() as MainActivity).supportActionBar?.title = requireContext()
             .applicationInfo.loadLabel(requireContext().packageManager).toString()

@@ -160,23 +160,6 @@ class IssueDetailFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-//        issueDetailViewModel.issue.asLiveData().observe(
-//            viewLifecycleOwner,
-//            {
-//                Log.d(TAG, "FULLISSUE: $it")
-//                it?.let { issue ->
-//                    this@IssueDetailFragment.fullIssue = issue
-//                    this@IssueDetailFragment.coverUri = issue.coverUri
-//                    (requireActivity() as MainActivity).supportActionBar?.apply {
-//                        it.let {
-//                            title = "${issue.series.seriesName} #${issue.issue.issueNum}"
-//                        }
-//                    }
-//                    updateUI()
-//                }
-//            }
-//        )
-//
         issueDetailViewModel.issueList.observe(
             viewLifecycleOwner,
             { issues ->
@@ -246,7 +229,7 @@ class IssueDetailFragment : Fragment() {
                 issues?.let {
                     val adapter = ArrayAdapter(
                         requireContext(),
-                        androidx.appcompat.R.layout.support_simple_spinner_dropdown_item,
+                        R.layout.list_item_variant,
                         it
                     )
                     this.issueVariants = it

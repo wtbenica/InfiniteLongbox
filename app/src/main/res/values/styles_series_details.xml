@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="SeriesLayout">
+        <item name="android:padding">@dimen/item_series_padding</item>
+        <item name="android:background">@drawable/gd_bg</item>
+    </style>
+
+    <style name="SeriesTitleText" parent="TextAppearance.AppCompat.Light.SearchResult.Title">
+        <item name="android:fontFamily">sans-serif-condensed</item>
+        <item name="android:textSize">24sp</item>
+<!--        <item name="android:textStyle">bold</item>-->
+        <item name="fontFamily">@font/permanent_marker</item>
+    </style>
+
+    <style name="SeriesSubtitle" parent="TextAppearance.AppCompat.Small">
+        <item name="fontFamily">@font/permanent_marker</item>
+        <item name="android:textSize">18sp</item>
+    </style>
+</resources>

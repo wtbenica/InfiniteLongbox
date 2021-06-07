@@ -41,7 +41,5 @@ class IssueListViewModel : ViewModel() {
         repository.saveIssue(issue)
     }
 
-    fun updateIssue(issue: FullIssue?) {
-        repository.updateIssue(issue)
-    }
+    fun updateIssue(issue: FullIssue) = repository.updateIssue(issue)
 }

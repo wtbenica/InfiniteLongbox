@@ -3,4 +3,6 @@
     <dimen name="margin_list_item_vert">4dp</dimen>
     <dimen name="margin_outside">8dp</dimen>
     <dimen name="fab_margin">16dp</dimen>
+    <dimen name="item_series_padding">16dp</dimen>
+    <dimen name="corner_radius">24dp</dimen>
 </resources>

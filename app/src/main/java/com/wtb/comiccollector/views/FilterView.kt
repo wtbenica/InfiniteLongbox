@@ -1,6 +1,7 @@
 package com.wtb.comiccollector.views
 
 import android.content.Context
+import android.os.Build
 import android.util.AttributeSet
 import android.util.Log
 import android.view.LayoutInflater
@@ -8,6 +9,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import androidx.appcompat.widget.SwitchCompat
+import androidx.cardview.widget.CardView
+import androidx.core.content.res.ResourcesCompat.getColor
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStoreOwner
@@ -39,6 +42,7 @@ class FilterView(ctx: Context, attributeSet: AttributeSet) :
     var callback: FilterCallback? = null
     private var showFilter: Boolean = false
 
+    private var filterBox: CardView
     private var topSection: LinearLayout
     private var myCollectionSwitch: SwitchCompat
     private var sortOptionsBox: LinearLayout
@@ -57,6 +61,7 @@ class FilterView(ctx: Context, attributeSet: AttributeSet) :
 
         val view = inflater.inflate(R.layout.filter_view, this)
 
+        filterBox = view.findViewById(R.id.filter_box) as CardView
         topSection = view.findViewById(R.id.top_section) as LinearLayout
         myCollectionSwitch = view.findViewById(R.id.my_collection_switch) as SwitchCompat
         sortOptionsBox = view.findViewById(R.id.sort_options_box) as LinearLayout
@@ -66,37 +71,25 @@ class FilterView(ctx: Context, attributeSet: AttributeSet) :
         sortChipGroup = view.findViewById(R.id.sort_chip_group) as SortChipGroup
         filterTextView = view.findViewById(R.id.search_tv) as AutoCompleteTextView
 
-        viewModel.filterOptions.observe(
+        viewModel.filterOptions.asLiveData().observe(
             ctx as LifecycleOwner,
-            { filterObjects ->
-                filterObjects?.let { filterTextView.setAdapter(FilterOptionsAdapter(ctx, it)) }
+            { filterObjects: List<FilterOption> ->
+                filterTextView.setAdapter(FilterOptionsAdapter(ctx, filterObjects))
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    filterTextView.refreshAutoCompleteResults()
+                }
             }
         )
 
         viewModel.filter.asLiveData().observe(
             ctx as LifecycleOwner,
             { filter ->
-                Log.d(TAG, "THIS SHOULD BE CHANGING FILTER _FILTER!!!")
+                Log.d(TAG, "THIS SHOULD BE CHANGING FILTER _FILTER!!! $filter")
                 this.filter = filter
                 sortChipGroup.filter = filter
             }
         )
 
-//        viewModel.filter.collectLatest { filter ->
-//            Log.d(TAG, "THIS SHOULD BE CHANGING FILTER _FILTER!!!")
-//            this.filter = filter
-//            sortChipGroup.filter = filter
-//        }
-//
-//        viewModel.filter.observe(
-//            ctx as LifecycleOwner,
-//            { filter ->
-//                Log.d(TAG, "THIS SHOULD BE CHANGING FILTER _FILTER!!!")
-//                this.filter = filter
-//                sortChipGroup.filter = filter
-//            }
-//        )
-//
         filterTextView.onItemClickListener =
             AdapterView.OnItemClickListener { parent, v, position, id ->
                 val item = parent?.adapter?.getItem(position) as FilterOption
@@ -119,6 +112,7 @@ class FilterView(ctx: Context, attributeSet: AttributeSet) :
             }
         }
     }
+
 
     private fun onFilterChanged() {
         updateViews()
@@ -155,9 +149,34 @@ class FilterView(ctx: Context, attributeSet: AttributeSet) :
             View.GONE
         }
 
+        visibility =
+            if (topSection.visibility == View.GONE && bottomSection.visibility == View.GONE)
+                View.GONE
+            else
+                View.VISIBLE
+
         if (!showFilter) {
             callback?.hideKeyboard()
         }
+
+        filterBox.elevation = if (showFilter)
+            8F
+        else
+            0F
+
+        topSection.setBackgroundColor(
+            if (showFilter)
+                getColor(resources, R.color.fantasia_light, null)
+            else
+                getColor(resources, android.R.color.white, null)
+        )
+
+        bottomSection.setBackgroundColor(
+            if (showFilter)
+                getColor(resources, R.color.fantasia, null)
+            else
+                getColor(resources, android.R.color.white, null)
+        )
     }
 
     fun toggleVisibility() {

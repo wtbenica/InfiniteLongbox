@@ -2,6 +2,7 @@ package com.wtb.comiccollector.repository
 
 import android.content.Context
 import android.content.ContextWrapper
+import android.content.SharedPreferences
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
@@ -9,10 +10,7 @@ import android.util.Log
 import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.database.IssueDatabase
 import com.wtb.comiccollector.database.models.Cover
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import org.jsoup.Jsoup
 import java.io.File
 import java.io.FileOutputStream
@@ -21,54 +19,61 @@ import java.net.URL
 
 private const val TAG = APP + "UpdateIssueCover"
 
-class UpdateIssueCover(val database: IssueDatabase, val context: Context) {
+@ExperimentalCoroutinesApi
+class UpdateIssueCover(
+    val database: IssueDatabase,
+    val context: Context,
+    val prefs: SharedPreferences
+): Updater() {
     internal fun update(issueId: Int) {
-        CoroutineScope(Dispatchers.IO).launch {
-            val issueDef =
-                CoroutineScope(Dispatchers.IO).async {
-                    database.issueDao().getIssueSus(issueId)
-                }
-            issueDef.await()?.let { issue ->
-                if (issue.coverUri == null) {
-                    CoroutineScope(Dispatchers.IO).launch {
-                        kotlin.runCatching {
-                            val doc = Jsoup.connect(issue.issue.url).get()
-                            val noCover = doc.getElementsByClass("no_cover").size == 1
+        if (checkIfStale(ISSUE_TAG(issueId), ISSUE_LIFETIME, prefs)) {
+            CoroutineScope(Dispatchers.IO).launch {
+                val issueDef =
+                    CoroutineScope(Dispatchers.IO).async {
+                        database.issueDao().getIssueSus(issueId)
+                    }
+                issueDef.await()?.let { issue ->
+                    if (issue.coverUri == null) {
+                        CoroutineScope(Dispatchers.IO).launch {
+                            kotlin.runCatching {
+                                val doc = Jsoup.connect(issue.issue.url).get()
+                                val noCover = doc.getElementsByClass("no_cover").size == 1
 
-                            val coverImgElements = doc.getElementsByClass("cover_img")
-                            val wraparoundElements =
-                                doc.getElementsByClass("wraparound_cover_img")
-                            val elements = when {
-                                coverImgElements.size > 0   -> coverImgElements
-                                wraparoundElements.size > 0 -> wraparoundElements
-                                else                        -> null
-                            }
-
-                            val src = elements?.get(0)?.attr("src")
-
-                            val url = src?.let { URL(it) }
-
-                            if (!noCover && url != null) {
-                                val image = CoroutineScope(Dispatchers.IO).async {
-                                    url.toBitmap()
+                                val coverImgElements = doc.getElementsByClass("cover_img")
+                                val wraparoundElements =
+                                    doc.getElementsByClass("wraparound_cover_img")
+                                val elements = when {
+                                    coverImgElements.size > 0 -> coverImgElements
+                                    wraparoundElements.size > 0 -> wraparoundElements
+                                    else -> null
                                 }
-                                CoroutineScope(Dispatchers.Default).launch {
-                                    val bitmap = image.await()
 
-                                    bitmap?.apply {
-                                        val savedUri: Uri? =
-                                            saveToInternalStorage(
-                                                context,
-                                                issue.issue.coverFileName
-                                            )
+                                val src = elements?.get(0)?.attr("src")
 
-                                        val cover =
-                                            Cover(issueId = issueId, coverUri = savedUri)
-                                        database.coverDao().upsertSus(listOf(cover))
+                                val url = src?.let { URL(it) }
+
+                                if (!noCover && url != null) {
+                                    val image = CoroutineScope(Dispatchers.IO).async {
+                                        url.toBitmap()
                                     }
+                                    CoroutineScope(Dispatchers.Default).launch {
+                                        val bitmap = image.await()
+
+                                        bitmap?.apply {
+                                            val savedUri: Uri? =
+                                                saveToInternalStorage(
+                                                    context,
+                                                    issue.issue.coverFileName
+                                                )
+
+                                            val cover =
+                                                Cover(issueId = issueId, coverUri = savedUri)
+                                            database.coverDao().upsertSus(listOf(cover))
+                                        }
+                                    }
+                                } else {
+                                    Log.d(TAG, "COVER UPDATER No Cover Found")
                                 }
-                            } else {
-                                Log.d(TAG, "COVER UPDATER No Cover Found")
                             }
                         }
                     }
@@ -76,35 +81,35 @@ class UpdateIssueCover(val database: IssueDatabase, val context: Context) {
             }
         }
     }
+}
 
-    fun URL.toBitmap(): Bitmap? {
-        return try {
-            BitmapFactory.decodeStream(openStream())
-        } catch (e: IOException) {
-            null
-        }
+fun URL.toBitmap(): Bitmap? {
+    return try {
+        BitmapFactory.decodeStream(openStream())
+    } catch (e: IOException) {
+        null
     }
+}
 
-    fun Bitmap.saveToInternalStorage(context: Context, uri: String): Uri? {
-        val wrapper = ContextWrapper(context)
+fun Bitmap.saveToInternalStorage(context: Context, uri: String): Uri? {
+    val wrapper = ContextWrapper(context)
 
-        var file = wrapper.getDir("images", Context.MODE_PRIVATE)
+    var file = wrapper.getDir("images", Context.MODE_PRIVATE)
 
-        file = File(file, uri)
+    file = File(file, uri)
 
-        return try {
-            val stream = FileOutputStream(file)
+    return try {
+        val stream = FileOutputStream(file)
 
-            compress(Bitmap.CompressFormat.JPEG, 100, stream)
+        compress(Bitmap.CompressFormat.JPEG, 100, stream)
 
-            stream.flush()
+        stream.flush()
 
-            stream.close()
+        stream.close()
 
-            Uri.parse(file.absolutePath)
-        } catch (e: IOException) {
-            e.printStackTrace()
-            null
-        }
+        Uri.parse(file.absolutePath)
+    } catch (e: IOException) {
+        e.printStackTrace()
+        null
     }
 }
