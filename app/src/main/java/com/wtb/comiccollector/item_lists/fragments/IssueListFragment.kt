@@ -31,7 +31,7 @@ private const val TAG = APP + "IssueListFragment"
 class IssueListFragment : Fragment() {
 
     private val issueListViewModel: IssueListViewModel by viewModels()
-    private lateinit var filter: Filter
+    private lateinit var filter: SearchFilter
     private lateinit var issueGridView: RecyclerView
     private var callbacks: Callbacks? = null
 
@@ -44,7 +44,7 @@ class IssueListFragment : Fragment() {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
 
-        filter = arguments?.getSerializable(ARG_FILTER) as Filter? ?: Filter()
+        filter = arguments?.getSerializable(ARG_FILTER) as SearchFilter? ?: SearchFilter()
 
         updateSeriesDetailFragment(filter.mSeries?.seriesId)
     }
@@ -153,7 +153,7 @@ class IssueListFragment : Fragment() {
 
         fun bind(issue: FullIssue?) {
             this.fullIssue = issue
-            this.fullIssue?.let { issueListViewModel.updateIssue(it) }
+            this.fullIssue?.let { issueListViewModel.updateIssueCover(it) }
             val coverUri = this.fullIssue?.coverUri
 
             if (coverUri != null) {
@@ -210,7 +210,7 @@ class IssueListFragment : Fragment() {
 
     companion object {
         @JvmStatic
-        fun newInstance(filter: Filter): IssueListFragment {
+        fun newInstance(filter: SearchFilter): IssueListFragment {
             return IssueListFragment().apply {
                 arguments = Bundle().apply {
                     putSerializable(ARG_FILTER, filter)

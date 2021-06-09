@@ -5,7 +5,10 @@ import android.util.Log
 import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.Webservice
 import com.wtb.comiccollector.database.IssueDatabase
+import com.wtb.comiccollector.database.models.*
 import kotlinx.coroutines.*
+import java.net.ConnectException
+import java.net.SocketTimeoutException
 import kotlin.random.Random
 
 private const val TAG = APP + "UpdateIssueCredit"
@@ -26,96 +29,68 @@ class UpdateIssueCredit(
     internal fun update(issueId: Int) {
         val equis = Random.nextInt()
         if (checkIfStale(ISSUE_TAG(issueId), ISSUE_LIFETIME, prefs)) {
-            Log.d(TAG, "CREDIT_UPDATE Refreshing issue credits getStory $issueId")
-            val storyItemsCall = CoroutineScope(Dispatchers.IO).async {
-                apiService.getStoriesByIssue(issueId)
+            val storyItemsCall = CoroutineScope(Dispatchers.IO).async stories@{
+                var result = emptyList<Item<GcdStory, Story>>()
+
+                try {
+                    result = apiService.getStoriesByIssue(issueId)
+                } catch (e: SocketTimeoutException) {
+                    Log.d(TAG, "update: Getting Stories: $e")
+                } catch (e: ConnectException) {
+                    Log.d(TAG, "update: Getting Stories: $e")
+                }
+
+                return@stories result
             }
 
-            val creditItemsCall = CoroutineScope(Dispatchers.IO).async {
+            val creditItemsCall = CoroutineScope(Dispatchers.IO).async credits@ {
+                var result: List<Item<GcdCredit, Credit>>? = null
+
                 storyItemsCall.await().let { storyItems ->
                     if (storyItems.isNotEmpty()) {
-                        Log.d(TAG, "CREDIT_UPDATE Refreshing issue credits getCredits $issueId")
-                        apiService.getCreditsByStories(storyItems.map { item -> item.pk })
-                    } else {
-                        null
+                        try {
+                            Log.d(TAG, "CREDIT_UPDATE Refreshing issue credits getCredits $issueId")
+                            result =
+                                apiService.getCreditsByStories(storyItems.map { item -> item.pk })
+                        } catch (e: SocketTimeoutException) {
+                            Log.d(TAG, "update: Getting Credits: $e")
+                        } catch (e: ConnectException) {
+                            Log.d(TAG, "update: Getting Credits: $e")
+                        }
                     }
+                }
+
+                return@credits result
+            }
+
+            val extractedCreditItemsCall = CoroutineScope(Dispatchers.IO).async exCredits@ {
+                var result: List<Item<GcdExCredit, ExCredit>>? = null
+
+                storyItemsCall.await().let { storyItems ->
+                    if (storyItems.isNotEmpty()) {
+                        try {
+                            Log.d(
+                                TAG,
+                                "CREDIT_UPDATE Refreshing issue credits getExCredits $issueId"
+                            )
+                            result =
+                                apiService.getExtractedCreditsByStories(storyItems.map { item -> item.pk })
+                        } catch (e: SocketTimeoutException) {
+                            Log.d(TAG, "update: Getting exCredits: $e")
+                        } catch (e: ConnectException) {
+                            Log.d(TAG, "update: Getting exCredits: $e")
+                        }
+                    }
+
+                    return@exCredits result
                 }
             }
 
-//            val nameDetailItemsCall = CoroutineScope(Dispatchers.IO).async {
-//                creditItemsCall.await()?.let { creditItems ->
-//                    if (creditItems.isNotEmpty()) {
-//                        Log.d(TAG, "CREDIT_UPDATE Refreshing issue credits getNameDetails $issueId")
-//                        apiService.getNameDetailsByIds(creditItems.map { it.fields.nameDetailId })
-//                    } else {
-//                        null
-//                    }
-//                }
-//            }
-//
-//            val creatorItemsCall = CoroutineScope(Dispatchers.IO).async {
-//                nameDetailItemsCall.await()?.let { nameDetailItems ->
-//                    if (nameDetailItems.isNotEmpty()) {
-//                        Log.d(TAG, "CREDIT_UPDATE Refreshing issue credits getCreator $issueId")
-//                        apiService.getCreator(nameDetailItems.map { it.fields.creatorId })
-//                    } else {
-//                        null
-//                    }
-//                }
-//            }
-//
-            val extractedCreditItemsCall = CoroutineScope(Dispatchers.IO).async {
-                storyItemsCall.await().let { storyItems ->
-                    if (storyItems.isNotEmpty()) {
-                        Log.d(TAG, "CREDIT_UPDATE Refreshing issue credits getExCredits $issueId")
-                        apiService.getExtractedCreditsByStories(storyItems.map { item -> item.pk })
-                    } else {
-                        null
-                    }
-                }
-            }
-
-//            val extractedNameDetailItemsCall = CoroutineScope(Dispatchers.IO).async {
-//                extractedCreditItemsCall.await()?.let { creditItems ->
-//                    if (creditItems.isNotEmpty()) {
-//                        Log.d(
-//                            TAG,
-//                            "CREDIT_UPDATE Refreshing issue credits getExNameDetails $issueId"
-//                        )
-//                        apiService.getNameDetailsByIds(creditItems.map { it.fields.nameDetailId })
-//                    } else {
-//                        null
-//                    }
-//                }
-//            }
-//
-//            val extractedCreatorItemsCall = CoroutineScope(Dispatchers.IO).async {
-//                extractedNameDetailItemsCall.await()?.let { nameDetailItems ->
-//                    if (nameDetailItems.isNotEmpty()) {
-//                        Log.d(TAG, "CREDIT_UPDATE Refreshing issue credits getExCreator $issueId")
-//                        apiService.getCreator(nameDetailItems.map { it.fields.creatorId })
-//                    } else {
-//                        null
-//                    }
-//                }
-//            }
-//
             CoroutineScope(Dispatchers.IO).launch {
-                Log.d(TAG, "CREDIT_UPDATE About to upsert $equis")
                 val stories = storyItemsCall.await().map { it.toRoomModel() }
                 val credits = creditItemsCall.await()?.map { it.toRoomModel() } ?: emptyList()
-//                val nameDetails =
-//                    nameDetailItemsCall.await()?.map { it.toRoomModel() } ?: emptyList()
-//                val creators = creatorItemsCall.await()?.map { it.toRoomModel() } ?: emptyList()
                 val extracts =
                     extractedCreditItemsCall.await()?.map { it.toRoomModel() } ?: emptyList()
-//                val eNameDetails =
-//                    extractedNameDetailItemsCall.await()?.map { it.toRoomModel() }
-//                        ?: emptyList()
-//                val eCreators =
-//                    extractedCreatorItemsCall.await()?.map { it.toRoomModel() } ?: emptyList()
-//                val allCreators = creators + eCreators
-//                val allNameDetails = nameDetails + eNameDetails
 
                 database.transactionDao().upsertSus(
                     stories = stories,

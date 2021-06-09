@@ -14,14 +14,13 @@ class FilterViewModel : ViewModel() {
 
     private val repository: Repository = Repository.get()
 
-    private val _filter = MutableStateFlow(Filter())
+    private val _filter = MutableStateFlow(SearchFilter())
 
-    val filter: StateFlow<Filter> = _filter
+    val filter: StateFlow<SearchFilter> = _filter
 
     val seriesOptions: Flow<List<FilterOption>> = _filter.flatMapLatest {
         repository.getSeriesByFilter(it)
     }
-
 
     val publisherOptions = _filter.flatMapLatest {
         repository.getPublishersByFilter(it)
@@ -43,28 +42,28 @@ class FilterViewModel : ViewModel() {
 
     fun addFilterItem(item: FilterOption) {
         Log.d(TAG, "ADDING FILTER")
-        val newVal = Filter(_filter.value)
+        val newVal = SearchFilter(_filter.value)
         newVal.addFilter(item)
         _filter.value = newVal
     }
 
     fun removeFilterItem(item: FilterOption) {
         Log.d(TAG, "REMOVING FILTER")
-        val newVal = Filter(_filter.value)
+        val newVal = SearchFilter(_filter.value)
         newVal.removeFilter(item)
         _filter.value = newVal
     }
 
     fun setSortOption(sortOption: SortOption) {
         Log.d(TAG, "ADDING SORT OPTION")
-        val newVal = Filter(_filter.value)
+        val newVal = SearchFilter(_filter.value)
         newVal.mSortOption = sortOption
         _filter.value = newVal
     }
 
     fun myCollection(isChecked: Boolean) {
         Log.d(TAG, "SETTING MY COLLECTION")
-        val newVal = Filter(_filter.value)
+        val newVal = SearchFilter(_filter.value)
         newVal.setMyCollection(isChecked)
         _filter.value = newVal
     }

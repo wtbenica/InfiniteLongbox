@@ -8,8 +8,8 @@ abstract class DataModel(var lastUpdated: LocalDate = LocalDate.now()) : Seriali
     abstract val id: Int
 }
 
-abstract class FilterOption : DataModel(), Comparable<FilterOption> {
-    abstract val compareValue: String
+interface FilterOption : Comparable<FilterOption> {
+    val compareValue: String
 
     override fun compareTo(other: FilterOption): Int =
         this.compareValue.compareTo(other.compareValue)

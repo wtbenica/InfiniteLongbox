@@ -168,13 +168,14 @@
                         android:background="@drawable/accent_divider" />
                 </LinearLayout>
 
-                <AutoCompleteTextView
+                <com.wtb.comiccollector.views.SearchAutoCompleteTextView
                     android:id="@+id/search_tv"
                     android:layout_width="match_parent"
                     android:layout_height="?attr/dropdownListPreferredItemHeight"
                     android:animateLayoutChanges="true"
                     android:hint="@string/search"
                     android:popupBackground="@drawable/accent_outline_white_background"
+                    android:singleLine="true"
                     android:textAppearance="?android:attr/textAppearanceLargePopupMenu"
                     android:textColor="?attr/colorOnSecondary"
                     tools:text="Potato Latke" />

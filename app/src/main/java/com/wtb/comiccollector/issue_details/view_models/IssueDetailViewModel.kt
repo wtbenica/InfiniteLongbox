@@ -8,17 +8,17 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import com.wtb.comiccollector.APP
-import com.wtb.comiccollector.Filter
+import com.wtb.comiccollector.SearchFilter
 import com.wtb.comiccollector.database.Daos.Count
 import com.wtb.comiccollector.database.models.*
 import com.wtb.comiccollector.repository.DUMMY_ID
 import com.wtb.comiccollector.repository.Repository
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.flow.SharingStarted.Companion.WhileSubscribed
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 
 private const val TAG = APP + "IssueDetailViewModel"
 
@@ -34,6 +34,7 @@ class IssueDetailViewModel : ViewModel() {
     val variantId: StateFlow<Int> = _variantId
 
     val issue: StateFlow<FullIssue?> = issueId.flatMapLatest { id ->
+        Log.d(TAG, "issueId changed: $id")
         repository.getIssue(id)
     }.stateIn(
         scope = viewModelScope,
@@ -42,16 +43,21 @@ class IssueDetailViewModel : ViewModel() {
     )
 
     val variant: LiveData<FullIssue?> =
-        variantId.flatMapLatest { id ->
-            repository.getIssue(id)
-        }.asLiveData()
+        variantId.flatMapLatest { id -> repository.getIssue(id) }.asLiveData()
 
     val issueList: LiveData<List<FullIssue>> = issue.flatMapLatest { fullIssue ->
-        repository.getIssuesByFilter(Filter(series = fullIssue?.series, myCollection = false))
+        repository.getIssuesByFilter(SearchFilter(series = fullIssue?.series, myCollection = false))
     }.asLiveData()
 
     val issueStoriesLiveData: LiveData<List<Story>> =
-        issueId.flatMapLatest { issueId -> repository.getStoriesByIssue(issueId) }.asLiveData()
+        issueId.flatMapLatest { issueId ->
+            Log.d(TAG, "getting issue stories $issueId")
+            val a = repository.getStoriesByIssue(issueId)
+            CoroutineScope(Dispatchers.IO).launch {
+                Log.d(TAG, "HASBTGL ${a.collect { it.size }}")
+            }
+            a
+        }.asLiveData()
 
     val issueCreditsLiveData: LiveData<List<FullCredit>> =
         issueId.flatMapLatest { issueId -> repository.getCreditsByIssue(issueId) }.asLiveData()
@@ -73,6 +79,7 @@ class IssueDetailViewModel : ViewModel() {
         variantId.flatMapLatest { repository.inCollection(it) }.asLiveData()
 
     fun loadIssue(issueId: Int) {
+        Log.d(TAG, "loadIssue: $issueId")
         _issueId.value = issueId
     }
 

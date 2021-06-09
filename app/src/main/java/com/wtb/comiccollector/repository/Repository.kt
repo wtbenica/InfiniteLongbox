@@ -16,8 +16,8 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.wtb.comiccollector.APP
-import com.wtb.comiccollector.Filter
 import com.wtb.comiccollector.MainActivity
+import com.wtb.comiccollector.SearchFilter
 import com.wtb.comiccollector.Webservice
 import com.wtb.comiccollector.database.Daos.Count
 import com.wtb.comiccollector.database.Daos.REQUEST_LIMIT
@@ -134,7 +134,7 @@ class Repository private constructor(val context: Context) {
     // SERIES METHODS
     fun getSeries(seriesId: Int): Flow<Series?> = seriesDao.getSeries(seriesId)
 
-    fun getSeriesByFilterPaged(filter: Filter): Flow<PagingData<FullSeries>> {
+    fun getSeriesByFilterPaged(filter: SearchFilter): Flow<PagingData<FullSeries>> {
         val mSeries = filter.mSeries
         if (mSeries == null) {
             Log.d(TAG, "getSeriesByFilterPaged calling refreshFilterOptions")
@@ -153,7 +153,7 @@ class Repository private constructor(val context: Context) {
         ).flow
     }
 
-    fun getSeriesByFilter(filter: Filter): Flow<List<Series>> {
+    fun getSeriesByFilter(filter: SearchFilter): Flow<List<Series>> {
         val mSeries = filter.mSeries
         if (mSeries == null) {
             refreshFilterOptions(mSeries, filter.mCreators)
@@ -180,7 +180,7 @@ class Repository private constructor(val context: Context) {
         return issueDao.getFullIssue(issueId = issueId)
     }
 
-    fun getIssuesByFilter(filter: Filter): Flow<List<FullIssue>> {
+    fun getIssuesByFilter(filter: SearchFilter): Flow<List<FullIssue>> {
         val mSeries = filter.mSeries
         if (mSeries != null) {
             Log.d(TAG, "getIssuesByFilter calling refreshFilterOptions")
@@ -189,7 +189,7 @@ class Repository private constructor(val context: Context) {
         return issueDao.getIssuesByFilter(filter = filter)
     }
 
-    fun getIssuesByFilterPaged(filter: Filter): Flow<PagingData<FullIssue>> {
+    fun getIssuesByFilterPaged(filter: SearchFilter): Flow<PagingData<FullIssue>> {
         val mSeries = filter.mSeries
 
         if (mSeries != null) {
@@ -220,13 +220,13 @@ class Repository private constructor(val context: Context) {
     }
 
     // CREATOR METHODS
-    fun getCreatorsByFilter(filter: Filter): Flow<List<Creator>> = if (filter.mCreators.isEmpty())
+    fun getCreatorsByFilter(filter: SearchFilter): Flow<List<Creator>> = if (filter.mCreators.isEmpty())
         creatorDao.getCreatorsByFilter(filter)
     else
         flow { emit(emptyList<Creator>()) }
 
     // PUBLISHER METHODS
-    fun getPublishersByFilter(filter: Filter): Flow<List<Publisher>> =
+    fun getPublishersByFilter(filter: SearchFilter): Flow<List<Publisher>> =
         if (filter.mPublishers.isEmpty())
             publisherDao.getPublishersByFilter(filter)
         else
@@ -256,7 +256,7 @@ class Repository private constructor(val context: Context) {
         }
     }
 
-    suspend fun getValidFilterOptions(filter: Filter): Flow<List<FilterOption>> {
+    suspend fun getValidFilterOptions(filter: SearchFilter): Flow<List<FilterOption>> {
         val seriesList: Flow<List<FilterOption>> =
             when {
                 filter.isEmpty()       -> allSeries
@@ -457,6 +457,12 @@ class Repository private constructor(val context: Context) {
     fun updateIssue(issue: FullIssue) {
         if (hasConnection) {
             UpdateIssueCredit(apiService, database, prefs).update(issue.issue.issueId)
+            UpdateIssueCover(database, context, prefs).update(issue.issue.issueId)
+        }
+    }
+
+    fun updateIssueCover(issue: FullIssue) {
+        if (hasConnection) {
             UpdateIssueCover(database, context, prefs).update(issue.issue.issueId)
         }
     }

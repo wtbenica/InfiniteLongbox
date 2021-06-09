@@ -9,6 +9,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
+import java.net.ConnectException
+import java.net.SocketTimeoutException
 
 private const val TAG = APP + "UpdateSeries"
 
@@ -22,10 +24,16 @@ class UpdateSeries(
         Log.d(TAG, "About to get series $seriesId issues")
         if (checkIfStale(SERIES_TAG(seriesId), SERIES_LIST_LIFETIME, prefs)) {
             CoroutineScope(Dispatchers.IO).launch {
-                webservice.getIssuesBySeries(seriesId).let { issueItems ->
-                    database.issueDao().upsertSus(issueItems.map { it.toRoomModel() })
+                try {
+                    webservice.getIssuesBySeries(seriesId).let { issueItems ->
+                        database.issueDao().upsertSus(issueItems.map { it.toRoomModel() })
+                    }
+                    Repository.saveTime(prefs, SERIES_TAG(seriesId))
+                } catch (e: SocketTimeoutException) {
+                    Log.d(TAG, "update: $e")
+                } catch (e: ConnectException) {
+                    Log.d(TAG, "update: $e")
                 }
-                Repository.saveTime(prefs, SERIES_TAG(seriesId))
             }
         }
     }

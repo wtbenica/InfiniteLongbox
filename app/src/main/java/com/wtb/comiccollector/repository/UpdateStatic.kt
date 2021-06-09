@@ -6,7 +6,9 @@ import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.MainActivity
 import com.wtb.comiccollector.Webservice
 import com.wtb.comiccollector.database.IssueDatabase
+import com.wtb.comiccollector.database.models.*
 import kotlinx.coroutines.*
+import java.net.ConnectException
 import java.net.SocketTimeoutException
 
 private const val TAG = APP + "StaticUpdater"
@@ -41,46 +43,54 @@ class StaticUpdater(
 
         return CoroutineScope(Dispatchers.IO).async {
             if (!DEBUG) {
-                val publishers = CoroutineScope(Dispatchers.IO).async {
+                val publishers = CoroutineScope(Dispatchers.IO).async pubs@{
+                    var result = emptyList<Item<GcdPublisher, Publisher>>()
+
                     if (checkIfStale(UPDATED_PUBLISHERS, STATIC_DATA_LIFETIME, prefs)) {
                         try {
                             Log.d(TAG, "update: Getting Publishers")
-                            webservice.getPublishers()
+                            result = webservice.getPublishers()
                         } catch (e: SocketTimeoutException) {
-                            Log.d(TAG, "update: Getting Publishers SocketTimeout: $e")
-                            emptyList()
+                            Log.d(TAG, "update: Getting Publishers: $e")
+                        } catch (e: ConnectException) {
+                            Log.d(TAG, "update: Getting Publishers: $e")
                         }
-                    } else {
-                        emptyList()
                     }
+
+                    return@pubs result
                 }
 
-                val roles = CoroutineScope(Dispatchers.IO).async {
+                val roles = CoroutineScope(Dispatchers.IO).async roles@{
+                    var result = emptyList<Item<GcdRole, Role>>()
+
                     if (checkIfStale(UPDATED_ROLES, STATIC_DATA_LIFETIME, prefs)) {
                         try {
                             Log.d(TAG, "update: Getting Roles")
-                            webservice.getRoles()
+                            result = webservice.getRoles()
                         } catch (e: SocketTimeoutException) {
-                            Log.d(TAG, "update: Getting Roles SocketTimeout: $e")
-                            emptyList()
+                            Log.d(TAG, "update: Getting Roles: $e")
+                        } catch (e: ConnectException) {
+                            Log.d(TAG, "update: Getting Roles: $e")
                         }
-                    } else {
-                        emptyList()
                     }
+
+                    return@roles result
                 }
 
-                val storyTypes = CoroutineScope(Dispatchers.IO).async {
+                val storyTypes = CoroutineScope(Dispatchers.IO).async types@{
+                    var result = emptyList<Item<GcdStoryType, StoryType>>()
+
                     if (checkIfStale(UPDATED_STORY_TYPES, STATIC_DATA_LIFETIME, prefs)) {
                         try {
                             Log.d(TAG, "update: Getting StoryTypes")
-                            webservice.getStoryTypes()
+                            result = webservice.getStoryTypes()
                         } catch (e: SocketTimeoutException) {
                             Log.d(TAG, "update: Getting StoryTypes SocketTimeout: $e")
-                            emptyList()
+                        } catch (e: ConnectException) {
+                            Log.d(TAG, "update: Getting Publishers: $e")
                         }
-                    } else {
-                        emptyList()
                     }
+                    return@types result
                 }
 
                 CoroutineScope(Dispatchers.IO).async {
@@ -131,15 +141,22 @@ class StaticUpdater(
             var stop = false
 
             do {
-                webservice.getSeries(page).let { seriesItems ->
-                    if (seriesItems.isEmpty()) {
-                        stop = true
-                    } else {
-                        database.seriesDao().upsertSus(seriesItems.map {
-                            it.toRoomModel()
-                        })
+                try {
+                    webservice.getSeries(page).let { seriesItems ->
+                        if (seriesItems.isEmpty()) {
+                            stop = true
+                        } else {
+                            database.seriesDao().upsertSus(seriesItems.map {
+                                it.toRoomModel()
+                            })
+                        }
                     }
+                } catch (e: SocketTimeoutException) {
+                    Log.d(TAG, "updateSeries: $e")
+                } catch (e: ConnectException) {
+                    Log.d(TAG, "updateSeries: $e")
                 }
+
                 page += 1
             } while (!stop)
 
@@ -152,30 +169,45 @@ class StaticUpdater(
             var page = 0
             var stop = false
 
-            CoroutineScope(Dispatchers.IO).async outer@{
+            CoroutineScope(Dispatchers.IO).async outer@ {
                 do {
-                    async {
-                        webservice.getCreators(page).let { creatorItems ->
-                            if (creatorItems.isEmpty()) {
-                                stop = true
-                                return@async emptyList()
-                            } else {
-                                val creatorList = creatorItems.map {
-                                    it.toRoomModel()
+                    async creatorIds@ {
+                        var result = emptyList<Int>()
+
+                        try {
+                            webservice.getCreators(page).let { creatorItems ->
+                                if (creatorItems.isEmpty()) {
+                                    stop = true
+                                } else {
+                                    val creatorList = creatorItems.map {
+                                        it.toRoomModel()
+                                    }
+                                    database.creatorDao().upsertSus(creatorList)
+                                    result = creatorList.map { it.creatorId }
                                 }
-                                database.creatorDao().upsertSus(creatorList)
-                                return@async creatorList.map { it.creatorId }
                             }
+                        } catch (e: SocketTimeoutException) {
+                            Log.d(TAG, "updateCreators - creatorIds: $e")
+                        } catch (e: ConnectException) {
+                            Log.d(TAG, "updateCreators - creatorIds: $e")
                         }
+
+                        return@creatorIds result
                     }.await().let { creatorIds ->
                         if (creatorIds.isEmpty()) {
                             stop = true
                         } else {
-                            webservice.getNameDetailsByCreatorIds(creatorIds)
-                                .let { nameDetailItems ->
-                                    database.nameDetailDao()
-                                        .upsertSus(nameDetailItems.map { it.toRoomModel() })
-                                }
+                            try {
+                                webservice.getNameDetailsByCreatorIds(creatorIds)
+                                    .let { nameDetailItems ->
+                                        database.nameDetailDao()
+                                            .upsertSus(nameDetailItems.map { it.toRoomModel() })
+                                    }
+                            } catch (e: SocketTimeoutException) {
+                                Log.d(TAG, "updateCreators - nameDetails: $e")
+                            } catch (e: ConnectException) {
+                                Log.d(TAG, "updateCreators - nameDetails: $e")
+                            }
                         }
                     }
                     page += 1

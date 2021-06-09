@@ -30,7 +30,7 @@ data class Series(
     var description: String? = null,
     var publishingFormat: String? = null,
     val firstIssueId: Int? = null
-) : FilterOption(), Serializable {
+) : DataModel(), FilterOption, Serializable {
 
     override val compareValue: String
         get() = sortName ?: seriesName
@@ -61,11 +61,11 @@ data class Series(
 data class Publisher(
     @PrimaryKey(autoGenerate = true) val publisherId: Int = AUTO_ID,
     val publisher: String = ""
-) : FilterOption() {
+) : DataModel(), FilterOption {
     override val compareValue: String
         get() = publisher
 
-//    override fun compareTo(other: FilterOption): Int =
+    //    override fun compareTo(other: FilterOption): Int =
 //        when (other) {
 //            is Publisher -> this.publisher.compareTo(other.publisher)
 //            is Series    -> this.publisher.compareTo(other.sortName ?: other.seriesName)

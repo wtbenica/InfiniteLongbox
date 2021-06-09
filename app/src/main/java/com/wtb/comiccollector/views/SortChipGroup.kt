@@ -5,7 +5,7 @@ import android.util.AttributeSet
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
 import com.wtb.comiccollector.APP
-import com.wtb.comiccollector.Filter
+import com.wtb.comiccollector.SearchFilter
 import com.wtb.comiccollector.SortOption
 
 private const val TAG = APP + "SortChipGroup"
@@ -19,7 +19,7 @@ class SortChipGroup(context: Context, attributeSet: AttributeSet) :
         isSelectionRequired = true
     }
 
-    internal var filter: Filter? = null
+    internal var filter: SearchFilter? = null
         set(value) {
             removeAllViews()
             value?.getSortOptions()?.forEach { sortOption ->

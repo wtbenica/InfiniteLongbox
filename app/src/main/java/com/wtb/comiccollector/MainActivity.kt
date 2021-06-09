@@ -47,19 +47,18 @@ class MainActivity : AppCompatActivity(),
                 super.onAvailable(network)
                 Log.d(TAG, "NetworkCallback onAvailable")
                 hasConnection.postValue(true)
-                activeJob?.cancel()
+                activeJob?.let { job ->
+                    if (job.isCancelled) {
+                        job.start()
+                    }
+                }
             }
 
             override fun onLost(network: Network) {
                 super.onLost(network)
                 Log.d(TAG, "NetworkCallback onLost")
                 hasConnection.postValue(false)
-
-                activeJob?.let { job ->
-                    if (job.isCancelled) {
-                        job.start()
-                    }
-                }
+                activeJob?.cancel()
             }
 
             override fun onUnavailable() {

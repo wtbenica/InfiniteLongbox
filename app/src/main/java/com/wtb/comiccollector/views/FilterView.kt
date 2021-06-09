@@ -1,7 +1,6 @@
 package com.wtb.comiccollector.views
 
 import android.content.Context
-import android.os.Build
 import android.util.AttributeSet
 import android.util.Log
 import android.view.LayoutInflater
@@ -17,9 +16,9 @@ import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.asLiveData
 import com.google.android.material.chip.ChipGroup
 import com.wtb.comiccollector.APP
-import com.wtb.comiccollector.Filter
 import com.wtb.comiccollector.FilterViewModel
 import com.wtb.comiccollector.R
+import com.wtb.comiccollector.SearchFilter
 import com.wtb.comiccollector.database.models.Creator
 import com.wtb.comiccollector.database.models.FilterOption
 import com.wtb.comiccollector.database.models.Publisher
@@ -31,9 +30,10 @@ private const val TAG = APP + "FilterView"
 
 @ExperimentalCoroutinesApi
 class FilterView(ctx: Context, attributeSet: AttributeSet) :
-    LinearLayout(ctx, attributeSet), Chippy.ChipCallbacks {
+    LinearLayout(ctx, attributeSet), Chippy.ChipCallbacks,
+    SearchAutoCompleteTextView.SearchTextViewCallback {
 
-    private var filter: Filter = Filter()
+    private var filter: SearchFilter = SearchFilter()
         set(value) {
             field = value
             onFilterChanged()
@@ -50,7 +50,7 @@ class FilterView(ctx: Context, attributeSet: AttributeSet) :
 
     private var bottomSection: LinearLayout
     private var filterChipGroup: ChipGroup
-    private var filterTextView: AutoCompleteTextView
+    private var filterTextView: SearchAutoCompleteTextView
 
     private val viewModel by lazy {
         ViewModelProvider(ctx as ViewModelStoreOwner).get(FilterViewModel::class.java)
@@ -69,15 +69,17 @@ class FilterView(ctx: Context, attributeSet: AttributeSet) :
         bottomSection = view.findViewById(R.id.bottom_section) as LinearLayout
         filterChipGroup = view.findViewById(R.id.filter_chip_group) as ChipGroup
         sortChipGroup = view.findViewById(R.id.sort_chip_group) as SortChipGroup
-        filterTextView = view.findViewById(R.id.search_tv) as AutoCompleteTextView
+        filterTextView = view.findViewById(R.id.search_tv) as SearchAutoCompleteTextView
+        filterTextView.callbacks = this
 
         viewModel.filterOptions.asLiveData().observe(
             ctx as LifecycleOwner,
             { filterObjects: List<FilterOption> ->
+                Log.d(TAG, "Updating filter options")
                 filterTextView.setAdapter(FilterOptionsAdapter(ctx, filterObjects))
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    filterTextView.refreshAutoCompleteResults()
-                }
+//                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+//                    filterTextView.refreshAutoCompleteResults()
+//                }
             }
         )
 
@@ -90,15 +92,8 @@ class FilterView(ctx: Context, attributeSet: AttributeSet) :
             }
         )
 
-        filterTextView.onItemClickListener =
-            AdapterView.OnItemClickListener { parent, v, position, id ->
-                val item = parent?.adapter?.getItem(position) as FilterOption
-                viewModel.addFilterItem(item)
-                filterTextView.text.clear()
-                callback?.hideKeyboard()
-            }
-
         myCollectionSwitch.setOnCheckedChangeListener { buttonView, isChecked ->
+            Log.d(TAG, "Collection switch $isChecked")
             viewModel.myCollection(isChecked)
         }
 
@@ -112,7 +107,6 @@ class FilterView(ctx: Context, attributeSet: AttributeSet) :
             }
         }
     }
-
 
     private fun onFilterChanged() {
         updateViews()
@@ -193,17 +187,28 @@ class FilterView(ctx: Context, attributeSet: AttributeSet) :
         viewModel.removeFilterItem(item)
     }
 
-    internal fun addFilterItem(item: FilterOption) = viewModel.addFilterItem(item)
+    override fun addFilterItem(option: FilterOption) = viewModel.addFilterItem(option)
 
     interface FilterCallback : SeriesListFragment.SeriesListCallbacks {
-        fun onFilterChanged(filter: Filter)
+        fun onFilterChanged(filter: SearchFilter)
         fun hideKeyboard()
         fun showKeyboard(focus: EditText)
     }
 }
 
-class FilterOptionsAdapter(ctx: Context, items: List<FilterOption>) :
-    ArrayAdapter<FilterOption>(ctx, R.layout.filter_option_auto_complete, items) {
+class FilterOptionsAdapter(ctx: Context, filterOptions: List<FilterOption>) :
+    ArrayAdapter<FilterOption>(ctx, LAYOUT, filterOptions) {
+
+    companion object {
+        private val LAYOUT = R.layout.filter_option_auto_complete
+    }
+
+    private var allOptions: List<FilterOption> = filterOptions
+    private var mOptions: List<FilterOption> = filterOptions
+
+    override fun getCount(): Int = mOptions.size
+
+    override fun getItem(position: Int): FilterOption = mOptions[position]
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
 
@@ -212,9 +217,9 @@ class FilterOptionsAdapter(ctx: Context, items: List<FilterOption>) :
         val itemText: TextView = view.findViewById(R.id.item_text)
         val optionTypeText: TextView = view.findViewById(R.id.filter_option_type)
 
-        val filterOption: FilterOption? = getItem(position)
+        val filterOption: FilterOption = getItem(position)
 
-        itemText.setText(filterOption?.toString())
+        itemText.setText(filterOption.toString())
 
         optionTypeText.text = when (filterOption) {
             is Series    -> "Series"
@@ -223,6 +228,48 @@ class FilterOptionsAdapter(ctx: Context, items: List<FilterOption>) :
             else         -> ""
         }
 
+        optionTypeText.setTextColor(
+            when (filterOption) {
+                is Series    -> 0xFF0000FF.toInt()
+                is Creator   -> 0xFF00FF00.toInt()
+                is Publisher -> 0xFFFF0000.toInt()
+                else         -> 0xFFFFFFFF.toInt()
+            }
+        )
+
         return view
+    }
+
+    override fun getFilter(): Filter {
+        return object : Filter() {
+            override fun performFiltering(constraint: CharSequence?): FilterResults {
+                val query = constraint?.toString()?.lowercase()
+
+                val results = FilterResults()
+                results.values = if (query == null || query.isEmpty()) {
+                    Log.d(TAG, "Empty query")
+                    allOptions
+                } else {
+                    allOptions.filter {
+                        it.compareValue.lowercase().contains(query)
+                    }
+                }
+
+                return results
+            }
+
+            override fun publishResults(constraint: CharSequence?, results: FilterResults?) {
+                val optionsList: MutableList<FilterOption> = mutableListOf()
+
+                for (item in (results?.values as List<*>)) {
+                    if (item is FilterOption) {
+                        optionsList.add(item)
+                    }
+                }
+
+                mOptions = optionsList
+                notifyDataSetChanged()
+            }
+        }
     }
 }

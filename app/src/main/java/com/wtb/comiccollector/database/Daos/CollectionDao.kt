@@ -8,7 +8,7 @@ import androidx.room.Transaction
 import androidx.sqlite.db.SimpleSQLiteQuery
 import androidx.sqlite.db.SupportSQLiteQuery
 import com.wtb.comiccollector.APP
-import com.wtb.comiccollector.Filter
+import com.wtb.comiccollector.SearchFilter
 import com.wtb.comiccollector.database.models.FullIssue
 import com.wtb.comiccollector.database.models.MyCollection
 import com.wtb.comiccollector.database.models.Series
@@ -27,7 +27,7 @@ abstract class CollectionDao : BaseDao<MyCollection>() {
     abstract fun getFullIssuesByQuery(query: SupportSQLiteQuery): DataSource.Factory<Int, FullIssue>
 
 
-    fun getIssuesByFilter(filter: Filter): DataSource.Factory<Int, FullIssue> {
+    fun getIssuesByFilter(filter: SearchFilter): DataSource.Factory<Int, FullIssue> {
         var tableJoinString = String()
         var conditionsString = String()
         val args: ArrayList<Any> = arrayListOf()
@@ -86,7 +86,7 @@ abstract class CollectionDao : BaseDao<MyCollection>() {
     )
     abstract fun getSeriesByQuery(query: SupportSQLiteQuery): DataSource.Factory<Int, Series>
 
-    fun getSeriesByFilter(filter: Filter): DataSource.Factory<Int, Series> {
+    fun getSeriesByFilter(filter: SearchFilter): DataSource.Factory<Int, Series> {
         var tableJoinString = String()
         var conditionsString = String()
         val args: ArrayList<Any> = arrayListOf()

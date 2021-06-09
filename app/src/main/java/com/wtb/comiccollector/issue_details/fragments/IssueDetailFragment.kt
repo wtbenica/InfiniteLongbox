@@ -16,6 +16,7 @@ import com.wtb.comiccollector.*
 import com.wtb.comiccollector.database.Daos.Count
 import com.wtb.comiccollector.database.models.*
 import com.wtb.comiccollector.issue_details.view_models.IssueDetailViewModel
+import com.wtb.comiccollector.repository.DUMMY_ID
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collect
@@ -174,7 +175,6 @@ class IssueDetailFragment : Fragment() {
             { credits: List<FullCredit>? ->
                 credits?.let {
                     this.issueCredits = it
-                    creditsBox.displayCredit()
                     updateUI()
                 }
             }
@@ -184,6 +184,7 @@ class IssueDetailFragment : Fragment() {
             viewLifecycleOwner,
             { stories: List<Story>? ->
                 stories?.let {
+                    Log.d(TAG, "issueStories updated: ${stories.size}")
                     this.issueStories = it
                     updateUI()
                 }
@@ -206,7 +207,6 @@ class IssueDetailFragment : Fragment() {
             { credits: List<FullCredit>? ->
                 credits?.let {
                     this.variantCredits = it
-                    creditsBox.displayCredit()
                     updateUI()
                 }
             }
@@ -217,7 +217,6 @@ class IssueDetailFragment : Fragment() {
             { stories: List<Story> ->
                 stories.let {
                     this.variantStories = it
-                    creditsBox.displayCredit()
                     updateUI()
                 }
             }
@@ -389,17 +388,23 @@ class IssueDetailFragment : Fragment() {
     }
 
     private fun updateUI() {
-        numUpdates += 1
-        Log.d(TAG, "$numUpdates updates ***********")
 
-        seriesTextView.text = fullIssue.series.seriesName
+        if (fullIssue.issue.issueId != DUMMY_ID) {
+            numUpdates += 1
 
-        issueNumTextView.text = fullIssue.issue.issueNum.toString()
+            seriesTextView.text = fullIssue.series.seriesName
 
-        this.fullIssue.issue.releaseDate?.format(DateTimeFormatter.ofPattern("MMM d, y"))
-            ?.let { releaseDateTextView.text = it }
+            issueNumTextView.text = fullIssue.issue.issueNum.toString()
 
-        updateCover()
+            this.fullIssue.issue.releaseDate?.format(DateTimeFormatter.ofPattern("MMM d, y"))
+                ?.let { releaseDateTextView.text = it }
+
+            creditsBox.displayCredit()
+
+            updateCover()
+        } else {
+            Log.d(TAG, "updateUI: Dummy")
+        }
     }
 
     private fun updateCover() {
@@ -438,6 +443,10 @@ class IssueDetailFragment : Fragment() {
         fun displayCredit() {
             this.removeAllViews()
             val stories = combineCredits(issueStories, variantStories)
+            Log.d(
+                TAG,
+                "DISPLAY STORIES ${stories.size} ${issueStories.size} ${variantStories.size}"
+            )
             stories.forEach { story ->
                 this.addView(StoryRow(context, story))
                 val credits = issueCredits + variantCredits

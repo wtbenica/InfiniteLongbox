@@ -2,6 +2,7 @@ package com.wtb.comiccollector.item_lists.fragments
 
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -33,7 +34,7 @@ class SeriesListFragment(var callback: SeriesListCallbacks? = null) : Fragment()
         ViewModelProvider(this).get(SeriesListViewModel::class.java)
     }
 
-    private var filter = Filter()
+    private var filter = SearchFilter()
         set(value) {
             field = value
             viewModel.setFilter(filter)
@@ -44,7 +45,7 @@ class SeriesListFragment(var callback: SeriesListCallbacks? = null) : Fragment()
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
 
-        filter = arguments?.getSerializable(ARG_FILTER) as Filter
+        filter = arguments?.getSerializable(ARG_FILTER) as SearchFilter
     }
 
 
@@ -73,7 +74,9 @@ class SeriesListFragment(var callback: SeriesListCallbacks? = null) : Fragment()
         itemListRecyclerView.adapter = adapter
 
         lifecycleScope.launch {
-            viewModel.seriesList()?.collectLatest { adapter.submitData(it) }
+            viewModel.seriesList()?.collectLatest {
+                Log.d(TAG, "Updating series list")
+                adapter.submitData(it) }
         }
     }
 
@@ -151,7 +154,7 @@ class SeriesListFragment(var callback: SeriesListCallbacks? = null) : Fragment()
         @JvmStatic
         fun newInstance(
             callback: SeriesListCallbacks,
-            filter: Filter
+            filter: SearchFilter
         ): SeriesListFragment {
             return SeriesListFragment(callback).apply {
                 arguments = Bundle().apply {

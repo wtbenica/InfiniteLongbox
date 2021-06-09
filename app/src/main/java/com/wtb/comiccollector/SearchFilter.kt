@@ -7,6 +7,7 @@ import com.wtb.comiccollector.database.models.Publisher
 import com.wtb.comiccollector.database.models.Series
 import com.wtb.comiccollector.item_lists.fragments.IssueListFragment
 import com.wtb.comiccollector.item_lists.fragments.SeriesListFragment
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import java.io.Serializable
 import java.time.LocalDate
 
@@ -14,28 +15,31 @@ const val ARG_FILTER = "Filter"
 
 private const val TAG = APP + "Filter_SortChipGroup"
 
-class Filter(
+@ExperimentalCoroutinesApi
+class SearchFilter(
     creators: Set<Creator>? = null,
     series: Series? = null,
     publishers: Set<Publisher>? = null,
     startDate: LocalDate? = null,
     endDate: LocalDate? = null,
     myCollection: Boolean = true,
-    sortOption: SortOption? = null
+    sortOption: SortOption? = null,
+    textFilter: TextFilter? = null
 ) : Serializable {
 
-    constructor(filter: Filter) : this(
+    constructor(filter: SearchFilter) : this(
         filter.mCreators,
         filter.mSeries,
         filter.mPublishers,
         filter.mStartDate,
         filter.mEndDate,
         filter.mMyCollection,
-        filter.mSortOption
+        filter.mSortOption,
+        filter.mTextFilter
     )
 
     override fun equals(other: Any?): Boolean {
-        return other is Filter && hashCode() == other.hashCode()
+        return other is SearchFilter && hashCode() == other.hashCode()
     }
 
     var mCreators: Set<Creator> = creators ?: setOf()
@@ -52,6 +56,8 @@ class Filter(
     var mEndDate: LocalDate = endDate ?: LocalDate.MAX
     var mMyCollection: Boolean = myCollection
     var mSortOption: SortOption = sortOption ?: getSortOptions()[0]
+    var mTextFilter: TextFilter? = textFilter
+
     fun hasCreator() = mCreators.isNotEmpty()
     fun returnsIssueList() = mSeries != null
     fun hasPublisher() = mPublishers.isNotEmpty()
@@ -89,6 +95,14 @@ class Filter(
         mPublishers = newPublishers
     }
 
+    private fun addTextFilter(item: TextFilter) {
+        mTextFilter = item
+    }
+
+    private fun removeTextFilter(item: TextFilter) {
+        mTextFilter = null
+    }
+
     fun setMyCollection(value: Boolean) {
         this.mMyCollection = value
     }
@@ -96,9 +110,10 @@ class Filter(
     fun addFilter(vararg items: FilterOption) {
         items.forEach { item ->
             when (item) {
-                is Series    -> addSeries(item)
-                is Creator   -> addCreator(item)
-                is Publisher -> addPublisher(item)
+                is Series     -> addSeries(item)
+                is Creator    -> addCreator(item)
+                is Publisher  -> addPublisher(item)
+                is TextFilter -> addTextFilter(item)
             }
         }
     }
@@ -106,9 +121,10 @@ class Filter(
     fun removeFilter(vararg items: FilterOption) {
         items.forEach { item ->
             when (item) {
-                is Series    -> removeSeries()
-                is Creator   -> removeCreator(item)
-                is Publisher -> removePublisher(item)
+                is Series     -> removeSeries()
+                is Creator    -> removeCreator(item)
+                is Publisher  -> removePublisher(item)
+                is TextFilter -> removeTextFilter(item)
             }
         }
     }
@@ -139,12 +155,11 @@ class Filter(
         mSeries = series
     }
 
-    fun getAll(): Set<FilterOption> =
-        if (mSeries != null) {
-            mCreators + mPublishers + mSeries!!
-        } else {
-            mCreators + mPublishers
-        }
+    fun getAll(): Set<FilterOption> {
+        val series = mSeries?.let { setOf(it) } ?: emptySet()
+        val textFilter = mTextFilter?.let { setOf(it) } ?: emptySet()
+        return mCreators + mPublishers + series + textFilter
+    }
 
     override fun hashCode(): Int {
         var result = mCreators.hashCode()
@@ -154,11 +169,13 @@ class Filter(
         result = 31 * result + mEndDate.hashCode()
         result = 31 * result + mMyCollection.hashCode()
         result = 31 * result + mSortOption.hashCode()
+        result = 31 * result + mTextFilter.hashCode()
         return result
     }
 
-    override fun toString(): String = "Series: $mSeries Creators: ${mCreators.size} Pubs: " +
-            "${mPublishers.size} MyCol: $mMyCollection"
+    override fun toString(): String =
+        "Series: $mSeries Creators: ${mCreators.size} Pubs: " +
+                "${mPublishers.size} MyCol: $mMyCollection"
 
 //    companion object {
 //        fun deserialize(str: String?): MutableSet<Int> {
@@ -197,3 +214,10 @@ val seriesSortOptions: List<SortOption> = listOf(
     SeriesSortOption("Date (Oldest to Newest)", "startDate ASC"),
     SeriesSortOption("Date (Newest to Oldest)", "startDate DESC")
 )
+
+data class TextFilter(val text: String) : FilterOption {
+    override val compareValue: String
+        get() = text
+
+    override fun toString(): String = "\"$text\""
+}
