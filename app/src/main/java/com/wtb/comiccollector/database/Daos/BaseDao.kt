@@ -82,29 +82,28 @@ abstract class BaseDao<T : DataModel> {
     @Transaction
     open suspend fun upsertSus(objList: List<T>) {
 
+        val objClass = if (objList.size > 0) {
+            objList[0]::class.toString().split(".").last().split(" ").first()
+        } else {
+            "Empty List"
+        }
+
         try {
             val insertResult: List<Long> = insertSus(objList)
-            val updateList = mutableListOf<T>()
 
-            val objClass = if (objList.size >0) {
-                objList[0]::class.toString().split(".").last()
-            } else {
-                "Empty List"
-            }
             Log.d(
                 TAG,
-                "${objClass} Num Inserted: ${insertResult.count { it == -1L }} / ${insertResult
-                    .size}"
+                "YAY ${objClass} Num Inserted: ${insertResult.count { it == -1L }} / ${
+                    insertResult.size
+                }"
             )
             for (i in insertResult.indices) {
                 if (insertResult[i] == -1L) {
-                    val element = objList[i]
-                    updateList.add(element)
+                    update(objList[i])
                 }
             }
-            update(updateList)
         } catch (sqlEx: SQLiteConstraintException) {
-            Log.d(TAG, "UGH $sqlEx ${sqlEx.stackTrace} ${sqlEx.message}")
+            Log.d(TAG, "UGH ${objClass} $sqlEx ${sqlEx.stackTrace} ${sqlEx.message}")
         }
     }
 

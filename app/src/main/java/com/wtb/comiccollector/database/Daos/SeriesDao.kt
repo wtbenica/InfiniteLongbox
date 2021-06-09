@@ -1,5 +1,6 @@
 package com.wtb.comiccollector.database.Daos
 
+import android.util.Log
 import androidx.paging.PagingSource
 import androidx.room.Dao
 import androidx.room.Query
@@ -7,15 +8,17 @@ import androidx.room.RawQuery
 import androidx.sqlite.db.SimpleSQLiteQuery
 import androidx.sqlite.db.SupportSQLiteQuery
 import com.wtb.comiccollector.APP
-import com.wtb.comiccollector.Filter
+import com.wtb.comiccollector.SearchFilter
 import com.wtb.comiccollector.database.models.FullSeries
 import com.wtb.comiccollector.database.models.Series
 import com.wtb.comiccollector.repository.DUMMY_ID
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import java.util.*
 
 private const val TAG = APP + "SeriesDao"
 
+@ExperimentalCoroutinesApi
 @Dao
 abstract class SeriesDao : BaseDao<Series>() {
     // FLOW FUNCTIONS
@@ -24,7 +27,7 @@ abstract class SeriesDao : BaseDao<Series>() {
     )
     abstract fun getSeriesByQuery(query: SupportSQLiteQuery): Flow<List<Series>>
 
-    fun getSeriesByFilterFlow(filter: Filter): Flow<List<Series>> {
+    fun getSeriesByFilter(filter: SearchFilter): Flow<List<Series>> {
 
         var tableJoinString = String()
         var conditionsString = String()
@@ -85,7 +88,7 @@ abstract class SeriesDao : BaseDao<Series>() {
     @RawQuery(observedEntities = [Series::class])
     abstract fun getSeriesByQueryPagingSource(query: SupportSQLiteQuery): PagingSource<Int, FullSeries>
 
-    fun getSeriesByFilterPagingSource(filter: Filter): PagingSource<Int, FullSeries> {
+    fun getSeriesByFilterPagingSource(filter: SearchFilter): PagingSource<Int, FullSeries> {
 
         var tableJoinString = String()
         var conditionsString = String()
@@ -130,6 +133,11 @@ abstract class SeriesDao : BaseDao<Series>() {
         if (filter.mMyCollection) {
             tableJoinString += "JOIN issue ie2 on ie2.seriesId = ss.seriesId " +
                     "JOIN mycollection mc ON mc.issueId = ie2.issueId "
+        }
+
+        filter.mTextFilter?.let {
+            Log.d(TAG, "THERE'S A TEXT FILTER!!!!!!!!!!!! $it")
+            conditionsString += "AND ss.seriesName like '%${it.text}%' "
         }
 
         val query = SimpleSQLiteQuery(

@@ -11,9 +11,9 @@ abstract class StoryDao : BaseDao<Story>() {
         """
             SELECT st.*
             FROM story st
-            NATURAL JOIN issue iss
+            JOIN issue iss on iss.issueId = st.issueId
             JOIN storytype type ON type.typeId = st.storyType
-            WHERE iss.issueId = :issueId
+            WHERE st.issueId = :issueId
             AND (st.storyType = 19 OR st.storyType= 6)
             ORDER BY sequenceNumber
         """

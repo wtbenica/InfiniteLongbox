@@ -9,28 +9,23 @@
     app:cardPreventCornerOverlap="false"
     app:cardUseCompatPadding="true">
 
+    <ImageView
+        android:id="@+id/series_imageview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:cropToPadding="true"
+        android:scaleType="centerCrop"
+        tool:src="@tools:sample/backgrounds/scenic" />
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
-
-        <ImageView
-            android:id="@+id/series_imageview"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:cropToPadding="true"
-            android:scaleType="centerCrop"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
 
         <LinearLayout
             style="@style/SeriesLayout"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="8dp"
-            android:background="@drawable/gd_bg"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
@@ -40,10 +35,10 @@
                 style="@style/SeriesTitleText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingBottom="8dp"
+                android:layout_marginBottom="8dp"
                 android:singleLine="true"
-                tool:hint="@string/hint_series_title"
-                tool:textColor="?attr/colorPrimaryVariant" />
+                tool:text="@string/hint_series_title"
+                tool:textColor="?attr/colorOnSecondary" />
 
             <TextView
                 android:id="@+id/list_item_dates"

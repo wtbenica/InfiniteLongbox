@@ -2,6 +2,7 @@
 <resources>
     <array name="preloaded_fonts" translatable="false">
         <item>@font/ceviche_one</item>
+        <item>@font/permanent_marker</item>
         <item>@font/racing_sans_one</item>
     </array>
 </resources>

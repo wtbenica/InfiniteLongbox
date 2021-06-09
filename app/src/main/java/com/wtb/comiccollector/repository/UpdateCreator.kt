@@ -5,25 +5,24 @@ import android.util.Log
 import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.Webservice
 import com.wtb.comiccollector.database.IssueDatabase
-import com.wtb.comiccollector.database.models.GcdNameDetail
-import com.wtb.comiccollector.database.models.Item
-import com.wtb.comiccollector.database.models.NameDetail
+import com.wtb.comiccollector.database.models.NameDetailAndCreator
 import kotlinx.coroutines.*
 
 private const val TAG = APP + "CreatorUpdater"
 
+@ExperimentalCoroutinesApi
 class UpdateCreator(
     val apiService: Webservice,
     val database: IssueDatabase,
     val prefs: SharedPreferences
-) {
+) : Updater() {
 
     internal fun updateAll(creatorIds: List<Int>) {
         creatorIds.forEach { update(it) }
     }
 
     private fun update(creatorId: Int) {
-        if (Repository.checkIfStale(CREATOR_TAG(creatorId), CREATOR_LIFETIME, prefs)) {
+        if (checkIfStale(CREATOR_TAG(creatorId), CREATOR_LIFETIME, prefs)) {
             Log.d(TAG, "update $creatorId")
             refreshCredits(creatorId)
         }
@@ -31,17 +30,16 @@ class UpdateCreator(
 
     private fun refreshCredits(creatorId: Int) {
         val nameDetailCall = CoroutineScope(Dispatchers.IO).async {
-//            database.nameDetailDao().getNameDetailByCreatorId(creatorId)
-            apiService.getNameDetailsByCreatorIds(listOf(creatorId))
+            database.nameDetailDao().getNameDetailsByCreatorId(creatorId)
         }
 
         val creditsCall = CoroutineScope(Dispatchers.IO).async {
-            nameDetailCall.await().let { gcdNameDetails: List<Item<GcdNameDetail, NameDetail>> ->
+            nameDetailCall.await().let { nameDetails: List<NameDetailAndCreator> ->
                 Log.d(
                     TAG,
-                    "refreshCredits getCreditsByNameDetail - $creatorId gcdNameDetails: ${gcdNameDetails.size}"
+                    "refreshCredits getCreditsByNameDetail - $creatorId gcdNameDetails: ${nameDetails.size}"
                 )
-                apiService.getCreditsByNameDetail(gcdNameDetails.map { it.pk })
+                apiService.getCreditsByNameDetail(nameDetails.map { it.nameDetail.nameDetailId })
             }
         }
 
@@ -97,7 +95,7 @@ class UpdateCreator(
                     "refreshCredits getCreditsByNameDetail - $creatorId exGcdNameDetails: ${gcdNameDetails.size}"
                 )
                 apiService.getExtractedCreditsByNameDetail(gcdNameDetails.map {
-                    it.pk
+                    it.nameDetail.nameDetailId
                 })
             }
         }
@@ -107,8 +105,10 @@ class UpdateCreator(
             exCreditsCall.await().let {
                 Log.d(
                     TAG,
-                    "refreshCredits getCreditsByNameDetail - $creatorId exGcdCredits: ${it
-                        .size}"
+                    "refreshCredits getCreditsByNameDetail - $creatorId exGcdCredits: ${
+                        it
+                            .size
+                    }"
                 )
                 val credits = it.map { item -> item.toRoomModel() }
                 val storyIds = credits.map { credit -> credit.storyId }
@@ -124,8 +124,10 @@ class UpdateCreator(
             exStoriesCall.await()?.let {
                 Log.d(
                     TAG,
-                    "refreshCredits getCreditsByNameDetail - $creatorId exGcdStory: ${it
-                        .size}"
+                    "refreshCredits getCreditsByNameDetail - $creatorId exGcdStory: ${
+                        it
+                            .size
+                    }"
                 )
                 val issueIds = it.map { item -> item.toRoomModel().issueId }
                 if (issueIds.isNotEmpty()) {
@@ -141,8 +143,10 @@ class UpdateCreator(
                 exIssuesCall.await()?.let {
                     Log.d(
                         TAG,
-                        "refreshCredits getCreditsByNameDetail - $creatorId exVarGcdIssue: ${it
-                            .size}"
+                        "refreshCredits getCreditsByNameDetail - $creatorId exVarGcdIssue: ${
+                            it
+                                .size
+                        }"
                     )
                     val issueIds = it.mapNotNull { item -> item.toRoomModel().variantOf }
                     if (issueIds.isNotEmpty()) {
@@ -177,9 +181,9 @@ class UpdateCreator(
                     val exCredits =
                         exCreditsCall.await().map { it.toRoomModel() } ?: emptyList()
 
-                    val nameDetails: List<NameDetail> =
-                        nameDetailCall.await().map { it.toRoomModel() }
-
+//                    val nameDetails: List<NameDetail> =
+//                        nameDetailCall.await().map { it.toRoomModel() }
+//
 
                     val series = CoroutineScope(Dispatchers.IO).async {
                         apiService.getSeriesByIds(allIssues.map { it.seriesId })
@@ -188,7 +192,6 @@ class UpdateCreator(
                     database.transactionDao().upsertSus(
                         stories = allStories,
                         issues = allIssues,
-                        nameDetails = nameDetails,
                         credits = credits,
                         exCredits = exCredits,
                         series = series

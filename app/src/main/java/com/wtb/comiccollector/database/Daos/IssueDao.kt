@@ -8,7 +8,7 @@ import androidx.room.Transaction
 import androidx.sqlite.db.SimpleSQLiteQuery
 import androidx.sqlite.db.SupportSQLiteQuery
 import com.wtb.comiccollector.APP
-import com.wtb.comiccollector.Filter
+import com.wtb.comiccollector.SearchFilter
 import com.wtb.comiccollector.database.models.FullIssue
 import com.wtb.comiccollector.database.models.Issue
 import kotlinx.coroutines.flow.Flow
@@ -21,7 +21,7 @@ abstract class IssueDao : BaseDao<Issue>() {
     @RawQuery(observedEntities = [FullIssue::class])
     abstract fun getFullIssuesByQuery(query: SupportSQLiteQuery): Flow<List<FullIssue>>
 
-    fun getIssuesByFilter(filter: Filter): Flow<List<FullIssue>> {
+    fun getIssuesByFilter(filter: SearchFilter): Flow<List<FullIssue>> {
         var tableJoinString = String()
         var conditionsString = String()
         val args: ArrayList<Any> = arrayListOf()
@@ -103,7 +103,7 @@ abstract class IssueDao : BaseDao<Issue>() {
     @RawQuery(observedEntities = [FullIssue::class])
     abstract fun getFullIssuesByQueryPagingSource(query: SupportSQLiteQuery): PagingSource<Int, FullIssue>
 
-    fun getIssuesByFilterPagingSource(filter: Filter): PagingSource<Int, FullIssue> {
+    fun getIssuesByFilterPagingSource(filter: SearchFilter): PagingSource<Int, FullIssue> {
         val mSeries = filter.mSeries
 
         var tableJoinString = String()

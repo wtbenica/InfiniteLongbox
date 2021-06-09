@@ -7,7 +7,7 @@ data class Creator(
     @PrimaryKey(autoGenerate = true) val creatorId: Int = AUTO_ID,
     var name: String,
     var sortName: String
-) : FilterOption() {
+) : DataModel(), FilterOption {
     override val compareValue: String
         get() = name
 

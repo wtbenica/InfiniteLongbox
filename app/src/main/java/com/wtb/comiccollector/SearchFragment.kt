@@ -3,6 +3,7 @@ package com.wtb.comiccollector
 import android.app.Activity
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -87,13 +88,18 @@ class SearchFragment : Fragment(), SeriesListFragment.SeriesListCallbacks,
         }
     }
 
-    override fun onFilterChanged(filter: Filter) {
-        childFragmentManager.beginTransaction()
-            .replace(R.id.results_frame, filter.getFragment(this))
-            .addToBackStack(null)
-            .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
-            .commit()
+    override fun onFilterChanged(filter: SearchFilter) {
+        try {
+            childFragmentManager.beginTransaction()
+                .replace(R.id.results_frame, filter.getFragment(this))
+                .addToBackStack(null)
+                .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
+                .commit()
+        } catch (e: IllegalStateException) {
+            Log.d(TAG, "onFilterChanged: $e")
+        }
     }
+
 
     override fun hideKeyboard() {
         view?.let { activity?.hideKeyboard(it) }

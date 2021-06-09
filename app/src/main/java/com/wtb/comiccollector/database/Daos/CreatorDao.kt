@@ -5,15 +5,17 @@ import androidx.room.Query
 import androidx.room.RawQuery
 import androidx.sqlite.db.SimpleSQLiteQuery
 import androidx.sqlite.db.SupportSQLiteQuery
-import com.wtb.comiccollector.Filter
+import com.wtb.comiccollector.SearchFilter
 import com.wtb.comiccollector.database.models.Creator
 import com.wtb.comiccollector.repository.DUMMY_ID
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import java.util.*
 
+@ExperimentalCoroutinesApi
 @Dao
 abstract class CreatorDao : BaseDao<Creator>() {
-    fun getCreatorsByFilter(filter: Filter): Flow<List<Creator>> {
+    fun getCreatorsByFilter(filter: SearchFilter): Flow<List<Creator>> {
         val mSeries = filter.mSeries
 
         var tableJoinString = String()
@@ -22,37 +24,38 @@ abstract class CreatorDao : BaseDao<Creator>() {
 
         tableJoinString +=
             "SELECT DISTINCT cr.* " +
-                    "FROM creator cr "
+                    "FROM creator cr " +
+                    "JOIN nameDetail nd ON cr.creatorId = nd.creatorId " +
+                    "JOIN credit ct ON ct.nameDetailId = nd.nameDetailId " +
+                    "JOIN story sy ON ct.storyId = sy.storyId " +
+                    "JOIN issue ie ON ie.issueId = sy.issueId " +
+                    "JOIN series ss ON ie.seriesId = ss.seriesId "
 
         conditionsString += "WHERE cr.creatorId != $DUMMY_ID "
 
-        if (filter.hasPublisher() || filter.hasDateFilter() || mSeries != null) {
+        if (mSeries != null) {
+            conditionsString += "AND ss.seriesId = ${mSeries.seriesId} "
+        }
+
+        if (filter.hasPublisher()) {
             tableJoinString +=
-                "JOIN nameDetail nd ON cr.creatorId = nd.creatorId " +
-                        "JOIN credit ct ON ct.nameDetailId = nd.nameDetailId " +
-                        "JOIN story sy ON ct.storyId = sy.storyId " +
-                        "JOIN issue ie ON ie.issueId = sy.issueId " +
-                        "JOIN series ss ON ie.seriesId = ss.seriesId "
+                "JOIN publisher pr ON ss.publisherId = pr.publisherId "
 
-            if (mSeries != null) {
-                conditionsString += "AND ss.seriesId = ${mSeries.seriesId} "
-            }
+            val publisherList = modelsToSqlIdString(filter.mPublishers)
 
-            if (filter.hasPublisher()) {
-                tableJoinString +=
-                    "JOIN publisher pr ON ss.publisherId = pr.publisherId "
+            conditionsString += "AND pr.publisherId IN $publisherList"
+        }
 
-                val publisherList = modelsToSqlIdString(filter.mPublishers)
+        if (filter.hasDateFilter()) {
+            conditionsString += "AND ie.releaseDate < ? AND ie.releaseDate > ? "
+            args.add(filter.mEndDate)
+            args.add(filter.mStartDate)
 
-                conditionsString += "AND pr.publisherId IN $publisherList"
-            }
+        }
 
-            if (filter.hasDateFilter()) {
-                conditionsString += "AND ie.releaseDate < ? AND ie.releaseDate > ? "
-                args.add(filter.mEndDate)
-                args.add(filter.mStartDate)
-
-            }
+        if (filter.mMyCollection) {
+            tableJoinString += "JOIN issue ie2 on ie2.seriesId = ss.seriesId " +
+                    "JOIN mycollection mc ON mc.issueId = ie2.issueId "
         }
 
         val query = SimpleSQLiteQuery(
@@ -68,7 +71,7 @@ abstract class CreatorDao : BaseDao<Creator>() {
     )
     abstract fun getCreatorsByQuery(query: SupportSQLiteQuery): Flow<List<Creator>>
 
-    //    @Query(
+//    @Query(
 //        """
 //            SELECT DISTINCT creator.*
 //            FROM creator

@@ -2,6 +2,7 @@ package com.wtb.comiccollector.item_lists.fragments
 
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -20,18 +21,20 @@ import com.wtb.comiccollector.*
 import com.wtb.comiccollector.database.models.FullSeries
 import com.wtb.comiccollector.database.models.Series
 import com.wtb.comiccollector.item_lists.view_models.SeriesListViewModel
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 private const val TAG = APP + "SeriesListFragment"
 
+@ExperimentalCoroutinesApi
 class SeriesListFragment(var callback: SeriesListCallbacks? = null) : Fragment() {
 
     private val viewModel: SeriesListViewModel by lazy {
         ViewModelProvider(this).get(SeriesListViewModel::class.java)
     }
 
-    private var filter = Filter()
+    private var filter = SearchFilter()
         set(value) {
             field = value
             viewModel.setFilter(filter)
@@ -42,7 +45,7 @@ class SeriesListFragment(var callback: SeriesListCallbacks? = null) : Fragment()
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
 
-        filter = arguments?.getSerializable(ARG_FILTER) as Filter
+        filter = arguments?.getSerializable(ARG_FILTER) as SearchFilter
     }
 
 
@@ -54,6 +57,9 @@ class SeriesListFragment(var callback: SeriesListCallbacks? = null) : Fragment()
 
         itemListRecyclerView = view.findViewById(R.id.results_frame) as RecyclerView
         itemListRecyclerView.layoutManager = LinearLayoutManager(context)
+
+        val itemDecoration = IssueListFragment.ItemOffsetDecoration(24)
+        itemListRecyclerView.addItemDecoration(itemDecoration)
 
         (requireActivity() as MainActivity).supportActionBar?.title = requireContext()
             .applicationInfo.loadLabel(requireContext().packageManager).toString()
@@ -68,7 +74,9 @@ class SeriesListFragment(var callback: SeriesListCallbacks? = null) : Fragment()
         itemListRecyclerView.adapter = adapter
 
         lifecycleScope.launch {
-            viewModel.seriesList()?.collectLatest { adapter.submitData(it) }
+            viewModel.seriesList()?.collectLatest {
+                Log.d(TAG, "Updating series list")
+                adapter.submitData(it) }
         }
     }
 
@@ -146,7 +154,7 @@ class SeriesListFragment(var callback: SeriesListCallbacks? = null) : Fragment()
         @JvmStatic
         fun newInstance(
             callback: SeriesListCallbacks,
-            filter: Filter
+            filter: SearchFilter
         ): SeriesListFragment {
             return SeriesListFragment(callback).apply {
                 arguments = Bundle().apply {

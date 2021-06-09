@@ -6,147 +6,180 @@
     android:layout_height="wrap_content"
     android:animateLayoutChanges="true">
 
-    <LinearLayout
+    <androidx.cardview.widget.CardView
         android:id="@+id/filter_box"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:animateLayoutChanges="true"
-        android:orientation="vertical">
+        android:layout_height="wrap_content">
 
         <LinearLayout
-            android:id="@+id/top_section"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:animateLayoutChanges="true"
-            android:background="#DD888899"
-            android:elevation="1dp"
-            android:orientation="vertical"
-            android:padding="8dp"
-            android:visibility="visible"
-            tools:visibility="visible">
-
-            <androidx.appcompat.widget.SwitchCompat
-                android:id="@+id/my_collection_switch"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:animateLayoutChanges="true"
-                android:text="@string/my_collection"
-                tools:checked="true" />
+            android:background="?attr/colorPrimaryVariant"
+            android:orientation="vertical">
 
             <LinearLayout
-                android:id="@+id/sort_options_box"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:animateLayoutChanges="true"
-                android:gravity="center_vertical">
-
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:animateLayoutChanges="true"
-                    android:visibility="visible"
-                    app:srcCompat="@android:drawable/ic_menu_sort_by_size"
-                    tools:visibility="visible" />
-
-                <androidx.cardview.widget.CardView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:layout_weight="1"
-                    android:animateLayoutChanges="true"
-                    android:visibility="visible"
-                    app:cardCornerRadius="32dp"
-                    app:cardUseCompatPadding="false"
-                    tools:visibility="visible">
-
-                    <HorizontalScrollView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:animateLayoutChanges="true"
-                        android:background="@drawable/accent_outline_white_background"
-                        android:scrollbars="none">
-
-                        <com.wtb.comiccollector.views.SortChipGroup
-                            android:id="@+id/sort_chip_group"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:animateLayoutChanges="true"
-                            android:paddingStart="8dp"
-                            android:paddingEnd="8dp">
-
-                            <com.google.android.material.chip.Chip
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="@string/hint_publisher" />
-
-                            <com.google.android.material.chip.Chip
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="@string/app_name" />
-
-                            <com.google.android.material.chip.Chip
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="@string/hint_series_title" />
-
-                            <com.google.android.material.chip.Chip
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="@string/label_description" />
-
-                        </com.wtb.comiccollector.views.SortChipGroup>
-
-                    </HorizontalScrollView>
-                </androidx.cardview.widget.CardView>
-            </LinearLayout>
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/bottom_section"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:animateLayoutChanges="true"
-            android:background="#DD666677"
-            android:orientation="vertical"
-            android:padding="8dp">
-
-            <HorizontalScrollView
-                android:id="@+id/filter_chip_holder"
+                android:id="@+id/top_section"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:animateLayoutChanges="true"
-                android:elevation="2dp">
+                android:background="?attr/colorPrimaryVariant"
+                android:orientation="vertical"
+                android:padding="8dp"
+                android:visibility="visible"
+                tools:visibility="visible">
 
-                <com.google.android.material.chip.ChipGroup
-                    android:id="@+id/filter_chip_group"
-                    android:layout_width="wrap_content"
+                <androidx.appcompat.widget.SwitchCompat
+                    android:id="@+id/my_collection_switch"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:animateLayoutChanges="true"
-                    app:singleLine="true">
+                    android:checked="true"
+                    android:text="@string/my_collection" />
 
-                    <com.google.android.material.chip.Chip
+                <LinearLayout
+                    android:id="@+id/sort_options_box"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:animateLayoutChanges="true"
+                    android:gravity="center_vertical">
+
+                    <ImageView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="@string/app_name" />
+                        android:animateLayoutChanges="true"
+                        android:visibility="visible"
+                        app:srcCompat="@android:drawable/ic_menu_sort_by_size"
+                        tools:visibility="visible" />
 
-                </com.google.android.material.chip.ChipGroup>
+                    <androidx.cardview.widget.CardView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:layout_weight="1"
+                        android:animateLayoutChanges="true"
+                        android:visibility="visible"
+                        app:cardCornerRadius="32dp"
+                        app:cardUseCompatPadding="false"
+                        tools:visibility="visible">
 
-            </HorizontalScrollView>
+                        <HorizontalScrollView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:background="@drawable/no_outline_white_background"
+                            android:scrollbars="none">
 
-            <AutoCompleteTextView
-                android:id="@+id/search_tv"
+                            <com.wtb.comiccollector.views.SortChipGroup
+                                android:id="@+id/sort_chip_group"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:animateLayoutChanges="true"
+                                android:paddingStart="8dp"
+                                android:paddingEnd="8dp">
+
+                                <com.google.android.material.chip.Chip
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:checkable="true"
+                                    android:checked="true"
+                                    android:text="@string/hint_publisher"
+                                    app:closeIconEnabled="false" />
+
+                                <com.google.android.material.chip.Chip
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="@string/app_name"
+                                    app:closeIconEnabled="false" />
+
+                                <com.google.android.material.chip.Chip
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="@string/hint_series_title"
+                                    app:closeIconEnabled="false" />
+
+                                <com.google.android.material.chip.Chip
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="@string/label_description"
+                                    app:closeIconEnabled="false" />
+
+                            </com.wtb.comiccollector.views.SortChipGroup>
+
+                        </HorizontalScrollView>
+                    </androidx.cardview.widget.CardView>
+                </LinearLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/bottom_section"
                 android:layout_width="match_parent"
-                android:layout_height="?attr/dropdownListPreferredItemHeight"
+                android:layout_height="wrap_content"
                 android:animateLayoutChanges="true"
-                android:elevation="1dp"
-                android:layout_marginTop="8dp"
-                android:layout_marginBottom="8dp"
-                android:hint="@string/search"
-                android:popupBackground="@drawable/accent_outline_white_background"
-                android:textAppearance="?android:attr/textAppearanceLargePopupMenu"
-                android:textColor="?attr/colorOnSecondary"
-                tools:text="Potato Latke" />
+                android:background="?attr/colorPrimary"
+                android:orientation="vertical"
+                android:padding="8dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <androidx.cardview.widget.CardView
+                        android:id="@+id/filter_chip_holder"
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_marginBottom="8dp"
+                        android:layout_weight="1"
+                        android:animateLayoutChanges="true"
+                        android:visibility="visible"
+                        app:cardCornerRadius="32dp"
+                        app:cardUseCompatPadding="false"
+                        tools:visibility="visible">
+
+                        <HorizontalScrollView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:animateLayoutChanges="true">
+
+                            <com.google.android.material.chip.ChipGroup
+                                android:id="@+id/filter_chip_group"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:animateLayoutChanges="true"
+                                android:paddingStart="8dp"
+                                android:paddingEnd="8dp"
+                                app:singleLine="true">
+
+                                <com.google.android.material.chip.Chip
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="@string/app_name" />
+
+                            </com.google.android.material.chip.ChipGroup>
+                        </HorizontalScrollView>
+                    </androidx.cardview.widget.CardView>
+
+                    <View
+                        android:id="@+id/divider4"
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginBottom="8dp"
+                        android:background="@drawable/accent_divider" />
+                </LinearLayout>
+
+                <com.wtb.comiccollector.views.SearchAutoCompleteTextView
+                    android:id="@+id/search_tv"
+                    android:layout_width="match_parent"
+                    android:layout_height="?attr/dropdownListPreferredItemHeight"
+                    android:animateLayoutChanges="true"
+                    android:hint="@string/search"
+                    android:popupBackground="@drawable/accent_outline_white_background"
+                    android:singleLine="true"
+                    android:textAppearance="?android:attr/textAppearanceLargePopupMenu"
+                    android:textColor="?attr/colorOnSecondary"
+                    tools:text="Potato Latke" />
+            </LinearLayout>
         </LinearLayout>
-    </LinearLayout>
+    </androidx.cardview.widget.CardView>
 </merge>

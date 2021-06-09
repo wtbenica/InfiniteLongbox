@@ -16,26 +16,21 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.wtb.comiccollector.APP
-import com.wtb.comiccollector.Filter
+import com.wtb.comiccollector.MainActivity
+import com.wtb.comiccollector.SearchFilter
 import com.wtb.comiccollector.Webservice
 import com.wtb.comiccollector.database.Daos.Count
 import com.wtb.comiccollector.database.Daos.REQUEST_LIMIT
 import com.wtb.comiccollector.database.IssueDatabase
 import com.wtb.comiccollector.database.models.*
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
+import com.wtb.comiccollector.network.RetrofitAPIClient
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.launch
-import okhttp3.OkHttpClient
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
 import java.time.LocalDate
 import java.util.Collections.sort
 import java.util.concurrent.Executors
-import java.util.concurrent.TimeUnit
 
 
 const val DUMMY_ID = Int.MAX_VALUE
@@ -55,25 +50,33 @@ const val NIGHTWING = "http://192.168.0.141:8000/"
 const val ALFRED = "http://192.168.0.138:8000/"
 const val BASE_URL = ALFRED
 
-internal const val STATIC_DATA_UPDATED = "static_data_updated"
+internal const val UPDATED_CREATORS = "updated_creators"
+internal const val UPDATED_PUBLISHERS = "updated_publishers"
+internal const val UPDATED_ROLES = "updated_roles"
+internal const val UPDATED_STORY_TYPES = "updated_story_types"
+internal const val UPDATED_SERIES = "updated_series"
+
 internal const val STATIC_DATA_LIFETIME: Long = 30
-internal const val SERIES_LIST_UPDATED = "series_list_updated"
 internal const val SERIES_LIST_LIFETIME: Long = 7
 
 internal fun UPDATED_TAG(id: Int, type: String): String = "$type${id}_UPDATED"
+
 internal fun SERIES_TAG(id: Int): String = UPDATED_TAG(id, "SERIES_")
 internal fun ISSUE_TAG(id: Int) = UPDATED_TAG(id, "ISSUE_")
 internal fun PUBLISHER_TAG(id: Int): String = UPDATED_TAG(id, "PUBLISHER_")
 internal fun CREATOR_TAG(id: Int): String = UPDATED_TAG(id, "CREATOR_")
 
+@ExperimentalCoroutinesApi
 class Repository private constructor(val context: Context) {
 
     private val prefs: SharedPreferences =
         context.getSharedPreferences(SHARED_PREFS, Context.MODE_PRIVATE)
 
     private val executor = Executors.newSingleThreadExecutor()
-
     private val database: IssueDatabase = buildDatabase(context)
+    private var hasConnection: Boolean = false
+    private var hasUnmeteredConnection: Boolean = true
+    private var isIdle = true
 
     private val seriesDao = database.seriesDao()
     private val issueDao = database.issueDao()
@@ -91,36 +94,47 @@ class Repository private constructor(val context: Context) {
 
     private val filesDir = context.applicationContext.filesDir
 
-    private val retrofit: Retrofit by lazy {
-        val client = OkHttpClient.Builder()
-            .connectTimeout(60, TimeUnit.SECONDS)
-            .readTimeout(60, TimeUnit.SECONDS)
-            .writeTimeout(60, TimeUnit.SECONDS)
-            .build()
-
-        Retrofit.Builder()
-            .baseUrl(BASE_URL)
-            .client(client)
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-    }
+    private val retrofit = RetrofitAPIClient.getRetrofitClient(context)
 
     private val apiService: Webservice by lazy {
         retrofit.create(Webservice::class.java)
     }
 
     init {
-        StaticUpdater(apiService, database, prefs).update()
+        MainActivity.hasConnection.observeForever {
+            hasConnection = it
+            if (checkConnectionStatus()) {
+                isIdle = false
+                MainActivity.activeJob = CoroutineScope(Dispatchers.IO).launch {
+                    async {
+                        StaticUpdater(apiService, database, prefs).update()
+                    }.await().let {
+                        isIdle = true
+                    }
+                }
+            }
+        }
+
+//        MainActivity.hasUnmeteredConnection.observeForever {
+//            hasUnmeteredConnection = it
+//            if (checkConnectionStatus()) {
+//                StaticUpdater(apiService, database, prefs).update()
+//            }
+//        }
     }
 
+    private fun checkConnectionStatus() = hasConnection && hasUnmeteredConnection && isIdle
+
+    // Static Items
     val allSeries: Flow<List<Series>> = seriesDao.getAllOfThem()
     val allPublishers: Flow<List<Publisher>> = publisherDao.getPublishersList()
     val allCreators: Flow<List<Creator>> = creatorDao.getCreatorsList()
     val allRoles: Flow<List<Role>> = roleDao.getRoleList()
 
+    // SERIES METHODS
     fun getSeries(seriesId: Int): Flow<Series?> = seriesDao.getSeries(seriesId)
 
-    fun getSeriesByFilterPaged(filter: Filter): Flow<PagingData<FullSeries>> {
+    fun getSeriesByFilterPaged(filter: SearchFilter): Flow<PagingData<FullSeries>> {
         val mSeries = filter.mSeries
         if (mSeries == null) {
             Log.d(TAG, "getSeriesByFilterPaged calling refreshFilterOptions")
@@ -139,30 +153,34 @@ class Repository private constructor(val context: Context) {
         ).flow
     }
 
-    fun getSeriesByFilter(filter: Filter): Flow<List<Series>> {
+    fun getSeriesByFilter(filter: SearchFilter): Flow<List<Series>> {
         val mSeries = filter.mSeries
         if (mSeries == null) {
-            Log.d(TAG, "getSeriesByFilter calling refreshFilterOptions")
             refreshFilterOptions(mSeries, filter.mCreators)
-            return seriesDao.getSeriesByFilterFlow(filter)
+            return seriesDao.getSeriesByFilter(filter)
         } else {
-            throw java.lang.IllegalArgumentException("getSeriesByFilterLiveData: Filter seriesId should be null $filter")
+            return flow { emit(emptyList<Series>()) }
         }
     }
 
+    // ISSUE METHODS
     fun getIssue(issueId: Int): Flow<FullIssue?> {
         Log.d(TAG, "getIssue: $issueId")
-        CoroutineScope(Dispatchers.IO).launch {
-            async {
-                UpdateIssueCover(database, context).update(issueId = issueId)
-            }.await().let {
-                UpdateIssueCredit(apiService, database, prefs).update(issueId = issueId)
+
+        if (hasConnection) {
+            CoroutineScope(Dispatchers.IO).launch {
+                async {
+                    UpdateIssueCover(database, context, prefs).update(issueId = issueId)
+                }.await().let {
+                    UpdateIssueCredit(apiService, database, prefs).update(issueId = issueId)
+                }
             }
         }
+
         return issueDao.getFullIssue(issueId = issueId)
     }
 
-    fun getIssuesByFilter(filter: Filter): Flow<List<FullIssue>> {
+    fun getIssuesByFilter(filter: SearchFilter): Flow<List<FullIssue>> {
         val mSeries = filter.mSeries
         if (mSeries != null) {
             Log.d(TAG, "getIssuesByFilter calling refreshFilterOptions")
@@ -171,7 +189,7 @@ class Repository private constructor(val context: Context) {
         return issueDao.getIssuesByFilter(filter = filter)
     }
 
-    fun getIssuesByFilterPaged(filter: Filter): Flow<PagingData<FullIssue>> {
+    fun getIssuesByFilterPaged(filter: SearchFilter): Flow<PagingData<FullIssue>> {
         val mSeries = filter.mSeries
 
         if (mSeries != null) {
@@ -185,10 +203,42 @@ class Repository private constructor(val context: Context) {
         ).flow
     }
 
+    // VARIANT METHODS
+    fun getVariants(issueId: Int): Flow<List<Issue>> = issueDao.getVariants(issueId)
+
+    // STORY METHODS
+    fun getStoriesByIssue(issueId: Int): Flow<List<Story>> = storyDao.getStories(issueId)
+
+    // CREDIT METHODS
+    fun getCreditsByIssue(issueId: Int): Flow<List<FullCredit>> = combine(
+        creditDao.getIssueCredits(issueId),
+        exCreditDao.getIssueExtractedCredits(issueId)
+    ) { credits1: List<FullCredit>?, credits2: List<FullCredit>? ->
+        val res = (credits1 ?: emptyList()) + (credits2 ?: emptyList())
+        sort(res)
+        res
+    }
+
+    // CREATOR METHODS
+    fun getCreatorsByFilter(filter: SearchFilter): Flow<List<Creator>> = if (filter.mCreators.isEmpty())
+        creatorDao.getCreatorsByFilter(filter)
+    else
+        flow { emit(emptyList<Creator>()) }
+
+    // PUBLISHER METHODS
+    fun getPublishersByFilter(filter: SearchFilter): Flow<List<Publisher>> =
+        if (filter.mPublishers.isEmpty())
+            publisherDao.getPublishersByFilter(filter)
+        else
+            flow { emit(emptyList<Publisher>()) }
+
+    fun getPublisher(publisherId: Int): Flow<Publisher?> =
+        publisherDao.getPublisher(publisherId)
+
     private fun refreshFilterOptions(series: Series?, creators: Set<Creator>) {
         val creatorIds = creators.map { it.creatorId }
 
-        if (creatorIds.isNotEmpty()) {
+        if (hasConnection && creatorIds.isNotEmpty()) {
             CoroutineScope(Dispatchers.IO).launch {
                 UpdateCreator(
                     apiService = apiService,
@@ -199,36 +249,25 @@ class Repository private constructor(val context: Context) {
         }
 
         series?.let {
-            UpdateSeries(webservice = apiService, database = database, prefs = prefs)
-                .update(seriesId = it.seriesId)
+            if (hasConnection) {
+                UpdateSeries(webservice = apiService, database = database, prefs = prefs)
+                    .update(seriesId = it.seriesId)
+            }
         }
     }
 
-    fun getVariants(issueId: Int): Flow<List<Issue>> = issueDao.getVariants(issueId)
-
-    fun getStoriesByIssue(issueId: Int): Flow<List<Story>> = storyDao.getStories(issueId)
-
-    fun getCreditsByIssue(issueId: Int): Flow<List<FullCredit>> = combine(
-        creditDao.getIssueCredits(issueId),
-        exCreditDao.getIssueExtractedCredits(issueId)
-    ) { credits1: List<FullCredit>?, credits2: List<FullCredit>? ->
-        val res = (credits1 ?: emptyList()) + (credits2 ?: emptyList())
-        sort(res)
-        res
-    }
-
-    fun getValidFilterOptions(filter: Filter): Flow<List<FilterOption>> {
+    suspend fun getValidFilterOptions(filter: SearchFilter): Flow<List<FilterOption>> {
         val seriesList: Flow<List<FilterOption>> =
             when {
                 filter.isEmpty()       -> allSeries
-                filter.mSeries == null -> seriesDao.getSeriesByFilterFlow(filter)
+                filter.mSeries == null -> getSeriesByFilter(filter)
                 else                   -> flow { emit(emptyList<FilterOption>()) }
             }
 
         val creatorsList: Flow<List<FilterOption>> =
             when {
                 filter.isEmpty()           -> allCreators
-                filter.mCreators.isEmpty() -> creatorDao.getCreatorsByFilter(filter)
+                filter.mCreators.isEmpty() -> getCreatorsByFilter(filter)
                 else                       -> flow { emit(emptyList<FilterOption>()) }
             }
 
@@ -243,15 +282,27 @@ class Repository private constructor(val context: Context) {
             seriesList,
             creatorsList,
             publishersList
-        ) { series: List<FilterOption>, creators: List<FilterOption>, publishers: List<FilterOption> ->
+        )
+        { series: List<FilterOption>, creators: List<FilterOption>, publishers: List<FilterOption> ->
             val res: List<FilterOption> = series + creators + publishers
             sort(res)
             res
         }
     }
 
-    fun getPublisher(publisherId: Int): Flow<Publisher?> =
-        publisherDao.getPublisher(publisherId)
+    fun addToCollection(issueId: Int) {
+        executor.execute {
+            collectionDao.insert(MyCollection(issueId = issueId))
+        }
+    }
+
+    fun removeFromCollection(issueId: Int) {
+        executor.execute {
+            collectionDao.deleteById(issueId)
+        }
+    }
+
+    fun inCollection(issueId: Int): Flow<Count> = collectionDao.inCollection(issueId)
 
 /*
     FUTURE IMPLEMENTATION
@@ -322,18 +373,6 @@ class Repository private constructor(val context: Context) {
             val editor = prefs.edit()
             editor.putString(key, LocalDate.now().toString())
             editor.apply()
-        }
-
-        // TODO: This should probably get moved out of SharedPreferences and stored with each record.
-        //  The tradeoff: an extra local db query vs. having a larger prefs which will end up having
-        //  a value for every item in the database.
-        fun checkIfStale(
-            prefsKey: String,
-            shelfLife: Long,
-            prefs: SharedPreferences
-        ): Boolean {
-            val lastUpdated = LocalDate.parse(prefs.getString(prefsKey, "${LocalDate.MIN}"))
-            return DEBUG || lastUpdated.plusDays(shelfLife) < LocalDate.now()
         }
     }
 
@@ -415,23 +454,16 @@ class Repository private constructor(val context: Context) {
         }
     }
 
-    fun addToCollection(issueId: Int) {
-        executor.execute {
-            collectionDao.insert(MyCollection(issueId = issueId))
+    fun updateIssue(issue: FullIssue) {
+        if (hasConnection) {
+            UpdateIssueCredit(apiService, database, prefs).update(issue.issue.issueId)
+            UpdateIssueCover(database, context, prefs).update(issue.issue.issueId)
         }
     }
 
-    fun removeFromCollection(issueId: Int) {
-        executor.execute {
-            collectionDao.deleteById(issueId)
-        }
-    }
-
-    fun inCollection(issueId: Int): Flow<Count> = collectionDao.inCollection(issueId)
-
-    fun updateIssue(issue: FullIssue?) {
-        if (issue != null) {
-            UpdateIssueCover(database, context).update(issue.issue.issueId)
+    fun updateIssueCover(issue: FullIssue) {
+        if (hasConnection) {
+            UpdateIssueCover(database, context, prefs).update(issue.issue.issueId)
         }
     }
 }

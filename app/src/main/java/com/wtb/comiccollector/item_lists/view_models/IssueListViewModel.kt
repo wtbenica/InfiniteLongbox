@@ -3,19 +3,21 @@ package com.wtb.comiccollector.item_lists.view_models
 import android.util.Log
 import androidx.lifecycle.*
 import androidx.paging.PagingData
-import com.wtb.comiccollector.Filter
+import com.wtb.comiccollector.SearchFilter
 import com.wtb.comiccollector.database.models.FullIssue
 import com.wtb.comiccollector.database.models.Issue
 import com.wtb.comiccollector.database.models.Series
 import com.wtb.comiccollector.repository.Repository
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 
 private const val TAG = "NewIssueListViewModel"
 
+@ExperimentalCoroutinesApi
 class IssueListViewModel : ViewModel() {
     private val repository: Repository = Repository.get()
     private val seriesIdLiveData = MutableLiveData<Int>()
-    private val filterLiveData = MutableLiveData(Filter())
+    private val filterLiveData = MutableLiveData(SearchFilter())
 
     var seriesLiveData: LiveData<Series?> =
         Transformations.switchMap(filterLiveData) {
@@ -32,7 +34,7 @@ class IssueListViewModel : ViewModel() {
         }
     }
 
-    fun setFilter(filter: Filter) {
+    fun setFilter(filter: SearchFilter) {
         filterLiveData.value = filter
     }
 
@@ -41,7 +43,7 @@ class IssueListViewModel : ViewModel() {
         repository.saveIssue(issue)
     }
 
-    fun updateIssue(issue: FullIssue?) {
-        repository.updateIssue(issue)
-    }
+    fun updateIssue(issue: FullIssue) = repository.updateIssue(issue)
+
+    fun updateIssueCover(issue: FullIssue) = repository.updateIssueCover(issue)
 }

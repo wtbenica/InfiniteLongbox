@@ -21,15 +21,17 @@ import com.wtb.comiccollector.*
 import com.wtb.comiccollector.database.models.FullIssue
 import com.wtb.comiccollector.database.models.Issue
 import com.wtb.comiccollector.item_lists.view_models.IssueListViewModel
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 private const val TAG = APP + "IssueListFragment"
 
+@ExperimentalCoroutinesApi
 class IssueListFragment : Fragment() {
 
     private val issueListViewModel: IssueListViewModel by viewModels()
-    private lateinit var filter: Filter
+    private lateinit var filter: SearchFilter
     private lateinit var issueGridView: RecyclerView
     private var callbacks: Callbacks? = null
 
@@ -42,7 +44,7 @@ class IssueListFragment : Fragment() {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
 
-        filter = arguments?.getSerializable(ARG_FILTER) as Filter? ?: Filter()
+        filter = arguments?.getSerializable(ARG_FILTER) as SearchFilter? ?: SearchFilter()
 
         updateSeriesDetailFragment(filter.mSeries?.seriesId)
     }
@@ -129,8 +131,8 @@ class IssueListFragment : Fragment() {
 
             outRect.top = mItemOffset
             outRect.bottom = mItemOffset
-            outRect.left = mItemOffset / 2
-            outRect.right = mItemOffset / 2
+            outRect.left = mItemOffset
+            outRect.right = mItemOffset
         }
     }
 
@@ -151,7 +153,7 @@ class IssueListFragment : Fragment() {
 
         fun bind(issue: FullIssue?) {
             this.fullIssue = issue
-            issueListViewModel.updateIssue(this.fullIssue)
+            this.fullIssue?.let { issueListViewModel.updateIssueCover(it) }
             val coverUri = this.fullIssue?.coverUri
 
             if (coverUri != null) {
@@ -166,13 +168,9 @@ class IssueListFragment : Fragment() {
             if (fullIssue?.myCollection?.collectionId != null) {
                 wrapper.setBackgroundResource(R.drawable.card_background_in_collection)
                 layout.cardElevation = 32F
-//                issueNumTextView.setTextColor(Color.WHITE)
-//                layout.setCardBackgroundColor(Color.BLACK)
             } else {
                 wrapper.setBackgroundResource(R.drawable.card_background_regular)
                 layout.cardElevation = 1F
-//                issueNumTextView.setTextColor(Color.BLACK)
-//                layout.setCardBackgroundColor(Color.WHITE)
             }
 
             issueNumTextView.text = this.fullIssue?.issue.toString()
@@ -212,7 +210,7 @@ class IssueListFragment : Fragment() {
 
     companion object {
         @JvmStatic
-        fun newInstance(filter: Filter): IssueListFragment {
+        fun newInstance(filter: SearchFilter): IssueListFragment {
             return IssueListFragment().apply {
                 arguments = Bundle().apply {
                     putSerializable(ARG_FILTER, filter)

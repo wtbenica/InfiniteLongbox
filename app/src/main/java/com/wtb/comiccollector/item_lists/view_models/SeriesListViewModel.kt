@@ -4,16 +4,18 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.paging.PagingData
 import com.wtb.comiccollector.APP
-import com.wtb.comiccollector.Filter
+import com.wtb.comiccollector.SearchFilter
 import com.wtb.comiccollector.database.models.FullSeries
 import com.wtb.comiccollector.repository.Repository
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 
 private const val TAG = APP + "SeriesListViewModel"
 
+@ExperimentalCoroutinesApi
 class SeriesListViewModel : ViewModel() {
     private val repository: Repository = Repository.get()
-    private val filterLiveData = MutableLiveData<Filter?>(null)
+    private val filterLiveData = MutableLiveData<SearchFilter?>(null)
 
     //    var seriesList: LiveData<PagingData<FullSeries>> = Transformations.switchMap(filterLiveData)
 //    {
@@ -39,7 +41,7 @@ class SeriesListViewModel : ViewModel() {
         }
     }
 
-    fun setFilter(filter: Filter) {
+    fun setFilter(filter: SearchFilter) {
         filterLiveData.value = filter
     }
 }
