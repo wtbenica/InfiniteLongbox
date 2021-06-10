@@ -1,15 +1,19 @@
 package com.wtb.comiccollector.views
 
 import android.content.Context
+import android.content.res.Resources
 import android.util.AttributeSet
 import android.util.Log
+import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import androidx.appcompat.widget.SwitchCompat
 import androidx.cardview.widget.CardView
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.res.ResourcesCompat.getColor
+import androidx.core.view.setPadding
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStoreOwner
@@ -25,6 +29,7 @@ import com.wtb.comiccollector.database.models.Publisher
 import com.wtb.comiccollector.database.models.Series
 import com.wtb.comiccollector.item_lists.fragments.SeriesListFragment
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+
 
 private const val TAG = APP + "FilterView"
 
@@ -42,15 +47,22 @@ class FilterView(ctx: Context, attributeSet: AttributeSet) :
     var callback: FilterCallback? = null
     private var showFilter: Boolean = false
 
-    private var filterBox: CardView
-    private var topSection: LinearLayout
-    private var myCollectionSwitch: SwitchCompat
-    private var sortOptionsBox: LinearLayout
-    private var sortChipGroup: SortChipGroup
+    private val filterFrame: FilterView
+    private val filterBackground: LinearLayout
+    private val filterBox: CardView
+    private val filterHolder: ConstraintLayout
+    private val myCollectionSwitch: SwitchCompat
+    private val sortOptionsLabel: ImageView
+    private val sortChipGroup: SortChipGroup
+    private val sortChipHolder: CardView
 
-    private var bottomSection: LinearLayout
-    private var filterChipGroup: ChipGroup
-    private var filterTextView: SearchAutoCompleteTextView
+    private val bottomSection: Set<View>
+
+    private val filterChipHolder: CardView
+    private val filterChipGroup: ChipGroup
+
+    private val searchHolder: CardView
+    private val searchTextView: SearchAutoCompleteTextView
 
     private val viewModel by lazy {
         ViewModelProvider(ctx as ViewModelStoreOwner).get(FilterViewModel::class.java)
@@ -61,25 +73,32 @@ class FilterView(ctx: Context, attributeSet: AttributeSet) :
 
         val view = inflater.inflate(R.layout.filter_view, this)
 
+        filterFrame = view.findViewById(R.id.filter_view) as FilterView
+        filterBackground = view.findViewById(R.id.filter_background) as LinearLayout
         filterBox = view.findViewById(R.id.filter_box) as CardView
-        topSection = view.findViewById(R.id.top_section) as LinearLayout
+        filterHolder = view.findViewById(R.id.filter_holder) as ConstraintLayout
         myCollectionSwitch = view.findViewById(R.id.my_collection_switch) as SwitchCompat
-        sortOptionsBox = view.findViewById(R.id.sort_options_box) as LinearLayout
 
-        bottomSection = view.findViewById(R.id.bottom_section) as LinearLayout
-        filterChipGroup = view.findViewById(R.id.filter_chip_group) as ChipGroup
+        searchTextView = view.findViewById(R.id.search_tv) as SearchAutoCompleteTextView
+        searchTextView.callbacks = this
+
+        sortOptionsLabel = view.findViewById(R.id.label_sort_options) as ImageView
+
+        sortChipHolder = view.findViewById(R.id.sort_chip_holder) as CardView
         sortChipGroup = view.findViewById(R.id.sort_chip_group) as SortChipGroup
-        filterTextView = view.findViewById(R.id.search_tv) as SearchAutoCompleteTextView
-        filterTextView.callbacks = this
+
+        searchHolder = view.findViewById(R.id.search_holder) as CardView
+
+        filterChipHolder = view.findViewById(R.id.filter_chip_holder)
+        filterChipGroup = view.findViewById(R.id.filter_chip_group) as ChipGroup
+
+        bottomSection = setOf(filterChipHolder, searchHolder)
 
         viewModel.filterOptions.asLiveData().observe(
             ctx as LifecycleOwner,
             { filterObjects: List<FilterOption> ->
                 Log.d(TAG, "Updating filter options")
-                filterTextView.setAdapter(FilterOptionsAdapter(ctx, filterObjects))
-//                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-//                    filterTextView.refreshAutoCompleteResults()
-//                }
+                searchTextView.setAdapter(FilterOptionsAdapter(ctx, filterObjects))
             }
         )
 
@@ -114,6 +133,15 @@ class FilterView(ctx: Context, attributeSet: AttributeSet) :
         callback?.onFilterChanged(filter)
     }
 
+    private fun dpToPx(dp: Float): Int {
+        val r: Resources = context.getResources()
+        return TypedValue.applyDimension(
+            TypedValue.COMPLEX_UNIT_DIP,
+            dp,
+            r.getDisplayMetrics()
+        ).toInt()
+    }
+
     private fun updateViews() {
         filterChipGroup.removeAllViews()
 
@@ -123,54 +151,51 @@ class FilterView(ctx: Context, attributeSet: AttributeSet) :
 
         myCollectionSwitch.isChecked = filter.mMyCollection
 
-        topSection.visibility = if (showFilter || myCollectionSwitch.isChecked) {
-            View.VISIBLE
+        filterFrame.visibility =
+            if (showFilter || myCollectionSwitch.isChecked || filterItems.isNotEmpty()) {
+                VISIBLE
+            } else {
+                GONE
+            }
+
+        filterChipHolder.visibility = if (filterItems.isNotEmpty()) VISIBLE else GONE
+
+        if (showFilter) {
+            sortChipHolder.visibility = VISIBLE
+            sortOptionsLabel.visibility = VISIBLE
+            myCollectionSwitch.visibility = VISIBLE
+            searchHolder.visibility = VISIBLE
+            val param = filterChipHolder.layoutParams as MarginLayoutParams
+            param.topMargin = dpToPx(8F)
+            filterChipHolder.layoutParams = param
+
+            filterBackground.setPadding(dpToPx(8F))
+            filterBox.elevation = 8F
+            filterBox.setCardBackgroundColor(getColor(resources, android.R.color.white, null))
         } else {
-            View.GONE
+            sortChipHolder.visibility = GONE
+            sortOptionsLabel.visibility = GONE
+            searchHolder.visibility = GONE
+
+            if (!myCollectionSwitch.isChecked) {
+                val param = filterChipHolder.layoutParams as MarginLayoutParams
+                param.topMargin = 0
+                filterChipHolder.layoutParams = param
+            }
+
+            myCollectionSwitch.visibility = if (myCollectionSwitch.isChecked) VISIBLE else GONE
+
+            filterFrame.visibility =
+                if (myCollectionSwitch.isChecked || filterItems.isNotEmpty()) VISIBLE else GONE
+
+            filterBackground.setPadding(0)
+            filterBox.elevation = 0F
+            filterBox.setCardBackgroundColor(getColor(resources, R.color.fantasia_light, null))
         }
-
-        sortOptionsBox.visibility = if (showFilter) {
-            View.VISIBLE
-        } else {
-            View.GONE
-        }
-
-        filterTextView.visibility = sortOptionsBox.visibility
-
-        bottomSection.visibility = if (showFilter || filterItems.isNotEmpty()) {
-            View.VISIBLE
-        } else {
-            View.GONE
-        }
-
-        visibility =
-            if (topSection.visibility == View.GONE && bottomSection.visibility == View.GONE)
-                View.GONE
-            else
-                View.VISIBLE
 
         if (!showFilter) {
             callback?.hideKeyboard()
         }
-
-        filterBox.elevation = if (showFilter)
-            8F
-        else
-            0F
-
-        topSection.setBackgroundColor(
-            if (showFilter)
-                getColor(resources, R.color.fantasia_light, null)
-            else
-                getColor(resources, android.R.color.white, null)
-        )
-
-        bottomSection.setBackgroundColor(
-            if (showFilter)
-                getColor(resources, R.color.fantasia, null)
-            else
-                getColor(resources, android.R.color.white, null)
-        )
     }
 
     fun toggleVisibility() {

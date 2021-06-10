@@ -126,7 +126,7 @@ class Repository private constructor(val context: Context) {
     private fun checkConnectionStatus() = hasConnection && hasUnmeteredConnection && isIdle
 
     // Static Items
-    val allSeries: Flow<List<Series>> = seriesDao.getAllOfThem()
+    val allSeries: Flow<List<Series>> = seriesDao.getAll()
     val allPublishers: Flow<List<Publisher>> = publisherDao.getPublishersList()
     val allCreators: Flow<List<Creator>> = creatorDao.getCreatorsList()
     val allRoles: Flow<List<Role>> = roleDao.getRoleList()
