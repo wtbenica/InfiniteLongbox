@@ -12,13 +12,11 @@ import com.wtb.comiccollector.SearchFilter
 import com.wtb.comiccollector.database.models.FullIssue
 import com.wtb.comiccollector.database.models.MyCollection
 import com.wtb.comiccollector.database.models.Series
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import java.util.*
 
 private const val TAG = APP + "CollectionDao"
 
-@ExperimentalCoroutinesApi
 @Dao
 abstract class CollectionDao : BaseDao<MyCollection>() {
 

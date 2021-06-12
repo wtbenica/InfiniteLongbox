@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:padding="8dp"
-    android:background="?attr/colorPrimaryVariant">
+    android:background="?attr/colorPrimaryDark">
 
     <TextView
         android:id="@+id/label_volume"
@@ -14,7 +14,6 @@
         android:layout_height="wrap_content"
         android:text="@string/hint_volume"
         android:textStyle="bold"
-        android:textColor="?attr/colorOnPrimary"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         tools:layout_editor_absoluteY="43dp" />
@@ -24,7 +23,6 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
-        android:textColor="?attr/colorOnPrimary"
         app:layout_constraintBottom_toBottomOf="@id/label_volume"
         app:layout_constraintStart_toEndOf="@id/label_volume"
         app:layout_constraintTop_toTopOf="@id/label_volume"
@@ -36,7 +34,6 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
-        android:textColor="?attr/colorOnPrimary"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@id/details_series_volume"
         app:layout_constraintTop_toTopOf="@id/details_series_volume"
@@ -47,7 +44,6 @@
         android:id="@+id/label_publisher"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:textColor="?attr/colorOnPrimary"
         android:layout_marginTop="8dp"
         android:text="@string/hint_publisher"
         android:textStyle="bold"
@@ -63,7 +59,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@id/label_publisher"
         app:layout_constraintTop_toBottomOf="@+id/details_series_volume"
-        android:textColor="?attr/colorOnPrimary"
         tools:text="DC/Vertigo" />
 
     <TextView
@@ -73,7 +68,6 @@
         android:layout_marginTop="8dp"
         android:text="@string/label_description"
         android:textStyle="bold"
-        android:textColor="?attr/colorOnPrimary"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/details_publisher"
@@ -86,9 +80,19 @@
         android:layout_marginTop="8dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        android:textColor="?attr/colorOnPrimary"
         app:layout_constraintTop_toBottomOf="@+id/label_description"
         tools:text="A guy whose brain is stuck in a robot body goes on adventures with a ragtag group of fellow outcasts."
         tools:visibility="visible" />
+
+    <View
+        android:id="@+id/divider3"
+        android:layout_width="0dp"
+        android:layout_height="1dp"
+        android:layout_marginTop="8dp"
+        android:background="?android:attr/colorAccent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/details_description" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

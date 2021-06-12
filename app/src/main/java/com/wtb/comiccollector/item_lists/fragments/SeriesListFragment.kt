@@ -58,7 +58,7 @@ class SeriesListFragment(var callback: SeriesListCallbacks? = null) : Fragment()
         itemListRecyclerView = view.findViewById(R.id.results_frame) as RecyclerView
         itemListRecyclerView.layoutManager = LinearLayoutManager(context)
 
-        val itemDecoration = ItemOffsetDecoration(dpToPx(requireContext(), 8F).toInt())
+        val itemDecoration = IssueListFragment.ItemOffsetDecoration(24)
         itemListRecyclerView.addItemDecoration(itemDecoration)
 
         (requireActivity() as MainActivity).supportActionBar?.title = requireContext()
@@ -116,6 +116,7 @@ class SeriesListFragment(var callback: SeriesListCallbacks? = null) : Fragment()
             itemView.setOnClickListener(this)
         }
 
+        //        private val coverImageView: ImageView = itemView.findViewById(R.id.list_item_cover)
         private val seriesTextView: TextView = itemView.findViewById(R.id.list_item_name)
         private val seriesImageView: ImageView = itemView.findViewById(R.id.series_imageview)
         private val seriesDateRangeTextView: TextView = itemView.findViewById(R.id.list_item_dates)
@@ -127,8 +128,13 @@ class SeriesListFragment(var callback: SeriesListCallbacks? = null) : Fragment()
         fun bind(item: FullSeries) {
             this.item = item
             seriesTextView.text = this.item.series.seriesName
+            val firstIssue = this.item.firstIssue
 
-            val uri: Uri? = this.item.firstIssue?.coverUri
+            val uri: Uri? = if (firstIssue != null) {
+                firstIssue.coverUri
+            } else {
+                null
+            }
 
             uri.let { seriesImageView.setImageURI(it) }
 

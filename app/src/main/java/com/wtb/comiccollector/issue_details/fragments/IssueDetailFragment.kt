@@ -334,7 +334,6 @@ class IssueDetailFragment : Fragment() {
             issueDetailViewModel.addToCollection()
         }
 
-        // TODO: Deprecated
         releaseDateTextView.setOnClickListener {
             DatePickerFragment.newInstance(fullIssue.issue.releaseDate).apply {
                 setTargetFragment(this@IssueDetailFragment, RESULT_DATE_PICKER)

@@ -22,7 +22,9 @@ private const val TAG = APP + "SeriesDao"
 @Dao
 abstract class SeriesDao : BaseDao<Series>() {
     // FLOW FUNCTIONS
-    @RawQuery(observedEntities = [Series::class])
+    @RawQuery(
+        observedEntities = [Series::class]
+    )
     abstract fun getSeriesByQuery(query: SupportSQLiteQuery): Flow<List<Series>>
 
     fun getSeriesByFilter(filter: SearchFilter): Flow<List<Series>> {
@@ -76,11 +78,11 @@ abstract class SeriesDao : BaseDao<Series>() {
         return getSeriesByQuery(query)
     }
 
-    @Query("SELECT * FROM series")
-    abstract fun getAll(): Flow<List<Series>>
-
     @Query("SELECT * FROM series WHERE seriesId=:seriesId")
     abstract fun getSeries(seriesId: Int): Flow<Series?>
+
+    @Query("SELECT * FROM series")
+    abstract fun getAllOfThem(): Flow<List<Series>>
 
     // PAGING SOURCE FUNCITONS
     @RawQuery(observedEntities = [Series::class])

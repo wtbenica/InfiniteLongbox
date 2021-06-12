@@ -6,11 +6,9 @@ import androidx.room.Transaction
 import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.database.IssueDatabase
 import com.wtb.comiccollector.database.models.*
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 private const val TAG = APP + "TransactionDao"
 
-@ExperimentalCoroutinesApi
 @Dao
 abstract class TransactionDao(private val database: IssueDatabase) {
 

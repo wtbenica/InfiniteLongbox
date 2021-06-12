@@ -100,8 +100,7 @@ class SearchFilter(
     }
 
     private fun removeTextFilter(item: TextFilter) {
-        if (item == mTextFilter)
-            mTextFilter = null
+        mTextFilter = null
     }
 
     fun setMyCollection(value: Boolean) {

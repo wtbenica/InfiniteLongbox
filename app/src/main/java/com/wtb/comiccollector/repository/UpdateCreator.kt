@@ -5,8 +5,6 @@ import android.util.Log
 import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.Webservice
 import com.wtb.comiccollector.database.IssueDatabase
-import com.wtb.comiccollector.database.models.Credit
-import com.wtb.comiccollector.database.models.ExCredit
 import com.wtb.comiccollector.database.models.NameDetailAndCreator
 import kotlinx.coroutines.*
 
@@ -178,9 +176,10 @@ class UpdateCreator(
 
                     val allIssues = variants + exVariants + issues + exIssues
 
-                    val credits: List<Credit> = creditsCall.await().map { it.toRoomModel() }
+                    val credits = creditsCall.await().map { it.toRoomModel() } ?: emptyList()
 
-                    val exCredits: List<ExCredit> = exCreditsCall.await().map { it.toRoomModel() }
+                    val exCredits =
+                        exCreditsCall.await().map { it.toRoomModel() } ?: emptyList()
 
 //                    val nameDetails: List<NameDetail> =
 //                        nameDetailCall.await().map { it.toRoomModel() }

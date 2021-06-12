@@ -15,9 +15,9 @@ import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.*
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.ViewModelProvider
+import com.wtb.comiccollector.views.SimpleTextWatcher
 import com.wtb.comiccollector.database.models.Publisher
 import com.wtb.comiccollector.database.models.Series
-import com.wtb.comiccollector.views.SimpleTextWatcher
 import java.time.LocalDate
 import java.util.*
 
@@ -170,7 +170,6 @@ class SeriesInfoDialogFragment private constructor() : DialogFragment(),
             }
         )
 
-        // TODO: Deprecated
         startDateEditText.setOnClickListener {
             DatePickerFragment.newInstance(LocalDate.now()).apply {
                 setTargetFragment(this@SeriesInfoDialogFragment, RESULT_START_DATE)
@@ -178,7 +177,6 @@ class SeriesInfoDialogFragment private constructor() : DialogFragment(),
             }
         }
 
-        // TODO: Deprecated
         endDateEditText.setOnClickListener {
             DatePickerFragment.newInstance(LocalDate.now()).apply {
                 setTargetFragment(this@SeriesInfoDialogFragment, RESULT_END_DATE)
@@ -210,7 +208,6 @@ class SeriesInfoDialogFragment private constructor() : DialogFragment(),
             val bundle = Bundle()
             bundle.putSerializable(ARG_SERIES_ID, series.seriesId)
             val intent = Intent().putExtras(bundle)
-            // TODO: Deprecated
             targetFragment?.onActivityResult(targetRequestCode, Activity.RESULT_OK, intent)
 
             listener.onSaveSeriesClick(this, series)
