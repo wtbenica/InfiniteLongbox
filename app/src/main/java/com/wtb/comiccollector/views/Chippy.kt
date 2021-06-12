@@ -10,7 +10,7 @@ private const val TAG = APP + "Chippy"
 
 class Chippy(context: Context?) : Chip(context) {
 
-    private var item: FilterOption? = null
+    var item: FilterOption? = null
     private var caller: ChipCallbacks? = null
 
     constructor(context: Context?, item: FilterOption, caller: ChipCallbacks) : this(context) {

@@ -15,6 +15,7 @@ import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.ViewModelProvider
 import com.wtb.comiccollector.database.models.Creator
 import com.wtb.comiccollector.issue_details.view_models.IssueDetailViewModel
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import java.time.LocalDate
 
 private const val TAG = "NewCreatorDialogFrag"
@@ -27,6 +28,7 @@ private const val DIALOG_END_DATE = "DialogEndDate"
 
 const val ARG_CREATOR_ID = "seriesId"
 
+@ExperimentalCoroutinesApi
 class NewCreatorDialogFragment : DialogFragment(),
     DatePickerFragment.Callbacks {
 

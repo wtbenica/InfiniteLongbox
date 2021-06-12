@@ -12,7 +12,7 @@ abstract class CreditDao : BaseDao<Credit>() {
     @Transaction
     @Query(
         """
-            SELECT cr.*, c.*, st.sortCode
+            SELECT cr.*, st.sortCode
             FROM credit cr
             JOIN story sr on cr.storyId = sr.storyId
             JOIN storytype st on st.typeId = sr.storyType

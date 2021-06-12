@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="mCardView.ListItemSeries">
+        <item name="cardElevation">4dp</item>
+        <item name="cardMaxElevation">4dp</item>
+        <item name="cardCornerRadius">@dimen/card_corner_radius</item>
+        <item name="useCompatPadding">false</item>
+    </style>
+</resources>

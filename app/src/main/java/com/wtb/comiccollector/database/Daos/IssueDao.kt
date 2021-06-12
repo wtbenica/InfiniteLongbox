@@ -11,10 +11,12 @@ import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.SearchFilter
 import com.wtb.comiccollector.database.models.FullIssue
 import com.wtb.comiccollector.database.models.Issue
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 
 private const val TAG = APP + "IssueDao"
 
+@ExperimentalCoroutinesApi
 @Dao
 abstract class IssueDao : BaseDao<Issue>() {
     // FLOW FUNCTIONS

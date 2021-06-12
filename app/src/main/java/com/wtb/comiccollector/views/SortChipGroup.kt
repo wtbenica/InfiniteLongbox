@@ -7,9 +7,11 @@ import com.google.android.material.chip.ChipGroup
 import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.SearchFilter
 import com.wtb.comiccollector.SortOption
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 private const val TAG = APP + "SortChipGroup"
 
+@ExperimentalCoroutinesApi
 class SortChipGroup(context: Context, attributeSet: AttributeSet) :
     ChipGroup(context, attributeSet) {
 

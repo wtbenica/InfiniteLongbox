@@ -21,6 +21,7 @@ class SearchAutoCompleteTextView(context: Context, attributeSet: AttributeSet) :
 
     interface SearchTextViewCallback {
         fun addFilterItem(option: FilterOption)
+        fun hideKeyboard()
     }
 
     init {
@@ -43,8 +44,11 @@ class SearchAutoCompleteTextView(context: Context, attributeSet: AttributeSet) :
 
         onItemClickListener = AdapterView.OnItemClickListener { parent, v, position, id ->
             Log.d(TAG, "filterTextView item clicked")
-            val item = parent?.adapter?.getItem(position) as FilterOption
+            val item = parent?.adapter?.getItem(position) as FilterOption?
             this.item = item
+            this.text.clear()
+            callbacks?.hideKeyboard()
+            item?.let { callbacks?.addFilterItem(it) }
         }
 
         addTextChangedListener(object : TextWatcher {

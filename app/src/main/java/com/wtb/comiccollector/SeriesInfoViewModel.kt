@@ -4,9 +4,11 @@ import androidx.lifecycle.*
 import com.wtb.comiccollector.database.models.Publisher
 import com.wtb.comiccollector.database.models.Series
 import com.wtb.comiccollector.repository.Repository
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 private const val TAG = "IssueDetailViewModel"
 
+@ExperimentalCoroutinesApi
 class SeriesInfoViewModel : ViewModel() {
 
     private val repository: Repository = Repository.get()

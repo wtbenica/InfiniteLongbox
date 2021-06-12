@@ -13,7 +13,7 @@ abstract class ExCreditDao : BaseDao<ExCredit>() {
     @Transaction
     @Query(
         """
-            SELECT exc.*, c.*, st.sortCode
+            SELECT exc.*, st.sortCode
             FROM excredit exc
             JOIN story sr on exc.storyId = sr.storyId
             JOIN storytype st on st.typeId = sr.storyType
