@@ -8,13 +8,13 @@
 
     <style name="SeriesTitleText" parent="TextAppearance.AppCompat.Light.SearchResult.Title">
         <item name="android:fontFamily">sans-serif-condensed</item>
-        <item name="android:textSize">24sp</item>
+        <item name="android:textSize">20sp</item>
 <!--        <item name="android:textStyle">bold</item>-->
         <item name="fontFamily">@font/permanent_marker</item>
     </style>
 
     <style name="SeriesSubtitle" parent="TextAppearance.AppCompat.Small">
         <item name="fontFamily">@font/permanent_marker</item>
-        <item name="android:textSize">18sp</item>
+        <item name="android:textSize">12sp</item>
     </style>
 </resources>

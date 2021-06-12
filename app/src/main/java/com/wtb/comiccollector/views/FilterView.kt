@@ -1,10 +1,8 @@
 package com.wtb.comiccollector.views
 
 import android.content.Context
-import android.content.res.Resources
 import android.util.AttributeSet
 import android.util.Log
-import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,8 +10,9 @@ import android.widget.*
 import androidx.appcompat.widget.SwitchCompat
 import androidx.cardview.widget.CardView
 import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.core.content.res.ResourcesCompat.getColor
-import androidx.core.view.setPadding
+import androidx.constraintlayout.widget.ConstraintSet
+import androidx.constraintlayout.widget.ConstraintSet.*
+import androidx.core.view.children
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStoreOwner
@@ -47,22 +46,19 @@ class FilterView(ctx: Context, attributeSet: AttributeSet) :
     var callback: FilterCallback? = null
     private var showFilter: Boolean = false
 
-    private val filterFrame: FilterView
-    private val filterBackground: LinearLayout
-    private val filterBox: CardView
-    private val filterHolder: ConstraintLayout
+    private val filterView: FilterView  // the whole thing
+
+    private var switchCardView: CardView
     private val myCollectionSwitch: SwitchCompat
-    private val sortOptionsLabel: ImageView
+
+    private val sortCardView: CardView
     private val sortChipGroup: SortChipGroup
-    private val sortChipHolder: CardView
 
-    private val bottomSection: Set<View>
-
-    private val filterChipHolder: CardView
+    private val filterCardView: CardView
+    private val filterConstraintLayout: ConstraintLayout
     private val filterChipGroup: ChipGroup
-
-    private val searchHolder: CardView
-    private val searchTextView: SearchAutoCompleteTextView
+    private val filterOptionsLabel: ImageView
+    private val filterTextView: SearchAutoCompleteTextView
 
     private val viewModel by lazy {
         ViewModelProvider(ctx as ViewModelStoreOwner).get(FilterViewModel::class.java)
@@ -73,32 +69,28 @@ class FilterView(ctx: Context, attributeSet: AttributeSet) :
 
         val view = inflater.inflate(R.layout.filter_view, this)
 
-        filterFrame = view.findViewById(R.id.filter_view) as FilterView
-        filterBackground = view.findViewById(R.id.filter_background) as LinearLayout
-        filterBox = view.findViewById(R.id.filter_box) as CardView
-        filterHolder = view.findViewById(R.id.filter_holder) as ConstraintLayout
+        filterView = view.findViewById(R.id.filter_view) as FilterView
+
+        switchCardView = view.findViewById(R.id.switch_card_view)
         myCollectionSwitch = view.findViewById(R.id.my_collection_switch) as SwitchCompat
 
-        searchTextView = view.findViewById(R.id.search_tv) as SearchAutoCompleteTextView
-        searchTextView.callbacks = this
 
-        sortOptionsLabel = view.findViewById(R.id.label_sort_options) as ImageView
-
-        sortChipHolder = view.findViewById(R.id.sort_chip_holder) as CardView
+        sortCardView = view.findViewById(R.id.sort_card_view) as CardView
         sortChipGroup = view.findViewById(R.id.sort_chip_group) as SortChipGroup
 
-        searchHolder = view.findViewById(R.id.search_holder) as CardView
-
-        filterChipHolder = view.findViewById(R.id.filter_chip_holder)
+        filterCardView = view.findViewById(R.id.filter_card_view) as CardView
+        filterConstraintLayout = view.findViewById(R.id.filter_contraint_layout)
         filterChipGroup = view.findViewById(R.id.filter_chip_group) as ChipGroup
-
-        bottomSection = setOf(filterChipHolder, searchHolder)
+        filterChipGroup.removeAllViews()
+        filterOptionsLabel = view.findViewById(R.id.label_filter_items) as ImageView
+        filterTextView = view.findViewById(R.id.filter_text_view) as SearchAutoCompleteTextView
+        filterTextView.callbacks = this
 
         viewModel.filterOptions.asLiveData().observe(
             ctx as LifecycleOwner,
             { filterObjects: List<FilterOption> ->
                 Log.d(TAG, "Updating filter options")
-                searchTextView.setAdapter(FilterOptionsAdapter(ctx, filterObjects))
+                filterTextView.setAdapter(FilterOptionsAdapter(ctx, filterObjects))
             }
         )
 
@@ -133,69 +125,84 @@ class FilterView(ctx: Context, attributeSet: AttributeSet) :
         callback?.onFilterChanged(filter)
     }
 
-    private fun dpToPx(dp: Float): Int {
-        val r: Resources = context.getResources()
-        return TypedValue.applyDimension(
-            TypedValue.COMPLEX_UNIT_DIP,
-            dp,
-            r.getDisplayMetrics()
-        ).toInt()
-    }
-
     private fun updateViews() {
-        filterChipGroup.removeAllViews()
-
-        val filterItems = filter.getAll()
-
-        filterItems.forEach { addChip(it) }
+        val filterItems = updateFilterCard()
 
         myCollectionSwitch.isChecked = filter.mMyCollection
 
-        filterFrame.visibility =
-            if (showFilter || myCollectionSwitch.isChecked || filterItems.isNotEmpty()) {
-                VISIBLE
-            } else {
-                GONE
-            }
-
-        filterChipHolder.visibility = if (filterItems.isNotEmpty()) VISIBLE else GONE
-
         if (showFilter) {
-            sortChipHolder.visibility = VISIBLE
-            sortOptionsLabel.visibility = VISIBLE
-            myCollectionSwitch.visibility = VISIBLE
-            searchHolder.visibility = VISIBLE
-            val param = filterChipHolder.layoutParams as MarginLayoutParams
-            param.topMargin = dpToPx(8F)
-            filterChipHolder.layoutParams = param
-
-            filterBackground.setPadding(dpToPx(8F))
-            filterBox.elevation = 8F
-            filterBox.setCardBackgroundColor(getColor(resources, android.R.color.white, null))
+            filterView.visibility = VISIBLE
+            switchCardView.visibility = VISIBLE
+            sortCardView.visibility = VISIBLE
         } else {
-            sortChipHolder.visibility = GONE
-            sortOptionsLabel.visibility = GONE
-            searchHolder.visibility = GONE
-
-            if (!myCollectionSwitch.isChecked) {
-                val param = filterChipHolder.layoutParams as MarginLayoutParams
-                param.topMargin = 0
-                filterChipHolder.layoutParams = param
-            }
-
-            myCollectionSwitch.visibility = if (myCollectionSwitch.isChecked) VISIBLE else GONE
-
-            filterFrame.visibility =
+            filterView.visibility =
                 if (myCollectionSwitch.isChecked || filterItems.isNotEmpty()) VISIBLE else GONE
-
-            filterBackground.setPadding(0)
-            filterBox.elevation = 0F
-            filterBox.setCardBackgroundColor(getColor(resources, R.color.fantasia_light, null))
+            switchCardView.visibility = if (myCollectionSwitch.isChecked) VISIBLE else GONE
+            sortCardView.visibility = GONE
         }
 
         if (!showFilter) {
             callback?.hideKeyboard()
         }
+
+        refreshDrawableState()
+    }
+
+    private fun updateFilterCard(): Set<FilterOption> {
+        val filterItems: Set<FilterOption> = filter.getAll()
+        Log.d(TAG, "${filterItems.size} FILTER ITEMS")
+
+        val existingFilterOptions: Set<FilterOption> = filterChipGroup.children.mapNotNull {
+            Log.d(TAG, "CHECKING ${(it as? Chippy)?.item?.compareValue}")
+            val chippy = it as? Chippy
+            if (chippy?.item in filterItems) {
+                Log.d(TAG, "EXISTING FILTER ${(it as? Chippy)?.item?.compareValue}")
+                chippy?.item
+            } else {
+                Log.d(TAG, "REMOVING FILTER ${(it as? Chippy)?.item?.compareValue}")
+                filterChipGroup.removeView(it)
+                null
+            }
+        }.toSet()
+
+        filterItems.forEach {
+            if (it !in existingFilterOptions) {
+                Log.d(TAG, "ADDING ${it.compareValue} CHIP")
+                addChip(it)
+            } else {
+                Log.d(TAG, "ALREADY ADDED ${it.compareValue}")
+            }
+        }
+
+        Log.d(TAG, "KIDS: ${filterChipGroup.childCount} ${filterChipGroup.children.toList()}")
+        Log.d(TAG, "FILTERS: ${filter.getAll().size}")
+
+        if (filterItems.isEmpty()) {
+            val constraints = ConstraintSet()
+            constraints.clone(filterConstraintLayout)
+            constraints.connect(R.id.label_filter_items, TOP, R.id.filter_text_view, TOP)
+            constraints.connect(R.id.label_filter_items, BOTTOM, R.id.filter_text_view, BOTTOM)
+            constraints.connect(R.id.filter_text_view, START, R.id.label_filter_items, END)
+            constraints.applyTo(filterConstraintLayout)
+            filterCardView.visibility = if (showFilter) VISIBLE else GONE
+        } else {
+            val constraints = ConstraintSet()
+            constraints.clone(filterConstraintLayout)
+            constraints.connect(R.id.label_filter_items, TOP, R.id.filter_chip_scrollview, TOP)
+            constraints.connect(
+                R.id.label_filter_items,
+                BOTTOM,
+                R.id.filter_chip_scrollview,
+                BOTTOM
+            )
+            constraints.connect(R.id.filter_text_view, START, PARENT_ID, START)
+            constraints.applyTo(filterConstraintLayout)
+            filterCardView.visibility = VISIBLE
+        }
+
+        filterTextView.visibility = if (showFilter) VISIBLE else GONE
+
+        return filterItems
     }
 
     fun toggleVisibility() {
@@ -214,6 +221,10 @@ class FilterView(ctx: Context, attributeSet: AttributeSet) :
 
     override fun addFilterItem(option: FilterOption) = viewModel.addFilterItem(option)
 
+    override fun hideKeyboard() {
+        callback?.hideKeyboard()
+    }
+
     interface FilterCallback : SeriesListFragment.SeriesListCallbacks {
         fun onFilterChanged(filter: SearchFilter)
         fun hideKeyboard()
@@ -225,7 +236,7 @@ class FilterOptionsAdapter(ctx: Context, filterOptions: List<FilterOption>) :
     ArrayAdapter<FilterOption>(ctx, LAYOUT, filterOptions) {
 
     companion object {
-        private val LAYOUT = R.layout.filter_option_auto_complete
+        private const val LAYOUT = R.layout.filter_option_auto_complete
     }
 
     private var allOptions: List<FilterOption> = filterOptions
@@ -244,7 +255,7 @@ class FilterOptionsAdapter(ctx: Context, filterOptions: List<FilterOption>) :
 
         val filterOption: FilterOption = getItem(position)
 
-        itemText.setText(filterOption.toString())
+        itemText.text = filterOption.toString()
 
         optionTypeText.text = when (filterOption) {
             is Series    -> "Series"

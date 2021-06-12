@@ -8,7 +8,9 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 import com.wtb.comiccollector.database.Daos.*
 import com.wtb.comiccollector.database.models.*
 import com.wtb.comiccollector.database.models.Issue
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 
+@ExperimentalCoroutinesApi
 @Database(
     entities = [Issue::class, Series::class, Creator::class, Role::class, Credit::class,
         Publisher::class, Story::class, ExCredit::class, StoryType::class, NameDetail::class,

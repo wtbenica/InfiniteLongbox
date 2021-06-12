@@ -25,6 +25,7 @@ class DatePickerFragment : DialogFragment() {
                 // Add one to month bc. datePicker months are zero-indexed, while LocalDate is 1-indexed
                 val resultDate: LocalDate = LocalDate.of(year, month + 1, day)
 
+                // TODO: This is deprecated
                 targetFragment?.let { fragment ->
                     (fragment as Callbacks).onDateSelected(resultDate)
                     val bundle = Bundle()

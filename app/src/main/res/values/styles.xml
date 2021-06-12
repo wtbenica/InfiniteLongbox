@@ -3,27 +3,31 @@
 
     <style name="mCardView" parent="Widget.MaterialComponents.CardView">
         <item name="cardElevation">2dp</item>
+        <item name="cardMaxElevation">2dp</item>
         <item name="cardCornerRadius">@dimen/corner_radius</item>
         <item name="cardUseCompatPadding">true</item>
     </style>
 
     <style name="myFabStyle" parent="Widget.Design.FloatingActionButton">
-        <item name="android:fillColor">?attr/colorSecondary</item>
+        <item name="android:backgroundTint">?attr/colorPrimary</item>
+        <item name="borderWidth">0dp</item>
     </style>
 
     <style name="myActionBarStyle" parent="Widget.AppCompat.ActionBar.Solid">
-        <item name="android:background">?attr/colorPrimaryDark</item>
-        <item name="titleTextColor">?attr/colorSecondary</item>
+        <item name="android:background">?attr/colorPrimary</item>
+        <item name="titleTextColor">?attr/colorOnPrimary</item>
         <item name="titleTextAppearance">@style/myActionBarText</item>
     </style>
 
     <style name="myActionBarText" parent="TextAppearance.AppCompat.Widget.ActionBar.Title">
         <item name="android:textSize">24sp</item>
         <item name="android:textStyle">bold|italic</item>
+        <item name="android:fontFamily">@font/permanent_marker</item>
     </style>
 
     <style name="mySwitchStyle" parent="Widget.AppCompat.CompoundButton.Switch">
         <item name="thumbTint">@color/my_switch</item>
+        <item name="trackTint">?attr/colorPrimaryMuted</item>
         <item name="android:textColor">?attr/colorOnPrimary</item>
         <item name="fontFamily">@font/permanent_marker</item>
         <item name="android:textAppearance">@style/mySwitchTextAppearance</item>
@@ -70,12 +74,12 @@
     </style>
 
     <style name="myNewChip" parent="Widget.MaterialComponents.Chip.Entry">
-        <item name="chipStrokeColor">?attr/colorAccent</item>
+        <item name="chipStrokeColor">?attr/colorPrimaryDark</item>
         <item name="chipStrokeWidth">2dp</item>
         <item name="chipIconSize">19dp</item>
         <item name="chipStartPadding">8dp</item>
         <item name="chipEndPadding">8dp</item>
-        <item name="chipBackgroundColor">?attr/colorSecondaryVariant</item>
+        <item name="chipBackgroundColor">?attr/colorPrimaryVariant</item>
         <item name="android:textColor">?attr/colorOnPrimary</item>
         <item name="android:textAppearance">@style/myChipText</item>
         <item name="checkedIconTint">?attr/colorOnPrimary</item>

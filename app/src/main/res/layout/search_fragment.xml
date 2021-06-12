@@ -30,7 +30,6 @@
         android:contentDescription="@string/fab_description"
         android:padding="0dp"
         android:src="@drawable/ic_filter"
-        android:tint="#FFFFFF"
         app:fabSize="normal"
         app:layout_constraintBottom_toTopOf="@id/filter_view"
         app:layout_constraintEnd_toEndOf="parent"

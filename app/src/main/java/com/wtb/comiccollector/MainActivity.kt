@@ -1,10 +1,13 @@
 package com.wtb.comiccollector
 
+import android.content.Context
+import android.content.res.Resources
 import android.net.ConnectivityManager
 import android.net.Network
 import android.net.NetworkCapabilities
 import android.os.Bundle
 import android.util.Log
+import android.util.TypedValue
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.MutableLiveData
@@ -17,6 +20,15 @@ import kotlinx.coroutines.Job
 
 const val APP = "CC_"
 private const val TAG = APP + "MainActivity"
+
+fun dpToPx(context: Context, dp: Number): Float {
+    val r: Resources = context.resources
+    return TypedValue.applyDimension(
+        TypedValue.COMPLEX_UNIT_DIP,
+        dp.toFloat(),
+        r.displayMetrics
+    )
+}
 
 @ExperimentalCoroutinesApi
 class MainActivity : AppCompatActivity(),
@@ -133,6 +145,12 @@ class MainActivity : AppCompatActivity(),
             hasConnection.observeForever {
                 Log.d(TAG, "HAS CONNECTION: $it")
             }
+        }
+
+        fun resolveThemeAttribute(context: Context, attr: Int): Int {
+            val value = TypedValue()
+            context.theme.resolveAttribute(attr, value, true)
+            return value.data
         }
     }
 }
