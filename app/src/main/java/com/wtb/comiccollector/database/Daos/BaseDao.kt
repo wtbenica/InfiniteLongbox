@@ -91,12 +91,6 @@ abstract class BaseDao<T : DataModel> {
         try {
             val insertResult: List<Long> = insertSus(objList)
 
-            Log.d(
-                TAG,
-                "YAY ${objClass} Num Inserted: ${insertResult.count { it == -1L }} / ${
-                    insertResult.size
-                }"
-            )
             for (i in insertResult.indices) {
                 if (insertResult[i] == -1L) {
                     update(objList[i])

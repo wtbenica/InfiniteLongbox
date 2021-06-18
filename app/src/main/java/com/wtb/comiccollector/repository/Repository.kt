@@ -7,6 +7,7 @@ import android.content.SharedPreferences
 import android.database.sqlite.SQLiteConstraintException
 import android.os.Bundle
 import android.util.Log
+//import android.util.Log
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
 import androidx.paging.Pager
@@ -109,6 +110,7 @@ class Repository private constructor(val context: Context) {
                     async {
                         StaticUpdater(apiService, database, prefs).update()
                     }.await().let {
+                        Log.d(TAG, "Static update done")
                         isIdle = true
                     }
                 }
@@ -135,13 +137,12 @@ class Repository private constructor(val context: Context) {
     fun getSeries(seriesId: Int): Flow<Series?> = seriesDao.getSeries(seriesId)
 
     fun getSeriesByFilterPaged(filter: SearchFilter): Flow<PagingData<FullSeries>> {
+        Log.d(TAG, "getSeriesByFilterPaged")
         val mSeries = filter.mSeries
         if (mSeries == null) {
-            Log.d(TAG, "getSeriesByFilterPaged calling refreshFilterOptions")
             refreshFilterOptions(mSeries, filter.mCreators)
         } else {
             Log.d(TAG, "getSeriesByFilterPagingSource: Wasn't expecting to see a series here")
-//            throw java.lang.IllegalArgumentException("getSeriesByFilterPagingSource: Filter seriesId should be null $filter")
         }
 
         return Pager(
@@ -165,8 +166,6 @@ class Repository private constructor(val context: Context) {
 
     // ISSUE METHODS
     fun getIssue(issueId: Int): Flow<FullIssue?> {
-        Log.d(TAG, "getIssue: $issueId")
-
         if (hasConnection) {
             CoroutineScope(Dispatchers.IO).launch {
                 async {
@@ -183,7 +182,6 @@ class Repository private constructor(val context: Context) {
     fun getIssuesByFilter(filter: SearchFilter): Flow<List<FullIssue>> {
         val mSeries = filter.mSeries
         if (mSeries != null) {
-            Log.d(TAG, "getIssuesByFilter calling refreshFilterOptions")
             refreshFilterOptions(series = mSeries, creators = filter.mCreators)
         }
         return issueDao.getIssuesByFilter(filter = filter)
@@ -193,7 +191,6 @@ class Repository private constructor(val context: Context) {
         val mSeries = filter.mSeries
 
         if (mSeries != null) {
-            Log.d(TAG, "getIssuesByFilterPaged calling refreshFilterOptions")
             refreshFilterOptions(series = mSeries, creators = filter.mCreators)
         }
 

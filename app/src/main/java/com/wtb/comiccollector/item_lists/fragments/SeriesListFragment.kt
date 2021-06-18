@@ -36,18 +36,20 @@ class SeriesListFragment(var callback: SeriesListCallbacks? = null) : Fragment()
 
     private var filter = SearchFilter()
         set(value) {
+            Log.d(TAG, "** Setting filter $value")
             field = value
             viewModel.setFilter(filter)
         }
     private lateinit var itemListRecyclerView: RecyclerView
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        Log.d(TAG, "Creating")
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
 
         filter = arguments?.getSerializable(ARG_FILTER) as SearchFilter
+        Log.d(TAG, "Loaded $filter")
     }
-
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -74,8 +76,7 @@ class SeriesListFragment(var callback: SeriesListCallbacks? = null) : Fragment()
         itemListRecyclerView.adapter = adapter
 
         lifecycleScope.launch {
-            viewModel.seriesList()?.collectLatest {
-                Log.d(TAG, "Updating series list")
+            viewModel.seriesList.collectLatest {
                 adapter.submitData(it) }
         }
     }

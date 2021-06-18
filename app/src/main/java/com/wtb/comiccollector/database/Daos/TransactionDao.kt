@@ -1,6 +1,5 @@
 package com.wtb.comiccollector.database.Daos
 
-import android.util.Log
 import androidx.room.Dao
 import androidx.room.Transaction
 import com.wtb.comiccollector.APP
@@ -20,7 +19,6 @@ abstract class TransactionDao(private val database: IssueDatabase) {
         roles: List<Role>? = null,
         storyTypes: List<StoryType>? = null,
     ) {
-        Log.d(TAG, "upsertStatic: Starting")
         publishers?.let { database.publisherDao().upsertSus(it) }
         roles?.let { database.roleDao().upsertSus(it) }
         storyTypes?.let { database.storyTypeDao().upsertSus(it) }

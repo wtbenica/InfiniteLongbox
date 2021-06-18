@@ -176,7 +176,7 @@ class SearchFilter(
 
     override fun toString(): String =
         "Series: $mSeries Creators: ${mCreators.size} Pubs: " +
-                "${mPublishers.size} MyCol: $mMyCollection"
+                "${mPublishers.size} MyCol: $mMyCollection T: ${mTextFilter?.text}"
 
 //    companion object {
 //        fun deserialize(str: String?): MutableSet<Int> {

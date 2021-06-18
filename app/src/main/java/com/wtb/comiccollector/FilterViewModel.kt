@@ -1,6 +1,5 @@
 package com.wtb.comiccollector
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.wtb.comiccollector.database.models.FilterOption
 import com.wtb.comiccollector.repository.Repository
@@ -41,28 +40,24 @@ class FilterViewModel : ViewModel() {
     }
 
     fun addFilterItem(item: FilterOption) {
-        Log.d(TAG, "ADDING FILTER")
         val newVal = SearchFilter(_filter.value)
         newVal.addFilter(item)
         _filter.value = newVal
     }
 
     fun removeFilterItem(item: FilterOption) {
-        Log.d(TAG, "REMOVING FILTER")
         val newVal = SearchFilter(_filter.value)
         newVal.removeFilter(item)
         _filter.value = newVal
     }
 
     fun setSortOption(sortOption: SortOption) {
-        Log.d(TAG, "ADDING SORT OPTION")
         val newVal = SearchFilter(_filter.value)
         newVal.mSortOption = sortOption
         _filter.value = newVal
     }
 
     fun myCollection(isChecked: Boolean) {
-        Log.d(TAG, "SETTING MY COLLECTION")
         val newVal = SearchFilter(_filter.value)
         newVal.setMyCollection(isChecked)
         _filter.value = newVal

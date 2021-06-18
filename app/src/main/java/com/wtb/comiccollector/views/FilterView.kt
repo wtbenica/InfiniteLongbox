@@ -17,11 +17,9 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.asLiveData
+import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.chip.ChipGroup
-import com.wtb.comiccollector.APP
-import com.wtb.comiccollector.FilterViewModel
-import com.wtb.comiccollector.R
-import com.wtb.comiccollector.SearchFilter
+import com.wtb.comiccollector.*
 import com.wtb.comiccollector.database.models.Creator
 import com.wtb.comiccollector.database.models.FilterOption
 import com.wtb.comiccollector.database.models.Publisher
@@ -33,8 +31,9 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 private const val TAG = APP + "FilterView"
 
 @ExperimentalCoroutinesApi
-class FilterView(ctx: Context, attributeSet: AttributeSet) :
-    LinearLayout(ctx, attributeSet), Chippy.ChipCallbacks,
+class FilterView(context: Context, attributeSet: AttributeSet) :
+    CardView(context, attributeSet),
+    Chippy.ChipCallbacks,
     SearchAutoCompleteTextView.SearchTextViewCallback {
 
     private var filter: SearchFilter = SearchFilter()
@@ -44,9 +43,12 @@ class FilterView(ctx: Context, attributeSet: AttributeSet) :
         }
 
     var callback: FilterCallback? = null
-    private var showFilter: Boolean = false
 
-    private val filterView: FilterView  // the whole thing
+    private var visibleState: Int = BottomSheetBehavior.STATE_EXPANDED
+        set(value) {
+            Log.d(TAG, "Setting visibleState: ${MainActivity.getStateName(value)}")
+            field = value
+        }
 
     private var switchCardView: CardView
     private val myCollectionSwitch: SwitchCompat
@@ -61,19 +63,17 @@ class FilterView(ctx: Context, attributeSet: AttributeSet) :
     private val filterTextView: SearchAutoCompleteTextView
 
     private val viewModel by lazy {
-        ViewModelProvider(ctx as ViewModelStoreOwner).get(FilterViewModel::class.java)
+        ViewModelProvider(context as ViewModelStoreOwner).get(FilterViewModel::class.java)
     }
 
+
     init {
-        val inflater = ctx.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
-
+        val inflater =
+            context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
         val view = inflater.inflate(R.layout.filter_view, this)
-
-        filterView = view.findViewById(R.id.filter_view) as FilterView
 
         switchCardView = view.findViewById(R.id.switch_card_view)
         myCollectionSwitch = view.findViewById(R.id.my_collection_switch) as SwitchCompat
-
 
         sortCardView = view.findViewById(R.id.sort_card_view) as CardView
         sortChipGroup = view.findViewById(R.id.sort_chip_group) as SortChipGroup
@@ -86,25 +86,17 @@ class FilterView(ctx: Context, attributeSet: AttributeSet) :
         filterTextView = view.findViewById(R.id.filter_text_view) as SearchAutoCompleteTextView
         filterTextView.callbacks = this
 
-        viewModel.filterOptions.asLiveData().observe(
-            ctx as LifecycleOwner,
-            { filterObjects: List<FilterOption> ->
-                Log.d(TAG, "Updating filter options")
-                filterTextView.setAdapter(FilterOptionsAdapter(ctx, filterObjects))
+        viewModel.filterOptions.asLiveData()
+            .observe(context as LifecycleOwner) { filterObjects: List<FilterOption> ->
+                filterTextView.setAdapter(FilterOptionsAdapter(context, filterObjects))
             }
-        )
 
-        viewModel.filter.asLiveData().observe(
-            ctx as LifecycleOwner,
-            { filter ->
-                Log.d(TAG, "THIS SHOULD BE CHANGING FILTER _FILTER!!! $filter")
-                this.filter = filter
-                sortChipGroup.filter = filter
-            }
-        )
+        viewModel.filter.asLiveData().observe(context as LifecycleOwner) { filter ->
+            this.filter = filter
+            sortChipGroup.filter = filter
+        }
 
         myCollectionSwitch.setOnCheckedChangeListener { buttonView, isChecked ->
-            Log.d(TAG, "Collection switch $isChecked")
             viewModel.myCollection(isChecked)
         }
 
@@ -117,49 +109,59 @@ class FilterView(ctx: Context, attributeSet: AttributeSet) :
                 }
             }
         }
+
+        updateViews()
     }
 
     private fun onFilterChanged() {
         updateViews()
-        Log.d(TAG, "onFilterChanged")
         callback?.onFilterChanged(filter)
     }
 
     private fun updateViews() {
-        val filterItems = updateFilterCard()
+        Log.d(TAG, "updateViews VISIBLE STATE: ${MainActivity.getStateName(visibleState)}")
+
+        updateFilterCard()
 
         myCollectionSwitch.isChecked = filter.mMyCollection
-
-        if (showFilter) {
-            filterView.visibility = VISIBLE
-            switchCardView.visibility = VISIBLE
-            sortCardView.visibility = VISIBLE
-        } else {
-            filterView.visibility =
-                if (myCollectionSwitch.isChecked || filterItems.isNotEmpty()) VISIBLE else GONE
-            switchCardView.visibility = if (myCollectionSwitch.isChecked) VISIBLE else GONE
-            sortCardView.visibility = GONE
+        when (visibleState) {
+            BottomSheetBehavior.STATE_EXPANDED      -> {
+                switchCardView.visibility = VISIBLE
+                sortCardView.visibility = VISIBLE
+                filterCardView.visibility = VISIBLE
+                filterTextView.visibility = VISIBLE
+            }
+            BottomSheetBehavior.STATE_HALF_EXPANDED -> {
+                switchCardView.visibility =
+                    if (myCollectionSwitch.isChecked) VISIBLE else GONE
+                sortCardView.visibility = GONE
+                filterCardView.visibility =
+                    if (filter.getAll().isNotEmpty()) VISIBLE else GONE
+                filterTextView.visibility = GONE
+            }
+            BottomSheetBehavior.STATE_COLLAPSED     -> {
+                switchCardView.visibility = GONE
+                sortCardView.visibility = GONE
+                filterCardView.visibility = GONE
+            }
         }
 
-        if (!showFilter) {
+        if (visibleState != BottomSheetBehavior.STATE_EXPANDED) {
             callback?.hideKeyboard()
         }
 
         refreshDrawableState()
     }
 
-    private fun updateFilterCard(): Set<FilterOption> {
+
+    private fun updateFilterCard() {
         val filterItems: Set<FilterOption> = filter.getAll()
-        Log.d(TAG, "${filterItems.size} FILTER ITEMS")
 
         val existingFilterOptions: Set<FilterOption> = filterChipGroup.children.mapNotNull {
-            Log.d(TAG, "CHECKING ${(it as? Chippy)?.item?.compareValue}")
             val chippy = it as? Chippy
             if (chippy?.item in filterItems) {
-                Log.d(TAG, "EXISTING FILTER ${(it as? Chippy)?.item?.compareValue}")
                 chippy?.item
             } else {
-                Log.d(TAG, "REMOVING FILTER ${(it as? Chippy)?.item?.compareValue}")
                 filterChipGroup.removeView(it)
                 null
             }
@@ -167,15 +169,9 @@ class FilterView(ctx: Context, attributeSet: AttributeSet) :
 
         filterItems.forEach {
             if (it !in existingFilterOptions) {
-                Log.d(TAG, "ADDING ${it.compareValue} CHIP")
                 addChip(it)
-            } else {
-                Log.d(TAG, "ALREADY ADDED ${it.compareValue}")
             }
         }
-
-        Log.d(TAG, "KIDS: ${filterChipGroup.childCount} ${filterChipGroup.children.toList()}")
-        Log.d(TAG, "FILTERS: ${filter.getAll().size}")
 
         if (filterItems.isEmpty()) {
             val constraints = ConstraintSet()
@@ -184,7 +180,6 @@ class FilterView(ctx: Context, attributeSet: AttributeSet) :
             constraints.connect(R.id.label_filter_items, BOTTOM, R.id.filter_text_view, BOTTOM)
             constraints.connect(R.id.filter_text_view, START, R.id.label_filter_items, END)
             constraints.applyTo(filterConstraintLayout)
-            filterCardView.visibility = if (showFilter) VISIBLE else GONE
         } else {
             val constraints = ConstraintSet()
             constraints.clone(filterConstraintLayout)
@@ -200,19 +195,34 @@ class FilterView(ctx: Context, attributeSet: AttributeSet) :
             filterCardView.visibility = VISIBLE
         }
 
-        filterTextView.visibility = if (showFilter) VISIBLE else GONE
-
-        return filterItems
+        filterTextView.visibility =
+            if (visibleState == BottomSheetBehavior.STATE_EXPANDED)
+                VISIBLE else GONE
     }
 
-    fun toggleVisibility() {
-        showFilter = !showFilter
-        updateViews()
-    }
-
+//    fun toggleVisibility() {
+//        visibleState = when (visibleState) {
+//            BottomSheetBehavior.STATE_EXPANDED,
+//            BottomSheetBehavior.STATE_HALF_EXPANDED -> BottomSheetBehavior.STATE_COLLAPSED
+//            BottomSheetBehavior.STATE_COLLAPSED     -> BottomSheetBehavior.STATE_HALF_EXPANDED
+//            else                                    -> BottomSheetBehavior.STATE_COLLAPSED
+//        }
+//        updateViews()
+//    }
+//
     private fun addChip(item: FilterOption) {
         val chip = Chippy(context, item, this)
         filterChipGroup.addView(chip)
+    }
+
+    internal fun setVisibleState(state: Int) {
+        visibleState = when (state) {
+            BottomSheetBehavior.STATE_EXPANDED,
+            BottomSheetBehavior.STATE_HALF_EXPANDED,
+            BottomSheetBehavior.STATE_COLLAPSED -> state
+            else                                -> BottomSheetBehavior.STATE_EXPANDED
+        }
+        updateViews()
     }
 
     override fun chipClosed(view: View, item: FilterOption) {
@@ -248,7 +258,8 @@ class FilterOptionsAdapter(ctx: Context, filterOptions: List<FilterOption>) :
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
 
-        val view = convertView ?: View.inflate(context, R.layout.filter_option_auto_complete, null)
+        val view =
+            convertView ?: View.inflate(context, R.layout.filter_option_auto_complete, null)
 
         val itemText: TextView = view.findViewById(R.id.item_text)
         val optionTypeText: TextView = view.findViewById(R.id.filter_option_type)
@@ -283,7 +294,6 @@ class FilterOptionsAdapter(ctx: Context, filterOptions: List<FilterOption>) :
 
                 val results = FilterResults()
                 results.values = if (query == null || query.isEmpty()) {
-                    Log.d(TAG, "Empty query")
                     allOptions
                 } else {
                     allOptions.filter {

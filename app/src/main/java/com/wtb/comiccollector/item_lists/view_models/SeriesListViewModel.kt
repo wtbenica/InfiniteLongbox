@@ -1,8 +1,9 @@
 package com.wtb.comiccollector.item_lists.view_models
 
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
+import android.util.Log
+import androidx.lifecycle.*
 import androidx.paging.PagingData
+import androidx.paging.cachedIn
 import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.SearchFilter
 import com.wtb.comiccollector.database.models.FullSeries
@@ -15,33 +16,21 @@ private const val TAG = APP + "SeriesListViewModel"
 @ExperimentalCoroutinesApi
 class SeriesListViewModel : ViewModel() {
     private val repository: Repository = Repository.get()
-    private val filterLiveData = MutableLiveData<SearchFilter?>(null)
 
-    //    var seriesList: LiveData<PagingData<FullSeries>> = Transformations.switchMap(filterLiveData)
-//    {
-//        it?.let { filter ->
-//            Log.d(TAG, "seriesList switchMap filterLiveData $filter")
-//            Pager(
-//                config = PagingConfig(
-//                    pageSize = REQUEST_LIMIT,
-//                    enablePlaceholders = true,
-//                    maxSize = 200
-//                )
-//            ) {
-//                repository.getSeriesByFilterPagingSource(filter)
-//            }.liveData
-//        }
-//    }
-//
-    fun seriesList(): Flow<PagingData<FullSeries>>? {
-        val filterValue = filterLiveData.value
+    private val filterLiveData = MutableLiveData(SearchFilter())
 
-        return filterValue?.let { filter ->
-            repository.getSeriesByFilterPaged(filter)
+    val seriesList: Flow<PagingData<FullSeries>> = filterLiveData.switchMap { filter ->
+        filter.let {
+            repository.getSeriesByFilterPaged(it).asLiveData()
         }
-    }
+    }.asFlow().cachedIn(viewModelScope)
 
     fun setFilter(filter: SearchFilter) {
+        Log.d(
+            TAG, "Setting filter: S: ${filter.mSeries?.seriesName} P: ${filter.mPublishers.size} " +
+                    "C: ${filter.mCreators.size} M: ${filter.mMyCollection} ${filter.mStartDate} " +
+                    "${filter.mEndDate} T: ${filter.mTextFilter?.text}"
+        )
         filterLiveData.value = filter
     }
 }
