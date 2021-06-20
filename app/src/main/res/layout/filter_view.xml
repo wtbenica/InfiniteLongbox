@@ -11,24 +11,35 @@
         android:animateLayoutChanges="true"
         android:background="@drawable/bottom_sheet">
 
-        <androidx.cardview.widget.CardView
+        <ImageButton
             android:id="@+id/drag"
-            android:layout_width="20dp"
-            android:layout_height="2dp"
-            android:layout_marginTop="10dp"
-            app:cardBackgroundColor="@color/fantasia"
-            app:cardUseCompatPadding="false"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:scaleX="4"
+            android:scaleY="4"
+            android:src="@drawable/ic_baseline_arrow_drop_down_24"
+            app:tint="?attr/colorPrimary"
+            android:layout_marginBottom="8dp"
+            android:layout_marginTop="8dp"
+            android:background="@android:color/transparent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:shapeAppearance="@style/ShapeBottomSheet">
+            app:layout_constraintBottom_toTopOf="@id/switch_card_view" />
 
-            <View
-                android:layout_width="20dp"
-                android:layout_height="2dp"
-                android:layout_gravity="center"
-                android:background="@drawable/accent_divider" />
-        </androidx.cardview.widget.CardView>
+<!--        <androidx.cardview.widget.CardView-->
+<!--            android:id="@+id/drag"-->
+<!--            android:layout_width="20dp"-->
+<!--            android:layout_height="20dp"-->
+<!--            android:layout_marginTop="4dp"-->
+<!--            android:layout_marginBottom="4dp"-->
+<!--            app:cardUseCompatPadding="false"-->
+<!--            app:cardBackgroundColor="@color/fantasia"-->
+<!--            app:layout_constraintEnd_toEndOf="parent"-->
+<!--            app:layout_constraintStart_toStartOf="parent"-->
+<!--            app:layout_constraintTop_toTopOf="parent"-->
+<!--            app:layout_constraintBottom_toTopOf="@id/switch_card_view"-->
+<!--            app:shapeAppearance="@style/ShapeBottomSheet"/>-->
 
         <androidx.cardview.widget.CardView
             android:id="@+id/switch_card_view"
@@ -37,7 +48,8 @@
             android:animateLayoutChanges="true"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/drag">
+            app:layout_constraintBottom_toTopOf="@id/sort_card_view"
+            tools:visibility="gone">
 
             <androidx.appcompat.widget.SwitchCompat
                 android:id="@+id/my_collection_switch"
@@ -57,7 +69,8 @@
             android:animateLayoutChanges="true"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/switch_card_view">
+            app:layout_constraintBottom_toTopOf="@id/filter_card_view"
+            tools:visibility="gone">
 
             <LinearLayout
                 android:layout_width="wrap_content"
@@ -127,7 +140,8 @@
             android:animateLayoutChanges="true"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/sort_card_view">
+            app:layout_constraintBottom_toBottomOf="parent"
+            tools:visibility="gone">
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/filter_contraint_layout"

@@ -1,54 +1,61 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    android:orientation="vertical">
 
-    <com.google.android.material.appbar.AppBarLayout
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:theme="@style/Theme.ComicCollector.AppBarOverlay"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior"
-        app:layout_insetEdge="top">
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        tools:context=".MainActivity">
 
-        <androidx.appcompat.widget.Toolbar
-            android:id="@+id/action_bar"
-            style="@style/myActionBarStyle"
+        <com.google.android.material.appbar.AppBarLayout
             android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            tools:title="Doom Patrol #9" />
+            android:layout_height="wrap_content"
+            android:theme="@style/Theme.ComicCollector.AppBarOverlay"
+            app:layout_behavior="com.google.android.material.appbar.AppBarLayout$Behavior"
+            app:layout_insetEdge="top">
 
-    </com.google.android.material.appbar.AppBarLayout>
+            <androidx.appcompat.widget.Toolbar
+                android:id="@+id/action_bar"
+                style="@style/myActionBarStyle"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                app:layout_scrollFlags="scroll|enterAlways"
+                tools:title="Doom Patrol #9" />
+        </com.google.android.material.appbar.AppBarLayout>
 
-    <androidx.fragment.app.FragmentContainerView
-        android:id="@+id/fragment_container"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior"
-        android:nestedScrollingEnabled="true"
-        android:isScrollContainer="true"
-        app:layout_dodgeInsetEdges="all"
-        tools:layout="@layout/fragment_item_list" />
+        <androidx.fragment.app.FragmentContainerView
+            android:id="@+id/fragment_container"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:layout_behavior=".ScrollingViewWithBottomSheetBehavior"
+            app:layout_dodgeInsetEdges="top"
+            tools:layout="@layout/fragment_item_list" />
+
+
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
     <com.wtb.comiccollector.views.FilterView
         android:id="@+id/filter_view"
         style="@style/mFilterView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:behavior_hideable="false"
-        android:layout_gravity="bottom"
-        app:layout_behavior="@string/bottom_sheet_behavior"
-        app:layout_insetEdge="bottom" />
+        app:behavior_hideable="true"
+        android:layout_gravity="bottom|center_horizontal"
+        app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior"
+        app:layout_insetEdge="bottom"
+        tools:layout="@layout/filter_view" />
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fab2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:layout_margin="@dimen/fab_margin"
-        app:layout_behavior="com.google.android.material.floatingactionbutton.FloatingActionButton$Behavior"
-        app:srcCompat="@drawable/ic_filter" />
-
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
+    <!--    <com.google.android.material.floatingactionbutton.FloatingActionButton-->
+    <!--        android:id="@+id/fab2"-->
+    <!--        android:layout_width="wrap_content"-->
+    <!--        android:layout_height="wrap_content"-->
+    <!--        android:layout_gravity="bottom|end"-->
+    <!--        android:layout_margin="@dimen/fab_margin"-->
+    <!--        app:layout_behavior="com.google.android.material.floatingactionbutton.FloatingActionButton$Behavior"-->
+    <!--        app:srcCompat="@drawable/ic_filter" />-->
+</LinearLayout>

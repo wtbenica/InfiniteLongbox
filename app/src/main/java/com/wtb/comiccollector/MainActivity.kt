@@ -9,7 +9,6 @@ import android.net.NetworkCapabilities
 import android.os.Bundle
 import android.util.Log
 import android.util.TypedValue
-import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import androidx.appcompat.app.AppCompatActivity
@@ -19,7 +18,6 @@ import androidx.fragment.app.FragmentTransaction
 import androidx.lifecycle.MutableLiveData
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetBehavior.*
-import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.wtb.comiccollector.database.models.Creator
 import com.wtb.comiccollector.database.models.Series
 import com.wtb.comiccollector.issue_details.fragments.IssueDetailFragment
@@ -48,9 +46,11 @@ class MainActivity : AppCompatActivity(), SeriesListFragment.SeriesListCallbacks
     SeriesInfoDialogFragment.SeriesInfoDialogListener,
     NewCreatorDialogFragment.NewCreatorDialogListener {
 
-    private var fab: FloatingActionButton? = null
+//    private var fab: FloatingActionButton? = null
     private var filterView: FilterView? = null
-    private var bottomSheetBehavior: BottomSheetBehavior<FilterView>? = null
+
+    //    private var bottomSheetBehavior: BottomSheetBehavior<FilterView>? = null
+    private var state: Int = BottomSheetBehavior.STATE_EXPANDED
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -71,19 +71,17 @@ class MainActivity : AppCompatActivity(), SeriesListFragment.SeriesListCallbacks
         initBottomSheet()
         initNetwork()
 
-        fab = findViewById(R.id.fab2)
-        fab?.setOnClickListener {
-            Log.d(TAG, "FAB PUNCHED!")
-            bottomSheetBehavior?.state?.let {
-                bottomSheetBehavior?.state = when (it) {
-                    STATE_EXPANDED -> STATE_HALF_EXPANDED
-                    STATE_HALF_EXPANDED -> STATE_COLLAPSED
-                    STATE_COLLAPSED -> STATE_EXPANDED
-                    else -> STATE_EXPANDED
-                }
-                bottomSheetBehavior?.state?.let { state -> filterView?.setVisibleState(state) }
-            }
-        }
+//        fab = findViewById(R.id.fab2)
+//        fab?.setOnClickListener {
+//            Log.d(TAG, "FAB PUNCHED!")
+//            state = when (state) {
+//                STATE_EXPANDED      -> STATE_HALF_EXPANDED
+//                STATE_HALF_EXPANDED -> STATE_COLLAPSED
+//                STATE_COLLAPSED     -> STATE_EXPANDED
+//                else                -> STATE_EXPANDED
+//            }
+//            filterView?.setVisibleState(state)
+//        }
     }
 
     private fun initBottomSheet() {
@@ -91,35 +89,35 @@ class MainActivity : AppCompatActivity(), SeriesListFragment.SeriesListCallbacks
             callback = this@MainActivity
         }
 
-        filterView?.let {
-            bottomSheetBehavior = from(it)
-        }
-
-        bottomSheetBehavior?.apply {
-            isHideable = false
-            state = STATE_EXPANDED
-            addBottomSheetCallback(
-                object : BottomSheetCallback() {
-                    override fun onStateChanged(bottomSheet: View, newState: Int) {
-                        val stateName = getStateName(newState)
-                        Log.d(TAG, "onStateChanged: $stateName")
-                        filterView?.setVisibleState(newState)
-                    }
-
-                    override fun onSlide(bottomSheet: View, slideOffset: Float) {
-                        Log.d(TAG, "onSlide: $slideOffset")
-                    }
-                }
-            )
-        }?.let {
-            filterView?.setVisibleState(it.state)
-        }
+//        filterView?.let {
+//            bottomSheetBehavior = from(it)
+//        }
+//
+//        bottomSheetBehavior?.apply {
+//            addBottomSheetCallback(
+//                object : BottomSheetCallback() {
+//                    override fun onStateChanged(bottomSheet: View, newState: Int) {
+//                        val stateName = getStateName(newState)
+//                        Log.d(TAG, "onStateChanged: $stateName")
+//                        filterView?.setVisibleState(newState)
+//                    }
+//
+//                    override fun onSlide(bottomSheet: View, slideOffset: Float) {
+//                        Log.d(TAG, "onSlide: $slideOffset")
+//                    }
+//                }
+//            )
+//        }?.let {
+//            filterView?.setVisibleState(it.state)
+//        }
+        filterView?.setVisibleState(state)
     }
 
     private fun initNetwork() {
         val connManager = getSystemService(ConnectivityManager::class.java)
 
-        connManager.registerDefaultNetworkCallback(object : ConnectivityManager.NetworkCallback() {
+        connManager.registerDefaultNetworkCallback(object :
+                                                       ConnectivityManager.NetworkCallback() {
             override fun onAvailable(network: Network) {
                 super.onAvailable(network)
                 Log.d(TAG, "NetworkCallback onAvailable")

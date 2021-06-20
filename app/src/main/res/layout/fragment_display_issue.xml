@@ -18,30 +18,6 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
-        android:id="@+id/issue_series"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:textColor="?attr/colorOnSecondary"
-        android:textSize="24sp"
-        app:layout_constraintEnd_toStartOf="@+id/issue_number"
-        app:layout_constraintStart_toEndOf="@+id/issue_cover"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <TextView
-        android:id="@+id/issue_number"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
-        android:gravity="end"
-        android:textColor="?attr/colorOnSecondary"
-        android:textSize="24sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@id/issue_series"
-        app:layout_constraintWidth_min="50dp" />
-
-    <TextView
         android:id="@+id/release_date_text_view"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -49,10 +25,9 @@
         android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
         android:text="@string/release_date"
-        android:textColor="?attr/colorOnSecondary"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/issue_cover"
-        app:layout_constraintTop_toBottomOf="@+id/issue_series" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <Button
         android:id="@+id/collectionButton"

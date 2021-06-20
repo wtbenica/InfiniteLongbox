@@ -50,6 +50,8 @@ class FilterView(context: Context, attributeSet: AttributeSet) :
             field = value
         }
 
+    private var drag: ImageButton
+
     private var switchCardView: CardView
     private val myCollectionSwitch: SwitchCompat
 
@@ -71,6 +73,8 @@ class FilterView(context: Context, attributeSet: AttributeSet) :
         val inflater =
             context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
         val view = inflater.inflate(R.layout.filter_view, this)
+
+        drag = view.findViewById(R.id.drag)
 
         switchCardView = view.findViewById(R.id.switch_card_view)
         myCollectionSwitch = view.findViewById(R.id.my_collection_switch) as SwitchCompat
@@ -94,6 +98,23 @@ class FilterView(context: Context, attributeSet: AttributeSet) :
         viewModel.filter.asLiveData().observe(context as LifecycleOwner) { filter ->
             this.filter = filter
             sortChipGroup.filter = filter
+        }
+
+        drag.setOnClickListener {
+            when (visibleState) {
+                BottomSheetBehavior.STATE_EXPANDED -> {
+                    setVisibleState(BottomSheetBehavior.STATE_HALF_EXPANDED)
+                    drag.setImageResource(R.drawable.ic_baseline_arrow_drop_down_24)
+                }
+                BottomSheetBehavior.STATE_HALF_EXPANDED -> {
+                    setVisibleState(BottomSheetBehavior.STATE_COLLAPSED)
+                    drag.setImageResource(R.drawable.ic_baseline_arrow_drop_up_24)
+                }
+                BottomSheetBehavior.STATE_COLLAPSED -> {
+                    setVisibleState(BottomSheetBehavior.STATE_EXPANDED)
+                    drag.setImageResource(R.drawable.ic_baseline_arrow_drop_down_24)
+                }
+            }
         }
 
         myCollectionSwitch.setOnCheckedChangeListener { buttonView, isChecked ->
@@ -125,21 +146,22 @@ class FilterView(context: Context, attributeSet: AttributeSet) :
 
         myCollectionSwitch.isChecked = filter.mMyCollection
         when (visibleState) {
-            BottomSheetBehavior.STATE_EXPANDED      -> {
+            BottomSheetBehavior.STATE_EXPANDED  -> {
                 switchCardView.visibility = VISIBLE
                 sortCardView.visibility = VISIBLE
                 filterCardView.visibility = VISIBLE
                 filterTextView.visibility = VISIBLE
             }
-            BottomSheetBehavior.STATE_HALF_EXPANDED -> {
+            BottomSheetBehavior.STATE_HALF_EXPANDED ->{
                 switchCardView.visibility =
                     if (myCollectionSwitch.isChecked) VISIBLE else GONE
                 sortCardView.visibility = GONE
                 filterCardView.visibility =
                     if (filter.getAll().isNotEmpty()) VISIBLE else GONE
                 filterTextView.visibility = GONE
+
             }
-            BottomSheetBehavior.STATE_COLLAPSED     -> {
+            BottomSheetBehavior.STATE_COLLAPSED -> {
                 switchCardView.visibility = GONE
                 sortCardView.visibility = GONE
                 filterCardView.visibility = GONE
@@ -200,7 +222,7 @@ class FilterView(context: Context, attributeSet: AttributeSet) :
                 VISIBLE else GONE
     }
 
-//    fun toggleVisibility() {
+    //    fun toggleVisibility() {
 //        visibleState = when (visibleState) {
 //            BottomSheetBehavior.STATE_EXPANDED,
 //            BottomSheetBehavior.STATE_HALF_EXPANDED -> BottomSheetBehavior.STATE_COLLAPSED
