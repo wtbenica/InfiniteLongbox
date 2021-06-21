@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <style name="ShapeBottomSheet" parent="ShapeAppearance.MaterialComponents.LargeComponent">
-        <item name="cornerSizeTopLeft">@dimen/corner_radius</item>
-        <item name="cornerFamilyTopLeft">rounded</item>
-        <item name="cornerSizeTopRight">@dimen/corner_radius</item>
-        <item name="cornerFamilyTopRight">rounded</item>
+        <item name="cornerRadius">@dimen/corner_radius</item>
+        <item name="cornerFamily">rounded</item>
     </style>
 </resources>

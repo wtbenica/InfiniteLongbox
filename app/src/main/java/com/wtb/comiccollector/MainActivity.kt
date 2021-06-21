@@ -9,6 +9,7 @@ import android.net.NetworkCapabilities
 import android.os.Bundle
 import android.util.Log
 import android.util.TypedValue
+import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import androidx.appcompat.app.AppCompatActivity
@@ -46,11 +47,9 @@ class MainActivity : AppCompatActivity(), SeriesListFragment.SeriesListCallbacks
     SeriesInfoDialogFragment.SeriesInfoDialogListener,
     NewCreatorDialogFragment.NewCreatorDialogListener {
 
-//    private var fab: FloatingActionButton? = null
     private var filterView: FilterView? = null
 
-    //    private var bottomSheetBehavior: BottomSheetBehavior<FilterView>? = null
-    private var state: Int = BottomSheetBehavior.STATE_EXPANDED
+    private var bottomSheetBehavior: BottomSheetBehavior<FilterView>? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -85,32 +84,35 @@ class MainActivity : AppCompatActivity(), SeriesListFragment.SeriesListCallbacks
     }
 
     private fun initBottomSheet() {
-        filterView = findViewById<FilterView>(R.id.filter_view).apply {
+        filterView = findViewById<FilterView>(R.id.filter_view)?.apply {
             callback = this@MainActivity
         }
 
-//        filterView?.let {
-//            bottomSheetBehavior = from(it)
-//        }
-//
-//        bottomSheetBehavior?.apply {
-//            addBottomSheetCallback(
-//                object : BottomSheetCallback() {
-//                    override fun onStateChanged(bottomSheet: View, newState: Int) {
-//                        val stateName = getStateName(newState)
-//                        Log.d(TAG, "onStateChanged: $stateName")
-//                        filterView?.setVisibleState(newState)
-//                    }
-//
-//                    override fun onSlide(bottomSheet: View, slideOffset: Float) {
-//                        Log.d(TAG, "onSlide: $slideOffset")
-//                    }
-//                }
-//            )
-//        }?.let {
+        filterView?.let {
+            bottomSheetBehavior = from(it)
+        }
+
+        bottomSheetBehavior?.apply {
+            state = STATE_COLLAPSED
+            setGestureInsetBottomIgnored(true)
+            addBottomSheetCallback(
+                object : BottomSheetCallback() {
+                    private var previousSlideOffset = 0F
+
+                    override fun onStateChanged(bottomSheet: View, newState: Int) {
+                        val stateName = getStateName(newState)
+                        Log.d(TAG, "onStateChanged: $stateName")
+                    }
+
+                    override fun onSlide(bottomSheet: View, slideOffset: Float) {
+                        Log.d(TAG, "onSlide: $slideOffset")
+                    }
+                }
+            )
+        }
+//            ?.let {
 //            filterView?.setVisibleState(it.state)
 //        }
-        filterView?.setVisibleState(state)
     }
 
     private fun initNetwork() {
@@ -244,13 +246,13 @@ class MainActivity : AppCompatActivity(), SeriesListFragment.SeriesListCallbacks
 
         fun getStateName(newState: Int): String {
             return when (newState) {
-                STATE_EXPANDED      -> "EXPANDED"
+                STATE_EXPANDED -> "EXPANDED"
                 STATE_HALF_EXPANDED -> "HALF-EXPANDED"
-                STATE_COLLAPSED     -> "COLLAPSED"
-                STATE_DRAGGING      -> "DRAGGING"
-                STATE_HIDDEN        -> "HIDDEN"
-                STATE_SETTLING      -> "SETTLING"
-                else                -> "THAT'S ODD!"
+                STATE_COLLAPSED -> "COLLAPSED"
+                STATE_DRAGGING -> "DRAGGING"
+                STATE_HIDDEN -> "HIDDEN"
+                STATE_SETTLING -> "SETTLING"
+                else -> "THAT'S ODD!"
             }
         }
 

@@ -50,7 +50,7 @@ class FilterView(context: Context, attributeSet: AttributeSet) :
             field = value
         }
 
-    private var drag: ImageButton
+    private var drag: View
 
     private var switchCardView: CardView
     private val myCollectionSwitch: SwitchCompat
@@ -100,23 +100,6 @@ class FilterView(context: Context, attributeSet: AttributeSet) :
             sortChipGroup.filter = filter
         }
 
-        drag.setOnClickListener {
-            when (visibleState) {
-                BottomSheetBehavior.STATE_EXPANDED -> {
-                    setVisibleState(BottomSheetBehavior.STATE_HALF_EXPANDED)
-                    drag.setImageResource(R.drawable.ic_baseline_arrow_drop_down_24)
-                }
-                BottomSheetBehavior.STATE_HALF_EXPANDED -> {
-                    setVisibleState(BottomSheetBehavior.STATE_COLLAPSED)
-                    drag.setImageResource(R.drawable.ic_baseline_arrow_drop_up_24)
-                }
-                BottomSheetBehavior.STATE_COLLAPSED -> {
-                    setVisibleState(BottomSheetBehavior.STATE_EXPANDED)
-                    drag.setImageResource(R.drawable.ic_baseline_arrow_drop_down_24)
-                }
-            }
-        }
-
         myCollectionSwitch.setOnCheckedChangeListener { buttonView, isChecked ->
             viewModel.myCollection(isChecked)
         }
@@ -146,13 +129,13 @@ class FilterView(context: Context, attributeSet: AttributeSet) :
 
         myCollectionSwitch.isChecked = filter.mMyCollection
         when (visibleState) {
-            BottomSheetBehavior.STATE_EXPANDED  -> {
+            BottomSheetBehavior.STATE_EXPANDED      -> {
                 switchCardView.visibility = VISIBLE
                 sortCardView.visibility = VISIBLE
                 filterCardView.visibility = VISIBLE
                 filterTextView.visibility = VISIBLE
             }
-            BottomSheetBehavior.STATE_HALF_EXPANDED ->{
+            BottomSheetBehavior.STATE_HALF_EXPANDED -> {
                 switchCardView.visibility =
                     if (myCollectionSwitch.isChecked) VISIBLE else GONE
                 sortCardView.visibility = GONE
@@ -161,7 +144,7 @@ class FilterView(context: Context, attributeSet: AttributeSet) :
                 filterTextView.visibility = GONE
 
             }
-            BottomSheetBehavior.STATE_COLLAPSED -> {
+            BottomSheetBehavior.STATE_COLLAPSED     -> {
                 switchCardView.visibility = GONE
                 sortCardView.visibility = GONE
                 filterCardView.visibility = GONE
