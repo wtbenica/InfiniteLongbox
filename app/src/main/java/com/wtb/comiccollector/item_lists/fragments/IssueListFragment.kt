@@ -32,11 +32,11 @@ class IssueListFragment : Fragment() {
     private val issueListViewModel: IssueListViewModel by viewModels()
     private lateinit var filter: SearchFilter
     private lateinit var issueGridView: RecyclerView
-    private var callbacks: Callbacks? = null
+    private var issueListCallback: IssueListCallback? = null
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        callbacks = context as Callbacks?
+        issueListCallback = context as IssueListCallback?
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -94,7 +94,7 @@ class IssueListFragment : Fragment() {
 
     override fun onDetach() {
         super.onDetach()
-        callbacks = null
+        issueListCallback = null
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -109,7 +109,7 @@ class IssueListFragment : Fragment() {
                 //  exists an issue number 1, then violates unique series/issue restraint in db
                 val issue = filter.mSeries?.let { Issue(seriesId = it.seriesId) } ?: Issue()
                 issueListViewModel.addIssue(issue)
-                callbacks?.onNewIssue(issue.issueId)
+                issueListCallback?.onNewIssue(issue.issueId)
                 true
             }
             else           -> super.onOptionsItemSelected(item)
@@ -158,7 +158,7 @@ class IssueListFragment : Fragment() {
 
         override fun onClick(v: View?) {
             val issueId = fullIssue?.issue?.issueId
-            issueId?.let { callbacks?.onIssueSelected(it) }
+            issueId?.let { issueListCallback?.onIssueSelected(it) }
         }
 
     }
@@ -183,7 +183,7 @@ class IssueListFragment : Fragment() {
             oldItem == newItem
     }
 
-    interface Callbacks {
+    interface IssueListCallback {
         fun onIssueSelected(issueId: Int)
         fun onNewIssue(issueId: Int)
     }

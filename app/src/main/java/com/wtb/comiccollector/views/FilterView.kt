@@ -12,7 +12,11 @@ import androidx.cardview.widget.CardView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.constraintlayout.widget.ConstraintSet.*
+import androidx.coordinatorlayout.widget.CoordinatorLayout
+import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.children
+import androidx.core.view.updateLayoutParams
+import androidx.core.view.updateMargins
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStoreOwner
@@ -30,9 +34,14 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 private const val TAG = APP + "FilterView"
 
+internal const val P_H = 80
+internal const val DRAG_MARG = (P_H - 8) / 2
+internal const val i = DRAG_MARG - 8
+
 @ExperimentalCoroutinesApi
 class FilterView(context: Context, attributeSet: AttributeSet) :
     CardView(context, attributeSet),
+    CoordinatorLayout.AttachedBehavior,
     Chippy.ChipCallbacks,
     SearchAutoCompleteTextView.SearchTextViewCallback {
 
@@ -44,13 +53,7 @@ class FilterView(context: Context, attributeSet: AttributeSet) :
 
     var callback: FilterCallback? = null
 
-    private var visibleState: Int = BottomSheetBehavior.STATE_EXPANDED
-        set(value) {
-            Log.d(TAG, "Setting visibleState: ${MainActivity.getStateName(value)}")
-            field = value
-        }
-
-    private var drag: View
+    internal var visibleState: Int = BottomSheetBehavior.STATE_COLLAPSED
 
     private var switchCardView: CardView
     private val myCollectionSwitch: SwitchCompat
@@ -68,13 +71,12 @@ class FilterView(context: Context, attributeSet: AttributeSet) :
         ViewModelProvider(context as ViewModelStoreOwner).get(FilterViewModel::class.java)
     }
 
-
     init {
         val inflater =
             context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
         val view = inflater.inflate(R.layout.filter_view, this)
 
-        drag = view.findViewById(R.id.drag)
+        view.background = ResourcesCompat.getDrawable(resources, R.drawable.bottom_sheet, null)
 
         switchCardView = view.findViewById(R.id.switch_card_view)
         myCollectionSwitch = view.findViewById(R.id.my_collection_switch) as SwitchCompat
@@ -100,11 +102,11 @@ class FilterView(context: Context, attributeSet: AttributeSet) :
             sortChipGroup.filter = filter
         }
 
-        myCollectionSwitch.setOnCheckedChangeListener { buttonView, isChecked ->
+        myCollectionSwitch.setOnCheckedChangeListener { _, isChecked ->
             viewModel.myCollection(isChecked)
         }
 
-        sortChipGroup.setOnCheckedChangeListener { group, checkedId ->
+        sortChipGroup.setOnCheckedChangeListener { _, checkedId ->
             if (checkedId >= 0) {
                 view?.findViewById<SortChipGroup.SortChip>(checkedId)?.sortOption?.let {
                     if (it != filter.mSortOption) {
@@ -128,36 +130,7 @@ class FilterView(context: Context, attributeSet: AttributeSet) :
         updateFilterCard()
 
         myCollectionSwitch.isChecked = filter.mMyCollection
-        when (visibleState) {
-            BottomSheetBehavior.STATE_EXPANDED      -> {
-                switchCardView.visibility = VISIBLE
-                sortCardView.visibility = VISIBLE
-                filterCardView.visibility = VISIBLE
-                filterTextView.visibility = VISIBLE
-            }
-            BottomSheetBehavior.STATE_HALF_EXPANDED -> {
-                switchCardView.visibility =
-                    if (myCollectionSwitch.isChecked) VISIBLE else GONE
-                sortCardView.visibility = GONE
-                filterCardView.visibility =
-                    if (filter.getAll().isNotEmpty()) VISIBLE else GONE
-                filterTextView.visibility = GONE
-
-            }
-            BottomSheetBehavior.STATE_COLLAPSED     -> {
-                switchCardView.visibility = GONE
-                sortCardView.visibility = GONE
-                filterCardView.visibility = GONE
-            }
-        }
-
-        if (visibleState != BottomSheetBehavior.STATE_EXPANDED) {
-            callback?.hideKeyboard()
-        }
-
-        refreshDrawableState()
     }
-
 
     private fun updateFilterCard() {
         val filterItems: Set<FilterOption> = filter.getAll()
@@ -199,35 +172,11 @@ class FilterView(context: Context, attributeSet: AttributeSet) :
             constraints.applyTo(filterConstraintLayout)
             filterCardView.visibility = VISIBLE
         }
-
-        filterTextView.visibility =
-            if (visibleState == BottomSheetBehavior.STATE_EXPANDED)
-                VISIBLE else GONE
     }
 
-    //    fun toggleVisibility() {
-//        visibleState = when (visibleState) {
-//            BottomSheetBehavior.STATE_EXPANDED,
-//            BottomSheetBehavior.STATE_HALF_EXPANDED -> BottomSheetBehavior.STATE_COLLAPSED
-//            BottomSheetBehavior.STATE_COLLAPSED     -> BottomSheetBehavior.STATE_HALF_EXPANDED
-//            else                                    -> BottomSheetBehavior.STATE_COLLAPSED
-//        }
-//        updateViews()
-//    }
-//
     private fun addChip(item: FilterOption) {
         val chip = Chippy(context, item, this)
         filterChipGroup.addView(chip)
-    }
-
-    internal fun setVisibleState(state: Int) {
-        visibleState = when (state) {
-            BottomSheetBehavior.STATE_EXPANDED,
-            BottomSheetBehavior.STATE_HALF_EXPANDED,
-            BottomSheetBehavior.STATE_COLLAPSED -> state
-            else                                -> BottomSheetBehavior.STATE_EXPANDED
-        }
-        updateViews()
     }
 
     override fun chipClosed(view: View, item: FilterOption) {
@@ -240,86 +189,131 @@ class FilterView(context: Context, attributeSet: AttributeSet) :
         callback?.hideKeyboard()
     }
 
-    interface FilterCallback : SeriesListFragment.SeriesListCallbacks {
+    private fun setMargins(view: View, size: Number) {
+        Log.d(TAG, "setMargins: $size")
+        updateLayoutParams<MarginLayoutParams> {
+            val sizeInDp = dpToPx(context, size).toInt()
+            updateMargins(top = sizeInDp, bottom = sizeInDp)
+        }
+        view.invalidate()
+        view.requestLayout()
+    }
+
+    interface FilterCallback : SeriesListFragment.SeriesListCallback {
         fun onFilterChanged(filter: SearchFilter)
         fun hideKeyboard()
         fun showKeyboard(focus: EditText)
     }
-}
 
-class FilterOptionsAdapter(ctx: Context, filterOptions: List<FilterOption>) :
-    ArrayAdapter<FilterOption>(ctx, LAYOUT, filterOptions) {
+    override fun getBehavior(): CoordinatorLayout.Behavior<*> = Companion.getBehavior(context, this)
 
     companion object {
-        private const val LAYOUT = R.layout.filter_option_auto_complete
+        private var INSTANCE: CoordinatorLayout.Behavior<*>? = null
+
+        private fun getBehavior(
+            context: Context,
+            filterView: FilterView
+        ): CoordinatorLayout.Behavior<*> {
+            if (INSTANCE == null) {
+                INSTANCE = BottomSheetBehavior<FilterView>().apply {
+                    isHideable = false
+                    isGestureInsetBottomIgnored = false
+                    peekHeight = dpToPx(context, P_H).toInt()
+
+                    addBottomSheetCallback(
+                        object : BottomSheetBehavior.BottomSheetCallback() {
+                            override fun onStateChanged(bottomSheet: View, newState: Int) {
+                                val stateName = MainActivity.getStateName(newState)
+                                Log.d(TAG, "onStateChanged: $stateName")
+                                filterView.visibleState = newState
+                            }
+
+                            override fun onSlide(bottomSheet: View, slideOffset: Float) {
+                                Log.d(TAG, "onSlide: $slideOffset")
+                            }
+                        }
+                    )
+                }
+            }
+
+            return INSTANCE as CoordinatorLayout.Behavior<*>
+        }
     }
 
-    private var allOptions: List<FilterOption> = filterOptions
-    private var mOptions: List<FilterOption> = filterOptions
+    class FilterOptionsAdapter(ctx: Context, filterOptions: List<FilterOption>) :
+        ArrayAdapter<FilterOption>(ctx, LAYOUT, filterOptions) {
 
-    override fun getCount(): Int = mOptions.size
-
-    override fun getItem(position: Int): FilterOption = mOptions[position]
-
-    override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
-
-        val view =
-            convertView ?: View.inflate(context, R.layout.filter_option_auto_complete, null)
-
-        val itemText: TextView = view.findViewById(R.id.item_text)
-        val optionTypeText: TextView = view.findViewById(R.id.filter_option_type)
-
-        val filterOption: FilterOption = getItem(position)
-
-        itemText.text = filterOption.toString()
-
-        optionTypeText.text = when (filterOption) {
-            is Series    -> "Series"
-            is Creator   -> "Creator"
-            is Publisher -> "Publisher"
-            else         -> ""
+        companion object {
+            private const val LAYOUT = R.layout.filter_option_auto_complete
         }
 
-        optionTypeText.setTextColor(
-            when (filterOption) {
-                is Series    -> 0xFF0000FF.toInt()
-                is Creator   -> 0xFF00FF00.toInt()
-                is Publisher -> 0xFFFF0000.toInt()
-                else         -> 0xFFFFFFFF.toInt()
-            }
-        )
+        private var allOptions: List<FilterOption> = filterOptions
+        private var mOptions: List<FilterOption> = filterOptions
 
-        return view
-    }
+        override fun getCount(): Int = mOptions.size
 
-    override fun getFilter(): Filter {
-        return object : Filter() {
-            override fun performFiltering(constraint: CharSequence?): FilterResults {
-                val query = constraint?.toString()?.lowercase()
+        override fun getItem(position: Int): FilterOption = mOptions[position]
 
-                val results = FilterResults()
-                results.values = if (query == null || query.isEmpty()) {
-                    allOptions
-                } else {
-                    allOptions.filter {
-                        it.compareValue.lowercase().contains(query)
-                    }
-                }
+        override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
 
-                return results
+            val view =
+                convertView ?: View.inflate(context, R.layout.filter_option_auto_complete, null)
+
+            val itemText: TextView = view.findViewById(R.id.item_text)
+            val optionTypeText: TextView = view.findViewById(R.id.filter_option_type)
+
+            val filterOption: FilterOption = getItem(position)
+
+            itemText.text = filterOption.toString()
+
+            optionTypeText.text = when (filterOption) {
+                is Series    -> "Series"
+                is Creator   -> "Creator"
+                is Publisher -> "Publisher"
+                else         -> ""
             }
 
-            override fun publishResults(constraint: CharSequence?, results: FilterResults?) {
-                val optionsList: MutableList<FilterOption> = mutableListOf()
+            optionTypeText.setTextColor(
+                when (filterOption) {
+                    is Series    -> 0xFF0000FF.toInt()
+                    is Creator   -> 0xFF00FF00.toInt()
+                    is Publisher -> 0xFFFF0000.toInt()
+                    else         -> 0xFFFFFFFF.toInt()
+                }
+            )
 
-                for (item in (results?.values as List<*>)) {
-                    if (item is FilterOption) {
-                        optionsList.add(item)
+            return view
+        }
+
+        override fun getFilter(): Filter {
+            return object : Filter() {
+                override fun performFiltering(constraint: CharSequence?): FilterResults {
+                    val query = constraint?.toString()?.lowercase()
+
+                    val results = FilterResults()
+                    results.values = if (query == null || query.isEmpty()) {
+                        allOptions
+                    } else {
+                        allOptions.filter {
+                            it.compareValue.lowercase().contains(query)
+                        }
                     }
+
+                    return results
                 }
 
-                mOptions = optionsList
-                notifyDataSetChanged()
+                override fun publishResults(constraint: CharSequence?, results: FilterResults?) {
+                    val optionsList: MutableList<FilterOption> = mutableListOf()
+
+                    for (item in (results?.values as List<*>)) {
+                        if (item is FilterOption) {
+                            optionsList.add(item)
+                        }
+                    }
+
+                    mOptions = optionsList
+                    notifyDataSetChanged()
+                }
             }
         }
     }

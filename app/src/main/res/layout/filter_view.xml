@@ -11,28 +11,15 @@
         android:animateLayoutChanges="true"
         android:background="@drawable/bottom_sheet">
 
-        <View
-            android:id="@+id/drag"
-            android:layout_width="40dp"
-            android:layout_height="8dp"
-            android:background="@drawable/accent_divider"
-            android:layout_marginBottom="20dp"
-            android:layout_marginTop="20dp"
-            app:shapeAppearance="@style/ShapeBottomSheet"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toTopOf="@id/switch_card_view" />
-
         <androidx.cardview.widget.CardView
             android:id="@+id/switch_card_view"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:animateLayoutChanges="true"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
+            app:cardElevation="0dp"
             app:layout_constraintBottom_toTopOf="@id/sort_card_view"
-            tools:visibility="gone">
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent">
 
             <androidx.appcompat.widget.SwitchCompat
                 android:id="@+id/my_collection_switch"
@@ -50,10 +37,10 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:animateLayoutChanges="true"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
+            app:cardElevation="0dp"
             app:layout_constraintBottom_toTopOf="@id/filter_card_view"
-            tools:visibility="gone">
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent">
 
             <LinearLayout
                 android:layout_width="wrap_content"
@@ -121,10 +108,10 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:animateLayoutChanges="true"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
+            app:cardElevation="0dp"
             app:layout_constraintBottom_toBottomOf="parent"
-            tools:visibility="gone">
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent">
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/filter_contraint_layout"

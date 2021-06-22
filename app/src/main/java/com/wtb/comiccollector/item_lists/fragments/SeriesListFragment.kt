@@ -28,7 +28,7 @@ import kotlinx.coroutines.launch
 private const val TAG = APP + "SeriesListFragment"
 
 @ExperimentalCoroutinesApi
-class SeriesListFragment(var callback: SeriesListCallbacks? = null) : Fragment() {
+class SeriesListFragment(var callback: SeriesListCallback? = null) : Fragment() {
 
     private val viewModel: SeriesListViewModel by lazy {
         ViewModelProvider(this).get(SeriesListViewModel::class.java)
@@ -141,14 +141,14 @@ class SeriesListFragment(var callback: SeriesListCallbacks? = null) : Fragment()
         }
     }
 
-    interface SeriesListCallbacks {
+    interface SeriesListCallback {
         fun onSeriesSelected(series: Series)
     }
 
     companion object {
         @JvmStatic
         fun newInstance(
-            callback: SeriesListCallbacks,
+            callback: SeriesListCallback,
             filter: SearchFilter
         ): SeriesListFragment {
             return SeriesListFragment(callback).apply {

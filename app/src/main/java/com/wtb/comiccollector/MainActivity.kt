@@ -10,10 +10,13 @@ import android.os.Bundle
 import android.util.Log
 import android.util.TypedValue
 import android.view.View
+import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.ContentFrameLayout
+import androidx.coordinatorlayout.widget.CoordinatorLayout
+import androidx.core.view.*
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentTransaction
 import androidx.lifecycle.MutableLiveData
@@ -41,20 +44,24 @@ fun dpToPx(context: Context, dp: Number): Float {
 }
 
 @ExperimentalCoroutinesApi
-class MainActivity : AppCompatActivity(), SeriesListFragment.SeriesListCallbacks,
+class MainActivity : AppCompatActivity(), SeriesListFragment.SeriesListCallback,
     FilterView.FilterCallback,
-    IssueListFragment.Callbacks,
-    SeriesInfoDialogFragment.SeriesInfoDialogListener,
-    NewCreatorDialogFragment.NewCreatorDialogListener {
+    IssueListFragment.IssueListCallback,
+    SeriesInfoDialogFragment.SeriesInfoDialogCallback,
+    NewCreatorDialogFragment.NewCreatorDialogCallback {
 
     private var filterView: FilterView? = null
+    private var bottomSheetBehavior: BottomSheetBehavior<*>? = null
 
-    private var bottomSheetBehavior: BottomSheetBehavior<FilterView>? = null
+    private var posBottom = 0
+    private var posTop = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        setTheme(R.style.Theme_ComicCollector)
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main2)
         setSupportActionBar(findViewById(R.id.action_bar))
+        WindowCompat.setDecorFitsSystemWindows(window, false)
 
         val currentFragment = supportFragmentManager.findFragmentById(R.id.fragment_container)
 
@@ -66,21 +73,10 @@ class MainActivity : AppCompatActivity(), SeriesListFragment.SeriesListCallbacks
                 .commit()
         }
 
-
+        val root: CoordinatorLayout = findViewById(R.id.main_layout)
+        initWindowInsets(root, true, false)
         initBottomSheet()
         initNetwork()
-
-//        fab = findViewById(R.id.fab2)
-//        fab?.setOnClickListener {
-//            Log.d(TAG, "FAB PUNCHED!")
-//            state = when (state) {
-//                STATE_EXPANDED      -> STATE_HALF_EXPANDED
-//                STATE_HALF_EXPANDED -> STATE_COLLAPSED
-//                STATE_COLLAPSED     -> STATE_EXPANDED
-//                else                -> STATE_EXPANDED
-//            }
-//            filterView?.setVisibleState(state)
-//        }
     }
 
     private fun initBottomSheet() {
@@ -89,30 +85,14 @@ class MainActivity : AppCompatActivity(), SeriesListFragment.SeriesListCallbacks
         }
 
         filterView?.let {
-            bottomSheetBehavior = from(it)
+            if (it.behavior is BottomSheetBehavior<*>) {
+                bottomSheetBehavior = it.behavior as BottomSheetBehavior<*>
+            }
         }
 
-        bottomSheetBehavior?.apply {
-            state = STATE_COLLAPSED
-            setGestureInsetBottomIgnored(true)
-            addBottomSheetCallback(
-                object : BottomSheetCallback() {
-                    private var previousSlideOffset = 0F
-
-                    override fun onStateChanged(bottomSheet: View, newState: Int) {
-                        val stateName = getStateName(newState)
-                        Log.d(TAG, "onStateChanged: $stateName")
-                    }
-
-                    override fun onSlide(bottomSheet: View, slideOffset: Float) {
-                        Log.d(TAG, "onSlide: $slideOffset")
-                    }
-                }
-            )
+        bottomSheetBehavior?.let {
+            filterView?.visibleState = it.state
         }
-//            ?.let {
-//            filterView?.setVisibleState(it.state)
-//        }
     }
 
     private fun initNetwork() {
@@ -158,10 +138,60 @@ class MainActivity : AppCompatActivity(), SeriesListFragment.SeriesListCallbacks
         })
     }
 
+    private fun initWindowInsets(view: View, setTop: Boolean, setBottom: Boolean) {
+        ViewCompat.setOnApplyWindowInsetsListener(view) { _, insets ->
+            if (posBottom == 0) {
+                posTop = insets.getInsets(WindowInsetsCompat.Type.systemBars()).top
+                posBottom = insets.getInsets(WindowInsetsCompat.Type.systemBars()).bottom
+            }
+
+            view.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                if (setTop && setBottom) {
+                    updateMargins(top = posTop, bottom = posBottom)
+                } else if (setTop) {
+                    updateMargins(top = posTop)
+                } else if (setBottom) {
+                    Log.d(TAG, "Updating bottom margin: $posBottom")
+                    updateMargins(bottom = posBottom)
+                }
+            }
+
+            insets
+        }
+    }
+
+    // SeriesListFragment.SeriesListCallbacks
     override fun onSeriesSelected(series: Series) {
         filterView?.addFilterItem(series)
     }
 
+    // FilterView.FilterCallback
+    override fun onFilterChanged(filter: SearchFilter) {
+        try {
+            supportFragmentManager.beginTransaction()
+                .replace(R.id.fragment_container, filter.getFragment(this))
+                .addToBackStack(null)
+                .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
+                .commit()
+        } catch (e: IllegalStateException) {
+            Log.d(TAG, "onFilterChanged: $e")
+        }
+    }
+
+    override fun hideKeyboard() {
+        val view = this.findViewById(android.R.id.content) as ContentFrameLayout
+        val inputMethodManager =
+            getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
+        inputMethodManager.hideSoftInputFromWindow(view.windowToken, 0)
+    }
+
+    override fun showKeyboard(focus: EditText) {
+        val inputMethodManager =
+            getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
+        inputMethodManager.showSoftInput(focus, 0)
+    }
+
+    // IssueListFragment.IssueListCallback
     override fun onIssueSelected(issueId: Int) {
         val fragment = IssueDetailFragment.newInstance(issueId, false)
         supportFragmentManager
@@ -193,13 +223,9 @@ class MainActivity : AppCompatActivity(), SeriesListFragment.SeriesListCallbacks
             .commit()
     }
 
+    // SeriesInfoDialogCallback
     override fun onSaveSeriesClick(dialog: DialogFragment, series: Series) {
         // TODO: MainActivity onSaveSeriesClick
-        dialog.dismiss()
-    }
-
-    override fun onSaveCreatorClick(dialog: DialogFragment, creator: Creator) {
-        // TODO: Not yet implemented
         dialog.dismiss()
     }
 
@@ -208,29 +234,10 @@ class MainActivity : AppCompatActivity(), SeriesListFragment.SeriesListCallbacks
         dialog.dismiss()
     }
 
-    override fun onFilterChanged(filter: SearchFilter) {
-        try {
-            supportFragmentManager.beginTransaction()
-                .replace(R.id.fragment_container, filter.getFragment(this))
-                .addToBackStack(null)
-                .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
-                .commit()
-        } catch (e: IllegalStateException) {
-            Log.d(TAG, "onFilterChanged: $e")
-        }
-    }
-
-    override fun hideKeyboard() {
-        val view = this.findViewById(android.R.id.content) as ContentFrameLayout
-        val inputMethodManager =
-            getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
-        inputMethodManager.hideSoftInputFromWindow(view.windowToken, 0)
-    }
-
-    override fun showKeyboard(focus: EditText) {
-        val inputMethodManager =
-            getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
-        inputMethodManager.showSoftInput(focus, 0)
+    // NewCreatorDialogCallback
+    override fun onSaveCreatorClick(dialog: DialogFragment, creator: Creator) {
+        // TODO: Not yet implemented
+        dialog.dismiss()
     }
 
     companion object {
@@ -246,13 +253,13 @@ class MainActivity : AppCompatActivity(), SeriesListFragment.SeriesListCallbacks
 
         fun getStateName(newState: Int): String {
             return when (newState) {
-                STATE_EXPANDED -> "EXPANDED"
+                STATE_EXPANDED      -> "EXPANDED"
                 STATE_HALF_EXPANDED -> "HALF-EXPANDED"
-                STATE_COLLAPSED -> "COLLAPSED"
-                STATE_DRAGGING -> "DRAGGING"
-                STATE_HIDDEN -> "HIDDEN"
-                STATE_SETTLING -> "SETTLING"
-                else -> "THAT'S ODD!"
+                STATE_COLLAPSED     -> "COLLAPSED"
+                STATE_DRAGGING      -> "DRAGGING"
+                STATE_HIDDEN        -> "HIDDEN"
+                STATE_SETTLING      -> "SETTLING"
+                else                -> "THAT'S ODD!"
             }
         }
 

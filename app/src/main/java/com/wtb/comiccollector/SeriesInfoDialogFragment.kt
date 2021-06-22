@@ -18,6 +18,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.wtb.comiccollector.database.models.Publisher
 import com.wtb.comiccollector.database.models.Series
 import com.wtb.comiccollector.views.SimpleTextWatcher
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import java.time.LocalDate
 import java.util.*
 
@@ -31,6 +32,7 @@ private const val DIALOG_END_DATE = "DialogEndDate"
 
 const val ARG_SERIES_ID = "seriesId"
 
+@ExperimentalCoroutinesApi
 class SeriesInfoDialogFragment private constructor() : DialogFragment(),
     DatePickerFragment.Callbacks {
 
@@ -38,7 +40,7 @@ class SeriesInfoDialogFragment private constructor() : DialogFragment(),
         ViewModelProvider(this).get(SeriesInfoViewModel::class.java)
     }
 
-    private lateinit var listener: SeriesInfoDialogListener
+    private lateinit var callback: SeriesInfoDialogCallback
     private lateinit var series: Series
     private lateinit var publisher: Publisher
     private lateinit var publisherList: List<Publisher>
@@ -53,7 +55,7 @@ class SeriesInfoDialogFragment private constructor() : DialogFragment(),
 
 
 
-    interface SeriesInfoDialogListener {
+    interface SeriesInfoDialogCallback {
         fun onSaveSeriesClick(dialog: DialogFragment, series: Series)
         fun onCancelClick(dialog: DialogFragment)
     }
@@ -61,7 +63,7 @@ class SeriesInfoDialogFragment private constructor() : DialogFragment(),
     override fun onAttach(context: Context) {
         super.onAttach(context)
         try {
-            listener = context as SeriesInfoDialogListener
+            callback = context as SeriesInfoDialogCallback
         } catch (e: ClassCastException) {
             throw java.lang.ClassCastException(("$context must implement NewSeriesDialogFragment"))
         }
@@ -213,11 +215,11 @@ class SeriesInfoDialogFragment private constructor() : DialogFragment(),
             // TODO: Deprecated
             targetFragment?.onActivityResult(targetRequestCode, Activity.RESULT_OK, intent)
 
-            listener.onSaveSeriesClick(this, series)
+            callback.onSaveSeriesClick(this, series)
         }
 
         cancelButton.setOnClickListener { view ->
-            listener.onCancelClick(this)
+            callback.onCancelClick(this)
         }
     }
 

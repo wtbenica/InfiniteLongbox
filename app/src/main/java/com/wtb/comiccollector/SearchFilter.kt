@@ -130,7 +130,7 @@ class SearchFilter(
         }
     }
 
-    fun getFragment(callback: SeriesListFragment.SeriesListCallbacks): Fragment =
+    fun getFragment(callback: SeriesListFragment.SeriesListCallback): Fragment =
         when (mSeries) {
             null -> SeriesListFragment.newInstance(callback, this)
             else -> IssueListFragment.newInstance(this)
