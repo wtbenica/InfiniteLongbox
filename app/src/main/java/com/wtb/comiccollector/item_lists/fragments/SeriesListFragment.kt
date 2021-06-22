@@ -60,9 +60,6 @@ class SeriesListFragment(var callback: SeriesListCallback? = null) : Fragment() 
         itemListRecyclerView = view.findViewById(R.id.results_frame) as RecyclerView
         itemListRecyclerView.layoutManager = LinearLayoutManager(context)
 
-        val itemDecoration = ItemOffsetDecoration(dpToPx(requireContext(), 8F).toInt())
-        itemListRecyclerView.addItemDecoration(itemDecoration)
-
         (requireActivity() as MainActivity).supportActionBar?.title = requireContext()
             .applicationInfo.loadLabel(requireContext().packageManager).toString()
 
