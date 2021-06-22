@@ -28,7 +28,7 @@ import kotlinx.coroutines.launch
 private const val TAG = APP + "SeriesListFragment"
 
 @ExperimentalCoroutinesApi
-class SeriesListFragment(var callback: SeriesListCallbacks? = null) : Fragment() {
+class SeriesListFragment(var callback: SeriesListCallback? = null) : Fragment() {
 
     private val viewModel: SeriesListViewModel by lazy {
         ViewModelProvider(this).get(SeriesListViewModel::class.java)
@@ -36,18 +36,20 @@ class SeriesListFragment(var callback: SeriesListCallbacks? = null) : Fragment()
 
     private var filter = SearchFilter()
         set(value) {
+            Log.d(TAG, "** Setting filter $value")
             field = value
             viewModel.setFilter(filter)
         }
     private lateinit var itemListRecyclerView: RecyclerView
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        Log.d(TAG, "Creating")
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
 
         filter = arguments?.getSerializable(ARG_FILTER) as SearchFilter
+        Log.d(TAG, "Loaded $filter")
     }
-
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -57,9 +59,6 @@ class SeriesListFragment(var callback: SeriesListCallbacks? = null) : Fragment()
 
         itemListRecyclerView = view.findViewById(R.id.results_frame) as RecyclerView
         itemListRecyclerView.layoutManager = LinearLayoutManager(context)
-
-        val itemDecoration = ItemOffsetDecoration(dpToPx(requireContext(), 8F).toInt())
-        itemListRecyclerView.addItemDecoration(itemDecoration)
 
         (requireActivity() as MainActivity).supportActionBar?.title = requireContext()
             .applicationInfo.loadLabel(requireContext().packageManager).toString()
@@ -74,8 +73,7 @@ class SeriesListFragment(var callback: SeriesListCallbacks? = null) : Fragment()
         itemListRecyclerView.adapter = adapter
 
         lifecycleScope.launch {
-            viewModel.seriesList()?.collectLatest {
-                Log.d(TAG, "Updating series list")
+            viewModel.seriesList.collectLatest {
                 adapter.submitData(it) }
         }
     }
@@ -140,14 +138,14 @@ class SeriesListFragment(var callback: SeriesListCallbacks? = null) : Fragment()
         }
     }
 
-    interface SeriesListCallbacks {
+    interface SeriesListCallback {
         fun onSeriesSelected(series: Series)
     }
 
     companion object {
         @JvmStatic
         fun newInstance(
-            callback: SeriesListCallbacks,
+            callback: SeriesListCallback,
             filter: SearchFilter
         ): SeriesListFragment {
             return SeriesListFragment(callback).apply {

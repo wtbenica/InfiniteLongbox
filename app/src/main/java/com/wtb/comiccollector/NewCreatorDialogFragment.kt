@@ -32,7 +32,7 @@ const val ARG_CREATOR_ID = "seriesId"
 class NewCreatorDialogFragment : DialogFragment(),
     DatePickerFragment.Callbacks {
 
-    private lateinit var listener: NewCreatorDialogListener
+    private lateinit var callback: NewCreatorDialogCallback
 
     private lateinit var firstNameEditText: EditText
     private lateinit var middleNameEditText: EditText
@@ -47,7 +47,7 @@ class NewCreatorDialogFragment : DialogFragment(),
         ViewModelProvider(this).get(IssueDetailViewModel::class.java)
     }
 
-    interface NewCreatorDialogListener {
+    interface NewCreatorDialogCallback {
         fun onSaveCreatorClick(dialog: DialogFragment, creator: Creator)
         fun onCancelClick(dialog: DialogFragment)
     }
@@ -55,7 +55,7 @@ class NewCreatorDialogFragment : DialogFragment(),
     override fun onAttach(context: Context) {
         super.onAttach(context)
         try {
-            listener = context as NewCreatorDialogListener
+            callback = context as NewCreatorDialogCallback
         } catch (e: ClassCastException) {
             throw java.lang.ClassCastException(("$context must implement NewCreatorDialogFragment"))
         }
@@ -142,11 +142,11 @@ class NewCreatorDialogFragment : DialogFragment(),
             val intent = Intent().putExtras(bundle)
             targetFragment?.onActivityResult(targetRequestCode, Activity.RESULT_OK, intent)
 
-            listener.onSaveCreatorClick(this, creator)
+            callback.onSaveCreatorClick(this, creator)
         }
 
         cancelButton.setOnClickListener { view ->
-            listener.onCancelClick(this)
+            callback.onCancelClick(this)
         }
     }
 

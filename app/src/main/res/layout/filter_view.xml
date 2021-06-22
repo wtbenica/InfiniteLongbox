@@ -3,23 +3,23 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:animateLayoutChanges="true">
+    android:layout_height="wrap_content">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:animateLayoutChanges="true"
-        android:background="?attr/colorPrimaryLightMuted">
+        android:background="@drawable/bottom_sheet">
 
         <androidx.cardview.widget.CardView
             android:id="@+id/switch_card_view"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:animateLayoutChanges="true"
+            app:cardElevation="0dp"
+            app:layout_constraintBottom_toTopOf="@id/sort_card_view"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
+            app:layout_constraintStart_toStartOf="parent">
 
             <androidx.appcompat.widget.SwitchCompat
                 android:id="@+id/my_collection_switch"
@@ -29,8 +29,7 @@
                 android:checked="true"
                 android:paddingStart="@dimen/item_series_padding"
                 android:paddingEnd="@dimen/item_series_padding"
-                android:text="@string/my_collection"
-                tools:visibility="visible" />
+                android:text="@string/my_collection" />
         </androidx.cardview.widget.CardView>
 
         <androidx.cardview.widget.CardView
@@ -38,10 +37,10 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:animateLayoutChanges="true"
+            app:cardElevation="0dp"
+            app:layout_constraintBottom_toTopOf="@id/filter_card_view"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/switch_card_view"
-            tools:visibility="visible">
+            app:layout_constraintStart_toStartOf="parent">
 
             <LinearLayout
                 android:layout_width="wrap_content"
@@ -58,10 +57,8 @@
                     android:animateLayoutChanges="true"
                     android:contentDescription="@string/sort_image_content_description"
                     android:labelFor="@id/sort_chip_group"
-                    android:visibility="visible"
                     app:srcCompat="@drawable/ic_baseline_sort_24"
-                    app:tint="@android:color/primary_text_light"
-                    tools:visibility="visible" />
+                    app:tint="@android:color/primary_text_light" />
 
                 <HorizontalScrollView
                     android:layout_width="match_parent"
@@ -111,10 +108,10 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:animateLayoutChanges="true"
+            app:cardElevation="0dp"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/sort_card_view"
-            tools:visibility="visible">
+            app:layout_constraintStart_toStartOf="parent">
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/filter_contraint_layout"
@@ -127,17 +124,14 @@
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:layout_marginStart="@dimen/margin_outside"
-                    android:layout_marginEnd="@dimen/margin_outside"
                     android:animateLayoutChanges="true"
                     android:contentDescription="@string/sort_image_content_description"
                     android:labelFor="@id/sort_chip_group"
-                    android:visibility="visible"
                     app:layout_constraintBottom_toBottomOf="@id/filter_chip_scrollview"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="@id/filter_chip_scrollview"
                     app:srcCompat="@drawable/ic_filter"
-                    app:tint="@android:color/primary_text_light"
-                    tools:visibility="visible" />
+                    app:tint="@android:color/primary_text_light" />
 
                 <HorizontalScrollView
                     android:id="@+id/filter_chip_scrollview"
@@ -162,9 +156,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Doom Patrol"
-                            android:visibility="gone"
-                            app:closeIconEnabled="true"
-                            tools:visibility="visible" />
+                            app:closeIconEnabled="true" />
 
                     </com.google.android.material.chip.ChipGroup>
                 </HorizontalScrollView>

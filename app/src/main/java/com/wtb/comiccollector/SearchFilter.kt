@@ -130,7 +130,7 @@ class SearchFilter(
         }
     }
 
-    fun getFragment(callback: SeriesListFragment.SeriesListCallbacks): Fragment =
+    fun getFragment(callback: SeriesListFragment.SeriesListCallback): Fragment =
         when (mSeries) {
             null -> SeriesListFragment.newInstance(callback, this)
             else -> IssueListFragment.newInstance(this)
@@ -176,7 +176,7 @@ class SearchFilter(
 
     override fun toString(): String =
         "Series: $mSeries Creators: ${mCreators.size} Pubs: " +
-                "${mPublishers.size} MyCol: $mMyCollection"
+                "${mPublishers.size} MyCol: $mMyCollection T: ${mTextFilter?.text}"
 
 //    companion object {
 //        fun deserialize(str: String?): MutableSet<Int> {

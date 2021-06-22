@@ -15,18 +15,16 @@
         <item name="colorOnSecondary">@color/amnesia_text</item>
 
         <!-- Status bar color. -->
-        <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimary</item>
-
+        <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimaryDark</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
         <!-- Customize your theme here. -->
         <item name="android:textColor">?attr/colorOnPrimary</item>
-        <item name="android:windowBackground">@color/white</item>
-        <item name="actionBarStyle">@style/myActionBarStyle</item>
+        <item name="android:windowBackground">#FEFEFE</item>
         <item name="cardViewStyle">@style/mCardView</item>
         <item name="materialButtonStyle">@style/myButtonStyle</item>
         <item name="android:spinnerStyle">@style/mySpinnerStyle</item>
         <item name="android:buttonBarButtonStyle">@style/myButtonBarButtonStyle</item>
         <item name="android:buttonBarStyle">@style/myButtonBarStyle</item>
-        <item name="android:toolbarStyle">@style/myActionBarStyle</item>
         <item name="switchStyle">@style/mySwitchStyle</item>
         <item name="chipStyle">@style/myNewChip</item>
         <item name="floatingActionButtonStyle">@style/myFabStyle</item>

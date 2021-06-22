@@ -69,8 +69,6 @@ class IssueDetailFragment : Fragment() {
     private lateinit var issueVariants: List<Issue>
 
     private lateinit var coverImageView: ImageView
-    private lateinit var seriesTextView: TextView
-    private lateinit var issueNumTextView: TextView
     private lateinit var collectionButton: Button
     private lateinit var variantSpinner: Spinner
     private var isVariant: Boolean = false
@@ -133,9 +131,7 @@ class IssueDetailFragment : Fragment() {
 
         val view = inflater.inflate(R.layout.fragment_display_issue, container, false)
 
-        seriesTextView = view.findViewById(R.id.issue_series) as TextView
         coverImageView = view.findViewById(R.id.issue_cover) as ImageView
-        issueNumTextView = view.findViewById(R.id.issue_number) as TextView
         issueCreditsFrame = view.findViewById(R.id.issue_credits_table) as ScrollView
         releaseDateTextView = view.findViewById(R.id.release_date_text_view)
         gcdLinkButton = view.findViewById(R.id.gcd_link) as Button
@@ -392,10 +388,6 @@ class IssueDetailFragment : Fragment() {
 
         if (fullIssue.issue.issueId != DUMMY_ID) {
             numUpdates += 1
-
-            seriesTextView.text = fullIssue.series.seriesName
-
-            issueNumTextView.text = fullIssue.issue.issueNum.toString()
 
             this.fullIssue.issue.releaseDate?.format(DateTimeFormatter.ofPattern("MMM d, y"))
                 ?.let { releaseDateTextView.text = it }

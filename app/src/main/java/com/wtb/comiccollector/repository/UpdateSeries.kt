@@ -14,12 +14,12 @@ import java.net.SocketTimeoutException
 
 private const val TAG = APP + "UpdateSeries"
 
+@ExperimentalCoroutinesApi
 class UpdateSeries(
     private val webservice: Webservice,
     val database: IssueDatabase,
     val prefs: SharedPreferences
 ) : Updater() {
-    @ExperimentalCoroutinesApi
     internal fun update(seriesId: Int) {
         Log.d(TAG, "About to get series $seriesId issues")
         if (checkIfStale(SERIES_TAG(seriesId), SERIES_LIST_LIFETIME, prefs)) {

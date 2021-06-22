@@ -25,11 +25,11 @@ abstract class CreatorDao : BaseDao<Creator>() {
         tableJoinString +=
             "SELECT DISTINCT cr.* " +
                     "FROM creator cr " +
-                    "JOIN nameDetail nd ON cr.creatorId = nd.creatorId " +
-                    "JOIN credit ct ON ct.nameDetailId = nd.nameDetailId " +
-                    "JOIN story sy ON ct.storyId = sy.storyId " +
-                    "JOIN issue ie ON ie.issueId = sy.issueId " +
-                    "JOIN series ss ON ie.seriesId = ss.seriesId "
+                    "LEFT JOIN nameDetail nd ON cr.creatorId = nd.creatorId " +
+                    "LEFT JOIN credit ct ON ct.nameDetailId = nd.nameDetailId " +
+                    "LEFT JOIN story sy ON ct.storyId = sy.storyId " +
+                    "LEFT JOIN issue ie ON ie.issueId = sy.issueId " +
+                    "LEFT JOIN series ss ON ie.seriesId = ss.seriesId "
 
         conditionsString += "WHERE cr.creatorId != $DUMMY_ID "
 
@@ -39,7 +39,7 @@ abstract class CreatorDao : BaseDao<Creator>() {
 
         if (filter.hasPublisher()) {
             tableJoinString +=
-                "JOIN publisher pr ON ss.publisherId = pr.publisherId "
+                "LEFT JOIN publisher pr ON ss.publisherId = pr.publisherId "
 
             val publisherList = modelsToSqlIdString(filter.mPublishers)
 
@@ -54,8 +54,8 @@ abstract class CreatorDao : BaseDao<Creator>() {
         }
 
         if (filter.mMyCollection) {
-            tableJoinString += "JOIN issue ie2 on ie2.seriesId = ss.seriesId " +
-                    "JOIN mycollection mc ON mc.issueId = ie2.issueId "
+            tableJoinString += "LEFT JOIN issue ie2 on ie2.seriesId = ss.seriesId " +
+                    "LEFT JOIN mycollection mc ON mc.issueId = ie2.issueId "
         }
 
         val query = SimpleSQLiteQuery(
