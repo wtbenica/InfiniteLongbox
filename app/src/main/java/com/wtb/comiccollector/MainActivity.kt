@@ -13,8 +13,10 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.ContentFrameLayout
+import androidx.appcompat.widget.Toolbar
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.view.*
 import androidx.fragment.app.DialogFragment
@@ -52,7 +54,7 @@ class MainActivity : AppCompatActivity(), SeriesListFragment.SeriesListCallback,
 
     private var filterView: FilterView? = null
     private var bottomSheetBehavior: BottomSheetBehavior<*>? = null
-
+    private var toolbar: Toolbar? = null
     private var posBottom = 0
     private var posTop = 0
 
@@ -60,7 +62,8 @@ class MainActivity : AppCompatActivity(), SeriesListFragment.SeriesListCallback,
         setTheme(R.style.Theme_ComicCollector)
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main2)
-        setSupportActionBar(findViewById(R.id.action_bar))
+        toolbar = findViewById(R.id.action_bar)
+        setSupportActionBar(toolbar)
         WindowCompat.setDecorFitsSystemWindows(window, false)
 
         val currentFragment = supportFragmentManager.findFragmentById(R.id.fragment_container)
@@ -168,8 +171,9 @@ class MainActivity : AppCompatActivity(), SeriesListFragment.SeriesListCallback,
     // FilterView.FilterCallback
     override fun onFilterChanged(filter: SearchFilter) {
         try {
+            val fragment = filter.getFragment(this)
             supportFragmentManager.beginTransaction()
-                .replace(R.id.fragment_container, filter.getFragment(this))
+                .replace(R.id.fragment_container, fragment)
                 .addToBackStack(null)
                 .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
                 .commit()
@@ -205,6 +209,23 @@ class MainActivity : AppCompatActivity(), SeriesListFragment.SeriesListCallback,
             .replace(R.id.fragment_container, fragment)
             .addToBackStack(null)
             .commit()
+
+        val tt = object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                bottomSheetBehavior?.apply {
+                    state = STATE_COLLAPSED
+                    isHideable = false
+                }
+                supportFragmentManager.popBackStack()
+            }
+        }
+
+        this.onBackPressedDispatcher.addCallback(fragment, tt)
+
+        bottomSheetBehavior?.apply {
+            isHideable = true
+            state = STATE_HIDDEN
+        }
     }
 
     override fun onNewIssue(issueId: Int) {

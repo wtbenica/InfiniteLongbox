@@ -5,9 +5,10 @@ import android.os.Bundle
 import android.util.TypedValue
 import android.view.*
 import android.widget.ImageView
-import android.widget.LinearLayout
+import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.cardview.widget.CardView
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentTransaction
 import androidx.fragment.app.viewModels
@@ -122,9 +123,10 @@ class IssueListFragment : Fragment() {
 
         private var fullIssue: FullIssue? = null
 
+        private val progressCover: ProgressBar = itemView.findViewById(R.id.progress_cover_download)
         private val coverImageView: ImageView = itemView.findViewById(R.id.list_item_cover)
         private val issueNumTextView: TextView = itemView.findViewById(R.id.list_item_issue)
-        private val wrapper = itemView.findViewById<LinearLayout>(R.id.wrapper)
+        private val wrapper: ConstraintLayout = itemView.findViewById(R.id.wrapper)
         private val layout: CardView = itemView.findViewById(R.id.layout)
 
         init {
@@ -136,6 +138,14 @@ class IssueListFragment : Fragment() {
             this.fullIssue?.let { issueListViewModel.updateIssueCover(it) }
             val coverUri = this.fullIssue?.coverUri
 
+            if (fullIssue?.cover != null) {
+                this.progressCover.visibility = ViewGroup.GONE
+                this.coverImageView.visibility = ViewGroup.VISIBLE
+            } else {
+                this.progressCover.visibility = ViewGroup.VISIBLE
+                this.coverImageView.visibility = ViewGroup.INVISIBLE
+            }
+
             if (coverUri != null) {
                 this.coverImageView.setImageURI(coverUri)
             } else {
@@ -146,10 +156,10 @@ class IssueListFragment : Fragment() {
             context?.theme?.resolveAttribute(R.attr.colorPrimaryMuted, value, true)
 
             if (fullIssue?.myCollection?.collectionId != null) {
-                wrapper.setBackgroundResource(R.drawable.card_background_in_collection)
+                wrapper.setBackgroundResource(R.drawable.list_item_issue_card_background_in_collection)
                 layout.cardElevation = 32F
             } else {
-                wrapper.setBackgroundResource(R.drawable.card_background_regular)
+                wrapper.setBackgroundResource(R.drawable.list_item_issue_card_background)
                 layout.cardElevation = 1F
             }
 
