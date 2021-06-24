@@ -1,5 +1,6 @@
 package com.wtb.comiccollector
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.wtb.comiccollector.database.models.FilterOption
 import com.wtb.comiccollector.repository.Repository
@@ -40,6 +41,7 @@ class FilterViewModel : ViewModel() {
     }
 
     fun addFilterItem(item: FilterOption) {
+        Log.d(TAG, "ADDING ITEM: $item")
         val newVal = SearchFilter(_filter.value)
         newVal.addFilter(item)
         _filter.value = newVal

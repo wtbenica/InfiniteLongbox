@@ -18,6 +18,7 @@ import androidx.appcompat.widget.ContentFrameLayout
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.view.*
 import androidx.fragment.app.DialogFragment
+import androidx.fragment.app.FragmentContainerView
 import androidx.fragment.app.FragmentTransaction
 import androidx.lifecycle.MutableLiveData
 import com.google.android.material.bottomsheet.BottomSheetBehavior
@@ -27,7 +28,8 @@ import com.wtb.comiccollector.database.models.Series
 import com.wtb.comiccollector.issue_details.fragments.IssueDetailFragment
 import com.wtb.comiccollector.item_lists.fragments.IssueListFragment
 import com.wtb.comiccollector.item_lists.fragments.SeriesListFragment
-import com.wtb.comiccollector.views.FilterView
+import com.wtb.comiccollector.views.FilterFragment
+import com.wtb.comiccollector.views.P_H
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 
@@ -44,13 +46,15 @@ fun dpToPx(context: Context, dp: Number): Float {
 }
 
 @ExperimentalCoroutinesApi
-class MainActivity : AppCompatActivity(), SeriesListFragment.SeriesListCallback,
-    FilterView.FilterCallback,
+class MainActivity : AppCompatActivity(),
+    SeriesListFragment.SeriesListCallback,
     IssueListFragment.IssueListCallback,
     SeriesInfoDialogFragment.SeriesInfoDialogCallback,
-    NewCreatorDialogFragment.NewCreatorDialogCallback {
+    NewCreatorDialogFragment.NewCreatorDialogCallback, FilterFragment.FilterFragmentCallback {
 
-    private var filterView: FilterView? = null
+    private var filterFragment: FilterFragment? = null
+    private var fragmentContainer: FragmentContainerView? = null
+    private var filterFragmentContainer: FragmentContainerView? = null
     private var bottomSheetBehavior: BottomSheetBehavior<*>? = null
 
     private var posBottom = 0
@@ -63,6 +67,8 @@ class MainActivity : AppCompatActivity(), SeriesListFragment.SeriesListCallback,
         setSupportActionBar(findViewById(R.id.action_bar))
         WindowCompat.setDecorFitsSystemWindows(window, false)
 
+        fragmentContainer = findViewById(R.id.fragment_container)
+
         val currentFragment = supportFragmentManager.findFragmentById(R.id.fragment_container)
 
         if (currentFragment == null) {
@@ -73,6 +79,17 @@ class MainActivity : AppCompatActivity(), SeriesListFragment.SeriesListCallback,
                 .commit()
         }
 
+        filterFragment = supportFragmentManager.findFragmentById(R.id.filter_fragment_container) as
+                FilterFragment?
+
+        if (filterFragment == null) {
+            val fragment = FilterFragment.newInstance(this, dpToPx(this, P_H).toInt())
+            supportFragmentManager
+                .beginTransaction()
+                .add(R.id.filter_fragment_container, fragment)
+                .commit()
+            filterFragment = fragment
+        }
         val root: CoordinatorLayout = findViewById(R.id.main_layout)
         initWindowInsets(root, true, false)
         initBottomSheet()
@@ -80,19 +97,23 @@ class MainActivity : AppCompatActivity(), SeriesListFragment.SeriesListCallback,
     }
 
     private fun initBottomSheet() {
-        filterView = findViewById<FilterView>(R.id.filter_view)?.apply {
-            callback = this@MainActivity
-        }
+        filterFragmentContainer = findViewById(R.id.filter_fragment_container)
 
-        filterView?.let {
-            if (it.behavior is BottomSheetBehavior<*>) {
-                bottomSheetBehavior = it.behavior as BottomSheetBehavior<*>
+        bottomSheetBehavior = filterFragmentContainer?.let { from(it) }
+
+        bottomSheetBehavior?.peekHeight = dpToPx(this, P_H).toInt()
+
+        bottomSheetBehavior?.addBottomSheetCallback(object : BottomSheetCallback() {
+            override fun onStateChanged(bottomSheet: View, newState: Int) {
+                Log.d(TAG, "onStateChanged: ${getStateName(newState)}")
+                filterFragment?.visibleState = newState
             }
-        }
 
-        bottomSheetBehavior?.let {
-            filterView?.visibleState = it.state
-        }
+            override fun onSlide(bottomSheet: View, slideOffset: Float) {
+
+            }
+
+        })
     }
 
     private fun initNetwork() {
@@ -162,10 +183,11 @@ class MainActivity : AppCompatActivity(), SeriesListFragment.SeriesListCallback,
 
     // SeriesListFragment.SeriesListCallbacks
     override fun onSeriesSelected(series: Series) {
-        filterView?.addFilterItem(series)
+        Log.d(TAG, "ADDING SERIES $series")
+        filterFragment?.addFilterItem(series)
     }
 
-    // FilterView.FilterCallback
+    // FilterFragmentCallback
     override fun onFilterChanged(filter: SearchFilter) {
         try {
             supportFragmentManager.beginTransaction()
