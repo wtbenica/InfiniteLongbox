@@ -35,9 +35,10 @@
             android:id="@+id/story_dropdown_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="#00000000"
+            android:background="@android:color/transparent"
             android:contentDescription="@string/story_dropdown_button"
-            app:srcCompat="@drawable/ic_baseline_arrow_drop_down_24" />
+            app:srcCompat="@drawable/ic_baseline_arrow_drop_down_24"
+            app:tint="@android:color/white" />
 
     </LinearLayout>
 
@@ -83,9 +84,11 @@
                     android:id="@+id/synopsis_dropdown_button"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:background="#00000000"
+                    android:background="@android:color/transparent"
                     android:contentDescription="@string/synopsis_dropdown_button"
-                    app:srcCompat="@drawable/ic_baseline_arrow_drop_down_24" />
+                    app:srcCompat="@drawable/ic_baseline_arrow_drop_down_24"
+                    app:tint="@android:color/white" />
+
 
             </LinearLayout>
 
@@ -131,9 +134,11 @@
                     android:id="@+id/characters_dropdown_button"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:background="#00000000"
+                    android:background="@android:color/transparent"
                     android:contentDescription="@string/characters_dropdown_button"
-                    app:srcCompat="@drawable/ic_baseline_arrow_drop_down_24" />
+                    app:srcCompat="@drawable/ic_baseline_arrow_drop_down_24"
+                    app:tint="@android:color/white" />
+
 
             </LinearLayout>
 

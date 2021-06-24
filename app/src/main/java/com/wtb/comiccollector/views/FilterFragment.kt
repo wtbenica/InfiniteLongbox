@@ -60,27 +60,6 @@ class FilterFragment(var callback: FilterFragmentCallback? = null) : Fragment(),
     internal var visibleState: Int = BottomSheetBehavior.STATE_COLLAPSED
         set(value) {
             field = value
-//            when (field) {
-//                BottomSheetBehavior.STATE_COLLAPSED -> {
-//                    handle.visibility = ViewGroup.VISIBLE
-//                    handle.updateLayoutParams<ViewGroup.MarginLayoutParams> {
-//                        val margin = resources.getDimension(R.dimen.item_series_padding).toInt()
-//                        updateMargins(top = margin, bottom = margin)
-//                    }
-//                    switchCardView.visibility = ViewGroup.INVISIBLE
-//                    sortCardView.visibility = ViewGroup.INVISIBLE
-//                    filterCardView.visibility = ViewGroup.INVISIBLE
-//                }
-//                BottomSheetBehavior.STATE_EXPANDED  -> {
-//                    handle.visibility = ViewGroup.INVISIBLE
-//                    handle.updateLayoutParams<ViewGroup.MarginLayoutParams> {
-//                        updateMargins(top = 0, bottom = 0)
-//                    }
-//                    switchCardView.visibility = ViewGroup.VISIBLE
-//                    sortCardView.visibility = ViewGroup.VISIBLE
-//                    filterCardView.visibility = ViewGroup.VISIBLE
-//                }
-//            }
         }
 
     private val viewModel: FilterViewModel by viewModels()
@@ -251,6 +230,13 @@ class FilterFragment(var callback: FilterFragmentCallback? = null) : Fragment(),
     // ChippyCallback
     override fun chipClosed(view: View, item: FilterOption) {
         viewModel.removeFilterItem(item)
+    }
+
+    fun onSlide(slideOffset: Float) {
+        handle.alpha = 1 - slideOffset
+        switchCardView.alpha = slideOffset
+        sortCardView.alpha = slideOffset
+        filterCardView.alpha = slideOffset
     }
 
     class FilterOptionsAdapter(ctx: Context, filterOptions: List<FilterOption>) :

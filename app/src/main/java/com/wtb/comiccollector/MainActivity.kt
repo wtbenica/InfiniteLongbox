@@ -113,7 +113,7 @@ class MainActivity : AppCompatActivity(),
             }
 
             override fun onSlide(bottomSheet: View, slideOffset: Float) {
-
+                filterFragment?.onSlide(slideOffset)
             }
 
         })

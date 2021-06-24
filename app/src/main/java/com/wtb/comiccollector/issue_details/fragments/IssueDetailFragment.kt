@@ -436,10 +436,6 @@ class IssueDetailFragment : Fragment() {
         fun displayCredit() {
             this.removeAllViews()
             val stories = combineCredits(issueStories, variantStories)
-            Log.d(
-                TAG,
-                "DISPLAY STORIES ${stories.size} ${issueStories.size} ${variantStories.size}"
-            )
             stories.forEach { story ->
                 this.addView(StoryRow(context, story))
                 val credits = issueCredits + variantCredits
@@ -470,6 +466,8 @@ class IssueDetailFragment : Fragment() {
 
     inner class StoryRow(context: Context, val story: Story) : LinearLayout(context) {
         init {
+            var hasAddedInfo = false
+
             orientation = VERTICAL
             layoutParams = LayoutParams(MATCH_PARENT, WRAP_CONTENT)
 
@@ -480,6 +478,7 @@ class IssueDetailFragment : Fragment() {
             storyDetailButton.setOnClickListener(toggleVisibility(storyDetailBox))
 
             if (story.synopsis != null && story.synopsis != "") {
+                hasAddedInfo = true
                 val synopsisButton: ImageButton =
                     findViewById(R.id.synopsis_dropdown_button)
                 val synopsis = findViewById<TextView>(R.id.synopsis)
@@ -491,6 +490,7 @@ class IssueDetailFragment : Fragment() {
             }
 
             if (story.characters != null && story.characters != "") {
+                hasAddedInfo = true
                 val charactersButton: ImageButton =
                     findViewById(R.id.characters_dropdown_button)
                 val characters = findViewById<TextView>(R.id.characters)
@@ -500,11 +500,18 @@ class IssueDetailFragment : Fragment() {
                 val charactersBox = findViewById<LinearLayout>(R.id.characters_box)
                 charactersBox.visibility = GONE
             }
+
             val storyTitle = findViewById<TextView>(R.id.story_title)
             storyTitle.text = if (story.storyType == STORY_TYPE_COVER) {
                 "Cover"
             } else {
                 story.title
+            }
+
+            if (!hasAddedInfo) {
+                storyDetailButton.visibility = GONE
+            } else {
+                storyDetailButton.visibility = VISIBLE
             }
         }
 
