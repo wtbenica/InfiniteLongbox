@@ -34,7 +34,7 @@ abstract class IssueDao : BaseDao<Issue>() {
                 FROM issue ie 
                 JOIN series ss ON ie.seriesId = ss.seriesId 
                 JOIN publisher pr ON ss.publisherId = pr.publisherId 
-                LEFT JOIN cover cr ON ie.issueId = cr.coverId """
+                LEFT JOIN cover cr ON ie.issueId = cr.issueId """
 
         conditionsString +=
             "WHERE ss.seriesId = ${filter.mSeries?.seriesId} "
@@ -96,7 +96,7 @@ abstract class IssueDao : BaseDao<Issue>() {
         JOIN series ss ON ie.seriesId = ss.seriesId 
         JOIN publisher pr ON ss.publisherId = pr.publisherId
         LEFT JOIN mycollection mn ON ie.issueId = mn.issueId
-        LEFT JOIN cover cr ON ie.issueId = cr.coverId
+        LEFT JOIN cover cr ON ie.issueId = cr.issueId
         WHERE ie.issueId=:issueId"""
     )
     abstract fun getFullIssue(issueId: Int): Flow<FullIssue?>
@@ -170,7 +170,7 @@ abstract class IssueDao : BaseDao<Issue>() {
         JOIN series ss ON ie.seriesId = ss.seriesId 
         JOIN publisher pr ON ss.publisherId = pr.publisherId
         LEFT JOIN mycollection mn ON ie.issueId = mn.issueId
-        LEFT JOIN cover cr ON ie.issueId = cr.coverId
+        LEFT JOIN cover cr ON ie.issueId = cr.issueId
         WHERE ie.issueId=:issueId"""
     )
     abstract suspend fun getIssueSus(issueId: Int): FullIssue?

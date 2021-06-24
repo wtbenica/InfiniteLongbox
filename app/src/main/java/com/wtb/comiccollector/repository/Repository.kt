@@ -245,7 +245,7 @@ class Repository private constructor(val context: Context) {
             }
         }
 
-        series?.let {
+       series?.let {
             if (hasConnection) {
                 UpdateSeries(webservice = apiService, database = database, prefs = prefs)
                     .update(seriesId = it.seriesId)
