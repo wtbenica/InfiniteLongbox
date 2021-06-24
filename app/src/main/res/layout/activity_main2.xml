@@ -38,7 +38,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:behavior_hideable="false"
-        android:layout_gravity="top"
         app:layout_behavior="@string/bottom_sheet_behavior"
         tools:layout="@layout/fragment_filter" />
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

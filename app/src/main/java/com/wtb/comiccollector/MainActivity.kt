@@ -14,6 +14,7 @@ import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import androidx.activity.OnBackPressedCallback
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.ContentFrameLayout
 import androidx.appcompat.widget.Toolbar
@@ -23,6 +24,8 @@ import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentContainerView
 import androidx.fragment.app.FragmentTransaction
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.lifecycleScope
+import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetBehavior.*
 import com.wtb.comiccollector.database.models.Creator
@@ -32,8 +35,8 @@ import com.wtb.comiccollector.item_lists.fragments.IssueListFragment
 import com.wtb.comiccollector.item_lists.fragments.SeriesListFragment
 import com.wtb.comiccollector.views.FilterFragment
 import com.wtb.comiccollector.views.P_H
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.Job
+import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.collectLatest
 import java.lang.Integer.max
 
 const val APP = "CC_"
@@ -57,8 +60,13 @@ class MainActivity : AppCompatActivity(),
     FilterFragment.FilterFragmentCallback {
 
     private var filterFragment: FilterFragment? = null
+    private val filterViewModel: FilterViewModel by viewModels()
+    private var prevFilter: SearchFilter? = null
+    private var filter: SearchFilter? = null
+
     private var fragmentContainer: FragmentContainerView? = null
     private var filterFragmentContainer: FragmentContainerView? = null
+
     private var bottomSheetBehavior: BottomSheetBehavior<*>? = null
     private var toolbar: Toolbar? = null
 
@@ -69,6 +77,33 @@ class MainActivity : AppCompatActivity(),
         toolbar = findViewById(R.id.action_bar)
         setSupportActionBar(toolbar)
         WindowCompat.setDecorFitsSystemWindows(window, false)
+
+        lifecycleScope.launch {
+            filterViewModel.filter.collectLatest { filter ->
+                this@MainActivity.filter = filter
+
+                try {
+                    if (prevFilter?.returnsIssueList() != this@MainActivity.filter?.returnsIssueList()) {
+                        val fragment = filter.getFragment(this@MainActivity)
+                        supportFragmentManager.beginTransaction()
+                            .replace(R.id.fragment_container, fragment)
+                            .addToBackStack(null)
+                            .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
+                            .commit()
+
+                        val tt = object : OnBackPressedCallback(true) {
+                            override fun handleOnBackPressed() {
+                                filterFragment?.onBackPressed()
+                            }
+                        }
+
+                        onBackPressedDispatcher.addCallback(fragment, tt)
+                    }
+                } catch (e: IllegalStateException) {
+                    Log.d(TAG, "onFilterChanged: $e")
+                }
+            }
+        }
 
         fragmentContainer = findViewById(R.id.fragment_container)
 
@@ -170,7 +205,7 @@ class MainActivity : AppCompatActivity(),
             val bottom = max(posBottom, imeInsetBottom)
 
             view.updateLayoutParams<ViewGroup.MarginLayoutParams> {
-                    updateMargins(top = posTop, bottom = bottom)
+                updateMargins(top = posTop, bottom = bottom)
             }
 
             insets
@@ -181,30 +216,6 @@ class MainActivity : AppCompatActivity(),
     override fun onSeriesSelected(series: Series) {
         Log.d(TAG, "ADDING SERIES $series")
         filterFragment?.addFilterItem(series)
-    }
-
-    // FilterFragmentCallback
-    override fun onFilterChanged(filter: SearchFilter) {
-        try {
-            val fragment = filter.getFragment(this)
-            supportFragmentManager.beginTransaction()
-                .replace(R.id.fragment_container, fragment)
-                .addToBackStack(null)
-                .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
-                .commit()
-
-            val tt = object: OnBackPressedCallback(true) {
-                override fun handleOnBackPressed() {
-                    filterFragment?.onBackPressed()
-//
-//                    supportFragmentManager.popBackStack()
-                }
-            }
-
-            onBackPressedDispatcher.addCallback(fragment, tt)
-        } catch (e: IllegalStateException) {
-            Log.d(TAG, "onFilterChanged: $e")
-        }
     }
 
     override fun hideKeyboard() {
@@ -235,17 +246,29 @@ class MainActivity : AppCompatActivity(),
             .addToBackStack(null)
             .commit()
 
+        supportActionBar?.isHideOnContentScrollEnabled = false
+
         val tt = object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 bottomSheetBehavior?.apply {
                     state = STATE_COLLAPSED
                     isHideable = false
                 }
+
+                toolbar?.updateLayoutParams<AppBarLayout.LayoutParams> {
+                    scrollFlags =
+                        AppBarLayout.LayoutParams.SCROLL_FLAG_SCROLL or AppBarLayout.LayoutParams.SCROLL_FLAG_ENTER_ALWAYS
+                }
+
                 supportFragmentManager.popBackStack()
             }
         }
 
         this.onBackPressedDispatcher.addCallback(fragment, tt)
+
+        toolbar?.updateLayoutParams<AppBarLayout.LayoutParams> {
+            scrollFlags = AppBarLayout.LayoutParams.SCROLL_FLAG_NO_SCROLL
+        }
 
         bottomSheetBehavior?.apply {
             isHideable = true

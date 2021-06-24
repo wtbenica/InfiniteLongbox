@@ -12,7 +12,6 @@ import androidx.cardview.widget.CardView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.content.res.ResourcesCompat
-import androidx.core.view.children
 import androidx.core.view.updateLayoutParams
 import androidx.core.view.updateMargins
 import androidx.fragment.app.Fragment
@@ -45,17 +44,26 @@ class FilterFragment(var callback: FilterFragmentCallback? = null) : Fragment(),
         fun newInstance(callback: FilterFragmentCallback) = FilterFragment(callback)
     }
 
-
     interface FilterFragmentCallback {
-        fun onFilterChanged(filter: SearchFilter)
         fun hideKeyboard()
         fun showKeyboard(focus: EditText)
     }
 
+    private var prevFilter: SearchFilter? = null
+
     private var filter: SearchFilter = SearchFilter()
         set(value) {
+            if (prevFilter != value) {
+                prevFilter = field
+                filterOptionsQueue.add(
+                    Figueroa(
+                        { viewModel.setFilter(it) },
+                        prevFilter ?: SearchFilter()
+                    )
+                )
+            }
             field = value
-            onFilterChanged()
+            updateViews()
         }
 
     internal var visibleState: Int = BottomSheetBehavior.STATE_COLLAPSED
@@ -78,7 +86,7 @@ class FilterFragment(var callback: FilterFragmentCallback? = null) : Fragment(),
             }
         }
 
-    private val viewModel: FilterViewModel by viewModels()
+    private val viewModel: FilterViewModel by viewModels({ requireActivity() })
 
     private lateinit var handle: View
 
@@ -144,11 +152,6 @@ class FilterFragment(var callback: FilterFragmentCallback? = null) : Fragment(),
             if (checkedId >= 0) {
                 view?.findViewById<SortChipGroup.SortChip>(checkedId)?.sortOption?.let {
                     if (it != filter.mSortOption) {
-                        filterOptionsQueue.add(Figueroa(
-                            { viewModel.setSortOption(it) },
-                            filter.mSortOption
-                        ))
-
                         viewModel.setSortOption(it)
                     }
                 }
@@ -173,11 +176,6 @@ class FilterFragment(var callback: FilterFragmentCallback? = null) : Fragment(),
         }
     }
 
-    private fun onFilterChanged() {
-        callback?.onFilterChanged(filter)
-        updateViews()
-    }
-
     private fun updateViews() {
         Log.d(TAG, "updateViews")
 
@@ -187,25 +185,12 @@ class FilterFragment(var callback: FilterFragmentCallback? = null) : Fragment(),
     }
 
     private fun updateFilterCard() {
-        val filterItems: Set<FilterOption> = filter.getAll()
+        val newFilters: Set<FilterOption> = filter.getAll()
 
-        val existingFilterOptions: Set<FilterOption> = filterChipGroup.children.mapNotNull {
-            val chippy = it as? Chippy
-            if (chippy?.item in filterItems) {
-                chippy?.item
-            } else {
-                filterChipGroup.removeView(it)
-                null
-            }
-        }.toSet()
+        filterChipGroup.removeAllViews()
+        newFilters.forEach { addChip(it) }
 
-        filterItems.forEach {
-            if (it !in existingFilterOptions) {
-                addChip(it)
-            }
-        }
-
-        if (filterItems.isEmpty()) {
+        if (newFilters.isEmpty()) {
             val constraints = ConstraintSet()
             constraints.clone(filterConstraintLayout)
             constraints.connect(
@@ -249,17 +234,9 @@ class FilterFragment(var callback: FilterFragmentCallback? = null) : Fragment(),
         }
     }
 
-    private fun addChip(item: FilterOption, isUndo: Boolean = false) {
+    private fun addChip(item: FilterOption) {
         val chip = Chippy(context, item, this)
         filterChipGroup.addView(chip)
-        if (!isUndo) {
-            filterOptionsQueue.add(
-                Figueroa(
-                    { viewModel.removeFilterItem(it) },
-                    item
-                )
-            )
-        }
     }
 
     fun onBackPressed() {
@@ -277,12 +254,12 @@ class FilterFragment(var callback: FilterFragmentCallback? = null) : Fragment(),
     // ChippyCallback
     override fun chipClosed(view: View, item: FilterOption) {
         viewModel.removeFilterItem(item)
-        filterOptionsQueue.add(
-            Figueroa(
-                { addChip(it, true) },
-                item
-            )
-        )
+//        filterOptionsQueue.add(
+//            Figueroa(
+//                { addChip(it, true) },
+//                item
+//            )
+//        )
     }
 
     class FilterOptionsAdapter(ctx: Context, filterOptions: List<FilterOption>) :

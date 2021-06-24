@@ -65,7 +65,7 @@ class FilterViewModel : ViewModel() {
 
     fun myCollection(isChecked: Boolean) {
         val newVal = SearchFilter(_filter.value)
-        newVal.setMyCollection(isChecked)
+        newVal.mMyCollection = isChecked
         _filter.value = newVal
     }
 }

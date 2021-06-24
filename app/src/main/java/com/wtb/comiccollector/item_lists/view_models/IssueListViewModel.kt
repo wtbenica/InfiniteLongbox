@@ -3,6 +3,7 @@ package com.wtb.comiccollector.item_lists.view_models
 import android.util.Log
 import androidx.lifecycle.*
 import androidx.paging.PagingData
+import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.SearchFilter
 import com.wtb.comiccollector.database.models.FullIssue
 import com.wtb.comiccollector.database.models.Issue
@@ -11,7 +12,7 @@ import com.wtb.comiccollector.repository.Repository
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 
-private const val TAG = "NewIssueListViewModel"
+private const val TAG = APP + "IssueListViewModel"
 
 @ExperimentalCoroutinesApi
 class IssueListViewModel : ViewModel() {
