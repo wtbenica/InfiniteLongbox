@@ -19,7 +19,6 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.wtb.comiccollector.*
 import com.wtb.comiccollector.database.models.FullIssue
-import com.wtb.comiccollector.database.models.Issue
 import com.wtb.comiccollector.item_lists.view_models.IssueListViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collectLatest
@@ -31,7 +30,8 @@ private const val TAG = APP + "IssueListFragment"
 class IssueListFragment : Fragment() {
 
     private val issueListViewModel: IssueListViewModel by viewModels()
-    private lateinit var filter: SearchFilter
+    private val filterViewModel: FilterViewModel by viewModels({ requireActivity() })
+
     private lateinit var issueGridView: RecyclerView
     private var issueListCallback: IssueListCallback? = null
 
@@ -44,9 +44,12 @@ class IssueListFragment : Fragment() {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
 
-        filter = arguments?.getSerializable(ARG_FILTER) as SearchFilter? ?: SearchFilter()
-
-        updateSeriesDetailFragment(filter.mSeries?.seriesId)
+        lifecycleScope.launch {
+            filterViewModel.filter.collectLatest { filter ->
+                updateSeriesDetailFragment(filter.mSeries?.seriesId)
+                issueListViewModel.setFilter(filter)
+            }
+        }
     }
 
     private fun updateSeriesDetailFragment(seriesId: Int?) {
@@ -56,7 +59,7 @@ class IssueListFragment : Fragment() {
             .replace(R.id.details, fragment)
             .addToBackStack(null)
             .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
-            .commit()
+            .commitAllowingStateLoss()
     }
 
     override fun onCreateView(
@@ -75,7 +78,6 @@ class IssueListFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        issueListViewModel.setFilter(filter)
         val adapter = IssueAdapter()
         issueGridView.adapter = adapter
 
@@ -103,20 +105,20 @@ class IssueListFragment : Fragment() {
         inflater.inflate(R.menu.fragment_issue_list, menu)
     }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId) {
-            R.id.new_issue -> {
-                // TODO: Find solution to this. If issueNum is default (1), if there already
-                //  exists an issue number 1, then violates unique series/issue restraint in db
-                val issue = filter.mSeries?.let { Issue(seriesId = it.seriesId) } ?: Issue()
-                issueListViewModel.addIssue(issue)
-                issueListCallback?.onNewIssue(issue.issueId)
-                true
-            }
-            else           -> super.onOptionsItemSelected(item)
-        }
-    }
-
+    //    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+//        return when (item.itemId) {
+//            R.id.new_issue -> {
+//                // TODO: Find solution to this. If issueNum is default (1), if there already
+//                //  exists an issue number 1, then violates unique series/issue restraint in db
+//                val issue = filter.mSeries?.let { Issue(seriesId = it.seriesId) } ?: Issue()
+//                issueListViewModel.addIssue(issue)
+//                issueListCallback?.onNewIssue(issue.issueId)
+//                true
+//            }
+//            else           -> super.onOptionsItemSelected(item)
+//        }
+//    }
+//
     inner class IssueViewHolder(val parent: ViewGroup) : RecyclerView.ViewHolder(
         LayoutInflater.from(parent.context).inflate(R.layout.list_item_issue, parent, false)
     ), View.OnClickListener {
@@ -200,13 +202,7 @@ class IssueListFragment : Fragment() {
 
     companion object {
         @JvmStatic
-        fun newInstance(filter: SearchFilter): IssueListFragment {
-            return IssueListFragment().apply {
-                arguments = Bundle().apply {
-                    putSerializable(ARG_FILTER, filter)
-                }
-            }
-        }
+        fun newInstance() = IssueListFragment()
     }
 
 }

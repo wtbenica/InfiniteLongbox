@@ -104,10 +104,6 @@ class SearchFilter(
             mTextFilter = null
     }
 
-    fun setMyCollection(value: Boolean) {
-        this.mMyCollection = value
-    }
-
     fun addFilter(vararg items: FilterOption) {
         items.forEach { item ->
             when (item) {
@@ -132,8 +128,8 @@ class SearchFilter(
 
     fun getFragment(callback: SeriesListFragment.SeriesListCallback): Fragment =
         when (mSeries) {
-            null -> SeriesListFragment.newInstance(callback, this)
-            else -> IssueListFragment.newInstance(this)
+            null -> SeriesListFragment.newInstance(callback)
+            else -> IssueListFragment.newInstance()
         }
 
 

@@ -11,13 +11,16 @@ import android.view.animation.LayoutAnimationController
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.wtb.comiccollector.*
+import com.wtb.comiccollector.APP
+import com.wtb.comiccollector.FilterViewModel
+import com.wtb.comiccollector.MainActivity
+import com.wtb.comiccollector.R
 import com.wtb.comiccollector.database.models.FullSeries
 import com.wtb.comiccollector.database.models.Series
 import com.wtb.comiccollector.item_lists.view_models.SeriesListViewModel
@@ -30,16 +33,9 @@ private const val TAG = APP + "SeriesListFragment"
 @ExperimentalCoroutinesApi
 class SeriesListFragment(var callback: SeriesListCallback? = null) : Fragment() {
 
-    private val viewModel: SeriesListViewModel by lazy {
-        ViewModelProvider(this).get(SeriesListViewModel::class.java)
-    }
+    private val viewModel: SeriesListViewModel by viewModels()
+    private val filterViewModel: FilterViewModel by viewModels({ requireActivity() })
 
-    private var filter = SearchFilter()
-        set(value) {
-            Log.d(TAG, "** Setting filter $value")
-            field = value
-            viewModel.setFilter(filter)
-        }
     private lateinit var itemListRecyclerView: RecyclerView
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -47,8 +43,11 @@ class SeriesListFragment(var callback: SeriesListCallback? = null) : Fragment() 
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
 
-        filter = arguments?.getSerializable(ARG_FILTER) as SearchFilter
-        Log.d(TAG, "Loaded $filter")
+        lifecycleScope.launch {
+            filterViewModel.filter.collectLatest { filter ->
+                viewModel.setFilter(filter)
+            }
+        }
     }
 
     override fun onCreateView(
@@ -74,7 +73,8 @@ class SeriesListFragment(var callback: SeriesListCallback? = null) : Fragment() 
 
         lifecycleScope.launch {
             viewModel.seriesList.collectLatest {
-                adapter.submitData(it) }
+                adapter.submitData(it)
+            }
         }
     }
 
@@ -144,16 +144,8 @@ class SeriesListFragment(var callback: SeriesListCallback? = null) : Fragment() 
 
     companion object {
         @JvmStatic
-        fun newInstance(
-            callback: SeriesListCallback,
-            filter: SearchFilter
-        ): SeriesListFragment {
-            return SeriesListFragment(callback).apply {
-                arguments = Bundle().apply {
-                    putSerializable(ARG_FILTER, filter)
-                }
-            }
-        }
+        fun newInstance(callback: SeriesListCallback) = SeriesListFragment(callback)
+
 
         private val DIFF_CALLBACK = object : DiffUtil.ItemCallback<FullSeries>() {
             override fun areItemsTheSame(oldItem: FullSeries, newItem: FullSeries): Boolean =
