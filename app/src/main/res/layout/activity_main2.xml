@@ -6,10 +6,10 @@
     android:id="@+id/main_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity"
-    tools:background="#FEFEFE">
+    tools:background="#FEFEFE"
+    tools:context=".MainActivity">
 
-  <com.google.android.material.appbar.AppBarLayout
+    <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:animateLayoutChanges="true"
@@ -31,7 +31,6 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
-        app:layout_dodgeInsetEdges="top"
         tools:layout="@layout/fragment_item_list" />
 
     <androidx.fragment.app.FragmentContainerView
@@ -39,6 +38,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:behavior_hideable="false"
+        android:layout_gravity="top"
         app:layout_behavior="@string/bottom_sheet_behavior"
         tools:layout="@layout/fragment_filter" />
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

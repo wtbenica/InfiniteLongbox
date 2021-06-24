@@ -144,6 +144,11 @@ class FilterFragment(var callback: FilterFragmentCallback? = null) : Fragment(),
             if (checkedId >= 0) {
                 view?.findViewById<SortChipGroup.SortChip>(checkedId)?.sortOption?.let {
                     if (it != filter.mSortOption) {
+                        filterOptionsQueue.add(Figueroa(
+                            { viewModel.setSortOption(it) },
+                            filter.mSortOption
+                        ))
+
                         viewModel.setSortOption(it)
                     }
                 }

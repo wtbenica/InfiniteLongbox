@@ -34,6 +34,7 @@ import com.wtb.comiccollector.views.FilterFragment
 import com.wtb.comiccollector.views.P_H
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
+import java.lang.Integer.max
 
 const val APP = "CC_"
 private const val TAG = APP + "MainActivity"
@@ -60,8 +61,6 @@ class MainActivity : AppCompatActivity(),
     private var filterFragmentContainer: FragmentContainerView? = null
     private var bottomSheetBehavior: BottomSheetBehavior<*>? = null
     private var toolbar: Toolbar? = null
-    private var posBottom = 0
-    private var posTop = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(R.style.Theme_ComicCollector)
@@ -95,7 +94,7 @@ class MainActivity : AppCompatActivity(),
             filterFragment = fragment
         }
         val root: CoordinatorLayout = findViewById(R.id.main_layout)
-        initWindowInsets(root, true, true)
+        initWindowInsets(root)
         initBottomSheet()
         initNetwork()
     }
@@ -104,10 +103,8 @@ class MainActivity : AppCompatActivity(),
         filterFragmentContainer = findViewById(R.id.filter_fragment_container)
 
         bottomSheetBehavior = filterFragmentContainer?.let { from(it) }
-
         bottomSheetBehavior?.peekHeight = dpToPx(this, P_H).toInt()
         bottomSheetBehavior?.isGestureInsetBottomIgnored = true
-//            dpToPx(this, P_H).toInt()
 
         bottomSheetBehavior?.addBottomSheetCallback(object : BottomSheetCallback() {
             override fun onStateChanged(bottomSheet: View, newState: Int) {
@@ -165,24 +162,15 @@ class MainActivity : AppCompatActivity(),
         })
     }
 
-    private fun initWindowInsets(view: View, setTop: Boolean, setBottom: Boolean) {
+    private fun initWindowInsets(view: View) {
         ViewCompat.setOnApplyWindowInsetsListener(view) { _, insets ->
-            if (posBottom == 0) {
-                posTop = insets.getInsets(WindowInsetsCompat.Type.systemBars()).top
-                posBottom = insets.getInsets(WindowInsetsCompat.Type.systemBars()).bottom
-            }
-
+            val posTop = insets.getInsets(WindowInsetsCompat.Type.systemBars()).top
+            val posBottom = insets.getInsets(WindowInsetsCompat.Type.systemBars()).bottom
             val imeInsetBottom = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom
+            val bottom = max(posBottom, imeInsetBottom)
 
             view.updateLayoutParams<ViewGroup.MarginLayoutParams> {
-                if (setTop && setBottom) {
-                    updateMargins(top = posTop, bottom = posBottom + imeInsetBottom)
-                } else if (setTop) {
-                    updateMargins(top = posTop)
-                } else if (setBottom) {
-                    Log.d(TAG, "Updating bottom margin: $posBottom")
-                    updateMargins(bottom = posBottom + imeInsetBottom)
-                }
+                    updateMargins(top = posTop, bottom = bottom)
             }
 
             insets
@@ -202,7 +190,7 @@ class MainActivity : AppCompatActivity(),
             supportFragmentManager.beginTransaction()
                 .replace(R.id.fragment_container, fragment)
                 .addToBackStack(null)
-                .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
+                .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
                 .commit()
 
             val tt = object: OnBackPressedCallback(true) {
