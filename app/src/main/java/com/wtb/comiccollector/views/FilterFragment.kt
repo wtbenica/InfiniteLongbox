@@ -1,7 +1,7 @@
 package com.wtb.comiccollector.views
 
 import android.content.Context
-import android.util.AttributeSet
+import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -11,39 +11,45 @@ import androidx.appcompat.widget.SwitchCompat
 import androidx.cardview.widget.CardView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
-import androidx.constraintlayout.widget.ConstraintSet.*
-import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.children
-import androidx.core.view.updateLayoutParams
-import androidx.core.view.updateMargins
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.asLiveData
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.chip.ChipGroup
-import com.wtb.comiccollector.*
+import com.wtb.comiccollector.APP
+import com.wtb.comiccollector.FilterViewModel
+import com.wtb.comiccollector.R
+import com.wtb.comiccollector.SearchFilter
 import com.wtb.comiccollector.database.models.Creator
 import com.wtb.comiccollector.database.models.FilterOption
 import com.wtb.comiccollector.database.models.Publisher
 import com.wtb.comiccollector.database.models.Series
-import com.wtb.comiccollector.item_lists.fragments.SeriesListFragment
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
-
-private const val TAG = APP + "FilterView"
+private const val TAG = APP + "FilterFragment"
 
 internal const val P_H = 80
 internal const val DRAG_MARG = (P_H - 8) / 2
 internal const val i = DRAG_MARG - 8
 
 @ExperimentalCoroutinesApi
-class FilterView(context: Context, attributeSet: AttributeSet) :
-    CardView(context, attributeSet),
-    CoordinatorLayout.AttachedBehavior,
-    Chippy.ChipCallbacks,
-    SearchAutoCompleteTextView.SearchTextViewCallback {
+class FilterFragment(var callback: FilterFragmentCallback? = null) : Fragment(),
+    SearchAutoCompleteTextView.SearchTextViewCallback,
+    Chippy.ChipCallbacks {
+
+    companion object {
+        fun newInstance(callback: FilterFragmentCallback, ph: Int) = FilterFragment(callback)
+    }
+
+
+    interface FilterFragmentCallback {
+        fun onFilterChanged(filter: SearchFilter)
+        fun hideKeyboard()
+        fun showKeyboard(focus: EditText)
+    }
 
     private var filter: SearchFilter = SearchFilter()
         set(value) {
@@ -51,32 +57,61 @@ class FilterView(context: Context, attributeSet: AttributeSet) :
             onFilterChanged()
         }
 
-    var callback: FilterCallback? = null
-
     internal var visibleState: Int = BottomSheetBehavior.STATE_COLLAPSED
+        set(value) {
+            field = value
+//            when (field) {
+//                BottomSheetBehavior.STATE_COLLAPSED -> {
+//                    handle.visibility = ViewGroup.VISIBLE
+//                    handle.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+//                        val margin = resources.getDimension(R.dimen.item_series_padding).toInt()
+//                        updateMargins(top = margin, bottom = margin)
+//                    }
+//                    switchCardView.visibility = ViewGroup.INVISIBLE
+//                    sortCardView.visibility = ViewGroup.INVISIBLE
+//                    filterCardView.visibility = ViewGroup.INVISIBLE
+//                }
+//                BottomSheetBehavior.STATE_EXPANDED  -> {
+//                    handle.visibility = ViewGroup.INVISIBLE
+//                    handle.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+//                        updateMargins(top = 0, bottom = 0)
+//                    }
+//                    switchCardView.visibility = ViewGroup.VISIBLE
+//                    sortCardView.visibility = ViewGroup.VISIBLE
+//                    filterCardView.visibility = ViewGroup.VISIBLE
+//                }
+//            }
+        }
 
-    private var switchCardView: CardView
-    private val myCollectionSwitch: SwitchCompat
+    private val viewModel: FilterViewModel by viewModels()
 
-    private val sortCardView: CardView
-    private val sortChipGroup: SortChipGroup
+    private lateinit var handle: View
 
-    private val filterCardView: CardView
-    private val filterConstraintLayout: ConstraintLayout
-    private val filterChipGroup: ChipGroup
-    private val filterOptionsLabel: ImageView
-    private val filterTextView: SearchAutoCompleteTextView
+    private lateinit var switchCardView: CardView
+    private lateinit var myCollectionSwitch: SwitchCompat
 
-    private val viewModel by lazy {
-        ViewModelProvider(context as ViewModelStoreOwner).get(FilterViewModel::class.java)
+    private lateinit var sortCardView: CardView
+    private lateinit var sortChipGroup: SortChipGroup
+
+    private lateinit var filterCardView: CardView
+    private lateinit var filterConstraintLayout: ConstraintLayout
+    private lateinit var filterChipGroup: ChipGroup
+    private lateinit var filterOptionsLabel: ImageView
+    private lateinit var filterTextView: SearchAutoCompleteTextView
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
     }
 
-    init {
-        val inflater =
-            context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
-        val view = inflater.inflate(R.layout.filter_view, this)
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        val view = inflater.inflate(R.layout.fragment_filter, container, false)
 
         view.background = ResourcesCompat.getDrawable(resources, R.drawable.bottom_sheet, null)
+
+        handle = view.findViewById(R.id.handle)
 
         switchCardView = view.findViewById(R.id.switch_card_view)
         myCollectionSwitch = view.findViewById(R.id.my_collection_switch) as SwitchCompat
@@ -94,10 +129,16 @@ class FilterView(context: Context, attributeSet: AttributeSet) :
 
         viewModel.filterOptions.asLiveData()
             .observe(context as LifecycleOwner) { filterObjects: List<FilterOption> ->
-                filterTextView.setAdapter(FilterOptionsAdapter(context, filterObjects))
+                filterTextView.setAdapter(
+                    FilterOptionsAdapter(
+                        requireContext(),
+                        filterObjects
+                    )
+                )
             }
 
         viewModel.filter.asLiveData().observe(context as LifecycleOwner) { filter ->
+            Log.d(TAG, "UPDATING FILTER")
             this.filter = filter
             sortChipGroup.filter = filter
         }
@@ -116,7 +157,7 @@ class FilterView(context: Context, attributeSet: AttributeSet) :
             }
         }
 
-        updateViews()
+        return view
     }
 
     private fun onFilterChanged() {
@@ -125,7 +166,7 @@ class FilterView(context: Context, attributeSet: AttributeSet) :
     }
 
     private fun updateViews() {
-        Log.d(TAG, "updateViews VISIBLE STATE: ${MainActivity.getStateName(visibleState)}")
+        Log.d(TAG, "updateViews")
 
         updateFilterCard()
 
@@ -154,23 +195,44 @@ class FilterView(context: Context, attributeSet: AttributeSet) :
         if (filterItems.isEmpty()) {
             val constraints = ConstraintSet()
             constraints.clone(filterConstraintLayout)
-            constraints.connect(R.id.label_filter_items, TOP, R.id.filter_text_view, TOP)
-            constraints.connect(R.id.label_filter_items, BOTTOM, R.id.filter_text_view, BOTTOM)
-            constraints.connect(R.id.filter_text_view, START, R.id.label_filter_items, END)
+            constraints.connect(
+                R.id.label_filter_items,
+                ConstraintSet.TOP, R.id.filter_text_view,
+                ConstraintSet.TOP
+            )
+            constraints.connect(
+                R.id.label_filter_items,
+                ConstraintSet.BOTTOM, R.id.filter_text_view,
+                ConstraintSet.BOTTOM
+            )
+            constraints.connect(
+                R.id.filter_text_view,
+                ConstraintSet.START, R.id.label_filter_items,
+                ConstraintSet.END
+            )
             constraints.applyTo(filterConstraintLayout)
         } else {
             val constraints = ConstraintSet()
             constraints.clone(filterConstraintLayout)
-            constraints.connect(R.id.label_filter_items, TOP, R.id.filter_chip_scrollview, TOP)
             constraints.connect(
                 R.id.label_filter_items,
-                BOTTOM,
-                R.id.filter_chip_scrollview,
-                BOTTOM
+                ConstraintSet.TOP, R.id.filter_chip_scrollview,
+                ConstraintSet.TOP
             )
-            constraints.connect(R.id.filter_text_view, START, PARENT_ID, START)
+            constraints.connect(
+                R.id.label_filter_items,
+                ConstraintSet.BOTTOM,
+                R.id.filter_chip_scrollview,
+                ConstraintSet.BOTTOM
+            )
+            constraints.connect(
+                R.id.filter_text_view,
+                ConstraintSet.START,
+                ConstraintSet.PARENT_ID,
+                ConstraintSet.START
+            )
             constraints.applyTo(filterConstraintLayout)
-            filterCardView.visibility = VISIBLE
+            filterCardView.visibility = CardView.VISIBLE
         }
     }
 
@@ -179,65 +241,16 @@ class FilterView(context: Context, attributeSet: AttributeSet) :
         filterChipGroup.addView(chip)
     }
 
-    override fun chipClosed(view: View, item: FilterOption) {
-        viewModel.removeFilterItem(item)
-    }
-
+    // SearchTextViewCallback
     override fun addFilterItem(option: FilterOption) = viewModel.addFilterItem(option)
 
     override fun hideKeyboard() {
         callback?.hideKeyboard()
     }
 
-    private fun setMargins(view: View, size: Number) {
-        Log.d(TAG, "setMargins: $size")
-        updateLayoutParams<MarginLayoutParams> {
-            val sizeInDp = dpToPx(context, size).toInt()
-            updateMargins(top = sizeInDp, bottom = sizeInDp)
-        }
-        view.invalidate()
-        view.requestLayout()
-    }
-
-    interface FilterCallback : SeriesListFragment.SeriesListCallback {
-        fun onFilterChanged(filter: SearchFilter)
-        fun hideKeyboard()
-        fun showKeyboard(focus: EditText)
-    }
-
-    override fun getBehavior(): CoordinatorLayout.Behavior<*> = Companion.getBehavior(context, this)
-
-    companion object {
-        private var INSTANCE: CoordinatorLayout.Behavior<*>? = null
-
-        private fun getBehavior(
-            context: Context,
-            filterView: FilterView
-        ): CoordinatorLayout.Behavior<*> {
-            if (INSTANCE == null) {
-                INSTANCE = BottomSheetBehavior<FilterView>().apply {
-                    isHideable = false
-                    isGestureInsetBottomIgnored = false
-                    peekHeight = dpToPx(context, P_H).toInt()
-
-                    addBottomSheetCallback(
-                        object : BottomSheetBehavior.BottomSheetCallback() {
-                            override fun onStateChanged(bottomSheet: View, newState: Int) {
-                                val stateName = MainActivity.getStateName(newState)
-                                Log.d(TAG, "onStateChanged: $stateName")
-                                filterView.visibleState = newState
-                            }
-
-                            override fun onSlide(bottomSheet: View, slideOffset: Float) {
-                                Log.d(TAG, "onSlide: $slideOffset")
-                            }
-                        }
-                    )
-                }
-            }
-
-            return INSTANCE as CoordinatorLayout.Behavior<*>
-        }
+    // ChippyCallback
+    override fun chipClosed(view: View, item: FilterOption) {
+        viewModel.removeFilterItem(item)
     }
 
     class FilterOptionsAdapter(ctx: Context, filterOptions: List<FilterOption>) :
