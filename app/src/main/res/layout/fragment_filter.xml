@@ -13,12 +13,20 @@
         android:background="@drawable/bottom_sheet">
 
         <View
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:background="?attr/colorPrimaryDark"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"/>
+
+        <View
             android:id="@+id/handle"
             android:layout_width="48dp"
             android:layout_height="1dp"
-            android:layout_marginTop="@dimen/item_series_padding"
-            android:layout_marginBottom="@dimen/item_series_padding"
-            android:background="@android:color/white"
+            android:layout_marginTop="23dp"
+            android:layout_marginBottom="24dp"
+            android:background="?attr/colorSecondary"
             app:layout_constraintBottom_toTopOf="@id/switch_card_view"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"

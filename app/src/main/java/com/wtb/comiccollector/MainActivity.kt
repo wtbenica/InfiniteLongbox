@@ -52,7 +52,8 @@ class MainActivity : AppCompatActivity(),
     SeriesListFragment.SeriesListCallback,
     IssueListFragment.IssueListCallback,
     SeriesInfoDialogFragment.SeriesInfoDialogCallback,
-    NewCreatorDialogFragment.NewCreatorDialogCallback, FilterFragment.FilterFragmentCallback {
+    NewCreatorDialogFragment.NewCreatorDialogCallback,
+    FilterFragment.FilterFragmentCallback {
 
     private var filterFragment: FilterFragment? = null
     private var fragmentContainer: FragmentContainerView? = null
@@ -86,7 +87,7 @@ class MainActivity : AppCompatActivity(),
                 FilterFragment?
 
         if (filterFragment == null) {
-            val fragment = FilterFragment.newInstance(this, dpToPx(this, P_H).toInt())
+            val fragment = FilterFragment.newInstance(this)
             supportFragmentManager
                 .beginTransaction()
                 .add(R.id.filter_fragment_container, fragment)
@@ -94,7 +95,7 @@ class MainActivity : AppCompatActivity(),
             filterFragment = fragment
         }
         val root: CoordinatorLayout = findViewById(R.id.main_layout)
-        initWindowInsets(root, true, false)
+        initWindowInsets(root, true, true)
         initBottomSheet()
         initNetwork()
     }
@@ -105,6 +106,8 @@ class MainActivity : AppCompatActivity(),
         bottomSheetBehavior = filterFragmentContainer?.let { from(it) }
 
         bottomSheetBehavior?.peekHeight = dpToPx(this, P_H).toInt()
+        bottomSheetBehavior?.isGestureInsetBottomIgnored = true
+//            dpToPx(this, P_H).toInt()
 
         bottomSheetBehavior?.addBottomSheetCallback(object : BottomSheetCallback() {
             override fun onStateChanged(bottomSheet: View, newState: Int) {
@@ -169,14 +172,16 @@ class MainActivity : AppCompatActivity(),
                 posBottom = insets.getInsets(WindowInsetsCompat.Type.systemBars()).bottom
             }
 
+            val imeInsetBottom = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom
+
             view.updateLayoutParams<ViewGroup.MarginLayoutParams> {
                 if (setTop && setBottom) {
-                    updateMargins(top = posTop, bottom = posBottom)
+                    updateMargins(top = posTop, bottom = posBottom + imeInsetBottom)
                 } else if (setTop) {
                     updateMargins(top = posTop)
                 } else if (setBottom) {
                     Log.d(TAG, "Updating bottom margin: $posBottom")
-                    updateMargins(bottom = posBottom)
+                    updateMargins(bottom = posBottom + imeInsetBottom)
                 }
             }
 
@@ -199,6 +204,16 @@ class MainActivity : AppCompatActivity(),
                 .addToBackStack(null)
                 .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
                 .commit()
+
+            val tt = object: OnBackPressedCallback(true) {
+                override fun handleOnBackPressed() {
+                    filterFragment?.onBackPressed()
+//
+//                    supportFragmentManager.popBackStack()
+                }
+            }
+
+            onBackPressedDispatcher.addCallback(fragment, tt)
         } catch (e: IllegalStateException) {
             Log.d(TAG, "onFilterChanged: $e")
         }

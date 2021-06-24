@@ -40,6 +40,10 @@ class FilterViewModel : ViewModel() {
         res.sorted()
     }
 
+    fun setFilter(filter: SearchFilter) {
+        this._filter.value = filter
+    }
+
     fun addFilterItem(item: FilterOption) {
         Log.d(TAG, "ADDING ITEM: $item")
         val newVal = SearchFilter(_filter.value)

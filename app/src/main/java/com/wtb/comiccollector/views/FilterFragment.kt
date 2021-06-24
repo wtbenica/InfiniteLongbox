@@ -13,16 +13,15 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.children
+import androidx.core.view.updateLayoutParams
+import androidx.core.view.updateMargins
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.asLiveData
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.chip.ChipGroup
-import com.wtb.comiccollector.APP
-import com.wtb.comiccollector.FilterViewModel
-import com.wtb.comiccollector.R
-import com.wtb.comiccollector.SearchFilter
+import com.wtb.comiccollector.*
 import com.wtb.comiccollector.database.models.Creator
 import com.wtb.comiccollector.database.models.FilterOption
 import com.wtb.comiccollector.database.models.Publisher
@@ -31,9 +30,11 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 private const val TAG = APP + "FilterFragment"
 
-internal const val P_H = 80
-internal const val DRAG_MARG = (P_H - 8) / 2
-internal const val i = DRAG_MARG - 8
+internal const val P_H = 48
+
+data class Figueroa<T>(private val function: (T) -> Unit, private val item: T) {
+    fun evaluate() = function(item)
+}
 
 @ExperimentalCoroutinesApi
 class FilterFragment(var callback: FilterFragmentCallback? = null) : Fragment(),
@@ -41,7 +42,7 @@ class FilterFragment(var callback: FilterFragmentCallback? = null) : Fragment(),
     Chippy.ChipCallbacks {
 
     companion object {
-        fun newInstance(callback: FilterFragmentCallback, ph: Int) = FilterFragment(callback)
+        fun newInstance(callback: FilterFragmentCallback) = FilterFragment(callback)
     }
 
 
@@ -60,6 +61,21 @@ class FilterFragment(var callback: FilterFragmentCallback? = null) : Fragment(),
     internal var visibleState: Int = BottomSheetBehavior.STATE_COLLAPSED
         set(value) {
             field = value
+            if (field == BottomSheetBehavior.STATE_COLLAPSED) {
+                handle.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                    updateMargins(
+                        top = dpToPx(requireContext(), 23).toInt(),
+                        bottom = dpToPx(requireContext(), 24).toInt()
+                    )
+                }
+            } else if (field == BottomSheetBehavior.STATE_EXPANDED) {
+                handle.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                    updateMargins(
+                        top = dpToPx(requireContext(), 0).toInt(),
+                        bottom = dpToPx(requireContext(), 0).toInt()
+                    )
+                }
+            }
         }
 
     private val viewModel: FilterViewModel by viewModels()
@@ -78,9 +94,7 @@ class FilterFragment(var callback: FilterFragmentCallback? = null) : Fragment(),
     private lateinit var filterOptionsLabel: ImageView
     private lateinit var filterTextView: SearchAutoCompleteTextView
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-    }
+    private val filterOptionsQueue = ArrayDeque<Figueroa<*>>()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -139,9 +153,24 @@ class FilterFragment(var callback: FilterFragmentCallback? = null) : Fragment(),
         return view
     }
 
+    internal fun onSlide(slideOffset: Float) {
+        val inverseOffset = 1 - slideOffset
+        handle.alpha = inverseOffset
+        switchCardView.alpha = slideOffset
+        sortCardView.alpha = slideOffset
+        filterCardView.alpha = slideOffset
+
+        handle.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+            updateMargins(
+                top = dpToPx(requireContext(), 23 * inverseOffset).toInt(),
+                bottom = dpToPx(requireContext(), 24 * inverseOffset).toInt()
+            )
+        }
+    }
+
     private fun onFilterChanged() {
-        updateViews()
         callback?.onFilterChanged(filter)
+        updateViews()
     }
 
     private fun updateViews() {
@@ -215,9 +244,22 @@ class FilterFragment(var callback: FilterFragmentCallback? = null) : Fragment(),
         }
     }
 
-    private fun addChip(item: FilterOption) {
+    private fun addChip(item: FilterOption, isUndo: Boolean = false) {
         val chip = Chippy(context, item, this)
         filterChipGroup.addView(chip)
+        if (!isUndo) {
+            filterOptionsQueue.add(
+                Figueroa(
+                    { viewModel.removeFilterItem(it) },
+                    item
+                )
+            )
+        }
+    }
+
+    fun onBackPressed() {
+        val undo = filterOptionsQueue.removeLastOrNull()
+        undo?.evaluate()
     }
 
     // SearchTextViewCallback
@@ -230,13 +272,12 @@ class FilterFragment(var callback: FilterFragmentCallback? = null) : Fragment(),
     // ChippyCallback
     override fun chipClosed(view: View, item: FilterOption) {
         viewModel.removeFilterItem(item)
-    }
-
-    fun onSlide(slideOffset: Float) {
-        handle.alpha = 1 - slideOffset
-        switchCardView.alpha = slideOffset
-        sortCardView.alpha = slideOffset
-        filterCardView.alpha = slideOffset
+        filterOptionsQueue.add(
+            Figueroa(
+                { addChip(it, true) },
+                item
+            )
+        )
     }
 
     class FilterOptionsAdapter(ctx: Context, filterOptions: List<FilterOption>) :
@@ -301,7 +342,10 @@ class FilterFragment(var callback: FilterFragmentCallback? = null) : Fragment(),
                     return results
                 }
 
-                override fun publishResults(constraint: CharSequence?, results: FilterResults?) {
+                override fun publishResults(
+                    constraint: CharSequence?,
+                    results: FilterResults?
+                ) {
                     val optionsList: MutableList<FilterOption> = mutableListOf()
 
                     for (item in (results?.values as List<*>)) {
