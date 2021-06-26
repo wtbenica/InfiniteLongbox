@@ -14,3 +14,5 @@ interface FilterOption : Comparable<FilterOption>, Serializable {
     override fun compareTo(other: FilterOption): Int =
         this.compareValue.compareTo(other.compareValue)
 }
+
+interface ListItem

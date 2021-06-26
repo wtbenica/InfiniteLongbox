@@ -1,4 +1,4 @@
-package com.wtb.comiccollector.item_lists.fragments
+package com.wtb.comiccollector.fragments
 
 import android.net.Uri
 import android.os.Bundle
@@ -18,12 +18,12 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.wtb.comiccollector.APP
-import com.wtb.comiccollector.FilterViewModel
 import com.wtb.comiccollector.MainActivity
 import com.wtb.comiccollector.R
 import com.wtb.comiccollector.database.models.FullSeries
 import com.wtb.comiccollector.database.models.Series
-import com.wtb.comiccollector.item_lists.view_models.SeriesListViewModel
+import com.wtb.comiccollector.view_models.FilterViewModel
+import com.wtb.comiccollector.view_models.SeriesListViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch

@@ -1,4 +1,4 @@
-package com.wtb.comiccollector.item_lists.view_models
+package com.wtb.comiccollector.view_models
 
 import android.util.Log
 import androidx.lifecycle.*

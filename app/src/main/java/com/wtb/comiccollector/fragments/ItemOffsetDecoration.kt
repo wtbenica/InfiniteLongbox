@@ -1,4 +1,4 @@
-package com.wtb.comiccollector.item_lists.fragments
+package com.wtb.comiccollector.fragments
 
 import android.graphics.Rect
 import android.view.View

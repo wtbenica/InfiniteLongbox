@@ -20,13 +20,13 @@ import androidx.lifecycle.asLiveData
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.chip.ChipGroup
 import com.wtb.comiccollector.APP
-import com.wtb.comiccollector.FilterViewModel
 import com.wtb.comiccollector.R
 import com.wtb.comiccollector.SearchFilter
 import com.wtb.comiccollector.database.models.Creator
 import com.wtb.comiccollector.database.models.FilterOption
 import com.wtb.comiccollector.database.models.Publisher
 import com.wtb.comiccollector.database.models.Series
+import com.wtb.comiccollector.view_models.FilterViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 private const val TAG = APP + "FilterFragment"

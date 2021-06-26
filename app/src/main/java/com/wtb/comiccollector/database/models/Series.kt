@@ -98,4 +98,4 @@ data class FullSeries(
 
     @Relation(parentColumn = "firstIssueId", entityColumn = "issueId", entity = Issue::class)
     var firstIssue: FullIssue?
-)
+) : ListItem

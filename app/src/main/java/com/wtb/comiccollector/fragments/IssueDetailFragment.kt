@@ -1,4 +1,4 @@
-package com.wtb.comiccollector.issue_details.fragments
+package com.wtb.comiccollector.fragments
 
 import android.content.Context
 import android.content.Intent
@@ -15,8 +15,8 @@ import androidx.lifecycle.lifecycleScope
 import com.wtb.comiccollector.*
 import com.wtb.comiccollector.database.Daos.Count
 import com.wtb.comiccollector.database.models.*
-import com.wtb.comiccollector.issue_details.view_models.IssueDetailViewModel
 import com.wtb.comiccollector.repository.DUMMY_ID
+import com.wtb.comiccollector.view_models.IssueDetailViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collectLatest

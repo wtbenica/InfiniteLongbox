@@ -5,8 +5,8 @@ import com.wtb.comiccollector.database.models.Creator
 import com.wtb.comiccollector.database.models.FilterOption
 import com.wtb.comiccollector.database.models.Publisher
 import com.wtb.comiccollector.database.models.Series
-import com.wtb.comiccollector.item_lists.fragments.IssueListFragment
-import com.wtb.comiccollector.item_lists.fragments.SeriesListFragment
+import com.wtb.comiccollector.fragments.IssueListFragment
+import com.wtb.comiccollector.fragments.SeriesListFragment
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import java.io.Serializable
 import java.time.LocalDate

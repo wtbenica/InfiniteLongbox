@@ -1,29 +1,46 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
-    <style name="Theme.ComicCollector" parent="Theme.MaterialComponents.NoActionBar">
+    <style name="Theme.ComicCollector" parent="Theme.MaterialComponents.Light.NoActionBar">
+
         <!-- Primary brand color. -->
-        <item name="colorPrimary">@color/fantasia_dark</item>
-        <item name="colorPrimaryVariant">@color/fantasia</item>
-        <item name="colorOnPrimary">@color/white</item>
-        <!-- Secondary brand color. -->
-        <item name="colorSecondary">@color/amnesia_light</item>
-        <item name="colorSecondaryVariant">@color/amnesia</item>
         <item name="colorAccent">@color/amnesia_dark</item>
-        <item name="colorOnSecondary">@color/light_black</item>
+        <item name="colorSecondaryVariant">@color/amnesia_dark_dark</item>
+        <item name="colorSecondary">@color/amnesia_dark_dark</item>
+        <item name="colorOnSecondary">@color/amnesia_text</item>
+
+        <!-- Secondary brand color. -->
+        <item name="colorPrimary">@color/amnesia_dark_dark</item>
+        <item name="colorPrimaryDark">@color/amnesia_dark_dark</item>
+        <item name="colorPrimaryVariant">@color/amnesia_dark_dark</item>
+        <item name="colorOnPrimary">#819F2F</item>
+
         <!-- Status bar color. -->
-        <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimaryVariant</item>
+        <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimary</item>
+        <item name="android:navigationBarColor">?attr/colorPrimary</item>
         <!-- Customize your theme here. -->
-        <item name="android:windowBackground">#7E7E7E</item>
-        <item name="actionBarStyle">@style/myActionBarStyle</item>
-        <item name="materialCardViewStyle">@style/mCardView</item>
+        <item name="android:textColor">?attr/colorOnPrimary</item>
+        <item name="android:windowBackground">#444</item>
         <item name="cardViewStyle">@style/mCardView</item>
         <item name="materialButtonStyle">@style/myButtonStyle</item>
         <item name="android:spinnerStyle">@style/mySpinnerStyle</item>
         <item name="android:buttonBarButtonStyle">@style/myButtonBarButtonStyle</item>
         <item name="android:buttonBarStyle">@style/myButtonBarStyle</item>
-        <item name="autoCompleteTextViewStyle">@style/myAutoCompleteStyle</item>
-        <item name="android:toolbarStyle">@style/myActionBarStyle</item>
         <item name="switchStyle">@style/mySwitchStyle</item>
         <item name="chipStyle">@style/myNewChip</item>
+        <item name="floatingActionButtonStyle">@style/myFabStyle</item>
+        <item name="autoCompleteTextViewStyle">@style/myAutoCompleteStyle</item>
+
+        <item name="colorPrimaryMuted">@color/fantasia_muted</item>
+        <item name="colorPrimaryDarkMuted">@color/fantasia_dark_muted</item>
+        <item name="colorPrimaryLightMuted">@color/fantasia_light_muted</item>
     </style>
+
+    <style name="Theme.ComicCollector.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <style name="Theme.ComicCollector.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+
+    <style name="Theme.ComicCollector.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 </resources>

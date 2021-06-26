@@ -29,9 +29,10 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetBehavior.*
 import com.wtb.comiccollector.database.models.Creator
 import com.wtb.comiccollector.database.models.Series
-import com.wtb.comiccollector.issue_details.fragments.IssueDetailFragment
-import com.wtb.comiccollector.item_lists.fragments.IssueListFragment
-import com.wtb.comiccollector.item_lists.fragments.SeriesListFragment
+import com.wtb.comiccollector.fragments.IssueDetailFragment
+import com.wtb.comiccollector.fragments.IssueListFragment
+import com.wtb.comiccollector.fragments.SeriesListFragment
+import com.wtb.comiccollector.view_models.FilterViewModel
 import com.wtb.comiccollector.views.FilterFragment
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.collectLatest

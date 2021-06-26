@@ -1,4 +1,4 @@
-package com.wtb.comiccollector.item_lists.fragments
+package com.wtb.comiccollector.fragments
 
 import android.animation.ValueAnimator
 import android.content.Context
@@ -19,9 +19,13 @@ import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.wtb.comiccollector.*
+import com.wtb.comiccollector.APP
+import com.wtb.comiccollector.MainActivity
+import com.wtb.comiccollector.R
+import com.wtb.comiccollector.SeriesDetailFragment
 import com.wtb.comiccollector.database.models.FullIssue
-import com.wtb.comiccollector.item_lists.view_models.IssueListViewModel
+import com.wtb.comiccollector.view_models.FilterViewModel
+import com.wtb.comiccollector.view_models.IssueListViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch

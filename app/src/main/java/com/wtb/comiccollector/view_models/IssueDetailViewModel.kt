@@ -1,6 +1,6 @@
 @file:Suppress("RemoveExplicitTypeArguments", "RemoveExplicitTypeArguments")
 
-package com.wtb.comiccollector.issue_details.view_models
+package com.wtb.comiccollector.view_models
 
 import android.util.Log
 import androidx.lifecycle.LiveData
