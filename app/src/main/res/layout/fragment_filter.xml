@@ -7,30 +7,40 @@
     android:layout_height="wrap_content">
 
     <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/bg"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:animateLayoutChanges="true"
-        android:background="@drawable/bottom_sheet">
+        android:background="@drawable/bottom_sheet_2">
 
         <View
             android:layout_width="0dp"
-            android:layout_height="1dp"
-            android:background="?attr/colorPrimaryDark"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"/>
-
-        <View
-            android:id="@+id/handle"
-            android:layout_width="48dp"
-            android:layout_height="1dp"
-            android:layout_marginTop="23dp"
-            android:layout_marginBottom="24dp"
+            android:layout_height="2dp"
             android:background="?attr/colorSecondary"
-            app:layout_constraintBottom_toTopOf="@id/switch_card_view"
+            android:elevation="1dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/handle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/drag_handle_margin"
+            android:layout_marginBottom="@dimen/drag_handle_margin"
+            android:elevation="8dp"
+            app:cardUseCompatPadding="false"
+            app:layout_constraintBottom_toTopOf="@id/switch_card_view"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <View
+                android:layout_width="@dimen/peek_height"
+                android:layout_height="@dimen/drag_handle_height"
+                android:background="@drawable/cotton_joe"
+                android:elevation="8dp" />
+        </androidx.cardview.widget.CardView>
 
         <androidx.cardview.widget.CardView
             android:id="@+id/switch_card_view"

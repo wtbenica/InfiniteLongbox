@@ -19,7 +19,7 @@ import com.wtb.comiccollector.issue_details.view_models.IssueDetailViewModel
 import com.wtb.comiccollector.repository.DUMMY_ID
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.collectLatest
 import java.io.File
 import java.time.format.DateTimeFormatter
 import java.util.*
@@ -60,6 +60,7 @@ class IssueDetailFragment : Fragment() {
     private var theJob: Job? = null
 
     private lateinit var fullIssue: FullIssue
+    private var fullVariant: FullIssue? = null
     private var issuesInSeries: List<Int> = emptyList()
     private var currentPos: Int = 0
     private lateinit var issueCredits: List<FullCredit>
@@ -89,8 +90,14 @@ class IssueDetailFragment : Fragment() {
     private lateinit var gcdLinkButton: Button
     private lateinit var coverFile: File
     private var inCollection: Boolean = false
-    private var coverUri: Uri? = null
-    private var variantUri: Uri? = null
+
+    private fun issue(): FullIssue? = if (isVariant) {
+        fullVariant
+    } else {
+        fullIssue
+    }
+
+    private fun coverUri(): Uri? = issue()?.coverUri
 
     private var saveIssue = true
     private var isEditable: Boolean = true
@@ -110,15 +117,26 @@ class IssueDetailFragment : Fragment() {
         issueDetailViewModel.loadIssue(arguments?.getSerializable(ARG_ISSUE_ID) as Int)
 
         lifecycleScope.launchWhenCreated {
-            issueDetailViewModel.issue.collect {
+            issueDetailViewModel.issue.collectLatest {
                 it?.let { issue ->
                     this@IssueDetailFragment.fullIssue = issue
-                    this@IssueDetailFragment.coverUri = issue.coverUri
                     (requireActivity() as MainActivity).supportActionBar?.apply {
                         it.let { title = "${issue.series.seriesName} #${issue.issue.issueNum}" }
                     }
                     this@IssueDetailFragment.updateUI()
                 }
+            }
+
+            issueDetailViewModel.variant.collectLatest { issue ->
+                this@IssueDetailFragment.fullVariant = issue
+                this@IssueDetailFragment.isVariant = issue != null
+                (requireActivity() as MainActivity).supportActionBar?.apply {
+                    issue()?.let {
+                        title =
+                            "${issue()?.series?.seriesName} #${issue()?.issue?.issueNum} ${issue()?.issue?.variantName}"
+                    }
+                }
+                this@IssueDetailFragment.updateUI()
             }
         }
     }
@@ -182,17 +200,6 @@ class IssueDetailFragment : Fragment() {
                 stories?.let {
                     Log.d(TAG, "issueStories updated: ${stories.size}")
                     this.issueStories = it
-                    updateUI()
-                }
-            }
-        )
-
-        issueDetailViewModel.variant.observe(
-            viewLifecycleOwner,
-            { issue ->
-                issue.let {
-                    this.isVariant = issue != null
-                    this.variantUri = issue?.coverUri
                     updateUI()
                 }
             }
@@ -354,7 +361,6 @@ class IssueDetailFragment : Fragment() {
                             isVariant = true
                         } else {
                             issueDetailViewModel.clearVariant()
-                            this@IssueDetailFragment.variantUri = null
                             isVariant = false
                         }
                         updateCover()
@@ -386,10 +392,16 @@ class IssueDetailFragment : Fragment() {
 
     private fun updateUI() {
 
-        if (fullIssue.issue.issueId != DUMMY_ID) {
+        val issue = if (isVariant) {
+            fullVariant
+        } else {
+            fullIssue
+        }
+
+        if (issue()?.issue?.issueId != DUMMY_ID) {
             numUpdates += 1
 
-            this.fullIssue.issue.releaseDate?.format(DateTimeFormatter.ofPattern("MMM d, y"))
+            issue()?.issue?.releaseDate?.format(DateTimeFormatter.ofPattern("MMM d, y"))
                 ?.let { releaseDateTextView.text = it }
 
             creditsBox.displayCredit()
@@ -401,12 +413,8 @@ class IssueDetailFragment : Fragment() {
     }
 
     private fun updateCover() {
-        val uri = when (isVariant) {
-            true -> this.variantUri
-            false -> this.coverUri
-        }
-        if (uri != null) {
-            coverImageView.setImageURI(uri)
+        if (coverUri() != null) {
+            coverImageView.setImageURI(coverUri())
         } else {
             coverImageView.setImageResource(R.drawable.ic_issue_add_cover)
         }

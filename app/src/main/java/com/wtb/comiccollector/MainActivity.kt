@@ -25,7 +25,6 @@ import androidx.fragment.app.FragmentContainerView
 import androidx.fragment.app.FragmentTransaction
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.lifecycleScope
-import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetBehavior.*
 import com.wtb.comiccollector.database.models.Creator
@@ -34,7 +33,6 @@ import com.wtb.comiccollector.issue_details.fragments.IssueDetailFragment
 import com.wtb.comiccollector.item_lists.fragments.IssueListFragment
 import com.wtb.comiccollector.item_lists.fragments.SeriesListFragment
 import com.wtb.comiccollector.views.FilterFragment
-import com.wtb.comiccollector.views.P_H
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.collectLatest
 import java.lang.Integer.max
@@ -113,7 +111,7 @@ class MainActivity : AppCompatActivity(),
             val fragment = SearchFilter().getFragment(this)
             supportFragmentManager
                 .beginTransaction()
-                .add(R.id.fragment_container, fragment)
+                .replace(R.id.fragment_container, fragment)
                 .commit()
         }
 
@@ -138,7 +136,7 @@ class MainActivity : AppCompatActivity(),
         filterFragmentContainer = findViewById(R.id.filter_fragment_container)
 
         bottomSheetBehavior = filterFragmentContainer?.let { from(it) }
-        bottomSheetBehavior?.peekHeight = dpToPx(this, P_H).toInt()
+        bottomSheetBehavior?.peekHeight = resources.getDimension(R.dimen.peek_height).toInt()
         bottomSheetBehavior?.isGestureInsetBottomIgnored = true
 
         bottomSheetBehavior?.addBottomSheetCallback(object : BottomSheetCallback() {
@@ -149,8 +147,17 @@ class MainActivity : AppCompatActivity(),
 
             override fun onSlide(bottomSheet: View, slideOffset: Float) {
                 filterFragment?.onSlide(slideOffset)
+                val expandedOffset = bottomSheetBehavior?.expandedOffset
+                val dimension = resources.getDimension(R.dimen.peek_height)
+                Log.d(
+                    TAG, "EXPANDED_OFFSET: $expandedOffset " +
+                            "${expandedOffset?.let { dpToPx(this@MainActivity, it).toInt() }}"
+                )
+                Log.d(
+                    TAG,
+                    "DIMENSION: $dimension ${dpToPx(this@MainActivity, dimension).toInt()}"
+                )
             }
-
         })
     }
 
@@ -246,8 +253,6 @@ class MainActivity : AppCompatActivity(),
             .addToBackStack(null)
             .commit()
 
-        supportActionBar?.isHideOnContentScrollEnabled = false
-
         val tt = object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 bottomSheetBehavior?.apply {
@@ -255,20 +260,11 @@ class MainActivity : AppCompatActivity(),
                     isHideable = false
                 }
 
-                toolbar?.updateLayoutParams<AppBarLayout.LayoutParams> {
-                    scrollFlags =
-                        AppBarLayout.LayoutParams.SCROLL_FLAG_SCROLL or AppBarLayout.LayoutParams.SCROLL_FLAG_ENTER_ALWAYS
-                }
-
                 supportFragmentManager.popBackStack()
             }
         }
 
         this.onBackPressedDispatcher.addCallback(fragment, tt)
-
-        toolbar?.updateLayoutParams<AppBarLayout.LayoutParams> {
-            scrollFlags = AppBarLayout.LayoutParams.SCROLL_FLAG_NO_SCROLL
-        }
 
         bottomSheetBehavior?.apply {
             isHideable = true
@@ -293,7 +289,10 @@ class MainActivity : AppCompatActivity(),
     }
 
     // SeriesInfoDialogCallback
-    override fun onSaveSeriesClick(dialog: DialogFragment, series: Series) {
+    override fun onSaveSeriesClick(
+        dialog: DialogFragment,
+        series: Series
+    ) {
         // TODO: MainActivity onSaveSeriesClick
         dialog.dismiss()
     }
@@ -304,7 +303,10 @@ class MainActivity : AppCompatActivity(),
     }
 
     // NewCreatorDialogCallback
-    override fun onSaveCreatorClick(dialog: DialogFragment, creator: Creator) {
+    override fun onSaveCreatorClick(
+        dialog: DialogFragment,
+        creator: Creator
+    ) {
         // TODO: Not yet implemented
         dialog.dismiss()
     }

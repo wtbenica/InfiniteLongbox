@@ -11,7 +11,6 @@ import androidx.appcompat.widget.SwitchCompat
 import androidx.cardview.widget.CardView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
-import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.updateLayoutParams
 import androidx.core.view.updateMargins
 import androidx.fragment.app.Fragment
@@ -20,7 +19,10 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.asLiveData
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.chip.ChipGroup
-import com.wtb.comiccollector.*
+import com.wtb.comiccollector.APP
+import com.wtb.comiccollector.FilterViewModel
+import com.wtb.comiccollector.R
+import com.wtb.comiccollector.SearchFilter
 import com.wtb.comiccollector.database.models.Creator
 import com.wtb.comiccollector.database.models.FilterOption
 import com.wtb.comiccollector.database.models.Publisher
@@ -71,23 +73,19 @@ class FilterFragment(var callback: FilterFragmentCallback? = null) : Fragment(),
             field = value
             if (field == BottomSheetBehavior.STATE_COLLAPSED) {
                 handle.updateLayoutParams<ViewGroup.MarginLayoutParams> {
-                    updateMargins(
-                        top = dpToPx(requireContext(), 23).toInt(),
-                        bottom = dpToPx(requireContext(), 24).toInt()
-                    )
+                    val margin = resources.getDimension(R.dimen.drag_handle_margin).toInt()
+                    updateMargins(top = margin, bottom = margin)
                 }
             } else if (field == BottomSheetBehavior.STATE_EXPANDED) {
                 handle.updateLayoutParams<ViewGroup.MarginLayoutParams> {
-                    updateMargins(
-                        top = dpToPx(requireContext(), 0).toInt(),
-                        bottom = dpToPx(requireContext(), 0).toInt()
-                    )
+                    updateMargins(top = 0, bottom = 0)
                 }
             }
         }
 
     private val viewModel: FilterViewModel by viewModels({ requireActivity() })
 
+    private lateinit var background: ConstraintLayout
     private lateinit var handle: View
 
     private lateinit var switchCardView: CardView
@@ -110,8 +108,7 @@ class FilterFragment(var callback: FilterFragmentCallback? = null) : Fragment(),
     ): View? {
         val view = inflater.inflate(R.layout.fragment_filter, container, false)
 
-        view.background = ResourcesCompat.getDrawable(resources, R.drawable.bottom_sheet, null)
-
+        background = view.findViewById(R.id.bg)
         handle = view.findViewById(R.id.handle)
 
         switchCardView = view.findViewById(R.id.switch_card_view)
@@ -169,9 +166,10 @@ class FilterFragment(var callback: FilterFragmentCallback? = null) : Fragment(),
         filterCardView.alpha = slideOffset
 
         handle.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+            val margin: Float = resources.getDimension(R.dimen.drag_handle_margin)
             updateMargins(
-                top = dpToPx(requireContext(), 23 * inverseOffset).toInt(),
-                bottom = dpToPx(requireContext(), 24 * inverseOffset).toInt()
+                top = (margin * inverseOffset).toInt(),
+                bottom = (margin * inverseOffset).toInt()
             )
         }
     }

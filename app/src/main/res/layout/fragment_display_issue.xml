@@ -13,7 +13,6 @@
         android:layout_marginTop="8dp"
         android:contentDescription="@string/description_issue_cover"
         android:elevation="1dp"
-        android:src="@drawable/ic_issue_add_cover"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 

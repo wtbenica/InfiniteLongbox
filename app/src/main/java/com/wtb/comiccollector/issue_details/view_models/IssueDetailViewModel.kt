@@ -42,8 +42,12 @@ class IssueDetailViewModel : ViewModel() {
         initialValue = null
     )
 
-    val variant: LiveData<FullIssue?> =
-        variantId.flatMapLatest { id -> repository.getIssue(id) }.asLiveData()
+    val variant: StateFlow<FullIssue?> =
+        variantId.flatMapLatest { id -> repository.getIssue(id) }.stateIn(
+            scope = viewModelScope,
+            started = WhileSubscribed(5000),
+            initialValue = null
+        )
 
     val issueList: LiveData<List<FullIssue>> = issue.flatMapLatest { fullIssue ->
         repository.getIssuesByFilter(SearchFilter(series = fullIssue?.series, myCollection = false))

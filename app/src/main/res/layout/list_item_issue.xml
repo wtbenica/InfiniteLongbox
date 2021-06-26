@@ -21,36 +21,38 @@
             android:id="@+id/progress_cover_download"
             android:layout_width="0dp"
             android:layout_height="0dp"
+            android:alpha="1"
             android:indeterminate="true"
             android:indeterminateBehavior="cycle"
             app:layout_constraintBottom_toBottomOf="@id/list_item_cover"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            tools:alpha="0" />
 
         <ImageView
             android:id="@+id/list_item_cover"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:alpha="0"
             android:adjustViewBounds="true"
-            android:contentDescription="@string/description_issue_cover"
             android:scaleType="fitXY"
-            android:visibility="invisible"
+            android:gravity="bottom|center_horizontal"
+            android:contentDescription="@string/description_issue_cover"
+            app:layout_constraintBottom_toTopOf="@id/list_item_issue"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toTopOf="@id/list_item_issue"
+            tools:alpha="1"
             tools:layout_height="309dp"
             tools:layout_width="200dp"
-            tools:src="@tools:sample/backgrounds/scenic"
-            tools:visibility="visible" />
+            tools:src="@tools:sample/backgrounds/scenic" />
 
         <TextView
             android:id="@+id/list_item_issue"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_gravity="bottom|center_horizontal"
-            android:gravity="center_horizontal|bottom"
+            android:gravity="bottom|center_horizontal"
             android:padding="4dp"
             android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle2"
             android:textColor="?attr/colorOnPrimary"

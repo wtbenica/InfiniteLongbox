@@ -1,9 +1,11 @@
 package com.wtb.comiccollector.item_lists.fragments
 
+import android.animation.ValueAnimator
 import android.content.Context
 import android.os.Bundle
 import android.util.TypedValue
 import android.view.*
+import android.view.animation.AccelerateInterpolator
 import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
@@ -141,11 +143,23 @@ class IssueListFragment : Fragment() {
             val coverUri = this.fullIssue?.coverUri
 
             if (fullIssue?.cover != null) {
-                this.progressCover.visibility = ViewGroup.GONE
-                this.coverImageView.visibility = ViewGroup.VISIBLE
+                val animation = ValueAnimator.ofFloat(0F, 1F)
+                animation.addUpdateListener {
+                    val value = it.animatedValue as Float
+                    progressCover.alpha = 1 - value
+                    coverImageView.alpha = value
+                }
+                animation.interpolator = AccelerateInterpolator()
+                animation.start()
             } else {
-                this.progressCover.visibility = ViewGroup.VISIBLE
-                this.coverImageView.visibility = ViewGroup.INVISIBLE
+                val animation = ValueAnimator.ofFloat(0F, 1F)
+                animation.addUpdateListener {
+                    val value = it.animatedValue as Float
+                    progressCover.alpha = value
+                    coverImageView.alpha = 1 - value
+                }
+                animation.interpolator = AccelerateInterpolator()
+                animation.start()
             }
 
             if (coverUri != null) {
