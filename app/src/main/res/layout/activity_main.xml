@@ -6,13 +6,15 @@
     android:id="@+id/main_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    tools:background="#FEFEFE"
     tools:context=".MainActivity">
 
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:animateLayoutChanges="true"
-        android:theme="@style/Theme.ComicCollector.AppBarOverlay">
+        app:layout_behavior="com.google.android.material.appbar.AppBarLayout$Behavior"
+        app:layout_insetEdge="top">
 
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/action_bar"
@@ -28,12 +30,17 @@
         android:id="@+id/fragment_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:nestedScrollingEnabled="true"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        app:layout_dodgeInsetEdges="top"
         tools:layout="@layout/fragment_item_list" />
 
-    <com.wtb.comiccollector.views.FilterView
-        android:id="@+id/filter_view"
-        style="@style/mFilterView"
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/filter_fragment_container"
+        android:name="com.wtb.comiccollector.views.FilterFragment"
+        android:tag="@string/tag_filter_fragment"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        app:layout_behavior="@string/bottom_sheet_behavior"
+        tools:layout="@layout/fragment_filter" />
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

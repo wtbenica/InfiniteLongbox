@@ -1,7 +1,13 @@
-package com.wtb.comiccollector
+package com.wtb.comiccollector.view_models
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
+import androidx.paging.PagingData
+import com.wtb.comiccollector.APP
+import com.wtb.comiccollector.SearchFilter
+import com.wtb.comiccollector.SortOption
 import com.wtb.comiccollector.database.models.FilterOption
+import com.wtb.comiccollector.database.models.ListItem
 import com.wtb.comiccollector.repository.Repository
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
@@ -39,7 +45,20 @@ class FilterViewModel : ViewModel() {
         res.sorted()
     }
 
+    val results: Flow<PagingData<out ListItem>> = _filter.flatMapLatest {
+        if (it.returnsIssueList()) {
+            repository.getIssuesByFilterPaged(it)
+        } else {
+            repository.getSeriesByFilterPaged(it)
+        }
+    }
+
+    fun setFilter(filter: SearchFilter) {
+        this._filter.value = filter
+    }
+
     fun addFilterItem(item: FilterOption) {
+        Log.d(TAG, "ADDING ITEM: $item")
         val newVal = SearchFilter(_filter.value)
         newVal.addFilter(item)
         _filter.value = newVal
@@ -59,7 +78,7 @@ class FilterViewModel : ViewModel() {
 
     fun myCollection(isChecked: Boolean) {
         val newVal = SearchFilter(_filter.value)
-        newVal.setMyCollection(isChecked)
+        newVal.mMyCollection = isChecked
         _filter.value = newVal
     }
 }

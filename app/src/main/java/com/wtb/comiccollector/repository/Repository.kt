@@ -137,12 +137,14 @@ class Repository private constructor(val context: Context) {
     fun getSeries(seriesId: Int): Flow<Series?> = seriesDao.getSeries(seriesId)
 
     fun getSeriesByFilterPaged(filter: SearchFilter): Flow<PagingData<FullSeries>> {
+        val newFilter = SearchFilter(filter)
         Log.d(TAG, "getSeriesByFilterPaged")
-        val mSeries = filter.mSeries
+        val mSeries = newFilter.mSeries
         if (mSeries == null) {
-            refreshFilterOptions(mSeries, filter.mCreators)
+            refreshFilterOptions(mSeries, newFilter.mCreators)
         } else {
             Log.d(TAG, "getSeriesByFilterPagingSource: Wasn't expecting to see a series here")
+            newFilter.mSeries = null
         }
 
         return Pager(
@@ -150,7 +152,7 @@ class Repository private constructor(val context: Context) {
                 pageSize = REQUEST_LIMIT,
                 enablePlaceholders = true
             ),
-            pagingSourceFactory = { seriesDao.getSeriesByFilterPagingSource(filter) }
+            pagingSourceFactory = { seriesDao.getSeriesByFilterPagingSource(newFilter) }
         ).flow
     }
 
@@ -245,7 +247,7 @@ class Repository private constructor(val context: Context) {
             }
         }
 
-        series?.let {
+       series?.let {
             if (hasConnection) {
                 UpdateSeries(webservice = apiService, database = database, prefs = prefs)
                     .update(seriesId = it.seriesId)

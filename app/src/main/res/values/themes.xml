@@ -9,14 +9,14 @@
         <item name="colorOnPrimary">@color/fantasia_text</item>
 
         <!-- Secondary brand color. -->
-        <item name="colorSecondary">@color/amnesia_dark</item>
-        <item name="colorSecondaryVariant">@color/amnesia_light</item>
         <item name="colorAccent">@color/amnesia</item>
+        <item name="colorSecondaryVariant">@color/amnesia_light</item>
+        <item name="colorSecondary">@color/amnesia_dark</item>
         <item name="colorOnSecondary">@color/amnesia_text</item>
 
         <!-- Status bar color. -->
-        <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimaryDark</item>
-        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimary</item>
+        <item name="android:navigationBarColor">?attr/colorPrimary</item>
         <!-- Customize your theme here. -->
         <item name="android:textColor">?attr/colorOnPrimary</item>
         <item name="android:windowBackground">#FEFEFE</item>

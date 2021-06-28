@@ -2,7 +2,6 @@ package com.wtb.comiccollector
 
 import android.app.Activity
 import android.content.Context
-import android.content.res.Resources
 import android.net.ConnectivityManager
 import android.net.Network
 import android.net.NetworkCapabilities
@@ -13,86 +12,121 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
+import androidx.activity.OnBackPressedCallback
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.ContentFrameLayout
+import androidx.appcompat.widget.Toolbar
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.view.*
 import androidx.fragment.app.DialogFragment
-import androidx.fragment.app.FragmentTransaction
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentContainerView
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.lifecycleScope
+import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetBehavior.*
 import com.wtb.comiccollector.database.models.Creator
 import com.wtb.comiccollector.database.models.Series
-import com.wtb.comiccollector.issue_details.fragments.IssueDetailFragment
-import com.wtb.comiccollector.item_lists.fragments.IssueListFragment
-import com.wtb.comiccollector.item_lists.fragments.SeriesListFragment
-import com.wtb.comiccollector.views.FilterView
+import com.wtb.comiccollector.fragments.IssueDetailFragment
+import com.wtb.comiccollector.fragments.IssueListFragment
+import com.wtb.comiccollector.fragments.SeriesListFragment
+import com.wtb.comiccollector.view_models.FilterViewModel
+import com.wtb.comiccollector.views.FilterFragment
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.mapLatest
+import kotlinx.coroutines.launch
+import java.lang.Integer.max
 
 const val APP = "CC_"
 private const val TAG = APP + "MainActivity"
 
-fun dpToPx(context: Context, dp: Number): Float {
-    val r: Resources = context.resources
-    return TypedValue.applyDimension(
-        TypedValue.COMPLEX_UNIT_DIP,
-        dp.toFloat(),
-        r.displayMetrics
-    )
-}
-
 @ExperimentalCoroutinesApi
-class MainActivity : AppCompatActivity(), SeriesListFragment.SeriesListCallback,
-    FilterView.FilterCallback,
+class MainActivity : AppCompatActivity(),
+    SeriesListFragment.SeriesListCallback,
     IssueListFragment.IssueListCallback,
     SeriesInfoDialogFragment.SeriesInfoDialogCallback,
-    NewCreatorDialogFragment.NewCreatorDialogCallback {
+    NewCreatorDialogFragment.NewCreatorDialogCallback,
+    FilterFragment.FilterFragmentCallback {
 
-    private var filterView: FilterView? = null
+    private val PEEK_HEIGHT
+        get() = resources.getDimension(R.dimen.peek_height).toInt()
+
+    private var filterFragment: FilterFragment? = null
+
+    private val filterViewModel: FilterViewModel by viewModels()
+    private var fragmentContainer: FragmentContainerView? = null
+
+    private var filterFragmentContainer: FragmentContainerView? = null
     private var bottomSheetBehavior: BottomSheetBehavior<*>? = null
+    private var toolbar: Toolbar? = null
 
-    private var posBottom = 0
-    private var posTop = 0
+    private val resultFragmentManager by lazy {
+        ResultFragmentManager()
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(R.style.Theme_ComicCollector)
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main2)
-        setSupportActionBar(findViewById(R.id.action_bar))
-        WindowCompat.setDecorFitsSystemWindows(window, false)
+        setContentView(R.layout.activity_main)
+        toolbar = findViewById(R.id.action_bar)
+        setSupportActionBar(toolbar)
 
-        val currentFragment = supportFragmentManager.findFragmentById(R.id.fragment_container)
+        filterFragment = supportFragmentManager.findFragmentByTag(
+            resources.getString(R.string.tag_filter_fragment)
+        ) as FilterFragment?
 
-        if (currentFragment == null) {
-            val fragment = SearchFilter().getFragment(this)
-            supportFragmentManager
-                .beginTransaction()
-                .add(R.id.fragment_container, fragment)
-                .commit()
+        lifecycleScope.launch {
+            resultFragmentManager.fragment.collectLatest { frag ->
+                frag?.let { fragment ->
+                    supportFragmentManager.beginTransaction()
+                        .setCustomAnimations(
+                            R.anim.fade_in,
+                            R.anim.slide_out,
+                            R.anim.fade_in,
+                            R.anim.slide_out
+                        )
+                        .replace(R.id.fragment_container, fragment)
+                        .addToBackStack(null)
+                        .commit()
+
+                    val tt = object : OnBackPressedCallback(true) {
+                        override fun handleOnBackPressed() {
+                            filterFragment?.onBackPressed()
+                        }
+                    }
+
+                    onBackPressedDispatcher.addCallback(fragment, tt)
+                }
+            }
         }
 
         val root: CoordinatorLayout = findViewById(R.id.main_layout)
-        initWindowInsets(root, true, false)
+        initWindowInsets(root)
         initBottomSheet()
         initNetwork()
     }
 
     private fun initBottomSheet() {
-        filterView = findViewById<FilterView>(R.id.filter_view)?.apply {
-            callback = this@MainActivity
-        }
+        filterFragmentContainer = findViewById(R.id.filter_fragment_container)
 
-        filterView?.let {
-            if (it.behavior is BottomSheetBehavior<*>) {
-                bottomSheetBehavior = it.behavior as BottomSheetBehavior<*>
+        bottomSheetBehavior = filterFragmentContainer?.let { from(it) }
+        bottomSheetBehavior?.peekHeight = PEEK_HEIGHT
+        bottomSheetBehavior?.isHideable = false
+
+        bottomSheetBehavior?.addBottomSheetCallback(object : BottomSheetCallback() {
+            override fun onStateChanged(bottomSheet: View, newState: Int) {
+                Log.d(TAG, "onStateChanged: ${getStateName(newState)}")
             }
-        }
 
-        bottomSheetBehavior?.let {
-            filterView?.visibleState = it.state
-        }
+            override fun onSlide(bottomSheet: View, slideOffset: Float) {
+                filterFragment?.onSlide(slideOffset)
+            }
+        })
     }
 
     private fun initNetwork() {
@@ -138,22 +172,15 @@ class MainActivity : AppCompatActivity(), SeriesListFragment.SeriesListCallback,
         })
     }
 
-    private fun initWindowInsets(view: View, setTop: Boolean, setBottom: Boolean) {
+    private fun initWindowInsets(view: View) {
         ViewCompat.setOnApplyWindowInsetsListener(view) { _, insets ->
-            if (posBottom == 0) {
-                posTop = insets.getInsets(WindowInsetsCompat.Type.systemBars()).top
-                posBottom = insets.getInsets(WindowInsetsCompat.Type.systemBars()).bottom
-            }
+            val posTop = insets.getInsets(WindowInsetsCompat.Type.systemBars()).top
+            val posBottom = insets.getInsets(WindowInsetsCompat.Type.systemBars()).bottom
+            val imeInsetBottom = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom
+            val bottom = max(posBottom, imeInsetBottom)
 
             view.updateLayoutParams<ViewGroup.MarginLayoutParams> {
-                if (setTop && setBottom) {
-                    updateMargins(top = posTop, bottom = posBottom)
-                } else if (setTop) {
-                    updateMargins(top = posTop)
-                } else if (setBottom) {
-                    Log.d(TAG, "Updating bottom margin: $posBottom")
-                    updateMargins(bottom = posBottom)
-                }
+                updateMargins(top = posTop, bottom = bottom)
             }
 
             insets
@@ -162,20 +189,8 @@ class MainActivity : AppCompatActivity(), SeriesListFragment.SeriesListCallback,
 
     // SeriesListFragment.SeriesListCallbacks
     override fun onSeriesSelected(series: Series) {
-        filterView?.addFilterItem(series)
-    }
-
-    // FilterView.FilterCallback
-    override fun onFilterChanged(filter: SearchFilter) {
-        try {
-            supportFragmentManager.beginTransaction()
-                .replace(R.id.fragment_container, filter.getFragment(this))
-                .addToBackStack(null)
-                .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
-                .commit()
-        } catch (e: IllegalStateException) {
-            Log.d(TAG, "onFilterChanged: $e")
-        }
+        Log.d(TAG, "ADDING SERIES $series")
+        filterFragment?.addFilterItem(series)
     }
 
     override fun hideKeyboard() {
@@ -197,14 +212,36 @@ class MainActivity : AppCompatActivity(), SeriesListFragment.SeriesListCallback,
         supportFragmentManager
             .beginTransaction()
             .setCustomAnimations(
-                R.anim.nav_default_pop_enter_anim,
-                R.anim.nav_default_pop_exit_anim,
-                R.anim.nav_default_pop_enter_anim,
-                R.anim.nav_default_pop_exit_anim
+                R.anim.fade_in,
+                R.anim.slide_out,
+                R.anim.fade_in,
+                R.anim.slide_out
             )
             .replace(R.id.fragment_container, fragment)
             .addToBackStack(null)
             .commit()
+
+        val tt = object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                fragmentContainer?.updatePadding(bottom = PEEK_HEIGHT)
+
+                bottomSheetBehavior?.apply {
+                    isHideable = false
+                    state = STATE_COLLAPSED
+                }
+
+                supportFragmentManager.popBackStack()
+            }
+        }
+
+        this.onBackPressedDispatcher.addCallback(fragment, tt)
+
+        fragmentContainer?.updatePadding(bottom = 0)
+
+        bottomSheetBehavior?.apply {
+            isHideable = true
+            state = STATE_HIDDEN
+        }
     }
 
     override fun onNewIssue(issueId: Int) {
@@ -213,10 +250,10 @@ class MainActivity : AppCompatActivity(), SeriesListFragment.SeriesListCallback,
         supportFragmentManager
             .beginTransaction()
             .setCustomAnimations(
-                R.anim.nav_default_pop_enter_anim,
-                R.anim.nav_default_pop_exit_anim,
-                R.anim.nav_default_pop_enter_anim,
-                R.anim.nav_default_pop_exit_anim
+                R.anim.fade_in,
+                R.anim.slide_out,
+                R.anim.fade_in,
+                R.anim.slide_out
             )
             .replace(R.id.fragment_container, fragment)
             .addToBackStack(null)
@@ -224,7 +261,10 @@ class MainActivity : AppCompatActivity(), SeriesListFragment.SeriesListCallback,
     }
 
     // SeriesInfoDialogCallback
-    override fun onSaveSeriesClick(dialog: DialogFragment, series: Series) {
+    override fun onSaveSeriesClick(
+        dialog: DialogFragment,
+        series: Series
+    ) {
         // TODO: MainActivity onSaveSeriesClick
         dialog.dismiss()
     }
@@ -235,9 +275,26 @@ class MainActivity : AppCompatActivity(), SeriesListFragment.SeriesListCallback,
     }
 
     // NewCreatorDialogCallback
-    override fun onSaveCreatorClick(dialog: DialogFragment, creator: Creator) {
+    override fun onSaveCreatorClick(
+        dialog: DialogFragment,
+        creator: Creator
+    ) {
         // TODO: Not yet implemented
         dialog.dismiss()
+    }
+
+    // ListFragmentCallback
+    override fun setTitle(title: String?) {
+        val actual = title ?: applicationInfo.loadLabel(packageManager)
+        Log.d(TAG, "setTitle: $actual")
+        toolbar?.title = actual
+    }
+
+    override fun setToolbarScrollFlags(flags: Int) {
+        Log.d(TAG, "setToolbarScrollFlags $flags")
+        toolbar?.updateLayoutParams<AppBarLayout.LayoutParams> {
+            setScrollFlags(flags)
+        }
     }
 
     companion object {
@@ -268,5 +325,34 @@ class MainActivity : AppCompatActivity(), SeriesListFragment.SeriesListCallback,
             context.theme.resolveAttribute(attr, value, true)
             return value.data
         }
+    }
+
+    inner class ResultFragmentManager {
+        val fragment: Flow<Fragment?> = filterViewModel.filter.mapLatest {
+            when (it.returnsIssueList()) {
+                true -> issueListFragment
+                else -> seriesListFragment
+            }
+        }
+
+        private var seriesListFragment: SeriesListFragment? = null
+            get() {
+                if (field == null) {
+                    field = SeriesListFragment.newInstance()
+                }
+                return field
+            }
+        private var issueListFragment: IssueListFragment? = null
+            get() {
+                if (field == null) {
+                    field = IssueListFragment.newInstance()
+                }
+                return field
+            }
+
+//        fun getFragment(): Fragment? = when (filter?.returnsIssueList()) {
+//            true -> issueListFragment
+//            else -> seriesListFragment
+//        }
     }
 }

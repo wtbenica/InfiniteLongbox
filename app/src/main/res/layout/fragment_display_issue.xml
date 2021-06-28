@@ -3,7 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@android:color/white">
 
     <ImageView
         android:id="@+id/issue_cover"
@@ -13,7 +14,6 @@
         android:layout_marginTop="8dp"
         android:contentDescription="@string/description_issue_cover"
         android:elevation="1dp"
-        android:src="@drawable/ic_issue_add_cover"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 

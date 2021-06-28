@@ -14,9 +14,10 @@ import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.*
 import androidx.fragment.app.DialogFragment
-import androidx.lifecycle.ViewModelProvider
+import androidx.fragment.app.viewModels
 import com.wtb.comiccollector.database.models.Publisher
 import com.wtb.comiccollector.database.models.Series
+import com.wtb.comiccollector.view_models.SeriesInfoViewModel
 import com.wtb.comiccollector.views.SimpleTextWatcher
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import java.time.LocalDate
@@ -36,9 +37,7 @@ const val ARG_SERIES_ID = "seriesId"
 class SeriesInfoDialogFragment private constructor() : DialogFragment(),
     DatePickerFragment.Callbacks {
 
-    private val seriesViewModel by lazy {
-        ViewModelProvider(this).get(SeriesInfoViewModel::class.java)
-    }
+    private val seriesInfoViewModel: SeriesInfoViewModel by viewModels()
 
     private lateinit var callback: SeriesInfoDialogCallback
     private lateinit var series: Series
@@ -76,7 +75,7 @@ class SeriesInfoDialogFragment private constructor() : DialogFragment(),
         publisher = Publisher()
         publisherList = emptyList()
 
-        seriesViewModel.loadSeries(arguments?.getSerializable(ARG_SERIES_ID) as Int)
+        seriesInfoViewModel.loadSeries(arguments?.getSerializable(ARG_SERIES_ID) as Int)
     }
 
     override fun onCreateView(
@@ -102,7 +101,7 @@ class SeriesInfoDialogFragment private constructor() : DialogFragment(),
         super.onViewCreated(view, savedInstanceState)
         Log.d(TAG, "onViewCreated")
 
-        seriesViewModel.allPublishersLiveData.observe(
+        seriesInfoViewModel.allPublishersLiveData.observe(
             viewLifecycleOwner,
             { publisherList ->
                 publisherList?.let {
@@ -118,18 +117,18 @@ class SeriesInfoDialogFragment private constructor() : DialogFragment(),
             }
         )
 
-        seriesViewModel.seriesLiveData.observe(
+        seriesInfoViewModel.seriesLiveData.observe(
             viewLifecycleOwner,
             {
                 it?.let {
                     series = it
-                    seriesViewModel.loadPublisher(series.publisherId)
+                    seriesInfoViewModel.loadPublisher(series.publisherId)
                     updateUI()
                 }
             }
         )
 
-        seriesViewModel.publisherLiveData.observe(
+        seriesInfoViewModel.publisherLiveData.observe(
             viewLifecycleOwner,
             {
                 it?.let {
@@ -207,7 +206,7 @@ class SeriesInfoDialogFragment private constructor() : DialogFragment(),
         }
 
         okayButton.setOnClickListener { view ->
-            seriesViewModel.updateSeries(series)
+            seriesInfoViewModel.updateSeries(series)
 
             val bundle = Bundle()
             bundle.putSerializable(ARG_SERIES_ID, series.seriesId)

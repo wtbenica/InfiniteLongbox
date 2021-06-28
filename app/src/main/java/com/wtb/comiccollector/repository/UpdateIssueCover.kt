@@ -24,28 +24,30 @@ class UpdateIssueCover(
     val database: IssueDatabase,
     val context: Context,
     val prefs: SharedPreferences
-): Updater() {
+) : Updater() {
     internal fun update(issueId: Int) {
         if (checkIfStale(ISSUE_TAG(issueId), ISSUE_LIFETIME, prefs)) {
             CoroutineScope(Dispatchers.IO).launch {
-                val issueDef =
+                val fullIssueDeferred =
                     CoroutineScope(Dispatchers.IO).async {
                         database.issueDao().getIssueSus(issueId)
                     }
-                issueDef.await()?.let { issue ->
+                fullIssueDeferred.await()?.let { issue ->
                     if (issue.coverUri == null) {
                         CoroutineScope(Dispatchers.IO).launch {
                             kotlin.runCatching {
                                 val doc = Jsoup.connect(issue.issue.url).get()
+
                                 val noCover = doc.getElementsByClass("no_cover").size == 1
 
                                 val coverImgElements = doc.getElementsByClass("cover_img")
                                 val wraparoundElements =
                                     doc.getElementsByClass("wraparound_cover_img")
+
                                 val elements = when {
-                                    coverImgElements.size > 0 -> coverImgElements
+                                    coverImgElements.size > 0   -> coverImgElements
                                     wraparoundElements.size > 0 -> wraparoundElements
-                                    else -> null
+                                    else                        -> null
                                 }
 
                                 val src = elements?.get(0)?.attr("src")
@@ -56,12 +58,13 @@ class UpdateIssueCover(
                                     val image = CoroutineScope(Dispatchers.IO).async {
                                         url.toBitmap()
                                     }
+
                                     CoroutineScope(Dispatchers.Default).launch {
                                         val bitmap = image.await()
 
-                                        bitmap?.apply {
+                                        bitmap?.let {
                                             val savedUri: Uri? =
-                                                saveToInternalStorage(
+                                                it.saveToInternalStorage(
                                                     context,
                                                     issue.issue.coverFileName
                                                 )
@@ -71,6 +74,9 @@ class UpdateIssueCover(
                                             database.coverDao().upsertSus(listOf(cover))
                                         }
                                     }
+                                } else if (noCover) {
+                                    val cover = Cover(issueId = issueId, coverUri = null)
+                                    database.coverDao().upsertSus(cover)
                                 } else {
                                     Log.d(TAG, "COVER UPDATER No Cover Found")
                                 }

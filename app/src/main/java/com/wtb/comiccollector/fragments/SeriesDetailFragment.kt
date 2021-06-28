@@ -1,18 +1,21 @@
-package com.wtb.comiccollector
+package com.wtb.comiccollector.fragments
 
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
-import com.wtb.comiccollector.database.models.FullSeries
+import androidx.fragment.app.viewModels
+import com.wtb.comiccollector.APP
+import com.wtb.comiccollector.ARG_SERIES_ID
+import com.wtb.comiccollector.R
 import com.wtb.comiccollector.database.models.Publisher
 import com.wtb.comiccollector.database.models.Series
+import com.wtb.comiccollector.view_models.SeriesInfoViewModel
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 private const val TAG = APP + "SeriesDetailFragment"
 private const val RESULT_SERIES_INFO = 312
@@ -23,11 +26,10 @@ private const val DIALOG_SERIES_INFO = "DIALOG_EDIT_SERIES"
  * Use the [SeriesDetailFragment.newInstance] factory method to
  * create an instance of this fragment.
  */
+@ExperimentalCoroutinesApi
 class SeriesDetailFragment : Fragment() {
 
-    private val seriesViewModel by lazy {
-        ViewModelProvider(this).get(SeriesInfoViewModel::class.java)
-    }
+    private val seriesViewModel: SeriesInfoViewModel by viewModels()
 
     private var seriesId: Int? = null
     private lateinit var series: Series

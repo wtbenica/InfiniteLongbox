@@ -1,5 +1,6 @@
-package com.wtb.comiccollector.item_lists.fragments
+package com.wtb.comiccollector.fragments
 
+import android.content.Context
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
@@ -11,16 +12,19 @@ import android.view.animation.LayoutAnimationController
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.wtb.comiccollector.*
+import com.google.android.material.appbar.AppBarLayout
+import com.wtb.comiccollector.APP
+import com.wtb.comiccollector.R
 import com.wtb.comiccollector.database.models.FullSeries
 import com.wtb.comiccollector.database.models.Series
-import com.wtb.comiccollector.item_lists.view_models.SeriesListViewModel
+import com.wtb.comiccollector.view_models.FilterViewModel
+import com.wtb.comiccollector.view_models.SeriesListViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -28,27 +32,40 @@ import kotlinx.coroutines.launch
 private const val TAG = APP + "SeriesListFragment"
 
 @ExperimentalCoroutinesApi
-class SeriesListFragment(var callback: SeriesListCallback? = null) : Fragment() {
+class SeriesListFragment() : Fragment() {
 
-    private val viewModel: SeriesListViewModel by lazy {
-        ViewModelProvider(this).get(SeriesListViewModel::class.java)
+    private val viewModel: SeriesListViewModel by viewModels()
+    private val filterViewModel: FilterViewModel by viewModels({ requireActivity() })
+
+    private lateinit var itemListRecyclerView: RecyclerView
+    private var callback: SeriesListCallback? = null
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        Log.d(TAG, "ON ATTACH")
+        callback = context as SeriesListCallback?
+
     }
 
-    private var filter = SearchFilter()
-        set(value) {
-            Log.d(TAG, "** Setting filter $value")
-            field = value
-            viewModel.setFilter(filter)
-        }
-    private lateinit var itemListRecyclerView: RecyclerView
+    override fun onResume() {
+        super.onResume()
+
+        callback?.setTitle()
+        callback?.setToolbarScrollFlags(
+            AppBarLayout.LayoutParams.SCROLL_FLAG_SCROLL or
+                    AppBarLayout.LayoutParams.SCROLL_FLAG_ENTER_ALWAYS
+        )
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        Log.d(TAG, "Creating")
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
 
-        filter = arguments?.getSerializable(ARG_FILTER) as SearchFilter
-        Log.d(TAG, "Loaded $filter")
+        lifecycleScope.launch {
+            filterViewModel.filter.collectLatest { filter ->
+                viewModel.setFilter(filter)
+            }
+        }
     }
 
     override fun onCreateView(
@@ -59,9 +76,6 @@ class SeriesListFragment(var callback: SeriesListCallback? = null) : Fragment() 
 
         itemListRecyclerView = view.findViewById(R.id.results_frame) as RecyclerView
         itemListRecyclerView.layoutManager = LinearLayoutManager(context)
-
-        (requireActivity() as MainActivity).supportActionBar?.title = requireContext()
-            .applicationInfo.loadLabel(requireContext().packageManager).toString()
 
         return view
     }
@@ -74,12 +88,9 @@ class SeriesListFragment(var callback: SeriesListCallback? = null) : Fragment() 
 
         lifecycleScope.launch {
             viewModel.seriesList.collectLatest {
-                adapter.submitData(it) }
+                adapter.submitData(it)
+            }
         }
-    }
-
-    private fun updateUI() {
-
     }
 
     private fun runLayoutAnimation(view: RecyclerView) {
@@ -104,15 +115,10 @@ class SeriesListFragment(var callback: SeriesListCallback? = null) : Fragment() 
     }
 
     inner class SeriesHolder(parent: ViewGroup) : RecyclerView.ViewHolder(
-        LayoutInflater.from
-            (parent.context).inflate(R.layout.list_item_series, parent, false)
+        LayoutInflater.from(parent.context).inflate(R.layout.list_item_series, parent, false)
     ), View.OnClickListener {
 
         lateinit var item: FullSeries
-
-        init {
-            itemView.setOnClickListener(this)
-        }
 
         private val seriesTextView: TextView = itemView.findViewById(R.id.list_item_name)
         private val seriesImageView: ImageView = itemView.findViewById(R.id.series_imageview)
@@ -138,22 +144,18 @@ class SeriesListFragment(var callback: SeriesListCallback? = null) : Fragment() 
         }
     }
 
-    interface SeriesListCallback {
+    override fun onDetach() {
+        super.onDetach()
+        callback = null
+    }
+
+    interface SeriesListCallback : IssueListFragment.ListFragmentCallback {
         fun onSeriesSelected(series: Series)
     }
 
     companion object {
         @JvmStatic
-        fun newInstance(
-            callback: SeriesListCallback,
-            filter: SearchFilter
-        ): SeriesListFragment {
-            return SeriesListFragment(callback).apply {
-                arguments = Bundle().apply {
-                    putSerializable(ARG_FILTER, filter)
-                }
-            }
-        }
+        fun newInstance() = SeriesListFragment()
 
         private val DIFF_CALLBACK = object : DiffUtil.ItemCallback<FullSeries>() {
             override fun areItemsTheSame(oldItem: FullSeries, newItem: FullSeries): Boolean =

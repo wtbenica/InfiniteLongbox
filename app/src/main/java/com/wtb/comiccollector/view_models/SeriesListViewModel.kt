@@ -1,6 +1,5 @@
-package com.wtb.comiccollector.item_lists.view_models
+package com.wtb.comiccollector.view_models
 
-import android.util.Log
 import androidx.lifecycle.*
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
@@ -26,11 +25,6 @@ class SeriesListViewModel : ViewModel() {
     }.asFlow().cachedIn(viewModelScope)
 
     fun setFilter(filter: SearchFilter) {
-        Log.d(
-            TAG, "Setting filter: S: ${filter.mSeries?.seriesName} P: ${filter.mPublishers.size} " +
-                    "C: ${filter.mCreators.size} M: ${filter.mMyCollection} ${filter.mStartDate} " +
-                    "${filter.mEndDate} T: ${filter.mTextFilter?.text}"
-        )
         filterLiveData.value = filter
     }
 }

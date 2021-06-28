@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="black">#FF000000</color>
-    <color name="white">#FFFFFFFF</color>
     <color name="light_black">#434343</color>
 
     <color name="fantasia">#B0EE9C</color>
@@ -13,6 +11,7 @@
     <color name="amnesia_light">#CFF7EF</color>
     <color name="amnesia_dark">#309782</color>
     <color name="amnesia_text">#F6F6F6</color>
+    <color name="amnesia_dark_dark">#275322</color>
 
     <color name="fantasia_muted">#E8FDAD</color>
     <color name="fantasia_light_muted">#E3F6B0</color>

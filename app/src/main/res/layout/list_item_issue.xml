@@ -1,47 +1,75 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/layout"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    app:cardUseCompatPadding="true"
+    android:background="@drawable/card_background"
     app:cardCornerRadius="8dp"
     app:cardPreventCornerOverlap="false"
-    android:background="@drawable/card_background">
+    app:cardUseCompatPadding="true"
+    tools:layout_width="200dp">
 
-    <LinearLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/wrapper"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical">
 
+        <ProgressBar
+            android:id="@+id/progress_cover_download"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:alpha="1"
+            android:indeterminate="true"
+            android:indeterminateBehavior="cycle"
+            app:layout_constraintBottom_toBottomOf="@id/list_item_cover"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:alpha="0" />
+
         <ImageView
             android:id="@+id/list_item_cover"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:alpha="0"
             android:adjustViewBounds="true"
+            android:scaleType="fitXY"
+            android:gravity="bottom|center_horizontal"
             android:contentDescription="@string/description_issue_cover"
+            app:layout_constraintBottom_toTopOf="@id/list_item_issue"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:alpha="1"
+            tools:layout_height="309dp"
+            tools:layout_width="200dp"
             tools:src="@tools:sample/backgrounds/scenic" />
 
         <TextView
             android:id="@+id/list_item_issue"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_gravity="bottom|center_horizontal"
-            android:layout_weight="1"
-            android:gravity="center_horizontal|bottom"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:gravity="bottom|center_horizontal"
             android:padding="4dp"
             android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle2"
             android:textColor="?attr/colorOnPrimary"
             android:textSize="12sp"
             android:textStyle="bold"
+            app:layout_constraintBottom_toTopOf="@id/list_item_name"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
             tools:text="8" />
 
         <TextView
             android:id="@+id/list_item_name"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:visibility="gone" />
-    </LinearLayout>
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.cardview.widget.CardView>

@@ -1,8 +1,10 @@
-package com.wtb.comiccollector.item_lists.view_models
+package com.wtb.comiccollector.view_models
 
 import android.util.Log
 import androidx.lifecycle.*
 import androidx.paging.PagingData
+import androidx.paging.cachedIn
+import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.SearchFilter
 import com.wtb.comiccollector.database.models.FullIssue
 import com.wtb.comiccollector.database.models.Issue
@@ -11,13 +13,17 @@ import com.wtb.comiccollector.repository.Repository
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 
-private const val TAG = "NewIssueListViewModel"
+private const val TAG = APP + "IssueListViewModel"
 
 @ExperimentalCoroutinesApi
 class IssueListViewModel : ViewModel() {
     private val repository: Repository = Repository.get()
-    private val seriesIdLiveData = MutableLiveData<Int>()
+
     private val filterLiveData = MutableLiveData(SearchFilter())
+    val filter: LiveData<SearchFilter> = filterLiveData
+
+    private val seriesIdLiveData = MutableLiveData<Int>()
+    val seriesId: LiveData<Int> = seriesIdLiveData
 
     var seriesLiveData: LiveData<Series?> =
         Transformations.switchMap(filterLiveData) {
@@ -26,13 +32,13 @@ class IssueListViewModel : ViewModel() {
             }
         }
 
-    fun issueList(): Flow<PagingData<FullIssue>>? {
-        val filterValue = this.filterLiveData.value
-        Log.d(TAG, "issueList() filterValue: $filterValue")
-        return filterValue?.let { filter ->
-            repository.getIssuesByFilterPaged(filter)
-        }
-    }
+    val issueList: Flow<PagingData<FullIssue>> = filter.switchMap { filter ->
+        repository.getIssuesByFilterPaged(filter).asLiveData()
+    }.asFlow().cachedIn(viewModelScope)
+
+    val series: Flow<Series?> = seriesId.switchMap { id ->
+        repository.getSeries(id).asLiveData()
+    }.asFlow()
 
     fun setFilter(filter: SearchFilter) {
         filterLiveData.value = filter

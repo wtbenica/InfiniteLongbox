@@ -1,4 +1,4 @@
-package com.wtb.comiccollector
+package com.wtb.comiccollector.view_models
 
 import androidx.lifecycle.*
 import com.wtb.comiccollector.database.models.Publisher
@@ -15,15 +15,13 @@ class SeriesInfoViewModel : ViewModel() {
     private val seriesIdLiveData = MutableLiveData<Int>()
     private val publisherIdLiveData = MutableLiveData<Int>()
 
-    var seriesLiveData: LiveData<Series?> =
-        Transformations.switchMap(seriesIdLiveData) { seriesId ->
-            repository.getSeries(seriesId).asLiveData()
-        }
+    var seriesLiveData: LiveData<Series?> = seriesIdLiveData.switchMap { seriesId ->
+        repository.getSeries(seriesId).asLiveData()
+    }
 
-    var publisherLiveData: LiveData<Publisher?> =
-        Transformations.switchMap(publisherIdLiveData) { publisherId ->
-            repository.getPublisher(publisherId).asLiveData()
-        }
+    var publisherLiveData: LiveData<Publisher?> = publisherIdLiveData.switchMap { publisherId ->
+        repository.getPublisher(publisherId).asLiveData()
+    }
 
     var allPublishersLiveData: LiveData<List<Publisher>> = repository.allPublishers.asLiveData()
 

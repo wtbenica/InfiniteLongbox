@@ -8,6 +8,7 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
+        android:background="@drawable/gd_bg_night"
         android:layout_height="wrap_content">
 
         <ImageView
@@ -42,11 +43,11 @@
                 tools:text="@string/hint_series_title" />
 
             <TextView
-                android:id="@+id/list_item_dates"
                 style="@style/SeriesSubtitle"
+                android:id="@+id/list_item_dates"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                tools:hint="(1990-2005)" />
+                tools:text="(1990-2005)" />
         </LinearLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.cardview.widget.CardView>

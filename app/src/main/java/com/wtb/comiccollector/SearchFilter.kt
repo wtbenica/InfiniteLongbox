@@ -5,8 +5,8 @@ import com.wtb.comiccollector.database.models.Creator
 import com.wtb.comiccollector.database.models.FilterOption
 import com.wtb.comiccollector.database.models.Publisher
 import com.wtb.comiccollector.database.models.Series
-import com.wtb.comiccollector.item_lists.fragments.IssueListFragment
-import com.wtb.comiccollector.item_lists.fragments.SeriesListFragment
+import com.wtb.comiccollector.fragments.IssueListFragment
+import com.wtb.comiccollector.fragments.SeriesListFragment
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import java.io.Serializable
 import java.time.LocalDate
@@ -14,6 +14,20 @@ import java.time.LocalDate
 const val ARG_FILTER = "Filter"
 
 private const val TAG = APP + "Filter_SortChipGroup"
+
+val SERIES_SORT_OPTIONS: List<SortOption> = listOf(
+    SeriesSortOption("Series Name (A-Z)", "sortName ASC"),
+    SeriesSortOption("Series Name (Z-A)", "sortName DESC"),
+    SeriesSortOption("Date (Oldest to Newest)", "startDate ASC"),
+    SeriesSortOption("Date (Newest to Oldest)", "startDate DESC")
+)
+
+val ISSUE_SORT_OPTIONS: List<SortOption> = listOf(
+    IssueSortOption("Issue Number (Low to High)", "issueNum ASC"),
+    IssueSortOption("Issue Number (High to Low)", "issueNum DESC"),
+    IssueSortOption("Date (Oldest to Newest)", "releaseDate ASC"),
+    IssueSortOption("Date (Newest to Oldest)", "releaseDate DESC")
+)
 
 @ExperimentalCoroutinesApi
 class SearchFilter(
@@ -45,10 +59,10 @@ class SearchFilter(
     var mCreators: Set<Creator> = creators ?: setOf()
     var mSeries: Series? = series
         set(value) {
+            // sets selected sort option to default if it's not of the same type
             if (getSortOptions(value) != getSortOptions()) {
                 mSortOption = getSortOptions(value)[0]
             }
-
             field = value
         }
     var mPublishers: Set<Publisher> = publishers ?: setOf()
@@ -67,47 +81,6 @@ class SearchFilter(
                 LocalDate.MIN && mEndDate == LocalDate.MAX && !mMyCollection
     }
 
-    private fun addCreator(vararg creator: Creator) {
-        val newCreators = mCreators + creator.toSet()
-        mCreators = newCreators
-    }
-
-    private fun removeCreator(vararg creator: Creator) {
-        val newCreators = mCreators - creator.toSet()
-        mCreators = newCreators
-    }
-
-    private fun addSeries(series: Series) {
-        this.mSeries = series
-    }
-
-    private fun removeSeries() {
-        this.mSeries = null
-    }
-
-    private fun addPublisher(vararg publisher: Publisher) {
-        val newPublishers = mPublishers + publisher.toSet()
-        mPublishers = newPublishers
-    }
-
-    private fun removePublisher(vararg publisher: Publisher) {
-        val newPublishers = mPublishers - publisher.toSet()
-        mPublishers = newPublishers
-    }
-
-    private fun addTextFilter(item: TextFilter) {
-        mTextFilter = item
-    }
-
-    private fun removeTextFilter(item: TextFilter) {
-        if (item == mTextFilter)
-            mTextFilter = null
-    }
-
-    fun setMyCollection(value: Boolean) {
-        this.mMyCollection = value
-    }
-
     fun addFilter(vararg items: FilterOption) {
         items.forEach { item ->
             when (item) {
@@ -117,6 +90,24 @@ class SearchFilter(
                 is TextFilter -> addTextFilter(item)
             }
         }
+    }
+
+    private fun addCreator(vararg creator: Creator) {
+        val newCreators = mCreators + creator.toSet()
+        mCreators = newCreators
+    }
+
+    private fun addSeries(series: Series) {
+        this.mSeries = series
+    }
+
+    private fun addPublisher(vararg publisher: Publisher) {
+        val newPublishers = mPublishers + publisher.toSet()
+        mPublishers = newPublishers
+    }
+
+    private fun addTextFilter(item: TextFilter) {
+        mTextFilter = item
     }
 
     fun removeFilter(vararg items: FilterOption) {
@@ -130,30 +121,49 @@ class SearchFilter(
         }
     }
 
-    fun getFragment(callback: SeriesListFragment.SeriesListCallback): Fragment =
-        when (mSeries) {
-            null -> SeriesListFragment.newInstance(callback, this)
-            else -> IssueListFragment.newInstance(this)
-        }
+    private fun removeCreator(vararg creator: Creator) {
+        val newCreators = mCreators - creator.toSet()
+        mCreators = newCreators
+    }
 
+    private fun removeSeries() {
+        this.mSeries = null
+    }
+
+    private fun removePublisher(vararg publisher: Publisher) {
+        val newPublishers = mPublishers - publisher.toSet()
+        mPublishers = newPublishers
+    }
+
+    private fun removeTextFilter(item: TextFilter) {
+        if (item == mTextFilter)
+            mTextFilter = null
+    }
+
+    fun getFragment(): Fragment =
+        when (mSeries) {
+            null -> SeriesListFragment.newInstance()
+            else -> IssueListFragment.newInstance()
+        }
 
     fun getSortOptions(series: Series? = mSeries): List<SortOption> =
         when (series) {
-            null -> seriesSortOptions
-            else -> issueSortOptions
+            null -> SERIES_SORT_OPTIONS
+            else -> ISSUE_SORT_OPTIONS
         }
 
+    fun getReturnTypes(): List<ReturnType> {
+        val result: MutableList<ReturnType> = mutableListOf()
 
-    fun updateCreators(creators: List<Creator>?) {
-        creators?.let { mCreators = it.toSet() }
-    }
+        if (mSeries == null) {
+            result.add(ReturnType.SERIES)
+        }
 
-    fun updatePublishers(publishers: List<Publisher>?) {
-        publishers?.let { mPublishers = it.toSet() }
-    }
+        if (mCreators.isNotEmpty() || mPublishers.isNotEmpty()||mSeries!=null) {
+            result.add(ReturnType.ISSUE)
+        }
 
-    fun updateSeries(series: Series?) {
-        mSeries = series
+        return result
     }
 
     fun getAll(): Set<FilterOption> {
@@ -177,13 +187,6 @@ class SearchFilter(
     override fun toString(): String =
         "Series: $mSeries Creators: ${mCreators.size} Pubs: " +
                 "${mPublishers.size} MyCol: $mMyCollection T: ${mTextFilter?.text}"
-
-//    companion object {
-//        fun deserialize(str: String?): MutableSet<Int> {
-//            return str?.removePrefix("[")?.removeSuffix("]")?.split(", ")
-//                ?.mapNotNull { it.toIntOrNull() }?.toMutableSet() ?: mutableSetOf()
-//        }
-//    }
 }
 
 abstract class SortOption(
@@ -198,27 +201,18 @@ class IssueSortOption(
     tag: String, sortColumn: String
 ) : SortOption(tag, sortColumn)
 
-val issueSortOptions: List<SortOption> = listOf(
-    IssueSortOption("Issue Number (Low to High)", "issueNum ASC"),
-    IssueSortOption("Issue Number (High to Low)", "issueNum DESC"),
-    IssueSortOption("Date (Oldest to Newest)", "releaseDate ASC"),
-    IssueSortOption("Date (Newest to Oldest)", "releaseDate DESC")
-)
-
 class SeriesSortOption(
     tag: String, sortColumn: String
 ) : SortOption(tag, sortColumn)
-
-val seriesSortOptions: List<SortOption> = listOf(
-    SeriesSortOption("Series Name (A-Z)", "sortName ASC"),
-    SeriesSortOption("Series Name (Z-A)", "sortName DESC"),
-    SeriesSortOption("Date (Oldest to Newest)", "startDate ASC"),
-    SeriesSortOption("Date (Newest to Oldest)", "startDate DESC")
-)
 
 data class TextFilter(val text: String) : FilterOption {
     override val compareValue: String
         get() = text
 
-    override fun toString(): String = "\"$text\""
+    override fun toString(): String = text
 }
+
+enum class ReturnType {
+    SERIES, ISSUE, CREATOR, PUBLISHER, CHARACTER
+}
+

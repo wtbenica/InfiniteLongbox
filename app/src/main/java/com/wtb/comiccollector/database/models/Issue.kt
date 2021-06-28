@@ -112,7 +112,7 @@ data class FullIssue(
 
     @Relation(parentColumn = "issueId", entityColumn = "issueId")
     var myCollection: MyCollection? = null
-) {
+) : ListItem {
     val series: Series
         get() = seriesAndPublisher.series
 
