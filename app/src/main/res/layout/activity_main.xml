@@ -13,8 +13,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:animateLayoutChanges="true"
-        app:layout_insetEdge="top"
-        app:layout_behavior="com.google.android.material.appbar.AppBarLayout$Behavior">
+        app:layout_behavior="com.google.android.material.appbar.AppBarLayout$Behavior"
+        app:layout_insetEdge="top">
 
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/action_bar"
@@ -22,6 +22,7 @@
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:animateLayoutChanges="true"
+            app:layout_scrollFlags="scroll|enterAlways"
             tools:title="Doom Patrol #9" />
     </com.google.android.material.appbar.AppBarLayout>
 
@@ -29,17 +30,17 @@
         android:id="@+id/fragment_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:layout="@layout/fragment_item_list"
+        android:nestedScrollingEnabled="true"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
         app:layout_dodgeInsetEdges="top"
-        android:paddingBottom="@dimen/peek_height"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
+        tools:layout="@layout/fragment_item_list" />
 
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/filter_fragment_container"
+        android:name="com.wtb.comiccollector.views.FilterFragment"
+        android:tag="@string/tag_filter_fragment"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:behavior_hideable="false"
-        app:layout_insetEdge="bottom"
         app:layout_behavior="@string/bottom_sheet_behavior"
         tools:layout="@layout/fragment_filter" />
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

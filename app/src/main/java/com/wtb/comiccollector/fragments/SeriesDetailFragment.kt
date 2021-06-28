@@ -1,4 +1,4 @@
-package com.wtb.comiccollector
+package com.wtb.comiccollector.fragments
 
 import android.app.Activity
 import android.content.Intent
@@ -9,8 +9,12 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import com.wtb.comiccollector.APP
+import com.wtb.comiccollector.ARG_SERIES_ID
+import com.wtb.comiccollector.R
 import com.wtb.comiccollector.database.models.Publisher
 import com.wtb.comiccollector.database.models.Series
+import com.wtb.comiccollector.view_models.SeriesInfoViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 private const val TAG = APP + "SeriesDetailFragment"

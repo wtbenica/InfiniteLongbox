@@ -13,7 +13,7 @@ import com.wtb.comiccollector.database.models.FilterOption
 
 private const val TAG = APP + "SearchAutoCompleteTextView"
 
-class SearchAutoCompleteTextView(context: Context, attributeSet: AttributeSet) :
+class SearchAutoComplete(context: Context, attributeSet: AttributeSet) :
     androidx.appcompat.widget.AppCompatAutoCompleteTextView(context, attributeSet) {
 
     var callbacks: SearchTextViewCallback? = null

@@ -30,10 +30,10 @@
             android:layout_marginBottom="@dimen/drag_handle_margin"
             android:elevation="8dp"
             app:cardUseCompatPadding="false"
-            app:layout_constraintBottom_toTopOf="@id/switch_card_view"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
+            app:layout_constraintTop_toTopOf="parent"
+            tools:visibility="visible">
 
             <View
                 android:layout_width="@dimen/peek_height"
@@ -46,6 +46,7 @@
             android:id="@+id/switch_card_view"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:alpha="0"
             android:animateLayoutChanges="true"
             app:cardElevation="0dp"
             app:layout_constraintBottom_toTopOf="@id/sort_card_view"
@@ -67,6 +68,7 @@
             android:id="@+id/sort_card_view"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:alpha="0"
             android:animateLayoutChanges="true"
             app:cardElevation="0dp"
             app:layout_constraintBottom_toTopOf="@id/filter_card_view"
@@ -138,6 +140,7 @@
             android:id="@+id/filter_card_view"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:alpha="0"
             android:animateLayoutChanges="true"
             app:cardElevation="0dp"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -192,7 +195,7 @@
                     </com.google.android.material.chip.ChipGroup>
                 </HorizontalScrollView>
 
-                <com.wtb.comiccollector.views.SearchAutoCompleteTextView
+                <com.wtb.comiccollector.views.SearchAutoComplete
                     android:id="@+id/filter_text_view"
                     android:layout_width="0dp"
                     android:layout_height="?attr/dropdownListPreferredItemHeight"

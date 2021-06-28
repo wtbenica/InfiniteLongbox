@@ -3,7 +3,7 @@ package com.wtb.comiccollector.fragments
 import android.animation.ValueAnimator
 import android.content.Context
 import android.os.Bundle
-import android.util.TypedValue
+import android.util.Log
 import android.view.*
 import android.view.animation.AccelerateInterpolator
 import android.widget.ImageView
@@ -19,10 +19,9 @@ import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.appbar.AppBarLayout
 import com.wtb.comiccollector.APP
-import com.wtb.comiccollector.MainActivity
 import com.wtb.comiccollector.R
-import com.wtb.comiccollector.SeriesDetailFragment
 import com.wtb.comiccollector.database.models.FullIssue
 import com.wtb.comiccollector.view_models.FilterViewModel
 import com.wtb.comiccollector.view_models.IssueListViewModel
@@ -35,15 +34,21 @@ private const val TAG = APP + "IssueListFragment"
 @ExperimentalCoroutinesApi
 class IssueListFragment : Fragment() {
 
-    private val issueListViewModel: IssueListViewModel by viewModels()
+    private val viewModel: IssueListViewModel by viewModels()
     private val filterViewModel: FilterViewModel by viewModels({ requireActivity() })
 
     private lateinit var issueGridView: RecyclerView
-    private var issueListCallback: IssueListCallback? = null
+    private var callback: IssueListCallback? = null
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        issueListCallback = context as IssueListCallback?
+        callback = context as IssueListCallback?
+    }
+
+    override fun onResume() {
+        super.onResume()
+        Log.d(TAG, "onResume")
+        callback?.setToolbarScrollFlags(AppBarLayout.LayoutParams.SCROLL_FLAG_NO_SCROLL)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -53,7 +58,11 @@ class IssueListFragment : Fragment() {
         lifecycleScope.launch {
             filterViewModel.filter.collectLatest { filter ->
                 updateSeriesDetailFragment(filter.mSeries?.seriesId)
-                issueListViewModel.setFilter(filter)
+                viewModel.setFilter(filter)
+            }
+
+            viewModel.series.collectLatest {
+                it?.seriesName?.let { name -> callback?.setTitle(name) }
             }
         }
     }
@@ -88,22 +97,20 @@ class IssueListFragment : Fragment() {
         issueGridView.adapter = adapter
 
         lifecycleScope.launch {
-            issueListViewModel.issueList()?.collectLatest { adapter.submitData(it) }
+            viewModel.issueList.collectLatest { adapter.submitData(it) }
         }
 
-        issueListViewModel.seriesLiveData.observe(
+        viewModel.seriesLiveData.observe(
             viewLifecycleOwner,
             {
-                (requireActivity() as MainActivity).supportActionBar?.apply {
-                    it?.let { title = it.seriesName }
-                }
+                callback?.setTitle(it?.seriesName)
             }
         )
     }
 
     override fun onDetach() {
         super.onDetach()
-        issueListCallback = null
+        callback = null
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -125,6 +132,18 @@ class IssueListFragment : Fragment() {
 //        }
 //    }
 //
+    inner class IssueAdapter :
+        PagingDataAdapter<FullIssue, IssueViewHolder>(DIFF_CALLBACK) {
+
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): IssueViewHolder {
+            return IssueViewHolder(parent)
+        }
+
+        override fun onBindViewHolder(holder: IssueViewHolder, position: Int) {
+            holder.bind(getItem(position))
+        }
+    }
+
     inner class IssueViewHolder(val parent: ViewGroup) : RecyclerView.ViewHolder(
         LayoutInflater.from(parent.context).inflate(R.layout.list_item_issue, parent, false)
     ), View.OnClickListener {
@@ -143,7 +162,7 @@ class IssueListFragment : Fragment() {
 
         fun bind(issue: FullIssue?) {
             this.fullIssue = issue
-            this.fullIssue?.let { issueListViewModel.updateIssueCover(it) }
+            this.fullIssue?.let { viewModel.updateIssueCover(it) }
             val coverUri = this.fullIssue?.coverUri
 
             if (fullIssue?.cover != null) {
@@ -172,9 +191,6 @@ class IssueListFragment : Fragment() {
                 coverImageView.setImageResource(R.drawable.ic_issue_add_cover)
             }
 
-            val value = TypedValue()
-            context?.theme?.resolveAttribute(R.attr.colorPrimaryMuted, value, true)
-
             if (fullIssue?.myCollection?.collectionId != null) {
                 wrapper.setBackgroundResource(R.drawable.list_item_issue_card_background_in_collection)
                 layout.cardElevation = 32F
@@ -188,32 +204,17 @@ class IssueListFragment : Fragment() {
 
         override fun onClick(v: View?) {
             val issueId = fullIssue?.issue?.issueId
-            issueId?.let { issueListCallback?.onIssueSelected(it) }
+            issueId?.let { callback?.onIssueSelected(it) }
         }
 
     }
 
-    inner class IssueAdapter :
-        PagingDataAdapter<FullIssue, IssueViewHolder>(diffCallback) {
-
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): IssueViewHolder {
-            return IssueViewHolder(parent)
-        }
-
-        override fun onBindViewHolder(holder: IssueViewHolder, position: Int) {
-            holder.bind(getItem(position))
-        }
+    interface ListFragmentCallback {
+        fun setTitle(title: String? = null)
+        fun setToolbarScrollFlags(flags: Int)
     }
 
-    val diffCallback = object : DiffUtil.ItemCallback<FullIssue>() {
-        override fun areItemsTheSame(oldItem: FullIssue, newItem: FullIssue): Boolean =
-            oldItem.issue.issueId == newItem.issue.issueId
-
-        override fun areContentsTheSame(oldItem: FullIssue, newItem: FullIssue): Boolean =
-            oldItem == newItem
-    }
-
-    interface IssueListCallback {
+    interface IssueListCallback : ListFragmentCallback {
         fun onIssueSelected(issueId: Int)
         fun onNewIssue(issueId: Int)
     }
@@ -221,6 +222,13 @@ class IssueListFragment : Fragment() {
     companion object {
         @JvmStatic
         fun newInstance() = IssueListFragment()
-    }
 
+        private val DIFF_CALLBACK = object : DiffUtil.ItemCallback<FullIssue>() {
+            override fun areItemsTheSame(oldItem: FullIssue, newItem: FullIssue): Boolean =
+                oldItem.issue.issueId == newItem.issue.issueId
+
+            override fun areContentsTheSame(oldItem: FullIssue, newItem: FullIssue): Boolean =
+                oldItem == newItem
+        }
+    }
 }

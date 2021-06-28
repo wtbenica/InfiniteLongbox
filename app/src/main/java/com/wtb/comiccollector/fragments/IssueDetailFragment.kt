@@ -12,13 +12,13 @@ import android.widget.*
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import com.google.android.material.appbar.AppBarLayout
 import com.wtb.comiccollector.*
 import com.wtb.comiccollector.database.Daos.Count
 import com.wtb.comiccollector.database.models.*
 import com.wtb.comiccollector.repository.DUMMY_ID
 import com.wtb.comiccollector.view_models.IssueDetailViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collectLatest
 import java.io.File
 import java.time.format.DateTimeFormatter
@@ -55,9 +55,15 @@ private const val STORY_TYPE_COVER = 6
 @ExperimentalCoroutinesApi
 class IssueDetailFragment : Fragment() {
 
-    private var numUpdates = 0
+    private var callback: IssueListFragment.ListFragmentCallback? = null
 
-    private var theJob: Job? = null
+    override fun onDetach() {
+        super.onDetach()
+
+        callback = null
+    }
+
+    private var numUpdates = 0
 
     private lateinit var fullIssue: FullIssue
     private var fullVariant: FullIssue? = null
@@ -104,6 +110,16 @@ class IssueDetailFragment : Fragment() {
 
     private val issueDetailViewModel: IssueDetailViewModel by viewModels()
 
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        callback = context as IssueListFragment.ListFragmentCallback?
+    }
+
+    override fun onResume() {
+        super.onResume()
+        callback?.setToolbarScrollFlags(AppBarLayout.LayoutParams.SCROLL_FLAG_NO_SCROLL)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
@@ -120,9 +136,7 @@ class IssueDetailFragment : Fragment() {
             issueDetailViewModel.issue.collectLatest {
                 it?.let { issue ->
                     this@IssueDetailFragment.fullIssue = issue
-                    (requireActivity() as MainActivity).supportActionBar?.apply {
-                        it.let { title = "${issue.series.seriesName} #${issue.issue.issueNum}" }
-                    }
+                    callback?.setTitle("${issue.series.seriesName} #${issue.issue.issueNum}")
                     this@IssueDetailFragment.updateUI()
                 }
             }

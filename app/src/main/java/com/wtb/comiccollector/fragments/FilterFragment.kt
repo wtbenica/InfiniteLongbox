@@ -2,7 +2,6 @@ package com.wtb.comiccollector.views
 
 import android.content.Context
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -11,13 +10,9 @@ import androidx.appcompat.widget.SwitchCompat
 import androidx.cardview.widget.CardView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
-import androidx.core.view.updateLayoutParams
-import androidx.core.view.updateMargins
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.asLiveData
-import com.google.android.material.bottomsheet.BottomSheetBehavior
+import androidx.lifecycle.lifecycleScope
 import com.google.android.material.chip.ChipGroup
 import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.R
@@ -28,6 +23,8 @@ import com.wtb.comiccollector.database.models.Publisher
 import com.wtb.comiccollector.database.models.Series
 import com.wtb.comiccollector.view_models.FilterViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 
 private const val TAG = APP + "FilterFragment"
 
@@ -39,7 +36,7 @@ data class Figueroa<T>(private val function: (T) -> Unit, private val item: T) {
 
 @ExperimentalCoroutinesApi
 class FilterFragment(var callback: FilterFragmentCallback? = null) : Fragment(),
-    SearchAutoCompleteTextView.SearchTextViewCallback,
+    SearchAutoComplete.SearchTextViewCallback,
     Chippy.ChipCallbacks {
 
     companion object {
@@ -68,21 +65,6 @@ class FilterFragment(var callback: FilterFragmentCallback? = null) : Fragment(),
             updateViews()
         }
 
-    internal var visibleState: Int = BottomSheetBehavior.STATE_COLLAPSED
-        set(value) {
-            field = value
-            if (field == BottomSheetBehavior.STATE_COLLAPSED) {
-                handle.updateLayoutParams<ViewGroup.MarginLayoutParams> {
-                    val margin = resources.getDimension(R.dimen.drag_handle_margin).toInt()
-                    updateMargins(top = margin, bottom = margin)
-                }
-            } else if (field == BottomSheetBehavior.STATE_EXPANDED) {
-                handle.updateLayoutParams<ViewGroup.MarginLayoutParams> {
-                    updateMargins(top = 0, bottom = 0)
-                }
-            }
-        }
-
     private val viewModel: FilterViewModel by viewModels({ requireActivity() })
 
     private lateinit var background: ConstraintLayout
@@ -98,7 +80,7 @@ class FilterFragment(var callback: FilterFragmentCallback? = null) : Fragment(),
     private lateinit var filterConstraintLayout: ConstraintLayout
     private lateinit var filterChipGroup: ChipGroup
     private lateinit var filterOptionsLabel: ImageView
-    private lateinit var filterTextView: SearchAutoCompleteTextView
+    private lateinit var searchAutoComplete: SearchAutoComplete
 
     private val filterOptionsQueue = ArrayDeque<Figueroa<*>>()
 
@@ -122,23 +104,23 @@ class FilterFragment(var callback: FilterFragmentCallback? = null) : Fragment(),
         filterChipGroup = view.findViewById(R.id.filter_chip_group) as ChipGroup
         filterChipGroup.removeAllViews()
         filterOptionsLabel = view.findViewById(R.id.label_filter_items) as ImageView
-        filterTextView = view.findViewById(R.id.filter_text_view) as SearchAutoCompleteTextView
-        filterTextView.callbacks = this
+        searchAutoComplete = view.findViewById(R.id.filter_text_view) as SearchAutoComplete
+        searchAutoComplete.callbacks = this
 
-        viewModel.filterOptions.asLiveData()
-            .observe(context as LifecycleOwner) { filterObjects: List<FilterOption> ->
-                filterTextView.setAdapter(
+        lifecycleScope.launch {
+            viewModel.filter.collectLatest { filter ->
+                this@FilterFragment.filter = filter
+                sortChipGroup.filter = filter
+            }
+
+            viewModel.filterOptions.collectLatest { filterOptions ->
+                searchAutoComplete.setAdapter(
                     FilterOptionsAdapter(
                         requireContext(),
-                        filterObjects
+                        filterOptions
                     )
                 )
             }
-
-        viewModel.filter.asLiveData().observe(context as LifecycleOwner) { filter ->
-            Log.d(TAG, "UPDATING FILTER")
-            this.filter = filter
-            sortChipGroup.filter = filter
         }
 
         myCollectionSwitch.setOnCheckedChangeListener { _, isChecked ->
@@ -164,21 +146,10 @@ class FilterFragment(var callback: FilterFragmentCallback? = null) : Fragment(),
         switchCardView.alpha = slideOffset
         sortCardView.alpha = slideOffset
         filterCardView.alpha = slideOffset
-
-        handle.updateLayoutParams<ViewGroup.MarginLayoutParams> {
-            val margin: Float = resources.getDimension(R.dimen.drag_handle_margin)
-            updateMargins(
-                top = (margin * inverseOffset).toInt(),
-                bottom = (margin * inverseOffset).toInt()
-            )
-        }
     }
 
     private fun updateViews() {
-        Log.d(TAG, "updateViews")
-
         updateFilterCard()
-
         myCollectionSwitch.isChecked = filter.mMyCollection
     }
 
@@ -189,47 +160,47 @@ class FilterFragment(var callback: FilterFragmentCallback? = null) : Fragment(),
         newFilters.forEach { addChip(it) }
 
         if (newFilters.isEmpty()) {
-            val constraints = ConstraintSet()
-            constraints.clone(filterConstraintLayout)
-            constraints.connect(
-                R.id.label_filter_items,
-                ConstraintSet.TOP, R.id.filter_text_view,
-                ConstraintSet.TOP
-            )
-            constraints.connect(
-                R.id.label_filter_items,
-                ConstraintSet.BOTTOM, R.id.filter_text_view,
-                ConstraintSet.BOTTOM
-            )
-            constraints.connect(
-                R.id.filter_text_view,
-                ConstraintSet.START, R.id.label_filter_items,
-                ConstraintSet.END
-            )
-            constraints.applyTo(filterConstraintLayout)
+            collapseFilterCard()
         } else {
-            val constraints = ConstraintSet()
-            constraints.clone(filterConstraintLayout)
-            constraints.connect(
-                R.id.label_filter_items,
-                ConstraintSet.TOP, R.id.filter_chip_scrollview,
-                ConstraintSet.TOP
-            )
-            constraints.connect(
-                R.id.label_filter_items,
-                ConstraintSet.BOTTOM,
-                R.id.filter_chip_scrollview,
-                ConstraintSet.BOTTOM
-            )
-            constraints.connect(
-                R.id.filter_text_view,
-                ConstraintSet.START,
-                ConstraintSet.PARENT_ID,
-                ConstraintSet.START
-            )
-            constraints.applyTo(filterConstraintLayout)
-            filterCardView.visibility = CardView.VISIBLE
+            expandFilterCard()
         }
+    }
+
+    private fun expandFilterCard() {
+        val constraints = ConstraintSet()
+        constraints.clone(filterConstraintLayout)
+        constraints.connect(
+            R.id.label_filter_items, ConstraintSet.TOP,
+            R.id.filter_chip_scrollview, ConstraintSet.TOP
+        )
+        constraints.connect(
+            R.id.label_filter_items, ConstraintSet.BOTTOM,
+            R.id.filter_chip_scrollview, ConstraintSet.BOTTOM
+        )
+        constraints.connect(
+            R.id.filter_text_view, ConstraintSet.START,
+            ConstraintSet.PARENT_ID, ConstraintSet.START
+        )
+        constraints.applyTo(filterConstraintLayout)
+        filterCardView.visibility = CardView.VISIBLE
+    }
+
+    private fun collapseFilterCard() {
+        val constraints = ConstraintSet()
+        constraints.clone(filterConstraintLayout)
+        constraints.connect(
+            R.id.label_filter_items, ConstraintSet.TOP,
+            R.id.filter_text_view, ConstraintSet.TOP
+        )
+        constraints.connect(
+            R.id.label_filter_items, ConstraintSet.BOTTOM,
+            R.id.filter_text_view, ConstraintSet.BOTTOM
+        )
+        constraints.connect(
+            R.id.filter_text_view, ConstraintSet.START,
+            R.id.label_filter_items, ConstraintSet.END
+        )
+        constraints.applyTo(filterConstraintLayout)
     }
 
     private fun addChip(item: FilterOption) {
@@ -252,12 +223,6 @@ class FilterFragment(var callback: FilterFragmentCallback? = null) : Fragment(),
     // ChippyCallback
     override fun chipClosed(view: View, item: FilterOption) {
         viewModel.removeFilterItem(item)
-//        filterOptionsQueue.add(
-//            Figueroa(
-//                { addChip(it, true) },
-//                item
-//            )
-//        )
     }
 
     class FilterOptionsAdapter(ctx: Context, filterOptions: List<FilterOption>) :

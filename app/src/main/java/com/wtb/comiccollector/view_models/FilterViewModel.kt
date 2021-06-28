@@ -4,7 +4,6 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.paging.PagingData
 import com.wtb.comiccollector.APP
-import com.wtb.comiccollector.R
 import com.wtb.comiccollector.SearchFilter
 import com.wtb.comiccollector.SortOption
 import com.wtb.comiccollector.database.models.FilterOption
@@ -53,15 +52,6 @@ class FilterViewModel : ViewModel() {
             repository.getSeriesByFilterPaged(it)
         }
     }
-
-    val resultContainer: Flow<Int> = _filter.mapLatest {
-        when (it.returnsIssueList()) {
-            true  -> R.layout.fragment_item_grid
-            false -> R.layout.fragment_item_list
-        }
-    }
-
-    val resultHolder: Flow<Boolean> = _filter.mapLatest { filter -> filter.returnsIssueList() }
 
     fun setFilter(filter: SearchFilter) {
         this._filter.value = filter
