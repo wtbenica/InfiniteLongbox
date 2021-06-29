@@ -35,12 +35,19 @@
         app:layout_dodgeInsetEdges="top"
         tools:layout="@layout/fragment_item_list" />
 
-    <androidx.fragment.app.FragmentContainerView
-        android:id="@+id/filter_fragment_container"
-        android:name="com.wtb.comiccollector.views.FilterFragment"
-        android:tag="@string/tag_filter_fragment"
+    <FrameLayout
+        android:id="@+id/bottom_sheet"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_behavior="@string/bottom_sheet_behavior"
-        tools:layout="@layout/fragment_filter" />
+        tools:layout_height="@dimen/peek_height"
+        app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
+
+        <androidx.fragment.app.FragmentContainerView
+            android:id="@+id/filter_fragment_container"
+            android:name="com.wtb.comiccollector.views.FilterFragment"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:tag="@string/tag_filter_fragment"
+            tools:layout="@layout/fragment_filter" />
+    </FrameLayout>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

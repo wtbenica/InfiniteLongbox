@@ -2,8 +2,10 @@ package com.wtb.comiccollector.views
 
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
+import android.view.View.*
 import android.view.ViewGroup
 import android.widget.*
 import androidx.appcompat.widget.SwitchCompat
@@ -12,7 +14,10 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.asLiveData
 import androidx.lifecycle.lifecycleScope
+import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.chip.ChipGroup
 import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.R
@@ -23,52 +28,44 @@ import com.wtb.comiccollector.database.models.Publisher
 import com.wtb.comiccollector.database.models.Series
 import com.wtb.comiccollector.view_models.FilterViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 private const val TAG = APP + "FilterFragment"
 
-internal const val P_H = 48
-
-data class Figueroa<T>(private val function: (T) -> Unit, private val item: T) {
-    fun evaluate() = function(item)
-}
-
 @ExperimentalCoroutinesApi
-class FilterFragment(var callback: FilterFragmentCallback? = null) : Fragment(),
+class FilterFragment : Fragment(),
     SearchAutoComplete.SearchTextViewCallback,
     Chippy.ChipCallbacks {
 
-    companion object {
-        fun newInstance(callback: FilterFragmentCallback) = FilterFragment(callback)
-    }
-
-    interface FilterFragmentCallback {
-        fun hideKeyboard()
-        fun showKeyboard(focus: EditText)
-    }
-
-    private var prevFilter: SearchFilter? = null
+    private val viewModel: FilterViewModel by viewModels({ requireActivity() })
+    private var callback: FilterFragmentCallback? = null
 
     private var filter: SearchFilter = SearchFilter()
         set(value) {
             if (prevFilter != value) {
                 prevFilter = field
                 filterOptionsQueue.add(
-                    Figueroa(
-                        { viewModel.setFilter(it) },
-                        prevFilter ?: SearchFilter()
-                    )
+                    Figueroa({ viewModel.setFilter(it) }, prevFilter ?: SearchFilter())
                 )
             }
             field = value
             updateViews()
         }
+    private var prevFilter: SearchFilter? = null
 
-    private val viewModel: FilterViewModel by viewModels({ requireActivity() })
+    internal var visibleState: Int = BottomSheetBehavior.STATE_EXPANDED
+        set(value) {
+            field = value
+            if (field == BottomSheetBehavior.STATE_EXPANDED) {
+                handle.elevation = -1F
+            } else {
+                handle.elevation = 0F
+            }
+        }
 
+    // Views
     private lateinit var background: ConstraintLayout
-    private lateinit var handle: View
+    private lateinit var handle: LinearLayout
 
     private lateinit var switchCardView: CardView
     private lateinit var myCollectionSwitch: SwitchCompat
@@ -84,43 +81,43 @@ class FilterFragment(var callback: FilterFragmentCallback? = null) : Fragment(),
 
     private val filterOptionsQueue = ArrayDeque<Figueroa<*>>()
 
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        callback = context as FilterFragmentCallback?
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         val view = inflater.inflate(R.layout.fragment_filter, container, false)
-
-        background = view.findViewById(R.id.bg)
-        handle = view.findViewById(R.id.handle)
-
-        switchCardView = view.findViewById(R.id.switch_card_view)
-        myCollectionSwitch = view.findViewById(R.id.my_collection_switch) as SwitchCompat
-
-        sortCardView = view.findViewById(R.id.sort_card_view) as CardView
-        sortChipGroup = view.findViewById(R.id.sort_chip_group) as SortChipGroup
-
-        filterCardView = view.findViewById(R.id.filter_card_view) as CardView
-        filterConstraintLayout = view.findViewById(R.id.filter_contraint_layout)
-        filterChipGroup = view.findViewById(R.id.filter_chip_group) as ChipGroup
-        filterChipGroup.removeAllViews()
-        filterOptionsLabel = view.findViewById(R.id.label_filter_items) as ImageView
-        searchAutoComplete = view.findViewById(R.id.filter_text_view) as SearchAutoComplete
-        searchAutoComplete.callbacks = this
+        onCreateViewFindViews(view)
+        onCreateViewInitViews()
 
         lifecycleScope.launch {
-            viewModel.filter.collectLatest { filter ->
+            viewModel.filter.asLiveData().observe(context as LifecycleOwner) { filter ->
                 this@FilterFragment.filter = filter
                 sortChipGroup.filter = filter
             }
 
-            viewModel.filterOptions.collectLatest { filterOptions ->
-                searchAutoComplete.setAdapter(
-                    FilterOptionsAdapter(
-                        requireContext(),
-                        filterOptions
+            viewModel.filterOptions.asLiveData()
+                .observe(context as LifecycleOwner) { filterObjects: List<FilterOption> ->
+                    searchAutoComplete.setAdapter(
+                        FilterOptionsAdapter(
+                            requireContext(),
+                            filterObjects
+                        )
                     )
-                )
-            }
+                }
+        }
+
+        return view
+    }
+
+    private fun onCreateViewInitViews() {
+        handle.setOnClickListener {
+            Log.d(TAG, "CLICK! CCKLI! LICCK!")
+            callback?.onHandleClick()
         }
 
         myCollectionSwitch.setOnCheckedChangeListener { _, isChecked ->
@@ -137,7 +134,26 @@ class FilterFragment(var callback: FilterFragmentCallback? = null) : Fragment(),
             }
         }
 
-        return view
+        filterChipGroup.removeAllViews()
+
+        searchAutoComplete.callbacks = this
+    }
+
+    private fun onCreateViewFindViews(view: View) {
+        background = view.findViewById(R.id.bg)
+        handle = view.findViewById(R.id.handle)
+
+        switchCardView = view.findViewById(R.id.switch_card_view)
+        myCollectionSwitch = view.findViewById(R.id.my_collection_switch) as SwitchCompat
+
+        sortCardView = view.findViewById(R.id.sort_card_view) as CardView
+        sortChipGroup = view.findViewById(R.id.sort_chip_group) as SortChipGroup
+
+        filterCardView = view.findViewById(R.id.filter_card_view) as CardView
+        filterConstraintLayout = view.findViewById(R.id.filter_contraint_layout)
+        filterChipGroup = view.findViewById(R.id.filter_chip_group) as ChipGroup
+        filterOptionsLabel = view.findViewById(R.id.label_filter_items) as ImageView
+        searchAutoComplete = view.findViewById(R.id.filter_text_view) as SearchAutoComplete
     }
 
     internal fun onSlide(slideOffset: Float) {
@@ -305,4 +321,18 @@ class FilterFragment(var callback: FilterFragmentCallback? = null) : Fragment(),
             }
         }
     }
+
+    interface FilterFragmentCallback {
+        fun onHandleClick()
+        fun hideKeyboard()
+        fun showKeyboard(focus: EditText)
+    }
+
+    companion object {
+        fun newInstance() = FilterFragment()
+    }
+}
+
+data class Figueroa<T>(private val function: (T) -> Unit, private val item: T) {
+    fun evaluate() = function(item)
 }
