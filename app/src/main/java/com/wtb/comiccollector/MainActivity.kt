@@ -62,7 +62,6 @@ class MainActivity : AppCompatActivity(),
     private val filterViewModel: FilterViewModel by viewModels()
     private var fragmentContainer: FragmentContainerView? = null
 
-    private var filterFragmentContainer: FragmentContainerView? = null
     private var bottomSheetBehavior: BottomSheetBehavior<*>? = null
     private var toolbar: Toolbar? = null
 
