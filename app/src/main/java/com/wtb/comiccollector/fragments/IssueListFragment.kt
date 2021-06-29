@@ -23,8 +23,8 @@ import com.google.android.material.appbar.AppBarLayout
 import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.R
 import com.wtb.comiccollector.database.models.FullIssue
-import com.wtb.comiccollector.view_models.FilterViewModel
-import com.wtb.comiccollector.view_models.IssueListViewModel
+import com.wtb.comiccollector.fragments_view_models.FilterViewModel
+import com.wtb.comiccollector.fragments_view_models.IssueListViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch

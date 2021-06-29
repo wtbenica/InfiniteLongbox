@@ -17,7 +17,7 @@ import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.viewModels
 import com.wtb.comiccollector.database.models.Publisher
 import com.wtb.comiccollector.database.models.Series
-import com.wtb.comiccollector.view_models.SeriesInfoViewModel
+import com.wtb.comiccollector.fragments_view_models.SeriesInfoViewModel
 import com.wtb.comiccollector.views.SimpleTextWatcher
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import java.time.LocalDate

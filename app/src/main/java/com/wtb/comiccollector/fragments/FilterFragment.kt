@@ -26,7 +26,7 @@ import com.wtb.comiccollector.database.models.Creator
 import com.wtb.comiccollector.database.models.FilterOption
 import com.wtb.comiccollector.database.models.Publisher
 import com.wtb.comiccollector.database.models.Series
-import com.wtb.comiccollector.view_models.FilterViewModel
+import com.wtb.comiccollector.fragments_view_models.FilterViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
 

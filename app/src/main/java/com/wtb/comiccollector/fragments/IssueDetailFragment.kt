@@ -17,7 +17,7 @@ import com.wtb.comiccollector.*
 import com.wtb.comiccollector.database.Daos.Count
 import com.wtb.comiccollector.database.models.*
 import com.wtb.comiccollector.repository.DUMMY_ID
-import com.wtb.comiccollector.view_models.IssueDetailViewModel
+import com.wtb.comiccollector.fragments_view_models.IssueDetailViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collectLatest
 import java.io.File

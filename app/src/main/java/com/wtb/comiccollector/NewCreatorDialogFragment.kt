@@ -14,7 +14,7 @@ import android.widget.*
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.ViewModelProvider
 import com.wtb.comiccollector.database.models.Creator
-import com.wtb.comiccollector.view_models.IssueDetailViewModel
+import com.wtb.comiccollector.fragments_view_models.IssueDetailViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import java.time.LocalDate
 
