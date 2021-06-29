@@ -23,8 +23,8 @@ import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.R
 import com.wtb.comiccollector.database.models.FullSeries
 import com.wtb.comiccollector.database.models.Series
-import com.wtb.comiccollector.view_models.FilterViewModel
-import com.wtb.comiccollector.view_models.SeriesListViewModel
+import com.wtb.comiccollector.fragments_view_models.FilterViewModel
+import com.wtb.comiccollector.fragments_view_models.SeriesListViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch

@@ -157,6 +157,7 @@ class Repository private constructor(val context: Context) {
     }
 
     fun getSeriesByFilter(filter: SearchFilter): Flow<List<Series>> {
+        Log.d(TAG, "getSeriesByFilter")
         val mSeries = filter.mSeries
         if (mSeries == null) {
             refreshFilterOptions(mSeries, filter.mCreators)
@@ -219,17 +220,23 @@ class Repository private constructor(val context: Context) {
     }
 
     // CREATOR METHODS
-    fun getCreatorsByFilter(filter: SearchFilter): Flow<List<Creator>> = if (filter.mCreators.isEmpty())
-        creatorDao.getCreatorsByFilter(filter)
-    else
-        flow { emit(emptyList<Creator>()) }
-
+    fun getCreatorsByFilter(filter: SearchFilter): Flow<List<Creator>> {
+        Log.d(TAG, "getCreatorsByFilter")
+        return if (filter.mCreators.isEmpty()) {
+            creatorDao.getCreatorsByFilter(filter)
+        } else {
+            flow { emit(emptyList<Creator>()) }
+        }
+    }
     // PUBLISHER METHODS
-    fun getPublishersByFilter(filter: SearchFilter): Flow<List<Publisher>> =
-        if (filter.mPublishers.isEmpty())
+    fun getPublishersByFilter(filter: SearchFilter): Flow<List<Publisher>> {
+        Log.d(TAG, "getPublishersByFilter")
+        return if (filter.mPublishers.isEmpty()) {
             publisherDao.getPublishersByFilter(filter)
-        else
+        } else {
             flow { emit(emptyList<Publisher>()) }
+        }
+    }
 
     fun getPublisher(publisherId: Int): Flow<Publisher?> =
         publisherDao.getPublisher(publisherId)
@@ -247,7 +254,7 @@ class Repository private constructor(val context: Context) {
             }
         }
 
-       series?.let {
+        series?.let {
             if (hasConnection) {
                 UpdateSeries(webservice = apiService, database = database, prefs = prefs)
                     .update(seriesId = it.seriesId)

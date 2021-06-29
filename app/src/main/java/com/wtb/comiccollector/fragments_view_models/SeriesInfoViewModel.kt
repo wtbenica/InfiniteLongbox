@@ -1,4 +1,4 @@
-package com.wtb.comiccollector.view_models
+package com.wtb.comiccollector.fragments_view_models
 
 import androidx.lifecycle.*
 import com.wtb.comiccollector.database.models.Publisher

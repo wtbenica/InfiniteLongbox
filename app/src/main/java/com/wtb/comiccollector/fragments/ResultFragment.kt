@@ -10,7 +10,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import com.wtb.comiccollector.R
 import com.wtb.comiccollector.SearchFilter
-import com.wtb.comiccollector.view_models.FilterViewModel
+import com.wtb.comiccollector.fragments_view_models.FilterViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch

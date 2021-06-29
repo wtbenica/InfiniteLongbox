@@ -9,16 +9,18 @@ import android.os.Bundle
 import android.util.Log
 import android.util.TypedValue
 import android.view.View
-import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
+import android.widget.FrameLayout
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.ContentFrameLayout
 import androidx.appcompat.widget.Toolbar
 import androidx.coordinatorlayout.widget.CoordinatorLayout
-import androidx.core.view.*
+import androidx.core.view.WindowInsetsControllerCompat
+import androidx.core.view.updateLayoutParams
+import androidx.core.view.updatePadding
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentContainerView
@@ -32,7 +34,7 @@ import com.wtb.comiccollector.database.models.Series
 import com.wtb.comiccollector.fragments.IssueDetailFragment
 import com.wtb.comiccollector.fragments.IssueListFragment
 import com.wtb.comiccollector.fragments.SeriesListFragment
-import com.wtb.comiccollector.view_models.FilterViewModel
+import com.wtb.comiccollector.fragments_view_models.FilterViewModel
 import com.wtb.comiccollector.views.FilterFragment
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
@@ -40,7 +42,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.launch
-import java.lang.Integer.max
 
 const val APP = "CC_"
 private const val TAG = APP + "MainActivity"
@@ -61,7 +62,6 @@ class MainActivity : AppCompatActivity(),
     private val filterViewModel: FilterViewModel by viewModels()
     private var fragmentContainer: FragmentContainerView? = null
 
-    private var filterFragmentContainer: FragmentContainerView? = null
     private var bottomSheetBehavior: BottomSheetBehavior<*>? = null
     private var toolbar: Toolbar? = null
 
@@ -73,6 +73,12 @@ class MainActivity : AppCompatActivity(),
         setTheme(R.style.Theme_ComicCollector)
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        val root = findViewById<CoordinatorLayout>(R.id.main_layout)
+        WindowInsetsControllerCompat(window, root).apply {
+            setSystemBarsBehavior(WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
+        }
+
         toolbar = findViewById(R.id.action_bar)
         setSupportActionBar(toolbar)
 
@@ -105,28 +111,35 @@ class MainActivity : AppCompatActivity(),
             }
         }
 
-        val root: CoordinatorLayout = findViewById(R.id.main_layout)
-        initWindowInsets(root)
         initBottomSheet()
         initNetwork()
     }
 
     private fun initBottomSheet() {
-        filterFragmentContainer = findViewById(R.id.filter_fragment_container)
+        val bottomSheet: FrameLayout? = findViewById(R.id.bottom_sheet)
 
-        bottomSheetBehavior = filterFragmentContainer?.let { from(it) }
-        bottomSheetBehavior?.peekHeight = PEEK_HEIGHT
-        bottomSheetBehavior?.isHideable = false
+        bottomSheetBehavior = bottomSheet?.let { from(it) }
+        bottomSheetBehavior?.apply {
+            peekHeight = PEEK_HEIGHT
+            isHideable = false
+        }
 
         bottomSheetBehavior?.addBottomSheetCallback(object : BottomSheetCallback() {
             override fun onStateChanged(bottomSheet: View, newState: Int) {
                 Log.d(TAG, "onStateChanged: ${getStateName(newState)}")
+                filterFragment?.visibleState = newState
             }
 
             override fun onSlide(bottomSheet: View, slideOffset: Float) {
                 filterFragment?.onSlide(slideOffset)
             }
         })
+    }
+
+    override fun onHandleClick() {
+        if (bottomSheetBehavior?.state == STATE_COLLAPSED) {
+            bottomSheetBehavior?.state = STATE_EXPANDED
+        }
     }
 
     private fun initNetwork() {
@@ -172,21 +185,6 @@ class MainActivity : AppCompatActivity(),
         })
     }
 
-    private fun initWindowInsets(view: View) {
-        ViewCompat.setOnApplyWindowInsetsListener(view) { _, insets ->
-            val posTop = insets.getInsets(WindowInsetsCompat.Type.systemBars()).top
-            val posBottom = insets.getInsets(WindowInsetsCompat.Type.systemBars()).bottom
-            val imeInsetBottom = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom
-            val bottom = max(posBottom, imeInsetBottom)
-
-            view.updateLayoutParams<ViewGroup.MarginLayoutParams> {
-                updateMargins(top = posTop, bottom = bottom)
-            }
-
-            insets
-        }
-    }
-
     // SeriesListFragment.SeriesListCallbacks
     override fun onSeriesSelected(series: Series) {
         Log.d(TAG, "ADDING SERIES $series")
@@ -228,6 +226,8 @@ class MainActivity : AppCompatActivity(),
                 bottomSheetBehavior?.apply {
                     isHideable = false
                     state = STATE_COLLAPSED
+                    peekHeight = PEEK_HEIGHT
+                    isGestureInsetBottomIgnored = false
                 }
 
                 supportFragmentManager.popBackStack()
