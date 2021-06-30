@@ -29,7 +29,7 @@
                 android:layout_width="@dimen/peek_height"
                 android:layout_height="@dimen/drag_handle_height"
                 android:layout_gravity="center"
-                android:background="@drawable/cotton_joe" />
+                android:background="@drawable/background_handle" />
         </LinearLayout>
 
         <androidx.cardview.widget.CardView
@@ -49,8 +49,8 @@
                 android:layout_height="?attr/dropdownListPreferredItemHeight"
                 android:animateLayoutChanges="true"
                 android:checked="true"
-                android:paddingStart="@dimen/item_series_padding"
-                android:paddingEnd="@dimen/item_series_padding"
+                android:paddingStart="@dimen/margin_wide"
+                android:paddingEnd="@dimen/margin_wide"
                 android:text="@string/my_collection" />
         </androidx.cardview.widget.CardView>
 
@@ -75,8 +75,8 @@
                     android:id="@+id/label_sort_options"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
-                    android:layout_marginStart="@dimen/margin_outside"
-                    android:layout_marginEnd="@dimen/margin_outside"
+                    android:layout_marginStart="@dimen/margin_wide"
+                    android:layout_marginEnd="@dimen/margin_wide"
                     android:animateLayoutChanges="true"
                     android:contentDescription="@string/sort_image_content_description"
                     android:labelFor="@id/sort_chip_group"
@@ -147,7 +147,7 @@
                     android:id="@+id/label_filter_items"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
-                    android:layout_marginStart="@dimen/margin_outside"
+                    android:layout_marginStart="@dimen/margin_wide"
                     android:animateLayoutChanges="true"
                     android:contentDescription="@string/sort_image_content_description"
                     android:labelFor="@id/sort_chip_group"
@@ -191,7 +191,7 @@
                     android:layout_height="?attr/dropdownListPreferredItemHeight"
                     android:animateLayoutChanges="true"
                     android:hint="@string/search"
-                    android:popupBackground="@drawable/accent_outline_white_background"
+                    android:popupBackground="@drawable/background_autocomplete_popup"
                     android:singleLine="true"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"

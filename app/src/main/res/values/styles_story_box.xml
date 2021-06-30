@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="StoryBoxTitleBar">
+        <item name="android:background">?attr/colorPrimary</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:orientation">horizontal</item>
+        <item name="android:paddingStart">@dimen/margin_wide</item>
+        <item name="android:paddingTop">@dimen/margin_default</item>
+        <item name="android:paddingEnd">@dimen/margin_wide</item>
+        <item name="android:paddingBottom">@dimen/margin_default</item>
+    </style>
+
+    <style name="StoryBoxTitleBarText">
+        <item name="android:textSize">18sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="StoryBoxDropdownButton" parent="Widget.AppCompat.ImageButton">
+        <item name="android:background">@android:color/transparent</item>
+        <item name="srcCompat">@drawable/ic_baseline_arrow_drop_down_24</item>
+        <item name="tint">?attr/colorOnPrimary</item>
+    </style>
+
+    <style name="StoryBoxSubtitleBar">
+        <item name="android:background">?attr/colorPrimaryVariant</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:orientation">horizontal</item>
+        <item name="android:paddingStart">@dimen/margin_wide</item>
+        <item name="android:paddingBottom">@dimen/margin_narrow</item>
+        <item name="android:paddingTop">@dimen/margin_narrow</item>
+        <item name="android:paddingEnd">@dimen/margin_wide</item>
+    </style>
+    
+    <style name="StoryBoxSubtitleText">
+        <item name="android:textSize">14sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+</resources>

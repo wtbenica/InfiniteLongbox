@@ -1,19 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="light_black">#434343</color>
+    <color name="image_dim">#AAFFFFFF</color>
 
-    <color name="fantasia">#B0EE9C</color>
-    <color name="fantasia_light">#DCFCD2</color>
-    <color name="fantasia_dark">#86D56D</color>
-    <color name="fantasia_text">#444</color>
+    <color name="fantasia">#ABED92</color>
+    <color name="fantasia_light">#E0F0E3</color>
+    <color name="fantasia_dark">#B0EE9C</color>
+    <color name="fantasia_text">#D444</color>
 
     <color name="amnesia">#8DD8C9</color>
     <color name="amnesia_light">#CFF7EF</color>
     <color name="amnesia_dark">#309782</color>
     <color name="amnesia_text">#F6F6F6</color>
-    <color name="amnesia_dark_dark">#275322</color>
+    <color name="amnesia_dark_dark">#20706D</color>
 
     <color name="fantasia_muted">#E8FDAD</color>
     <color name="fantasia_light_muted">#E3F6B0</color>
     <color name="fantasia_dark_muted">#BAFE00</color>
+
+    <color name="light_black">#D444</color>
+    <color name="medium_black">#D222</color>
 </resources>

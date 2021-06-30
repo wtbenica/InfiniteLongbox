@@ -5,7 +5,7 @@
     android:id="@+id/item"
     android:layout_width="match_parent"
     android:layout_height="?attr/dropdownListPreferredItemHeight"
-    android:padding="8dp"
+    android:padding="@dimen/margin_default"
     android:gravity="center_vertical"
     android:fontFamily="@font/permanent_marker"
     tools:text="34 - Mitch Gerads Variant" />

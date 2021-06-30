@@ -84,8 +84,6 @@ class IssueListFragment : Fragment() {
         val view = inflater.inflate(R.layout.fragment_item_list, container, false)
 
         issueGridView = view.findViewById(R.id.results_frame) as RecyclerView
-        val itemDecoration = ItemOffsetDecoration(24)
-        issueGridView.addItemDecoration(itemDecoration)
         issueGridView.layoutManager = GridLayoutManager(context, 2)
 
         return view
@@ -192,11 +190,11 @@ class IssueListFragment : Fragment() {
             }
 
             if (fullIssue?.myCollection?.collectionId != null) {
-                wrapper.setBackgroundResource(R.drawable.list_item_issue_card_background_in_collection)
-                layout.cardElevation = 32F
+                wrapper.setBackgroundResource(R.drawable.list_item_card_background_in_collection)
+                layout.cardElevation = 8F
             } else {
-                wrapper.setBackgroundResource(R.drawable.list_item_issue_card_background)
-                layout.cardElevation = 1F
+                wrapper.setBackgroundResource(R.drawable.list_item_card_background)
+                layout.cardElevation = 0F
             }
 
             issueNumTextView.text = this.fullIssue?.issue.toString()

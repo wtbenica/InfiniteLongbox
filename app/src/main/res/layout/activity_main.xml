@@ -6,13 +6,11 @@
     android:id="@+id/main_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:background="#FEFEFE"
     tools:context=".MainActivity">
 
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:animateLayoutChanges="true"
         app:layout_behavior="com.google.android.material.appbar.AppBarLayout$Behavior"
         app:layout_insetEdge="top">
 
@@ -21,7 +19,6 @@
             style="@style/myActionBarStyle"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:animateLayoutChanges="true"
             app:layout_scrollFlags="scroll|enterAlways"
             tools:title="Doom Patrol #9" />
     </com.google.android.material.appbar.AppBarLayout>
@@ -31,6 +28,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:nestedScrollingEnabled="true"
+        android:paddingBottom="@dimen/peek_height"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
         app:layout_dodgeInsetEdges="top"
         tools:layout="@layout/fragment_item_list" />
@@ -39,11 +37,11 @@
         android:id="@+id/bottom_sheet"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        tools:layout_height="@dimen/peek_height"
-        app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
+        app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior"
+        tools:layout_height="@dimen/peek_height">
 
         <androidx.fragment.app.FragmentContainerView
-            android:id="@+id/filter_fragment_container"
+            android:id="@+id/bottom_sheet_container"
             android:name="com.wtb.comiccollector.views.FilterFragment"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

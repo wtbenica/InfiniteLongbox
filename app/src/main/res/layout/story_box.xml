@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/story_box"
     android:layout_width="match_parent"
@@ -10,35 +9,25 @@
 
     <LinearLayout
         android:id="@+id/title_bar"
+        style="@style/StoryBoxTitleBar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:animateLayoutChanges="true"
-        android:background="?attr/colorPrimaryDark"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
-        android:paddingStart="16dp"
-        android:paddingTop="8dp"
-        android:paddingEnd="16dp"
-        android:paddingBottom="8dp">
+        android:animateLayoutChanges="true">
 
         <TextView
             android:id="@+id/story_title"
+            style="@style/StoryBoxTitleBarText"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:textColor="?attr/colorOnPrimary"
-            android:textSize="18sp"
-            android:textStyle="bold"
             tools:text="Cover" />
 
         <ImageButton
             android:id="@+id/story_dropdown_button"
+            style="@style/StoryBoxDropdownButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@android:color/transparent"
-            android:contentDescription="@string/story_dropdown_button"
-            app:srcCompat="@drawable/ic_baseline_arrow_drop_down_24"
-            app:tint="@android:color/white" />
+            android:contentDescription="@string/story_dropdown_button" />
 
     </LinearLayout>
 
@@ -60,34 +49,23 @@
 
             <LinearLayout
                 android:id="@+id/synopsis_bar"
+                style="@style/StoryBoxSubtitleBar"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:animateLayoutChanges="true"
-                android:background="?attr/colorPrimary"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:paddingStart="16dp"
-                android:paddingTop="4dp"
-                android:paddingEnd="16dp"
-                android:paddingBottom="4dp">
+                android:layout_height="wrap_content">
 
                 <TextView
+                    style="@style/StoryBoxSubtitleText"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="@string/synopsis"
-                    android:textColor="?attr/colorOnPrimary"
-                    android:textSize="14sp"
-                    android:textStyle="bold" />
+                    android:text="@string/synopsis" />
 
                 <ImageButton
                     android:id="@+id/synopsis_dropdown_button"
+                    style="@style/StoryBoxDropdownButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:background="@android:color/transparent"
-                    android:contentDescription="@string/synopsis_dropdown_button"
-                    app:srcCompat="@drawable/ic_baseline_arrow_drop_down_24"
-                    app:tint="@android:color/white" />
+                    android:contentDescription="@string/synopsis_dropdown_button" />
 
 
             </LinearLayout>
@@ -110,34 +88,23 @@
 
             <LinearLayout
                 android:id="@+id/characters_bar"
+                style="@style/StoryBoxSubtitleBar"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:animateLayoutChanges="true"
-                android:background="?attr/colorPrimary"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:paddingStart="16dp"
-                android:paddingTop="4dp"
-                android:paddingEnd="16dp"
-                android:paddingBottom="4dp">
+                android:layout_height="wrap_content">
 
                 <TextView
+                    style="@style/StoryBoxSubtitleText"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="@string/characters"
-                    android:textColor="?attr/colorOnPrimary"
-                    android:textSize="14sp"
-                    android:textStyle="bold" />
+                    android:text="@string/characters" />
 
                 <ImageButton
                     android:id="@+id/characters_dropdown_button"
+                    style="@style/StoryBoxDropdownButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:background="@android:color/transparent"
-                    android:contentDescription="@string/characters_dropdown_button"
-                    app:srcCompat="@drawable/ic_baseline_arrow_drop_down_24"
-                    app:tint="@android:color/white" />
+                    android:contentDescription="@string/characters_dropdown_button" />
 
 
             </LinearLayout>

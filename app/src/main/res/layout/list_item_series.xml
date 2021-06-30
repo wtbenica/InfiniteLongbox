@@ -7,8 +7,8 @@
     android:layout_height="wrap_content">
 
     <androidx.constraintlayout.widget.ConstraintLayout
+        android:background="@drawable/list_item_card_background"
         android:layout_width="match_parent"
-        android:background="@drawable/gd_bg_night"
         android:layout_height="wrap_content">
 
         <ImageView
@@ -25,7 +25,7 @@
             tools:src="@tools:sample/backgrounds/scenic" />
 
         <LinearLayout
-            style="@style/SeriesLayout"
+            style="@style/ListItemSeriesLayout"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:orientation="vertical"
@@ -35,7 +35,7 @@
 
             <TextView
                 android:id="@+id/list_item_name"
-                style="@style/SeriesTitleText"
+                style="@style/ListItemSeriesTitleText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
@@ -43,7 +43,7 @@
                 tools:text="@string/hint_series_title" />
 
             <TextView
-                style="@style/SeriesSubtitle"
+                style="@style/ListItemSeriesSubtitle"
                 android:id="@+id/list_item_dates"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

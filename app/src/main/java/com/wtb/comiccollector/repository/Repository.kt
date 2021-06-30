@@ -95,7 +95,7 @@ class Repository private constructor(val context: Context) {
 
     private val filesDir = context.applicationContext.filesDir
 
-    private val retrofit = RetrofitAPIClient.getRetrofitClient(context)
+    private val retrofit = RetrofitAPIClient.getRetrofitClient()
 
     private val apiService: Webservice by lazy {
         retrofit.create(Webservice::class.java)

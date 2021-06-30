@@ -3,18 +3,17 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/layout"
+    app:cardMaxElevation="8dp"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@drawable/card_background"
-    app:cardCornerRadius="8dp"
-    app:cardPreventCornerOverlap="false"
-    app:cardUseCompatPadding="true"
+    style="@style/mCardView.ListItemIssue"
     tools:layout_width="200dp">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/wrapper"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:background="@drawable/list_item_card_background"
         android:orientation="vertical">
 
         <ProgressBar
@@ -34,11 +33,11 @@
             android:id="@+id/list_item_cover"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:alpha="0"
             android:adjustViewBounds="true"
-            android:scaleType="fitXY"
-            android:gravity="bottom|center_horizontal"
+            android:alpha="0"
             android:contentDescription="@string/description_issue_cover"
+            android:gravity="bottom|center_horizontal"
+            android:scaleType="fitXY"
             app:layout_constraintBottom_toTopOf="@id/list_item_issue"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"

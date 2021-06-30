@@ -18,8 +18,9 @@
         <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimary</item>
         <item name="android:navigationBarColor">?attr/colorPrimary</item>
         <!-- Customize your theme here. -->
+        <item name="android:textColorPrimary">?attr/colorOnPrimary</item>
         <item name="android:textColor">?attr/colorOnPrimary</item>
-        <item name="android:windowBackground">#FEFEFE</item>
+        <item name="android:windowBackground">?attr/colorOnSecondary</item>
         <item name="cardViewStyle">@style/mCardView</item>
         <item name="materialButtonStyle">@style/myButtonStyle</item>
         <item name="android:spinnerStyle">@style/mySpinnerStyle</item>
@@ -35,12 +36,4 @@
         <item name="colorPrimaryLightMuted">@color/fantasia_light_muted</item>
     </style>
 
-    <style name="Theme.ComicCollector.NoActionBar">
-        <item name="windowActionBar">false</item>
-        <item name="windowNoTitle">true</item>
-    </style>
-
-    <style name="Theme.ComicCollector.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
-
-    <style name="Theme.ComicCollector.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 </resources>
