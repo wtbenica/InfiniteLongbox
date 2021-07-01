@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
     <style name="SplashTheme" parent="Theme.ComicCollector">
         <item name="android:windowBackground">@drawable/splash</item>
     </style>
@@ -9,11 +10,6 @@
         <item name="cardMaxElevation">@dimen/card_elevation</item>
         <item name="cardCornerRadius">@dimen/corner_radius</item>
         <item name="cardUseCompatPadding">true</item>
-    </style>
-
-    <style name="mFilterView" parent="Widget.MaterialComponents.CardView">
-        <item name="cardUseCompatPadding">false</item>
-        <item name="cardElevation">@dimen/margin_default</item>
     </style>
 
     <style name="myFabStyle" parent="Widget.Design.FloatingActionButton">
@@ -37,6 +33,8 @@
         <item name="thumbTint">@color/my_switch</item>
         <item name="trackTint">?attr/colorSecondaryVariant</item>
         <item name="android:textColor">?attr/colorOnPrimary</item>
+        <item name="android:paddingStart">@dimen/margin_wide</item>
+        <item name="android:paddingEnd">@dimen/margin_wide</item>
         <item name="fontFamily">@font/permanent_marker</item>
         <item name="android:textAppearance">@style/mySwitchTextAppearance</item>
     </style>
@@ -69,7 +67,7 @@
     </style>
 
     <style name="myAutoCompleteStyle" parent="Widget.AppCompat.AutoCompleteTextView">
-        <item name="android:background">@drawable/background_white_24dp</item>
+        <item name="android:background">@android:color/transparent</item>
         <item name="android:paddingStart">@dimen/margin_wide</item>
         <item name="fontFamily">@font/permanent_marker</item>
         <item name="android:textColor">?attr/colorOnPrimary</item>

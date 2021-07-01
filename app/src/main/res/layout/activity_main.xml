@@ -1,16 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:id="@+id/main_activity"
     tools:context=".MainActivity">
 
     <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/app_bar_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:minHeight="0dp"
         app:layout_behavior="com.google.android.material.appbar.AppBarLayout$Behavior"
         app:layout_insetEdge="top">
 
@@ -23,29 +24,29 @@
             tools:title="Doom Patrol #9" />
     </com.google.android.material.appbar.AppBarLayout>
 
-    <androidx.fragment.app.FragmentContainerView
-        android:id="@+id/fragment_container"
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:isScrollContainer="true"
         android:nestedScrollingEnabled="true"
-        android:paddingBottom="@dimen/peek_height"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior"
-        app:layout_dodgeInsetEdges="top"
-        tools:layout="@layout/fragment_item_list" />
-
-    <FrameLayout
-        android:id="@+id/bottom_sheet"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior"
-        tools:layout_height="@dimen/peek_height">
+        app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior"
+        app:layout_dodgeInsetEdges="top">
 
         <androidx.fragment.app.FragmentContainerView
-            android:id="@+id/bottom_sheet_container"
-            android:name="com.wtb.comiccollector.views.FilterFragment"
+            android:id="@+id/fragment_container"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:tag="@string/tag_filter_fragment"
-            tools:layout="@layout/fragment_filter" />
+            android:layout_height="match_parent"
+            android:paddingBottom="@dimen/peek_height"
+            tools:layout="@layout/fragment_item_list" />
     </FrameLayout>
+
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/bottom_sheet"
+        android:name="com.wtb.comiccollector.views.FilterFragment"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:tag="@string/tag_filter_fragment"
+        app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior"
+        tools:layout="@layout/fragment_filter"
+        tools:layout_height="@dimen/peek_height" />
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

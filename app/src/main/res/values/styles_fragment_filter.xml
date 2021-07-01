@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="mFilterView" parent="Widget.MaterialComponents.CardView">
+        <item name="cardUseCompatPadding">false</item>
+        <item name="cardElevation">@dimen/margin_default</item>
+    </style>
+
+    <style name="HandleContainer">
+        <item name="android:layout_height">@dimen/peek_height</item>
+        <item name="android:layout_width">0dp</item>
+        <item name="android:elevation">1dp</item>
+        <item name="android:paddingTop">@dimen/drag_handle_margin</item>
+        <item name="android:paddingBottom">@dimen/drag_handle_margin</item>
+    </style>
+
+    <style name="Handle">
+        <item name="android:layout_height">@dimen/drag_handle_height</item>
+        <item name="android:layout_width">@dimen/peek_height</item>
+        <item name="android:layout_gravity">center</item>
+        <item name="android:background">@drawable/background_handle</item>
+    </style>
+
+    <style name="mCardView.SectionCard">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:alpha">0</item>
+        <item name="cardElevation">0dp</item>
+        <item name="cardMaxElevation">0dp</item>
+        <item name="cardBackgroundColor">?attr/colorOnSecondary</item>
+        <item name="cardUseCompatPadding">true</item>
+    </style>
+
+
+</resources>

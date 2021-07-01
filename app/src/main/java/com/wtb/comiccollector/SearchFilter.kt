@@ -209,7 +209,7 @@ data class TextFilter(val text: String) : FilterOption {
     override val compareValue: String
         get() = text
 
-    override fun toString(): String = text
+    override fun toString(): String = "\"$text\""
 }
 
 enum class ReturnType {

@@ -12,6 +12,7 @@ import androidx.appcompat.widget.SwitchCompat
 import androidx.cardview.widget.CardView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
+import androidx.core.view.*
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.LifecycleOwner
@@ -57,15 +58,15 @@ class FilterFragment : Fragment(),
         set(value) {
             field = value
             if (field == BottomSheetBehavior.STATE_EXPANDED) {
-                handle.elevation = -1F
+                handle.visibility = GONE
             } else {
-                handle.elevation = 0F
+                handle.visibility = VISIBLE
             }
         }
 
     // Views
-    private lateinit var background: ConstraintLayout
-    private lateinit var handle: LinearLayout
+    private lateinit var filterView: ConstraintLayout
+    private lateinit var handle: View
 
     private lateinit var switchCardView: CardView
     private lateinit var myCollectionSwitch: SwitchCompat
@@ -115,6 +116,19 @@ class FilterFragment : Fragment(),
     }
 
     private fun onCreateViewInitViews() {
+        ViewCompat.setOnApplyWindowInsetsListener(filterView) { v, insets ->
+            val posBottom = insets.getInsets(WindowInsetsCompat.Type.systemBars()).bottom
+            val imeInsetBottom = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom
+            Log.d(TAG, "UPDATING WIndoW INSeTs")
+            v.updatePadding(bottom = posBottom)
+
+            v.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                bottomMargin = imeInsetBottom
+            }
+
+            insets
+        }
+
         handle.setOnClickListener {
             Log.d(TAG, "CLICK! CCKLI! LICCK!")
             callback?.onHandleClick()
@@ -140,15 +154,12 @@ class FilterFragment : Fragment(),
     }
 
     private fun onCreateViewFindViews(view: View) {
-        background = view.findViewById(R.id.bg)
+        filterView = view.findViewById(R.id.filter_view)
         handle = view.findViewById(R.id.handle)
-
         switchCardView = view.findViewById(R.id.switch_card_view)
         myCollectionSwitch = view.findViewById(R.id.my_collection_switch) as SwitchCompat
-
         sortCardView = view.findViewById(R.id.sort_card_view) as CardView
         sortChipGroup = view.findViewById(R.id.sort_chip_group) as SortChipGroup
-
         filterCardView = view.findViewById(R.id.filter_card_view) as CardView
         filterConstraintLayout = view.findViewById(R.id.filter_contraint_layout)
         filterChipGroup = view.findViewById(R.id.filter_chip_group) as ChipGroup

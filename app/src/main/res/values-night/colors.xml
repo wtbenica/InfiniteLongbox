@@ -11,12 +11,9 @@
     <color name="amnesia_light">#CFF7EF</color>
     <color name="amnesia_dark">#20706D</color>
     <color name="amnesia_text">#444</color>
-    <color name="amnesia_dark_dark">#20706D</color>
 
     <color name="fantasia_muted">#E8FDAD</color>
     <color name="fantasia_light_muted">#E3F6B0</color>
     <color name="fantasia_dark_muted">#BAFE00</color>
 
-    <color name="light_black">#222</color>
-    <color name="medium_black">#111</color>
 </resources>

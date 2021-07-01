@@ -3,10 +3,10 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/layout"
-    app:cardMaxElevation="8dp"
+    style="@style/mCardView.ListItemIssue"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    style="@style/mCardView.ListItemIssue"
+    app:cardMaxElevation="8dp"
     tools:layout_width="200dp">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -26,8 +26,7 @@
             app:layout_constraintBottom_toBottomOf="@id/list_item_cover"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:alpha="0" />
+            app:layout_constraintTop_toTopOf="parent" />
 
         <ImageView
             android:id="@+id/list_item_cover"
@@ -36,9 +35,8 @@
             android:adjustViewBounds="true"
             android:alpha="0"
             android:contentDescription="@string/description_issue_cover"
-            android:gravity="bottom|center_horizontal"
+            android:gravity="top|center_horizontal"
             android:scaleType="fitXY"
-            app:layout_constraintBottom_toTopOf="@id/list_item_issue"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
@@ -47,28 +45,57 @@
             tools:layout_width="200dp"
             tools:src="@tools:sample/backgrounds/scenic" />
 
+        <View
+            android:id="@+id/bottom_border_cover"
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:background="?attr/colorOnPrimary"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/list_item_cover" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/list_item_issue"
+            app:layout_constraintTop_toBottomOf="@id/bottom_border_cover"/>
+
         <TextView
             android:id="@+id/list_item_issue"
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_weight="0"
             android:gravity="bottom|center_horizontal"
             android:padding="4dp"
             android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle2"
             android:textColor="?attr/colorOnPrimary"
             android:textSize="12sp"
             android:textStyle="bold"
-            app:layout_constraintBottom_toTopOf="@id/list_item_name"
-            app:layout_constraintEnd_toEndOf="parent"
+            tools:text="8"
             app:layout_constraintStart_toStartOf="parent"
-            tools:text="8" />
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/list_item_name"/>
 
         <TextView
             android:id="@+id/list_item_name"
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_weight="0"
             android:visibility="gone"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"/>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:background="@drawable/overlay_list_item_issue"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.cardview.widget.CardView>

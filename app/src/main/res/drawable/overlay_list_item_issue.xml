@@ -6,5 +6,5 @@
     <corners
         android:radius="@dimen/radius_list_item_issue"/>
     <solid
-        android:color="@color/image_dim" />
+        android:color="@android:color/transparent" />
 </shape>
