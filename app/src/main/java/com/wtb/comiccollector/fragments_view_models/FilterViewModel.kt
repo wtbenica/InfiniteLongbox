@@ -73,4 +73,11 @@ class FilterViewModel : ViewModel() {
         newVal.mMyCollection = isChecked
         _filter.value = newVal
     }
+
+    fun showVariants(isChecked: Boolean) {
+        Log.d(TAG, "showVariants: $isChecked")
+        val newVal = SearchFilter(_filter.value)
+        newVal.mShowVariants = isChecked
+        _filter.value = newVal
+    }
 }

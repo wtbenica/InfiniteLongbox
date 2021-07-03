@@ -8,7 +8,6 @@ import android.view.View
 import android.view.View.*
 import android.view.ViewGroup
 import android.widget.*
-import androidx.appcompat.widget.SwitchCompat
 import androidx.cardview.widget.CardView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.*
@@ -37,7 +36,7 @@ private const val TAG = APP + "FilterFragment"
 @ExperimentalCoroutinesApi
 class FilterFragment : Fragment(),
     SearchAutoComplete.SearchTextViewCallback,
-    Chippy.ChipCallbacks {
+    FilterChip.FilterChipCallbacks, OptionChipGroup.OptionChipGroupCallback {
 
     private val viewModel: FilterViewModel by viewModels({ requireActivity() })
     private var callback: FilterFragmentCallback? = null
@@ -58,20 +57,13 @@ class FilterFragment : Fragment(),
     internal var visibleState: Int = BottomSheetBehavior.STATE_EXPANDED
         set(value) {
             field = value
+//            myCollectionSwitch.isEnabled = field == BottomSheetBehavior.STATE_EXPANDED
             if (field == BottomSheetBehavior.STATE_EXPANDED) {
                 handleBox.visibility = GONE
+                optionChipGroup.isEnabled = true
             } else {
                 handleBox.visibility = VISIBLE
-
-                if (field == BottomSheetBehavior.STATE_COLLAPSED) {
-                    sectionCardSort.visibility = INVISIBLE
-                    sectionCardFilter.visibility = INVISIBLE
-                    sectionCardSwitch.visibility = INVISIBLE
-                } else {
-                    sectionCardSort.visibility = VISIBLE
-                    sectionCardFilter.visibility = VISIBLE
-                    sectionCardSwitch.visibility = VISIBLE
-                }
+                optionChipGroup.isEnabled = false
             }
         }
 
@@ -80,7 +72,8 @@ class FilterFragment : Fragment(),
     private lateinit var handleBox: View
 
     private lateinit var sectionCardSwitch: CardView
-    private lateinit var myCollectionSwitch: SwitchCompat
+    private lateinit var optionChipGroup: OptionChipGroup
+//    private lateinit var myCollectionSwitch: SwitchCompat
 
     private lateinit var sectionCardSort: CardView
     private lateinit var sortChipGroup: SortChipGroup
@@ -114,7 +107,7 @@ class FilterFragment : Fragment(),
         lifecycleScope.launch {
             viewModel.filter.asLiveData().observe(context as LifecycleOwner) { filter ->
                 this@FilterFragment.filter = filter
-                sortChipGroup.filter = filter
+                sortChipGroup.update(filter)
             }
 
             viewModel.filterOptions.asLiveData()
@@ -132,28 +125,25 @@ class FilterFragment : Fragment(),
     }
 
     private fun onCreateViewInitViews() {
-        ViewCompat.setOnApplyWindowInsetsListener(filterView) { v, insets ->
+        ViewCompat.setOnApplyWindowInsetsListener(filterView) { view, insets ->
             val posBottom = insets.getInsets(WindowInsetsCompat.Type.systemBars()).bottom
-            val imeInsetBottom = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom
-            Log.d(TAG, "UPDATING WIndoW INSeTs")
-            v.updatePadding(bottom = posBottom)
+            view.updatePadding(bottom = posBottom)
 
-            v.updateLayoutParams<ViewGroup.MarginLayoutParams> {
-                bottomMargin = imeInsetBottom
-            }
+
+            val imeInsetBottom = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom
+            view.updateLayoutParams<ViewGroup.MarginLayoutParams> { bottomMargin = imeInsetBottom }
 
             insets
         }
 
         handleBox.setOnClickListener {
-            Log.d(TAG, "CLICK! CCKLI! LICCK!")
             callback?.onHandleClick()
         }
 
-        myCollectionSwitch.setOnCheckedChangeListener { _, isChecked ->
-            viewModel.myCollection(isChecked)
-        }
-
+//        myCollectionSwitch.setOnCheckedChangeListener { _, isChecked ->
+//            viewModel.myCollection(isChecked)
+//        }
+//
         sortChipGroup.setOnCheckedChangeListener { _, checkedId ->
             if (checkedId >= 0) {
                 view?.findViewById<SortChipGroup.SortChip>(checkedId)?.sortOption?.let {
@@ -174,7 +164,9 @@ class FilterFragment : Fragment(),
         handleBox = view.findViewById(R.id.layout_filter_fragment_handle)
 
         sectionCardSwitch = view.findViewById(R.id.section_card_switches)
-        myCollectionSwitch = view.findViewById(R.id.my_collection_switch) as SwitchCompat
+        optionChipGroup = view.findViewById(R.id.chip_group_option)
+        optionChipGroup.callback = this
+//        myCollectionSwitch = view.findViewById(R.id.my_collection_switch) as SwitchCompat
 
         sectionCardSort = view.findViewById(R.id.section_card_sort) as CardView
         sortChipGroup = view.findViewById(R.id.chip_group_sort) as SortChipGroup
@@ -200,7 +192,7 @@ class FilterFragment : Fragment(),
 
     private fun updateViews() {
         updateFilterCard()
-        myCollectionSwitch.isChecked = filter.mMyCollection
+//        myCollectionSwitch.isChecked = filter.mMyCollection
     }
 
     private fun updateFilterCard() {
@@ -229,7 +221,7 @@ class FilterFragment : Fragment(),
 
         contentCardSearchAuto.shapeAppearanceModel = shapeAppearanceModel
 
-        sectionCardFilter.visibility = CardView.VISIBLE
+        sectionCardFilter.visibility = VISIBLE
         contentCardFilterChips.visibility = VISIBLE
     }
 
@@ -306,7 +298,7 @@ class FilterFragment : Fragment(),
     }
 
     private fun addChip(item: FilterOption) {
-        val chip = Chippy(context, item, this)
+        val chip = FilterChip(context, item, this)
         filterChipGroup.addView(chip)
     }
 
@@ -323,7 +315,7 @@ class FilterFragment : Fragment(),
     }
 
     // ChippyCallback
-    override fun chipClosed(view: View, item: FilterOption) {
+    override fun chipClosed(item: FilterOption) {
         viewModel.removeFilterItem(item)
     }
 
@@ -416,6 +408,11 @@ class FilterFragment : Fragment(),
 
     companion object {
         fun newInstance() = FilterFragment()
+    }
+
+    override fun checkChanged(action: (FilterViewModel, Boolean) -> Unit, isChecked: Boolean) {
+        Log.d(TAG, "checkChanged: $isChecked")
+        action(viewModel, isChecked)
     }
 }
 

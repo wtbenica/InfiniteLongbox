@@ -28,7 +28,6 @@ import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.appbar.AppBarLayout.LayoutParams.SCROLL_FLAG_SCROLL
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetBehavior.*
-import com.google.android.material.card.MaterialCardView
 import com.wtb.comiccollector.database.models.Creator
 import com.wtb.comiccollector.database.models.Series
 import com.wtb.comiccollector.fragments.IssueDetailFragment
@@ -42,7 +41,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.launch
-import kotlin.math.max
 
 const val APP = "CC_"
 private const val TAG = APP + "MainActivity"
@@ -141,19 +139,13 @@ class MainActivity : AppCompatActivity(),
             insets
         }
 
-        ViewCompat.setOnApplyWindowInsetsListener(resultFragmentContainer) { view, insets ->
-            val isBottomSheetShowing =
-                bottomSheetBehavior.state != STATE_HIDDEN && (bottomSheetBehavior.state == STATE_EXPANDED || bottomSheetBehavior.state == STATE_COLLAPSED)
-            Log.d(TAG, "Bottom Sheet is ${if (isBottomSheetShowing) "Showing" else "Hiding"}")
-            val posBottom = insets.getInsets(WindowInsetsCompat.Type.systemBars()).bottom + if
-                    (isBottomSheetShowing) { PEEK_HEIGHT + 8 } else { 0 }
-            val imeBottom = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom
-            val bottom = max(posBottom, imeBottom)
-
-            view.updatePadding(bottom = bottom)
-
-            insets
-        }
+//        ViewCompat.setOnApplyWindowInsetsListener(resultFragmentContainer) { v, insets ->
+//            val posBottom = insets.getInsets(WindowInsetsCompat.Type.systemBars()).bottom
+//
+//            v.updatePadding(bottom = posBottom)
+//
+//            insets
+//        }
     }
 
     private fun initNetwork() {

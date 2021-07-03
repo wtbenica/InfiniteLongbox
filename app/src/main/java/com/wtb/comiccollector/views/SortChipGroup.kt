@@ -21,20 +21,17 @@ class SortChipGroup(context: Context, attributeSet: AttributeSet) :
         isSelectionRequired = true
     }
 
-    internal var filter: SearchFilter? = null
-        set(value) {
-            removeAllViews()
-            value?.getSortOptions()?.forEach { sortOption ->
-                addView(SortChip(context).also { sortChip ->
-                    sortChip.sortOption = sortOption
-                    if (value.mSortOption == sortOption) {
-                        sortChip.isChecked = true
-                    }
-                })
-            }
-
-            field = value
+    fun update(filter: SearchFilter) {
+        removeAllViews()
+        filter.getSortOptions().forEach { sortOption ->
+            addView(SortChip(context).also { sortChip ->
+                sortChip.sortOption = sortOption
+                if (filter.mSortOption == sortOption) {
+                    sortChip.isChecked = true
+                }
+            })
         }
+    }
 
     inner class SortChip(context: Context) : Chip(context) {
 

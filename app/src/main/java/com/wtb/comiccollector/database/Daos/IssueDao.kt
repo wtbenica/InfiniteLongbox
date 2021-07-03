@@ -1,5 +1,6 @@
 package com.wtb.comiccollector.database.Daos
 
+import android.util.Log
 import androidx.paging.PagingSource
 import androidx.room.Dao
 import androidx.room.Query
@@ -64,7 +65,10 @@ abstract class IssueDao : BaseDao<Issue>() {
 
         if (filter.mMyCollection) {
             tableJoinString += "JOIN mycollection mc ON mc.issueId = ie.issueId "
-        } else {
+        }
+
+        Log.d(TAG, "getIssuesByFilter mShowVariants: ${filter.mShowVariants}")
+        if (!filter.mShowVariants) {
             conditionsString += "AND ie.variantOf IS NULL "
         }
 
@@ -150,7 +154,10 @@ abstract class IssueDao : BaseDao<Issue>() {
 
         if (filter.mMyCollection) {
             tableJoinString += "JOIN mycollection mc ON mc.issueId = ie.issueId "
-        } else if (!filter.hasCreator()) {
+        }
+
+        Log.d(TAG, "getIssuesByFilterPagingSource mShowVariants: ${filter.mShowVariants}")
+        if (!filter.mShowVariants) {
             conditionsString += "AND ie.variantOf IS NULL "
         }
 

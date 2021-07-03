@@ -38,7 +38,8 @@ class SearchFilter(
     endDate: LocalDate? = null,
     myCollection: Boolean = true,
     sortOption: SortOption? = null,
-    textFilter: TextFilter? = null
+    textFilter: TextFilter? = null,
+    showVariants: Boolean = false
 ) : Serializable {
 
     constructor(filter: SearchFilter) : this(
@@ -49,7 +50,8 @@ class SearchFilter(
         filter.mEndDate,
         filter.mMyCollection,
         filter.mSortOption,
-        filter.mTextFilter
+        filter.mTextFilter,
+        filter.mShowVariants
     )
 
     override fun equals(other: Any?): Boolean {
@@ -71,6 +73,7 @@ class SearchFilter(
     var mMyCollection: Boolean = myCollection
     var mSortOption: SortOption = sortOption ?: getSortOptions()[0]
     var mTextFilter: TextFilter? = textFilter
+    var mShowVariants: Boolean = showVariants
 
     fun hasCreator() = mCreators.isNotEmpty()
     fun returnsIssueList() = mSeries != null
@@ -181,6 +184,7 @@ class SearchFilter(
         result = 31 * result + mMyCollection.hashCode()
         result = 31 * result + mSortOption.hashCode()
         result = 31 * result + mTextFilter.hashCode()
+        result = 31 * result + mShowVariants.hashCode()
         return result
     }
 

@@ -21,8 +21,7 @@
             android:orientation="vertical"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:visibility="visible">
+            app:layout_constraintTop_toTopOf="parent">
 
             <com.google.android.material.card.MaterialCardView style="@style/Handle" />
         </LinearLayout>
@@ -34,8 +33,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            tools:alpha="1"
-            tools:visibility="invisible">
+            tools:alpha="1">
 
             <LinearLayout
                 style="@style/FilterSectionCardLayout"
@@ -57,11 +55,21 @@
                     android:layout_height="wrap_content"
                     app:shapeAppearanceOverlay="@style/both_right">
 
-                    <androidx.appcompat.widget.SwitchCompat
-                        android:id="@+id/my_collection_switch"
-                        android:layout_width="wrap_content"
-                        android:layout_height="?attr/dropdownListPreferredItemHeight"
-                        android:text="@string/my_collection" />
+                    <HorizontalScrollView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+
+                        <com.wtb.comiccollector.views.OptionChipGroup
+                            android:id="@+id/chip_group_option"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"/>
+
+                    </HorizontalScrollView>
+<!--                    <androidx.appcompat.widget.SwitchCompat-->
+<!--                        android:id="@+id/my_collection_switch"-->
+<!--                        android:layout_width="wrap_content"-->
+<!--                        android:layout_height="?attr/dropdownListPreferredItemHeight"-->
+<!--                        android:text="@string/my_collection" />-->
                 </com.google.android.material.card.MaterialCardView>
             </LinearLayout>
 
