@@ -11,6 +11,9 @@ import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.cardview.widget.CardView
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updatePadding
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentTransaction
 import androidx.fragment.app.viewModels
@@ -34,6 +37,8 @@ private const val TAG = APP + "IssueListFragment"
 
 @ExperimentalCoroutinesApi
 class IssueListFragment : Fragment() {
+    private val PEEK_HEIGHT
+        get() = resources.getDimension(R.dimen.peek_height).toInt()
 
     private val viewModel: IssueListViewModel by viewModels()
     private val filterViewModel: FilterViewModel by viewModels({ requireActivity() })
@@ -89,6 +94,15 @@ class IssueListFragment : Fragment() {
             ItemOffsetDecoration(resources.getDimension(R.dimen.offset_list_item_issue).toInt())
         issueGridView.addItemDecoration(itemDecoration)
         issueGridView.layoutManager = GridLayoutManager(context, 2)
+
+        ViewCompat.setOnApplyWindowInsetsListener(issueGridView) { v, insets ->
+            val bottom =
+                PEEK_HEIGHT + 2 * insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom
+            Log.d(TAG, "NEW PADDING: $bottom")
+            v.updatePadding(bottom = bottom)
+
+            insets
+        }
 
         return view
     }

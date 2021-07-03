@@ -12,7 +12,7 @@
 
     <dimen name="radius_list_item_issue">0dp</dimen>
 
-    <dimen name="offset_list_item_issue">2dp</dimen>
+    <dimen name="offset_list_item_issue">4dp</dimen>
     <dimen name="padding_section_card">4dp</dimen>
 
     <dimen name="peek_height">48dp</dimen>

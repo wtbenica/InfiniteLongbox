@@ -2,8 +2,9 @@
 <resources>
 
     <color name="fantasia">#ABED92</color>
-    <color name="fantasia_light">#B4F4C1</color>
-    <color name="fantasia_dark">#2FAE07</color>
+    <color name="fantasia_light_light">#ECFDE6</color>
+    <color name="fantasia_light">#DEFACF</color>
+    <color name="fantasia_dark">#6AC947</color>
     <color name="fantasia_text">#D222</color>
 
     <color name="amnesia">#BACACA</color>

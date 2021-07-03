@@ -11,6 +11,9 @@ import android.view.animation.AnimationUtils
 import android.view.animation.LayoutAnimationController
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updatePadding
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
@@ -34,6 +37,8 @@ private const val TAG = APP + "SeriesListFragment"
 
 @ExperimentalCoroutinesApi
 class SeriesListFragment() : Fragment() {
+    private val PEEK_HEIGHT
+        get() = resources.getDimension(R.dimen.peek_height).toInt()
 
     private val viewModel: SeriesListViewModel by viewModels()
     private val filterViewModel: FilterViewModel by viewModels({ requireActivity() })
@@ -74,6 +79,15 @@ class SeriesListFragment() : Fragment() {
 
         itemListRecyclerView = view.findViewById(R.id.results_frame) as RecyclerView
         itemListRecyclerView.layoutManager = LinearLayoutManager(context)
+
+        ViewCompat.setOnApplyWindowInsetsListener(itemListRecyclerView) { v, insets ->
+            val bottom =
+                PEEK_HEIGHT + 2 * insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom
+            Log.d(TAG, "NEW PADDING: $bottom")
+            v.updatePadding(bottom = bottom)
+
+            insets
+        }
 
         return view
     }

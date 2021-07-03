@@ -33,6 +33,7 @@ class IssueListViewModel : ViewModel() {
         }
 
     val issueList: Flow<PagingData<FullIssue>> = filter.switchMap { filter ->
+        Log.d(TAG, "issueList: filterChanged")
         repository.getIssuesByFilterPaged(filter).asLiveData()
     }.asFlow().cachedIn(viewModelScope)
 
