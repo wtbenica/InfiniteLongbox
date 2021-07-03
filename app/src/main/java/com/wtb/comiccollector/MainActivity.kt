@@ -11,7 +11,6 @@ import android.util.TypedValue
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
-import android.widget.FrameLayout
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -29,6 +28,7 @@ import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.appbar.AppBarLayout.LayoutParams.SCROLL_FLAG_SCROLL
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetBehavior.*
+import com.google.android.material.card.MaterialCardView
 import com.wtb.comiccollector.database.models.Creator
 import com.wtb.comiccollector.database.models.Series
 import com.wtb.comiccollector.fragments.IssueDetailFragment
@@ -42,6 +42,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.launch
+import kotlin.math.max
 
 const val APP = "CC_"
 private const val TAG = APP + "MainActivity"
@@ -63,8 +64,8 @@ class MainActivity : AppCompatActivity(),
     private lateinit var mainLayout: CoordinatorLayout
     private lateinit var appBarLayout: AppBarLayout
     private lateinit var toolbar: Toolbar
-    private lateinit var fragmentContainer: FragmentContainerView
-    private lateinit var bottomSheet: FrameLayout
+    private lateinit var resultFragmentContainer: FragmentContainerView
+    private lateinit var bottomSheet: FragmentContainerView
     private lateinit var bottomSheetBehavior: BottomSheetBehavior<*>
 
     private val resultFragmentManager by lazy {
@@ -84,7 +85,7 @@ class MainActivity : AppCompatActivity(),
         appBarLayout = findViewById(R.id.app_bar_layout)
         toolbar = findViewById(R.id.action_bar)
         setSupportActionBar(toolbar)
-        fragmentContainer = findViewById(R.id.fragment_container)
+        resultFragmentContainer = findViewById(R.id.fragment_container)
         bottomSheet = findViewById(R.id.bottom_sheet)
 
         lifecycleScope.launch {
@@ -136,6 +137,20 @@ class MainActivity : AppCompatActivity(),
             val posTop = insets.getInsets(WindowInsetsCompat.Type.systemBars()).top
 
             view.updatePadding(top = posTop)
+
+            insets
+        }
+
+        ViewCompat.setOnApplyWindowInsetsListener(resultFragmentContainer) { view, insets ->
+            val isBottomSheetShowing =
+                bottomSheetBehavior.state != STATE_HIDDEN && (bottomSheetBehavior.state == STATE_EXPANDED || bottomSheetBehavior.state == STATE_COLLAPSED)
+            Log.d(TAG, "Bottom Sheet is ${if (isBottomSheetShowing) "Showing" else "Hiding"}")
+            val posBottom = insets.getInsets(WindowInsetsCompat.Type.systemBars()).bottom + if
+                    (isBottomSheetShowing) { PEEK_HEIGHT + 8 } else { 0 }
+            val imeBottom = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom
+            val bottom = max(posBottom, imeBottom)
+
+            view.updatePadding(bottom = bottom)
 
             insets
         }
@@ -223,7 +238,7 @@ class MainActivity : AppCompatActivity(),
 
         val tt = object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
-                fragmentContainer.updatePadding(bottom = PEEK_HEIGHT)
+                resultFragmentContainer.updatePadding(bottom = PEEK_HEIGHT)
 
                 bottomSheetBehavior.apply {
                     isHideable = false
@@ -242,7 +257,7 @@ class MainActivity : AppCompatActivity(),
             state = STATE_HIDDEN
         }
 
-        fragmentContainer.updatePadding(bottom = 0)
+        resultFragmentContainer.updatePadding(bottom = 0)
     }
 
     override fun onNewIssue(issueId: Int) {

@@ -85,6 +85,9 @@ class IssueListFragment : Fragment() {
         val view = inflater.inflate(R.layout.fragment_item_list, container, false)
 
         issueGridView = view.findViewById(R.id.results_frame) as RecyclerView
+        val itemDecoration =
+            ItemOffsetDecoration(resources.getDimension(R.dimen.offset_list_item_issue).toInt())
+        issueGridView.addItemDecoration(itemDecoration)
         issueGridView.layoutManager = GridLayoutManager(context, 2)
 
         return view

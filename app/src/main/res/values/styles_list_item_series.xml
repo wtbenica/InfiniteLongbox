@@ -2,9 +2,7 @@
 <resources>
 
     <style name="mCardView.ListItemSeries">
-        <item name="cardElevation">4dp</item>
-        <item name="cardMaxElevation">4dp</item>
-        <item name="cardCornerRadius">@dimen/radius_list_item_issue</item>
+        <item name="cardCornerRadius">0dp</item>
     </style>
 
     <style name="ListItemSeriesLayout">
@@ -14,13 +12,14 @@
 
     <style name="ListItemSeriesTitleText" parent="TextAppearance.AppCompat.Light.SearchResult.Title">
         <item name="android:fontFamily">sans-serif-condensed</item>
-        <item name="android:textSize">20sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">18sp</item>
         <item name="fontFamily">@font/permanent_marker</item>
     </style>
 
     <style name="ListItemSeriesSubtitle" parent="TextAppearance.AppCompat.Light.SearchResult.Subtitle">
         <item name="android:fontFamily">sans-serif-condensed</item>
-        <item name="android:textSize">12sp</item>
+        <item name="android:textSize">14sp</item>
         <item name="fontFamily">@font/permanent_marker</item>
     </style>
 </resources>

@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <style name="mCardView.ListItemIssue">
-        <item name="cardElevation">4dp</item>
-        <item name="cardMaxElevation">4dp</item>
         <item name="cardCornerRadius">@dimen/radius_list_item_issue</item>
     </style>
 

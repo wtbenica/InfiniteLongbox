@@ -2,9 +2,9 @@
 <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main_activity"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:id="@+id/main_activity"
     tools:context=".MainActivity">
 
     <com.google.android.material.appbar.AppBarLayout
@@ -21,7 +21,13 @@
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             app:layout_scrollFlags="scroll|enterAlways"
+            app:titleTextAppearance="@style/myActionBarText"
             tools:title="Doom Patrol #9" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/fantasia" />
     </com.google.android.material.appbar.AppBarLayout>
 
     <FrameLayout
@@ -47,6 +53,5 @@
         android:layout_height="wrap_content"
         android:tag="@string/tag_filter_fragment"
         app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior"
-        tools:layout="@layout/fragment_filter"
-        tools:layout_height="@dimen/peek_height" />
+        tools:layout="@layout/fragment_filter" />
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -16,8 +16,8 @@ class ItemOffsetDecoration(itemOffset: Int) : RecyclerView.ItemDecoration() {
     ) {
         super.getItemOffsets(outRect, view, parent, state)
 
-        outRect.top = mItemOffset / 2
-        outRect.bottom = mItemOffset / 2
+        outRect.top = mItemOffset
+        outRect.bottom = mItemOffset
         outRect.left = mItemOffset
         outRect.right = mItemOffset
     }

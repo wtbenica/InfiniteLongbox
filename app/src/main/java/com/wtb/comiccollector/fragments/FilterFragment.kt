@@ -11,7 +11,6 @@ import android.widget.*
 import androidx.appcompat.widget.SwitchCompat
 import androidx.cardview.widget.CardView
 import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.view.*
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -19,7 +18,9 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.google.android.material.card.MaterialCardView
 import com.google.android.material.chip.ChipGroup
+import com.google.android.material.shape.CornerFamily
 import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.R
 import com.wtb.comiccollector.SearchFilter
@@ -58,26 +59,41 @@ class FilterFragment : Fragment(),
         set(value) {
             field = value
             if (field == BottomSheetBehavior.STATE_EXPANDED) {
-                handle.visibility = GONE
+                handleBox.visibility = GONE
             } else {
-                handle.visibility = VISIBLE
+                handleBox.visibility = VISIBLE
+
+                if (field == BottomSheetBehavior.STATE_COLLAPSED) {
+                    sectionCardSort.visibility = INVISIBLE
+                    sectionCardFilter.visibility = INVISIBLE
+                    sectionCardSwitch.visibility = INVISIBLE
+                } else {
+                    sectionCardSort.visibility = VISIBLE
+                    sectionCardFilter.visibility = VISIBLE
+                    sectionCardSwitch.visibility = VISIBLE
+                }
             }
         }
 
     // Views
     private lateinit var filterView: ConstraintLayout
-    private lateinit var handle: View
+    private lateinit var handleBox: View
 
-    private lateinit var switchCardView: CardView
+    private lateinit var sectionCardSwitch: CardView
     private lateinit var myCollectionSwitch: SwitchCompat
 
-    private lateinit var sortCardView: CardView
+    private lateinit var sectionCardSort: CardView
     private lateinit var sortChipGroup: SortChipGroup
 
-    private lateinit var filterCardView: CardView
+    private lateinit var sectionCardFilter: CardView
     private lateinit var filterConstraintLayout: ConstraintLayout
-    private lateinit var filterChipGroup: ChipGroup
+
     private lateinit var filterOptionsLabel: ImageView
+
+    private lateinit var contentCardFilterChips: MaterialCardView
+    private lateinit var filterChipGroup: ChipGroup
+
+    private lateinit var contentCardSearchAuto: MaterialCardView
     private lateinit var searchAutoComplete: SearchAutoComplete
 
     private val filterOptionsQueue = ArrayDeque<Figueroa<*>>()
@@ -129,7 +145,7 @@ class FilterFragment : Fragment(),
             insets
         }
 
-        handle.setOnClickListener {
+        handleBox.setOnClickListener {
             Log.d(TAG, "CLICK! CCKLI! LICCK!")
             callback?.onHandleClick()
         }
@@ -154,25 +170,32 @@ class FilterFragment : Fragment(),
     }
 
     private fun onCreateViewFindViews(view: View) {
-        filterView = view.findViewById(R.id.filter_view)
-        handle = view.findViewById(R.id.handle)
-        switchCardView = view.findViewById(R.id.switch_card_view)
+        filterView = view.findViewById(R.id.layout_filter_fragment)
+        handleBox = view.findViewById(R.id.layout_filter_fragment_handle)
+
+        sectionCardSwitch = view.findViewById(R.id.section_card_switches)
         myCollectionSwitch = view.findViewById(R.id.my_collection_switch) as SwitchCompat
-        sortCardView = view.findViewById(R.id.sort_card_view) as CardView
-        sortChipGroup = view.findViewById(R.id.sort_chip_group) as SortChipGroup
-        filterCardView = view.findViewById(R.id.filter_card_view) as CardView
-        filterConstraintLayout = view.findViewById(R.id.filter_contraint_layout)
-        filterChipGroup = view.findViewById(R.id.filter_chip_group) as ChipGroup
-        filterOptionsLabel = view.findViewById(R.id.label_filter_items) as ImageView
-        searchAutoComplete = view.findViewById(R.id.filter_text_view) as SearchAutoComplete
+
+        sectionCardSort = view.findViewById(R.id.section_card_sort) as CardView
+        sortChipGroup = view.findViewById(R.id.chip_group_sort) as SortChipGroup
+
+        sectionCardFilter = view.findViewById(R.id.section_card_filter) as CardView
+        filterConstraintLayout = view.findViewById(R.id.layout_filter_card)
+
+        contentCardFilterChips = view.findViewById(R.id.content_card_filter_chips)
+        filterChipGroup = view.findViewById(R.id.chip_group_filter) as ChipGroup
+        filterOptionsLabel = view.findViewById(R.id.image_label_filter_items) as ImageView
+
+        contentCardSearchAuto = view.findViewById(R.id.content_card_search_auto) as MaterialCardView
+        searchAutoComplete = view.findViewById(R.id.search_auto) as SearchAutoComplete
     }
 
     internal fun onSlide(slideOffset: Float) {
         val inverseOffset = 1 - slideOffset
-        handle.alpha = inverseOffset
-        switchCardView.alpha = slideOffset
-        sortCardView.alpha = slideOffset
-        filterCardView.alpha = slideOffset
+        handleBox.alpha = inverseOffset
+        sectionCardSwitch.alpha = slideOffset
+        sectionCardSort.alpha = slideOffset
+        sectionCardFilter.alpha = slideOffset
     }
 
     private fun updateViews() {
@@ -194,40 +217,92 @@ class FilterFragment : Fragment(),
     }
 
     private fun expandFilterCard() {
-        val constraints = ConstraintSet()
-        constraints.clone(filterConstraintLayout)
-        constraints.connect(
-            R.id.label_filter_items, ConstraintSet.TOP,
-            R.id.filter_chip_scrollview, ConstraintSet.TOP
-        )
-        constraints.connect(
-            R.id.label_filter_items, ConstraintSet.BOTTOM,
-            R.id.filter_chip_scrollview, ConstraintSet.BOTTOM
-        )
-        constraints.connect(
-            R.id.filter_text_view, ConstraintSet.START,
-            ConstraintSet.PARENT_ID, ConstraintSet.START
-        )
-        constraints.applyTo(filterConstraintLayout)
-        filterCardView.visibility = CardView.VISIBLE
+        adjustConstraintsOnExpandDEAD()
+        val small_corner = resources.getDimension(R.dimen.margin_default)
+        val big_corner = resources.getDimension(R.dimen.margin_wide)
+        val shapeAppearanceModel = contentCardSearchAuto.shapeAppearanceModel.toBuilder()
+            .setBottomLeftCorner(CornerFamily.ROUNDED, small_corner)
+            .setBottomRightCorner(CornerFamily.ROUNDED, big_corner)
+            .setTopLeftCorner(CornerFamily.ROUNDED, 0F)
+            .setTopRightCorner(CornerFamily.ROUNDED, 0F)
+            .build()
+
+        contentCardSearchAuto.shapeAppearanceModel = shapeAppearanceModel
+
+        sectionCardFilter.visibility = CardView.VISIBLE
+        contentCardFilterChips.visibility = VISIBLE
     }
 
     private fun collapseFilterCard() {
-        val constraints = ConstraintSet()
-        constraints.clone(filterConstraintLayout)
-        constraints.connect(
-            R.id.label_filter_items, ConstraintSet.TOP,
-            R.id.filter_text_view, ConstraintSet.TOP
-        )
-        constraints.connect(
-            R.id.label_filter_items, ConstraintSet.BOTTOM,
-            R.id.filter_text_view, ConstraintSet.BOTTOM
-        )
-        constraints.connect(
-            R.id.filter_text_view, ConstraintSet.START,
-            R.id.label_filter_items, ConstraintSet.END
-        )
-        constraints.applyTo(filterConstraintLayout)
+        adjustConstraintsOnCollapseDEAD()
+        val small_corner = resources.getDimension(R.dimen.margin_default)
+        val big_corner = resources.getDimension(R.dimen.margin_wide)
+        val shapeAppearanceModel = contentCardSearchAuto.shapeAppearanceModel.toBuilder()
+            .setBottomLeftCorner(CornerFamily.ROUNDED, small_corner)
+            .setBottomRightCorner(CornerFamily.ROUNDED, big_corner)
+            .setTopLeftCorner(CornerFamily.ROUNDED, small_corner)
+            .setTopRightCorner(CornerFamily.ROUNDED, big_corner)
+            .build()
+
+        contentCardSearchAuto.shapeAppearanceModel = shapeAppearanceModel
+        contentCardFilterChips.visibility = GONE
+    }
+
+    private fun adjustConstraintsOnExpandDEAD() {
+        //        val constraints = ConstraintSet()
+        //        constraints.clone(filterConstraintLayout)
+        //        constraints.connect(
+        //            R.id.image_label_filter_items, ConstraintSet.TOP,
+        //            R.id.content_card_filter_chips, ConstraintSet.TOP
+        //        )
+        //        constraints.connect(
+        //            R.id.image_label_filter_items, ConstraintSet.BOTTOM,
+        //            R.id.content_card_filter_chips, ConstraintSet.BOTTOM
+        //        )
+        //        constraints.connect(
+        //            R.id.content_card_search_auto, ConstraintSet.START,
+        //            ConstraintSet.PARENT_ID, ConstraintSet.START
+        //        )
+        //        constraints.connect(
+        //            R.id.image_label_filter_items, ConstraintSet.END,
+        //            R.id.content_card_filter_chips, ConstraintSet.START
+        //        )
+        //        constraints.setMargin(
+        //            R.id.image_label_filter_items,
+        //            ConstraintSet.END,
+        //            resources.getDimension(R.dimen.margin_wide).toInt()
+        //        )
+        //        constraints.applyTo(filterConstraintLayout)
+        //
+    }
+
+    private fun adjustConstraintsOnCollapseDEAD() {
+        //        val constraints = ConstraintSet()
+        //        constraints.clone(filterConstraintLayout)
+        //        constraints.connect(
+        //            R.id.image_label_filter_items, ConstraintSet.TOP,
+        //            R.id.content_card_search_auto, ConstraintSet.TOP
+        //        )
+        //        constraints.connect(
+        //            R.id.image_label_filter_items, ConstraintSet.BOTTOM,
+        //            R.id.content_card_search_auto, ConstraintSet.BOTTOM
+        //        )
+        //        constraints.connect(
+        //            R.id.content_card_search_auto, ConstraintSet.START,
+        //            R.id.image_label_filter_items, ConstraintSet.END
+        //        )
+        //        constraints.connect(
+        //            R.id.image_label_filter_items, ConstraintSet.END,
+        //            R.id.content_card_search_auto, ConstraintSet.START
+        //        )
+        //
+        //        constraints.setMargin(
+        //            R.id.image_label_filter_items,
+        //            ConstraintSet.END,
+        //            resources.getDimension(R.dimen.margin_wide).toInt()
+        //        )
+        //        constraints.applyTo(filterConstraintLayout)
+        //
     }
 
     private fun addChip(item: FilterOption) {

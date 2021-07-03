@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="image_dim">#AA000000</color>
 
     <color name="fantasia">#053332</color>
     <color name="fantasia_light">#666</color>
