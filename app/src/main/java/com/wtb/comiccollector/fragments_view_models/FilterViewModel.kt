@@ -21,15 +21,15 @@ class FilterViewModel : ViewModel() {
 
     val filter: StateFlow<SearchFilter> = _filter
 
-    val seriesOptions: Flow<List<FilterOption>> = _filter.flatMapLatest {
+    private val seriesOptions: Flow<List<FilterOption>> = _filter.flatMapLatest {
         repository.getSeriesByFilter(it)
     }
 
-    val publisherOptions = _filter.flatMapLatest {
+    private val publisherOptions = _filter.flatMapLatest {
         repository.getPublishersByFilter(it)
     }
 
-    val creatorOptions = _filter.flatMapLatest {
+    private val creatorOptions = _filter.flatMapLatest {
         repository.getCreatorsByFilter(it)
     }
 

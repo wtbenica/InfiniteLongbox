@@ -106,6 +106,8 @@ class Repository private constructor(val context: Context) {
             hasConnection = it
             if (checkConnectionStatus()) {
                 isIdle = false
+                // TODO: A lint inspection pointed out that update returns a Deferred, which
+                //  means that this is async async await. Look into
                 MainActivity.activeJob = CoroutineScope(Dispatchers.IO).launch {
                     async {
                         StaticUpdater(apiService, database, prefs).update()
@@ -171,9 +173,9 @@ class Repository private constructor(val context: Context) {
     fun getIssue(issueId: Int): Flow<FullIssue?> {
         if (hasConnection) {
             CoroutineScope(Dispatchers.IO).launch {
-                async {
+                withContext(Dispatchers.Default) {
                     UpdateIssueCover(database, context, prefs).update(issueId = issueId)
-                }.await().let {
+                }.let {
                     UpdateIssueCredit(apiService, database, prefs).update(issueId = issueId)
                 }
             }

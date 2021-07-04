@@ -3,7 +3,6 @@ package com.wtb.comiccollector.views
 import android.content.Context
 import android.util.AttributeSet
 import android.util.Log
-import androidx.core.view.children
 import com.google.android.material.chip.Chip
 import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.SearchFilter
@@ -15,23 +14,12 @@ class OptionChipGroup(context: Context?, attributeSet: AttributeSet) :
     FilterCardChipGroup(context, attributeSet), OptionChip.OptionChipCallback {
 
     var callback: OptionChipGroupCallback? = null
-    val myCollectionChip: OptionChip
-
-    init {
-        myCollectionChip = OptionChip(
-            context,
-            "My Collection",
-            this,
-            FilterViewModel::myCollection
-        )
-    }
-
-    override fun setEnabled(enabled: Boolean) {
-        super.setEnabled(enabled)
-        children.forEach {
-            it.isEnabled = enabled
-        }
-    }
+    private val myCollectionChip: OptionChip = OptionChip(
+        context,
+        "My Collection",
+        this,
+        FilterViewModel::myCollection
+    )
 
     fun update(filter: SearchFilter) {
         removeAllViews()

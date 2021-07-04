@@ -199,15 +199,15 @@ class IssueListFragment : ListFragment() {
             if (coverUri != null) {
                 this.coverImageView.setImageURI(coverUri)
             } else {
-                coverImageView.setImageResource(R.drawable.ic_issue_add_cover)
+                coverImageView.setImageResource(R.drawable.cover_missing)
             }
 
             if (fullIssue?.myCollection?.collectionId != null) {
                 wrapper.setBackgroundResource(R.drawable.list_item_card_background_in_collection)
-                layout.cardElevation = 8F
+                layout.cardElevation = resources.getDimension(R.dimen.margin_default)
             } else {
                 wrapper.setBackgroundResource(R.drawable.list_item_card_background)
-                layout.cardElevation = 0F
+                layout.cardElevation = resources.getDimension(R.dimen.radius_narrow)
             }
 
             issueNumTextView.text = this.fullIssue?.issue.toString()

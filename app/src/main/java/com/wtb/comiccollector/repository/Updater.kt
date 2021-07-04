@@ -3,7 +3,7 @@ package com.wtb.comiccollector.repository
 import android.content.SharedPreferences
 import java.time.LocalDate
 
-open class Updater() {
+open class Updater {
 
     // TODO: This should probably get moved out of SharedPreferences and stored with each record.
     //  The tradeoff: an extra local db query vs. having a larger prefs which will end up having
@@ -14,7 +14,7 @@ open class Updater() {
         prefs: SharedPreferences
     ): Boolean {
         val lastUpdated = LocalDate.parse(prefs.getString(prefsKey, "${LocalDate.MIN}"))
-        val isStale = LocalDate.now().compareTo(lastUpdated.plusDays(shelfLife)) > 0
+        val isStale = LocalDate.now() > lastUpdated.plusDays(shelfLife)
         return DEBUG || isStale
     }
 }

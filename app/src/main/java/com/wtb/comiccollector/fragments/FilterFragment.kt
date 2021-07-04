@@ -1,4 +1,4 @@
-package com.wtb.comiccollector.views
+package com.wtb.comiccollector.fragments
 
 import android.content.Context
 import android.os.Bundle
@@ -27,6 +27,7 @@ import com.wtb.comiccollector.database.models.FilterOption
 import com.wtb.comiccollector.database.models.Publisher
 import com.wtb.comiccollector.database.models.Series
 import com.wtb.comiccollector.fragments_view_models.FilterViewModel
+import com.wtb.comiccollector.views.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -62,9 +63,13 @@ class FilterFragment : Fragment(),
             if (field == BottomSheetBehavior.STATE_EXPANDED) {
                 handleBox.visibility = GONE
                 optionChipGroup.isEnabled = true
+                sortChipGroup.isEnabled = true
+                filterChipGroup.isEnabled = true
             } else {
                 handleBox.visibility = VISIBLE
                 optionChipGroup.isEnabled = false
+                sortChipGroup.isEnabled = false
+                filterChipGroup.isEnabled = false
             }
         }
 
@@ -209,11 +214,11 @@ class FilterFragment : Fragment(),
 
     private fun expandFilterCard() {
         adjustConstraintsOnExpandDEAD()
-        val small_corner = resources.getDimension(R.dimen.margin_default)
-        val big_corner = resources.getDimension(R.dimen.margin_wide)
+        val smallCorner = resources.getDimension(R.dimen.margin_default)
+        val bigCorner = resources.getDimension(R.dimen.margin_wide)
         val shapeAppearanceModel = contentCardSearchAuto.shapeAppearanceModel.toBuilder()
-            .setBottomLeftCorner(CornerFamily.ROUNDED, small_corner)
-            .setBottomRightCorner(CornerFamily.ROUNDED, big_corner)
+            .setBottomLeftCorner(CornerFamily.ROUNDED, smallCorner)
+            .setBottomRightCorner(CornerFamily.ROUNDED, bigCorner)
             .setTopLeftCorner(CornerFamily.ROUNDED, 0F)
             .setTopRightCorner(CornerFamily.ROUNDED, 0F)
             .build()
@@ -226,13 +231,13 @@ class FilterFragment : Fragment(),
 
     private fun collapseFilterCard() {
         adjustConstraintsOnCollapseDEAD()
-        val small_corner = resources.getDimension(R.dimen.margin_default)
-        val big_corner = resources.getDimension(R.dimen.margin_wide)
+        val smallCorner = resources.getDimension(R.dimen.margin_default)
+        val bigCorner = resources.getDimension(R.dimen.margin_wide)
         val shapeAppearanceModel = contentCardSearchAuto.shapeAppearanceModel.toBuilder()
-            .setBottomLeftCorner(CornerFamily.ROUNDED, small_corner)
-            .setBottomRightCorner(CornerFamily.ROUNDED, big_corner)
-            .setTopLeftCorner(CornerFamily.ROUNDED, small_corner)
-            .setTopRightCorner(CornerFamily.ROUNDED, big_corner)
+            .setBottomLeftCorner(CornerFamily.ROUNDED, smallCorner)
+            .setBottomRightCorner(CornerFamily.ROUNDED, bigCorner)
+            .setTopLeftCorner(CornerFamily.ROUNDED, smallCorner)
+            .setTopRightCorner(CornerFamily.ROUNDED, bigCorner)
             .build()
 
         contentCardSearchAuto.shapeAppearanceModel = shapeAppearanceModel
@@ -335,7 +340,7 @@ class FilterFragment : Fragment(),
         override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
 
             val view =
-                convertView ?: View.inflate(context, R.layout.filter_option_auto_complete, null)
+                convertView ?: inflate(context, R.layout.filter_option_auto_complete, null)
 
             val itemText: TextView = view.findViewById(R.id.item_text)
             val optionTypeText: TextView = view.findViewById(R.id.filter_option_type)

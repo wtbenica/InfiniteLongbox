@@ -106,7 +106,7 @@ class SortChip(context: Context) : Chip(context) {
             }
         }
 
-    var icon: Int? = null
+    private var icon: Int? = null
         set(value) {
             field = value
             closeIcon = value?.let { ResourcesCompat.getDrawable(resources, it, null) }

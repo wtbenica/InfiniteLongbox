@@ -34,7 +34,7 @@ import com.wtb.comiccollector.fragments.IssueDetailFragment
 import com.wtb.comiccollector.fragments.IssueListFragment
 import com.wtb.comiccollector.fragments.SeriesListFragment
 import com.wtb.comiccollector.fragments_view_models.FilterViewModel
-import com.wtb.comiccollector.views.FilterFragment
+import com.wtb.comiccollector.fragments.FilterFragment
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow

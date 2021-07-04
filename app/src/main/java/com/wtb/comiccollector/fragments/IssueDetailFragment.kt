@@ -370,12 +370,11 @@ class IssueDetailFragment : Fragment() {
                     parent?.let {
                         val selectedIssueId =
                             (it.getItemAtPosition(position) as Issue).issueId
-                        if (selectedIssueId != issueDetailViewModel.getIssueId()) {
+
+                        isVariant = selectedIssueId != issueDetailViewModel.getIssueId()
+
+                        if (isVariant) {
                             issueDetailViewModel.loadVariant(selectedIssueId)
-                            isVariant = true
-                        } else {
-                            issueDetailViewModel.clearVariant()
-                            isVariant = false
                         }
                         updateCover()
                     }
@@ -423,7 +422,7 @@ class IssueDetailFragment : Fragment() {
         if (coverUri() != null) {
             coverImageView.setImageURI(coverUri())
         } else {
-            coverImageView.setImageResource(R.drawable.ic_issue_add_cover)
+            coverImageView.setImageResource(R.drawable.cover_missing)
         }
     }
 

@@ -93,7 +93,7 @@ class StaticUpdater(
                     return@types result
                 }
 
-                CoroutineScope(Dispatchers.IO).async {
+                withContext(CoroutineScope(Dispatchers.IO).coroutineContext) {
                     database.transactionDao().upsertStatic(
                         publishers = publishers.await()
                             .map { it.toRoomModel() }
@@ -118,17 +118,17 @@ class StaticUpdater(
                                 }
                             },
                     )
-                }.await().let {
-                    async {
+                }.let {
+                    withContext(Dispatchers.Default) {
                         updateSeries()
-                    }.await().let {
+                    }.let {
                         updateCreators()
                     }
                 }
             } else {
-                CoroutineScope(Dispatchers.IO).async {
+                withContext(CoroutineScope(Dispatchers.IO).coroutineContext) {
                     updateSeries()
-                }.await().let {
+                }.let {
                     updateCreators()
                 }
             }

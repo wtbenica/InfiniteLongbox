@@ -2,13 +2,14 @@
 <resources>
 
     <color name="fantasia">#ABED92</color>
-    <color name="fantasia_light_light">#ECFDE6</color>
     <color name="fantasia_light">#DEFACF</color>
+    <color name="fantasia_light_light">#ECFDE6</color>
     <color name="fantasia_dark">#6AC947</color>
     <color name="fantasia_text">#D222</color>
 
     <color name="amnesia">#BACACA</color>
     <color name="amnesia_light">#CADADA</color>
+    <color name="amnesia_light_light">#FEFEFE</color>
     <color name="amnesia_dark">#9AAAAA</color>
     <color name="amnesia_text">#AAF6F6F6</color>
 

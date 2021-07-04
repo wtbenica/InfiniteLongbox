@@ -31,7 +31,7 @@ class IssueDetailViewModel : ViewModel() {
     private val _variantId = MutableStateFlow<Int>(DUMMY_ID)
 
     val issueId: StateFlow<Int> = _issueId
-    val variantId: StateFlow<Int> = _variantId
+    private val variantId: StateFlow<Int> = _variantId
 
     val issue: StateFlow<FullIssue?> = issueId.flatMapLatest { id ->
         Log.d(TAG, "issueId changed: $id")

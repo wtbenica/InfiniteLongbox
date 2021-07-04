@@ -186,9 +186,10 @@ class UpdateCreator(
 //                        nameDetailCall.await().map { it.toRoomModel() }
 //
 
-                    val series = CoroutineScope(Dispatchers.IO).async {
-                        apiService.getSeriesByIds(allIssues.map { it.seriesId })
-                    }.await().map { it.toRoomModel() }
+                    val series =
+                        withContext(CoroutineScope(Dispatchers.IO).coroutineContext) {
+                            apiService.getSeriesByIds(allIssues.map { it.seriesId })
+                        }.map { it.toRoomModel() }
 
                     database.transactionDao().upsertSus(
                         stories = allStories,

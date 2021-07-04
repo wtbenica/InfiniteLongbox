@@ -7,7 +7,7 @@ abstract class CreditX : DataModel() {
     abstract var storyId: Int
     abstract var nameDetailId: Int
     abstract var roleId: Int
-};
+}
 
 @Entity(
     indices = [

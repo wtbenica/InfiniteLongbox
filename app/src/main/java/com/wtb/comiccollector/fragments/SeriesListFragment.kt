@@ -34,7 +34,7 @@ import kotlinx.coroutines.launch
 private const val TAG = APP + "SeriesListFragment"
 
 @ExperimentalCoroutinesApi
-class SeriesListFragment() : ListFragment() {
+class SeriesListFragment : ListFragment() {
 
     private val viewModel: SeriesListViewModel by viewModels()
 
@@ -74,6 +74,12 @@ class SeriesListFragment() : ListFragment() {
 
         listRecyclerView = view.findViewById(R.id.results_frame) as RecyclerView
         listRecyclerView.layoutManager = LinearLayoutManager(context)
+
+        val itemDecoration =
+            ItemOffsetDecoration(resources.getDimension(R.dimen.offset_list_item_series).toInt(),
+                                 true)
+
+        listRecyclerView.addItemDecoration(itemDecoration)
 
         ViewCompat.setOnApplyWindowInsetsListener(view) { v, insets ->
             val bottom =
