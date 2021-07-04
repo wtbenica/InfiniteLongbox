@@ -139,13 +139,13 @@ class MainActivity : AppCompatActivity(),
             insets
         }
 
-//        ViewCompat.setOnApplyWindowInsetsListener(resultFragmentContainer) { v, insets ->
-//            val posBottom = insets.getInsets(WindowInsetsCompat.Type.systemBars()).bottom
-//
-//            v.updatePadding(bottom = posBottom)
-//
-//            insets
-//        }
+        ViewCompat.setOnApplyWindowInsetsListener(resultFragmentContainer) { view, insets ->
+            val posBottom = insets.getInsets(WindowInsetsCompat.Type.systemBars()).bottom
+
+            view.updatePadding(bottom = posBottom)
+
+            insets
+        }
     }
 
     private fun initNetwork() {

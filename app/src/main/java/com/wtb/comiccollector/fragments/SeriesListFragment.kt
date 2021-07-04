@@ -14,7 +14,6 @@ import android.widget.TextView
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.paging.PagingDataAdapter
@@ -27,7 +26,6 @@ import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.R
 import com.wtb.comiccollector.database.models.FullSeries
 import com.wtb.comiccollector.database.models.Series
-import com.wtb.comiccollector.fragments_view_models.FilterViewModel
 import com.wtb.comiccollector.fragments_view_models.SeriesListViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collectLatest
@@ -36,14 +34,10 @@ import kotlinx.coroutines.launch
 private const val TAG = APP + "SeriesListFragment"
 
 @ExperimentalCoroutinesApi
-class SeriesListFragment() : Fragment() {
-    private val PEEK_HEIGHT
-        get() = resources.getDimension(R.dimen.peek_height).toInt()
+class SeriesListFragment() : ListFragment() {
 
     private val viewModel: SeriesListViewModel by viewModels()
-    private val filterViewModel: FilterViewModel by viewModels({ requireActivity() })
 
-    private lateinit var itemListRecyclerView: RecyclerView
     private var callback: SeriesListCallback? = null
 
     override fun onAttach(context: Context) {
@@ -66,6 +60,7 @@ class SeriesListFragment() : Fragment() {
 
         lifecycleScope.launch {
             filterViewModel.filter.collectLatest { filter ->
+                Log.d(TAG, "Updating filter: ${filter.mSortType.order}")
                 viewModel.setFilter(filter)
             }
         }
@@ -77,12 +72,12 @@ class SeriesListFragment() : Fragment() {
     ): View? {
         val view = inflater.inflate(R.layout.fragment_item_list, container, false)
 
-        itemListRecyclerView = view.findViewById(R.id.results_frame) as RecyclerView
-        itemListRecyclerView.layoutManager = LinearLayoutManager(context)
+        listRecyclerView = view.findViewById(R.id.results_frame) as RecyclerView
+        listRecyclerView.layoutManager = LinearLayoutManager(context)
 
-        ViewCompat.setOnApplyWindowInsetsListener(itemListRecyclerView) { v, insets ->
+        ViewCompat.setOnApplyWindowInsetsListener(view) { v, insets ->
             val bottom =
-                PEEK_HEIGHT + 2 * insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom
+                PEEK_HEIGHT + insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom
             Log.d(TAG, "NEW PADDING: $bottom")
             v.updatePadding(bottom = bottom)
 
@@ -96,7 +91,7 @@ class SeriesListFragment() : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         val adapter = SeriesAdapter()
-        itemListRecyclerView.adapter = adapter
+        listRecyclerView.adapter = adapter
 
         lifecycleScope.launch {
             viewModel.seriesList.collectLatest {

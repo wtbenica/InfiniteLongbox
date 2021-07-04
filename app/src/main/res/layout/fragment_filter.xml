@@ -8,12 +8,12 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/layout_filter_fragment"
-        android:clickable="true"
-        android:focusable="true"
         style="@style/FilterSectionCardLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@drawable/bottom_sheet">
+        android:background="@drawable/bottom_sheet"
+        android:clickable="true"
+        android:focusable="true">
 
         <LinearLayout
             android:id="@+id/layout_filter_fragment_handle"
@@ -27,7 +27,7 @@
         </LinearLayout>
 
         <androidx.cardview.widget.CardView
-            android:id="@+id/section_card_switches"
+            android:id="@+id/section_card_options"
             style="@style/FilterSectionCard"
             app:layout_constraintBottom_toTopOf="@id/section_card_sort"
             app:layout_constraintEnd_toEndOf="parent"
@@ -47,7 +47,7 @@
                     android:layout_height="match_parent"
                     android:contentDescription="@string/sort_image_content_description"
                     android:labelFor="@id/chip_group_sort"
-                    app:srcCompat="@drawable/ic_baseline_toggle_on_24" />
+                    app:srcCompat="@drawable/toggle_24" />
 
                 <com.google.android.material.card.MaterialCardView
                     style="@style/FilterContentCard"
@@ -55,21 +55,10 @@
                     android:layout_height="wrap_content"
                     app:shapeAppearanceOverlay="@style/both_right">
 
-                    <HorizontalScrollView
+                    <com.wtb.comiccollector.views.OptionChipGroup
+                        android:id="@+id/chip_group_option"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content">
-
-                        <com.wtb.comiccollector.views.OptionChipGroup
-                            android:id="@+id/chip_group_option"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"/>
-
-                    </HorizontalScrollView>
-<!--                    <androidx.appcompat.widget.SwitchCompat-->
-<!--                        android:id="@+id/my_collection_switch"-->
-<!--                        android:layout_width="wrap_content"-->
-<!--                        android:layout_height="?attr/dropdownListPreferredItemHeight"-->
-<!--                        android:text="@string/my_collection" />-->
+                        android:layout_height="wrap_content" />
                 </com.google.android.material.card.MaterialCardView>
             </LinearLayout>
 
@@ -87,7 +76,7 @@
 
             <LinearLayout
                 style="@style/FilterSectionCardLayout"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
 
@@ -97,7 +86,8 @@
                     android:layout_height="match_parent"
                     android:contentDescription="@string/sort_image_content_description"
                     android:labelFor="@id/chip_group_sort"
-                    app:srcCompat="@drawable/ic_baseline_sort_24" />
+                    android:layout_weight="0"
+                    app:srcCompat="@drawable/sort_24" />
 
                 <com.google.android.material.card.MaterialCardView
                     style="@style/FilterContentCard"
@@ -106,44 +96,33 @@
                     android:layout_weight="1"
                     app:shapeAppearanceOverlay="@style/both_right">
 
-                    <HorizontalScrollView
-                        style="@style/ChipScrollView"
+                    <com.wtb.comiccollector.views.SortChipGroup
+                        android:id="@+id/chip_group_sort"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content">
 
-                        <com.wtb.comiccollector.views.SortChipGroup
-                            android:id="@+id/chip_group_sort"
-                            style="@style/FilterChipGroup">
+                        <com.google.android.material.chip.Chip
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:checkable="true"
+                            android:checked="true"
+                            android:enabled="false"
+                            android:text="@string/hint_publisher"
+                            app:closeIconEnabled="false" />
 
-                            <com.google.android.material.chip.Chip
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:checkable="true"
-                                android:checked="true"
-                                android:enabled="false"
-                                android:text="@string/hint_publisher"
-                                app:closeIconEnabled="false" />
+                        <com.google.android.material.chip.Chip
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/app_name"
+                            app:closeIconEnabled="false" />
 
-                            <com.google.android.material.chip.Chip
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="@string/app_name"
-                                app:closeIconEnabled="false" />
+                        <com.google.android.material.chip.Chip
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/hint_series_title"
+                            app:closeIconEnabled="false" />
 
-                            <com.google.android.material.chip.Chip
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="@string/hint_series_title"
-                                app:closeIconEnabled="false" />
-
-                            <com.google.android.material.chip.Chip
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="@string/label_description"
-                                app:closeIconEnabled="false" />
-
-                        </com.wtb.comiccollector.views.SortChipGroup>
-                    </HorizontalScrollView>
+                    </com.wtb.comiccollector.views.SortChipGroup>
                 </com.google.android.material.card.MaterialCardView>
             </LinearLayout>
         </androidx.cardview.widget.CardView>
@@ -187,23 +166,18 @@
                     app:layout_constraintTop_toTopOf="parent"
                     app:shapeAppearanceOverlay="@style/top_right">
 
-                    <HorizontalScrollView
-                        style="@style/ChipScrollView"
+                    <com.wtb.comiccollector.views.FilterChipGroup
+                        android:id="@+id/chip_group_filter"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content">
 
-                        <com.google.android.material.chip.ChipGroup
-                            android:id="@+id/chip_group_filter"
-                            style="@style/FilterChipGroup">
+                        <com.google.android.material.chip.Chip
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Doom Patrol"
+                            app:closeIconEnabled="true" />
 
-                            <com.google.android.material.chip.Chip
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="Doom Patrol"
-                                app:closeIconEnabled="true" />
-
-                        </com.google.android.material.chip.ChipGroup>
-                    </HorizontalScrollView>
+                    </com.wtb.comiccollector.views.FilterChipGroup>
                 </com.google.android.material.card.MaterialCardView>
 
                 <com.google.android.material.card.MaterialCardView

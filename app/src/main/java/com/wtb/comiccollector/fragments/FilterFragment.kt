@@ -13,8 +13,6 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.*
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.asLiveData
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.card.MaterialCardView
@@ -23,12 +21,14 @@ import com.google.android.material.shape.CornerFamily
 import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.R
 import com.wtb.comiccollector.SearchFilter
+import com.wtb.comiccollector.SortType
 import com.wtb.comiccollector.database.models.Creator
 import com.wtb.comiccollector.database.models.FilterOption
 import com.wtb.comiccollector.database.models.Publisher
 import com.wtb.comiccollector.database.models.Series
 import com.wtb.comiccollector.fragments_view_models.FilterViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 private const val TAG = APP + "FilterFragment"
@@ -36,7 +36,8 @@ private const val TAG = APP + "FilterFragment"
 @ExperimentalCoroutinesApi
 class FilterFragment : Fragment(),
     SearchAutoComplete.SearchTextViewCallback,
-    FilterChip.FilterChipCallbacks, OptionChipGroup.OptionChipGroupCallback {
+    FilterChip.FilterChipCallbacks, OptionChipGroup.OptionChipGroupCallback,
+    SortChipGroup.SortChipGroupCallback {
 
     private val viewModel: FilterViewModel by viewModels({ requireActivity() })
     private var callback: FilterFragmentCallback? = null
@@ -105,20 +106,20 @@ class FilterFragment : Fragment(),
         onCreateViewInitViews()
 
         lifecycleScope.launch {
-            viewModel.filter.asLiveData().observe(context as LifecycleOwner) { filter ->
+            viewModel.filter.collectLatest { filter ->
                 this@FilterFragment.filter = filter
                 sortChipGroup.update(filter)
+                optionChipGroup.update(filter)
             }
 
-            viewModel.filterOptions.asLiveData()
-                .observe(context as LifecycleOwner) { filterObjects: List<FilterOption> ->
-                    searchAutoComplete.setAdapter(
-                        FilterOptionsAdapter(
-                            requireContext(),
-                            filterObjects
-                        )
+            viewModel.filterOptions.collectLatest { filterObjects: List<FilterOption> ->
+                searchAutoComplete.setAdapter(
+                    FilterOptionsAdapter(
+                        requireContext(),
+                        filterObjects
                     )
-                }
+                )
+            }
         }
 
         return view
@@ -140,19 +141,17 @@ class FilterFragment : Fragment(),
             callback?.onHandleClick()
         }
 
-//        myCollectionSwitch.setOnCheckedChangeListener { _, isChecked ->
-//            viewModel.myCollection(isChecked)
-//        }
-//
         sortChipGroup.setOnCheckedChangeListener { _, checkedId ->
             if (checkedId >= 0) {
-                view?.findViewById<SortChipGroup.SortChip>(checkedId)?.sortOption?.let {
-                    if (it != filter.mSortOption) {
+                view?.findViewById<SortChip>(checkedId)?.sortType?.let { it ->
+                    if (it != filter.mSortType) {
                         viewModel.setSortOption(it)
                     }
                 }
             }
         }
+
+        sortChipGroup.callback = this@FilterFragment
 
         filterChipGroup.removeAllViews()
 
@@ -163,7 +162,7 @@ class FilterFragment : Fragment(),
         filterView = view.findViewById(R.id.layout_filter_fragment)
         handleBox = view.findViewById(R.id.layout_filter_fragment_handle)
 
-        sectionCardSwitch = view.findViewById(R.id.section_card_switches)
+        sectionCardSwitch = view.findViewById(R.id.section_card_options)
         optionChipGroup = view.findViewById(R.id.chip_group_option)
         optionChipGroup.callback = this
 //        myCollectionSwitch = view.findViewById(R.id.my_collection_switch) as SwitchCompat
@@ -413,6 +412,11 @@ class FilterFragment : Fragment(),
     override fun checkChanged(action: (FilterViewModel, Boolean) -> Unit, isChecked: Boolean) {
         Log.d(TAG, "checkChanged: $isChecked")
         action(viewModel, isChecked)
+    }
+
+    override fun sortOrderChanged(sortType: SortType) {
+        Log.d(TAG, "Telling the viewModel to set the sort option: ${sortType.sortString}")
+        viewModel.setSortOption(sortType)
     }
 }
 

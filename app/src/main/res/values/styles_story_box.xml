@@ -17,7 +17,7 @@
 
     <style name="StoryBoxDropdownButton" parent="Widget.AppCompat.ImageButton">
         <item name="android:background">@android:color/transparent</item>
-        <item name="srcCompat">@drawable/ic_baseline_arrow_drop_down_24</item>
+        <item name="srcCompat">@drawable/arrow_down_24</item>
         <item name="tint">?attr/colorOnPrimary</item>
     </style>
 

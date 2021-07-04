@@ -199,7 +199,8 @@ class Repository private constructor(val context: Context) {
 
         return Pager(
             config = PagingConfig(pageSize = REQUEST_LIMIT, enablePlaceholders = true),
-            pagingSourceFactory = { issueDao.getIssuesByFilterPagingSource(filter = filter) }
+            pagingSourceFactory = {
+                issueDao.getIssuesByFilterPagingSource(filter = filter) }
         ).flow
     }
 

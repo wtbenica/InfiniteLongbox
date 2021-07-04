@@ -83,8 +83,8 @@
     <style name="ImageLabel">
         <item name="android:layout_height">?attr/dropdownListPreferredItemHeight</item>
         <item name="android:layout_width">?attr/dropdownListPreferredItemHeight</item>
-        <item name="android:layout_marginStart">@dimen/margin_wide</item>
-        <item name="android:layout_marginEnd">@dimen/margin_wide</item>
+        <item name="android:layout_marginStart">@dimen/margin_default</item>
+        <item name="android:layout_marginEnd">@dimen/margin_default</item>
         <item name="tint">@android:color/white</item>
         <item name="android:layout_weight">0</item>
     </style>
@@ -128,23 +128,36 @@
         <item name="android:popupBackground">@drawable/background_autocomplete_popup</item>
     </style>
 
+    <style name="filterCardChipGroup" parent="Widget.MaterialComponents.ChipGroup">
+        <item name="android:minHeight">?attr/dropdownListPreferredItemHeight</item>
+        <item name="singleLine">false</item>
+        <item name="android:animateLayoutChanges">true</item>
+        <item name="chipSpacingVertical">100dp</item>
+        <item name="chipSpacingHorizontal">10dp</item>
+        <item name="android:paddingStart">@dimen/margin_default</item>
+        <item name="android:paddingEnd">@dimen/margin_default</item>
+    </style>
+
     <style name="myNewChip" parent="Widget.MaterialComponents.Chip.Entry">
         <item name="chipStrokeColor">?attr/colorOnPrimary</item>
         <item name="chipStrokeWidth">2dp</item>
-        <item name="chipIconSize">19dp</item>
+        <item name="chipIconSize">20dp</item>
+        <item name="closeIconSize">20dp</item>
+        <item name="chipMinHeight">36dp</item>
+        <item name="checkedIconVisible">false</item>
         <item name="chipStartPadding">@dimen/margin_default</item>
         <item name="chipEndPadding">@dimen/margin_default</item>
-        <item name="chipBackgroundColor">?attr/colorPrimaryVariant</item>
+        <item name="chipBackgroundColor">@color/filter_chip</item>
         <item name="android:textColor">?attr/colorOnPrimary</item>
         <item name="android:textAppearance">@style/myChipText</item>
         <item name="checkedIconTint">?attr/colorOnPrimary</item>
-        <item name="chipMinHeight">32dp</item>
         <item name="closeIconTint">?attr/colorOnPrimary</item>
         <item name="checkedIcon">@drawable/ic_check_circle</item>
+        <item name="android:animateLayoutChanges">true</item>
     </style>
 
     <style name="myChipText" parent="TextAppearance.MaterialComponents.Chip">
         <item name="fontFamily">@font/permanent_marker</item>
-        <item name="android:textSize">16sp</item>
+        <item name="android:textSize">14sp</item>
     </style>
 </resources>

@@ -14,7 +14,6 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentTransaction
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
@@ -27,7 +26,6 @@ import com.google.android.material.appbar.AppBarLayout.LayoutParams.SCROLL_FLAG_
 import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.R
 import com.wtb.comiccollector.database.models.FullIssue
-import com.wtb.comiccollector.fragments_view_models.FilterViewModel
 import com.wtb.comiccollector.fragments_view_models.IssueListViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collectLatest
@@ -36,14 +34,10 @@ import kotlinx.coroutines.launch
 private const val TAG = APP + "IssueListFragment"
 
 @ExperimentalCoroutinesApi
-class IssueListFragment : Fragment() {
-    private val PEEK_HEIGHT
-        get() = resources.getDimension(R.dimen.peek_height).toInt()
+class IssueListFragment : ListFragment() {
 
     private val viewModel: IssueListViewModel by viewModels()
-    private val filterViewModel: FilterViewModel by viewModels({ requireActivity() })
 
-    private lateinit var issueGridView: RecyclerView
     private var callback: IssueListCallback? = null
 
     override fun onAttach(context: Context) {
@@ -89,20 +83,21 @@ class IssueListFragment : Fragment() {
     ): View? {
         val view = inflater.inflate(R.layout.fragment_item_list, container, false)
 
-        issueGridView = view.findViewById(R.id.results_frame) as RecyclerView
+        listRecyclerView = view.findViewById(R.id.results_frame) as RecyclerView
         val itemDecoration =
             ItemOffsetDecoration(resources.getDimension(R.dimen.offset_list_item_issue).toInt())
-        issueGridView.addItemDecoration(itemDecoration)
-        issueGridView.layoutManager = GridLayoutManager(context, 2)
 
-        ViewCompat.setOnApplyWindowInsetsListener(issueGridView) { v, insets ->
+        ViewCompat.setOnApplyWindowInsetsListener(view) { v, insets ->
             val bottom =
-                PEEK_HEIGHT + 2 * insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom
+                PEEK_HEIGHT + insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom
             Log.d(TAG, "NEW PADDING: $bottom")
             v.updatePadding(bottom = bottom)
 
             insets
         }
+
+        listRecyclerView.addItemDecoration(itemDecoration)
+        listRecyclerView.layoutManager = GridLayoutManager(context, 2)
 
         return view
     }
@@ -110,7 +105,7 @@ class IssueListFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val adapter = IssueAdapter()
-        issueGridView.adapter = adapter
+        listRecyclerView.adapter = adapter
 
         lifecycleScope.launch {
             viewModel.issueList.collectLatest { adapter.submitData(it) }

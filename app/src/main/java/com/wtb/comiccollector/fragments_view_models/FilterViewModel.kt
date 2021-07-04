@@ -4,7 +4,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.SearchFilter
-import com.wtb.comiccollector.SortOption
+import com.wtb.comiccollector.SortType
 import com.wtb.comiccollector.database.models.FilterOption
 import com.wtb.comiccollector.repository.Repository
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -62,9 +62,10 @@ class FilterViewModel : ViewModel() {
         _filter.value = newVal
     }
 
-    fun setSortOption(sortOption: SortOption) {
+    fun setSortOption(sortType: SortType) {
+        Log.d(TAG, "setSortOption: ${sortType.sortString} ${sortType.order}")
         val newVal = SearchFilter(_filter.value)
-        newVal.mSortOption = sortOption
+        newVal.mSortType = sortType
         _filter.value = newVal
     }
 
@@ -75,7 +76,6 @@ class FilterViewModel : ViewModel() {
     }
 
     fun showVariants(isChecked: Boolean) {
-        Log.d(TAG, "showVariants: $isChecked")
         val newVal = SearchFilter(_filter.value)
         newVal.mShowVariants = isChecked
         _filter.value = newVal
