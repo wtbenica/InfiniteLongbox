@@ -50,4 +50,13 @@
 
     <string name="sort_image_content_description">Label: Sort by</string>
     <string name="tag_filter_fragment">filter_fragment</string>
+    <string name="sort_type_series_name">Series Name</string>
+    <string name="sort_type_start_date">Start Date</string>
+    <string name="column_sort_name">sortName</string>
+    <string name="column_start_date">startDate</string>
+    <string name="sort_type_issue_number">Issue Number</string>
+    <string name="column_issue_num">issueNum</string>
+    <string name="sort_type_release_date">Release Date</string>
+    <string name="column_release_date">releaseDate</string>
+    <string name="content_description_add_filter_button">Open text box to add a new filter</string>
 </resources>

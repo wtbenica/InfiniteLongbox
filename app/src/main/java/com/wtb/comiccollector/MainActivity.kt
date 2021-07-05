@@ -34,7 +34,7 @@ import com.wtb.comiccollector.fragments.IssueDetailFragment
 import com.wtb.comiccollector.fragments.IssueListFragment
 import com.wtb.comiccollector.fragments.SeriesListFragment
 import com.wtb.comiccollector.fragments_view_models.FilterViewModel
-import com.wtb.comiccollector.views.FilterFragment
+import com.wtb.comiccollector.fragments.FilterFragment
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
@@ -139,13 +139,13 @@ class MainActivity : AppCompatActivity(),
             insets
         }
 
-//        ViewCompat.setOnApplyWindowInsetsListener(resultFragmentContainer) { v, insets ->
-//            val posBottom = insets.getInsets(WindowInsetsCompat.Type.systemBars()).bottom
-//
-//            v.updatePadding(bottom = posBottom)
-//
-//            insets
-//        }
+        ViewCompat.setOnApplyWindowInsetsListener(resultFragmentContainer) { view, insets ->
+            val posBottom = insets.getInsets(WindowInsetsCompat.Type.systemBars()).bottom
+
+            view.updatePadding(bottom = posBottom)
+
+            insets
+        }
     }
 
     private fun initNetwork() {

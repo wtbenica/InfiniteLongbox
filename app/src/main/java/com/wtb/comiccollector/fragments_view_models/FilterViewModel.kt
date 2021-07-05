@@ -4,7 +4,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.SearchFilter
-import com.wtb.comiccollector.SortOption
+import com.wtb.comiccollector.SortType
 import com.wtb.comiccollector.database.models.FilterOption
 import com.wtb.comiccollector.repository.Repository
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -17,19 +17,19 @@ class FilterViewModel : ViewModel() {
 
     private val repository: Repository = Repository.get()
 
-    private val _filter = MutableStateFlow(SearchFilter())
+    private val theOneTrueFilter = MutableStateFlow(SearchFilter())
 
-    val filter: StateFlow<SearchFilter> = _filter
+    val filter: StateFlow<SearchFilter> = theOneTrueFilter
 
-    val seriesOptions: Flow<List<FilterOption>> = _filter.flatMapLatest {
+    private val seriesOptions: Flow<List<FilterOption>> = filter.flatMapLatest {
         repository.getSeriesByFilter(it)
     }
 
-    val publisherOptions = _filter.flatMapLatest {
+    private val publisherOptions = filter.flatMapLatest {
         repository.getPublishersByFilter(it)
     }
 
-    val creatorOptions = _filter.flatMapLatest {
+    private val creatorOptions = filter.flatMapLatest {
         repository.getCreatorsByFilter(it)
     }
 
@@ -42,42 +42,43 @@ class FilterViewModel : ViewModel() {
         Log.d(TAG, "filterOptions: ${series.size} series; ${creators.size} creators; ${publishers
             .size} publishers;")
         val res: List<FilterOption> = series + creators + publishers
+        Log.d(TAG, "filterOptions: ${res.size}")
         res.sorted()
     }
 
     fun setFilter(filter: SearchFilter) {
-        this._filter.value = filter
+        this.theOneTrueFilter.value = filter
     }
 
     fun addFilterItem(item: FilterOption) {
         Log.d(TAG, "ADDING ITEM: $item")
-        val newVal = SearchFilter(_filter.value)
+        val newVal = SearchFilter(theOneTrueFilter.value)
         newVal.addFilter(item)
-        _filter.value = newVal
+        theOneTrueFilter.value = newVal
     }
 
     fun removeFilterItem(item: FilterOption) {
-        val newVal = SearchFilter(_filter.value)
+        val newVal = SearchFilter(theOneTrueFilter.value)
         newVal.removeFilter(item)
-        _filter.value = newVal
+        theOneTrueFilter.value = newVal
     }
 
-    fun setSortOption(sortOption: SortOption) {
-        val newVal = SearchFilter(_filter.value)
-        newVal.mSortOption = sortOption
-        _filter.value = newVal
+    fun setSortOption(sortType: SortType) {
+        Log.d(TAG, "setSortOption: ${sortType.sortString} ${sortType.order}")
+        val newVal = SearchFilter(theOneTrueFilter.value)
+        newVal.mSortType = sortType
+        theOneTrueFilter.value = newVal
     }
 
     fun myCollection(isChecked: Boolean) {
-        val newVal = SearchFilter(_filter.value)
+        val newVal = SearchFilter(theOneTrueFilter.value)
         newVal.mMyCollection = isChecked
-        _filter.value = newVal
+        theOneTrueFilter.value = newVal
     }
 
     fun showVariants(isChecked: Boolean) {
-        Log.d(TAG, "showVariants: $isChecked")
-        val newVal = SearchFilter(_filter.value)
+        val newVal = SearchFilter(theOneTrueFilter.value)
         newVal.mShowVariants = isChecked
-        _filter.value = newVal
+        theOneTrueFilter.value = newVal
     }
 }

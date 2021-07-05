@@ -4,7 +4,8 @@ import android.graphics.Rect
 import android.view.View
 import androidx.recyclerview.widget.RecyclerView
 
-class ItemOffsetDecoration(itemOffset: Int) : RecyclerView.ItemDecoration() {
+class ItemOffsetDecoration(itemOffset: Int, private val isHorizontal: Boolean = false) : RecyclerView
+.ItemDecoration() {
     private var mItemOffset = itemOffset
     private var spanCount = 2
 
@@ -16,8 +17,10 @@ class ItemOffsetDecoration(itemOffset: Int) : RecyclerView.ItemDecoration() {
     ) {
         super.getItemOffsets(outRect, view, parent, state)
 
-        outRect.top = mItemOffset
-        outRect.bottom = mItemOffset
+        val ratio = if (isHorizontal) 2 else 1
+
+        outRect.top = mItemOffset / ratio
+        outRect.bottom = mItemOffset / ratio
         outRect.left = mItemOffset
         outRect.right = mItemOffset
     }

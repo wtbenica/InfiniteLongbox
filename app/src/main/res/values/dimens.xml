@@ -10,9 +10,12 @@
 
     <dimen name="card_elevation">1dp</dimen>
 
-    <dimen name="radius_list_item_issue">0dp</dimen>
+    <dimen name="radius_list_item_issue">8dp</dimen>
+    <dimen name="offset_list_item_issue">8dp</dimen>
 
-    <dimen name="offset_list_item_issue">4dp</dimen>
+    <dimen name="radius_list_item_series">8dp</dimen>
+    <dimen name="offset_list_item_series">8dp</dimen>
+
     <dimen name="padding_section_card">4dp</dimen>
 
     <dimen name="peek_height">48dp</dimen>

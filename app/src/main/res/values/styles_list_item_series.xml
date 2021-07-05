@@ -2,7 +2,9 @@
 <resources>
 
     <style name="mCardView.ListItemSeries">
-        <item name="cardCornerRadius">0dp</item>
+        <item name="cardCornerRadius">@dimen/radius_list_item_series</item>
+        <item name="cardElevation">@dimen/margin_narrow</item>
+        <item name="cardMaxElevation">@dimen/margin_narrow</item>
     </style>
 
     <style name="ListItemSeriesLayout">

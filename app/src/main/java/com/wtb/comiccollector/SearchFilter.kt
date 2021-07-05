@@ -1,5 +1,6 @@
 package com.wtb.comiccollector
 
+import android.annotation.SuppressLint
 import androidx.fragment.app.Fragment
 import com.wtb.comiccollector.database.models.Creator
 import com.wtb.comiccollector.database.models.FilterOption
@@ -15,20 +16,6 @@ const val ARG_FILTER = "Filter"
 
 private const val TAG = APP + "Filter_SortChipGroup"
 
-val SERIES_SORT_OPTIONS: List<SortOption> = listOf(
-    SeriesSortOption("Series Name (A-Z)", "sortName ASC"),
-    SeriesSortOption("Series Name (Z-A)", "sortName DESC"),
-    SeriesSortOption("Date (Oldest to Newest)", "startDate ASC"),
-    SeriesSortOption("Date (Newest to Oldest)", "startDate DESC")
-)
-
-val ISSUE_SORT_OPTIONS: List<SortOption> = listOf(
-    IssueSortOption("Issue Number (Low to High)", "issueNum ASC"),
-    IssueSortOption("Issue Number (High to Low)", "issueNum DESC"),
-    IssueSortOption("Date (Oldest to Newest)", "releaseDate ASC"),
-    IssueSortOption("Date (Newest to Oldest)", "releaseDate DESC")
-)
-
 @ExperimentalCoroutinesApi
 class SearchFilter(
     creators: Set<Creator>? = null,
@@ -37,7 +24,7 @@ class SearchFilter(
     startDate: LocalDate? = null,
     endDate: LocalDate? = null,
     myCollection: Boolean = true,
-    sortOption: SortOption? = null,
+    sortType: SortType? = null,
     textFilter: TextFilter? = null,
     showVariants: Boolean = false
 ) : Serializable {
@@ -49,7 +36,7 @@ class SearchFilter(
         filter.mStartDate,
         filter.mEndDate,
         filter.mMyCollection,
-        filter.mSortOption,
+        filter.mSortType,
         filter.mTextFilter,
         filter.mShowVariants
     )
@@ -63,7 +50,7 @@ class SearchFilter(
         set(value) {
             // sets selected sort option to default if it's not of the same type
             if (getSortOptions(value) != getSortOptions()) {
-                mSortOption = getSortOptions(value)[0]
+                mSortType = getSortOptions(value)[0]
             }
             field = value
         }
@@ -71,7 +58,7 @@ class SearchFilter(
     var mStartDate: LocalDate = startDate ?: LocalDate.MIN
     var mEndDate: LocalDate = endDate ?: LocalDate.MAX
     var mMyCollection: Boolean = myCollection
-    var mSortOption: SortOption = sortOption ?: getSortOptions()[0]
+    var mSortType: SortType = sortType ?: getSortOptions()[0]
     var mTextFilter: TextFilter? = textFilter
     var mShowVariants: Boolean = showVariants
 
@@ -149,10 +136,10 @@ class SearchFilter(
             else -> IssueListFragment.newInstance()
         }
 
-    fun getSortOptions(series: Series? = mSeries): List<SortOption> =
+    fun getSortOptions(series: Series? = mSeries): List<SortType> =
         when (series) {
-            null -> SERIES_SORT_OPTIONS
-            else -> ISSUE_SORT_OPTIONS
+            null -> SortType.Companion.ItemSort.SERIES.options
+            else -> SortType.Companion.ItemSort.ISSUE.options
         }
 
     fun getReturnTypes(): List<ReturnType> {
@@ -162,7 +149,7 @@ class SearchFilter(
             result.add(ReturnType.SERIES)
         }
 
-        if (mCreators.isNotEmpty() || mPublishers.isNotEmpty()||mSeries!=null) {
+        if (mCreators.isNotEmpty() || mPublishers.isNotEmpty() || mSeries != null) {
             result.add(ReturnType.ISSUE)
         }
 
@@ -182,7 +169,7 @@ class SearchFilter(
         result = 31 * result + mStartDate.hashCode()
         result = 31 * result + mEndDate.hashCode()
         result = 31 * result + mMyCollection.hashCode()
-        result = 31 * result + mSortOption.hashCode()
+        result = 31 * result + mSortType.hashCode()
         result = 31 * result + mTextFilter.hashCode()
         result = 31 * result + mShowVariants.hashCode()
         return result
@@ -193,22 +180,102 @@ class SearchFilter(
                 "${mPublishers.size} MyCol: $mMyCollection T: ${mTextFilter?.text}"
 }
 
-abstract class SortOption(
+class SortType(
     val tag: String,
-    val sortColumn: String
+    val sortColumn: String,
+    var order: SortOrder
 ) : Serializable {
 
-    override fun toString() = tag
+    constructor(other: SortType) : this(
+        other.tag,
+        other.sortColumn,
+        other.order
+    )
+
+    val sortString: String
+        get() = "$sortColumn ${order.option}"
+
+    override fun toString(): String = tag
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as SortType
+
+        if (tag != other.tag) return false
+        if (sortColumn != other.sortColumn) return false
+        if (order != other.order) return false
+        if (sortString != other.sortString) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = tag.hashCode()
+        result = 31 * result + sortColumn.hashCode()
+        result = 31 * result + when (order) {
+            SortOrder.ASC  -> true.hashCode()
+            SortOrder.DESC -> false.hashCode()
+        }
+        result = 31 * result + sortString.hashCode()
+        return result
+    }
+
+    enum class SortOrder(val option: String, val icon: Int) : Serializable {
+        ASC("ASC", R.drawable.arrow_up_24),
+        DESC("DESC", R.drawable.arrow_down_24)
+    }
+
+    @ExperimentalCoroutinesApi
+    companion object {
+        @SuppressLint("StaticFieldLeak")
+        val context = ComicCollectorApplication.context
+
+        enum class ItemSort(val options: List<SortType>) {
+            SERIES(
+                listOf(
+                    SortType(
+                        context!!.getString(R.string.sort_type_series_name),
+                        context.getString(R.string.column_sort_name),
+                        SortOrder.ASC
+                    ),
+                    SortType(
+                        context.getString(R.string.sort_type_start_date),
+                        context.getString(R.string.column_start_date),
+                        SortOrder.DESC
+                    )
+                )
+            ),
+
+            ISSUE(
+                listOf(
+                    SortType(
+                        context!!.getString(R.string.sort_type_issue_number),
+                        context.getString(R.string.column_issue_num),
+                        SortOrder.ASC
+                    ),
+                    SortType(
+                        context.getString(R.string.sort_type_release_date),
+                        context.getString(R.string.column_release_date),
+                        SortOrder.DESC
+                    )
+                )
+            )
+        }
+    }
 }
 
-class IssueSortOption(
-    tag: String, sortColumn: String
-) : SortOption(tag, sortColumn)
-
-class SeriesSortOption(
-    tag: String, sortColumn: String
-) : SortOption(tag, sortColumn)
-
+//val SERIES_SORT_TYPES: List<SortType> = listOf(
+//    SortType("Series Name", "sortName", SortType.SortOrder.ASC),
+//    SortType("Start Date", "startDate", SortType.SortOrder.DESC)
+//)
+//
+//val ISSUE_SORT_TYPES: List<SortType> = listOf(
+//    SortType("Issue Number", "issueNum", SortType.SortOrder.ASC),
+//    SortType("Release Date", "releaseDate", SortType.SortOrder.DESC)
+//)
+//
 data class TextFilter(val text: String) : FilterOption {
     override val compareValue: String
         get() = text
