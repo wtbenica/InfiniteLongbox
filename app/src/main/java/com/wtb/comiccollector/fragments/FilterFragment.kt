@@ -289,7 +289,6 @@ class FilterFragment : Fragment(),
     }
 
     private fun collapseFilterCard() {
-        adjustConstraintsOnCollapseDEAD()
         val smallCorner = resources.getDimension(R.dimen.margin_default)
         val bigCorner = resources.getDimension(R.dimen.margin_wide)
         val shapeAppearanceModel = searchBoxContentCard.shapeAppearanceModel.toBuilder()
@@ -306,63 +305,6 @@ class FilterFragment : Fragment(),
     fun onBackPressed() {
         val undo = undoQueue.removeLastOrNull()
         undo?.evaluate()
-    }
-
-    private fun adjustConstraintsOnExpandDEAD() {
-        //        val constraints = ConstraintSet()
-        //        constraints.clone(filterConstraintLayout)
-        //        constraints.connect(
-        //            R.id.image_label_filter_items, ConstraintSet.TOP,
-        //            R.id.content_card_filter_chips, ConstraintSet.TOP
-        //        )
-        //        constraints.connect(
-        //            R.id.image_label_filter_items, ConstraintSet.BOTTOM,
-        //            R.id.content_card_filter_chips, ConstraintSet.BOTTOM
-        //        )
-        //        constraints.connect(
-        //            R.id.content_card_search_auto, ConstraintSet.START,
-        //            ConstraintSet.PARENT_ID, ConstraintSet.START
-        //        )
-        //        constraints.connect(
-        //            R.id.image_label_filter_items, ConstraintSet.END,
-        //            R.id.content_card_filter_chips, ConstraintSet.START
-        //        )
-        //        constraints.setMargin(
-        //            R.id.image_label_filter_items,
-        //            ConstraintSet.END,
-        //            resources.getDimension(R.dimen.margin_wide).toInt()
-        //        )
-        //        constraints.applyTo(filterConstraintLayout)
-        //
-    }
-
-    private fun adjustConstraintsOnCollapseDEAD() {
-        //        val constraints = ConstraintSet()
-        //        constraints.clone(filterConstraintLayout)
-        //        constraints.connect(
-        //            R.id.image_label_filter_items, ConstraintSet.TOP,
-        //            R.id.content_card_search_auto, ConstraintSet.TOP
-        //        )
-        //        constraints.connect(
-        //            R.id.image_label_filter_items, ConstraintSet.BOTTOM,
-        //            R.id.content_card_search_auto, ConstraintSet.BOTTOM
-        //        )
-        //        constraints.connect(
-        //            R.id.content_card_search_auto, ConstraintSet.START,
-        //            R.id.image_label_filter_items, ConstraintSet.END
-        //        )
-        //        constraints.connect(
-        //            R.id.image_label_filter_items, ConstraintSet.END,
-        //            R.id.content_card_search_auto, ConstraintSet.START
-        //        )
-        //
-        //        constraints.setMargin(
-        //            R.id.image_label_filter_items,
-        //            ConstraintSet.END,
-        //            resources.getDimension(R.dimen.margin_wide).toInt()
-        //        )
-        //        constraints.applyTo(filterConstraintLayout)
-        //
     }
 
     // SearchTextViewCallback
