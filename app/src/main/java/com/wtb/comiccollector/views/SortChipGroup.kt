@@ -46,14 +46,16 @@ class SortChipGroup(context: Context, attributeSet: AttributeSet) :
             }
         }.toList()
 
-        toAddList.forEach { sortOption ->
-            addView(SortChip(context).apply {
+        toAddList.forEach { sortTypeIn ->
+            Log.d(TAG, "Adding View")
+            val chip = SortChip(context).apply {
                 callback = this@SortChipGroup
-                this.sortType = sortOption
-                if (filter.mSortType == sortOption) {
-                    isChecked = true
-                }
-            })
+                sortType = sortTypeIn
+                isChecked = filter.mSortType == sortTypeIn
+            }
+            Log.d(TAG, "Chip ${chip.sortType?.tag}:${chip.sortType?.order} is checked: ${chip
+                .isChecked}")
+            addView(chip)
         }
 
         toRemoveList.forEach {
@@ -97,12 +99,12 @@ class SortChip(context: Context) : Chip(context) {
     internal var sortType: SortType? = null
         set(value) {
             field = value
-            Log.d(TAG, "setting sortOption: ${value?.sortString}")
             text = value?.tag
             icon = value?.order?.icon
             field?.let {
-                Log.d(TAG, "Chip is checked, changing sort order ${it.sortString}")
-                callback?.sortOrderChanged(it)
+                if (isChecked) {
+                    callback?.sortOrderChanged(it)
+                }
             }
         }
 

@@ -3,7 +3,6 @@ package com.wtb.comiccollector.fragments
 import android.animation.ValueAnimator
 import android.content.Context
 import android.os.Bundle
-import android.util.Log
 import android.view.*
 import android.view.animation.AccelerateInterpolator
 import android.widget.ImageView
@@ -11,9 +10,6 @@ import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.cardview.widget.CardView
 import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.updatePadding
 import androidx.fragment.app.FragmentTransaction
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
@@ -21,8 +17,6 @@ import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.appbar.AppBarLayout.LayoutParams.SCROLL_FLAG_ENTER_ALWAYS
-import com.google.android.material.appbar.AppBarLayout.LayoutParams.SCROLL_FLAG_SCROLL
 import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.R
 import com.wtb.comiccollector.database.models.FullIssue
@@ -38,22 +32,14 @@ class IssueListFragment : ListFragment() {
 
     private val viewModel: IssueListViewModel by viewModels()
 
-    private var callback: IssueListCallback? = null
-
     override fun onAttach(context: Context) {
         super.onAttach(context)
         callback = context as IssueListCallback?
     }
 
-    override fun onResume() {
-        super.onResume()
-        Log.d(TAG, "onResume")
-        callback?.setToolbarScrollFlags(SCROLL_FLAG_SCROLL or SCROLL_FLAG_ENTER_ALWAYS)
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
+//        setHasOptionsMenu(true)
 
         lifecycleScope.launch {
             filterViewModel.filter.collectLatest { filter ->
@@ -77,33 +63,11 @@ class IssueListFragment : ListFragment() {
             .commitAllowingStateLoss()
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        val view = inflater.inflate(R.layout.fragment_item_list, container, false)
-
-        listRecyclerView = view.findViewById(R.id.results_frame) as RecyclerView
-        val itemDecoration =
-            ItemOffsetDecoration(resources.getDimension(R.dimen.offset_list_item_issue).toInt())
-
-        ViewCompat.setOnApplyWindowInsetsListener(view) { v, insets ->
-            val bottom =
-                PEEK_HEIGHT + insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom
-            Log.d(TAG, "NEW PADDING: $bottom")
-            v.updatePadding(bottom = bottom)
-
-            insets
-        }
-
-        listRecyclerView.addItemDecoration(itemDecoration)
-        listRecyclerView.layoutManager = GridLayoutManager(context, 2)
-
-        return view
-    }
+    override fun getLayoutManager(): RecyclerView.LayoutManager = GridLayoutManager(context, 2)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
         val adapter = IssueAdapter()
         listRecyclerView.adapter = adapter
 
@@ -117,11 +81,6 @@ class IssueListFragment : ListFragment() {
                 callback?.setTitle(it?.seriesName)
             }
         )
-    }
-
-    override fun onDetach() {
-        super.onDetach()
-        callback = null
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -146,9 +105,8 @@ class IssueListFragment : ListFragment() {
     inner class IssueAdapter :
         PagingDataAdapter<FullIssue, IssueViewHolder>(DIFF_CALLBACK) {
 
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): IssueViewHolder {
-            return IssueViewHolder(parent)
-        }
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): IssueViewHolder =
+            IssueViewHolder(parent)
 
         override fun onBindViewHolder(holder: IssueViewHolder, position: Int) {
             holder.bind(getItem(position))
@@ -215,14 +173,9 @@ class IssueListFragment : ListFragment() {
 
         override fun onClick(v: View?) {
             val issueId = fullIssue?.issue?.issueId
-            issueId?.let { callback?.onIssueSelected(it) }
+            issueId?.let { (callback as IssueListCallback?)?.onIssueSelected(it) }
         }
 
-    }
-
-    interface ListFragmentCallback {
-        fun setTitle(title: String? = null)
-        fun setToolbarScrollFlags(flags: Int)
     }
 
     interface IssueListCallback : ListFragmentCallback {

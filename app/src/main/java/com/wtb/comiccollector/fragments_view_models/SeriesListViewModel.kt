@@ -15,7 +15,7 @@ import kotlinx.coroutines.flow.Flow
 private const val TAG = APP + "SeriesListViewModel"
 
 @ExperimentalCoroutinesApi
-class SeriesListViewModel : ListViewModel() {
+class SeriesListViewModel : ListViewModel<FullSeries>() {
 
     val seriesList: Flow<PagingData<FullSeries>> = filter.switchMap { filter ->
         filter.let {

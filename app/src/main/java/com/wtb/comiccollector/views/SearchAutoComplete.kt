@@ -58,6 +58,7 @@ class SearchAutoComplete(context: Context, attributeSet: AttributeSet) :
             }
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                Log.d(TAG, "TEXT CHANGED!")
                 if (s.toString() != item?.compareValue) {
                     item = null
                 }

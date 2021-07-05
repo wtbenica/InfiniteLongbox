@@ -84,9 +84,9 @@
                     style="@style/ImageLabel"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
+                    android:layout_weight="0"
                     android:contentDescription="@string/sort_image_content_description"
                     android:labelFor="@id/chip_group_sort"
-                    android:layout_weight="0"
                     app:srcCompat="@drawable/sort_24" />
 
                 <com.google.android.material.card.MaterialCardView
@@ -107,20 +107,16 @@
                             android:checkable="true"
                             android:checked="true"
                             android:enabled="false"
-                            android:text="@string/hint_publisher"
-                            app:closeIconEnabled="false" />
+                            android:text="@string/sort_type_series_name"
+                            app:closeIcon="@drawable/arrow_up_24"
+                            app:closeIconEnabled="true" />
 
                         <com.google.android.material.chip.Chip
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="@string/app_name"
-                            app:closeIconEnabled="false" />
-
-                        <com.google.android.material.chip.Chip
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/hint_series_title"
-                            app:closeIconEnabled="false" />
+                            android:text="@string/sort_type_release_date"
+                            app:closeIcon="@drawable/arrow_up_24"
+                            app:closeIconEnabled="true" />
 
                     </com.wtb.comiccollector.views.SortChipGroup>
                 </com.google.android.material.card.MaterialCardView>
@@ -150,54 +146,77 @@
                     android:layout_height="0dp"
                     android:contentDescription="@string/sort_image_content_description"
                     android:labelFor="@id/chip_group_sort"
-                    app:layout_constraintBottom_toBottomOf="@id/content_card_search_auto"
-                    app:layout_constraintEnd_toStartOf="@id/content_card_search_auto"
+                    app:layout_constraintBottom_toBottomOf="@id/content_holder"
+                    app:layout_constraintEnd_toStartOf="@id/content_holder"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="@id/content_card_filter_chips"
+                    app:layout_constraintTop_toTopOf="@id/content_holder"
                     app:srcCompat="@drawable/ic_filter" />
 
-                <com.google.android.material.card.MaterialCardView
-                    android:id="@+id/content_card_filter_chips"
-                    style="@style/FilterContentCard"
+                <LinearLayout
+                    android:id="@+id/content_holder"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="@id/content_card_search_auto"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:shapeAppearanceOverlay="@style/top_right">
+                    app:layout_constraintStart_toEndOf="@id/image_label_filter_items">
 
-                    <com.wtb.comiccollector.views.FilterChipGroup
-                        android:id="@+id/chip_group_filter"
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/content_card_filter_chips"
+                        style="@style/FilterContentCard"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content">
+                        android:layout_height="wrap_content"
+                        app:shapeAppearanceOverlay="@style/top_right">
 
-                        <com.google.android.material.chip.Chip
-                            android:layout_width="wrap_content"
+                        <LinearLayout
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="Doom Patrol"
-                            app:closeIconEnabled="true" />
+                            android:orientation="horizontal">
 
-                    </com.wtb.comiccollector.views.FilterChipGroup>
-                </com.google.android.material.card.MaterialCardView>
+                            <com.wtb.comiccollector.views.FilterChipGroup
+                                android:id="@+id/chip_group_filter"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1">
 
-                <com.google.android.material.card.MaterialCardView
-                    android:id="@+id/content_card_search_auto"
-                    style="@style/FilterContentCard"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toEndOf="@id/image_label_filter_items"
-                    app:layout_constraintTop_toBottomOf="@id/content_card_filter_chips"
-                    app:shapeAppearanceOverlay="@style/bottom_both">
+                                <com.google.android.material.chip.Chip
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Doom Patrol"
+                                    app:closeIconEnabled="true" />
 
-                    <com.wtb.comiccollector.views.SearchAutoComplete
-                        android:id="@+id/search_auto"
-                        style="@style/myAutoCompleteStyle"
+                            </com.wtb.comiccollector.views.FilterChipGroup>
+
+                            <ImageButton
+                                android:id="@+id/add_filter_button"
+                                android:layout_width="wrap_content"
+                                android:layout_height="match_parent"
+                                android:backgroundTint="@android:color/transparent"
+                                android:contentDescription="@string/content_description_add_filter_button"
+                                android:src="@drawable/ic_menu_add"
+                                app:tint="@color/fantasia_dark" />
+                        </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/content_card_search_auto"
+                        style="@style/FilterContentCard"
                         android:layout_width="match_parent"
-                        android:layout_height="?attr/dropdownListPreferredItemHeight"
-                        android:hint="@string/search"
-                        tools:text="Potato Latke" />
-                </com.google.android.material.card.MaterialCardView>
+                        android:layout_height="wrap_content"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="@id/content_card_filter_chips"
+                        app:layout_constraintTop_toBottomOf="@id/content_card_filter_chips"
+                        app:shapeAppearanceOverlay="@style/bottom_both">
+
+                        <com.wtb.comiccollector.views.SearchAutoComplete
+                            android:id="@+id/search_auto"
+                            style="@style/myAutoCompleteStyle"
+                            android:layout_width="match_parent"
+                            android:layout_height="?attr/dropdownListPreferredItemHeight"
+                            android:hint="@string/search"
+                            tools:text="Potato Latke" />
+                    </com.google.android.material.card.MaterialCardView>
+                </LinearLayout>
             </androidx.constraintlayout.widget.ConstraintLayout>
         </androidx.cardview.widget.CardView>
     </androidx.constraintlayout.widget.ConstraintLayout>

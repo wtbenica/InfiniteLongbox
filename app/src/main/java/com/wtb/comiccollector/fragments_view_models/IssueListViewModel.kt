@@ -15,7 +15,7 @@ import kotlinx.coroutines.flow.Flow
 private const val TAG = APP + "IssueListViewModel"
 
 @ExperimentalCoroutinesApi
-class IssueListViewModel : ListViewModel() {
+class IssueListViewModel : ListViewModel<FullIssue>() {
 
     private val seriesIdLiveData = MutableLiveData<Int>()
     val seriesId: LiveData<Int> = seriesIdLiveData

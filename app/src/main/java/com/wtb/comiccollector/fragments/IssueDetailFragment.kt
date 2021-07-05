@@ -55,7 +55,7 @@ private const val STORY_TYPE_COVER = 6
 @ExperimentalCoroutinesApi
 class IssueDetailFragment : Fragment() {
 
-    private var callback: IssueListFragment.ListFragmentCallback? = null
+    private var callback: ListFragment.ListFragmentCallback? = null
 
     override fun onDetach() {
         super.onDetach()
@@ -112,7 +112,7 @@ class IssueDetailFragment : Fragment() {
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        callback = context as IssueListFragment.ListFragmentCallback?
+        callback = context as ListFragment.ListFragmentCallback?
     }
 
     override fun onResume() {

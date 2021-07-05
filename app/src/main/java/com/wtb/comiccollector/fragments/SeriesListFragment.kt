@@ -11,17 +11,12 @@ import android.view.animation.AnimationUtils
 import android.view.animation.LayoutAnimationController
 import android.widget.ImageView
 import android.widget.TextView
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.updatePadding
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.appbar.AppBarLayout.LayoutParams.SCROLL_FLAG_ENTER_ALWAYS
-import com.google.android.material.appbar.AppBarLayout.LayoutParams.SCROLL_FLAG_SCROLL
 import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.R
 import com.wtb.comiccollector.database.models.FullSeries
@@ -38,25 +33,20 @@ class SeriesListFragment : ListFragment() {
 
     private val viewModel: SeriesListViewModel by viewModels()
 
-    private var callback: SeriesListCallback? = null
-
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        Log.d(TAG, "ON ATTACH")
         callback = context as SeriesListCallback?
 
     }
 
     override fun onResume() {
         super.onResume()
-
         callback?.setTitle()
-        callback?.setToolbarScrollFlags(SCROLL_FLAG_SCROLL or SCROLL_FLAG_ENTER_ALWAYS)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
+//        setHasOptionsMenu(true)
 
         lifecycleScope.launch {
             filterViewModel.filter.collectLatest { filter ->
@@ -66,32 +56,7 @@ class SeriesListFragment : ListFragment() {
         }
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        val view = inflater.inflate(R.layout.fragment_item_list, container, false)
-
-        listRecyclerView = view.findViewById(R.id.results_frame) as RecyclerView
-        listRecyclerView.layoutManager = LinearLayoutManager(context)
-
-        val itemDecoration =
-            ItemOffsetDecoration(resources.getDimension(R.dimen.offset_list_item_series).toInt(),
-                                 true)
-
-        listRecyclerView.addItemDecoration(itemDecoration)
-
-        ViewCompat.setOnApplyWindowInsetsListener(view) { v, insets ->
-            val bottom =
-                PEEK_HEIGHT + insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom
-            Log.d(TAG, "NEW PADDING: $bottom")
-            v.updatePadding(bottom = bottom)
-
-            insets
-        }
-
-        return view
-    }
+    override fun getLayoutManager(): RecyclerView.LayoutManager = LinearLayoutManager(context)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -100,9 +65,7 @@ class SeriesListFragment : ListFragment() {
         listRecyclerView.adapter = adapter
 
         lifecycleScope.launch {
-            viewModel.seriesList.collectLatest {
-                adapter.submitData(it)
-            }
+            viewModel.seriesList.collectLatest { adapter.submitData(it) }
         }
     }
 
@@ -131,7 +94,7 @@ class SeriesListFragment : ListFragment() {
         LayoutInflater.from(parent.context).inflate(R.layout.list_item_series, parent, false)
     ), View.OnClickListener {
 
-        lateinit var item: FullSeries
+        private lateinit var item: FullSeries
 
         private val seriesTextView: TextView = itemView.findViewById(R.id.list_item_name)
         private val seriesImageView: ImageView = itemView.findViewById(R.id.series_imageview)
@@ -153,16 +116,11 @@ class SeriesListFragment : ListFragment() {
         }
 
         override fun onClick(v: View?) {
-            callback?.onSeriesSelected(item.series)
+            (callback as SeriesListCallback?)?.onSeriesSelected(item.series)
         }
     }
 
-    override fun onDetach() {
-        super.onDetach()
-        callback = null
-    }
-
-    interface SeriesListCallback : IssueListFragment.ListFragmentCallback {
+    interface SeriesListCallback : ListFragmentCallback {
         fun onSeriesSelected(series: Series)
     }
 

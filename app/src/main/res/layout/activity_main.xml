@@ -40,7 +40,7 @@
 
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/bottom_sheet"
-        android:name="com.wtb.comiccollector.views.FilterFragment"
+        android:name="com.wtb.comiccollector.fragments.FilterFragment"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:tag="@string/tag_filter_fragment"
