@@ -9,18 +9,13 @@ import com.wtb.comiccollector.SearchFilter
 import com.wtb.comiccollector.database.models.FullIssue
 import com.wtb.comiccollector.database.models.Issue
 import com.wtb.comiccollector.database.models.Series
-import com.wtb.comiccollector.repository.Repository
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 
 private const val TAG = APP + "IssueListViewModel"
 
 @ExperimentalCoroutinesApi
-class IssueListViewModel : ViewModel() {
-    private val repository: Repository = Repository.get()
-
-    private val filterLiveData = MutableLiveData(SearchFilter())
-    val filter: LiveData<SearchFilter> = filterLiveData
+class IssueListViewModel : ListViewModel<FullIssue>() {
 
     private val seriesIdLiveData = MutableLiveData<Int>()
     val seriesId: LiveData<Int> = seriesIdLiveData
@@ -33,6 +28,7 @@ class IssueListViewModel : ViewModel() {
         }
 
     val issueList: Flow<PagingData<FullIssue>> = filter.switchMap { filter ->
+        Log.d(TAG, "issueList: filterChanged")
         repository.getIssuesByFilterPaged(filter).asLiveData()
     }.asFlow().cachedIn(viewModelScope)
 

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <color name="fantasia">#053332</color>
+    <color name="fantasia_light">#666</color>
+    <color name="fantasia_dark">#E77</color>
+    <color name="fantasia_text">#DFFF</color>
+
+    <color name="amnesia">#309782</color>
+    <color name="amnesia_light">#CFF7EF</color>
+    <color name="amnesia_dark">#20706D</color>
+    <color name="amnesia_text">#444</color>
+
+    <color name="fantasia_muted">#E8FDAD</color>
+    <color name="fantasia_light_muted">#E3F6B0</color>
+    <color name="fantasia_dark_muted">#BAFE00</color>
+
+</resources>

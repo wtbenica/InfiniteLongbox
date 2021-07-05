@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="FilterCard" parent="Widget.MaterialComponents.CardView">
+        <item name="android:animateLayoutChanges">true</item>
+        <item name="cardBackgroundColor">@android:color/transparent</item>
+    </style>
+
+    <style name="FilterBackground" parent="FilterCard">
+        <item name="cardPreventCornerOverlap">false</item>
+        <item name="cardElevation">8dp</item>
+        <item name="shapeAppearanceOverlay">@style/ShapeFilterBackground</item>
+    </style>
+
+    <style name="ShapeFilterBackground" parent="ShapeAppearance.MaterialComponents.SmallComponent">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSizeTopRight">@dimen/radius_wide</item>
+        <item name="cornerSizeBottomLeft">0dp</item>
+        <item name="cornerSizeBottomRight">0dp</item>
+        <item name="cornerSizeTopLeft">@dimen/radius_wide</item>
+    </style>
+
+    <style name="FilterSectionCard" parent="FilterCard">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:alpha">0</item>
+        <item name="cardElevation">4dp</item>
+        <item name="cardMaxElevation">4dp</item>
+        <item name="cardCornerRadius">@dimen/margin_wide</item>
+        <item name="android:layout_margin">@dimen/margin_default</item>
+        <item name="cardBackgroundColor">?attr/colorPrimary</item>
+    </style>
+
+    <style name="FilterSectionCardLayout">
+        <item name="android:padding">@dimen/padding_section_card</item>
+    </style>
+
+    <style name="FilterContentCard">
+        <item name="cardElevation">0dp</item>
+        <item name="cardMaxElevation">0dp</item>
+    </style>
+
+    <style name="HandleContainer">
+        <item name="android:layout_height">@dimen/peek_height</item>
+        <item name="android:layout_width">0dp</item>
+        <item name="android:elevation">1dp</item>
+        <item name="android:paddingTop">@dimen/drag_handle_margin</item>
+        <item name="android:paddingBottom">@dimen/drag_handle_margin</item>
+    </style>
+
+    <style name="Handle" parent="Widget.MaterialComponents.CardView">
+        <item name="android:layout_height">@dimen/drag_handle_height</item>
+        <item name="android:layout_width">@dimen/peek_height</item>
+        <item name="cardElevation">2dp</item>
+        <item name="cardBackgroundColor">?attr/colorPrimary</item>
+        <item name="android:layout_gravity">center</item>
+    </style>
+
+    <style name="bottom_both" parent="ShapeAppearance.MaterialComponents.SmallComponent">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSizeBottomRight">@dimen/margin_wide</item>
+        <item name="cornerSizeBottomLeft">@dimen/margin_default</item>
+        <item name="cornerSizeTopRight">0dp</item>
+        <item name="cornerSizeTopLeft">0dp</item>
+    </style>
+
+    <style name="top_right" parent="ShapeAppearance.MaterialComponents.SmallComponent">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSizeTopLeft">@dimen/margin_default</item>
+        <item name="cornerSizeTopRight">@dimen/margin_wide</item>
+        <item name="cornerSizeBottomRight">0dp</item>
+        <item name="cornerSizeBottomLeft">0dp</item>
+    </style>
+
+    <style name="both_right" parent="ShapeAppearance.MaterialComponents.SmallComponent">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSizeTopLeft">@dimen/margin_default</item>
+        <item name="cornerSizeBottomLeft">@dimen/margin_default</item>
+        <item name="cornerSizeBottomRight">@dimen/margin_wide</item>
+        <item name="cornerSizeTopRight">@dimen/margin_wide</item>
+    </style>
+
+    <style name="ImageLabel">
+        <item name="android:layout_height">?attr/dropdownListPreferredItemHeight</item>
+        <item name="android:layout_width">?attr/dropdownListPreferredItemHeight</item>
+        <item name="android:layout_marginStart">@dimen/margin_default</item>
+        <item name="android:layout_marginEnd">@dimen/margin_default</item>
+        <item name="tint">@android:color/white</item>
+        <item name="android:layout_weight">0</item>
+    </style>
+
+    <style name="ChipScrollView">
+        <item name="android:background">@android:color/white</item>
+        <item name="android:scrollbars">none</item>
+        <item name="singleLine">true</item>
+        <item name="shapeAppearanceOverlay">@style/bottom_both</item>
+    </style>
+
+    <style name="FilterChipGroup" parent="Widget.MaterialComponents.ChipGroup">
+        <item name="android:paddingStart">@dimen/margin_default</item>
+        <item name="android:paddingEnd">@dimen/margin_default</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">?attr/dropdownListPreferredItemHeight</item>
+    </style>
+
+    <style name="mySwitchStyle" parent="Widget.AppCompat.CompoundButton.Switch">
+        <item name="thumbTint">@color/my_switch</item>
+        <item name="trackTint">?attr/colorSecondary</item>
+        <item name="android:paddingStart">@dimen/margin_wide</item>
+        <item name="android:paddingEnd">@dimen/margin_wide</item>
+        <item name="fontFamily">@font/permanent_marker</item>
+        <item name="android:textColor">?attr/colorOnPrimary</item>
+        <item name="android:textAppearance">@style/mySwitchTextAppearance</item>
+    </style>
+
+    <style name="mySwitchTextAppearance" parent="TextAppearance.AppCompat.Widget.Switch">
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">16sp</item>
+    </style>
+
+    <style name="myAutoCompleteStyle" parent="Widget.AppCompat.Light.AutoCompleteTextView">
+        <item name="android:paddingStart">@dimen/margin_default</item>
+        <item name="fontFamily">@font/permanent_marker</item>
+        <item name="android:textColor">?attr/colorOnPrimary</item>
+        <item name="android:textSize">18sp</item>
+        <item name="android:background">@android:color/white</item>
+        <item name="singleLine">true</item>
+        <item name="android:popupBackground">@drawable/background_autocomplete_popup</item>
+    </style>
+
+    <style name="filterCardChipGroup" parent="Widget.MaterialComponents.ChipGroup">
+        <item name="android:minHeight">?attr/dropdownListPreferredItemHeight</item>
+        <item name="singleLine">false</item>
+        <item name="android:animateLayoutChanges">true</item>
+        <item name="chipSpacingVertical">100dp</item>
+        <item name="chipSpacingHorizontal">10dp</item>
+        <item name="android:paddingStart">@dimen/margin_default</item>
+        <item name="android:paddingEnd">@dimen/margin_default</item>
+    </style>
+
+    <style name="myNewChip" parent="Widget.MaterialComponents.Chip.Entry">
+        <item name="chipStrokeColor">?attr/colorOnPrimary</item>
+        <item name="chipStrokeWidth">2dp</item>
+        <item name="chipIconSize">20dp</item>
+        <item name="closeIconSize">20dp</item>
+        <item name="chipMinHeight">36dp</item>
+        <item name="checkedIconVisible">false</item>
+        <item name="chipStartPadding">@dimen/margin_default</item>
+        <item name="chipEndPadding">@dimen/margin_default</item>
+        <item name="chipBackgroundColor">@color/filter_chip</item>
+        <item name="android:textColor">?attr/colorOnPrimary</item>
+        <item name="android:textAppearance">@style/myChipText</item>
+        <item name="checkedIconTint">?attr/colorOnPrimary</item>
+        <item name="closeIconTint">?attr/colorOnPrimary</item>
+        <item name="checkedIcon">@drawable/ic_check_circle</item>
+        <item name="android:animateLayoutChanges">true</item>
+    </style>
+
+    <style name="myChipText" parent="TextAppearance.MaterialComponents.Chip">
+        <item name="fontFamily">@font/permanent_marker</item>
+        <item name="android:textSize">14sp</item>
+    </style>
+</resources>

@@ -16,8 +16,8 @@ import com.google.android.material.appbar.AppBarLayout
 import com.wtb.comiccollector.*
 import com.wtb.comiccollector.database.Daos.Count
 import com.wtb.comiccollector.database.models.*
-import com.wtb.comiccollector.repository.DUMMY_ID
 import com.wtb.comiccollector.fragments_view_models.IssueDetailViewModel
+import com.wtb.comiccollector.repository.DUMMY_ID
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collectLatest
 import java.io.File
@@ -55,7 +55,7 @@ private const val STORY_TYPE_COVER = 6
 @ExperimentalCoroutinesApi
 class IssueDetailFragment : Fragment() {
 
-    private var callback: IssueListFragment.ListFragmentCallback? = null
+    private var callback: ListFragment.ListFragmentCallback? = null
 
     override fun onDetach() {
         super.onDetach()
@@ -112,7 +112,7 @@ class IssueDetailFragment : Fragment() {
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        callback = context as IssueListFragment.ListFragmentCallback?
+        callback = context as ListFragment.ListFragmentCallback?
     }
 
     override fun onResume() {
@@ -370,12 +370,11 @@ class IssueDetailFragment : Fragment() {
                     parent?.let {
                         val selectedIssueId =
                             (it.getItemAtPosition(position) as Issue).issueId
-                        if (selectedIssueId != issueDetailViewModel.getIssueId()) {
+
+                        isVariant = selectedIssueId != issueDetailViewModel.getIssueId()
+
+                        if (isVariant) {
                             issueDetailViewModel.loadVariant(selectedIssueId)
-                            isVariant = true
-                        } else {
-                            issueDetailViewModel.clearVariant()
-                            isVariant = false
                         }
                         updateCover()
                     }
@@ -405,13 +404,6 @@ class IssueDetailFragment : Fragment() {
     }
 
     private fun updateUI() {
-
-        val issue = if (isVariant) {
-            fullVariant
-        } else {
-            fullIssue
-        }
-
         if (issue()?.issue?.issueId != DUMMY_ID) {
             numUpdates += 1
 
@@ -430,7 +422,7 @@ class IssueDetailFragment : Fragment() {
         if (coverUri() != null) {
             coverImageView.setImageURI(coverUri())
         } else {
-            coverImageView.setImageResource(R.drawable.ic_issue_add_cover)
+            coverImageView.setImageResource(R.drawable.cover_missing)
         }
     }
 

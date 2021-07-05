@@ -23,7 +23,7 @@
         android:strokeColor="#00000000" />
     <path
         android:fillType="nonZero"
-        android:fillColor="@color/amnesia_light"
+        android:fillColor="@color/fantasia"
         android:pathData="m22.1842,18.0284 l-0.0899,0.4336L15.0725,18.4619L14.1397,22.409L21.2757,22.409L19.3337,31.7727L14.8136,31.7727l-0.9596,3.9522l25.553,0c0.3969,-1.3407 0.651,-2.7561 0.9534,-3.9517l-7.8956,0l2.7523,-13.2726 -3.5362,-0.4723 -0.0899,0.4336L25.4351,18.4619ZM24.9148,22.409l5.8575,0l-1.942,9.3643L22.9728,31.7733Z"
         android:strokeWidth="0.2"
         android:strokeColor="#000000"

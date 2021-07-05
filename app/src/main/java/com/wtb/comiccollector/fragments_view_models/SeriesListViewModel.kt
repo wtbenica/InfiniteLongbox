@@ -1,24 +1,23 @@
 package com.wtb.comiccollector.fragments_view_models
 
-import androidx.lifecycle.*
+import androidx.lifecycle.asFlow
+import androidx.lifecycle.asLiveData
+import androidx.lifecycle.switchMap
+import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.SearchFilter
 import com.wtb.comiccollector.database.models.FullSeries
-import com.wtb.comiccollector.repository.Repository
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 
 private const val TAG = APP + "SeriesListViewModel"
 
 @ExperimentalCoroutinesApi
-class SeriesListViewModel : ViewModel() {
-    private val repository: Repository = Repository.get()
+class SeriesListViewModel : ListViewModel<FullSeries>() {
 
-    private val filterLiveData = MutableLiveData(SearchFilter())
-
-    val seriesList: Flow<PagingData<FullSeries>> = filterLiveData.switchMap { filter ->
+    val seriesList: Flow<PagingData<FullSeries>> = filter.switchMap { filter ->
         filter.let {
             repository.getSeriesByFilterPaged(it).asLiveData()
         }

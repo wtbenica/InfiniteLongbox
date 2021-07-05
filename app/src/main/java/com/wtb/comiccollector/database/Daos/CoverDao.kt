@@ -4,4 +4,4 @@ import androidx.room.Dao
 import com.wtb.comiccollector.database.models.Cover
 
 @Dao
-abstract class CoverDao : BaseDao<Cover>();
+abstract class CoverDao : BaseDao<Cover>()

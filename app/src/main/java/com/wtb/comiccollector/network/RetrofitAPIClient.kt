@@ -1,6 +1,5 @@
 package com.wtb.comiccollector.network
 
-import android.content.Context
 import com.wtb.comiccollector.repository.BASE_URL
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
@@ -11,7 +10,7 @@ class RetrofitAPIClient {
     companion object {
         private var retrofit: Retrofit? = null
 
-        internal fun getRetrofitClient(context: Context): Retrofit {
+        internal fun getRetrofitClient(): Retrofit {
 
             if (retrofit == null) {
                 val client = OkHttpClient.Builder()

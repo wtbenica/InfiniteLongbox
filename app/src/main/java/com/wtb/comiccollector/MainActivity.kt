@@ -11,22 +11,21 @@ import android.util.TypedValue
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
-import android.widget.FrameLayout
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.ContentFrameLayout
 import androidx.appcompat.widget.Toolbar
 import androidx.coordinatorlayout.widget.CoordinatorLayout
-import androidx.core.view.WindowInsetsControllerCompat
-import androidx.core.view.updateLayoutParams
-import androidx.core.view.updatePadding
+import androidx.core.view.*
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentContainerView
+import androidx.fragment.app.FragmentTransaction.TRANSIT_FRAGMENT_FADE
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.appbar.AppBarLayout
+import com.google.android.material.appbar.AppBarLayout.LayoutParams.SCROLL_FLAG_SCROLL
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetBehavior.*
 import com.wtb.comiccollector.database.models.Creator
@@ -35,7 +34,7 @@ import com.wtb.comiccollector.fragments.IssueDetailFragment
 import com.wtb.comiccollector.fragments.IssueListFragment
 import com.wtb.comiccollector.fragments.SeriesListFragment
 import com.wtb.comiccollector.fragments_view_models.FilterViewModel
-import com.wtb.comiccollector.views.FilterFragment
+import com.wtb.comiccollector.fragments.FilterFragment
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
@@ -57,13 +56,15 @@ class MainActivity : AppCompatActivity(),
     private val PEEK_HEIGHT
         get() = resources.getDimension(R.dimen.peek_height).toInt()
 
-    private var filterFragment: FilterFragment? = null
-
     private val filterViewModel: FilterViewModel by viewModels()
-    private var fragmentContainer: FragmentContainerView? = null
 
-    private var bottomSheetBehavior: BottomSheetBehavior<*>? = null
-    private var toolbar: Toolbar? = null
+    private var filterFragment: FilterFragment? = null
+    private lateinit var mainLayout: CoordinatorLayout
+    private lateinit var appBarLayout: AppBarLayout
+    private lateinit var toolbar: Toolbar
+    private lateinit var resultFragmentContainer: FragmentContainerView
+    private lateinit var bottomSheet: FragmentContainerView
+    private lateinit var bottomSheetBehavior: BottomSheetBehavior<*>
 
     private val resultFragmentManager by lazy {
         ResultFragmentManager()
@@ -71,31 +72,25 @@ class MainActivity : AppCompatActivity(),
 
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(R.style.Theme_ComicCollector)
+        WindowCompat.setDecorFitsSystemWindows(window, false)
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
-        val root = findViewById<CoordinatorLayout>(R.id.main_layout)
-        WindowInsetsControllerCompat(window, root).apply {
-            setSystemBarsBehavior(WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
-        }
-
-        toolbar = findViewById(R.id.action_bar)
-        setSupportActionBar(toolbar)
 
         filterFragment = supportFragmentManager.findFragmentByTag(
             resources.getString(R.string.tag_filter_fragment)
         ) as FilterFragment?
+        mainLayout = findViewById(R.id.main_activity)
+        appBarLayout = findViewById(R.id.app_bar_layout)
+        toolbar = findViewById(R.id.action_bar)
+        setSupportActionBar(toolbar)
+        resultFragmentContainer = findViewById(R.id.fragment_container)
+        bottomSheet = findViewById(R.id.bottom_sheet)
 
         lifecycleScope.launch {
             resultFragmentManager.fragment.collectLatest { frag ->
                 frag?.let { fragment ->
                     supportFragmentManager.beginTransaction()
-                        .setCustomAnimations(
-                            R.anim.fade_in,
-                            R.anim.slide_out,
-                            R.anim.fade_in,
-                            R.anim.slide_out
-                        )
+                        .setTransition(TRANSIT_FRAGMENT_FADE)
                         .replace(R.id.fragment_container, fragment)
                         .addToBackStack(null)
                         .commit()
@@ -110,21 +105,20 @@ class MainActivity : AppCompatActivity(),
                 }
             }
         }
-
+        initWindowInsets()
         initBottomSheet()
         initNetwork()
     }
 
     private fun initBottomSheet() {
-        val bottomSheet: FrameLayout? = findViewById(R.id.bottom_sheet)
-
-        bottomSheetBehavior = bottomSheet?.let { from(it) }
-        bottomSheetBehavior?.apply {
+        bottomSheetBehavior = from(bottomSheet)
+        bottomSheetBehavior.apply {
             peekHeight = PEEK_HEIGHT
             isHideable = false
+            saveFlags = SAVE_ALL
         }
 
-        bottomSheetBehavior?.addBottomSheetCallback(object : BottomSheetCallback() {
+        bottomSheetBehavior.addBottomSheetCallback(object : BottomSheetCallback() {
             override fun onStateChanged(bottomSheet: View, newState: Int) {
                 Log.d(TAG, "onStateChanged: ${getStateName(newState)}")
                 filterFragment?.visibleState = newState
@@ -136,9 +130,21 @@ class MainActivity : AppCompatActivity(),
         })
     }
 
-    override fun onHandleClick() {
-        if (bottomSheetBehavior?.state == STATE_COLLAPSED) {
-            bottomSheetBehavior?.state = STATE_EXPANDED
+    private fun initWindowInsets() {
+        ViewCompat.setOnApplyWindowInsetsListener(appBarLayout) { view, insets ->
+            val posTop = insets.getInsets(WindowInsetsCompat.Type.systemBars()).top
+
+            view.updatePadding(top = posTop)
+
+            insets
+        }
+
+        ViewCompat.setOnApplyWindowInsetsListener(resultFragmentContainer) { view, insets ->
+            val posBottom = insets.getInsets(WindowInsetsCompat.Type.systemBars()).bottom
+
+            view.updatePadding(bottom = posBottom)
+
+            insets
         }
     }
 
@@ -191,6 +197,13 @@ class MainActivity : AppCompatActivity(),
         filterFragment?.addFilterItem(series)
     }
 
+    // FilterFragmentCallback
+    override fun onHandleClick() {
+        if (bottomSheetBehavior.state == STATE_COLLAPSED) {
+            bottomSheetBehavior.state = STATE_EXPANDED
+        }
+    }
+
     override fun hideKeyboard() {
         val view = this.findViewById(android.R.id.content) as ContentFrameLayout
         val inputMethodManager =
@@ -207,27 +220,22 @@ class MainActivity : AppCompatActivity(),
     // IssueListFragment.IssueListCallback
     override fun onIssueSelected(issueId: Int) {
         val fragment = IssueDetailFragment.newInstance(issueId, false)
+        val prevState = bottomSheetBehavior.state
         supportFragmentManager
             .beginTransaction()
-            .setCustomAnimations(
-                R.anim.fade_in,
-                R.anim.slide_out,
-                R.anim.fade_in,
-                R.anim.slide_out
-            )
+            .setTransition(TRANSIT_FRAGMENT_FADE)
             .replace(R.id.fragment_container, fragment)
             .addToBackStack(null)
             .commit()
 
         val tt = object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
-                fragmentContainer?.updatePadding(bottom = PEEK_HEIGHT)
+                resultFragmentContainer.updatePadding(bottom = PEEK_HEIGHT)
 
-                bottomSheetBehavior?.apply {
+                bottomSheetBehavior.apply {
                     isHideable = false
-                    state = STATE_COLLAPSED
+                    state = prevState
                     peekHeight = PEEK_HEIGHT
-                    isGestureInsetBottomIgnored = false
                 }
 
                 supportFragmentManager.popBackStack()
@@ -236,12 +244,12 @@ class MainActivity : AppCompatActivity(),
 
         this.onBackPressedDispatcher.addCallback(fragment, tt)
 
-        fragmentContainer?.updatePadding(bottom = 0)
-
-        bottomSheetBehavior?.apply {
+        bottomSheetBehavior.apply {
             isHideable = true
             state = STATE_HIDDEN
         }
+
+        resultFragmentContainer.updatePadding(bottom = 0)
     }
 
     override fun onNewIssue(issueId: Int) {
@@ -249,12 +257,7 @@ class MainActivity : AppCompatActivity(),
 
         supportFragmentManager
             .beginTransaction()
-            .setCustomAnimations(
-                R.anim.fade_in,
-                R.anim.slide_out,
-                R.anim.fade_in,
-                R.anim.slide_out
-            )
+            .setTransition(TRANSIT_FRAGMENT_FADE)
             .replace(R.id.fragment_container, fragment)
             .addToBackStack(null)
             .commit()
@@ -287,13 +290,14 @@ class MainActivity : AppCompatActivity(),
     override fun setTitle(title: String?) {
         val actual = title ?: applicationInfo.loadLabel(packageManager)
         Log.d(TAG, "setTitle: $actual")
-        toolbar?.title = actual
+        toolbar.title = actual
     }
 
     override fun setToolbarScrollFlags(flags: Int) {
         Log.d(TAG, "setToolbarScrollFlags $flags")
-        toolbar?.updateLayoutParams<AppBarLayout.LayoutParams> {
-            setScrollFlags(flags)
+        toolbar.updateLayoutParams<AppBarLayout.LayoutParams> { scrollFlags = flags }
+        if (flags and SCROLL_FLAG_SCROLL == SCROLL_FLAG_SCROLL) {
+            appBarLayout.setExpanded(true, true)
         }
     }
 

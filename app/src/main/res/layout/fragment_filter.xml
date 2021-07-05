@@ -1,203 +1,223 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    style="@style/mFilterView"
+    style="@style/FilterBackground"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/bg"
+        android:id="@+id/layout_filter_fragment"
+        style="@style/FilterSectionCardLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:animateLayoutChanges="true"
-        android:background="?attr/colorPrimary">
+        android:background="@drawable/bottom_sheet"
+        android:clickable="true"
+        android:focusable="true">
 
         <LinearLayout
-            android:id="@+id/handle"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:elevation="8dp"
-            android:paddingTop="@dimen/drag_handle_margin"
-            android:paddingBottom="@dimen/drag_handle_margin"
+            android:id="@+id/layout_filter_fragment_handle"
+            style="@style/HandleContainer"
             android:orientation="vertical"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
-            <View
-                android:layout_width="@dimen/peek_height"
-                android:layout_height="@dimen/drag_handle_height"
-                android:layout_gravity="center"
-                android:background="@drawable/cotton_joe" />
+            <com.google.android.material.card.MaterialCardView style="@style/Handle" />
         </LinearLayout>
 
         <androidx.cardview.widget.CardView
-            android:id="@+id/switch_card_view"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:alpha="0"
-            android:animateLayoutChanges="true"
-            app:cardElevation="0dp"
-            app:layout_constraintBottom_toTopOf="@id/sort_card_view"
+            android:id="@+id/section_card_options"
+            style="@style/FilterSectionCard"
+            app:layout_constraintBottom_toTopOf="@id/section_card_sort"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent">
-
-            <androidx.appcompat.widget.SwitchCompat
-                android:id="@+id/my_collection_switch"
-                android:layout_width="wrap_content"
-                android:layout_height="?attr/dropdownListPreferredItemHeight"
-                android:animateLayoutChanges="true"
-                android:checked="true"
-                android:paddingStart="@dimen/item_series_padding"
-                android:paddingEnd="@dimen/item_series_padding"
-                android:text="@string/my_collection" />
-        </androidx.cardview.widget.CardView>
-
-        <androidx.cardview.widget.CardView
-            android:id="@+id/sort_card_view"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:alpha="0"
-            android:animateLayoutChanges="true"
-            app:cardElevation="0dp"
-            app:layout_constraintBottom_toTopOf="@id/filter_card_view"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent">
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:alpha="1">
 
             <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:animateLayoutChanges="true"
+                style="@style/FilterSectionCardLayout"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
                 android:orientation="horizontal">
 
                 <ImageView
-                    android:id="@+id/label_sort_options"
+                    style="@style/ImageLabel"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
-                    android:layout_marginStart="@dimen/margin_outside"
-                    android:layout_marginEnd="@dimen/margin_outside"
-                    android:animateLayoutChanges="true"
                     android:contentDescription="@string/sort_image_content_description"
-                    android:labelFor="@id/sort_chip_group"
-                    app:srcCompat="@drawable/ic_baseline_sort_24"
-                    app:tint="@android:color/primary_text_light" />
+                    android:labelFor="@id/chip_group_sort"
+                    app:srcCompat="@drawable/toggle_24" />
 
-                <HorizontalScrollView
+                <com.google.android.material.card.MaterialCardView
+                    style="@style/FilterContentCard"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:animateLayoutChanges="true"
-                    android:scrollbars="none">
+                    app:shapeAppearanceOverlay="@style/both_right">
+
+                    <com.wtb.comiccollector.views.OptionChipGroup
+                        android:id="@+id/chip_group_option"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" />
+                </com.google.android.material.card.MaterialCardView>
+            </LinearLayout>
+
+        </androidx.cardview.widget.CardView>
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/section_card_sort"
+            style="@style/FilterSectionCard"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toTopOf="@id/section_card_filter"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            tools:alpha="1F">
+
+            <LinearLayout
+                style="@style/FilterSectionCardLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <ImageView
+                    style="@style/ImageLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_weight="0"
+                    android:contentDescription="@string/sort_image_content_description"
+                    android:labelFor="@id/chip_group_sort"
+                    app:srcCompat="@drawable/sort_24" />
+
+                <com.google.android.material.card.MaterialCardView
+                    style="@style/FilterContentCard"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    app:shapeAppearanceOverlay="@style/both_right">
 
                     <com.wtb.comiccollector.views.SortChipGroup
-                        android:id="@+id/sort_chip_group"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:animateLayoutChanges="true">
+                        android:id="@+id/chip_group_sort"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
 
                         <com.google.android.material.chip.Chip
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:checkable="true"
                             android:checked="true"
-                            android:text="@string/hint_publisher"
-                            app:closeIconEnabled="false" />
+                            android:enabled="false"
+                            android:text="@string/sort_type_series_name"
+                            app:closeIcon="@drawable/arrow_up_24"
+                            app:closeIconEnabled="true" />
 
                         <com.google.android.material.chip.Chip
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="@string/app_name"
-                            app:closeIconEnabled="false" />
-
-                        <com.google.android.material.chip.Chip
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/hint_series_title"
-                            app:closeIconEnabled="false" />
-
-                        <com.google.android.material.chip.Chip
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/label_description"
-                            app:closeIconEnabled="false" />
+                            android:text="@string/sort_type_release_date"
+                            app:closeIcon="@drawable/arrow_up_24"
+                            app:closeIconEnabled="true" />
 
                     </com.wtb.comiccollector.views.SortChipGroup>
-                </HorizontalScrollView>
+                </com.google.android.material.card.MaterialCardView>
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
         <androidx.cardview.widget.CardView
-            android:id="@+id/filter_card_view"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:alpha="0"
-            android:animateLayoutChanges="true"
-            app:cardElevation="0dp"
+            android:id="@+id/section_card_filter"
+            style="@style/FilterSectionCard"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent">
+            app:layout_constraintStart_toStartOf="parent"
+            app:shapeAppearanceOverlay="@style/bottom_both"
+            tools:alpha="1F">
 
             <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/filter_contraint_layout"
+                android:id="@+id/layout_filter_card"
+                style="@style/FilterSectionCardLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:animateLayoutChanges="true">
+                android:padding="@dimen/padding_section_card">
 
                 <ImageView
-                    android:id="@+id/label_filter_items"
+                    android:id="@+id/image_label_filter_items"
+                    style="@style/ImageLabel"
                     android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:layout_marginStart="@dimen/margin_outside"
-                    android:animateLayoutChanges="true"
+                    android:layout_height="0dp"
                     android:contentDescription="@string/sort_image_content_description"
-                    android:labelFor="@id/sort_chip_group"
-                    app:layout_constraintBottom_toBottomOf="@id/filter_chip_scrollview"
+                    android:labelFor="@id/chip_group_sort"
+                    app:layout_constraintBottom_toBottomOf="@id/content_holder"
+                    app:layout_constraintEnd_toStartOf="@id/content_holder"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="@id/filter_chip_scrollview"
-                    app:srcCompat="@drawable/ic_filter"
-                    app:tint="@android:color/primary_text_light" />
+                    app:layout_constraintTop_toTopOf="@id/content_holder"
+                    app:srcCompat="@drawable/ic_filter" />
 
-                <HorizontalScrollView
-                    android:id="@+id/filter_chip_scrollview"
+                <LinearLayout
+                    android:id="@+id/content_holder"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:animateLayoutChanges="true"
-                    android:scrollbars="none"
+                    android:orientation="vertical"
+                    app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toEndOf="@id/label_filter_items"
-                    app:layout_constraintTop_toTopOf="parent">
+                    app:layout_constraintStart_toEndOf="@id/image_label_filter_items">
 
-                    <com.google.android.material.chip.ChipGroup
-                        android:id="@+id/filter_chip_group"
-                        android:layout_width="wrap_content"
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/content_card_filter_chips"
+                        style="@style/FilterContentCard"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:animateLayoutChanges="true"
-                        android:paddingStart="8dp"
-                        android:paddingEnd="8dp"
-                        app:singleLine="true">
+                        app:shapeAppearanceOverlay="@style/top_right">
 
-                        <com.google.android.material.chip.Chip
-                            android:layout_width="wrap_content"
+                        <LinearLayout
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="Doom Patrol"
-                            app:closeIconEnabled="true" />
+                            android:orientation="horizontal">
 
-                    </com.google.android.material.chip.ChipGroup>
-                </HorizontalScrollView>
+                            <com.wtb.comiccollector.views.FilterChipGroup
+                                android:id="@+id/chip_group_filter"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1">
 
-                <com.wtb.comiccollector.views.SearchAutoComplete
-                    android:id="@+id/filter_text_view"
-                    android:layout_width="0dp"
-                    android:layout_height="?attr/dropdownListPreferredItemHeight"
-                    android:animateLayoutChanges="true"
-                    android:hint="@string/search"
-                    android:popupBackground="@drawable/accent_outline_white_background"
-                    android:singleLine="true"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/filter_chip_scrollview"
-                    tools:text="Potato Latke" />
+                                <com.google.android.material.chip.Chip
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Doom Patrol"
+                                    app:closeIconEnabled="true" />
+
+                            </com.wtb.comiccollector.views.FilterChipGroup>
+
+                            <ImageButton
+                                android:id="@+id/add_filter_button"
+                                android:layout_width="wrap_content"
+                                android:layout_height="match_parent"
+                                android:backgroundTint="@android:color/transparent"
+                                android:contentDescription="@string/content_description_add_filter_button"
+                                android:src="@drawable/ic_menu_add"
+                                app:tint="@color/fantasia_dark" />
+                        </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/content_card_search_auto"
+                        style="@style/FilterContentCard"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="@id/content_card_filter_chips"
+                        app:layout_constraintTop_toBottomOf="@id/content_card_filter_chips"
+                        app:shapeAppearanceOverlay="@style/bottom_both">
+
+                        <com.wtb.comiccollector.views.SearchAutoComplete
+                            android:id="@+id/search_auto"
+                            style="@style/myAutoCompleteStyle"
+                            android:layout_width="match_parent"
+                            android:layout_height="?attr/dropdownListPreferredItemHeight"
+                            android:hint="@string/search"
+                            tools:text="Potato Latke" />
+                    </com.google.android.material.card.MaterialCardView>
+                </LinearLayout>
             </androidx.constraintlayout.widget.ConstraintLayout>
         </androidx.cardview.widget.CardView>
     </androidx.constraintlayout.widget.ConstraintLayout>
-</androidx.cardview.widget.CardView>
+</com.google.android.material.card.MaterialCardView>

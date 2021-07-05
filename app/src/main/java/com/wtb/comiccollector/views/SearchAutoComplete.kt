@@ -7,6 +7,7 @@ import android.util.AttributeSet
 import android.util.Log
 import android.view.inputmethod.EditorInfo
 import android.widget.AdapterView
+import com.google.android.material.textfield.MaterialAutoCompleteTextView
 import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.TextFilter
 import com.wtb.comiccollector.database.models.FilterOption
@@ -14,7 +15,7 @@ import com.wtb.comiccollector.database.models.FilterOption
 private const val TAG = APP + "SearchAutoCompleteTextView"
 
 class SearchAutoComplete(context: Context, attributeSet: AttributeSet) :
-    androidx.appcompat.widget.AppCompatAutoCompleteTextView(context, attributeSet) {
+    MaterialAutoCompleteTextView(context, attributeSet) {
 
     var callbacks: SearchTextViewCallback? = null
     private var item: FilterOption? = null
@@ -57,6 +58,7 @@ class SearchAutoComplete(context: Context, attributeSet: AttributeSet) :
             }
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                Log.d(TAG, "TEXT CHANGED!")
                 if (s.toString() != item?.compareValue) {
                     item = null
                 }

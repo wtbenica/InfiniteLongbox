@@ -3,7 +3,6 @@ package com.wtb.comiccollector.fragments
 import android.animation.ValueAnimator
 import android.content.Context
 import android.os.Bundle
-import android.util.Log
 import android.view.*
 import android.view.animation.AccelerateInterpolator
 import android.widget.ImageView
@@ -11,7 +10,6 @@ import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.cardview.widget.CardView
 import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentTransaction
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
@@ -19,11 +17,9 @@ import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.appbar.AppBarLayout
 import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.R
 import com.wtb.comiccollector.database.models.FullIssue
-import com.wtb.comiccollector.fragments_view_models.FilterViewModel
 import com.wtb.comiccollector.fragments_view_models.IssueListViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collectLatest
@@ -32,28 +28,18 @@ import kotlinx.coroutines.launch
 private const val TAG = APP + "IssueListFragment"
 
 @ExperimentalCoroutinesApi
-class IssueListFragment : Fragment() {
+class IssueListFragment : ListFragment() {
 
     private val viewModel: IssueListViewModel by viewModels()
-    private val filterViewModel: FilterViewModel by viewModels({ requireActivity() })
-
-    private lateinit var issueGridView: RecyclerView
-    private var callback: IssueListCallback? = null
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
         callback = context as IssueListCallback?
     }
 
-    override fun onResume() {
-        super.onResume()
-        Log.d(TAG, "onResume")
-        callback?.setToolbarScrollFlags(AppBarLayout.LayoutParams.SCROLL_FLAG_NO_SCROLL)
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
+//        setHasOptionsMenu(true)
 
         lifecycleScope.launch {
             filterViewModel.filter.collectLatest { filter ->
@@ -77,24 +63,13 @@ class IssueListFragment : Fragment() {
             .commitAllowingStateLoss()
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        val view = inflater.inflate(R.layout.fragment_item_list, container, false)
-
-        issueGridView = view.findViewById(R.id.results_frame) as RecyclerView
-        val itemDecoration = ItemOffsetDecoration(24)
-        issueGridView.addItemDecoration(itemDecoration)
-        issueGridView.layoutManager = GridLayoutManager(context, 2)
-
-        return view
-    }
+    override fun getLayoutManager(): RecyclerView.LayoutManager = GridLayoutManager(context, 2)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
         val adapter = IssueAdapter()
-        issueGridView.adapter = adapter
+        listRecyclerView.adapter = adapter
 
         lifecycleScope.launch {
             viewModel.issueList.collectLatest { adapter.submitData(it) }
@@ -106,11 +81,6 @@ class IssueListFragment : Fragment() {
                 callback?.setTitle(it?.seriesName)
             }
         )
-    }
-
-    override fun onDetach() {
-        super.onDetach()
-        callback = null
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -135,9 +105,8 @@ class IssueListFragment : Fragment() {
     inner class IssueAdapter :
         PagingDataAdapter<FullIssue, IssueViewHolder>(DIFF_CALLBACK) {
 
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): IssueViewHolder {
-            return IssueViewHolder(parent)
-        }
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): IssueViewHolder =
+            IssueViewHolder(parent)
 
         override fun onBindViewHolder(holder: IssueViewHolder, position: Int) {
             holder.bind(getItem(position))
@@ -188,15 +157,15 @@ class IssueListFragment : Fragment() {
             if (coverUri != null) {
                 this.coverImageView.setImageURI(coverUri)
             } else {
-                coverImageView.setImageResource(R.drawable.ic_issue_add_cover)
+                coverImageView.setImageResource(R.drawable.cover_missing)
             }
 
             if (fullIssue?.myCollection?.collectionId != null) {
-                wrapper.setBackgroundResource(R.drawable.list_item_issue_card_background_in_collection)
-                layout.cardElevation = 32F
+                wrapper.setBackgroundResource(R.drawable.list_item_card_background_in_collection)
+                layout.cardElevation = resources.getDimension(R.dimen.margin_default)
             } else {
-                wrapper.setBackgroundResource(R.drawable.list_item_issue_card_background)
-                layout.cardElevation = 1F
+                wrapper.setBackgroundResource(R.drawable.list_item_card_background)
+                layout.cardElevation = resources.getDimension(R.dimen.radius_narrow)
             }
 
             issueNumTextView.text = this.fullIssue?.issue.toString()
@@ -204,14 +173,9 @@ class IssueListFragment : Fragment() {
 
         override fun onClick(v: View?) {
             val issueId = fullIssue?.issue?.issueId
-            issueId?.let { callback?.onIssueSelected(it) }
+            issueId?.let { (callback as IssueListCallback?)?.onIssueSelected(it) }
         }
 
-    }
-
-    interface ListFragmentCallback {
-        fun setTitle(title: String? = null)
-        fun setToolbarScrollFlags(flags: Int)
     }
 
     interface IssueListCallback : ListFragmentCallback {

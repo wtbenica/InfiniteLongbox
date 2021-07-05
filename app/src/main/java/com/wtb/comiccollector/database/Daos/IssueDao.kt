@@ -64,12 +64,14 @@ abstract class IssueDao : BaseDao<Issue>() {
 
         if (filter.mMyCollection) {
             tableJoinString += "JOIN mycollection mc ON mc.issueId = ie.issueId "
-        } else {
+        }
+
+        if (!filter.mShowVariants) {
             conditionsString += "AND ie.variantOf IS NULL "
         }
 
         val query = SimpleSQLiteQuery(
-            tableJoinString + conditionsString + "ORDER BY ${filter.mSortOption.sortColumn}",
+            tableJoinString + conditionsString + "ORDER BY ${filter.mSortType.sortString}",
             args.toArray()
         )
 
@@ -150,12 +152,14 @@ abstract class IssueDao : BaseDao<Issue>() {
 
         if (filter.mMyCollection) {
             tableJoinString += "JOIN mycollection mc ON mc.issueId = ie.issueId "
-        } else if (!filter.hasCreator()) {
+        }
+
+        if (!filter.mShowVariants) {
             conditionsString += "AND ie.variantOf IS NULL "
         }
 
         val query = SimpleSQLiteQuery(
-            tableJoinString + conditionsString + "ORDER BY ${filter.mSortOption.sortColumn}",
+            tableJoinString + conditionsString + "ORDER BY ${filter.mSortType.sortString} ",
             args.toArray()
         )
 

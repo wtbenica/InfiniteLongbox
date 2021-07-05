@@ -3,14 +3,7 @@
     <string name="add_issue">Add Issue</string>
     <string name="delete_issue">Delete Issue</string>
     <string name="hint_series_title">Series title</string>
-    <string name="hint_issue_number">  #</string>
-    <string name="label_writer">Writer</string>
-    <string name="label_penciller">Penciller</string>
     <string name="description_issue_cover">Issue Cover (not set)</string>
-    <string name="label_inker">Inker</string>
-    <string name="add_writer">Add additional writer</string>
-    <string name="add_penciller">Add additional penciller</string>
-    <string name="add_inker">Add additional inker</string>
     <string name="hint_volume_number">Volume Number</string>
     <string name="hint_start_date">Start Date</string>
     <string name="hint_end_date">End Date</string>
@@ -36,18 +29,9 @@
         <item>V</item>
     </string-array>
     <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="hint_volume">Volume</string>
-    <string name="hint_edit_series_button">Edit series info</string>
-    <string name="issue_credits">Issue Credits</string>
-    <string name="group_by">Group By</string>
-    <string name="filter_by">Filter By</string>
-    <string name="series">Series</string>
-    <string name="creator">Creator</string>
-    <string name="my_comics">My Comics</string>
     <string name="search">Add Filter</string>
     <string name="grand_comic_database_tm">Grand Comic Database\u2122</string>
-    <string name="fab_description">Add filter button</string>
     <string name="add_to_collection">Add to Collection</string>
     <string name="remove_from_collection">Remove from Collection</string>
     <string name="goto_start"><![CDATA[<<<]]></string>
@@ -56,31 +40,23 @@
     <string name="goto_one_forward"><![CDATA[>]]></string>
     <string name="goto_skip_forward"><![CDATA[>>]]></string>
     <string name="goto_end"><![CDATA[>>>]]></string>
-    <string name="sort">Sort</string>
     <string name="my_collection">My Collection</string>
     <string name="synopsis">Synopsis</string>
     <string name="story_dropdown_button">Expand story information table</string>
     <string name="synopsis_dropdown_button">Show story synopsis</string>
     <string name="characters">Characters</string>
     <string name="characters_dropdown_button">Show character appearances</string>
-    <string-array name="grouping_options">
-        <item>@string/series</item>
-        <item>@string/creator</item>
-        <item>@string/my_comics</item>
-    </string-array>
-    <string-array name="filtering_options">
-        <item>Date</item>
-        <item>Creator</item>
-    </string-array>
-    <string name="title_activity_main2">MainActivity</string>
     <!-- Strings used for fragments for navigation -->
-    <string name="first_fragment_label">First Fragment</string>
-    <string name="second_fragment_label">Second Fragment</string>
-    <string name="next">Next</string>
-    <string name="previous">Previous</string>
 
-    <string name="hello_first_fragment">Hello first fragment</string>
-    <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
     <string name="sort_image_content_description">Label: Sort by</string>
     <string name="tag_filter_fragment">filter_fragment</string>
+    <string name="sort_type_series_name">Series Name</string>
+    <string name="sort_type_start_date">Start Date</string>
+    <string name="column_sort_name">sortName</string>
+    <string name="column_start_date">startDate</string>
+    <string name="sort_type_issue_number">Issue Number</string>
+    <string name="column_issue_num">issueNum</string>
+    <string name="sort_type_release_date">Release Date</string>
+    <string name="column_release_date">releaseDate</string>
+    <string name="content_description_add_filter_button">Open text box to add a new filter</string>
 </resources>

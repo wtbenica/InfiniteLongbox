@@ -95,7 +95,7 @@ class Repository private constructor(val context: Context) {
 
     private val filesDir = context.applicationContext.filesDir
 
-    private val retrofit = RetrofitAPIClient.getRetrofitClient(context)
+    private val retrofit = RetrofitAPIClient.getRetrofitClient()
 
     private val apiService: Webservice by lazy {
         retrofit.create(Webservice::class.java)
@@ -106,6 +106,8 @@ class Repository private constructor(val context: Context) {
             hasConnection = it
             if (checkConnectionStatus()) {
                 isIdle = false
+                // TODO: A lint inspection pointed out that update returns a Deferred, which
+                //  means that this is async async await. Look into
                 MainActivity.activeJob = CoroutineScope(Dispatchers.IO).launch {
                     async {
                         StaticUpdater(apiService, database, prefs).update()
@@ -171,9 +173,9 @@ class Repository private constructor(val context: Context) {
     fun getIssue(issueId: Int): Flow<FullIssue?> {
         if (hasConnection) {
             CoroutineScope(Dispatchers.IO).launch {
-                async {
+                withContext(Dispatchers.Default) {
                     UpdateIssueCover(database, context, prefs).update(issueId = issueId)
-                }.await().let {
+                }.let {
                     UpdateIssueCredit(apiService, database, prefs).update(issueId = issueId)
                 }
             }
@@ -199,7 +201,8 @@ class Repository private constructor(val context: Context) {
 
         return Pager(
             config = PagingConfig(pageSize = REQUEST_LIMIT, enablePlaceholders = true),
-            pagingSourceFactory = { issueDao.getIssuesByFilterPagingSource(filter = filter) }
+            pagingSourceFactory = {
+                issueDao.getIssuesByFilterPagingSource(filter = filter) }
         ).flow
     }
 

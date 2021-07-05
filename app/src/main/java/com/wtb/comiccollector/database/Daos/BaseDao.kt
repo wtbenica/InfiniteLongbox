@@ -82,7 +82,7 @@ abstract class BaseDao<T : DataModel> {
     @Transaction
     open suspend fun upsertSus(objList: List<T>) {
 
-        val objClass = if (objList.size > 0) {
+        val objClass = if (objList.isNotEmpty()) {
             objList[0]::class.toString().split(".").last().split(" ").first()
         } else {
             "Empty List"
@@ -97,7 +97,7 @@ abstract class BaseDao<T : DataModel> {
                 }
             }
         } catch (sqlEx: SQLiteConstraintException) {
-            Log.d(TAG, "UGH ${objClass} $sqlEx ${sqlEx.stackTrace} ${sqlEx.message}")
+            Log.d(TAG, "UGH $objClass $sqlEx ${sqlEx.stackTrace} ${sqlEx.message}")
         }
     }
 

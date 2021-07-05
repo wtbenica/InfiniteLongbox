@@ -69,7 +69,7 @@ abstract class SeriesDao : BaseDao<Series>() {
         }
 
         val query = SimpleSQLiteQuery(
-            tableJoinString + conditionsString + "ORDER BY ${filter.mSortOption.sortColumn}",
+            tableJoinString + conditionsString + "ORDER BY ${filter.mSortType.sortString}",
             args.toArray()
         )
 
@@ -139,7 +139,7 @@ abstract class SeriesDao : BaseDao<Series>() {
         }
 
         val query = SimpleSQLiteQuery(
-            tableJoinString + conditionsString + "ORDER BY ${filter.mSortOption.sortColumn}",
+            tableJoinString + conditionsString + "ORDER BY ${filter.mSortType.sortString}",
             args.toArray()
         )
 

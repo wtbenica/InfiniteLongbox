@@ -11,19 +11,16 @@ import android.view.animation.AnimationUtils
 import android.view.animation.LayoutAnimationController
 import android.widget.ImageView
 import android.widget.TextView
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.appbar.AppBarLayout
 import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.R
 import com.wtb.comiccollector.database.models.FullSeries
 import com.wtb.comiccollector.database.models.Series
-import com.wtb.comiccollector.fragments_view_models.FilterViewModel
 import com.wtb.comiccollector.fragments_view_models.SeriesListViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collectLatest
@@ -32,64 +29,43 @@ import kotlinx.coroutines.launch
 private const val TAG = APP + "SeriesListFragment"
 
 @ExperimentalCoroutinesApi
-class SeriesListFragment() : Fragment() {
+class SeriesListFragment : ListFragment() {
 
     private val viewModel: SeriesListViewModel by viewModels()
-    private val filterViewModel: FilterViewModel by viewModels({ requireActivity() })
-
-    private lateinit var itemListRecyclerView: RecyclerView
-    private var callback: SeriesListCallback? = null
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        Log.d(TAG, "ON ATTACH")
         callback = context as SeriesListCallback?
 
     }
 
     override fun onResume() {
         super.onResume()
-
         callback?.setTitle()
-        callback?.setToolbarScrollFlags(
-            AppBarLayout.LayoutParams.SCROLL_FLAG_SCROLL or
-                    AppBarLayout.LayoutParams.SCROLL_FLAG_ENTER_ALWAYS
-        )
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
+//        setHasOptionsMenu(true)
 
         lifecycleScope.launch {
             filterViewModel.filter.collectLatest { filter ->
+                Log.d(TAG, "Updating filter: ${filter.mSortType.order}")
                 viewModel.setFilter(filter)
             }
         }
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        val view = inflater.inflate(R.layout.fragment_item_list, container, false)
-
-        itemListRecyclerView = view.findViewById(R.id.results_frame) as RecyclerView
-        itemListRecyclerView.layoutManager = LinearLayoutManager(context)
-
-        return view
-    }
+    override fun getLayoutManager(): RecyclerView.LayoutManager = LinearLayoutManager(context)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         val adapter = SeriesAdapter()
-        itemListRecyclerView.adapter = adapter
+        listRecyclerView.adapter = adapter
 
         lifecycleScope.launch {
-            viewModel.seriesList.collectLatest {
-                adapter.submitData(it)
-            }
+            viewModel.seriesList.collectLatest { adapter.submitData(it) }
         }
     }
 
@@ -118,7 +94,7 @@ class SeriesListFragment() : Fragment() {
         LayoutInflater.from(parent.context).inflate(R.layout.list_item_series, parent, false)
     ), View.OnClickListener {
 
-        lateinit var item: FullSeries
+        private lateinit var item: FullSeries
 
         private val seriesTextView: TextView = itemView.findViewById(R.id.list_item_name)
         private val seriesImageView: ImageView = itemView.findViewById(R.id.series_imageview)
@@ -140,16 +116,11 @@ class SeriesListFragment() : Fragment() {
         }
 
         override fun onClick(v: View?) {
-            callback?.onSeriesSelected(item.series)
+            (callback as SeriesListCallback?)?.onSeriesSelected(item.series)
         }
     }
 
-    override fun onDetach() {
-        super.onDetach()
-        callback = null
-    }
-
-    interface SeriesListCallback : IssueListFragment.ListFragmentCallback {
+    interface SeriesListCallback : ListFragmentCallback {
         fun onSeriesSelected(series: Series)
     }
 

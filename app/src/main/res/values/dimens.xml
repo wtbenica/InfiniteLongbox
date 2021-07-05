@@ -1,13 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <dimen name="margin_list_item_vert">4dp</dimen>
-    <dimen name="margin_outside">8dp</dimen>
-    <dimen name="fab_margin">16dp</dimen>
-    <dimen name="item_series_padding">16dp</dimen>
-    <dimen name="corner_radius">24dp</dimen>
-    <dimen name="card_corner_radius">8dp</dimen>
-    <dimen name="elevation_filter_box">8F</dimen>
+    <dimen name="margin_wide">20dp</dimen>
+    <dimen name="margin_default">8dp</dimen>
+    <dimen name="margin_narrow">4dp</dimen>
+
+    <dimen name="radius_wide">24dp</dimen>
+    <dimen name="radius_default">8dp</dimen>
+    <dimen name="radius_narrow">4dp</dimen>
+
+    <dimen name="card_elevation">1dp</dimen>
+
+    <dimen name="radius_list_item_issue">8dp</dimen>
+    <dimen name="offset_list_item_issue">8dp</dimen>
+
+    <dimen name="radius_list_item_series">8dp</dimen>
+    <dimen name="offset_list_item_series">8dp</dimen>
+
+    <dimen name="padding_section_card">4dp</dimen>
+
     <dimen name="peek_height">48dp</dimen>
-    <dimen name="drag_handle_height">10dp</dimen>
-    <dimen name="drag_handle_margin">19dp</dimen>
+    <dimen name="drag_handle_height">8dp</dimen>
+    <dimen name="drag_handle_margin">8dp</dimen>
+
 </resources>

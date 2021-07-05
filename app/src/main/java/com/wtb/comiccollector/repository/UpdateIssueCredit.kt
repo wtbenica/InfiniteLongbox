@@ -9,7 +9,6 @@ import com.wtb.comiccollector.database.models.*
 import kotlinx.coroutines.*
 import java.net.ConnectException
 import java.net.SocketTimeoutException
-import kotlin.random.Random
 
 private const val TAG = APP + "UpdateIssueCredit"
 
@@ -27,7 +26,6 @@ class UpdateIssueCredit(
     }
 
     internal fun update(issueId: Int) {
-        val equis = Random.nextInt()
         if (checkIfStale(ISSUE_TAG(issueId), ISSUE_LIFETIME, prefs)) {
             val storyItemsCall = CoroutineScope(Dispatchers.IO).async stories@{
                 var result = emptyList<Item<GcdStory, Story>>()

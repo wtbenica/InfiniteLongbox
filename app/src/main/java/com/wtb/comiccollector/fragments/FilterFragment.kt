@@ -1,6 +1,7 @@
-package com.wtb.comiccollector.views
+package com.wtb.comiccollector.fragments
 
 import android.content.Context
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -8,25 +9,28 @@ import android.view.View
 import android.view.View.*
 import android.view.ViewGroup
 import android.widget.*
-import androidx.appcompat.widget.SwitchCompat
 import androidx.cardview.widget.CardView
 import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.constraintlayout.widget.ConstraintSet
+import androidx.core.view.*
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.google.android.material.card.MaterialCardView
 import com.google.android.material.chip.ChipGroup
+import com.google.android.material.shape.CornerFamily
 import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.R
 import com.wtb.comiccollector.SearchFilter
+import com.wtb.comiccollector.SortType
 import com.wtb.comiccollector.database.models.Creator
 import com.wtb.comiccollector.database.models.FilterOption
 import com.wtb.comiccollector.database.models.Publisher
 import com.wtb.comiccollector.database.models.Series
 import com.wtb.comiccollector.fragments_view_models.FilterViewModel
+import com.wtb.comiccollector.views.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
 
@@ -35,51 +39,44 @@ private const val TAG = APP + "FilterFragment"
 @ExperimentalCoroutinesApi
 class FilterFragment : Fragment(),
     SearchAutoComplete.SearchTextViewCallback,
-    Chippy.ChipCallbacks {
+    FilterChip.FilterChipCallbacks, OptionChipGroup.OptionChipGroupCallback,
+    SortChipGroup.SortChipGroupCallback {
 
     private val viewModel: FilterViewModel by viewModels({ requireActivity() })
     private var callback: FilterFragmentCallback? = null
-
-    private var filter: SearchFilter = SearchFilter()
-        set(value) {
-            if (prevFilter != value) {
-                prevFilter = field
-                filterOptionsQueue.add(
-                    Figueroa({ viewModel.setFilter(it) }, prevFilter ?: SearchFilter())
-                )
-            }
-            field = value
-            updateViews()
-        }
-    private var prevFilter: SearchFilter? = null
+    private val undoQueue = ArrayDeque<Undo<*>>()
 
     internal var visibleState: Int = BottomSheetBehavior.STATE_EXPANDED
         set(value) {
-            field = value
-            if (field == BottomSheetBehavior.STATE_EXPANDED) {
-                handle.elevation = -1F
-            } else {
-                handle.elevation = 0F
-            }
+            field = onVisibleStateUpdated(value)
+        }
+
+    private var prevFilter: SearchFilter? = null
+    private var currFilter: SearchFilter = SearchFilter()
+        set(value) {
+            field = onFilterUpdate(value)
         }
 
     // Views
-    private lateinit var background: ConstraintLayout
-    private lateinit var handle: LinearLayout
+    private lateinit var filterView: ConstraintLayout
+    private lateinit var handleBox: View
 
-    private lateinit var switchCardView: CardView
-    private lateinit var myCollectionSwitch: SwitchCompat
+    private lateinit var optionsSectionCard: CardView
+    private lateinit var optionsChipGroup: OptionChipGroup
 
-    private lateinit var sortCardView: CardView
+    private lateinit var sortSectionCard: CardView
     private lateinit var sortChipGroup: SortChipGroup
 
-    private lateinit var filterCardView: CardView
+    private lateinit var filtersSectionCard: CardView
     private lateinit var filterConstraintLayout: ConstraintLayout
-    private lateinit var filterChipGroup: ChipGroup
     private lateinit var filterOptionsLabel: ImageView
-    private lateinit var searchAutoComplete: SearchAutoComplete
 
-    private val filterOptionsQueue = ArrayDeque<Figueroa<*>>()
+    private lateinit var filterChipsContentCard: MaterialCardView
+    private lateinit var filterChipGroup: ChipGroup
+    private lateinit var filterAddButton: ImageButton
+
+    private lateinit var searchBoxContentCard: MaterialCardView
+    private lateinit var searchAutoComplete: SearchAutoComplete
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -96,136 +93,217 @@ class FilterFragment : Fragment(),
 
         lifecycleScope.launch {
             viewModel.filter.asLiveData().observe(context as LifecycleOwner) { filter ->
-                this@FilterFragment.filter = filter
-                sortChipGroup.filter = filter
+                this@FilterFragment.currFilter = filter
+                sortChipGroup.update(filter)
+                optionsChipGroup.update(filter)
             }
 
-            viewModel.filterOptions.asLiveData()
-                .observe(context as LifecycleOwner) { filterObjects: List<FilterOption> ->
-                    searchAutoComplete.setAdapter(
-                        FilterOptionsAdapter(
-                            requireContext(),
-                            filterObjects
-                        )
+            viewModel.filterOptions.asLiveData().observe(context as LifecycleOwner) { filterObjects:
+                                                                                      List<FilterOption> ->
+                searchAutoComplete.setAdapter(
+                    FilterOptionsAdapter(
+                        requireContext(),
+                        filterObjects
                     )
+                )
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    searchAutoComplete.refreshAutoCompleteResults()
                 }
+            }
         }
 
         return view
     }
 
     private fun onCreateViewInitViews() {
-        handle.setOnClickListener {
-            Log.d(TAG, "CLICK! CCKLI! LICCK!")
-            callback?.onHandleClick()
+        ViewCompat.setOnApplyWindowInsetsListener(filterView) { view, insets ->
+            val posBottom = insets.getInsets(WindowInsetsCompat.Type.systemBars()).bottom
+            view.updatePadding(bottom = posBottom)
+
+
+            val imeInsetBottom = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom
+            view.updateLayoutParams<ViewGroup.MarginLayoutParams> { bottomMargin = imeInsetBottom }
+
+            insets
         }
 
-        myCollectionSwitch.setOnCheckedChangeListener { _, isChecked ->
-            viewModel.myCollection(isChecked)
+        handleBox.setOnClickListener {
+            callback?.onHandleClick()
         }
 
         sortChipGroup.setOnCheckedChangeListener { _, checkedId ->
             if (checkedId >= 0) {
-                view?.findViewById<SortChipGroup.SortChip>(checkedId)?.sortOption?.let {
-                    if (it != filter.mSortOption) {
+                view?.findViewById<SortChip>(checkedId)?.sortType?.let { it ->
+                    if (it != currFilter.mSortType) {
                         viewModel.setSortOption(it)
                     }
                 }
             }
         }
 
+        sortChipGroup.callback = this@FilterFragment
+
         filterChipGroup.removeAllViews()
+
+        filterAddButton.setOnClickListener {
+            val smallCorner = resources.getDimension(R.dimen.margin_default)
+            val bigCorner = resources.getDimension(R.dimen.margin_wide)
+
+            val searchBoxModel = searchBoxContentCard.shapeAppearanceModel.toBuilder()
+                .setBottomLeftCorner(CornerFamily.ROUNDED, smallCorner)
+                .setBottomRightCorner(CornerFamily.ROUNDED, bigCorner)
+                .setTopLeftCorner(CornerFamily.ROUNDED, 0F)
+                .setTopRightCorner(CornerFamily.ROUNDED, 0F)
+                .build()
+
+            searchBoxContentCard.shapeAppearanceModel = searchBoxModel
+
+            val filterChipModel = filterChipsContentCard.shapeAppearanceModel.toBuilder()
+                .setBottomLeftCorner(CornerFamily.ROUNDED, 0F)
+                .setBottomRightCorner(CornerFamily.ROUNDED, 0F)
+                .setTopLeftCorner(CornerFamily.ROUNDED, smallCorner)
+                .setTopRightCorner(CornerFamily.ROUNDED, bigCorner)
+                .build()
+
+            filterChipsContentCard.shapeAppearanceModel = filterChipModel
+            searchBoxContentCard.visibility = VISIBLE
+            filterAddButton.visibility = GONE
+        }
 
         searchAutoComplete.callbacks = this
     }
 
     private fun onCreateViewFindViews(view: View) {
-        background = view.findViewById(R.id.bg)
-        handle = view.findViewById(R.id.handle)
+        filterView = view.findViewById(R.id.layout_filter_fragment)
+        handleBox = view.findViewById(R.id.layout_filter_fragment_handle)
 
-        switchCardView = view.findViewById(R.id.switch_card_view)
-        myCollectionSwitch = view.findViewById(R.id.my_collection_switch) as SwitchCompat
+        optionsSectionCard = view.findViewById(R.id.section_card_options)
+        optionsChipGroup = view.findViewById(R.id.chip_group_option)
+        optionsChipGroup.callback = this
 
-        sortCardView = view.findViewById(R.id.sort_card_view) as CardView
-        sortChipGroup = view.findViewById(R.id.sort_chip_group) as SortChipGroup
+        sortSectionCard = view.findViewById(R.id.section_card_sort)
+        sortChipGroup = view.findViewById(R.id.chip_group_sort)
 
-        filterCardView = view.findViewById(R.id.filter_card_view) as CardView
-        filterConstraintLayout = view.findViewById(R.id.filter_contraint_layout)
-        filterChipGroup = view.findViewById(R.id.filter_chip_group) as ChipGroup
-        filterOptionsLabel = view.findViewById(R.id.label_filter_items) as ImageView
-        searchAutoComplete = view.findViewById(R.id.filter_text_view) as SearchAutoComplete
+        filtersSectionCard = view.findViewById(R.id.section_card_filter)
+        filterConstraintLayout = view.findViewById(R.id.layout_filter_card)
+
+        filterChipsContentCard = view.findViewById(R.id.content_card_filter_chips)
+        filterOptionsLabel = view.findViewById(R.id.image_label_filter_items)
+        filterChipGroup = view.findViewById(R.id.chip_group_filter)
+        filterAddButton = view.findViewById(R.id.add_filter_button)
+
+        searchBoxContentCard = view.findViewById(R.id.content_card_search_auto)
+        searchAutoComplete = view.findViewById(R.id.search_auto)
     }
 
     internal fun onSlide(slideOffset: Float) {
         val inverseOffset = 1 - slideOffset
-        handle.alpha = inverseOffset
-        switchCardView.alpha = slideOffset
-        sortCardView.alpha = slideOffset
-        filterCardView.alpha = slideOffset
+        handleBox.alpha = inverseOffset
+        optionsSectionCard.alpha = slideOffset
+        sortSectionCard.alpha = slideOffset
+        filtersSectionCard.alpha = slideOffset
     }
 
-    private fun updateViews() {
-        updateFilterCard()
-        myCollectionSwitch.isChecked = filter.mMyCollection
+    private fun onFilterUpdate(value: SearchFilter): SearchFilter {
+        prevFilter = currFilter
+
+        // TODO: Don't want to add to back stack if it's just a sort order change
+        if (prevFilter != value) {
+            undoQueue.add(
+                Undo(function = { viewModel.setFilter(it) }, item = prevFilter ?: SearchFilter())
+            )
+        }
+
+        updateFilterCard(value)
+
+        return value
     }
 
-    private fun updateFilterCard() {
-        val newFilters: Set<FilterOption> = filter.getAll()
+    private fun onVisibleStateUpdated(value: Int): Int {
+        if (value == BottomSheetBehavior.STATE_EXPANDED) {
+            handleBox.visibility = GONE
+            optionsChipGroup.isEnabled = true
+            sortChipGroup.isEnabled = true
+            filterChipGroup.isEnabled = true
+        } else {
+            handleBox.visibility = VISIBLE
+            optionsChipGroup.isEnabled = false
+            sortChipGroup.isEnabled = false
+            filterChipGroup.isEnabled = false
+        }
+
+        return value
+    }
+
+    private fun updateFilterCard(value: SearchFilter) {
+        val newFilters: Set<FilterOption> = value.getAll()
 
         filterChipGroup.removeAllViews()
         newFilters.forEach { addChip(it) }
 
         if (newFilters.isEmpty()) {
             collapseFilterCard()
+            searchBoxContentCard.visibility = VISIBLE
         } else {
+            showChipsHideBox()
             expandFilterCard()
         }
     }
 
-    private fun expandFilterCard() {
-        val constraints = ConstraintSet()
-        constraints.clone(filterConstraintLayout)
-        constraints.connect(
-            R.id.label_filter_items, ConstraintSet.TOP,
-            R.id.filter_chip_scrollview, ConstraintSet.TOP
-        )
-        constraints.connect(
-            R.id.label_filter_items, ConstraintSet.BOTTOM,
-            R.id.filter_chip_scrollview, ConstraintSet.BOTTOM
-        )
-        constraints.connect(
-            R.id.filter_text_view, ConstraintSet.START,
-            ConstraintSet.PARENT_ID, ConstraintSet.START
-        )
-        constraints.applyTo(filterConstraintLayout)
-        filterCardView.visibility = CardView.VISIBLE
-    }
+    private fun showChipsHideBox() {
+        val smallCorner = resources.getDimension(R.dimen.margin_default)
+        val bigCorner = resources.getDimension(R.dimen.margin_wide)
 
-    private fun collapseFilterCard() {
-        val constraints = ConstraintSet()
-        constraints.clone(filterConstraintLayout)
-        constraints.connect(
-            R.id.label_filter_items, ConstraintSet.TOP,
-            R.id.filter_text_view, ConstraintSet.TOP
-        )
-        constraints.connect(
-            R.id.label_filter_items, ConstraintSet.BOTTOM,
-            R.id.filter_text_view, ConstraintSet.BOTTOM
-        )
-        constraints.connect(
-            R.id.filter_text_view, ConstraintSet.START,
-            R.id.label_filter_items, ConstraintSet.END
-        )
-        constraints.applyTo(filterConstraintLayout)
+        val shapeAppearanceModel = searchBoxContentCard.shapeAppearanceModel.toBuilder()
+            .setBottomLeftCorner(CornerFamily.ROUNDED, smallCorner)
+            .setBottomRightCorner(CornerFamily.ROUNDED, bigCorner)
+            .setTopLeftCorner(CornerFamily.ROUNDED, smallCorner)
+            .setTopRightCorner(CornerFamily.ROUNDED, bigCorner)
+            .build()
+
+        filterChipsContentCard.shapeAppearanceModel = shapeAppearanceModel
+        searchBoxContentCard.visibility = GONE
+        filterAddButton.visibility = VISIBLE
     }
 
     private fun addChip(item: FilterOption) {
-        val chip = Chippy(context, item, this)
+        val chip = FilterChip(context, item, this)
         filterChipGroup.addView(chip)
     }
 
+    private fun expandFilterCard() {
+        val smallCorner = resources.getDimension(R.dimen.margin_default)
+        val bigCorner = resources.getDimension(R.dimen.margin_wide)
+        val shapeAppearanceModel = searchBoxContentCard.shapeAppearanceModel.toBuilder()
+            .setBottomLeftCorner(CornerFamily.ROUNDED, smallCorner)
+            .setBottomRightCorner(CornerFamily.ROUNDED, bigCorner)
+            .setTopLeftCorner(CornerFamily.ROUNDED, 0F)
+            .setTopRightCorner(CornerFamily.ROUNDED, 0F)
+            .build()
+
+        searchBoxContentCard.shapeAppearanceModel = shapeAppearanceModel
+
+//        filtersSectionCard.visibility = VISIBLE
+        filterChipsContentCard.visibility = VISIBLE
+    }
+
+    private fun collapseFilterCard() {
+        val smallCorner = resources.getDimension(R.dimen.margin_default)
+        val bigCorner = resources.getDimension(R.dimen.margin_wide)
+        val shapeAppearanceModel = searchBoxContentCard.shapeAppearanceModel.toBuilder()
+            .setBottomLeftCorner(CornerFamily.ROUNDED, smallCorner)
+            .setBottomRightCorner(CornerFamily.ROUNDED, bigCorner)
+            .setTopLeftCorner(CornerFamily.ROUNDED, smallCorner)
+            .setTopRightCorner(CornerFamily.ROUNDED, bigCorner)
+            .build()
+
+        searchBoxContentCard.shapeAppearanceModel = shapeAppearanceModel
+        filterChipsContentCard.visibility = GONE
+    }
+
     fun onBackPressed() {
-        val undo = filterOptionsQueue.removeLastOrNull()
+        val undo = undoQueue.removeLastOrNull()
         undo?.evaluate()
     }
 
@@ -237,8 +315,20 @@ class FilterFragment : Fragment(),
     }
 
     // ChippyCallback
-    override fun chipClosed(view: View, item: FilterOption) {
+    override fun chipClosed(item: FilterOption) {
         viewModel.removeFilterItem(item)
+    }
+
+    // OptionChipGroupCallback
+    override fun checkChanged(action: (FilterViewModel, Boolean) -> Unit, isChecked: Boolean) {
+        Log.d(TAG, "checkChanged: $isChecked")
+        action(viewModel, isChecked)
+    }
+
+    // SortChipGroupCallback
+    override fun sortOrderChanged(sortType: SortType) {
+        Log.d(TAG, "Telling the viewModel to set the sort option: ${sortType.sortString}")
+        viewModel.setSortOption(sortType)
     }
 
     class FilterOptionsAdapter(ctx: Context, filterOptions: List<FilterOption>) :
@@ -258,7 +348,7 @@ class FilterFragment : Fragment(),
         override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
 
             val view =
-                convertView ?: View.inflate(context, R.layout.filter_option_auto_complete, null)
+                convertView ?: inflate(context, R.layout.filter_option_auto_complete, null)
 
             val itemText: TextView = view.findViewById(R.id.item_text)
             val optionTypeText: TextView = view.findViewById(R.id.filter_option_type)
@@ -333,6 +423,6 @@ class FilterFragment : Fragment(),
     }
 }
 
-data class Figueroa<T>(private val function: (T) -> Unit, private val item: T) {
+data class Undo<T>(private val function: (T) -> Unit, private val item: T) {
     fun evaluate() = function(item)
 }
