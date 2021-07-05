@@ -3,6 +3,6 @@
     <corners android:radius="@dimen/radius_list_item_issue" />
     <gradient
         android:angle="270"
-        android:startColor="?attr/colorPrimary"
+        android:startColor="?attr/colorPrimaryVariant"
         android:endColor="?attr/colorPrimaryVariant"/>
 </shape>
