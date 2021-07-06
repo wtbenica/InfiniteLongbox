@@ -38,6 +38,19 @@ class OptionChipGroup(context: Context?, attributeSet: AttributeSet) :
 
             addView(variantChip)
         }
+
+        if (filter.isNotEmpty() && filter.mSeries == null) {
+            val issueChip = OptionChip(
+                context,
+                "Issues",
+                this,
+                FilterViewModel::showIssues
+            ).apply {
+                isChecked = filter.mShowIssues
+            }
+
+            addView(issueChip)
+        }
     }
 
     override fun checkChanged(action: (FilterViewModel, Boolean) -> Unit, isChecked: Boolean) {

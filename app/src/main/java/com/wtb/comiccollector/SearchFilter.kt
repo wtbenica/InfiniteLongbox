@@ -45,6 +45,7 @@ class SearchFilter(
         return other is SearchFilter && hashCode() == other.hashCode()
     }
 
+    var mShowIssues: Boolean = false
     var mCreators: Set<Creator> = creators ?: setOf()
     var mSeries: Series? = series
         set(value) {
@@ -63,13 +64,15 @@ class SearchFilter(
     var mShowVariants: Boolean = showVariants
 
     fun hasCreator() = mCreators.isNotEmpty()
-    fun returnsIssueList() = mSeries != null
+    fun returnsIssueList() = mSeries != null || mShowIssues
     fun hasPublisher() = mPublishers.isNotEmpty()
     fun hasDateFilter() = mStartDate != LocalDate.MIN || mEndDate != LocalDate.MAX
     fun isEmpty(): Boolean {
         return mCreators.isEmpty() && mSeries == null && mPublishers.isEmpty() && mStartDate ==
                 LocalDate.MIN && mEndDate == LocalDate.MAX && !mMyCollection
     }
+    fun isNotEmpty(): Boolean = !isEmpty()
+
 
     fun addFilter(vararg items: FilterOption) {
         items.forEach { item ->

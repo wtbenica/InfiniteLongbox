@@ -81,4 +81,10 @@ class FilterViewModel : ViewModel() {
         newVal.mShowVariants = isChecked
         theOneTrueFilter.value = newVal
     }
+
+    fun showIssues(show: Boolean) {
+        val newVal = SearchFilter(theOneTrueFilter.value)
+        newVal.mShowIssues = show
+        theOneTrueFilter.value = newVal
+    }
 }
