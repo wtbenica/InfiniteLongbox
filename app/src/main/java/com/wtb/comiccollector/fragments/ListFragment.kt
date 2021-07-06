@@ -1,10 +1,10 @@
 package com.wtb.comiccollector.fragments
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.FrameLayout
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
@@ -26,6 +26,8 @@ abstract class ListFragment : Fragment() {
     protected lateinit var listRecyclerView: RecyclerView
     protected var callback: ListFragmentCallback? = null
 
+    private lateinit var details: FrameLayout
+
     override fun onResume() {
         super.onResume()
 
@@ -41,17 +43,17 @@ abstract class ListFragment : Fragment() {
 
         listRecyclerView = view.findViewById(R.id.results_frame) as RecyclerView
         listRecyclerView.layoutManager = getLayoutManager()
+        details = view.findViewById(R.id.details)
 
         val itemDecoration =
             ItemOffsetDecoration(resources.getDimension(R.dimen.offset_list_item_issue).toInt())
 
         listRecyclerView.addItemDecoration(itemDecoration)
 
-        ViewCompat.setOnApplyWindowInsetsListener(view) { v, insets ->
+        ViewCompat.setOnApplyWindowInsetsListener(listRecyclerView) { v, insets ->
             val bottom =
-                PEEK_HEIGHT + insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom
-            Log.d(TAG, "NEW PADDING: $bottom")
-            v.updatePadding(bottom = bottom)
+                PEEK_HEIGHT + insets.getInsets(WindowInsetsCompat.Type.systemBars()).bottom
+            v.updatePadding(bottom = bottom + details.height)
 
             insets
         }
