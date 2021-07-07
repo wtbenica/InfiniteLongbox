@@ -15,11 +15,15 @@ sealed interface FilterTypeSpinnerOption {
     val displayName: String
 }
 
+/*
+TODO: This should include SERIES, PUBLISHER, CHARACTER, CREATOR. The issue is with CREATOR:
+ whether to use CREATOR or NAME_DETAIL or both. Should look for "name_string" in NAME_DETAIL,
+ then getting results by CREATOR. This is a big TODO that could become very complicated very quickly
+*/
 @ExperimentalCoroutinesApi
 sealed interface FilterOptionAutoCompletePopupItem : Comparable<FilterOptionAutoCompletePopupItem>,
     Serializable {
     val tagName: String
-        get() = "FROST"
 
     val compareValue: String
 
@@ -29,6 +33,7 @@ sealed interface FilterOptionAutoCompletePopupItem : Comparable<FilterOptionAuto
             is Creator,
             is NameDetail -> ComicCollectorApplication.context?.getColor(R.color.tag_creator)
             is Publisher  -> ComicCollectorApplication.context?.getColor(R.color.tag_publisher)
+            is Character -> ComicCollectorApplication.context?.getColor(R.color.tag_character)
             is TextFilter -> null
         } ?: 0xFF000000.toInt()
 

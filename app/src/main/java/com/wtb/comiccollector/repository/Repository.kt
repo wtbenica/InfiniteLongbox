@@ -1,5 +1,6 @@
 package com.wtb.comiccollector.repository
 
+import android.annotation.SuppressLint
 import android.app.Dialog
 import android.content.Context
 import android.content.DialogInterface
@@ -109,9 +110,9 @@ class Repository private constructor(val context: Context) {
                 // TODO: A lint inspection pointed out that update returns a Deferred, which
                 //  means that this is async async await. Look into
                 MainActivity.activeJob = CoroutineScope(Dispatchers.IO).launch {
-                    async {
-                        StaticUpdater(apiService, database, prefs).update()
-                    }.await().let {
+                    withContext(Dispatchers.Default) {
+                        StaticUpdater(apiService, database, prefs).updateAsync()
+                    }.let {
                         Log.d(TAG, "Static update done")
                         isIdle = true
                     }
@@ -161,11 +162,11 @@ class Repository private constructor(val context: Context) {
     fun getSeriesByFilter(filter: SearchFilter): Flow<List<Series>> {
         Log.d(TAG, "getSeriesByFilter")
         val mSeries = filter.mSeries
-        if (mSeries == null) {
+        return if (mSeries == null) {
             refreshFilterOptions(mSeries, filter.mCreators)
-            return seriesDao.getSeriesByFilter(filter)
+            seriesDao.getSeriesByFilter(filter)
         } else {
-            return flow { emit(emptyList<Series>()) }
+            flow { emit(emptyList<Series>()) }
         }
     }
 
@@ -365,6 +366,7 @@ class Repository private constructor(val context: Context) {
     }
 
     companion object {
+        @SuppressLint("StaticFieldLeak")
         private var INSTANCE: Repository? = null
 
         fun initialize(context: Context) {

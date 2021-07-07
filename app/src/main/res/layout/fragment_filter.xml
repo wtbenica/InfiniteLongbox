@@ -182,7 +182,7 @@
                                 <com.google.android.material.chip.Chip
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:text="Doom Patrol"
+                                    android:text="@string/dummy_text"
                                     app:closeIconEnabled="true" />
 
                             </com.wtb.comiccollector.views.FilterChipGroup>
@@ -208,13 +208,34 @@
                         app:layout_constraintTop_toBottomOf="@id/content_card_filter_chips"
                         app:shapeAppearanceOverlay="@style/bottom_both">
 
-                        <com.wtb.comiccollector.views.SearchAutoComplete
-                            android:id="@+id/search_auto"
-                            style="@style/searchAutoCompleteStyle"
+                        <LinearLayout
                             android:layout_width="match_parent"
-                            android:layout_height="?attr/dropdownListPreferredItemHeight"
-                            android:hint="@string/search"
-                            tools:text="Potato Latke" />
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal">
+
+                            <com.wtb.comiccollector.views.SearchAutoComplete
+                                android:id="@+id/search_auto"
+                                style="@style/searchAutoCompleteStyle"
+                                android:layout_width="0dp"
+                                android:layout_height="?attr/dropdownListPreferredItemHeight"
+                                android:layout_weight="1"
+                                android:hint="@string/search"
+                                tools:text="Potato Latke" />
+
+                            <View
+                                android:layout_width="1dp"
+                                android:layout_height="match_parent"
+                                android:background="?attr/colorPrimary"/>
+
+                            <androidx.appcompat.widget.AppCompatSpinner
+                                android:id="@+id/search_bar_spinner"
+                                tools:listitem="@layout/list_item_search_type"
+                                style="@style/searchTypeSpinnerStyle"
+                                android:layout_width="wrap_content"
+                                android:layout_height="match_parent"
+                                android:entries="@array/suffixes_array"
+                                android:popupBackground="@drawable/search_type_spinner_background" />
+                        </LinearLayout>
                     </com.google.android.material.card.MaterialCardView>
                 </LinearLayout>
             </androidx.constraintlayout.widget.ConstraintLayout>

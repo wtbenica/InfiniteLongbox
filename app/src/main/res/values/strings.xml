@@ -62,4 +62,6 @@
     <string name="filter_type_publisher">Publisher</string>
     <string name="filter_type_series">Series</string>
     <string name="filter_type_character">Character</string>
+    <string name="description_series_list_item_background_image">Background image of series\' first issue cover</string>
+    <string name="dummy_text">Doom Patrol</string>
 </resources>

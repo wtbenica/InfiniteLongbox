@@ -20,7 +20,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 @ExperimentalCoroutinesApi
 abstract class ListFragment : Fragment() {
-    protected val PEEK_HEIGHT
+    private val PEEK_HEIGHT
         get() = resources.getDimension(R.dimen.peek_height).toInt()
     protected val filterViewModel: FilterViewModel by viewModels({ requireActivity() })
     protected lateinit var listRecyclerView: RecyclerView

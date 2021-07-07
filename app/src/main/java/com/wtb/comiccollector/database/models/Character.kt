@@ -14,7 +14,7 @@ data class Character(
     @PrimaryKey(autoGenerate = true) val characterId: Int = AUTO_ID,
     var name: String,
     var aka: String? = null
-) : DataModel() {
+) : DataModel(), FilterOptionAutoCompletePopupItem {
 
     val sortName: String
         get() {
@@ -33,6 +33,12 @@ data class Character(
         override val displayName: String =
             ComicCollectorApplication.context!!.getString(R.string.filter_type_character)
     }
+
+    override val tagName: String
+        get() = "Character"
+
+    override val compareValue: String
+        get() = name
 }
 
 @ExperimentalCoroutinesApi

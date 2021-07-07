@@ -4,12 +4,14 @@ import android.net.Uri
 import androidx.room.*
 import androidx.room.ForeignKey.CASCADE
 import com.wtb.comiccollector.repository.DUMMY_ID
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
 
 const val AUTO_ID = 0
 
+@ExperimentalCoroutinesApi
 @Entity(
     foreignKeys = [
         ForeignKey(
@@ -100,7 +102,8 @@ data class Issue(
     }
 }
 
-data class FullIssue(
+@ExperimentalCoroutinesApi
+data class FullIssue @ExperimentalCoroutinesApi constructor(
     @Embedded
     val issue: Issue,
 
@@ -123,6 +126,7 @@ data class FullIssue(
         get() = cover?.coverUri
 }
 
+@ExperimentalCoroutinesApi
 @Entity(
     foreignKeys = [
         ForeignKey(

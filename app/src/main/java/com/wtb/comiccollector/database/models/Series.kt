@@ -1,10 +1,12 @@
 package com.wtb.comiccollector.database.models
 
 import androidx.room.*
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import java.io.Serializable
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
+@ExperimentalCoroutinesApi
 @Entity(
     foreignKeys = [
         ForeignKey(
@@ -31,6 +33,8 @@ data class Series(
     var publishingFormat: String? = null,
     val firstIssueId: Int? = null
 ) : DataModel(), FilterOptionAutoCompletePopupItem, Serializable {
+    override val tagName: String
+        get() = "Series"
 
     override val compareValue: String
         get() = sortName ?: seriesName
@@ -53,6 +57,7 @@ data class Series(
         } ?: ""
 }
 
+@ExperimentalCoroutinesApi
 @Entity(
     indices = [
         Index(value = ["publisher"]),
@@ -62,6 +67,9 @@ data class Publisher(
     @PrimaryKey(autoGenerate = true) val publisherId: Int = AUTO_ID,
     val publisher: String = ""
 ) : DataModel(), FilterOptionAutoCompletePopupItem {
+    override val tagName: String
+        get() = "Publisher"
+
     override val compareValue: String
         get() = publisher
 
@@ -81,6 +89,7 @@ data class Publisher(
     }
 }
 
+@ExperimentalCoroutinesApi
 data class SeriesAndPublisher(
     @Embedded
     val series: Series,
@@ -89,6 +98,7 @@ data class SeriesAndPublisher(
     var publisher: Publisher
 )
 
+@ExperimentalCoroutinesApi
 data class FullSeries(
     @Embedded
     val series: Series,

@@ -23,7 +23,7 @@ class StaticUpdater(
      *  Updates publisher, series, role, and storytype tables
      */
     @ExperimentalCoroutinesApi
-    internal suspend fun update(): Deferred<Unit> {
+    internal suspend fun updateAsync(): Deferred<Unit> {
         Log.d(
             TAG,
             "Debug: ${!DEBUG} hasConnection: ${MainActivity.hasConnection.value} oldPubs: ${

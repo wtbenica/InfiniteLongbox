@@ -26,6 +26,7 @@ import com.wtb.comiccollector.R
 import com.wtb.comiccollector.SearchFilter
 import com.wtb.comiccollector.SortType
 import com.wtb.comiccollector.database.models.FilterOptionAutoCompletePopupItem
+import com.wtb.comiccollector.database.models.FilterTypeSpinnerOption
 import com.wtb.comiccollector.fragments_view_models.FilterViewModel
 import com.wtb.comiccollector.views.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -74,7 +75,7 @@ class FilterFragment : Fragment(),
 
     private lateinit var searchBoxContentCard: MaterialCardView
     private lateinit var searchAutoComplete: SearchAutoComplete
-//    private lateinit var searchBoxSpinner: Spinner
+    private lateinit var searchBoxSpinner: Spinner
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -171,14 +172,14 @@ class FilterFragment : Fragment(),
 
         searchAutoComplete.callbacks = this
 
-//        val objects =
-//            listOf("All") + FilterTypeSpinnerOption::class.sealedSubclasses.map { it.objectInstance?.displayName }
-//        searchBoxSpinner.adapter = ArrayAdapter(
-//            requireContext(),
-//            R.layout.list_item_search_type,
-//            R.id.text_sort_type,
-//            objects
-//        )
+        val objects =
+            listOf("All") + FilterTypeSpinnerOption::class.sealedSubclasses.map { it.objectInstance?.displayName }
+        searchBoxSpinner.adapter = ArrayAdapter(
+            requireContext(),
+            R.layout.list_item_search_type,
+            R.id.text_sort_type,
+            objects
+        )
     }
 
     private fun onCreateViewFindViews(view: View) {
@@ -202,7 +203,7 @@ class FilterFragment : Fragment(),
 
         searchBoxContentCard = view.findViewById(R.id.content_card_search_auto)
         searchAutoComplete = view.findViewById(R.id.search_auto)
-//        searchBoxSpinner = view.findViewById(R.id.search_bar_spinner)
+        searchBoxSpinner = view.findViewById(R.id.search_bar_spinner)
     }
 
     internal fun onSlide(slideOffset: Float) {

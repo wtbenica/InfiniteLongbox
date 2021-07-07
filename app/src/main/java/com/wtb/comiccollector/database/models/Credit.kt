@@ -1,6 +1,7 @@
 package com.wtb.comiccollector.database.models
 
 import androidx.room.*
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 abstract class CreditX : DataModel() {
     abstract val creditId: Int
@@ -9,6 +10,7 @@ abstract class CreditX : DataModel() {
     abstract var roleId: Int
 }
 
+@ExperimentalCoroutinesApi
 @Entity(
     indices = [
         Index(value = ["storyId", "nameDetailId", "roleId"], unique = true),
@@ -47,6 +49,7 @@ class Credit(
         get() = creditId
 }
 
+@ExperimentalCoroutinesApi
 @Entity(
     indices = [
         Index(value = ["storyId", "nameDetailId", "roleId"], unique = true),
@@ -143,6 +146,7 @@ data class Role(
     }
 }
 
+@ExperimentalCoroutinesApi
 data class FullCredit(
     @Embedded
     val credit: Credit,

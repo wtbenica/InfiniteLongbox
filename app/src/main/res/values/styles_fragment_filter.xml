@@ -120,10 +120,10 @@
 
     <style name="searchAutoCompleteStyle" parent="Widget.AppCompat.Light.AutoCompleteTextView">
         <item name="android:paddingStart">@dimen/margin_default</item>
-        <item name="fontFamily">@font/permanent_marker</item>
         <item name="android:textColorHint">?attr/colorAccent</item>
         <item name="android:textColor">?attr/colorOnPrimary</item>
         <item name="android:textSize">18sp</item>
+        <item name="fontFamily">@font/permanent_marker</item>
         <item name="android:background">@android:color/white</item>
         <item name="singleLine">true</item>
         <item name="android:popupBackground">@drawable/background_autocomplete_popup</item>

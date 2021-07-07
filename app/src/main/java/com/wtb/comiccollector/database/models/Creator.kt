@@ -53,7 +53,7 @@ data class NameDetail(
     }
 
     override val tagName: String
-        get() = Companion.displayName
+        get() = displayName
 
     override val compareValue: String
         get() = name
