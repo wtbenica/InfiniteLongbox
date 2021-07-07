@@ -9,11 +9,16 @@
 
     <color name="amnesia">#BACACA</color>
     <color name="amnesia_light">#CADADA</color>
-    <color name="amnesia_light_light">#FEFEFE</color>
-    <color name="amnesia_dark">#9AAAAA</color>
+    <color name="amnesia_light_light">#F3F3F3</color>
+    <color name="amnesia_dark">#889999</color>
     <color name="amnesia_text">#AAF6F6F6</color>
 
     <color name="fantasia_muted">#E8FDAD</color>
     <color name="fantasia_light_muted">#E3F6B0</color>
     <color name="fantasia_dark_muted">#BAFE00</color>
+
+    <color name="tag_series">#55EEBB</color>
+    <color name="tag_creator">#EE55BB</color>
+    <color name="tag_publisher">#55BBEE</color>
+    <color name="tag_character">#5B5EBE</color>
 </resources>

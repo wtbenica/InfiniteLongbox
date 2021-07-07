@@ -59,4 +59,7 @@
     <string name="sort_type_release_date">Release Date</string>
     <string name="column_release_date">releaseDate</string>
     <string name="content_description_add_filter_button">Open text box to add a new filter</string>
+    <string name="filter_type_publisher">Publisher</string>
+    <string name="filter_type_series">Series</string>
+    <string name="filter_type_character">Character</string>
 </resources>

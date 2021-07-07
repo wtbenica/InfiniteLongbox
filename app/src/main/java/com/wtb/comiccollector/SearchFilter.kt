@@ -2,10 +2,7 @@ package com.wtb.comiccollector
 
 import android.annotation.SuppressLint
 import androidx.fragment.app.Fragment
-import com.wtb.comiccollector.database.models.Creator
-import com.wtb.comiccollector.database.models.FilterOption
-import com.wtb.comiccollector.database.models.Publisher
-import com.wtb.comiccollector.database.models.Series
+import com.wtb.comiccollector.database.models.*
 import com.wtb.comiccollector.fragments.IssueListFragment
 import com.wtb.comiccollector.fragments.SeriesListFragment
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -74,7 +71,7 @@ class SearchFilter(
     fun isNotEmpty(): Boolean = !isEmpty()
 
 
-    fun addFilter(vararg items: FilterOption) {
+    fun addFilter(vararg items: FilterOptionAutoCompletePopupItem) {
         items.forEach { item ->
             when (item) {
                 is Series     -> addSeries(item)
@@ -103,7 +100,7 @@ class SearchFilter(
         mTextFilter = item
     }
 
-    fun removeFilter(vararg items: FilterOption) {
+    fun removeFilter(vararg items: FilterOptionAutoCompletePopupItem) {
         items.forEach { item ->
             when (item) {
                 is Series     -> removeSeries()
@@ -145,21 +142,7 @@ class SearchFilter(
             else -> SortType.Companion.ItemSort.ISSUE.options
         }
 
-    fun getReturnTypes(): List<ReturnType> {
-        val result: MutableList<ReturnType> = mutableListOf()
-
-        if (mSeries == null) {
-            result.add(ReturnType.SERIES)
-        }
-
-        if (mCreators.isNotEmpty() || mPublishers.isNotEmpty() || mSeries != null) {
-            result.add(ReturnType.ISSUE)
-        }
-
-        return result
-    }
-
-    fun getAll(): Set<FilterOption> {
+    fun getAll(): Set<FilterOptionAutoCompletePopupItem> {
         val series = mSeries?.let { setOf(it) } ?: emptySet()
         val textFilter = mTextFilter?.let { setOf(it) } ?: emptySet()
         return mCreators + mPublishers + series + textFilter
@@ -268,25 +251,3 @@ class SortType(
         }
     }
 }
-
-//val SERIES_SORT_TYPES: List<SortType> = listOf(
-//    SortType("Series Name", "sortName", SortType.SortOrder.ASC),
-//    SortType("Start Date", "startDate", SortType.SortOrder.DESC)
-//)
-//
-//val ISSUE_SORT_TYPES: List<SortType> = listOf(
-//    SortType("Issue Number", "issueNum", SortType.SortOrder.ASC),
-//    SortType("Release Date", "releaseDate", SortType.SortOrder.DESC)
-//)
-//
-data class TextFilter(val text: String) : FilterOption {
-    override val compareValue: String
-        get() = text
-
-    override fun toString(): String = "\"$text\""
-}
-
-enum class ReturnType {
-    SERIES, ISSUE, CREATOR, PUBLISHER, CHARACTER
-}
-

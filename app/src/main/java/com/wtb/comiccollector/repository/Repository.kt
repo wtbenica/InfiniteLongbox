@@ -265,26 +265,26 @@ class Repository private constructor(val context: Context) {
         }
     }
 
-    suspend fun getValidFilterOptions(filter: SearchFilter): Flow<List<FilterOption>> {
-        val seriesList: Flow<List<FilterOption>> =
+    suspend fun getValidFilterOptions(filter: SearchFilter): Flow<List<FilterOptionAutoCompletePopupItem>> {
+        val seriesList: Flow<List<FilterOptionAutoCompletePopupItem>> =
             when {
                 filter.isEmpty()       -> allSeries
                 filter.mSeries == null -> getSeriesByFilter(filter)
-                else                   -> flow { emit(emptyList<FilterOption>()) }
+                else                   -> flow { emit(emptyList<FilterOptionAutoCompletePopupItem>()) }
             }
 
-        val creatorsList: Flow<List<FilterOption>> =
+        val creatorsList: Flow<List<FilterOptionAutoCompletePopupItem>> =
             when {
                 filter.isEmpty()           -> allCreators
                 filter.mCreators.isEmpty() -> getCreatorsByFilter(filter)
-                else                       -> flow { emit(emptyList<FilterOption>()) }
+                else                       -> flow { emit(emptyList<FilterOptionAutoCompletePopupItem>()) }
             }
 
-        val publishersList: Flow<List<FilterOption>> =
+        val publishersList: Flow<List<FilterOptionAutoCompletePopupItem>> =
             when {
                 filter.isEmpty()             -> allPublishers
                 filter.mPublishers.isEmpty() -> publisherDao.getPublishersByFilter(filter)
-                else                         -> flow { emit(emptyList<FilterOption>()) }
+                else                         -> flow { emit(emptyList<FilterOptionAutoCompletePopupItem>()) }
             }
 
         return combine(
@@ -292,8 +292,8 @@ class Repository private constructor(val context: Context) {
             creatorsList,
             publishersList
         )
-        { series: List<FilterOption>, creators: List<FilterOption>, publishers: List<FilterOption> ->
-            val res: List<FilterOption> = series + creators + publishers
+        { series: List<FilterOptionAutoCompletePopupItem>, creators: List<FilterOptionAutoCompletePopupItem>, publishers: List<FilterOptionAutoCompletePopupItem> ->
+            val res: List<FilterOptionAutoCompletePopupItem> = series + creators + publishers
             sort(res)
             res
         }

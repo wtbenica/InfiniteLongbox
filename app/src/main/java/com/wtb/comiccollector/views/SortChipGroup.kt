@@ -8,6 +8,7 @@ import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.children
 import com.google.android.material.chip.Chip
 import com.wtb.comiccollector.APP
+import com.wtb.comiccollector.R
 import com.wtb.comiccollector.SearchFilter
 import com.wtb.comiccollector.SortType
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -48,13 +49,10 @@ class SortChipGroup(context: Context, attributeSet: AttributeSet) :
 
         toAddList.forEach { sortTypeIn ->
             Log.d(TAG, "Adding View")
-            val chip = SortChip(context).apply {
-                callback = this@SortChipGroup
-                sortType = sortTypeIn
-                isChecked = filter.mSortType == sortTypeIn
-            }
-            Log.d(TAG, "Chip ${chip.sortType?.tag}:${chip.sortType?.order} is checked: ${chip
-                .isChecked}")
+            val chip = SortChip(context)
+            chip.callback = this@SortChipGroup
+            chip.isChecked = filter.mSortType == sortTypeIn
+            chip.sortType = sortTypeIn
             addView(chip)
         }
 
@@ -75,6 +73,7 @@ class SortChipGroup(context: Context, attributeSet: AttributeSet) :
     }
 }
 
+@ExperimentalCoroutinesApi
 class SortChip(context: Context) : Chip(context) {
 
     init {
@@ -111,6 +110,7 @@ class SortChip(context: Context) : Chip(context) {
     private var icon: Int? = null
         set(value) {
             field = value
+            closeIconTint = context.getColorStateList(R.color.filter_chip_text)
             closeIcon = value?.let { ResourcesCompat.getDrawable(resources, it, null) }
         }
 

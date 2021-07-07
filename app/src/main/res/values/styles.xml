@@ -40,7 +40,7 @@
         <item name="cornerRadius">@dimen/margin_default</item>
     </style>
 
-    <style name="mySpinnerStyle" parent="Widget.AppCompat.Spinner">
+    <style name="IssueDetailVariantSpinnerStyle" parent="Widget.AppCompat.Spinner">
         <item name="android:background">@drawable/background_spinner</item>
         <item name="android:paddingStart">@dimen/margin_default</item>
         <item name="android:layout_height">?attr/dropdownListPreferredItemHeight</item>
@@ -48,5 +48,4 @@
         <item name="android:textColor">?attr/colorOnPrimary</item>
         <item name="android:popupBackground">@drawable/background_spinner_popup</item>
     </style>
-
 </resources>

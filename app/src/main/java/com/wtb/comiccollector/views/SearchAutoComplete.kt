@@ -9,19 +9,21 @@ import android.view.inputmethod.EditorInfo
 import android.widget.AdapterView
 import com.google.android.material.textfield.MaterialAutoCompleteTextView
 import com.wtb.comiccollector.APP
-import com.wtb.comiccollector.TextFilter
-import com.wtb.comiccollector.database.models.FilterOption
+import com.wtb.comiccollector.database.models.FilterOptionAutoCompletePopupItem
+import com.wtb.comiccollector.database.models.TextFilter
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 private const val TAG = APP + "SearchAutoCompleteTextView"
 
+@ExperimentalCoroutinesApi
 class SearchAutoComplete(context: Context, attributeSet: AttributeSet) :
     MaterialAutoCompleteTextView(context, attributeSet) {
 
     var callbacks: SearchTextViewCallback? = null
-    private var item: FilterOption? = null
+    private var item: FilterOptionAutoCompletePopupItem? = null
 
     interface SearchTextViewCallback {
-        fun addFilterItem(option: FilterOption)
+        fun addFilterItem(option: FilterOptionAutoCompletePopupItem)
         fun hideKeyboard()
     }
 
@@ -45,7 +47,7 @@ class SearchAutoComplete(context: Context, attributeSet: AttributeSet) :
 
         onItemClickListener = AdapterView.OnItemClickListener { parent, v, position, id ->
             Log.d(TAG, "filterTextView item clicked")
-            val item = parent?.adapter?.getItem(position) as FilterOption?
+            val item = parent?.adapter?.getItem(position) as FilterOptionAutoCompletePopupItem?
             this.item = item
             this.text.clear()
             callbacks?.hideKeyboard()

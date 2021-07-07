@@ -4,7 +4,11 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
+import com.wtb.comiccollector.ComicCollectorApplication
+import com.wtb.comiccollector.R
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 
+@ExperimentalCoroutinesApi
 @Entity
 data class Character(
     @PrimaryKey(autoGenerate = true) val characterId: Int = AUTO_ID,
@@ -24,8 +28,14 @@ data class Character(
 
     override val id: Int
         get() = characterId
+
+    companion object : FilterTypeSpinnerOption {
+        override val displayName: String =
+            ComicCollectorApplication.context!!.getString(R.string.filter_type_character)
+    }
 }
 
+@ExperimentalCoroutinesApi
 @Entity(
     foreignKeys = [
         ForeignKey(

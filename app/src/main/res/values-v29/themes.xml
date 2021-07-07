@@ -25,7 +25,7 @@
         <item name="android:windowBackground">@android:color/white</item>
         <item name="cardViewStyle">@style/mCardView</item>
         <item name="materialButtonStyle">@style/myButtonStyle</item>
-        <item name="android:spinnerStyle">@style/mySpinnerStyle</item>
+        <item name="android:spinnerStyle">@style/IssueDetailVariantSpinnerStyle</item>
         <item name="android:buttonBarButtonStyle">@style/myButtonBarButtonStyle</item>
         <item name="android:buttonBarStyle">@style/myButtonBarStyle</item>
         <item name="switchStyle">@style/mySwitchStyle</item>

@@ -25,10 +25,7 @@ import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.R
 import com.wtb.comiccollector.SearchFilter
 import com.wtb.comiccollector.SortType
-import com.wtb.comiccollector.database.models.Creator
-import com.wtb.comiccollector.database.models.FilterOption
-import com.wtb.comiccollector.database.models.Publisher
-import com.wtb.comiccollector.database.models.Series
+import com.wtb.comiccollector.database.models.FilterOptionAutoCompletePopupItem
 import com.wtb.comiccollector.fragments_view_models.FilterViewModel
 import com.wtb.comiccollector.views.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -77,6 +74,7 @@ class FilterFragment : Fragment(),
 
     private lateinit var searchBoxContentCard: MaterialCardView
     private lateinit var searchAutoComplete: SearchAutoComplete
+//    private lateinit var searchBoxSpinner: Spinner
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -99,7 +97,7 @@ class FilterFragment : Fragment(),
             }
 
             viewModel.filterOptions.asLiveData().observe(context as LifecycleOwner) { filterObjects:
-                                                                                      List<FilterOption> ->
+                                                                                      List<FilterOptionAutoCompletePopupItem> ->
                 searchAutoComplete.setAdapter(
                     FilterOptionsAdapter(
                         requireContext(),
@@ -172,6 +170,15 @@ class FilterFragment : Fragment(),
         }
 
         searchAutoComplete.callbacks = this
+
+//        val objects =
+//            listOf("All") + FilterTypeSpinnerOption::class.sealedSubclasses.map { it.objectInstance?.displayName }
+//        searchBoxSpinner.adapter = ArrayAdapter(
+//            requireContext(),
+//            R.layout.list_item_search_type,
+//            R.id.text_sort_type,
+//            objects
+//        )
     }
 
     private fun onCreateViewFindViews(view: View) {
@@ -195,6 +202,7 @@ class FilterFragment : Fragment(),
 
         searchBoxContentCard = view.findViewById(R.id.content_card_search_auto)
         searchAutoComplete = view.findViewById(R.id.search_auto)
+//        searchBoxSpinner = view.findViewById(R.id.search_bar_spinner)
     }
 
     internal fun onSlide(slideOffset: Float) {
@@ -237,7 +245,7 @@ class FilterFragment : Fragment(),
     }
 
     private fun updateFilterCard(value: SearchFilter) {
-        val newFilters: Set<FilterOption> = value.getAll()
+        val newFilters: Set<FilterOptionAutoCompletePopupItem> = value.getAll()
 
         filterChipGroup.removeAllViews()
         newFilters.forEach { addChip(it) }
@@ -267,7 +275,7 @@ class FilterFragment : Fragment(),
         filterAddButton.visibility = VISIBLE
     }
 
-    private fun addChip(item: FilterOption) {
+    private fun addChip(item: FilterOptionAutoCompletePopupItem) {
         val chip = FilterChip(context, item, this)
         filterChipGroup.addView(chip)
     }
@@ -308,14 +316,14 @@ class FilterFragment : Fragment(),
     }
 
     // SearchTextViewCallback
-    override fun addFilterItem(option: FilterOption) = viewModel.addFilterItem(option)
+    override fun addFilterItem(option: FilterOptionAutoCompletePopupItem) = viewModel.addFilterItem(option)
 
     override fun hideKeyboard() {
         callback?.hideKeyboard()
     }
 
     // ChippyCallback
-    override fun chipClosed(item: FilterOption) {
+    override fun chipClosed(item: FilterOptionAutoCompletePopupItem) {
         viewModel.removeFilterItem(item)
     }
 
@@ -329,87 +337,6 @@ class FilterFragment : Fragment(),
     override fun sortOrderChanged(sortType: SortType) {
         Log.d(TAG, "Telling the viewModel to set the sort option: ${sortType.sortString}")
         viewModel.setSortOption(sortType)
-    }
-
-    class FilterOptionsAdapter(ctx: Context, filterOptions: List<FilterOption>) :
-        ArrayAdapter<FilterOption>(ctx, LAYOUT, filterOptions) {
-
-        companion object {
-            private const val LAYOUT = R.layout.filter_option_auto_complete
-        }
-
-        private var allOptions: List<FilterOption> = filterOptions
-        private var mOptions: List<FilterOption> = filterOptions
-
-        override fun getCount(): Int = mOptions.size
-
-        override fun getItem(position: Int): FilterOption = mOptions[position]
-
-        override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
-
-            val view =
-                convertView ?: inflate(context, R.layout.filter_option_auto_complete, null)
-
-            val itemText: TextView = view.findViewById(R.id.item_text)
-            val optionTypeText: TextView = view.findViewById(R.id.filter_option_type)
-
-            val filterOption: FilterOption = getItem(position)
-
-            itemText.text = filterOption.toString()
-
-            optionTypeText.text = when (filterOption) {
-                is Series    -> "Series"
-                is Creator   -> "Creator"
-                is Publisher -> "Publisher"
-                else         -> ""
-            }
-
-            optionTypeText.setTextColor(
-                when (filterOption) {
-                    is Series    -> 0xFF0000FF.toInt()
-                    is Creator   -> 0xFF00FF00.toInt()
-                    is Publisher -> 0xFFFF0000.toInt()
-                    else         -> 0xFFFFFFFF.toInt()
-                }
-            )
-
-            return view
-        }
-
-        override fun getFilter(): Filter {
-            return object : Filter() {
-                override fun performFiltering(constraint: CharSequence?): FilterResults {
-                    val query = constraint?.toString()?.lowercase()
-
-                    val results = FilterResults()
-                    results.values = if (query == null || query.isEmpty()) {
-                        allOptions
-                    } else {
-                        allOptions.filter {
-                            it.compareValue.lowercase().contains(query)
-                        }
-                    }
-
-                    return results
-                }
-
-                override fun publishResults(
-                    constraint: CharSequence?,
-                    results: FilterResults?
-                ) {
-                    val optionsList: MutableList<FilterOption> = mutableListOf()
-
-                    for (item in (results?.values as List<*>)) {
-                        if (item is FilterOption) {
-                            optionsList.add(item)
-                        }
-                    }
-
-                    mOptions = optionsList
-                    notifyDataSetChanged()
-                }
-            }
-        }
     }
 
     interface FilterFragmentCallback {

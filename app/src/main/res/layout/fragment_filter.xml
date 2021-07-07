@@ -2,13 +2,13 @@
 <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    style="@style/FilterBackground"
+    style="@style/filterBackground"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/layout_filter_fragment"
-        style="@style/FilterSectionCardLayout"
+        style="@style/filterSectionCardLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@drawable/bottom_sheet"
@@ -17,18 +17,18 @@
 
         <LinearLayout
             android:id="@+id/layout_filter_fragment_handle"
-            style="@style/HandleContainer"
+            style="@style/handleContainer"
             android:orientation="vertical"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
-            <com.google.android.material.card.MaterialCardView style="@style/Handle" />
+            <com.google.android.material.card.MaterialCardView style="@style/handle" />
         </LinearLayout>
 
         <androidx.cardview.widget.CardView
             android:id="@+id/section_card_options"
-            style="@style/FilterSectionCard"
+            style="@style/filterSectionCard"
             app:layout_constraintBottom_toTopOf="@id/section_card_sort"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -36,13 +36,13 @@
             tools:alpha="1">
 
             <LinearLayout
-                style="@style/FilterSectionCardLayout"
+                style="@style/filterSectionCardLayout"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:orientation="horizontal">
 
                 <ImageView
-                    style="@style/ImageLabel"
+                    style="@style/imageLabel"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:contentDescription="@string/sort_image_content_description"
@@ -50,7 +50,7 @@
                     app:srcCompat="@drawable/toggle_24" />
 
                 <com.google.android.material.card.MaterialCardView
-                    style="@style/FilterContentCard"
+                    style="@style/filterContentCard"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     app:shapeAppearanceOverlay="@style/both_right">
@@ -66,7 +66,7 @@
 
         <androidx.cardview.widget.CardView
             android:id="@+id/section_card_sort"
-            style="@style/FilterSectionCard"
+            style="@style/filterSectionCard"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             app:layout_constraintBottom_toTopOf="@id/section_card_filter"
@@ -75,13 +75,13 @@
             tools:alpha="1F">
 
             <LinearLayout
-                style="@style/FilterSectionCardLayout"
+                style="@style/filterSectionCardLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
 
                 <ImageView
-                    style="@style/ImageLabel"
+                    style="@style/imageLabel"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:layout_weight="0"
@@ -90,7 +90,7 @@
                     app:srcCompat="@drawable/sort_24" />
 
                 <com.google.android.material.card.MaterialCardView
-                    style="@style/FilterContentCard"
+                    style="@style/filterContentCard"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
@@ -125,7 +125,7 @@
 
         <androidx.cardview.widget.CardView
             android:id="@+id/section_card_filter"
-            style="@style/FilterSectionCard"
+            style="@style/filterSectionCard"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -134,14 +134,14 @@
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/layout_filter_card"
-                style="@style/FilterSectionCardLayout"
+                style="@style/filterSectionCardLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:padding="@dimen/padding_section_card">
 
                 <ImageView
                     android:id="@+id/image_label_filter_items"
-                    style="@style/ImageLabel"
+                    style="@style/imageLabel"
                     android:layout_width="wrap_content"
                     android:layout_height="0dp"
                     android:contentDescription="@string/sort_image_content_description"
@@ -163,7 +163,7 @@
 
                     <com.google.android.material.card.MaterialCardView
                         android:id="@+id/content_card_filter_chips"
-                        style="@style/FilterContentCard"
+                        style="@style/filterContentCard"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         app:shapeAppearanceOverlay="@style/top_right">
@@ -194,13 +194,13 @@
                                 android:backgroundTint="@android:color/transparent"
                                 android:contentDescription="@string/content_description_add_filter_button"
                                 android:src="@drawable/ic_menu_add"
-                                app:tint="@color/fantasia_dark" />
+                                app:tint="?attr/colorSecondary" />
                         </LinearLayout>
                     </com.google.android.material.card.MaterialCardView>
 
                     <com.google.android.material.card.MaterialCardView
                         android:id="@+id/content_card_search_auto"
-                        style="@style/FilterContentCard"
+                        style="@style/filterContentCard"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         app:layout_constraintEnd_toEndOf="parent"
@@ -210,7 +210,7 @@
 
                         <com.wtb.comiccollector.views.SearchAutoComplete
                             android:id="@+id/search_auto"
-                            style="@style/myAutoCompleteStyle"
+                            style="@style/searchAutoCompleteStyle"
                             android:layout_width="match_parent"
                             android:layout_height="?attr/dropdownListPreferredItemHeight"
                             android:hint="@string/search"

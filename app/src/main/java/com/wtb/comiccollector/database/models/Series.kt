@@ -30,7 +30,7 @@ data class Series(
     var description: String? = null,
     var publishingFormat: String? = null,
     val firstIssueId: Int? = null
-) : DataModel(), FilterOption, Serializable {
+) : DataModel(), FilterOptionAutoCompletePopupItem, Serializable {
 
     override val compareValue: String
         get() = sortName ?: seriesName
@@ -61,7 +61,7 @@ data class Series(
 data class Publisher(
     @PrimaryKey(autoGenerate = true) val publisherId: Int = AUTO_ID,
     val publisher: String = ""
-) : DataModel(), FilterOption {
+) : DataModel(), FilterOptionAutoCompletePopupItem {
     override val compareValue: String
         get() = publisher
 

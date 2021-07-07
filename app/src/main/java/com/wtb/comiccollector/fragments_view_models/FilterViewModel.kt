@@ -5,7 +5,7 @@ import androidx.lifecycle.ViewModel
 import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.SearchFilter
 import com.wtb.comiccollector.SortType
-import com.wtb.comiccollector.database.models.FilterOption
+import com.wtb.comiccollector.database.models.FilterOptionAutoCompletePopupItem
 import com.wtb.comiccollector.repository.Repository
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
@@ -21,7 +21,7 @@ class FilterViewModel : ViewModel() {
 
     val filter: StateFlow<SearchFilter> = theOneTrueFilter
 
-    private val seriesOptions: Flow<List<FilterOption>> = filter.flatMapLatest {
+    private val seriesOptions: Flow<List<FilterOptionAutoCompletePopupItem>> = filter.flatMapLatest {
         repository.getSeriesByFilter(it)
     }
 
@@ -33,15 +33,15 @@ class FilterViewModel : ViewModel() {
         repository.getCreatorsByFilter(it)
     }
 
-    val filterOptions: Flow<List<FilterOption>> = combine(
+    val filterOptions: Flow<List<FilterOptionAutoCompletePopupItem>> = combine(
         seriesOptions,
         creatorOptions,
         publisherOptions
     )
-    { series: List<FilterOption>, creators: List<FilterOption>, publishers: List<FilterOption> ->
+    { series: List<FilterOptionAutoCompletePopupItem>, creators: List<FilterOptionAutoCompletePopupItem>, publishers: List<FilterOptionAutoCompletePopupItem> ->
         Log.d(TAG, "filterOptions: ${series.size} series; ${creators.size} creators; ${publishers
             .size} publishers;")
-        val res: List<FilterOption> = series + creators + publishers
+        val res: List<FilterOptionAutoCompletePopupItem> = series + creators + publishers
         Log.d(TAG, "filterOptions: ${res.size}")
         res.sorted()
     }
@@ -50,14 +50,14 @@ class FilterViewModel : ViewModel() {
         this.theOneTrueFilter.value = filter
     }
 
-    fun addFilterItem(item: FilterOption) {
+    fun addFilterItem(item: FilterOptionAutoCompletePopupItem) {
         Log.d(TAG, "ADDING ITEM: $item")
         val newVal = SearchFilter(theOneTrueFilter.value)
         newVal.addFilter(item)
         theOneTrueFilter.value = newVal
     }
 
-    fun removeFilterItem(item: FilterOption) {
+    fun removeFilterItem(item: FilterOptionAutoCompletePopupItem) {
         val newVal = SearchFilter(theOneTrueFilter.value)
         newVal.removeFilter(item)
         theOneTrueFilter.value = newVal

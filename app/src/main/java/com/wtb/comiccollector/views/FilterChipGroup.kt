@@ -4,19 +4,21 @@ import android.content.Context
 import android.util.AttributeSet
 import com.google.android.material.chip.Chip
 import com.wtb.comiccollector.APP
-import com.wtb.comiccollector.database.models.FilterOption
+import com.wtb.comiccollector.database.models.FilterOptionAutoCompletePopupItem
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 class FilterChipGroup(context: Context?, attributeSet: AttributeSet) :
     FilterCardChipGroup(context, attributeSet)
 
+@ExperimentalCoroutinesApi
 class FilterChip(context: Context?) : Chip(context) {
 
-    var item: FilterOption? = null
+    var item: FilterOptionAutoCompletePopupItem? = null
     private var caller: FilterChipCallbacks? = null
 
     constructor(
         context: Context?,
-        item: FilterOption,
+        item: FilterOptionAutoCompletePopupItem,
         caller: FilterChipCallbacks
     ) : this(context) {
         this.item = item
@@ -35,6 +37,6 @@ class FilterChip(context: Context?) : Chip(context) {
     }
 
     interface FilterChipCallbacks {
-        fun chipClosed(item: FilterOption)
+        fun chipClosed(item: FilterOptionAutoCompletePopupItem)
     }
 }
