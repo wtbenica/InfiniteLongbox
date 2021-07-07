@@ -20,7 +20,6 @@ import androidx.lifecycle.lifecycleScope
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.chip.ChipGroup
-import com.google.android.material.shape.CornerFamily
 import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.R
 import com.wtb.comiccollector.SearchFilter
@@ -146,26 +145,6 @@ class FilterFragment : Fragment(),
         filterChipGroup.removeAllViews()
 
         filterAddButton.setOnClickListener {
-            val smallCorner = resources.getDimension(R.dimen.margin_default)
-            val bigCorner = resources.getDimension(R.dimen.margin_wide)
-
-            val searchBoxModel = searchBoxContentCard.shapeAppearanceModel.toBuilder()
-                .setBottomLeftCorner(CornerFamily.ROUNDED, smallCorner)
-                .setBottomRightCorner(CornerFamily.ROUNDED, bigCorner)
-                .setTopLeftCorner(CornerFamily.ROUNDED, 0F)
-                .setTopRightCorner(CornerFamily.ROUNDED, 0F)
-                .build()
-
-            searchBoxContentCard.shapeAppearanceModel = searchBoxModel
-
-            val filterChipModel = filterChipsContentCard.shapeAppearanceModel.toBuilder()
-                .setBottomLeftCorner(CornerFamily.ROUNDED, 0F)
-                .setBottomRightCorner(CornerFamily.ROUNDED, 0F)
-                .setTopLeftCorner(CornerFamily.ROUNDED, smallCorner)
-                .setTopRightCorner(CornerFamily.ROUNDED, bigCorner)
-                .build()
-
-            filterChipsContentCard.shapeAppearanceModel = filterChipModel
             searchBoxContentCard.visibility = VISIBLE
             filterAddButton.visibility = GONE
         }
@@ -264,15 +243,16 @@ class FilterFragment : Fragment(),
         val smallCorner = resources.getDimension(R.dimen.margin_default)
         val bigCorner = resources.getDimension(R.dimen.margin_wide)
 
-        val shapeAppearanceModel = searchBoxContentCard.shapeAppearanceModel.toBuilder()
-            .setBottomLeftCorner(CornerFamily.ROUNDED, smallCorner)
-            .setBottomRightCorner(CornerFamily.ROUNDED, bigCorner)
-            .setTopLeftCorner(CornerFamily.ROUNDED, smallCorner)
-            .setTopRightCorner(CornerFamily.ROUNDED, bigCorner)
-            .build()
-
-        filterChipsContentCard.shapeAppearanceModel = shapeAppearanceModel
+//        val shapeAppearanceModel = searchBoxContentCard.shapeAppearanceModel.toBuilder()
+//            .setBottomLeftCorner(CornerFamily.ROUNDED, smallCorner)
+//            .setBottomRightCorner(CornerFamily.ROUNDED, bigCorner)
+//            .setTopLeftCorner(CornerFamily.ROUNDED, smallCorner)
+//            .setTopRightCorner(CornerFamily.ROUNDED, bigCorner)
+//            .build()
+//
+//        filterChipsContentCard.shapeAppearanceModel = shapeAppearanceModel
         searchBoxContentCard.visibility = GONE
+        filtersSectionCard.visibility = VISIBLE
         filterAddButton.visibility = VISIBLE
     }
 
@@ -282,33 +262,11 @@ class FilterFragment : Fragment(),
     }
 
     private fun expandFilterCard() {
-        val smallCorner = resources.getDimension(R.dimen.margin_default)
-        val bigCorner = resources.getDimension(R.dimen.margin_wide)
-        val shapeAppearanceModel = searchBoxContentCard.shapeAppearanceModel.toBuilder()
-            .setBottomLeftCorner(CornerFamily.ROUNDED, smallCorner)
-            .setBottomRightCorner(CornerFamily.ROUNDED, bigCorner)
-            .setTopLeftCorner(CornerFamily.ROUNDED, 0F)
-            .setTopRightCorner(CornerFamily.ROUNDED, 0F)
-            .build()
-
-        searchBoxContentCard.shapeAppearanceModel = shapeAppearanceModel
-
-//        filtersSectionCard.visibility = VISIBLE
-        filterChipsContentCard.visibility = VISIBLE
+        filtersSectionCard.visibility = VISIBLE
     }
 
     private fun collapseFilterCard() {
-        val smallCorner = resources.getDimension(R.dimen.margin_default)
-        val bigCorner = resources.getDimension(R.dimen.margin_wide)
-        val shapeAppearanceModel = searchBoxContentCard.shapeAppearanceModel.toBuilder()
-            .setBottomLeftCorner(CornerFamily.ROUNDED, smallCorner)
-            .setBottomRightCorner(CornerFamily.ROUNDED, bigCorner)
-            .setTopLeftCorner(CornerFamily.ROUNDED, smallCorner)
-            .setTopRightCorner(CornerFamily.ROUNDED, bigCorner)
-            .build()
-
-        searchBoxContentCard.shapeAppearanceModel = shapeAppearanceModel
-        filterChipsContentCard.visibility = GONE
+        filtersSectionCard.visibility = GONE
     }
 
     fun onBackPressed() {

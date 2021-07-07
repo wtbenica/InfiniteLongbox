@@ -11,6 +11,7 @@ abstract class DataModel(var lastUpdated: LocalDate = LocalDate.now()) : Seriali
     abstract val id: Int
 }
 
+// Include: Series, Creator, Character, Publisher
 sealed interface FilterTypeSpinnerOption {
     val displayName: String
 }

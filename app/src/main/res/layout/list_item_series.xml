@@ -38,7 +38,8 @@
             <TextView
                 android:id="@+id/list_item_name"
                 style="@style/ListItemSeriesTitleText"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
+                android:background="@android:color/white"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
                 android:singleLine="true"
@@ -47,7 +48,8 @@
             <TextView
                 style="@style/ListItemSeriesSubtitle"
                 android:id="@+id/list_item_dates"
-                android:layout_width="match_parent"
+                android:background="@android:color/white"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 tools:text="(1990-2005)" />
         </LinearLayout>

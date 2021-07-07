@@ -5,6 +5,7 @@ import android.content.Context
 import android.os.Bundle
 import android.view.*
 import android.view.animation.AccelerateInterpolator
+import android.widget.GridLayout.VERTICAL
 import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
@@ -15,8 +16,8 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
-import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.R
 import com.wtb.comiccollector.database.models.FullIssue
@@ -63,7 +64,8 @@ class IssueListFragment : ListFragment() {
             .commitAllowingStateLoss()
     }
 
-    override fun getLayoutManager(): RecyclerView.LayoutManager = GridLayoutManager(context, 2)
+    override fun getLayoutManager(): RecyclerView.LayoutManager =
+        StaggeredGridLayoutManager(2, VERTICAL)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)

@@ -14,7 +14,6 @@
         android:id="@+id/wrapper"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@drawable/list_item_card_background"
         android:orientation="vertical">
 
         <ProgressBar
@@ -24,14 +23,13 @@
             android:alpha="1"
             android:indeterminate="true"
             android:indeterminateBehavior="cycle"
-            android:indeterminateTint="?attr/colorSecondaryVariant"
+            android:indeterminateTint="?attr/colorOnPrimary"
             app:layout_constraintBottom_toBottomOf="@id/list_item_cover"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
         <ImageView
-            tools:visibility="invisible"
             android:id="@+id/list_item_cover"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -46,7 +44,8 @@
             tools:alpha="1"
             tools:layout_height="309dp"
             tools:layout_width="200dp"
-            tools:src="@tools:sample/backgrounds/scenic" />
+            tools:src="@tools:sample/backgrounds/scenic"
+            tools:visibility="visible" />
 
         <View
             android:id="@+id/bottom_border_cover"

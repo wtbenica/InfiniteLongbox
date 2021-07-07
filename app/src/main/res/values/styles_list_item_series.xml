@@ -9,19 +9,21 @@
 
     <style name="ListItemSeriesLayout">
         <item name="android:padding">@dimen/margin_wide</item>
-        <item name="android:background">@drawable/overlay_list_item_series_cover</item>
+<!--        <item name="android:background">@drawable/overlay_list_item_series_cover</item>-->
     </style>
 
     <style name="ListItemSeriesTitleText" parent="TextAppearance.AppCompat.Light.SearchResult.Title">
         <item name="android:fontFamily">sans-serif-condensed</item>
         <item name="android:textStyle">bold</item>
         <item name="android:textSize">18sp</item>
+        <item name="android:padding">12dp</item>
         <item name="fontFamily">@font/permanent_marker</item>
     </style>
 
     <style name="ListItemSeriesSubtitle" parent="TextAppearance.AppCompat.Light.SearchResult.Subtitle">
         <item name="android:fontFamily">sans-serif-condensed</item>
         <item name="android:textSize">14sp</item>
+        <item name="android:padding">@dimen/margin_default</item>
         <item name="fontFamily">@font/permanent_marker</item>
     </style>
 </resources>

@@ -45,11 +45,6 @@ abstract class ListFragment : Fragment() {
         listRecyclerView.layoutManager = getLayoutManager()
         details = view.findViewById(R.id.details)
 
-        val itemDecoration =
-            ItemOffsetDecoration(resources.getDimension(R.dimen.offset_list_item_issue).toInt())
-
-        listRecyclerView.addItemDecoration(itemDecoration)
-
         ViewCompat.setOnApplyWindowInsetsListener(listRecyclerView) { v, insets ->
             val bottom =
                 PEEK_HEIGHT + insets.getInsets(WindowInsetsCompat.Type.systemBars()).bottom
