@@ -1,10 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
-
-<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="?attr/dropdownListPreferredItemHeight"
-    android:padding="@dimen/margin_default"
-    android:gravity="center_vertical"
-    android:fontFamily="@font/archivo_black"
-    tools:text="34 - Mitch Gerads Variant" />
+    android:layout_height="?attr/listPreferredItemHeight"
+    android:paddingTop="@dimen/margin_wide"
+    android:background="@drawable/background_issue_detail_variant_spinner_popup"
+    android:paddingEnd="@dimen/margin_wide"
+    android:paddingStart="@dimen/margin_default">
+
+    <TextView
+        android:id="@+id/variant_name_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="?attr/colorPrimary"
+        android:fontFamily="@font/archivo_black"
+        android:gravity="center_vertical"
+        android:textSize="16sp"
+        android:padding="@dimen/margin_narrow"
+        tools:text="34 - Mitch Gerads Variant" />
+</LinearLayout>

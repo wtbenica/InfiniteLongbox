@@ -34,19 +34,23 @@
     </style>
 
     <style name="myButtonStyle" parent="Widget.MaterialComponents.Button.TextButton">
-        <item name="android:textColor">?attr/colorSecondary</item>
+        <item name="android:textColor">?attr/colorAccent</item>
+        <item name="android:fontFamily">@font/archivo_black</item>
     </style>
 
     <style name="myButtonBarButtonStyle" parent="Widget.MaterialComponents.Button.TextButton">
         <item name="android:textColor">@color/my_button_bar_button</item>
         <item name="cornerRadius">@dimen/margin_default</item>
+        <item name="android:fontFamily">@font/archivo_black</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="myTextViewStyle" parent="Widget.MaterialComponents.TextView">
+        <item name="fontFamily">@font/heebo_medium</item>
     </style>
 
     <style name="IssueDetailVariantSpinnerStyle" parent="Widget.AppCompat.Spinner">
-        <item name="android:background">@drawable/background_spinner</item>
-        <item name="android:paddingStart">@dimen/margin_default</item>
         <item name="android:layout_height">?attr/dropdownListPreferredItemHeight</item>
-        <item name="android:paddingEnd">@dimen/margin_default</item>
         <item name="android:textColor">?attr/colorOnPrimary</item>
         <item name="android:popupBackground">@drawable/background_issue_detail_variant_spinner_popup</item>
     </style>

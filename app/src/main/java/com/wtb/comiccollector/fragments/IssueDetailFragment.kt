@@ -9,6 +9,8 @@ import android.view.*
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.*
+import androidx.appcompat.widget.AppCompatTextView
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
@@ -77,6 +79,7 @@ class IssueDetailFragment : Fragment() {
 
     private lateinit var coverImageView: ImageView
     private lateinit var collectionButton: Button
+    private lateinit var variantSpinnerHolder: ConstraintLayout
     private lateinit var variantSpinner: Spinner
     private var isVariant: Boolean = false
 
@@ -168,6 +171,7 @@ class IssueDetailFragment : Fragment() {
         releaseDateTextView = view.findViewById(R.id.release_date_text_view)
         gcdLinkButton = view.findViewById(R.id.gcd_link) as Button
         collectionButton = view.findViewById(R.id.collectionButton) as Button
+        variantSpinnerHolder = view.findViewById(R.id.variant_spinner_holder)
         variantSpinner = view.findViewById(R.id.variant_spinner) as Spinner
 //        issueCreditsLabel = view.findViewById(R.id.issue_credits_box_label) as TextView
         creditsBox = CreditsBox(requireContext())
@@ -246,11 +250,12 @@ class IssueDetailFragment : Fragment() {
                     val adapter = ArrayAdapter(
                         requireContext(),
                         R.layout.list_item_variant,
+                        R.id.variant_name_text,
                         it
                     )
                     this.issueVariants = it
                     variantSpinner.adapter = adapter
-                    variantSpinner.visibility = if (it.size <= 1) {
+                    variantSpinnerHolder.visibility = if (it.size <= 1) {
                         View.GONE
                     } else {
                         View.VISIBLE
@@ -489,7 +494,10 @@ class IssueDetailFragment : Fragment() {
 
             val storyDetailButton: ImageButton = findViewById(R.id.story_dropdown_button)
             val storyDetailBox: LinearLayout = findViewById(R.id.story_details_box)
-            storyDetailButton.setOnClickListener(toggleVisibility(storyDetailBox))
+            storyDetailButton.setOnClickListener {
+                storyDetailBox.visibility = toggleVisibility(storyDetailBox)
+                (it as ImageButton).setImageResource(toggleIcon(storyDetailBox))
+            }
 
             if (story.synopsis != null && story.synopsis != "") {
                 hasAddedInfo = true
@@ -497,7 +505,10 @@ class IssueDetailFragment : Fragment() {
                     findViewById(R.id.synopsis_dropdown_button)
                 val synopsis = findViewById<TextView>(R.id.synopsis)
                 synopsis.text = story.synopsis
-                synopsisButton.setOnClickListener(toggleVisibility(synopsis))
+                synopsisButton.setOnClickListener {
+                    synopsis.visibility = toggleVisibility(synopsis)
+                    (it as ImageButton).setImageResource(toggleIcon(synopsis))
+                }
             } else {
                 val synopsisBox = findViewById<LinearLayout>(R.id.synopsis_box)
                 synopsisBox.visibility = GONE
@@ -509,7 +520,10 @@ class IssueDetailFragment : Fragment() {
                     findViewById(R.id.characters_dropdown_button)
                 val characters = findViewById<TextView>(R.id.characters)
                 characters.text = story.characters
-                charactersButton.setOnClickListener(toggleVisibility(characters))
+                charactersButton.setOnClickListener {
+                    characters.visibility = toggleVisibility(characters)
+                    (it as ImageButton).setImageResource(toggleIcon(characters))
+                }
             } else {
                 val charactersBox = findViewById<LinearLayout>(R.id.characters_box)
                 charactersBox.visibility = GONE
@@ -517,9 +531,23 @@ class IssueDetailFragment : Fragment() {
 
             val storyTitle = findViewById<TextView>(R.id.story_title)
             storyTitle.text = if (story.storyType == STORY_TYPE_COVER) {
-                "Cover"
+                "Cover ${
+                    story.title.let {
+                        if (it != "") {
+                            " - ${story.title}"
+                        } else {
+                            ""
+                        }
+                    }
+                }"
             } else {
-                story.title
+                story.title.let {
+                    if (it == "") {
+                        "Untitled"
+                    } else {
+                        it
+                    }
+                }
             }
 
             if (!hasAddedInfo) {
@@ -529,30 +557,72 @@ class IssueDetailFragment : Fragment() {
             }
         }
 
-        private fun <T : View> toggleVisibility(view: T): (v: View) -> Unit {
-            return {
-                if (view.visibility == GONE) {
-                    view.visibility = VISIBLE
-                } else {
-                    view.visibility = GONE
-                }
-            }
+//        private fun <T : View> toggleVisibility(view: T): () -> View {
+//            return {
+//                if (view.visibility == GONE) {
+//                    view.visibility = VISIBLE
+//                } else {
+//                    view.visibility = GONE
+//                }
+//                view
+//            }
+//        }
+//
+        private fun toggleVisibility(view: View) = if (view.visibility == GONE) {
+            VISIBLE
+        } else {
+            GONE
+        }
+
+        private fun toggleIcon(view: View): Int = if (view.visibility == GONE) {
+            R.drawable.arrow_down_24
+        } else {
+            R.drawable.arrow_up_24
         }
     }
 
     inner class CreditsRow(context: Context, private val fullCredit: FullCredit) :
         TableRow(context) {
         init {
-            this.addView(TextView(context).apply {
-                layoutParams = LayoutParams(WRAP_CONTENT, WRAP_CONTENT)
-                text = fullCredit.role.roleName
-                setPaddingRelative(16, 4, 16, 4)
-                setTextAppearance(R.style.TextAppearance_MaterialComponents_Subtitle1)
-            })
-            this.addView(TextView(context).apply {
-                text = fullCredit.nameDetail.creator.name
-                layoutParams = LayoutParams(WRAP_CONTENT, WRAP_CONTENT)
-            })
+            this.addView(RoleNameTextView(context, fullCredit.role.roleName))
+            val nameDetail = fullCredit.nameDetail.nameDetail.name
+            val creator = fullCredit.nameDetail.creator.name
+            val creditName = if (nameDetail != creator) {
+                "$creator (as $nameDetail)"
+            } else {
+                creator
+            }
+            this.addView(CreatorNameTextView(context, creditName))
+        }
+    }
+
+    class RoleNameTextView(context: Context) :
+        androidx.appcompat.widget.AppCompatTextView(context) {
+
+        constructor(context: Context, role: String = "") : this(context) {
+            text = role
+        }
+
+        init {
+            layoutParams = TableRow.LayoutParams(WRAP_CONTENT, WRAP_CONTENT)
+            setPaddingRelative(
+                resources.getDimension(R.dimen.margin_wide).toInt(),
+                resources.getDimension(R.dimen.margin_narrow).toInt(),
+                resources.getDimension(R.dimen.margin_wide).toInt(),
+                resources.getDimension(R.dimen.margin_narrow).toInt()
+            )
+            setTextAppearance(R.style.RoleNameText)
+        }
+    }
+
+    class CreatorNameTextView(context: Context) : AppCompatTextView(context) {
+        constructor(context: Context, name: String) : this(context) {
+            text = name
+        }
+
+        init {
+            setTextAppearance(R.style.CreatorNameText)
+            layoutParams = TableRow.LayoutParams(WRAP_CONTENT, WRAP_CONTENT)
         }
     }
 }

@@ -65,4 +65,5 @@
     <string name="filter_type_series">Series</string>
     <string name="filter_type_publisher">Publisher</string>
     <string name="filter_type_all">All</string>
+    <string name="label_variants">Variants</string>
 </resources>

@@ -66,7 +66,7 @@ class IssueListFragment : ListFragment() {
 
     override fun getLayoutManager(): RecyclerView.LayoutManager =
         StaggeredGridLayoutManager(2, VERTICAL).apply {
-            gapStrategy = StaggeredGridLayoutManager.GAP_HANDLING_NONE
+            gapStrategy = StaggeredGridLayoutManager.GAP_HANDLING_MOVE_ITEMS_BETWEEN_SPANS
         }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

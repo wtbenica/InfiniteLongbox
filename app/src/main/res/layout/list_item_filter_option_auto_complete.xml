@@ -10,30 +10,29 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:padding="0dp">
+        android:orientation="horizontal">
 
         <TextView
             android:id="@+id/filter_option_type_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:animateLayoutChanges="true"
+            android:background="?attr/colorOnPrimary"
+            android:fontFamily="@font/archivo_black"
+            android:padding="@dimen/margin_narrow"
             android:singleLine="true"
             android:textAllCaps="true"
             android:textSize="12sp"
-            tools:text="Series" />
-
-        <View
-            android:layout_width="1dp"
-            android:layout_height="match_parent"
-            android:layout_marginStart="@dimen/margin_narrow"
-            android:layout_marginEnd="@dimen/margin_narrow"
-            android:background="?attr/colorPrimary" />
+            tools:text="Series"
+            tools:textColor="@color/tag_series" />
 
         <TextView
             android:id="@+id/format_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:background="@android:color/white"
+            android:fontFamily="@font/archivo_black"
+            android:padding="@dimen/margin_narrow"
             android:text="@string/cancel"
             android:textAllCaps="true"
             android:textSize="12sp"
@@ -44,16 +43,11 @@
         android:id="@+id/item_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="@dimen/margin_default"
+        android:background="@android:color/white"
         android:ellipsize="marquee"
         android:fontFamily="@font/archivo_black"
+        android:padding="@dimen/margin_narrow"
         android:singleLine="true"
         android:textAppearance="?android:attr/textAppearanceSmallPopupMenu"
         tools:text="This is a really long title how will it ellipsize?" />
-
-    <View
-        android:id="@+id/bottom_border"
-        android:layout_width="match_parent"
-        android:layout_height="2dp"
-        android:background="?attr/colorPrimary" />
 </LinearLayout>
