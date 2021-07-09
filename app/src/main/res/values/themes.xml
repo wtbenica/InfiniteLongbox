@@ -32,7 +32,7 @@
         <item name="chipStyle">@style/myNewChip</item>
         <item name="floatingActionButtonStyle">@style/myFabStyle</item>
         <item name="colorStoryBoxTitle">@color/fantasia_dark</item>
-        <item name="colorStoryBoxSubtitle">#FF8800</item>
+        <item name="colorStoryBoxSubtitle">@color/fantasia_light</item>
 
         <item name="colorPrimaryMuted">@color/fantasia_muted</item>
         <item name="colorPrimaryDarkMuted">@color/fantasia_dark_muted</item>

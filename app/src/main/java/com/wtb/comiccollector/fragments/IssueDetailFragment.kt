@@ -494,7 +494,10 @@ class IssueDetailFragment : Fragment() {
 
             val storyDetailButton: ImageButton = findViewById(R.id.story_dropdown_button)
             val storyDetailBox: LinearLayout = findViewById(R.id.story_details_box)
-            storyDetailButton.setOnClickListener(toggleVisibility(storyDetailBox))
+            storyDetailButton.setOnClickListener {
+                storyDetailBox.visibility = toggleVisibility(storyDetailBox)
+                (it as ImageButton).setImageResource(toggleIcon(storyDetailBox))
+            }
 
             if (story.synopsis != null && story.synopsis != "") {
                 hasAddedInfo = true
@@ -502,7 +505,10 @@ class IssueDetailFragment : Fragment() {
                     findViewById(R.id.synopsis_dropdown_button)
                 val synopsis = findViewById<TextView>(R.id.synopsis)
                 synopsis.text = story.synopsis
-                synopsisButton.setOnClickListener(toggleVisibility(synopsis))
+                synopsisButton.setOnClickListener {
+                    synopsis.visibility = toggleVisibility(synopsis)
+                    (it as ImageButton).setImageResource(toggleIcon(synopsis))
+                }
             } else {
                 val synopsisBox = findViewById<LinearLayout>(R.id.synopsis_box)
                 synopsisBox.visibility = GONE
@@ -514,7 +520,10 @@ class IssueDetailFragment : Fragment() {
                     findViewById(R.id.characters_dropdown_button)
                 val characters = findViewById<TextView>(R.id.characters)
                 characters.text = story.characters
-                charactersButton.setOnClickListener(toggleVisibility(characters))
+                charactersButton.setOnClickListener {
+                    characters.visibility = toggleVisibility(characters)
+                    (it as ImageButton).setImageResource(toggleIcon(characters))
+                }
             } else {
                 val charactersBox = findViewById<LinearLayout>(R.id.characters_box)
                 charactersBox.visibility = GONE
@@ -548,14 +557,27 @@ class IssueDetailFragment : Fragment() {
             }
         }
 
-        private fun <T : View> toggleVisibility(view: T): (v: View) -> Unit {
-            return {
-                if (view.visibility == GONE) {
-                    view.visibility = VISIBLE
-                } else {
-                    view.visibility = GONE
-                }
-            }
+//        private fun <T : View> toggleVisibility(view: T): () -> View {
+//            return {
+//                if (view.visibility == GONE) {
+//                    view.visibility = VISIBLE
+//                } else {
+//                    view.visibility = GONE
+//                }
+//                view
+//            }
+//        }
+//
+        private fun toggleVisibility(view: View) = if (view.visibility == GONE) {
+            VISIBLE
+        } else {
+            GONE
+        }
+
+        private fun toggleIcon(view: View): Int = if (view.visibility == GONE) {
+            R.drawable.arrow_down_24
+        } else {
+            R.drawable.arrow_up_24
         }
     }
 

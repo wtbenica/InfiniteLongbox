@@ -28,7 +28,7 @@
         android:labelFor="@id/release_date_text_view"
         android:text="@string/release_date"
         android:padding="@dimen/margin_narrow"
-        android:background="@color/tag_series"
+        android:background="@color/tag_publisher"
         android:textSize="14sp"
         app:layout_constraintStart_toEndOf="@+id/issue_cover"
         app:layout_constraintTop_toTopOf="parent" />
@@ -128,6 +128,7 @@
         android:elevation="-1dp"
         android:isScrollContainer="true"
         android:orientation="vertical"
+        android:scrollbars="none"
         app:layout_constraintBottom_toTopOf="@id/divider2"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
