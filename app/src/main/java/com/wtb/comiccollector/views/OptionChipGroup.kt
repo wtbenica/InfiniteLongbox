@@ -14,19 +14,25 @@ class OptionChipGroup(context: Context?, attributeSet: AttributeSet) :
     FilterCardChipGroup(context, attributeSet), OptionChip.OptionChipCallback {
 
     var callback: OptionChipGroupCallback? = null
+
     private val myCollectionChip: OptionChip = OptionChip(
         context,
         "My Collection",
         this,
-        FilterViewModel::myCollection
+        { fmv, bool ->
+            fmv.myCollection((bool))
+        }
     )
 
     fun update(filter: SearchFilter) {
         removeAllViews()
         addView(myCollectionChip)
         myCollectionChip.isChecked = filter.mMyCollection
+        if (filter.mMyCollection) {
+            filter.mShowVariants = true
+        }
 
-        if (filter.returnsIssueList()) {
+        if (filter.returnsIssueList() && !filter.mMyCollection) {
             val variantChip = OptionChip(
                 context,
                 "Variants",

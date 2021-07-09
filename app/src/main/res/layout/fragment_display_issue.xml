@@ -8,27 +8,42 @@
     <ImageView
         android:id="@+id/issue_cover"
         android:layout_width="150dp"
-        android:layout_height="228dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
+        android:layout_height="0dp"
+        android:adjustViewBounds="true"
         android:contentDescription="@string/description_issue_cover"
         android:elevation="1dp"
+        android:scaleType="fitStart"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         tools:scaleType="fitXY"
         tools:src="@tools:sample/backgrounds/scenic" />
 
     <TextView
-        android:id="@+id/release_date_text_view"
-        android:layout_width="0dp"
+        android:id="@+id/label_release_date"
+        style="@style/RoleNameText"
+        android:layout_marginTop="@dimen/margin_narrow"
+        android:layout_marginStart="@dimen/margin_narrow"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
+        android:labelFor="@id/release_date_text_view"
         android:text="@string/release_date"
-        app:layout_constraintEnd_toEndOf="parent"
+        android:padding="@dimen/margin_narrow"
+        android:background="@color/tag_series"
+        android:textSize="14sp"
         app:layout_constraintStart_toEndOf="@+id/issue_cover"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/release_date_text_view"
+        style="@style/CreatorNameText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/margin_narrow"
+        android:textSize="14sp"
+        app:layout_constraintBottom_toBottomOf="@id/label_release_date"
+        app:layout_constraintStart_toEndOf="@+id/label_release_date"
+        app:layout_constraintTop_toTopOf="@id/label_release_date"
+        tools:text="May 6, 2021" />
 
     <Button
         android:id="@+id/collectionButton"
@@ -41,31 +56,48 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/issue_cover" />
 
-    <View
-        android:id="@+id/divider"
-        android:layout_width="0dp"
-        android:layout_height="1dp"
-        android:layout_margin="8dp"
-        android:background="?android:attr/listDivider"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/issue_cover" />
-
-    <Spinner
-        android:id="@+id/variant_spinner"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/variant_spinner_holder"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
-        android:elevation="1dp"
-        android:visibility="gone"
+        android:orientation="horizontal"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/divider"
-        tools:listitem="@layout/list_item_variant"
-        tools:visibility="visible" />
+        app:layout_constraintTop_toBottomOf="@id/issue_cover">
 
+        <View
+            android:id="@+id/variant_divider"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/margin_narrow"
+            android:background="?attr/colorPrimaryDark"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/label_variants"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="?attr/colorPrimaryDark"
+            android:fontFamily="@font/archivo_black"
+            android:labelFor="@id/variant_spinner"
+            android:padding="2dp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            android:text="@string/label_variants" />
+
+        <Spinner
+            android:id="@+id/variant_spinner"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:elevation="1dp"
+            tools:listitem="@layout/list_item_variant"
+            tools:visibility="visible"
+            app:layout_constraintTop_toBottomOf="@id/variant_divider"
+            app:layout_constraintStart_toEndOf="@id/label_variants"
+            app:layout_constraintEnd_toEndOf="parent"/>
+    </androidx.constraintlayout.widget.ConstraintLayout>
     <!--    <TextView-->
     <!--        android:id="@+id/issue_credits_box_label"-->
     <!--        android:layout_width="0dp"-->
@@ -78,11 +110,19 @@
     <!--        app:layout_constraintStart_toStartOf="parent"-->
     <!--        app:layout_constraintTop_toBottomOf="@id/issue_cover" />-->
 
+<!--    <include-->
+<!--        layout="@layout/story_box"-->
+<!--        android:layout_width="0dp"-->
+<!--        android:layout_height="0dp"-->
+<!--        app:layout_constraintBottom_toTopOf="@id/divider2"-->
+<!--        app:layout_constraintEnd_toEndOf="parent"-->
+<!--        app:layout_constraintStart_toStartOf="parent"-->
+<!--        app:layout_constraintTop_toBottomOf="@+id/variant_spinner_holder" />-->
+
     <ScrollView
         android:id="@+id/issue_credits_table"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginTop="8dp"
         android:layout_marginBottom="8dp"
         android:animateLayoutChanges="true"
         android:elevation="-1dp"
@@ -91,7 +131,9 @@
         app:layout_constraintBottom_toTopOf="@id/divider2"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/variant_spinner" />
+        app:layout_constraintTop_toBottomOf="@+id/variant_spinner_holder">
+
+    </ScrollView>
 
     <View
         android:id="@+id/divider2"

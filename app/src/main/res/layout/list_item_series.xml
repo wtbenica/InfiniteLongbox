@@ -51,7 +51,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="@dimen/margin_narrow"
-                android:background="@android:color/white"
                 android:singleLine="true"
                 tools:text="@string/hint_series_title" />
 
@@ -60,7 +59,6 @@
                 style="@style/ListItemSeriesSubtitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="@android:color/white"
                 tools:text="(1990-2005)" />
         </LinearLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>

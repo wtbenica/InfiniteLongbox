@@ -17,7 +17,7 @@
         <item name="colorOnSecondary">@color/amnesia_text</item>
 
         <!-- Status bar color. -->
-        <item name="android:statusBarColor" tools:targetApi="l">?attr/colorSecondaryLightLight</item>
+        <item name="android:statusBarColor" tools:targetApi="l">@android:color/transparent</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>
         <!-- Customize your theme here. -->
         <item name="android:textColorPrimary">?attr/colorOnPrimary</item>
@@ -31,6 +31,8 @@
         <item name="switchStyle">@style/mySwitchStyle</item>
         <item name="chipStyle">@style/myNewChip</item>
         <item name="floatingActionButtonStyle">@style/myFabStyle</item>
+        <item name="colorStoryBoxTitle">@color/fantasia_dark</item>
+        <item name="colorStoryBoxSubtitle">#FF8800</item>
 
         <item name="colorPrimaryMuted">@color/fantasia_muted</item>
         <item name="colorPrimaryDarkMuted">@color/fantasia_dark_muted</item>

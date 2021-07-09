@@ -2,8 +2,8 @@
 <resources>
 
     <color name="fantasia">#ABED92</color>
-    <color name="fantasia_light">#DEFACF</color>
-    <color name="fantasia_light_light">#ECFDE6</color>
+    <color name="fantasia_light">#CEFFB3</color>
+    <color name="fantasia_light_light">#D3FAC5</color>
     <color name="fantasia_dark">#6AC947</color>
     <color name="fantasia_text">#D222</color>
 
@@ -17,8 +17,8 @@
     <color name="fantasia_light_muted">#E3F6B0</color>
     <color name="fantasia_dark_muted">#BAFE00</color>
 
-    <color name="tag_series">#00FFFF</color>
-    <color name="tag_creator">#00FF00</color>
-    <color name="tag_publisher">#FFFF00</color>
-    <color name="tag_character">#5B5EBE</color>
+    <color name="tag_series">#14D1D1</color>
+    <color name="tag_creator">#E317E3</color>
+    <color name="tag_publisher">#FFE925</color>
+    <color name="tag_character">#0000FF</color>
 </resources>

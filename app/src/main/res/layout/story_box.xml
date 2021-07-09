@@ -1,33 +1,48 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:layout_marginBottom="@dimen/margin_default"
     android:animateLayoutChanges="true"
     android:orientation="vertical">
 
-    <LinearLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         style="@style/StoryBoxTitleBar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:animateLayoutChanges="true">
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/margin_narrow"
+            android:background="?attr/colorPrimaryDark"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
 
         <TextView
             android:id="@+id/story_title"
             style="@style/StoryBoxTitleBarText"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
             tools:text="Cover" />
 
         <ImageButton
             android:id="@+id/story_dropdown_button"
-            style="@style/StoryBoxDropdownButton"
+            style="@style/StoryBoxDropdownButton.Title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:contentDescription="@string/story_dropdown_button" />
+            android:background="?attr/colorPrimaryDark"
+            android:contentDescription="@string/story_dropdown_button"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
-    </LinearLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <LinearLayout
         android:id="@+id/story_details_box"
@@ -45,33 +60,45 @@
             android:animateLayoutChanges="true"
             android:orientation="vertical">
 
-            <LinearLayout
+            <androidx.constraintlayout.widget.ConstraintLayout
                 style="@style/StoryBoxSubtitleBar"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/margin_narrow"
+                    android:background="?attr/colorPrimary"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
                 <TextView
+                    android:id="@+id/label_synopsis"
                     style="@style/StoryBoxSubtitleText"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="@string/synopsis" />
+                    android:text="@string/synopsis"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
 
                 <ImageButton
                     android:id="@+id/synopsis_dropdown_button"
-                    style="@style/StoryBoxDropdownButton"
+                    style="@style/StoryBoxDropdownButton.Subtitle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:contentDescription="@string/synopsis_dropdown_button" />
+                    android:contentDescription="@string/synopsis_dropdown_button"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
 
 
-            </LinearLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
             <TextView
                 android:id="@+id/synopsis"
+                style="@style/ContentBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:padding="16dp"
                 android:visibility="gone"
                 tools:visibility="visible" />
         </LinearLayout>
@@ -83,35 +110,48 @@
             android:animateLayoutChanges="true"
             android:orientation="vertical">
 
-            <LinearLayout
+            <androidx.constraintlayout.widget.ConstraintLayout
                 style="@style/StoryBoxSubtitleBar"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/margin_narrow"
+                    android:background="?attr/colorPrimary"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
 
                 <TextView
                     style="@style/StoryBoxSubtitleText"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="@string/characters" />
+                    android:text="@string/characters"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
 
                 <ImageButton
                     android:id="@+id/characters_dropdown_button"
-                    style="@style/StoryBoxDropdownButton"
+                    style="@style/StoryBoxDropdownButton.Subtitle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:contentDescription="@string/characters_dropdown_button" />
+                    android:contentDescription="@string/characters_dropdown_button"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
 
 
-            </LinearLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
             <TextView
                 android:id="@+id/characters"
+                style="@style/ContentBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:padding="16dp"
                 android:visibility="gone"
-                tools:visibility="visible" />
+                tools:visibility="visible"
+                tools:text="Robotman, Crazy Jane, Rebis, Dorothy Spinner, the Chief"/>
         </LinearLayout>
     </LinearLayout>
 </LinearLayout>
