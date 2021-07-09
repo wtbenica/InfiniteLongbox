@@ -2,17 +2,18 @@
 <resources>
 
     <style name="SeriesDetailBackground">
-        <item name="android:background">?attr/colorPrimary</item>
+        <item name="android:background">?attr/colorSecondaryLightLight</item>
         <item name="android:padding">@dimen/margin_default</item>
     </style>
 
     <style name="SeriesDetailLabel">
-        <item name="fontFamily">@font/permanent_marker</item>
+        <item name="fontFamily">@font/archivo_black</item>
         <item name="android:textColor">?attr/colorOnPrimary</item>
         <item name="android:textStyle">bold</item>
     </style>
 
     <style name="SeriesDetailText">
         <item name="android:textColor">?attr/colorOnPrimary</item>
+        <item name="fontFamily">@font/heebo_medium</item>
     </style>
 </resources>

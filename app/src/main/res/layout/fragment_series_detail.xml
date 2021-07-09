@@ -19,6 +19,7 @@
     <TextView
         android:id="@+id/details_series_volume"
         android:layout_width="0dp"
+        style="@style/SeriesDetailText"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         app:layout_constraintBottom_toBottomOf="@id/label_volume"

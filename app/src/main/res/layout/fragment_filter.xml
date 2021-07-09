@@ -1,254 +1,229 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    style="@style/filterBackground"
+    android:id="@+id/layout_filter_fragment"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:background="?attr/colorSecondaryLightLight"
+    android:clickable="true"
+    android:focusable="true"
+    android:orientation="vertical">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/layout_filter_fragment"
-        style="@style/filterSectionCardLayout"
+    <FrameLayout
+        android:id="@+id/layout_filter_fragment_handle"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/peek_height"
+        android:visibility="visible">
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/peek_height"
+            android:layout_gravity="center_horizontal|top"
+            android:paddingStart="@dimen/margin_narrow"
+            android:paddingEnd="0dp"
+            android:scaleType="fitCenter"
+            android:src="@drawable/arrow_up_24"
+            app:tint="?attr/colorOnPrimary" />
+    </FrameLayout>
+
+    <LinearLayout
+        android:id="@+id/sections"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="?attr/colorSecondary"
-        android:clickable="true"
-        android:focusable="true">
+        android:alpha="0"
+        android:orientation="vertical"
+        android:padding="@dimen/margin_default"
+        tools:alpha="1"
+        tools:visibility="visible">
 
         <LinearLayout
-            android:id="@+id/layout_filter_fragment_handle"
-            style="@style/handleContainer"
-            android:orientation="vertical"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
-
-            <com.google.android.material.card.MaterialCardView style="@style/handle" />
-        </LinearLayout>
-
-        <androidx.cardview.widget.CardView
-            android:id="@+id/section_card_options"
-            style="@style/filterSectionCard"
-            app:layout_constraintBottom_toTopOf="@id/section_card_sort"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:alpha="1">
-
-            <LinearLayout
-                style="@style/filterSectionCardLayout"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="horizontal">
-
-                <ImageView
-                    style="@style/imageLabel"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:contentDescription="@string/sort_image_content_description"
-                    android:labelFor="@id/chip_group_sort"
-                    app:srcCompat="@drawable/toggle_24" />
-
-                <com.google.android.material.card.MaterialCardView
-                    style="@style/filterContentCard"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    app:shapeAppearanceOverlay="@style/both_right">
-
-                    <com.wtb.comiccollector.views.OptionChipGroup
-                        android:id="@+id/chip_group_option"
-                        style="@style/filterCardChipGroup"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content" />
-                </com.google.android.material.card.MaterialCardView>
-            </LinearLayout>
-
-        </androidx.cardview.widget.CardView>
-
-        <androidx.cardview.widget.CardView
-            android:id="@+id/section_card_sort"
-            style="@style/filterSectionCard"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            app:layout_constraintBottom_toTopOf="@id/section_card_filter"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            tools:alpha="1F">
-
-            <LinearLayout
-                style="@style/filterSectionCardLayout"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <ImageView
-                    style="@style/imageLabel"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:layout_weight="0"
-                    android:contentDescription="@string/sort_image_content_description"
-                    android:labelFor="@id/chip_group_sort"
-                    app:srcCompat="@drawable/sort_24" />
-
-                <com.google.android.material.card.MaterialCardView
-                    style="@style/filterContentCard"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    app:shapeAppearanceOverlay="@style/both_right">
-
-                    <com.wtb.comiccollector.views.SortChipGroup
-                        android:id="@+id/chip_group_sort"
-                        style="@style/filterCardChipGroup"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content">
-
-                        <com.google.android.material.chip.Chip
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:checkable="true"
-                            android:checked="true"
-                            android:enabled="false"
-                            android:text="@string/sort_type_series_name"
-                            app:closeIcon="@drawable/arrow_up_24"
-                            app:closeIconEnabled="true" />
-
-                        <com.google.android.material.chip.Chip
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/sort_type_release_date"
-                            app:closeIcon="@drawable/arrow_up_24"
-                            app:closeIconEnabled="true" />
-
-                    </com.wtb.comiccollector.views.SortChipGroup>
-                </com.google.android.material.card.MaterialCardView>
-            </LinearLayout>
-        </androidx.cardview.widget.CardView>
-
-        <androidx.cardview.widget.CardView
-            android:id="@+id/section_card_filter"
-            style="@style/filterSectionCard"
-            app:layout_constraintBottom_toTopOf="@id/content_card_search_auto"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            tools:alpha="1F">
-
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/layout_filter_card"
-                style="@style/filterSectionCardLayout"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:padding="@dimen/padding_section_card">
-
-                <ImageView
-                    android:id="@+id/image_label_filter_items"
-                    style="@style/imageLabel"
-                    android:layout_width="wrap_content"
-                    android:layout_height="0dp"
-                    android:contentDescription="@string/sort_image_content_description"
-                    android:labelFor="@id/chip_group_sort"
-                    app:layout_constraintBottom_toBottomOf="@id/content_holder"
-                    app:layout_constraintEnd_toStartOf="@id/content_holder"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="@id/content_holder"
-                    app:srcCompat="@drawable/ic_filter" />
-
-                <LinearLayout
-                    android:id="@+id/content_holder"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toEndOf="@id/image_label_filter_items">
-
-                    <com.google.android.material.card.MaterialCardView
-                        android:id="@+id/content_card_filter_chips"
-                        style="@style/filterContentCard"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        app:shapeAppearanceOverlay="@style/both_right">
-
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:orientation="horizontal">
-
-                            <com.wtb.comiccollector.views.FilterChipGroup
-                                android:id="@+id/chip_group_filter"
-                                style="@style/filterCardChipGroup"
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1">
-
-                                <com.google.android.material.chip.Chip
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="@string/dummy_text"
-                                    app:closeIconEnabled="true" />
-
-                            </com.wtb.comiccollector.views.FilterChipGroup>
-
-                            <ImageButton
-                                android:id="@+id/add_filter_button"
-                                android:layout_width="wrap_content"
-                                android:layout_height="match_parent"
-                                android:backgroundTint="@android:color/transparent"
-                                android:contentDescription="@string/content_description_add_filter_button"
-                                android:src="@drawable/ic_menu_add"
-                                app:tint="?attr/colorSecondary" />
-                        </LinearLayout>
-                    </com.google.android.material.card.MaterialCardView>
-                </LinearLayout>
-            </androidx.constraintlayout.widget.ConstraintLayout>
-        </androidx.cardview.widget.CardView>
-
-        <com.google.android.material.card.MaterialCardView
-            android:id="@+id/content_card_search_auto"
-            style="@style/filterContentCard"
+            android:id="@+id/section_options"
+            style="@style/filter_section"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/margin_default"
-            android:layout_marginEnd="@dimen/margin_default"
-            app:cardBackgroundColor="@color/amnesia_light_light"
-            app:cardCornerRadius="0dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent">
+            android:layout_marginBottom="@dimen/margin_narrow"
+            android:orientation="horizontal">
+
+            <ImageView
+                style="@style/imageLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:contentDescription="@string/sort_image_content_description"
+                android:labelFor="@id/chip_group_sort"
+                app:srcCompat="@drawable/toggle_24" />
+
+
+            <com.wtb.comiccollector.views.OptionChipGroup
+                android:id="@+id/chip_group_option"
+                style="@style/filterCardChipGroup"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <com.google.android.material.chip.Chip
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="New Shoes" />
+            </com.wtb.comiccollector.views.OptionChipGroup>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/section_sort"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/margin_narrow"
+            android:orientation="horizontal">
+
+            <ImageView
+                style="@style/imageLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:contentDescription="@string/sort_image_content_description"
+                android:labelFor="@id/chip_group_sort"
+                app:srcCompat="@drawable/sort_24" />
+
+            <!--            <com.google.android.material.card.MaterialCardView-->
+            <!--                style="@style/filterContentCard"-->
+            <!--                android:layout_width="0dp"-->
+            <!--                android:layout_height="wrap_content"-->
+            <!--                android:layout_weight="1"-->
+            <!--                app:shapeAppearanceOverlay="@style/both_right">-->
+
+            <com.wtb.comiccollector.views.SortChipGroup
+                android:id="@+id/chip_group_sort"
+                style="@style/filterCardChipGroup"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <com.google.android.material.chip.Chip
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checkable="true"
+                    android:checked="true"
+                    android:enabled="false"
+                    android:text="@string/sort_type_series_name"
+                    app:closeIcon="@drawable/arrow_up_24"
+                    app:closeIconEnabled="true" />
+
+                <com.google.android.material.chip.Chip
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/sort_type_release_date"
+                    app:closeIcon="@drawable/arrow_up_24"
+                    app:closeIconEnabled="true" />
+
+            </com.wtb.comiccollector.views.SortChipGroup>
+            <!--            </com.google.android.material.card.MaterialCardView>-->
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/section_filter"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/margin_narrow"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:id="@+id/image_label_filter_items"
+                style="@style/imageLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:contentDescription="@string/sort_image_content_description"
+                android:labelFor="@id/chip_group_sort"
+                app:srcCompat="@drawable/ic_filter" />
 
             <LinearLayout
+                android:id="@+id/content_holder"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:paddingStart="@dimen/margin_default"
-                android:paddingEnd="0dp">
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/image_label_filter_items">
 
-                <com.wtb.comiccollector.views.SearchAutoComplete
-                    android:id="@+id/search_auto"
-                    style="@style/searchAutoCompleteStyle"
+                <!--                <com.google.android.material.card.MaterialCardView-->
+                <!--                    android:id="@+id/content_card_filter_chips"-->
+                <!--                    style="@style/filterContentCard"-->
+                <!--                    android:layout_width="match_parent"-->
+                <!--                    android:layout_height="wrap_content"-->
+                <!--                    app:shapeAppearanceOverlay="@style/both_right">-->
+
+                <com.wtb.comiccollector.views.FilterChipGroup
+                    android:id="@+id/chip_group_filter"
+                    style="@style/filterCardChipGroup"
                     android:layout_width="0dp"
-                    android:layout_height="?attr/dropdownListPreferredItemHeight"
-                    android:layout_weight="1"
-                    android:background="@android:color/transparent"
-                    android:hint="@string/search"
-                    tools:text="Potato Latke" />
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1">
 
-                <View
-                    android:layout_width="1dp"
-                    android:layout_height="match_parent"
-                    android:background="?attr/colorPrimary" />
+                    <com.google.android.material.chip.Chip
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/dummy_text"
+                        app:closeIconEnabled="true" />
 
-                <androidx.appcompat.widget.AppCompatSpinner
-                    android:id="@+id/search_bar_spinner"
-                    style="@style/searchTypeSpinnerStyle"
+                </com.wtb.comiccollector.views.FilterChipGroup>
+
+                <ImageButton
+                    android:id="@+id/add_filter_button"
                     android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:entries="@array/suffixes_array"
-                    android:popupBackground="@drawable/search_type_spinner_background"
-                    tools:listitem="@layout/list_item_search_type" />
-
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:background="@android:color/white"
+                    android:contentDescription="@string/content_description_add_filter_button"
+                    android:minWidth="48dp"
+                    android:minHeight="48dp"
+                    android:src="@drawable/ic_menu_add"
+                    app:tint="?attr/colorSecondary" />
             </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
+            <!--                </com.google.android.material.card.MaterialCardView>-->
+            <!--            </LinearLayout>-->
+        </LinearLayout>
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
-</com.google.android.material.card.MaterialCardView>
+        <!--        <com.google.android.material.card.MaterialCardView-->
+        <!--            android:id="@+id/content_card_search_auto"-->
+        <!--            android:layout_width="match_parent"-->
+        <!--            android:layout_height="wrap_content"-->
+        <!--            app:cardBackgroundColor="@color/amnesia_light_light"-->
+        <!--            app:cardCornerRadius="0dp">-->
+
+        <LinearLayout
+            android:id="@+id/section_search"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:id="@+id/image_label_filter_items2"
+                style="@style/imageLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:contentDescription="@string/sort_image_content_description"
+                android:labelFor="@id/chip_group_sort"
+                app:srcCompat="@drawable/ic_search_24" />
+
+            <com.wtb.comiccollector.views.SearchAutoComplete
+                android:id="@+id/search_auto"
+                style="@style/searchAutoCompleteStyle"
+                android:layout_width="0dp"
+                android:layout_height="?attr/dropdownListPreferredItemHeight"
+                android:layout_weight="1"
+                android:background="@android:color/white"
+                android:hint="@string/search"
+                tools:text="Potato Latke" />
+
+            <androidx.appcompat.widget.AppCompatSpinner
+                android:id="@+id/search_bar_spinner"
+                style="@style/searchTypeSpinnerStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:entries="@array/suffixes_array"
+                tools:listitem="@layout/list_item_search_type" />
+
+        </LinearLayout>
+        <!--        </com.google.android.material.card.MaterialCardView>-->
+    </LinearLayout>
+</FrameLayout>

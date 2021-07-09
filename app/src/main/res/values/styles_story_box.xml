@@ -12,6 +12,8 @@
 
     <style name="StoryBoxTitleBarText">
         <item name="android:textSize">18sp</item>
+        <item name="android:textAllCaps">true</item>
+        <item name="android:fontFamily">@font/archivo_black</item>
         <item name="android:textStyle">bold</item>
     </style>
 
@@ -33,6 +35,8 @@
     
     <style name="StoryBoxSubtitleText">
         <item name="android:textSize">14sp</item>
-        <item name="android:textStyle">bold</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:fontFamily">@font/archivo_black</item>
+        <item name="android:textStyle">italic</item>
     </style>
 </resources>

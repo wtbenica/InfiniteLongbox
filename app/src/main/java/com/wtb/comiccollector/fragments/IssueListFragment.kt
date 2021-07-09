@@ -9,7 +9,6 @@ import android.widget.GridLayout.VERTICAL
 import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
-import androidx.cardview.widget.CardView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.FragmentTransaction
 import androidx.fragment.app.viewModels
@@ -19,6 +18,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.wtb.comiccollector.APP
+import com.wtb.comiccollector.MainActivity
 import com.wtb.comiccollector.R
 import com.wtb.comiccollector.database.models.FullIssue
 import com.wtb.comiccollector.fragments_view_models.IssueListViewModel
@@ -65,10 +65,16 @@ class IssueListFragment : ListFragment() {
     }
 
     override fun getLayoutManager(): RecyclerView.LayoutManager =
-        StaggeredGridLayoutManager(2, VERTICAL)
+        StaggeredGridLayoutManager(2, VERTICAL).apply {
+            gapStrategy = StaggeredGridLayoutManager.GAP_HANDLING_NONE
+        }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        val itemDecoration =
+            ItemOffsetDecoration(resources.getDimension(R.dimen.card_elevation).toInt())
+        listRecyclerView.addItemDecoration(itemDecoration)
 
         val adapter = IssueAdapter()
         listRecyclerView.adapter = adapter
@@ -125,7 +131,6 @@ class IssueListFragment : ListFragment() {
         private val coverImageView: ImageView = itemView.findViewById(R.id.list_item_cover)
         private val issueNumTextView: TextView = itemView.findViewById(R.id.list_item_issue)
         private val wrapper: ConstraintLayout = itemView.findViewById(R.id.wrapper)
-        private val layout: CardView = itemView.findViewById(R.id.layout)
 
         init {
             itemView.setOnClickListener(this)
@@ -163,11 +168,16 @@ class IssueListFragment : ListFragment() {
             }
 
             if (fullIssue?.myCollection?.collectionId != null) {
-                wrapper.setBackgroundResource(R.drawable.list_item_card_background_in_collection)
-                layout.cardElevation = resources.getDimension(R.dimen.margin_default)
+                issueNumTextView.setBackgroundColor(MainActivity.resolveThemeAttribute(
+                    R.attr.colorPrimary,
+                    context
+                ))
             } else {
-                wrapper.setBackgroundResource(R.drawable.list_item_card_background)
-                layout.cardElevation = resources.getDimension(R.dimen.radius_narrow)
+                context?.getColor(android.R.color.white)?.let {
+                    issueNumTextView.setBackgroundColor(
+                        it
+                    )
+                }
             }
 
             issueNumTextView.text = this.fullIssue?.issue.toString()

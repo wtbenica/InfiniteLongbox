@@ -11,15 +11,11 @@
     <color name="amnesia_light">#CADADA</color>
     <color name="amnesia_light_light">#F3F3F3</color>
     <color name="amnesia_dark">#889999</color>
-    <color name="amnesia_text">#AAF6F6F6</color>
+    <color name="amnesia_text">#DDDD</color>
 
     <color name="fantasia_muted">#E8FDAD</color>
     <color name="fantasia_light_muted">#E3F6B0</color>
     <color name="fantasia_dark_muted">#BAFE00</color>
-
-    <color name="cyan">#00FFFF</color>
-    <color name="yellow">#FFFF00</color>
-    <color name="magenta">#FF00FF</color>
 
     <color name="tag_series">#00FFFF</color>
     <color name="tag_creator">#00FF00</color>

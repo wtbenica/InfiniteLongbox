@@ -9,8 +9,6 @@ import android.view.View
 import android.view.View.*
 import android.view.ViewGroup
 import android.widget.*
-import androidx.cardview.widget.CardView
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.*
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -18,7 +16,6 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.bottomsheet.BottomSheetBehavior
-import com.google.android.material.card.MaterialCardView
 import com.google.android.material.chip.ChipGroup
 import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.R
@@ -39,6 +36,7 @@ class FilterFragment : Fragment(),
     FilterChip.FilterChipCallbacks, OptionChipGroup.OptionChipGroupCallback,
     SortChipGroup.SortChipGroupCallback {
 
+    private lateinit var sections: LinearLayout
     private val viewModel: FilterViewModel by viewModels({ requireActivity() })
     private var callback: FilterFragmentCallback? = null
     private val undoQueue = ArrayDeque<Undo<*>>()
@@ -55,24 +53,22 @@ class FilterFragment : Fragment(),
         }
 
     // Views
-    private lateinit var filterView: ConstraintLayout
-    private lateinit var handleBox: View
+    private lateinit var filterView: FrameLayout
+    private lateinit var handleBox: FrameLayout
 
-    private lateinit var optionsSectionCard: CardView
+    private lateinit var optionsSection: LinearLayout
     private lateinit var optionsChipGroup: OptionChipGroup
 
-    private lateinit var sortSectionCard: CardView
+    private lateinit var sortSection: LinearLayout
     private lateinit var sortChipGroup: SortChipGroup
 
-    private lateinit var filtersSectionCard: CardView
-    private lateinit var filterConstraintLayout: ConstraintLayout
+    private lateinit var filterSection: LinearLayout
     private lateinit var filterOptionsLabel: ImageView
 
-    private lateinit var filterChipsContentCard: MaterialCardView
     private lateinit var filterChipGroup: ChipGroup
     private lateinit var filterAddButton: ImageButton
 
-    private lateinit var searchBoxContentCard: MaterialCardView
+    private lateinit var searchSection: LinearLayout
     private lateinit var searchAutoComplete: SearchAutoComplete
     private lateinit var searchBoxSpinner: Spinner
 
@@ -145,7 +141,7 @@ class FilterFragment : Fragment(),
         filterChipGroup.removeAllViews()
 
         filterAddButton.setOnClickListener {
-            searchBoxContentCard.visibility = VISIBLE
+            searchSection.visibility = VISIBLE
             filterAddButton.visibility = GONE
         }
 
@@ -165,22 +161,21 @@ class FilterFragment : Fragment(),
         filterView = view.findViewById(R.id.layout_filter_fragment)
         handleBox = view.findViewById(R.id.layout_filter_fragment_handle)
 
-        optionsSectionCard = view.findViewById(R.id.section_card_options)
+        sections = view.findViewById(R.id.sections)
+        optionsSection = view.findViewById(R.id.section_options)
         optionsChipGroup = view.findViewById(R.id.chip_group_option)
         optionsChipGroup.callback = this
 
-        sortSectionCard = view.findViewById(R.id.section_card_sort)
+        sortSection = view.findViewById(R.id.section_sort)
         sortChipGroup = view.findViewById(R.id.chip_group_sort)
 
-        filtersSectionCard = view.findViewById(R.id.section_card_filter)
-        filterConstraintLayout = view.findViewById(R.id.layout_filter_card)
+        filterSection = view.findViewById(R.id.section_filter)
 
-        filterChipsContentCard = view.findViewById(R.id.content_card_filter_chips)
         filterOptionsLabel = view.findViewById(R.id.image_label_filter_items)
         filterChipGroup = view.findViewById(R.id.chip_group_filter)
         filterAddButton = view.findViewById(R.id.add_filter_button)
 
-        searchBoxContentCard = view.findViewById(R.id.content_card_search_auto)
+        searchSection = view.findViewById(R.id.section_search)
         searchAutoComplete = view.findViewById(R.id.search_auto)
         searchBoxSpinner = view.findViewById(R.id.search_bar_spinner)
     }
@@ -188,9 +183,7 @@ class FilterFragment : Fragment(),
     internal fun onSlide(slideOffset: Float) {
         val inverseOffset = 1 - slideOffset
         handleBox.alpha = inverseOffset
-        optionsSectionCard.alpha = slideOffset
-        sortSectionCard.alpha = slideOffset
-        filtersSectionCard.alpha = slideOffset
+        sections.alpha = slideOffset
     }
 
     private fun onFilterUpdate(value: SearchFilter): SearchFilter {
@@ -232,7 +225,7 @@ class FilterFragment : Fragment(),
 
         if (newFilters.isEmpty()) {
             collapseFilterCard()
-            searchBoxContentCard.visibility = VISIBLE
+            searchSection.visibility = VISIBLE
         } else {
             showChipsHideBox()
             expandFilterCard()
@@ -251,8 +244,8 @@ class FilterFragment : Fragment(),
 //            .build()
 //
 //        filterChipsContentCard.shapeAppearanceModel = shapeAppearanceModel
-        searchBoxContentCard.visibility = GONE
-        filtersSectionCard.visibility = VISIBLE
+        searchSection.visibility = GONE
+        filterSection.visibility = VISIBLE
         filterAddButton.visibility = VISIBLE
     }
 
@@ -262,11 +255,11 @@ class FilterFragment : Fragment(),
     }
 
     private fun expandFilterCard() {
-        filtersSectionCard.visibility = VISIBLE
+        filterSection.visibility = VISIBLE
     }
 
     private fun collapseFilterCard() {
-        filtersSectionCard.visibility = GONE
+        filterSection.visibility = GONE
     }
 
     fun onBackPressed() {
