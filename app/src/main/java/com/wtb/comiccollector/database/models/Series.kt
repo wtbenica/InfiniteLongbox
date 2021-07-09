@@ -1,6 +1,8 @@
 package com.wtb.comiccollector.database.models
 
 import androidx.room.*
+import com.wtb.comiccollector.ComicCollectorApplication.Companion.context
+import com.wtb.comiccollector.R
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import java.io.Serializable
 import java.time.LocalDate
@@ -57,7 +59,9 @@ data class Series(
         } ?: ""
 
     companion object: FilterTypeSpinnerOption {
-        override val displayName: String = "Series"
+        override val displayName: String = context!!.getString(R.string.filter_type_series)
+        
+        override fun toString(): String = displayName
     }
 }
 
@@ -85,7 +89,9 @@ data class Publisher(
     }
 
     companion object: FilterTypeSpinnerOption {
-        override val displayName: String = "Publisher"
+        override val displayName: String = context!!.getString(R.string.filter_type_publisher)
+
+        override fun toString(): String = displayName
     }
 }
 

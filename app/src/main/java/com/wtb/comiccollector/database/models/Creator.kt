@@ -1,6 +1,8 @@
 package com.wtb.comiccollector.database.models
 
 import androidx.room.*
+import com.wtb.comiccollector.ComicCollectorApplication.Companion.context
+import com.wtb.comiccollector.R
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 @ExperimentalCoroutinesApi
@@ -48,8 +50,9 @@ data class NameDetail(
         get() = nameDetailId
 
     companion object : FilterTypeSpinnerOption {
-        override val displayName: String
-            get() = "Creator"
+        override val displayName: String = context!!.getString(R.string.filter_type_creator)
+
+        override fun toString(): String = displayName
     }
 
     override val tagName: String

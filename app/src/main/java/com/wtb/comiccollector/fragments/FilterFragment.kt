@@ -92,19 +92,19 @@ class FilterFragment : Fragment(),
                 optionsChipGroup.update(filter)
             }
 
-            viewModel.filterOptions.asLiveData().observe(context as LifecycleOwner) { filterObjects:
-                                                                                      List<FilterOptionAutoCompletePopupItem> ->
-                searchAutoComplete.setAdapter(
-                    FilterOptionsAdapter(
-                        requireContext(),
-                        filterObjects
+            viewModel.filterOptions.asLiveData()
+                .observe(context as LifecycleOwner) { filterObjects: List<FilterOptionAutoCompletePopupItem> ->
+                    searchAutoComplete.setAdapter(
+                        FilterOptionsAdapter(
+                            requireContext(),
+                            filterObjects
+                        )
                     )
-                )
 
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    searchAutoComplete.refreshAutoCompleteResults()
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                        searchAutoComplete.refreshAutoCompleteResults()
+                    }
                 }
-            }
         }
 
         return view
@@ -147,14 +147,34 @@ class FilterFragment : Fragment(),
 
         searchAutoComplete.callbacks = this
 
-        val objects =
-            listOf("All") + FilterTypeSpinnerOption::class.sealedSubclasses.map { it.objectInstance?.displayName }
+
+        val objects = FilterTypeSpinnerOption::class.sealedSubclasses.map { it.objectInstance }
+            .sortedBy { it.toString() }
         searchBoxSpinner.adapter = ArrayAdapter(
             requireContext(),
             R.layout.list_item_search_type,
             R.id.text_sort_type,
             objects
         )
+        searchBoxSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(
+                parent: AdapterView<*>?,
+                view: View?,
+                position: Int,
+                id: Long
+            ) {
+                parent?.let {
+                    val selectedFilterOption =
+                        (it.getItemAtPosition(position) as FilterTypeSpinnerOption)
+                    viewModel.setFilterOptionType(selectedFilterOption)
+                }
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+                // Do nothing
+            }
+
+        }
     }
 
     private fun onCreateViewFindViews(view: View) {
@@ -268,7 +288,8 @@ class FilterFragment : Fragment(),
     }
 
     // SearchTextViewCallback
-    override fun addFilterItem(option: FilterOptionAutoCompletePopupItem) = viewModel.addFilterItem(option)
+    override fun addFilterItem(option: FilterOptionAutoCompletePopupItem) =
+        viewModel.addFilterItem(option)
 
     override fun hideKeyboard() {
         callback?.hideKeyboard()

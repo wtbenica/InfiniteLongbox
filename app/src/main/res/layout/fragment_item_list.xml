@@ -9,15 +9,16 @@
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="@android:color/transparent"
         app:layout_behavior="com.google.android.material.appbar.AppBarLayout$Behavior"
         app:layout_insetEdge="top">
 
         <FrameLayout
             android:id="@+id/details"
             android:layout_width="match_parent"
-            android:layout_height="200dp"
+            android:layout_height="wrap_content"
             app:layout_scrollFlags="scroll|enterAlways"
-            tools:layout="@layout/fragment_series_detail"/>
+            tools:layout="@layout/fragment_series_detail" />
     </com.google.android.material.appbar.AppBarLayout>
 
     <androidx.recyclerview.widget.RecyclerView

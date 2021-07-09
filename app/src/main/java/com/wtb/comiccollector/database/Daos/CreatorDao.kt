@@ -54,8 +54,8 @@ abstract class CreatorDao : BaseDao<Creator>() {
         }
 
         if (filter.mMyCollection) {
-            tableJoinString += "LEFT JOIN issue ie2 on ie2.seriesId = ss.seriesId " +
-                    "LEFT JOIN mycollection mc ON mc.issueId = ie2.issueId "
+            tableJoinString += "JOIN issue ie2 on ie2.seriesId = ss.seriesId " +
+                    "JOIN mycollection mc ON mc.issueId = ie2.issueId "
         }
 
         val query = SimpleSQLiteQuery(
@@ -70,6 +70,9 @@ abstract class CreatorDao : BaseDao<Creator>() {
         observedEntities = [Creator::class]
     )
     abstract fun getCreatorsByQuery(query: SupportSQLiteQuery): Flow<List<Creator>>
+
+    @Query("SELECT * FROM creator ORDER BY sortName ASC")
+    abstract fun getCreatorsList(): Flow<List<Creator>>
 
 //    @Query(
 //        """
@@ -88,9 +91,6 @@ abstract class CreatorDao : BaseDao<Creator>() {
 //        endDate: LocalDate = LocalDate.MAX
 //    ): LiveData<List<Creator>>
 //
-
-    @Query("SELECT * FROM creator ORDER BY sortName ASC")
-    abstract fun getCreatorsList(): Flow<List<Creator>>
 
 //    @Query(
 //        """

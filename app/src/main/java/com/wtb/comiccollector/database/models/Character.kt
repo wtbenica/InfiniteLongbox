@@ -30,8 +30,9 @@ data class Character(
         get() = characterId
 
     companion object : FilterTypeSpinnerOption {
-        override val displayName: String =
-            ComicCollectorApplication.context!!.getString(R.string.filter_type_character)
+        override val displayName: String = ComicCollectorApplication.context!!.getString(R.string.filter_type_character)
+
+        override fun toString(): String = displayName
     }
 
     override val tagName: String
