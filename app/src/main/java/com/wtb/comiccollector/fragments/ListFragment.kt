@@ -20,7 +20,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 @ExperimentalCoroutinesApi
 abstract class ListFragment : Fragment() {
-    protected val PEEK_HEIGHT
+    private val PEEK_HEIGHT
         get() = resources.getDimension(R.dimen.peek_height).toInt()
     protected val filterViewModel: FilterViewModel by viewModels({ requireActivity() })
     protected lateinit var listRecyclerView: RecyclerView
@@ -44,11 +44,6 @@ abstract class ListFragment : Fragment() {
         listRecyclerView = view.findViewById(R.id.results_frame) as RecyclerView
         listRecyclerView.layoutManager = getLayoutManager()
         details = view.findViewById(R.id.details)
-
-        val itemDecoration =
-            ItemOffsetDecoration(resources.getDimension(R.dimen.offset_list_item_issue).toInt())
-
-        listRecyclerView.addItemDecoration(itemDecoration)
 
         ViewCompat.setOnApplyWindowInsetsListener(listRecyclerView) { v, insets ->
             val bottom =

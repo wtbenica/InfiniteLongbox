@@ -314,19 +314,22 @@ class MainActivity : AppCompatActivity(),
 
         fun getStateName(newState: Int): String {
             return when (newState) {
-                STATE_EXPANDED      -> "EXPANDED"
+                STATE_EXPANDED -> "EXPANDED"
                 STATE_HALF_EXPANDED -> "HALF-EXPANDED"
-                STATE_COLLAPSED     -> "COLLAPSED"
-                STATE_DRAGGING      -> "DRAGGING"
-                STATE_HIDDEN        -> "HIDDEN"
-                STATE_SETTLING      -> "SETTLING"
-                else                -> "THAT'S ODD!"
+                STATE_COLLAPSED -> "COLLAPSED"
+                STATE_DRAGGING -> "DRAGGING"
+                STATE_HIDDEN -> "HIDDEN"
+                STATE_SETTLING -> "SETTLING"
+                else -> "THAT'S ODD!"
             }
         }
 
-        fun resolveThemeAttribute(context: Context, attr: Int): Int {
+        fun resolveThemeAttribute(
+            attr: Int,
+            context: Context? = ComicCollectorApplication.context
+        ): Int {
             val value = TypedValue()
-            context.theme.resolveAttribute(attr, value, true)
+            context?.theme?.resolveAttribute(attr, value, true)
             return value.data
         }
     }

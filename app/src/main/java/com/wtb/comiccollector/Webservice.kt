@@ -1,9 +1,11 @@
 package com.wtb.comiccollector
 
 import com.wtb.comiccollector.database.models.*
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import retrofit2.http.GET
 import retrofit2.http.Path
 
+@ExperimentalCoroutinesApi
 interface Webservice {
     // GET Issues
     @GET("/db_query/series/{seriesId}/issues")

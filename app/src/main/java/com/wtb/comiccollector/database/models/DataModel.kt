@@ -1,6 +1,7 @@
 package com.wtb.comiccollector.database.models
 
 import com.wtb.comiccollector.ComicCollectorApplication
+import com.wtb.comiccollector.ComicCollectorApplication.Companion.context
 import com.wtb.comiccollector.R
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import java.io.Serializable
@@ -11,15 +12,29 @@ abstract class DataModel(var lastUpdated: LocalDate = LocalDate.now()) : Seriali
     abstract val id: Int
 }
 
+// Include: Series, Creator, Character, Publisher
 sealed interface FilterTypeSpinnerOption {
     val displayName: String
 }
 
 @ExperimentalCoroutinesApi
+class All {
+    companion object : FilterTypeSpinnerOption {
+        override val displayName: String = context!!.getString(R.string.filter_type_all)
+
+        override fun toString(): String = displayName
+    }
+}
+
+/*
+TODO: This should include SERIES, PUBLISHER, CHARACTER, CREATOR. The issue is with CREATOR:
+ whether to use CREATOR or NAME_DETAIL or both. Should look for "name_string" in NAME_DETAIL,
+ then getting results by CREATOR. This is a big TODO that could become very complicated very quickly
+*/
+@ExperimentalCoroutinesApi
 sealed interface FilterOptionAutoCompletePopupItem : Comparable<FilterOptionAutoCompletePopupItem>,
     Serializable {
     val tagName: String
-        get() = "FROST"
 
     val compareValue: String
 
@@ -29,6 +44,7 @@ sealed interface FilterOptionAutoCompletePopupItem : Comparable<FilterOptionAuto
             is Creator,
             is NameDetail -> ComicCollectorApplication.context?.getColor(R.color.tag_creator)
             is Publisher  -> ComicCollectorApplication.context?.getColor(R.color.tag_publisher)
+            is Character  -> ComicCollectorApplication.context?.getColor(R.color.tag_character)
             is TextFilter -> null
         } ?: 0xFF000000.toInt()
 

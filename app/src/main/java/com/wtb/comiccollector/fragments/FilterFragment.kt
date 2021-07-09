@@ -9,8 +9,6 @@ import android.view.View
 import android.view.View.*
 import android.view.ViewGroup
 import android.widget.*
-import androidx.cardview.widget.CardView
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.*
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -18,14 +16,13 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.bottomsheet.BottomSheetBehavior
-import com.google.android.material.card.MaterialCardView
 import com.google.android.material.chip.ChipGroup
-import com.google.android.material.shape.CornerFamily
 import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.R
 import com.wtb.comiccollector.SearchFilter
 import com.wtb.comiccollector.SortType
 import com.wtb.comiccollector.database.models.FilterOptionAutoCompletePopupItem
+import com.wtb.comiccollector.database.models.FilterTypeSpinnerOption
 import com.wtb.comiccollector.fragments_view_models.FilterViewModel
 import com.wtb.comiccollector.views.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -39,6 +36,7 @@ class FilterFragment : Fragment(),
     FilterChip.FilterChipCallbacks, OptionChipGroup.OptionChipGroupCallback,
     SortChipGroup.SortChipGroupCallback {
 
+    private lateinit var sections: LinearLayout
     private val viewModel: FilterViewModel by viewModels({ requireActivity() })
     private var callback: FilterFragmentCallback? = null
     private val undoQueue = ArrayDeque<Undo<*>>()
@@ -55,26 +53,24 @@ class FilterFragment : Fragment(),
         }
 
     // Views
-    private lateinit var filterView: ConstraintLayout
-    private lateinit var handleBox: View
+    private lateinit var filterView: FrameLayout
+    private lateinit var handleBox: FrameLayout
 
-    private lateinit var optionsSectionCard: CardView
+    private lateinit var optionsSection: LinearLayout
     private lateinit var optionsChipGroup: OptionChipGroup
 
-    private lateinit var sortSectionCard: CardView
+    private lateinit var sortSection: LinearLayout
     private lateinit var sortChipGroup: SortChipGroup
 
-    private lateinit var filtersSectionCard: CardView
-    private lateinit var filterConstraintLayout: ConstraintLayout
+    private lateinit var filterSection: LinearLayout
     private lateinit var filterOptionsLabel: ImageView
 
-    private lateinit var filterChipsContentCard: MaterialCardView
     private lateinit var filterChipGroup: ChipGroup
     private lateinit var filterAddButton: ImageButton
 
-    private lateinit var searchBoxContentCard: MaterialCardView
+    private lateinit var searchSection: LinearLayout
     private lateinit var searchAutoComplete: SearchAutoComplete
-//    private lateinit var searchBoxSpinner: Spinner
+    private lateinit var searchBoxSpinner: Spinner
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -96,19 +92,19 @@ class FilterFragment : Fragment(),
                 optionsChipGroup.update(filter)
             }
 
-            viewModel.filterOptions.asLiveData().observe(context as LifecycleOwner) { filterObjects:
-                                                                                      List<FilterOptionAutoCompletePopupItem> ->
-                searchAutoComplete.setAdapter(
-                    FilterOptionsAdapter(
-                        requireContext(),
-                        filterObjects
+            viewModel.filterOptions.asLiveData()
+                .observe(context as LifecycleOwner) { filterObjects: List<FilterOptionAutoCompletePopupItem> ->
+                    searchAutoComplete.setAdapter(
+                        FilterOptionsAdapter(
+                            requireContext(),
+                            filterObjects
+                        )
                     )
-                )
 
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    searchAutoComplete.refreshAutoCompleteResults()
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                        searchAutoComplete.refreshAutoCompleteResults()
+                    }
                 }
-            }
         }
 
         return view
@@ -145,72 +141,69 @@ class FilterFragment : Fragment(),
         filterChipGroup.removeAllViews()
 
         filterAddButton.setOnClickListener {
-            val smallCorner = resources.getDimension(R.dimen.margin_default)
-            val bigCorner = resources.getDimension(R.dimen.margin_wide)
-
-            val searchBoxModel = searchBoxContentCard.shapeAppearanceModel.toBuilder()
-                .setBottomLeftCorner(CornerFamily.ROUNDED, smallCorner)
-                .setBottomRightCorner(CornerFamily.ROUNDED, bigCorner)
-                .setTopLeftCorner(CornerFamily.ROUNDED, 0F)
-                .setTopRightCorner(CornerFamily.ROUNDED, 0F)
-                .build()
-
-            searchBoxContentCard.shapeAppearanceModel = searchBoxModel
-
-            val filterChipModel = filterChipsContentCard.shapeAppearanceModel.toBuilder()
-                .setBottomLeftCorner(CornerFamily.ROUNDED, 0F)
-                .setBottomRightCorner(CornerFamily.ROUNDED, 0F)
-                .setTopLeftCorner(CornerFamily.ROUNDED, smallCorner)
-                .setTopRightCorner(CornerFamily.ROUNDED, bigCorner)
-                .build()
-
-            filterChipsContentCard.shapeAppearanceModel = filterChipModel
-            searchBoxContentCard.visibility = VISIBLE
+            searchSection.visibility = VISIBLE
             filterAddButton.visibility = GONE
         }
 
         searchAutoComplete.callbacks = this
 
-//        val objects =
-//            listOf("All") + FilterTypeSpinnerOption::class.sealedSubclasses.map { it.objectInstance?.displayName }
-//        searchBoxSpinner.adapter = ArrayAdapter(
-//            requireContext(),
-//            R.layout.list_item_search_type,
-//            R.id.text_sort_type,
-//            objects
-//        )
+
+        val objects = FilterTypeSpinnerOption::class.sealedSubclasses.map { it.objectInstance }
+            .sortedBy { it.toString() }
+        searchBoxSpinner.adapter = ArrayAdapter(
+            requireContext(),
+            R.layout.list_item_search_type,
+            R.id.text_sort_type,
+            objects
+        )
+        searchBoxSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(
+                parent: AdapterView<*>?,
+                view: View?,
+                position: Int,
+                id: Long
+            ) {
+                parent?.let {
+                    val selectedFilterOption =
+                        (it.getItemAtPosition(position) as FilterTypeSpinnerOption)
+                    viewModel.setFilterOptionType(selectedFilterOption)
+                }
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+                // Do nothing
+            }
+
+        }
     }
 
     private fun onCreateViewFindViews(view: View) {
         filterView = view.findViewById(R.id.layout_filter_fragment)
         handleBox = view.findViewById(R.id.layout_filter_fragment_handle)
 
-        optionsSectionCard = view.findViewById(R.id.section_card_options)
+        sections = view.findViewById(R.id.sections)
+        optionsSection = view.findViewById(R.id.section_options)
         optionsChipGroup = view.findViewById(R.id.chip_group_option)
         optionsChipGroup.callback = this
 
-        sortSectionCard = view.findViewById(R.id.section_card_sort)
+        sortSection = view.findViewById(R.id.section_sort)
         sortChipGroup = view.findViewById(R.id.chip_group_sort)
 
-        filtersSectionCard = view.findViewById(R.id.section_card_filter)
-        filterConstraintLayout = view.findViewById(R.id.layout_filter_card)
+        filterSection = view.findViewById(R.id.section_filter)
 
-        filterChipsContentCard = view.findViewById(R.id.content_card_filter_chips)
         filterOptionsLabel = view.findViewById(R.id.image_label_filter_items)
         filterChipGroup = view.findViewById(R.id.chip_group_filter)
         filterAddButton = view.findViewById(R.id.add_filter_button)
 
-        searchBoxContentCard = view.findViewById(R.id.content_card_search_auto)
+        searchSection = view.findViewById(R.id.section_search)
         searchAutoComplete = view.findViewById(R.id.search_auto)
-//        searchBoxSpinner = view.findViewById(R.id.search_bar_spinner)
+        searchBoxSpinner = view.findViewById(R.id.search_bar_spinner)
     }
 
     internal fun onSlide(slideOffset: Float) {
         val inverseOffset = 1 - slideOffset
         handleBox.alpha = inverseOffset
-        optionsSectionCard.alpha = slideOffset
-        sortSectionCard.alpha = slideOffset
-        filtersSectionCard.alpha = slideOffset
+        sections.alpha = slideOffset
     }
 
     private fun onFilterUpdate(value: SearchFilter): SearchFilter {
@@ -252,7 +245,7 @@ class FilterFragment : Fragment(),
 
         if (newFilters.isEmpty()) {
             collapseFilterCard()
-            searchBoxContentCard.visibility = VISIBLE
+            searchSection.visibility = VISIBLE
         } else {
             showChipsHideBox()
             expandFilterCard()
@@ -263,15 +256,16 @@ class FilterFragment : Fragment(),
         val smallCorner = resources.getDimension(R.dimen.margin_default)
         val bigCorner = resources.getDimension(R.dimen.margin_wide)
 
-        val shapeAppearanceModel = searchBoxContentCard.shapeAppearanceModel.toBuilder()
-            .setBottomLeftCorner(CornerFamily.ROUNDED, smallCorner)
-            .setBottomRightCorner(CornerFamily.ROUNDED, bigCorner)
-            .setTopLeftCorner(CornerFamily.ROUNDED, smallCorner)
-            .setTopRightCorner(CornerFamily.ROUNDED, bigCorner)
-            .build()
-
-        filterChipsContentCard.shapeAppearanceModel = shapeAppearanceModel
-        searchBoxContentCard.visibility = GONE
+//        val shapeAppearanceModel = searchBoxContentCard.shapeAppearanceModel.toBuilder()
+//            .setBottomLeftCorner(CornerFamily.ROUNDED, smallCorner)
+//            .setBottomRightCorner(CornerFamily.ROUNDED, bigCorner)
+//            .setTopLeftCorner(CornerFamily.ROUNDED, smallCorner)
+//            .setTopRightCorner(CornerFamily.ROUNDED, bigCorner)
+//            .build()
+//
+//        filterChipsContentCard.shapeAppearanceModel = shapeAppearanceModel
+        searchSection.visibility = GONE
+        filterSection.visibility = VISIBLE
         filterAddButton.visibility = VISIBLE
     }
 
@@ -281,33 +275,11 @@ class FilterFragment : Fragment(),
     }
 
     private fun expandFilterCard() {
-        val smallCorner = resources.getDimension(R.dimen.margin_default)
-        val bigCorner = resources.getDimension(R.dimen.margin_wide)
-        val shapeAppearanceModel = searchBoxContentCard.shapeAppearanceModel.toBuilder()
-            .setBottomLeftCorner(CornerFamily.ROUNDED, smallCorner)
-            .setBottomRightCorner(CornerFamily.ROUNDED, bigCorner)
-            .setTopLeftCorner(CornerFamily.ROUNDED, 0F)
-            .setTopRightCorner(CornerFamily.ROUNDED, 0F)
-            .build()
-
-        searchBoxContentCard.shapeAppearanceModel = shapeAppearanceModel
-
-//        filtersSectionCard.visibility = VISIBLE
-        filterChipsContentCard.visibility = VISIBLE
+        filterSection.visibility = VISIBLE
     }
 
     private fun collapseFilterCard() {
-        val smallCorner = resources.getDimension(R.dimen.margin_default)
-        val bigCorner = resources.getDimension(R.dimen.margin_wide)
-        val shapeAppearanceModel = searchBoxContentCard.shapeAppearanceModel.toBuilder()
-            .setBottomLeftCorner(CornerFamily.ROUNDED, smallCorner)
-            .setBottomRightCorner(CornerFamily.ROUNDED, bigCorner)
-            .setTopLeftCorner(CornerFamily.ROUNDED, smallCorner)
-            .setTopRightCorner(CornerFamily.ROUNDED, bigCorner)
-            .build()
-
-        searchBoxContentCard.shapeAppearanceModel = shapeAppearanceModel
-        filterChipsContentCard.visibility = GONE
+        filterSection.visibility = GONE
     }
 
     fun onBackPressed() {
@@ -316,7 +288,8 @@ class FilterFragment : Fragment(),
     }
 
     // SearchTextViewCallback
-    override fun addFilterItem(option: FilterOptionAutoCompletePopupItem) = viewModel.addFilterItem(option)
+    override fun addFilterItem(option: FilterOptionAutoCompletePopupItem) =
+        viewModel.addFilterItem(option)
 
     override fun hideKeyboard() {
         callback?.hideKeyboard()

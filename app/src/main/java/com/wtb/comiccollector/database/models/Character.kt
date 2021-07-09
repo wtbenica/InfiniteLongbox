@@ -14,7 +14,7 @@ data class Character(
     @PrimaryKey(autoGenerate = true) val characterId: Int = AUTO_ID,
     var name: String,
     var aka: String? = null
-) : DataModel() {
+) : DataModel(), FilterOptionAutoCompletePopupItem {
 
     val sortName: String
         get() {
@@ -30,9 +30,16 @@ data class Character(
         get() = characterId
 
     companion object : FilterTypeSpinnerOption {
-        override val displayName: String =
-            ComicCollectorApplication.context!!.getString(R.string.filter_type_character)
+        override val displayName: String = ComicCollectorApplication.context!!.getString(R.string.filter_type_character)
+
+        override fun toString(): String = displayName
     }
+
+    override val tagName: String
+        get() = "Character"
+
+    override val compareValue: String
+        get() = name
 }
 
 @ExperimentalCoroutinesApi

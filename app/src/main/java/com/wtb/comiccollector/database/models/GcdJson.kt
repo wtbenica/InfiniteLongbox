@@ -2,6 +2,7 @@ package com.wtb.comiccollector.database.models
 
 import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import java.time.LocalDate
 
 // TODO: do all these val need to be nullable?
@@ -29,6 +30,7 @@ interface GcdJson<M : DataModel> {
     fun toRoomModel(pk: Int): M
 }
 
+@ExperimentalCoroutinesApi
 class GcdSeries(
     @SerializedName("name")
     @Expose
@@ -99,6 +101,7 @@ class GcdSeries(
     }
 }
 
+@ExperimentalCoroutinesApi
 class GcdPublisher(
     @SerializedName("name")
     @Expose
@@ -135,6 +138,7 @@ class GcdRole(
     }
 }
 
+@ExperimentalCoroutinesApi
 class GcdIssue(
     @SerializedName("number")
     @Expose
@@ -227,6 +231,7 @@ enum class RoleKey(val pos: Int) {
     ID(0), NAME(1)
 }
 
+@ExperimentalCoroutinesApi
 class GcdCreator(
     @SerializedName("gcd_official_name")
     @Expose
@@ -324,6 +329,7 @@ class GcdStoryType(
     }
 }
 
+@ExperimentalCoroutinesApi
 class GcdNameDetail(
     @SerializedName("creator")
     @Expose

@@ -68,9 +68,10 @@ class SearchFilter(
         return mCreators.isEmpty() && mSeries == null && mPublishers.isEmpty() && mStartDate ==
                 LocalDate.MIN && mEndDate == LocalDate.MAX && !mMyCollection
     }
+
     fun isNotEmpty(): Boolean = !isEmpty()
 
-
+    // TODO: CvND
     fun addFilter(vararg items: FilterOptionAutoCompletePopupItem) {
         items.forEach { item ->
             when (item) {
@@ -78,6 +79,7 @@ class SearchFilter(
                 is Creator    -> addCreator(item)
                 is Publisher  -> addPublisher(item)
                 is TextFilter -> addTextFilter(item)
+                is NameDetail -> {}
             }
         }
     }
@@ -100,6 +102,7 @@ class SearchFilter(
         mTextFilter = item
     }
 
+    // TODO: CvND
     fun removeFilter(vararg items: FilterOptionAutoCompletePopupItem) {
         items.forEach { item ->
             when (item) {
@@ -107,6 +110,7 @@ class SearchFilter(
                 is Creator    -> removeCreator(item)
                 is Publisher  -> removePublisher(item)
                 is TextFilter -> removeTextFilter(item)
+                is NameDetail -> {}
             }
         }
     }

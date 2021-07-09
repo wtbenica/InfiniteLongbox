@@ -3,4 +3,6 @@
     <attr name="colorPrimaryMuted" format="reference"/>
     <attr name="colorPrimaryDarkMuted" format="reference"/>
     <attr name="colorPrimaryLightMuted" format="reference"/>
+    <attr name="colorPrimaryLightLight" format="reference" />
+    <attr name="colorSecondaryLightLight" format="reference" />
 </resources>

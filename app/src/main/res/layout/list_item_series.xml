@@ -3,19 +3,30 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     style="@style/mCardView.ListItemSeries"
-    android:animateLayoutChanges="true"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:animateLayoutChanges="true">
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:background="@drawable/list_item_card_background"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:background="@drawable/ic_aloha">
+
+        <ImageView
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:scaleType="centerCrop"
+            android:src="@drawable/ic_aloha"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"/>
 
         <ImageView
             android:id="@+id/series_imageview"
             android:layout_width="0dp"
             android:layout_height="0dp"
+            android:contentDescription="@string/description_series_list_item_background_image"
             android:cropToPadding="true"
             android:scaleType="centerCrop"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -37,17 +48,19 @@
             <TextView
                 android:id="@+id/list_item_name"
                 style="@style/ListItemSeriesTitleText"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
+                android:layout_marginBottom="@dimen/margin_narrow"
+                android:background="@android:color/white"
                 android:singleLine="true"
                 tools:text="@string/hint_series_title" />
 
             <TextView
-                style="@style/ListItemSeriesSubtitle"
                 android:id="@+id/list_item_dates"
-                android:layout_width="match_parent"
+                style="@style/ListItemSeriesSubtitle"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:background="@android:color/white"
                 tools:text="(1990-2005)" />
         </LinearLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,9 +1,2 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <style name="botSheet">
-        <item name="cornerFamilyTopRight">rounded</item>
-        <item name="cornerFamilyTopLeft">rounded</item>
-        <item name="cornerSizeTopLeft">@dimen/margin_wide</item>
-        <item name="cornerSizeTopRight">@dimen/margin_wide</item>
-    </style>
-</resources>
+<resources></resources>
