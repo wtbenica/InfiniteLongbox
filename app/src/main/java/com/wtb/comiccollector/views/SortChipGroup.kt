@@ -74,16 +74,16 @@ class SortChipGroup(context: Context, attributeSet: AttributeSet) :
 }
 
 @ExperimentalCoroutinesApi
-class SortChip(context: Context) : Chip(context) {
+class SortChip(context: Context?) : Chip(context) {
 
     init {
-        setOnClickListener { view ->
-            val chip = view as SortChip
-            Log.d(TAG, "Chip ${if (chip.isChecked) "is" else "isn't"} checked")
-            if (chip.isChecked) {
+        isCloseIconVisible = true
+        setOnClickListener { _ ->
+            Log.d(TAG, "Chip ${if (isChecked) "is" else "isn't"} checked")
+            if (isChecked) {
                 sortType = sortType?.let { it: SortType ->
                     SortType(it).apply {
-                        this.order = when (this.order) {
+                        order = when (order) {
                             SortType.SortOrder.ASC  -> SortType.SortOrder.DESC
                             SortType.SortOrder.DESC -> SortType.SortOrder.ASC
                         }

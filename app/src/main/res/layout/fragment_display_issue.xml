@@ -98,19 +98,8 @@
             app:layout_constraintStart_toEndOf="@id/label_variants"
             app:layout_constraintEnd_toEndOf="parent"/>
     </androidx.constraintlayout.widget.ConstraintLayout>
-    <!--    <TextView-->
-    <!--        android:id="@+id/issue_credits_box_label"-->
-    <!--        android:layout_width="0dp"-->
-    <!--        android:layout_height="wrap_content"-->
-    <!--        android:layout_marginStart="16dp"-->
-    <!--        android:layout_marginTop="8dp"-->
-    <!--        android:labelFor="@id/issue_credits_table"-->
-    <!--        android:text="@string/issue_credits"-->
-    <!--        app:layout_constraintEnd_toEndOf="parent"-->
-    <!--        app:layout_constraintStart_toStartOf="parent"-->
-    <!--        app:layout_constraintTop_toBottomOf="@id/issue_cover" />-->
 
-<!--    <include-->
+    <!--    <include-->
 <!--        layout="@layout/story_box"-->
 <!--        android:layout_width="0dp"-->
 <!--        android:layout_height="0dp"-->
@@ -129,22 +118,22 @@
         android:isScrollContainer="true"
         android:orientation="vertical"
         android:scrollbars="none"
-        app:layout_constraintBottom_toTopOf="@id/divider2"
+        app:layout_constraintBottom_toTopOf="@id/bottom_stuff"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/variant_spinner_holder">
 
     </ScrollView>
 
-    <View
-        android:id="@+id/divider2"
+    <LinearLayout
+        android:id="@+id/bottom_stuff"
         android:layout_width="0dp"
-        android:layout_height="1dp"
-        android:layout_margin="8dp"
-        android:background="?android:attr/listDivider"
-        app:layout_constraintBottom_toTopOf="@id/navbar"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="?attr/colorSecondaryVariant"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
 
     <LinearLayout
         android:id="@+id/navbar"
@@ -218,5 +207,6 @@
         android:text="@string/grand_comic_database_tm"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

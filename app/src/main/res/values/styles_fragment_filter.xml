@@ -1,14 +1,44 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <style name="FilterFrameLayout">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:background">?attr/colorSecondaryLightLight</item>
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">true</item>
+    </style>
 
-    <style name="imageLabel">
-        <item name="android:background">?attr/colorSecondary</item>
-        <item name="android:layout_height">?attr/dropdownListPreferredItemHeight</item>
+    <style name="HandleFrameLayout">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">@dimen/peek_height</item>
+        <item name="android:visibility">visible</item>
+    </style>
+
+    <style name="Handle">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">@dimen/peek_height</item>
+        <item name="android:layout_gravity">top|center_horizontal</item>
+        <item name="android:scaleType">fitCenter</item>
+        <item name="android:src">@drawable/arrow_up_24</item>
+        <item name="tint">?attr/colorOnPrimary</item>
+    </style>
+
+    <style name="FilterSection">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginBottom">@dimen/margin_default</item>
+        <item name="android:orientation">horizontal</item>
+    </style>
+
+    <style name="ImageLabel">
         <item name="android:layout_width">?attr/dropdownListPreferredItemHeight</item>
+        <item name="android:layout_height">?attr/dropdownListPreferredItemHeight</item>
+        <item name="android:background">?attr/colorPrimary</item>
         <item name="android:layout_marginStart">@dimen/margin_default</item>
         <item name="android:layout_marginEnd">@dimen/margin_default</item>
         <item name="tint">@android:color/white</item>
         <item name="android:layout_weight">0</item>
+        <item name="android:layout_gravity">center</item>
     </style>
 
     <style name="mySwitchStyle" parent="Widget.AppCompat.CompoundButton.Switch">
@@ -26,7 +56,11 @@
         <item name="android:textSize">16sp</item>
     </style>
 
-    <style name="searchAutoCompleteStyle" parent="Widget.AppCompat.Light.AutoCompleteTextView">
+    <style name="SearchAutoCompleteStyle" parent="Widget.AppCompat.Light.AutoCompleteTextView">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">?attr/dropdownListPreferredItemHeight</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:hint">@string/search</item>
         <item name="android:paddingStart">@dimen/margin_default</item>
         <item name="android:textColorHint">?attr/colorSecondary</item>
         <item name="android:textColor">?attr/colorOnPrimary</item>
@@ -38,7 +72,8 @@
         <item name="android:popupBackground">?attr/colorSecondaryLightLight</item>
     </style>
 
-    <style name="filterCardChipGroup" parent="Widget.MaterialComponents.ChipGroup">
+    <style name="FilterCardChipGroup" parent="Widget.MaterialComponents.ChipGroup">
+        <item name="android:layout_height">wrap_content</item>
         <item name="android:minHeight">?attr/dropdownListPreferredItemHeight</item>
         <item name="singleLine">false</item>
         <item name="android:background">@android:color/white</item>
@@ -47,8 +82,22 @@
         <item name="android:padding">@dimen/margin_default</item>
     </style>
 
-    <style name="filter_section">
+    <style name="SearchTypeSpinnerStyle" parent="Widget.AppCompat.Spinner">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:dropDownWidth">wrap_content</item>
+        <item name="android:padding">0dp</item>
+        <item name="android:paddingStart">@dimen/margin_narrow</item>
+        <item name="android:dropDownHorizontalOffset">0dp</item>
+        <item name="android:popupBackground">?attr/colorPrimaryVariant</item>
+    </style>
 
+    <style name="ListItemSearchTypeStyle">
+        <item name="paddingStart">@dimen/margin_default</item>
+        <item name="android:textColor">?attr/colorOnPrimary</item>
+        <item name="fontFamily">@font/archivo_black</item>
+        <item name="android:padding">@dimen/margin_narrow</item>
+        <item name="android:gravity">center_vertical</item>
     </style>
 
     <style name="myNewChip" parent="Widget.MaterialComponents.Chip.Entry">
@@ -74,21 +123,5 @@
         <item name="fontFamily">@font/archivo_black</item>
         <item name="android:textAllCaps">false</item>
         <item name="android:textSize">14sp</item>
-    </style>
-
-    <style name="searchTypeSpinnerStyle" parent="Widget.AppCompat.Spinner">
-        <item name="android:dropDownWidth">wrap_content</item>
-        <item name="android:padding">0dp</item>
-        <item name="android:dropDownHorizontalOffset">0dp</item>
-        <item name="android:backgroundTint">?attr/colorOnPrimary</item>
-        <item name="android:popupBackground">?attr/colorSecondaryLightLight</item>
-    </style>
-
-    <style name="listItemSortTypeStyle">
-        <item name="paddingStart">@dimen/margin_default</item>
-        <item name="android:textColor">?attr/colorOnPrimary</item>
-        <item name="fontFamily">@font/archivo_black</item>
-        <item name="android:padding">@dimen/margin_narrow</item>
-        <item name="android:gravity">center_vertical</item>
     </style>
 </resources>

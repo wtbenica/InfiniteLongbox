@@ -1,6 +1,6 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
-    <style name="Theme.ComicCollector" parent="Theme.MaterialComponents.Light.NoActionBar">
+    <style name="Theme.ComicCollector" parent="Theme.MaterialComponents.Light">
 
         <!-- Primary brand color. -->
         <item name="colorPrimary">@color/fantasia</item>
@@ -17,12 +17,13 @@
         <item name="colorOnSecondary">@color/amnesia_text</item>
 
         <!-- Status bar color. -->
-        <item name="android:statusBarColor" tools:targetApi="l">@android:color/transparent</item>
+        <item name="android:statusBarColor" tools:targetApi="l">?attr/colorSecondaryLightLight</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>
         <!-- Customize your theme here. -->
         <item name="android:textColorPrimary">?attr/colorOnPrimary</item>
         <item name="android:textColor">?attr/colorOnPrimary</item>
         <item name="android:windowBackground">?attr/colorSecondaryLightLight</item>
+        <!-- Views -->
         <item name="cardViewStyle">@style/mCardView</item>
         <item name="fontFamily">@font/archivo_black</item>
         <item name="materialButtonStyle">@style/myButtonStyle</item>

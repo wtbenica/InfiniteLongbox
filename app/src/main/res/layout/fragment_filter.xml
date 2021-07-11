@@ -1,30 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/layout_filter_fragment"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:background="?attr/colorSecondaryLightLight"
-    android:clickable="true"
-    android:focusable="true"
-    android:orientation="vertical">
+    style="@style/FilterFrameLayout">
 
     <FrameLayout
         android:id="@+id/layout_filter_fragment_handle"
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/peek_height"
-        android:visibility="visible">
+        style="@style/HandleFrameLayout"
+        tools:visibility="gone">
 
         <ImageView
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/peek_height"
-            android:layout_gravity="center_horizontal|top"
-            android:paddingStart="@dimen/margin_narrow"
-            android:paddingEnd="0dp"
-            android:scaleType="fitCenter"
-            android:src="@drawable/arrow_up_24"
-            app:tint="?attr/colorOnPrimary" />
+            style="@style/Handle"
+            android:contentDescription="@string/bottom_sheet_handle_description" />
     </FrameLayout>
 
     <LinearLayout
@@ -39,27 +28,19 @@
 
         <LinearLayout
             android:id="@+id/section_options"
-            style="@style/filter_section"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/margin_narrow"
-            android:orientation="horizontal">
+            style="@style/FilterSection">
 
             <ImageView
-                style="@style/imageLabel"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
+                style="@style/ImageLabel"
                 android:contentDescription="@string/sort_image_content_description"
                 android:labelFor="@id/chip_group_sort"
                 app:srcCompat="@drawable/toggle_24" />
 
-
             <com.wtb.comiccollector.views.OptionChipGroup
                 android:id="@+id/chip_group_option"
-                style="@style/filterCardChipGroup"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                style="@style/FilterCardChipGroup"
+                android:layout_width="0dp"
+                android:layout_weight="1">
 
                 <com.google.android.material.chip.Chip
                     android:layout_width="wrap_content"
@@ -70,16 +51,10 @@
 
         <LinearLayout
             android:id="@+id/section_sort"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/margin_narrow"
-            android:orientation="horizontal">
+            style="@style/FilterSection">
 
             <ImageView
-                style="@style/imageLabel"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
+                style="@style/ImageLabel"
                 android:contentDescription="@string/sort_image_content_description"
                 android:labelFor="@id/chip_group_sort"
                 app:srcCompat="@drawable/sort_24" />
@@ -93,9 +68,9 @@
 
             <com.wtb.comiccollector.views.SortChipGroup
                 android:id="@+id/chip_group_sort"
-                style="@style/filterCardChipGroup"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                style="@style/FilterCardChipGroup"
+                android:layout_width="0dp"
+                android:layout_weight="1">
 
                 <com.google.android.material.chip.Chip
                     android:layout_width="wrap_content"
@@ -120,23 +95,17 @@
 
         <LinearLayout
             android:id="@+id/section_filter"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/margin_narrow"
-            android:orientation="horizontal">
+            style="@style/FilterSection">
 
             <ImageView
                 android:id="@+id/image_label_filter_items"
-                style="@style/imageLabel"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
+                style="@style/ImageLabel"
                 android:contentDescription="@string/sort_image_content_description"
                 android:labelFor="@id/chip_group_sort"
                 app:srcCompat="@drawable/ic_filter" />
 
             <LinearLayout
-                android:id="@+id/content_holder"
+                android:id="@+id/content_holder_filter"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
@@ -144,18 +113,10 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@id/image_label_filter_items">
 
-                <!--                <com.google.android.material.card.MaterialCardView-->
-                <!--                    android:id="@+id/content_card_filter_chips"-->
-                <!--                    style="@style/filterContentCard"-->
-                <!--                    android:layout_width="match_parent"-->
-                <!--                    android:layout_height="wrap_content"-->
-                <!--                    app:shapeAppearanceOverlay="@style/both_right">-->
-
                 <com.wtb.comiccollector.views.FilterChipGroup
                     android:id="@+id/chip_group_filter"
-                    style="@style/filterCardChipGroup"
+                    style="@style/FilterCardChipGroup"
                     android:layout_width="0dp"
-                    android:layout_height="wrap_content"
                     android:layout_weight="1">
 
                     <com.google.android.material.chip.Chip
@@ -168,62 +129,36 @@
 
                 <ImageButton
                     android:id="@+id/add_filter_button"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:background="@android:color/white"
+                    style="@style/ImageLabel"
+                    android:background="?attr/colorPrimaryVariant"
                     android:contentDescription="@string/content_description_add_filter_button"
-                    android:minWidth="48dp"
-                    android:minHeight="48dp"
                     android:src="@drawable/ic_menu_add"
-                    app:tint="?attr/colorSecondary" />
+                    app:tint="?attr/colorOnPrimary" />
             </LinearLayout>
-            <!--                </com.google.android.material.card.MaterialCardView>-->
-            <!--            </LinearLayout>-->
         </LinearLayout>
-
-        <!--        <com.google.android.material.card.MaterialCardView-->
-        <!--            android:id="@+id/content_card_search_auto"-->
-        <!--            android:layout_width="match_parent"-->
-        <!--            android:layout_height="wrap_content"-->
-        <!--            app:cardBackgroundColor="@color/amnesia_light_light"-->
-        <!--            app:cardCornerRadius="0dp">-->
 
         <LinearLayout
             android:id="@+id/section_search"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            style="@style/FilterSection">
 
             <ImageView
                 android:id="@+id/image_label_filter_items2"
-                style="@style/imageLabel"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
+                style="@style/ImageLabel"
                 android:contentDescription="@string/sort_image_content_description"
                 android:labelFor="@id/chip_group_sort"
                 app:srcCompat="@drawable/ic_search_24" />
 
             <com.wtb.comiccollector.views.SearchAutoComplete
                 android:id="@+id/search_auto"
-                style="@style/searchAutoCompleteStyle"
-                android:layout_width="0dp"
-                android:layout_height="?attr/dropdownListPreferredItemHeight"
-                android:layout_weight="1"
-                android:background="@android:color/white"
-                android:hint="@string/search"
+                style="@style/SearchAutoCompleteStyle"
                 tools:text="Potato Latke" />
 
             <androidx.appcompat.widget.AppCompatSpinner
                 android:id="@+id/search_bar_spinner"
-                style="@style/searchTypeSpinnerStyle"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
+                style="@style/SearchTypeSpinnerStyle"
                 android:entries="@array/suffixes_array"
                 tools:listitem="@layout/list_item_search_type" />
 
         </LinearLayout>
-        <!--        </com.google.android.material.card.MaterialCardView>-->
     </LinearLayout>
 </FrameLayout>

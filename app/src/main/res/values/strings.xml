@@ -66,4 +66,5 @@
     <string name="filter_type_publisher">Publisher</string>
     <string name="filter_type_all">All</string>
     <string name="label_variants">Variants</string>
+    <string name="bottom_sheet_handle_description">Expand filter/sort options</string>
 </resources>
