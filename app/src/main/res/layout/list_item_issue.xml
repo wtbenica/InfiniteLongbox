@@ -54,7 +54,7 @@
         android:padding="@dimen/margin_default"
         android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle2"
         android:textColor="?attr/colorOnPrimary"
-        android:textSize="14sp"
+        android:textSize="16sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         tools:text="8 Ed McGuinness Cover" />

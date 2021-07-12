@@ -6,7 +6,7 @@
 
     <TextView
         android:id="@+id/text_sort_type"
-        style="@style/listItemSortTypeStyle"
+        style="@style/ListItemSearchTypeStyle"
         android:layout_width="match_parent"
         android:layout_height="?attr/dropdownListPreferredItemHeight"
         tools:text="Publisher" />

@@ -9,8 +9,6 @@ import android.view.*
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.*
-import androidx.appcompat.widget.AppCompatTextView
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
@@ -20,6 +18,8 @@ import com.wtb.comiccollector.database.Daos.Count
 import com.wtb.comiccollector.database.models.*
 import com.wtb.comiccollector.fragments_view_models.IssueDetailViewModel
 import com.wtb.comiccollector.repository.DUMMY_ID
+import com.wtb.comiccollector.views.CreatorLink
+import com.wtb.comiccollector.views.CreatorLinkCallback
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collectLatest
 import java.io.File
@@ -55,17 +55,16 @@ private const val STORY_TYPE_COVER = 6
  */
 // TODO: Do I need a separate fragment for editing vs viewing or can I do it all in this one?
 @ExperimentalCoroutinesApi
-class IssueDetailFragment : Fragment() {
-
-    private var callback: ListFragment.ListFragmentCallback? = null
+class IssueDetailFragment : Fragment(), CreatorLinkCallback {
 
     override fun onDetach() {
         super.onDetach()
 
-        callback = null
+        listFragmentCallback = null
     }
 
     private var numUpdates = 0
+    private var listFragmentCallback: ListFragment.ListFragmentCallback? = null
 
     private lateinit var fullIssue: FullIssue
     private var fullVariant: FullIssue? = null
@@ -79,7 +78,7 @@ class IssueDetailFragment : Fragment() {
 
     private lateinit var coverImageView: ImageView
     private lateinit var collectionButton: Button
-    private lateinit var variantSpinnerHolder: ConstraintLayout
+    private lateinit var variantSpinnerHolder: LinearLayout
     private lateinit var variantSpinner: Spinner
     private var isVariant: Boolean = false
 
@@ -115,12 +114,12 @@ class IssueDetailFragment : Fragment() {
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        callback = context as ListFragment.ListFragmentCallback?
+        listFragmentCallback = context as ListFragment.ListFragmentCallback?
     }
 
     override fun onResume() {
         super.onResume()
-        callback?.setToolbarScrollFlags(AppBarLayout.LayoutParams.SCROLL_FLAG_NO_SCROLL)
+        listFragmentCallback?.setToolbarScrollFlags(AppBarLayout.LayoutParams.SCROLL_FLAG_NO_SCROLL)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -139,7 +138,7 @@ class IssueDetailFragment : Fragment() {
             issueDetailViewModel.issue.collectLatest {
                 it?.let { issue ->
                     this@IssueDetailFragment.fullIssue = issue
-                    callback?.setTitle("${issue.series.seriesName} #${issue.issue.issueNum}")
+                    listFragmentCallback?.setTitle("${issue.series.seriesName} #${issue.issue.issueNum}")
                     this@IssueDetailFragment.updateUI()
                 }
             }
@@ -431,6 +430,12 @@ class IssueDetailFragment : Fragment() {
         }
     }
 
+    override fun creatorClicked(creator: NameDetailAndCreator) {
+        Log.d(TAG, "creatorClicked")
+        val filter = SearchFilter(creators = setOf(creator.creator))
+        listFragmentCallback?.updateFilter(filter)
+    }
+
     companion object {
         @JvmStatic
         fun newInstance(
@@ -543,7 +548,7 @@ class IssueDetailFragment : Fragment() {
             } else {
                 story.title.let {
                     if (it == "") {
-                        "Untitled"
+                        "Untitled Story"
                     } else {
                         it
                     }
@@ -557,17 +562,6 @@ class IssueDetailFragment : Fragment() {
             }
         }
 
-//        private fun <T : View> toggleVisibility(view: T): () -> View {
-//            return {
-//                if (view.visibility == GONE) {
-//                    view.visibility = VISIBLE
-//                } else {
-//                    view.visibility = GONE
-//                }
-//                view
-//            }
-//        }
-//
         private fun toggleVisibility(view: View) = if (view.visibility == GONE) {
             VISIBLE
         } else {
@@ -583,16 +577,13 @@ class IssueDetailFragment : Fragment() {
 
     inner class CreditsRow(context: Context, private val fullCredit: FullCredit) :
         TableRow(context) {
+
         init {
             this.addView(RoleNameTextView(context, fullCredit.role.roleName))
-            val nameDetail = fullCredit.nameDetail.nameDetail.name
-            val creator = fullCredit.nameDetail.creator.name
-            val creditName = if (nameDetail != creator) {
-                "$creator (as $nameDetail)"
-            } else {
-                creator
-            }
-            this.addView(CreatorNameTextView(context, creditName))
+            this.addView(CreatorLink(context).apply {
+                this.creator = fullCredit.nameDetail
+                this.callback = this@IssueDetailFragment
+            })
         }
     }
 
@@ -600,7 +591,7 @@ class IssueDetailFragment : Fragment() {
         androidx.appcompat.widget.AppCompatTextView(context) {
 
         constructor(context: Context, role: String = "") : this(context) {
-            text = role
+            text = role.replaceFirstChar { it.uppercase() }
         }
 
         init {
@@ -612,17 +603,6 @@ class IssueDetailFragment : Fragment() {
                 resources.getDimension(R.dimen.margin_narrow).toInt()
             )
             setTextAppearance(R.style.RoleNameText)
-        }
-    }
-
-    class CreatorNameTextView(context: Context) : AppCompatTextView(context) {
-        constructor(context: Context, name: String) : this(context) {
-            text = name
-        }
-
-        init {
-            setTextAppearance(R.style.CreatorNameText)
-            layoutParams = TableRow.LayoutParams(WRAP_CONTENT, WRAP_CONTENT)
         }
     }
 }

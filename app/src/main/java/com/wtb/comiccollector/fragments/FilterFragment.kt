@@ -40,6 +40,7 @@ class FilterFragment : Fragment(),
     private val viewModel: FilterViewModel by viewModels({ requireActivity() })
     private var callback: FilterFragmentCallback? = null
     private val undoQueue = ArrayDeque<Undo<*>>()
+    private val disabledFilterChips = mutableSetOf<FilterChip>()
 
     internal var visibleState: Int = BottomSheetBehavior.STATE_EXPANDED
         set(value) {
@@ -242,28 +243,20 @@ class FilterFragment : Fragment(),
 
         filterChipGroup.removeAllViews()
         newFilters.forEach { addChip(it) }
+        disabledFilterChips.forEach { filterChipGroup.addView(it) }
 
-        if (newFilters.isEmpty()) {
+        if (filterChipGroup.isEmpty()) {
+            Log.d(TAG, "filterChipGroup is empty ${filterChipGroup.childCount}")
             collapseFilterCard()
             searchSection.visibility = VISIBLE
         } else {
+            Log.d(TAG, "filterChipGroup is NOT empty ${filterChipGroup.childCount}")
             showChipsHideBox()
             expandFilterCard()
         }
     }
 
     private fun showChipsHideBox() {
-        val smallCorner = resources.getDimension(R.dimen.margin_default)
-        val bigCorner = resources.getDimension(R.dimen.margin_wide)
-
-//        val shapeAppearanceModel = searchBoxContentCard.shapeAppearanceModel.toBuilder()
-//            .setBottomLeftCorner(CornerFamily.ROUNDED, smallCorner)
-//            .setBottomRightCorner(CornerFamily.ROUNDED, bigCorner)
-//            .setTopLeftCorner(CornerFamily.ROUNDED, smallCorner)
-//            .setTopRightCorner(CornerFamily.ROUNDED, bigCorner)
-//            .build()
-//
-//        filterChipsContentCard.shapeAppearanceModel = shapeAppearanceModel
         searchSection.visibility = GONE
         filterSection.visibility = VISIBLE
         filterAddButton.visibility = VISIBLE
@@ -296,8 +289,26 @@ class FilterFragment : Fragment(),
     }
 
     // ChippyCallback
-    override fun chipClosed(item: FilterOptionAutoCompletePopupItem) {
-        viewModel.removeFilterItem(item)
+    override fun filterChipClosed(chip: FilterChip) {
+        viewModel.removeFilterItem(chip.item)
+        disabledFilterChips.remove(chip)
+    }
+
+    override fun filterChipCheckChanged(buttonView: FilterChip, checked: Boolean) {
+        Log.d(TAG, "BV?: ${buttonView.isChecked} CK? $checked")
+        if (checked) {
+            Log.d(TAG, "adding check ${buttonView.item} removing from disabled: ${disabledFilterChips.size}")
+            disabledFilterChips.remove(buttonView)
+            viewModel.addFilterItem(buttonView.item)
+            Log.d(TAG, "checked DFC: ${disabledFilterChips.size}")
+        } else {
+            Log.d(TAG, "removing check ${buttonView.item} adding to disabled: ${disabledFilterChips
+                .size}")
+            disabledFilterChips.add(buttonView)
+            viewModel.removeFilterItem(buttonView.item)
+            Log.d(TAG, "not checked DFC: ${disabledFilterChips.size}")
+            Log.d(TAG, "Adding $buttonView to disabledFilterChips ${disabledFilterChips.size}")
+        }
     }
 
     // OptionChipGroupCallback

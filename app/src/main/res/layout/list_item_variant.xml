@@ -2,11 +2,12 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="?attr/listPreferredItemHeight"
-    android:paddingTop="@dimen/margin_wide"
-    android:background="@drawable/background_issue_detail_variant_spinner_popup"
+    android:layout_height="wrap_content"
+    android:background="@android:color/white"
+    android:paddingStart="@dimen/margin_default"
+    android:paddingTop="@dimen/margin_default"
     android:paddingEnd="@dimen/margin_wide"
-    android:paddingStart="@dimen/margin_default">
+    android:paddingBottom="@dimen/margin_narrow">
 
     <TextView
         android:id="@+id/variant_name_text"
@@ -15,7 +16,7 @@
         android:background="?attr/colorPrimary"
         android:fontFamily="@font/archivo_black"
         android:gravity="center_vertical"
-        android:textSize="16sp"
         android:padding="@dimen/margin_narrow"
+        android:textSize="16sp"
         tools:text="34 - Mitch Gerads Variant" />
 </LinearLayout>

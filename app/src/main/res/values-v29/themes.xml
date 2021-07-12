@@ -5,7 +5,7 @@
 
         <!-- Primary brand color. -->
         <item name="colorPrimary">@color/fantasia</item>
-        <item name="colorPrimaryVariant">@color/fantasia_light_light</item>
+        <item name="colorPrimaryVariant">@color/fantasia_light</item>
         <item name="colorPrimaryDark">@color/fantasia_dark</item>
         <item name="colorPrimaryLightLight">@color/fantasia_light_light</item>
         <item name="colorOnPrimary">@color/fantasia_text</item>
@@ -18,9 +18,8 @@
         <item name="colorOnSecondary">@color/amnesia_text</item>
 
         <!-- Status bar color. -->
-        <item name="android:statusBarColor" tools:targetApi="l">?attr/colorSecondaryLightLight
-        </item>
-        <item name="android:enforceStatusBarContrast">true</item>
+        <item name="android:statusBarColor" tools:targetApi="l">?attr/colorSecondaryLightLight</item>
+        <item name="android:enforceStatusBarContrast">false</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>
         <!-- Customize your theme here. -->
         <item name="android:textColorPrimary">?attr/colorOnPrimary</item>
@@ -34,7 +33,7 @@
         <item name="switchStyle">@style/mySwitchStyle</item>
         <item name="chipStyle">@style/myNewChip</item>
         <item name="floatingActionButtonStyle">@style/myFabStyle</item>
-
+        <item name="styleCreatorLink">@style/CreatorLink</item>
         <item name="colorPrimaryMuted">@color/fantasia_muted</item>
         <item name="colorPrimaryDarkMuted">@color/fantasia_dark_muted</item>
         <item name="colorPrimaryLightMuted">@color/fantasia_light_muted</item>

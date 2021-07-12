@@ -15,6 +15,7 @@ import com.google.android.material.appbar.AppBarLayout.LayoutParams.SCROLL_FLAG_
 import com.google.android.material.appbar.AppBarLayout.LayoutParams.SCROLL_FLAG_SCROLL
 import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.R
+import com.wtb.comiccollector.SearchFilter
 import com.wtb.comiccollector.fragments_view_models.FilterViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
@@ -66,6 +67,7 @@ abstract class ListFragment : Fragment() {
     interface ListFragmentCallback {
         fun setTitle(title: String? = null)
         fun setToolbarScrollFlags(flags: Int)
+        fun updateFilter(filter: SearchFilter)
     }
 
     companion object {

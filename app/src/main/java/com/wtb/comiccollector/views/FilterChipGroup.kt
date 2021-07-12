@@ -13,7 +13,7 @@ class FilterChipGroup(context: Context?, attributeSet: AttributeSet) :
 @ExperimentalCoroutinesApi
 class FilterChip(context: Context?) : Chip(context) {
 
-    var item: FilterOptionAutoCompletePopupItem? = null
+    lateinit var item: FilterOptionAutoCompletePopupItem
     private var caller: FilterChipCallbacks? = null
 
     constructor(
@@ -24,19 +24,26 @@ class FilterChip(context: Context?) : Chip(context) {
         this.item = item
         this.caller = caller
         this.text = item.toString()
-        this.setOnCloseIconClickListener { caller.chipClosed(item) }
+        this.setOnCloseIconClickListener { caller.filterChipClosed(it as FilterChip) }
+        this.setOnCheckedChangeListener { buttonView, isChecked ->
+            caller.filterChipCheckChanged(buttonView as FilterChip, isChecked)
+        }
     }
 
     init {
         this.isClickable = true
         this.isCheckedIconVisible = false
+        this.isChecked = true
     }
+
+    override fun toString(): String = item.tagName
 
     companion object {
         private const val TAG = APP + "FilterChip"
     }
 
     interface FilterChipCallbacks {
-        fun chipClosed(item: FilterOptionAutoCompletePopupItem)
+        fun filterChipClosed(chip: FilterChip)
+        fun filterChipCheckChanged(buttonView: FilterChip, checked: Boolean)
     }
 }

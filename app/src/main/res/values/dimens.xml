@@ -4,7 +4,6 @@
     <dimen name="margin_default">8dp</dimen>
     <dimen name="margin_narrow">4dp</dimen>
 
-    <dimen name="radius_wide">24dp</dimen>
     <dimen name="radius_default">8dp</dimen>
 
     <dimen name="card_elevation">1dp</dimen>
