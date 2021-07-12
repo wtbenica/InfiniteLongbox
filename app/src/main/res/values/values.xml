@@ -7,4 +7,5 @@
     <attr name="colorSecondaryLightLight" format="reference" />
     <attr name="colorStoryBoxTitle" format="reference" />
     <attr name="colorStoryBoxSubtitle" format="reference" />
+    <attr name="styleCreatorLink" format="reference" />
 </resources>

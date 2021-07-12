@@ -36,7 +36,6 @@
         android:name="com.wtb.comiccollector.fragments.FilterFragment"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#00FFFF"
         android:fitsSystemWindows="false"
         android:tag="@string/tag_filter_fragment"
         app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior"

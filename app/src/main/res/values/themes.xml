@@ -1,10 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
-    <style name="Theme.ComicCollector" parent="Theme.MaterialComponents.Light">
+
+    <style name="Theme.ComicCollector" parent="Theme.MaterialComponents.Light.NoActionBar">
 
         <!-- Primary brand color. -->
         <item name="colorPrimary">@color/fantasia</item>
-        <item name="colorPrimaryVariant">@color/fantasia_light_light</item>
+        <item name="colorPrimaryVariant">@color/fantasia_light</item>
         <item name="colorPrimaryDark">@color/fantasia_dark</item>
         <item name="colorPrimaryLightLight">@color/fantasia_light_light</item>
         <item name="colorOnPrimary">@color/fantasia_text</item>
@@ -23,21 +24,17 @@
         <item name="android:textColorPrimary">?attr/colorOnPrimary</item>
         <item name="android:textColor">?attr/colorOnPrimary</item>
         <item name="android:windowBackground">?attr/colorSecondaryLightLight</item>
-        <!-- Views -->
         <item name="cardViewStyle">@style/mCardView</item>
-        <item name="fontFamily">@font/archivo_black</item>
         <item name="materialButtonStyle">@style/myButtonStyle</item>
+        <item name="android:spinnerStyle">@style/IssueDetailVariantSpinnerStyle</item>
         <item name="android:buttonBarButtonStyle">@style/myButtonBarButtonStyle</item>
         <item name="android:buttonBarStyle">@style/myButtonBarStyle</item>
         <item name="switchStyle">@style/mySwitchStyle</item>
         <item name="chipStyle">@style/myNewChip</item>
         <item name="floatingActionButtonStyle">@style/myFabStyle</item>
-        <item name="colorStoryBoxTitle">@color/fantasia_dark</item>
-        <item name="colorStoryBoxSubtitle">@color/fantasia_light</item>
-
+        <item name="styleCreatorLink">@style/CreatorLink</item>
         <item name="colorPrimaryMuted">@color/fantasia_muted</item>
         <item name="colorPrimaryDarkMuted">@color/fantasia_dark_muted</item>
         <item name="colorPrimaryLightMuted">@color/fantasia_light_muted</item>
     </style>
-
 </resources>

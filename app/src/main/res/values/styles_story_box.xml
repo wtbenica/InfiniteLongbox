@@ -4,11 +4,12 @@
     <style name="StoryBoxTitleBar">
         <item name="android:gravity">center_vertical</item>
         <item name="android:orientation">horizontal</item>
+        <item name="android:paddingStart">@dimen/margin_narrow</item>
+        <item name="android:background">?attr/colorPrimary</item>
     </style>
 
     <style name="StoryBoxTitleBarText">
         <item name="android:textSize">18sp</item>
-        <item name="android:background">?attr/colorPrimaryDark</item>
         <item name="android:padding">@dimen/margin_narrow</item>
         <item name="android:textAllCaps">true</item>
         <item name="android:fontFamily">@font/archivo_black</item>
@@ -21,34 +22,42 @@
     </style>
 
     <style name="StoryBoxDropdownButton.Subtitle">
-        <item name="android:background">?attr/colorPrimary</item>
+        <item name="android:background">@android:color/transparent</item>
         <item name="srcCompat">@drawable/arrow_up_24</item>
     </style>
 
     <style name="StoryBoxDropdownButton.Title">
-        <item name="android:background">?attr/colorPrimaryDark</item>
+        <item name="android:background">@android:color/transparent</item>
         <item name="srcCompat">@drawable/arrow_down_24</item>
     </style>
 
     <style name="StoryBoxSubtitleBar">
         <item name="android:gravity">center_vertical</item>
         <item name="android:orientation">horizontal</item>
+        <item name="android:paddingStart">@dimen/margin_narrow</item>
+        <item name="android:background">?attr/colorPrimaryVariant</item>
     </style>
 
     <style name="StoryBoxSubtitleText">
         <item name="android:textSize">14sp</item>
         <item name="android:textAllCaps">false</item>
-        <item name="android:background">?attr/colorPrimary</item>
         <item name="android:padding">@dimen/margin_narrow</item>
         <item name="android:fontFamily">@font/archivo_black</item>
+    </style>
+
+    <style name="CreatorLink" parent="Widget.MaterialComponents.TextView">
+        <item name="android:textAppearance">@style/CreatorNameText</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_width">wrap_content</item>
     </style>
 
     <style name="RoleNameText" parent="TextAppearance.MaterialComponents.Subtitle1">
         <item name="fontFamily">@font/archivo_black</item>
     </style>
 
-    <style name="CreatorNameText" parent="Widget.MaterialComponents.TextView">
+    <style name="CreatorNameText" parent="TextAppearance.MaterialComponents.Body1">
         <item name="fontFamily">@font/heebo_medium</item>
+        <item name="android:textStyle">bold</item>
     </style>
 
     <style name="Subsection">

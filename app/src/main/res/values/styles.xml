@@ -56,13 +56,9 @@
         <item name="android:textStyle">bold</item>
     </style>
 
-    <style name="myTextViewStyle" parent="Widget.MaterialComponents.TextView">
-        <item name="fontFamily">@font/heebo_medium</item>
-    </style>
-
     <style name="IssueDetailVariantSpinnerStyle" parent="Widget.AppCompat.Spinner">
         <item name="android:layout_height">?attr/dropdownListPreferredItemHeight</item>
         <item name="android:textColor">?attr/colorOnPrimary</item>
-        <item name="android:popupBackground">@drawable/background_issue_detail_variant_spinner_popup</item>
+        <item name="android:popupBackground">@android:color/white</item>
     </style>
 </resources>

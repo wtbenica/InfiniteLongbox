@@ -86,6 +86,10 @@ class MainActivity : AppCompatActivity(),
         resultFragmentContainer = findViewById(R.id.fragment_container)
         bottomSheet = findViewById(R.id.bottom_sheet)
 
+        initWindowInsets()
+        initBottomSheet()
+        initNetwork()
+
         lifecycleScope.launch {
             resultFragmentManager.fragment.collectLatest { frag ->
                 frag?.let { fragment ->
@@ -102,12 +106,13 @@ class MainActivity : AppCompatActivity(),
                     }
 
                     onBackPressedDispatcher.addCallback(fragment, tt)
+
+                    if (this@MainActivity.bottomSheetBehavior.state == STATE_HIDDEN) {
+                        this@MainActivity.bottomSheetBehavior.state = STATE_COLLAPSED
+                    }
                 }
             }
         }
-        initWindowInsets()
-        initBottomSheet()
-        initNetwork()
     }
 
     private fun initBottomSheet() {
@@ -290,12 +295,12 @@ class MainActivity : AppCompatActivity(),
     override fun setTitle(title: String?) {
         val actual = title ?: applicationInfo.loadLabel(packageManager)
         Log.d(TAG, "setTitle: $actual")
-        toolbar.title = actual
+        toolbar?.title = actual
     }
 
     override fun setToolbarScrollFlags(flags: Int) {
         Log.d(TAG, "setToolbarScrollFlags $flags")
-        toolbar.updateLayoutParams<AppBarLayout.LayoutParams> { scrollFlags = flags }
+        toolbar?.updateLayoutParams<AppBarLayout.LayoutParams> { scrollFlags = flags }
         if (flags and SCROLL_FLAG_SCROLL == SCROLL_FLAG_SCROLL) {
             appBarLayout.setExpanded(true, true)
         }
@@ -356,10 +361,10 @@ class MainActivity : AppCompatActivity(),
                 }
                 return field
             }
+    }
 
-//        fun getFragment(): Fragment? = when (filter?.returnsIssueList()) {
-//            true -> issueListFragment
-//            else -> seriesListFragment
-//        }
+    override fun updateFilter(filter: SearchFilter) {
+        Log.d(TAG, "updateFilter")
+        filterViewModel.setFilter(filter)
     }
 }
