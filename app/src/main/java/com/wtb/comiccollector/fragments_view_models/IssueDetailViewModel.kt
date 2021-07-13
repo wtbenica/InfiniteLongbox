@@ -11,7 +11,6 @@ import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.SearchFilter
 import com.wtb.comiccollector.database.Daos.Count
 import com.wtb.comiccollector.database.models.*
-import com.wtb.comiccollector.repository.DUMMY_ID
 import com.wtb.comiccollector.repository.Repository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -27,10 +26,10 @@ class IssueDetailViewModel : ViewModel() {
 
     private val repository: Repository = Repository.get()
 
-    private val _issueId = MutableStateFlow<Int>(DUMMY_ID)
-    private val _variantId = MutableStateFlow<Int>(DUMMY_ID)
+    private val _issueId = MutableStateFlow<Int>(AUTO_ID)
+    private val _variantId = MutableStateFlow<Int>(AUTO_ID)
 
-    val issueId: StateFlow<Int> = _issueId
+    private val issueId: StateFlow<Int> = _issueId
     private val variantId: StateFlow<Int> = _variantId
 
     val issue: StateFlow<FullIssue?> = issueId.flatMapLatest { id ->
@@ -43,12 +42,14 @@ class IssueDetailViewModel : ViewModel() {
     )
 
     val variant: StateFlow<FullIssue?> =
-        variantId.flatMapLatest { id -> repository.getIssue(id) }.stateIn(
+        variantId.flatMapLatest { id ->
+            repository.getIssue(id)
+        }.stateIn(
             scope = viewModelScope,
             started = WhileSubscribed(5000),
             initialValue = null
         )
-
+    
     val issueList: LiveData<List<FullIssue>> = issue.flatMapLatest { fullIssue ->
         repository.getIssuesByFilter(SearchFilter(series = fullIssue?.series, myCollection = false))
     }.asLiveData()
@@ -90,16 +91,16 @@ class IssueDetailViewModel : ViewModel() {
     fun getIssueId() = issueId.value
 
     fun loadVariant(issueId: Int?) {
-        _variantId.value = issueId ?: DUMMY_ID
+        _variantId.value = issueId ?: AUTO_ID
     }
 
     fun clearVariant() {
         Log.d(TAG, "Clearing variant")
-        _variantId.value = DUMMY_ID
+        _variantId.value = AUTO_ID
     }
 
     fun addToCollection() {
-        val currentIssueId = if (variantId.value == DUMMY_ID) {
+        val currentIssueId = if (variantId.value == AUTO_ID) {
             issueId.value
         } else {
             variantId.value
@@ -109,7 +110,7 @@ class IssueDetailViewModel : ViewModel() {
 
 
     fun removeFromCollection() {
-        val currentIssueId = if (variantId.value == DUMMY_ID) {
+        val currentIssueId = if (variantId.value == AUTO_ID) {
             issueId.value
         } else {
             variantId.value

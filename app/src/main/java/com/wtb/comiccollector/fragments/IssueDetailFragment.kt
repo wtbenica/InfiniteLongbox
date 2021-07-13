@@ -17,7 +17,6 @@ import com.wtb.comiccollector.*
 import com.wtb.comiccollector.database.Daos.Count
 import com.wtb.comiccollector.database.models.*
 import com.wtb.comiccollector.fragments_view_models.IssueDetailViewModel
-import com.wtb.comiccollector.repository.DUMMY_ID
 import com.wtb.comiccollector.views.CreatorLink
 import com.wtb.comiccollector.views.CreatorLinkCallback
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -99,13 +98,15 @@ class IssueDetailFragment : Fragment(), CreatorLinkCallback {
     private lateinit var coverFile: File
     private var inCollection: Boolean = false
 
-    private fun issue(): FullIssue? = if (isVariant) {
-        fullVariant
-    } else {
-        fullIssue
-    }
+    private val currentIssue: FullIssue?
+        get() = if (isVariant) {
+            fullVariant
+        } else {
+            fullIssue
+        }
 
-    private fun coverUri(): Uri? = issue()?.coverUri
+    private val coverUri: Uri?
+        get() = currentIssue?.coverUri
 
     private var saveIssue = true
     private var isEditable: Boolean = true
@@ -134,7 +135,7 @@ class IssueDetailFragment : Fragment(), CreatorLinkCallback {
 
         issueDetailViewModel.loadIssue(arguments?.getSerializable(ARG_ISSUE_ID) as Int)
 
-        lifecycleScope.launchWhenCreated {
+        lifecycleScope.launchWhenResumed {
             issueDetailViewModel.issue.collectLatest {
                 it?.let { issue ->
                     this@IssueDetailFragment.fullIssue = issue
@@ -147,9 +148,9 @@ class IssueDetailFragment : Fragment(), CreatorLinkCallback {
                 this@IssueDetailFragment.fullVariant = issue
                 this@IssueDetailFragment.isVariant = issue != null
                 (requireActivity() as MainActivity).supportActionBar?.apply {
-                    issue()?.let {
+                    issue?.let {
                         title =
-                            "${issue()?.series?.seriesName} #${issue()?.issue?.issueNum} ${issue()?.issue?.variantName}"
+                            "${issue.series.seriesName} #${issue.issue.issueNum} ${issue.issue.variantName}"
                     }
                 }
                 this@IssueDetailFragment.updateUI()
@@ -408,10 +409,10 @@ class IssueDetailFragment : Fragment(), CreatorLinkCallback {
     }
 
     private fun updateUI() {
-        if (issue()?.issue?.issueId != DUMMY_ID) {
+        if (currentIssue?.issue?.issueId != AUTO_ID) {
             numUpdates += 1
 
-            issue()?.issue?.releaseDate?.format(DateTimeFormatter.ofPattern("MMM d, y"))
+            currentIssue?.issue?.releaseDate?.format(DateTimeFormatter.ofPattern("MMM d, y"))
                 ?.let { releaseDateTextView.text = it }
 
             creditsBox.displayCredit()
@@ -423,8 +424,8 @@ class IssueDetailFragment : Fragment(), CreatorLinkCallback {
     }
 
     private fun updateCover() {
-        if (coverUri() != null) {
-            coverImageView.setImageURI(coverUri())
+        if (coverUri != null) {
+            coverImageView.setImageURI(coverUri)
         } else {
             coverImageView.setImageResource(R.drawable.cover_missing)
         }
