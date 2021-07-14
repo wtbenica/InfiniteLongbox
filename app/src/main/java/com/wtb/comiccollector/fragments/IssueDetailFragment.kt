@@ -31,6 +31,7 @@ import java.util.*
 // Bundle Argument Tags
 private const val ARG_ISSUE_ID = "issue_id"
 private const val ARG_EDITABLE = "open_as_editable"
+private const val ARG_VARIANT_OF = "variant_of"
 
 // onActivityResult Request Codes
 private const val PICK_COVER_IMAGE = 0
@@ -381,6 +382,8 @@ class IssueDetailFragment : Fragment(), CreatorLinkCallback {
 
                         if (isVariant) {
                             issueDetailViewModel.loadVariant(selectedIssueId)
+                        } else {
+                            issueDetailViewModel.clearVariant()
                         }
 
                         updateCover()
@@ -444,11 +447,13 @@ class IssueDetailFragment : Fragment(), CreatorLinkCallback {
         fun newInstance(
             issueId: Int? = null,
             openAsEditable: Boolean = true,
+            variantOf: Int? = null
         ): IssueDetailFragment =
             IssueDetailFragment().apply {
                 arguments = Bundle().apply {
                     putSerializable(ARG_ISSUE_ID, issueId)
                     putSerializable(ARG_EDITABLE, openAsEditable)
+                    putSerializable(ARG_VARIANT_OF, variantOf)
                 }
             }
 
@@ -490,7 +495,7 @@ class IssueDetailFragment : Fragment(), CreatorLinkCallback {
                 } + variant
             } else {
                 original + variant
-            }
+            }.sortedBy { it.storyType }
     }
 
     inner class StoryRow(context: Context, val story: Story) : LinearLayout(context) {
