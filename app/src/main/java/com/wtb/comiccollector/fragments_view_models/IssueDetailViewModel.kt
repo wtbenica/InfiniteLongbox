@@ -1,4 +1,4 @@
-@file:Suppress("RemoveExplicitTypeArguments", "RemoveExplicitTypeArguments")
+//@file:Suppress("RemoveExplicitTypeArguments")
 
 package com.wtb.comiccollector.fragments_view_models
 
@@ -11,14 +11,13 @@ import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.SearchFilter
 import com.wtb.comiccollector.database.Daos.Count
 import com.wtb.comiccollector.database.models.*
-import com.wtb.comiccollector.repository.DUMMY_ID
 import com.wtb.comiccollector.repository.Repository
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted.Companion.WhileSubscribed
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.stateIn
 
 private const val TAG = APP + "IssueDetailViewModel"
 
@@ -27,11 +26,13 @@ class IssueDetailViewModel : ViewModel() {
 
     private val repository: Repository = Repository.get()
 
-    private val _issueId = MutableStateFlow<Int>(DUMMY_ID)
-    private val _variantId = MutableStateFlow<Int>(DUMMY_ID)
+    private val _issueId = MutableStateFlow(AUTO_ID)
+    private val issueId: StateFlow<Int>
+        get() = _issueId
+    private val _variantId = MutableStateFlow(AUTO_ID)
+    private val variantId: StateFlow<Int>
+        get() = _variantId
 
-    val issueId: StateFlow<Int> = _issueId
-    private val variantId: StateFlow<Int> = _variantId
 
     val issue: StateFlow<FullIssue?> = issueId.flatMapLatest { id ->
         Log.d(TAG, "issueId changed: $id")
@@ -42,36 +43,26 @@ class IssueDetailViewModel : ViewModel() {
         initialValue = null
     )
 
-    val variant: StateFlow<FullIssue?> =
-        variantId.flatMapLatest { id -> repository.getIssue(id) }.stateIn(
-            scope = viewModelScope,
-            started = WhileSubscribed(5000),
-            initialValue = null
-        )
-
     val issueList: LiveData<List<FullIssue>> = issue.flatMapLatest { fullIssue ->
         repository.getIssuesByFilter(SearchFilter(series = fullIssue?.series, myCollection = false))
     }.asLiveData()
 
     val issueStoriesLiveData: LiveData<List<Story>> =
-        issueId.flatMapLatest { issueId ->
-            Log.d(TAG, "getting issue stories $issueId")
-            val a = repository.getStoriesByIssue(issueId)
-            CoroutineScope(Dispatchers.IO).launch {
-                Log.d(TAG, "HASBTGL ${a.collect { it.size }}")
-            }
-            a
-        }.asLiveData()
+        issueId.flatMapLatest { issueId -> repository.getStoriesByIssue(issueId) }.asLiveData()
 
     val issueCreditsLiveData: LiveData<List<FullCredit>> =
         issueId.flatMapLatest { issueId -> repository.getCreditsByIssue(issueId) }.asLiveData()
+
+    val variantLiveData: LiveData<FullIssue?> =
+        variantId.flatMapLatest { id ->
+            Log.d(TAG, "variantId changed, updating variantLiveData $id")
+            repository.getIssue(id) }.asLiveData()
 
     val variantStoriesLiveData: LiveData<List<Story>> =
         variantId.flatMapLatest { issueId -> repository.getStoriesByIssue(issueId) }.asLiveData()
 
     val variantCreditsLiveData: LiveData<List<FullCredit>> =
-        variantId.flatMapLatest { issueId -> repository.getCreditsByIssue(issueId) }
-            .asLiveData()
+        variantId.flatMapLatest { issueId -> repository.getCreditsByIssue(issueId) }.asLiveData()
 
     val variantsLiveData: LiveData<List<Issue>> =
         issueId.flatMapLatest { id -> repository.getVariants(id) }.asLiveData()
@@ -89,17 +80,18 @@ class IssueDetailViewModel : ViewModel() {
 
     fun getIssueId() = issueId.value
 
-    fun loadVariant(issueId: Int?) {
-        _variantId.value = issueId ?: DUMMY_ID
+    fun loadVariant(issueId: Int?, line: Int) {
+        Log.d(TAG, "loadVariant $line")
+        _variantId.value = issueId ?: AUTO_ID
     }
 
     fun clearVariant() {
-        Log.d(TAG, "Clearing variant")
-        _variantId.value = DUMMY_ID
+        Log.d(TAG, "Clearing variant ${_variantId.value}")
+        _variantId.value = AUTO_ID
     }
 
     fun addToCollection() {
-        val currentIssueId = if (variantId.value == DUMMY_ID) {
+        val currentIssueId = if (variantId.value == AUTO_ID) {
             issueId.value
         } else {
             variantId.value
@@ -109,7 +101,7 @@ class IssueDetailViewModel : ViewModel() {
 
 
     fun removeFromCollection() {
-        val currentIssueId = if (variantId.value == DUMMY_ID) {
+        val currentIssueId = if (variantId.value == AUTO_ID) {
             issueId.value
         } else {
             variantId.value

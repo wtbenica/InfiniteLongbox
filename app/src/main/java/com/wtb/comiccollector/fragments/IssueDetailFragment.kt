@@ -11,26 +11,27 @@ import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.*
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.google.android.material.appbar.AppBarLayout
 import com.wtb.comiccollector.*
 import com.wtb.comiccollector.database.Daos.Count
 import com.wtb.comiccollector.database.models.*
 import com.wtb.comiccollector.fragments_view_models.IssueDetailViewModel
-import com.wtb.comiccollector.repository.DUMMY_ID
 import com.wtb.comiccollector.views.CreatorLink
 import com.wtb.comiccollector.views.CreatorLinkCallback
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 import java.io.File
 import java.time.format.DateTimeFormatter
 import java.util.*
 
-private const val TAG = APP + "IssueDetailFragment"
-
 // Bundle Argument Tags
 private const val ARG_ISSUE_ID = "issue_id"
 private const val ARG_EDITABLE = "open_as_editable"
+private const val ARG_VARIANT_OF = "variant_of"
 
 // onActivityResult Request Codes
 private const val PICK_COVER_IMAGE = 0
@@ -99,13 +100,11 @@ class IssueDetailFragment : Fragment(), CreatorLinkCallback {
     private lateinit var coverFile: File
     private var inCollection: Boolean = false
 
-    private fun issue(): FullIssue? = if (isVariant) {
-        fullVariant
-    } else {
-        fullIssue
-    }
+    private val currentIssue: FullIssue
+        get() = fullVariant ?: fullIssue
 
-    private fun coverUri(): Uri? = issue()?.coverUri
+    private val coverUri: Uri?
+        get() = currentIssue.coverUri
 
     private var saveIssue = true
     private var isEditable: Boolean = true
@@ -132,27 +131,29 @@ class IssueDetailFragment : Fragment(), CreatorLinkCallback {
         variantCredits = emptyList()
         variantStories = emptyList()
 
-        issueDetailViewModel.loadIssue(arguments?.getSerializable(ARG_ISSUE_ID) as Int)
+        val issueId = arguments?.getSerializable(ARG_ISSUE_ID) as Int
+        val variantOf = arguments?.getSerializable(ARG_VARIANT_OF) as Int?
 
-        lifecycleScope.launchWhenCreated {
-            issueDetailViewModel.issue.collectLatest {
-                it?.let { issue ->
-                    this@IssueDetailFragment.fullIssue = issue
-                    listFragmentCallback?.setTitle("${issue.series.seriesName} #${issue.issue.issueNum}")
-                    this@IssueDetailFragment.updateUI()
-                }
-            }
+        if (variantOf == null) {
+            Log.d(TAG, "NO VARIANT_OF")
+            issueDetailViewModel.loadVariant(null, 140)
+            issueDetailViewModel.loadIssue(issueId)
+        } else {
+            Log.d(TAG, "WHOO-HEE THERE'S A VARIANT_OF")
+            issueDetailViewModel.loadVariant(issueId, 144)
+            issueDetailViewModel.loadIssue(variantOf)
+        }
 
-            issueDetailViewModel.variant.collectLatest { issue ->
-                this@IssueDetailFragment.fullVariant = issue
-                this@IssueDetailFragment.isVariant = issue != null
-                (requireActivity() as MainActivity).supportActionBar?.apply {
-                    issue()?.let {
-                        title =
-                            "${issue()?.series?.seriesName} #${issue()?.issue?.issueNum} ${issue()?.issue?.variantName}"
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                issueDetailViewModel.issue.collectLatest {
+                    it?.let { issue ->
+                        this@IssueDetailFragment.fullIssue = issue
+                        listFragmentCallback?.setTitle("${issue.series.seriesName} #${issue.issue.issueNum}")
+                        this@IssueDetailFragment.updateUI()
                     }
                 }
-                this@IssueDetailFragment.updateUI()
+
             }
         }
     }
@@ -222,6 +223,17 @@ class IssueDetailFragment : Fragment(), CreatorLinkCallback {
             }
         )
 
+        issueDetailViewModel.variantLiveData.observe(
+            viewLifecycleOwner,
+            {
+                it?.let { variant ->
+                    Log.d(TAG, "variantLiveData changed, updating fullVariant")
+                    fullVariant = variant
+                    updateUI()
+                }
+            }
+        )
+
         issueDetailViewModel.variantCreditsLiveData.observe(
             viewLifecycleOwner,
             { credits: List<FullCredit>? ->
@@ -284,7 +296,6 @@ class IssueDetailFragment : Fragment(), CreatorLinkCallback {
     }
 
     private fun updateNavBar() {
-        Log.d(TAG, "updateNavBar")
         this.currentPos = this.issuesInSeries.indexOf(this.fullIssue.issue.issueId)
         val found = currentPos != -1
 
@@ -375,11 +386,13 @@ class IssueDetailFragment : Fragment(), CreatorLinkCallback {
                         val selectedIssueId =
                             (it.getItemAtPosition(position) as Issue).issueId
 
-                        isVariant = selectedIssueId != issueDetailViewModel.getIssueId()
+                        val selectionIsVariant = selectedIssueId != issueDetailViewModel
+                            .getIssueId()
 
-                        if (isVariant) {
-                            issueDetailViewModel.loadVariant(selectedIssueId)
+                        if (selectionIsVariant) {
+                            issueDetailViewModel.loadVariant(selectedIssueId, 393)
                         }
+
                         updateCover()
                     }
                 }
@@ -408,13 +421,19 @@ class IssueDetailFragment : Fragment(), CreatorLinkCallback {
     }
 
     private fun updateUI() {
-        if (issue()?.issue?.issueId != DUMMY_ID) {
+        Log.d(TAG, "updateUI")
+        if (currentIssue.issue.issueId != AUTO_ID) {
             numUpdates += 1
 
-            issue()?.issue?.releaseDate?.format(DateTimeFormatter.ofPattern("MMM d, y"))
+            currentIssue.issue.releaseDate?.format(DateTimeFormatter.ofPattern("MMM d, y"))
                 ?.let { releaseDateTextView.text = it }
 
             creditsBox.displayCredit()
+
+            fullVariant?.issue?.let {
+                val indexOf = issueVariants.indexOf(it)
+                variantSpinner.setSelection(indexOf)
+            }
 
             updateCover()
         } else {
@@ -423,8 +442,8 @@ class IssueDetailFragment : Fragment(), CreatorLinkCallback {
     }
 
     private fun updateCover() {
-        if (coverUri() != null) {
-            coverImageView.setImageURI(coverUri())
+        if (coverUri != null) {
+            coverImageView.setImageURI(coverUri)
         } else {
             coverImageView.setImageResource(R.drawable.cover_missing)
         }
@@ -441,13 +460,17 @@ class IssueDetailFragment : Fragment(), CreatorLinkCallback {
         fun newInstance(
             issueId: Int? = null,
             openAsEditable: Boolean = true,
+            variantOf: Int? = null
         ): IssueDetailFragment =
             IssueDetailFragment().apply {
                 arguments = Bundle().apply {
                     putSerializable(ARG_ISSUE_ID, issueId)
                     putSerializable(ARG_EDITABLE, openAsEditable)
+                    putSerializable(ARG_VARIANT_OF, variantOf)
                 }
             }
+
+        private const val TAG = APP + "IssueDetailFragment"
     }
 
     inner class CreditsBox(context: Context) : TableLayout(context) {
@@ -485,7 +508,7 @@ class IssueDetailFragment : Fragment(), CreatorLinkCallback {
                 } + variant
             } else {
                 original + variant
-            }
+            }.sortedBy { it.storyType }
     }
 
     inner class StoryRow(context: Context, val story: Story) : LinearLayout(context) {

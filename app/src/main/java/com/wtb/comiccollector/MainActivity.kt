@@ -29,6 +29,7 @@ import com.google.android.material.appbar.AppBarLayout.LayoutParams.SCROLL_FLAG_
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetBehavior.*
 import com.wtb.comiccollector.database.models.Creator
+import com.wtb.comiccollector.database.models.Issue
 import com.wtb.comiccollector.database.models.Series
 import com.wtb.comiccollector.fragments.FilterFragment
 import com.wtb.comiccollector.fragments.IssueDetailFragment
@@ -223,8 +224,8 @@ class MainActivity : AppCompatActivity(),
     }
 
     // IssueListFragment.IssueListCallback
-    override fun onIssueSelected(issueId: Int) {
-        val fragment = IssueDetailFragment.newInstance(issueId, false)
+    override fun onIssueSelected(issue: Issue) {
+        val fragment = IssueDetailFragment.newInstance(issue.issueId, false, issue.variantOf)
         val prevState = bottomSheetBehavior.state
         supportFragmentManager
             .beginTransaction()
