@@ -26,8 +26,6 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
-private const val TAG = APP + "IssueListFragment"
-
 @ExperimentalCoroutinesApi
 class IssueListFragment : ListFragment() {
 
@@ -206,5 +204,7 @@ class IssueListFragment : ListFragment() {
             override fun areContentsTheSame(oldItem: FullIssue, newItem: FullIssue): Boolean =
                 oldItem == newItem
         }
+
+        private const val TAG = APP + "IssueListFragment"
     }
 }

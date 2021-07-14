@@ -11,7 +11,9 @@ import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.*
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.google.android.material.appbar.AppBarLayout
 import com.wtb.comiccollector.*
 import com.wtb.comiccollector.database.Daos.Count
@@ -21,11 +23,10 @@ import com.wtb.comiccollector.views.CreatorLink
 import com.wtb.comiccollector.views.CreatorLinkCallback
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 import java.io.File
 import java.time.format.DateTimeFormatter
 import java.util.*
-
-private const val TAG = APP + "IssueDetailFragment"
 
 // Bundle Argument Tags
 private const val ARG_ISSUE_ID = "issue_id"
@@ -135,25 +136,16 @@ class IssueDetailFragment : Fragment(), CreatorLinkCallback {
 
         issueDetailViewModel.loadIssue(arguments?.getSerializable(ARG_ISSUE_ID) as Int)
 
-        lifecycleScope.launchWhenResumed {
-            issueDetailViewModel.issue.collectLatest {
-                it?.let { issue ->
-                    this@IssueDetailFragment.fullIssue = issue
-                    listFragmentCallback?.setTitle("${issue.series.seriesName} #${issue.issue.issueNum}")
-                    this@IssueDetailFragment.updateUI()
-                }
-            }
-
-            issueDetailViewModel.variant.collectLatest { issue ->
-                this@IssueDetailFragment.fullVariant = issue
-                this@IssueDetailFragment.isVariant = issue != null
-                (requireActivity() as MainActivity).supportActionBar?.apply {
-                    issue?.let {
-                        title =
-                            "${issue.series.seriesName} #${issue.issue.issueNum} ${issue.issue.variantName}"
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                issueDetailViewModel.issue.collectLatest {
+                    it?.let { issue ->
+                        this@IssueDetailFragment.fullIssue = issue
+                        listFragmentCallback?.setTitle("${issue.series.seriesName} #${issue.issue.issueNum}")
+                        this@IssueDetailFragment.updateUI()
                     }
                 }
-                this@IssueDetailFragment.updateUI()
+
             }
         }
     }
@@ -223,6 +215,16 @@ class IssueDetailFragment : Fragment(), CreatorLinkCallback {
             }
         )
 
+        issueDetailViewModel.variantLiveData.observe(
+            viewLifecycleOwner,
+            {
+                it?.let { variant ->
+                    fullVariant = variant
+                    updateUI()
+                }
+            }
+        )
+
         issueDetailViewModel.variantCreditsLiveData.observe(
             viewLifecycleOwner,
             { credits: List<FullCredit>? ->
@@ -285,7 +287,6 @@ class IssueDetailFragment : Fragment(), CreatorLinkCallback {
     }
 
     private fun updateNavBar() {
-        Log.d(TAG, "updateNavBar")
         this.currentPos = this.issuesInSeries.indexOf(this.fullIssue.issue.issueId)
         val found = currentPos != -1
 
@@ -381,6 +382,7 @@ class IssueDetailFragment : Fragment(), CreatorLinkCallback {
                         if (isVariant) {
                             issueDetailViewModel.loadVariant(selectedIssueId)
                         }
+
                         updateCover()
                     }
                 }
@@ -449,6 +451,8 @@ class IssueDetailFragment : Fragment(), CreatorLinkCallback {
                     putSerializable(ARG_EDITABLE, openAsEditable)
                 }
             }
+
+        private const val TAG = APP + "IssueDetailFragment"
     }
 
     inner class CreditsBox(context: Context) : TableLayout(context) {
