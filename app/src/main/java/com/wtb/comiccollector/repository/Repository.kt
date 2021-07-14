@@ -1,5 +1,6 @@
 package com.wtb.comiccollector.repository
 
+//import android.util.Log
 import android.annotation.SuppressLint
 import android.app.Dialog
 import android.content.Context
@@ -8,7 +9,6 @@ import android.content.SharedPreferences
 import android.database.sqlite.SQLiteConstraintException
 import android.os.Bundle
 import android.util.Log
-//import android.util.Log
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
 import androidx.paging.Pager
@@ -24,12 +24,14 @@ import com.wtb.comiccollector.Webservice
 import com.wtb.comiccollector.database.Daos.Count
 import com.wtb.comiccollector.database.Daos.REQUEST_LIMIT
 import com.wtb.comiccollector.database.IssueDatabase
+import com.wtb.comiccollector.database.SimpleMigration
 import com.wtb.comiccollector.database.models.*
 import com.wtb.comiccollector.network.RetrofitAPIClient
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flow
+import org.intellij.lang.annotations.Language
 import java.time.LocalDate
 import java.util.Collections.sort
 import java.util.concurrent.Executors
@@ -203,7 +205,8 @@ class Repository private constructor(val context: Context) {
         return Pager(
             config = PagingConfig(pageSize = REQUEST_LIMIT, enablePlaceholders = true),
             pagingSourceFactory = {
-                issueDao.getIssuesByFilterPagingSource(filter = filter) }
+                issueDao.getIssuesByFilterPagingSource(filter = filter)
+            }
         ).flow
     }
 
@@ -232,6 +235,7 @@ class Repository private constructor(val context: Context) {
             flow { emit(emptyList<Creator>()) }
         }
     }
+
     // PUBLISHER METHODS
     fun getPublishersByFilter(filter: SearchFilter): Flow<List<Publisher>> {
         Log.d(TAG, "getPublishersByFilter")
@@ -323,6 +327,7 @@ class Repository private constructor(val context: Context) {
      * Builds database and adds dummy publisher and series, which are used for creating new empty
      * issue objects
      */
+    @Language("RoomSql")
     private fun buildDatabase(context: Context): IssueDatabase = Room.databaseBuilder(
         context.applicationContext,
         IssueDatabase::class.java,
@@ -350,8 +355,18 @@ class Repository private constructor(val context: Context) {
                 }
             }
         }
-    ).addMigrations()
-        .build()
+    ).addMigrations(
+        SimpleMigration(
+            1, 2,
+            """
+       ALTER TABLE issue
+       ADD COLUMN publicationDate TEXT
+       """,
+            """
+       ALTER TABLE issue
+       ADD COLUMN onSaleDate TEXT
+       """)
+    ).build()
 
     class DuplicateFragment : DialogFragment() {
         override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {

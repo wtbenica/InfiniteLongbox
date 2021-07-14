@@ -96,7 +96,7 @@ class SeriesListFragment : ListFragment() {
 
         private lateinit var item: FullSeries
 
-        private val seriesTextView: TextView = itemView.findViewById(R.id.list_item_name)
+        private val seriesTextView: TextView = itemView.findViewById(R.id.list_item_variant_name_text)
         private val seriesImageView: ImageView = itemView.findViewById(R.id.series_imageview)
         private val seriesDateRangeTextView: TextView = itemView.findViewById(R.id.list_item_dates)
 

@@ -4,9 +4,12 @@ import android.animation.ValueAnimator
 import android.content.Context
 import android.os.Bundle
 import android.view.*
+import android.view.View.GONE
+import android.view.View.VISIBLE
 import android.view.animation.AccelerateInterpolator
 import android.widget.GridLayout.VERTICAL
 import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -18,7 +21,6 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.wtb.comiccollector.APP
-import com.wtb.comiccollector.MainActivity
 import com.wtb.comiccollector.R
 import com.wtb.comiccollector.database.models.FullIssue
 import com.wtb.comiccollector.database.models.Issue
@@ -128,7 +130,11 @@ class IssueListFragment : ListFragment() {
 
         private val progressCover: ProgressBar = itemView.findViewById(R.id.progress_cover_download)
         private val coverImageView: ImageView = itemView.findViewById(R.id.list_item_cover)
-        private val issueNumTextView: TextView = itemView.findViewById(R.id.list_item_issue)
+        private val issueNameBox: LinearLayout = itemView.findViewById(R.id.list_item_issue_box)
+        private val issueNumTextView: TextView =
+            itemView.findViewById(R.id.list_item_issue_number_text)
+        private val issueVariantName: TextView =
+            itemView.findViewById(R.id.list_item_variant_name_text)
         private val wrapper: ConstraintLayout = itemView.findViewById(R.id.wrapper)
 
         init {
@@ -167,19 +173,24 @@ class IssueListFragment : ListFragment() {
             }
 
             if (fullIssue?.myCollection?.collectionId != null) {
-                issueNumTextView.setBackgroundColor(MainActivity.resolveThemeAttribute(
-                    R.attr.colorPrimary,
-                    context
-                ))
+                context?.getColor(R.color.fantasia_transparent)?.let {
+                    issueNameBox.setBackgroundColor(it)
+                }
             } else {
-                context?.getColor(android.R.color.white)?.let {
-                    issueNumTextView.setBackgroundColor(
-                        it
-                    )
+                context?.getColor(R.color.transparent_white)?.let {
+                    issueNameBox.setBackgroundColor(it)
                 }
             }
 
-            issueNumTextView.text = this.fullIssue?.issue.toString()
+            issueNumTextView.text = this.fullIssue?.issue?.issueNum.toString()
+
+            val variantName = this.fullIssue?.issue?.variantName
+            if (variantName == "" || variantName == null) {
+                issueVariantName.visibility = GONE
+            } else {
+                issueVariantName.text = variantName
+                issueVariantName.visibility = VISIBLE
+            }
         }
 
         override fun onClick(v: View?) {
@@ -189,7 +200,7 @@ class IssueListFragment : ListFragment() {
 
     }
 
-    interface IssueListCallback : ListFragmentCallback {
+    interface IssueListCallback : ListFragment.ListFragmentCallback {
         fun onIssueSelected(issue: Issue)
         fun onNewIssue(issueId: Int)
     }

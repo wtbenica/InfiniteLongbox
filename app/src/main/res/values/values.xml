@@ -5,6 +5,8 @@
     <attr name="colorPrimaryLightMuted" format="reference"/>
     <attr name="colorPrimaryLightLight" format="reference" />
     <attr name="colorSecondaryLightLight" format="reference" />
+    <attr name="colorTransparentWhite" format="reference" />
+    <attr name="colorPrimaryTransparent" format="reference" />
     <attr name="colorStoryBoxTitle" format="reference" />
     <attr name="colorStoryBoxSubtitle" format="reference" />
     <attr name="styleCreatorLink" format="reference" />

@@ -2,6 +2,7 @@
 <resources>
 
     <color name="fantasia">#ABED92</color>
+    <color name="fantasia_transparent">#DDABED92</color>
     <color name="fantasia_light">#D3FAC5</color>
     <color name="fantasia_light_light">#ECF8E7</color>
     <color name="fantasia_dark">#6AC947</color>
@@ -21,4 +22,6 @@
     <color name="tag_creator">#E317E3</color>
     <color name="tag_publisher">#FFE925</color>
     <color name="tag_character">#0000FF</color>
+
+    <color name="transparent_white">#DFFF</color>
 </resources>
