@@ -54,7 +54,9 @@ class IssueDetailViewModel : ViewModel() {
         issueId.flatMapLatest { issueId -> repository.getCreditsByIssue(issueId) }.asLiveData()
 
     val variantLiveData: LiveData<FullIssue?> =
-        variantId.flatMapLatest { issueId -> repository.getIssue(issueId) }.asLiveData()
+        variantId.flatMapLatest { id ->
+            Log.d(TAG, "variantId changed, updating variantLiveData $id")
+            repository.getIssue(id) }.asLiveData()
 
     val variantStoriesLiveData: LiveData<List<Story>> =
         variantId.flatMapLatest { issueId -> repository.getStoriesByIssue(issueId) }.asLiveData()
@@ -78,7 +80,8 @@ class IssueDetailViewModel : ViewModel() {
 
     fun getIssueId() = issueId.value
 
-    fun loadVariant(issueId: Int?) {
+    fun loadVariant(issueId: Int?, line: Int) {
+        Log.d(TAG, "loadVariant $line")
         _variantId.value = issueId ?: AUTO_ID
     }
 

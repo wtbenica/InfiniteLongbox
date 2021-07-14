@@ -100,15 +100,11 @@ class IssueDetailFragment : Fragment(), CreatorLinkCallback {
     private lateinit var coverFile: File
     private var inCollection: Boolean = false
 
-    private val currentIssue: FullIssue?
-        get() = if (isVariant) {
-            fullVariant
-        } else {
-            fullIssue
-        }
+    private val currentIssue: FullIssue
+        get() = fullVariant ?: fullIssue
 
     private val coverUri: Uri?
-        get() = currentIssue?.coverUri
+        get() = currentIssue.coverUri
 
     private var saveIssue = true
     private var isEditable: Boolean = true
@@ -135,7 +131,18 @@ class IssueDetailFragment : Fragment(), CreatorLinkCallback {
         variantCredits = emptyList()
         variantStories = emptyList()
 
-        issueDetailViewModel.loadIssue(arguments?.getSerializable(ARG_ISSUE_ID) as Int)
+        val issueId = arguments?.getSerializable(ARG_ISSUE_ID) as Int
+        val variantOf = arguments?.getSerializable(ARG_VARIANT_OF) as Int?
+
+        if (variantOf == null) {
+            Log.d(TAG, "NO VARIANT_OF")
+            issueDetailViewModel.loadVariant(null, 140)
+            issueDetailViewModel.loadIssue(issueId)
+        } else {
+            Log.d(TAG, "WHOO-HEE THERE'S A VARIANT_OF")
+            issueDetailViewModel.loadVariant(issueId, 144)
+            issueDetailViewModel.loadIssue(variantOf)
+        }
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -220,6 +227,7 @@ class IssueDetailFragment : Fragment(), CreatorLinkCallback {
             viewLifecycleOwner,
             {
                 it?.let { variant ->
+                    Log.d(TAG, "variantLiveData changed, updating fullVariant")
                     fullVariant = variant
                     updateUI()
                 }
@@ -378,12 +386,11 @@ class IssueDetailFragment : Fragment(), CreatorLinkCallback {
                         val selectedIssueId =
                             (it.getItemAtPosition(position) as Issue).issueId
 
-                        isVariant = selectedIssueId != issueDetailViewModel.getIssueId()
+                        val selectionIsVariant = selectedIssueId != issueDetailViewModel
+                            .getIssueId()
 
-                        if (isVariant) {
-                            issueDetailViewModel.loadVariant(selectedIssueId)
-                        } else {
-                            issueDetailViewModel.clearVariant()
+                        if (selectionIsVariant) {
+                            issueDetailViewModel.loadVariant(selectedIssueId, 393)
                         }
 
                         updateCover()
@@ -414,13 +421,19 @@ class IssueDetailFragment : Fragment(), CreatorLinkCallback {
     }
 
     private fun updateUI() {
-        if (currentIssue?.issue?.issueId != AUTO_ID) {
+        Log.d(TAG, "updateUI")
+        if (currentIssue.issue.issueId != AUTO_ID) {
             numUpdates += 1
 
-            currentIssue?.issue?.releaseDate?.format(DateTimeFormatter.ofPattern("MMM d, y"))
+            currentIssue.issue.releaseDate?.format(DateTimeFormatter.ofPattern("MMM d, y"))
                 ?.let { releaseDateTextView.text = it }
 
             creditsBox.displayCredit()
+
+            fullVariant?.issue?.let {
+                val indexOf = issueVariants.indexOf(it)
+                variantSpinner.setSelection(indexOf)
+            }
 
             updateCover()
         } else {

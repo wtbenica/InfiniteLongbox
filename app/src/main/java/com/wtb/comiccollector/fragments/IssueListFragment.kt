@@ -21,6 +21,7 @@ import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.MainActivity
 import com.wtb.comiccollector.R
 import com.wtb.comiccollector.database.models.FullIssue
+import com.wtb.comiccollector.database.models.Issue
 import com.wtb.comiccollector.fragments_view_models.IssueListViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collectLatest
@@ -182,14 +183,14 @@ class IssueListFragment : ListFragment() {
         }
 
         override fun onClick(v: View?) {
-            val issueId = fullIssue?.issue?.issueId
-            issueId?.let { (callback as IssueListCallback?)?.onIssueSelected(it) }
+            val issue = fullIssue?.issue
+            issue?.let { (callback as IssueListCallback?)?.onIssueSelected(it) }
         }
 
     }
 
     interface IssueListCallback : ListFragmentCallback {
-        fun onIssueSelected(issueId: Int)
+        fun onIssueSelected(issue: Issue)
         fun onNewIssue(issueId: Int)
     }
 
