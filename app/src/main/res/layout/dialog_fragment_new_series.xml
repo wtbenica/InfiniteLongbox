@@ -156,7 +156,7 @@
         app:layout_constraintTop_toBottomOf="@+id/end_date_label" />
 
     <TextView
-        android:id="@+id/label_description"
+        android:id="@+id/label_tracking_notes"
         style="@style/TextAppearance.AppCompat.Caption"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -164,7 +164,7 @@
         android:layout_marginTop="16dp"
         android:layout_marginEnd="16dp"
         android:labelFor="@id/end_date_text_view"
-        android:text="@string/label_description"
+        android:text="@string/series_detail_tracking_notes"
         android:textAlignment="textStart"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -180,7 +180,7 @@
         android:lines="5"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/label_description" />
+        app:layout_constraintTop_toBottomOf="@+id/label_tracking_notes" />
 
     <Button
         android:id="@+id/button"

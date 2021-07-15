@@ -16,7 +16,6 @@
     <string name="hint_last_name">Last Name</string>
     <string name="hint_suffix">Suffix</string>
     <string name="hint_new_creator">New Creator</string>
-    <string name="label_description">Description</string>
     <string-array name="suffixes_array">
         <item>None</item>
         <item>Sr.</item>
@@ -67,4 +66,8 @@
     <string name="label_variants">Variants</string>
     <string name="bottom_sheet_handle_description">Expand filter/sort options</string>
     <string name="content_desc_issue_display_gcd_link">Link to issue at Grand Comic Database</string>
+
+    <!--     Fragment Series Detail-->
+    <string name="series_detail_notes">Notes</string>
+    <string name="series_detail_tracking_notes">Tracking notes</string>
 </resources>

@@ -79,7 +79,7 @@ class GcdSeries(
     override fun toRoomModel(pk: Int): Series {
         return Series(
             seriesId = pk,
-            seriesName = name ?: "",
+            seriesName = name,
             sortName = sortName,
             publisherId = publisher ?: AUTO_ID,
             startDate = when (yearBeganUncertain as Int) {
@@ -100,10 +100,10 @@ class GcdSeries(
                 }
                 else -> null
             },
-            publishingFormat = publishingFormat,
-            description = trackingNotes,
+            publishingFormat = if (publishingFormat == "") null else publishingFormat,
+            description = if (trackingNotes == "") null else trackingNotes,
             firstIssueId = firstIssueId,
-            notes = notes,
+            notes = if (notes == "") null else notes,
             issueCount = issueCount
         )
     }
