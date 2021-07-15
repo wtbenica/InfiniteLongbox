@@ -88,6 +88,9 @@ class IssueDetailFragment : Fragment(), CreatorLinkCallback {
     private lateinit var creditsBox: CreditsBox
 
     private lateinit var releaseDateTextView: TextView
+    private lateinit var coverDateLongTextView: TextView
+    private lateinit var coverDateTextView: TextView
+    private lateinit var notesTextView: TextView
 
     private lateinit var gotoStartButton: Button
     private lateinit var gotoSkipBackButton: Button
@@ -169,6 +172,9 @@ class IssueDetailFragment : Fragment(), CreatorLinkCallback {
         coverImageView = view.findViewById(R.id.issue_cover) as ImageView
         issueCreditsFrame = view.findViewById(R.id.issue_credits_table) as ScrollView
         releaseDateTextView = view.findViewById(R.id.release_date_text_view)
+        coverDateLongTextView = view.findViewById(R.id.cover_date_long_text_view)
+        coverDateTextView= view.findViewById(R.id.cover_date_text_view)
+        notesTextView = view.findViewById(R.id.notes_text_view)
         gcdLinkButton = view.findViewById(R.id.gcd_link) as Button
         collectionButton = view.findViewById(R.id.collectionButton) as Button
         variantSpinnerHolder = view.findViewById(R.id.variant_spinner_holder)
@@ -422,12 +428,15 @@ class IssueDetailFragment : Fragment(), CreatorLinkCallback {
 
     private fun updateUI() {
         Log.d(TAG, "updateUI")
-        if (currentIssue.issue.issueId != AUTO_ID) {
+        val issue = currentIssue.issue
+        if (issue.issueId != AUTO_ID) {
             numUpdates += 1
 
-            currentIssue.issue.releaseDate?.format(DateTimeFormatter.ofPattern("MMM d, y"))
+            issue.releaseDate?.format(DateTimeFormatter.ofPattern("MMM d, y"))
                 ?.let { releaseDateTextView.text = it }
-
+            coverDateLongTextView.text = issue.coverDateLong
+            coverDateTextView.text = issue.coverDate.toString()
+            notesTextView.text = issue.notes
             creditsBox.displayCredit()
 
             fullVariant?.issue?.let {

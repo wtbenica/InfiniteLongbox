@@ -154,10 +154,19 @@ class GcdIssue(
     val editing: String,
     @SerializedName("publication_date")
     @Expose
-    val publicationDate: String?,
+    val publicationDate: String,
     @SerializedName("on_sale_date")
     @Expose
     val onSaleDate: String,
+    @SerializedName("on_sale_date_uncertain")
+    @Expose
+    val onSaleDateUncertain: Int,
+    @SerializedName("key_date")
+    @Expose
+    val keyDate: String,
+    @SerializedName("notes")
+    @Expose
+    val notes: String,
     @SerializedName("no_barcode")
     @Expose
     val noBarcode: Int,
@@ -172,6 +181,8 @@ class GcdIssue(
     val variantOf: Int?,
 ) : GcdJson<Issue> {
     override fun toRoomModel(pk: Int): Issue {
+        val fixedPubDate = if (publicationDate == "") null else publicationDate
+        val fixedNotes = if (notes == "") null else notes
         return Issue(
             issueId = pk,
             seriesId = seriesId,
@@ -180,7 +191,11 @@ class GcdIssue(
             upc = barcode.toLongOrNull(),
             variantName = variantName,
             variantOf = variantOf,
-            sortCode = sortCode
+            sortCode = sortCode,
+            coverDateLong = fixedPubDate,
+            onSaleDateUncertain = onSaleDateUncertain == 1,
+            coverDate = Issue.formatDate(keyDate),
+            notes = fixedNotes
         )
     }
 }

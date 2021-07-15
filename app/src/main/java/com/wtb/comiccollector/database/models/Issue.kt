@@ -41,6 +41,10 @@ data class Issue(
     var variantName: String = "",
     var variantOf: Int? = null,
     var sortCode: Int = 0,
+    var coverDateLong: String? = null,
+    var onSaleDateUncertain: Boolean = false,
+    var coverDate: LocalDate? = null,
+    var notes: String? = null,
 ) : DataModel() {
 
     val coverFileName: String

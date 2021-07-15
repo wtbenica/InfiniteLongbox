@@ -44,7 +44,19 @@ class IssueTypeConverters {
     }
 
     @TypeConverter
-    fun fromLocalDate(date: LocalDate?) : String? {
+    fun fromLocalDate(date: LocalDate?): String? {
         return date?.toString()
+    }
+
+    @TypeConverter
+    fun toBoolean(num: Number): Boolean {
+        return num == 1
+    }
+
+    @TypeConverter
+    fun fromBoolean(boolean: Boolean): Number = if (boolean) {
+        1
+    } else {
+        0
     }
 }

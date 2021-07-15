@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        tools:layout_width="wrap_content"
+        tools:layout_height="wrap_content">
+        <TextView
+            android:id="@+id/label_release_date"
+            style="@style/RoleNameText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_narrow"
+            android:layout_marginTop="@dimen/margin_narrow"
+            android:background="@color/tag_publisher"
+            android:labelFor="@id/release_date_text_view"
+            android:padding="@dimen/margin_narrow"
+            android:text="@string/release_date"
+            android:textSize="14sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:showIn="@layout/fragment_display_issue"/>
+
+        <TextView
+            android:id="@+id/release_date_text_view"
+            style="@style/CreatorNameText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_narrow"
+            android:textSize="14sp"
+            app:layout_constraintBottom_toBottomOf="@id/label_release_date"
+            app:layout_constraintStart_toEndOf="@+id/label_release_date"
+            app:layout_constraintTop_toTopOf="@id/label_release_date"
+            tools:text="May 6, 2021" />
+
+        <TextView
+            android:id="@+id/label_cover_date_long"
+            style="@style/RoleNameText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_narrow"
+            android:layout_marginTop="@dimen/margin_narrow"
+            android:background="@color/tag_publisher"
+            android:labelFor="@id/cover_date_long_text_view"
+            android:padding="@dimen/margin_narrow"
+            android:text="Cover Date Long"
+            android:textSize="14sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/label_release_date" />
+
+        <TextView
+            android:id="@+id/cover_date_long_text_view"
+            style="@style/CreatorNameText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_narrow"
+            android:textSize="14sp"
+            app:layout_constraintBottom_toBottomOf="@id/label_cover_date_long"
+            app:layout_constraintStart_toEndOf="@+id/label_cover_date_long"
+            app:layout_constraintTop_toTopOf="@id/label_cover_date_long"
+            tools:text="May 6, 2021" />
+
+        <TextView
+            android:id="@+id/label_cover_date"
+            style="@style/RoleNameText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_narrow"
+            android:layout_marginTop="@dimen/margin_narrow"
+            android:background="@color/tag_publisher"
+            android:labelFor="@id/cover_date_text_view"
+            android:padding="@dimen/margin_narrow"
+            android:text="Cover Date"
+            android:textSize="14sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/label_cover_date_long" />
+
+        <TextView
+            android:id="@+id/cover_date_text_view"
+            style="@style/CreatorNameText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_narrow"
+            android:textSize="14sp"
+            app:layout_constraintBottom_toBottomOf="@id/label_cover_date"
+            app:layout_constraintStart_toEndOf="@+id/label_cover_date"
+            app:layout_constraintTop_toTopOf="@id/label_cover_date"
+            tools:text="May 6, 2021" />
+
+        <TextView
+            android:id="@+id/label_notes"
+            style="@style/RoleNameText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_narrow"
+            android:layout_marginTop="@dimen/margin_narrow"
+            android:background="@color/tag_publisher"
+            android:labelFor="@id/release_date_text_view"
+            android:padding="@dimen/margin_narrow"
+            android:text="Notes"
+            android:textSize="14sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/label_cover_date" />
+
+        <TextView
+            android:id="@+id/notes_text_view"
+            style="@style/CreatorNameText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_narrow"
+            android:textSize="14sp"
+            app:layout_constraintBottom_toBottomOf="@id/label_notes"
+            app:layout_constraintStart_toEndOf="@+id/label_notes"
+            app:layout_constraintTop_toTopOf="@id/label_notes"
+            tools:text="May 6, 2021" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</merge>

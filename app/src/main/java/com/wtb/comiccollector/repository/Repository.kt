@@ -121,13 +121,6 @@ class Repository private constructor(val context: Context) {
                 }
             }
         }
-
-//        MainActivity.hasUnmeteredConnection.observeForever {
-//            hasUnmeteredConnection = it
-//            if (checkConnectionStatus()) {
-//                StaticUpdater(apiService, database, prefs).update()
-//            }
-//        }
     }
 
     private fun checkConnectionStatus() = hasConnection && hasUnmeteredConnection && isIdle
@@ -328,45 +321,38 @@ class Repository private constructor(val context: Context) {
      * issue objects
      */
     @Language("RoomSql")
-    private fun buildDatabase(context: Context): IssueDatabase = Room.databaseBuilder(
-        context.applicationContext,
-        IssueDatabase::class.java,
-        DATABASE_NAME
-    ).addCallback(
-        object : RoomDatabase.Callback() {
-            override fun onCreate(db: SupportSQLiteDatabase) {
-                super.onCreate(db)
-                val publisher =
-                    Publisher(publisherId = DUMMY_ID, publisher = "Dummy Publisher")
-                executor.execute {
-                    publisherDao.upsert(
-                        publisher,
-                    )
-
-                    seriesDao.upsert(
-                        Series(
-                            seriesId = DUMMY_ID,
-                            seriesName = "Dummy Series",
-                            publisherId = DUMMY_ID,
-                            startDate = LocalDate.MIN,
-                            endDate = LocalDate.MIN,
+    private fun buildDatabase(context: Context): IssueDatabase {
+        return Room.databaseBuilder(
+            context.applicationContext,
+            IssueDatabase::class.java,
+            DATABASE_NAME
+        ).addCallback(
+            object : RoomDatabase.Callback() {
+                override fun onCreate(db: SupportSQLiteDatabase) {
+                    super.onCreate(db)
+                    val publisher =
+                        Publisher(publisherId = DUMMY_ID, publisher = "Dummy Publisher")
+                    executor.execute {
+                        publisherDao.upsert(
+                            publisher,
                         )
-                    )
+
+                        seriesDao.upsert(
+                            Series(
+                                seriesId = DUMMY_ID,
+                                seriesName = "Dummy Series",
+                                publisherId = DUMMY_ID,
+                                startDate = LocalDate.MIN,
+                                endDate = LocalDate.MIN,
+                            )
+                        )
+                    }
                 }
             }
-        }
-    ).addMigrations(
-        SimpleMigration(
-            1, 2,
-            """
-       ALTER TABLE issue
-       ADD COLUMN publicationDate TEXT
-       """,
-            """
-       ALTER TABLE issue
-       ADD COLUMN onSaleDate TEXT
-       """)
-    ).build()
+        ).addMigrations(
+            migration_1_2
+        ).build()
+    }
 
     class DuplicateFragment : DialogFragment() {
         override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
@@ -400,6 +386,16 @@ class Repository private constructor(val context: Context) {
             editor.putString(key, LocalDate.now().toString())
             editor.apply()
         }
+
+        @Language("RoomSql")
+        val migration_1_2 = SimpleMigration(
+            1,
+            2,
+            """ALTER TABLE issue ADD COLUMN coverDateLong TEXT""",
+            "ALTER TABLE issue ADD COLUMN onSaleDateUncertain INTEGER NOT NULL DEFAULT 1",
+            "ALTER TABLE issue ADD COLUMN coverDate TEXT",
+            "ALTER TABLE issue ADD COLUMN notes TEXT",
+        )
     }
 
     fun saveSeries(vararg series: Series) {
