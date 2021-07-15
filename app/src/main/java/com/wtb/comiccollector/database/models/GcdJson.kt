@@ -359,13 +359,17 @@ class GcdNameDetail(
     val creatorId: Int,
     @SerializedName("name")
     @Expose
-    val name: String
+    val name: String,
+    @SerializedName("sort_name")
+    @Expose
+    val sortName: String
 ) : GcdJson<NameDetail> {
     override fun toRoomModel(pk: Int): NameDetail {
         return NameDetail(
             nameDetailId = pk,
             creatorId = creatorId,
-            name = name
+            name = name,
+            sortName = if (sortName == "") null else sortName
         )
     }
 }

@@ -44,7 +44,8 @@ data class Creator(
 data class NameDetail(
     @PrimaryKey(autoGenerate = true) val nameDetailId: Int = AUTO_ID,
     var creatorId: Int,
-    var name: String
+    var name: String,
+    var sortName: String? = null
 ) : DataModel(), FilterOptionAutoCompletePopupItem {
     override val id: Int
         get() = nameDetailId
