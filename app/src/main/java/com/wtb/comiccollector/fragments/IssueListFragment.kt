@@ -186,7 +186,7 @@ class IssueListFragment : ListFragment() {
 
             val variantName = this.fullIssue?.issue?.variantName
             val isVariant = this.fullIssue?.issue?.variantOf == null
-            if (isVariant || variantName == ""||variantName == null) {
+            if (isVariant || variantName == "" || variantName == null) {
                 issueVariantName.visibility = GONE
             } else {
                 issueVariantName.text = variantName

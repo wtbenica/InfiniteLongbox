@@ -96,9 +96,11 @@ class SeriesListFragment : ListFragment() {
 
         private lateinit var item: FullSeries
 
-        private val seriesTextView: TextView = itemView.findViewById(R.id.list_item_variant_name_text)
+        private val seriesTextView: TextView =
+            itemView.findViewById(R.id.list_item_variant_name_text)
         private val seriesImageView: ImageView = itemView.findViewById(R.id.series_imageview)
         private val seriesDateRangeTextView: TextView = itemView.findViewById(R.id.list_item_dates)
+        private val formatTextView: TextView = itemView.findViewById(R.id.list_item_format)
 
         init {
             itemView.setOnClickListener(this)
@@ -113,6 +115,7 @@ class SeriesListFragment : ListFragment() {
             uri.let { seriesImageView.setImageURI(it) }
 
             seriesDateRangeTextView.text = this.item.series.dateRange
+            formatTextView.text =  this.item.series.publishingFormat?.lowercase()
         }
 
         override fun onClick(v: View?) {
@@ -120,7 +123,7 @@ class SeriesListFragment : ListFragment() {
         }
     }
 
-    interface SeriesListCallback : ListFragmentCallback {
+    interface SeriesListCallback : ListFragment.ListFragmentCallback {
         fun onSeriesSelected(series: Series)
     }
 

@@ -58,7 +58,7 @@ class GcdSeries(
     val publisher: Int?,
     @SerializedName("publishing_format")
     @Expose
-    val publishingFormat: String?,
+    val publishingFormat: String,
     @SerializedName("tracking_notes")
     @Expose
     val trackingNotes: String?,
