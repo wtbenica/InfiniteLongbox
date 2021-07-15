@@ -34,25 +34,25 @@ interface GcdJson<M : DataModel> {
 class GcdSeries(
     @SerializedName("name")
     @Expose
-    val name: String?,
+    val name: String,
     @SerializedName("sort_name")
     @Expose
-    val sortName: String?,
+    val sortName: String,
     @SerializedName("year_began")
     @Expose
     val yearBegan: Int?,
     @SerializedName("year_began_uncertain")
     @Expose
-    val yearBeganUncertain: Int?,
+    val yearBeganUncertain: Int,
     @SerializedName("year_ended")
     @Expose
     val yearEnded: Int?,
     @SerializedName("year_ended_uncertain")
     @Expose
-    val yearEndedUncertain: Int?,
+    val yearEndedUncertain: Int,
     @SerializedName("publication_dates")
     @Expose
-    val publicationDates: String?,
+    val publicationDates: String,
     @SerializedName("publisher")
     @Expose
     val publisher: Int?,
@@ -61,10 +61,16 @@ class GcdSeries(
     val publishingFormat: String,
     @SerializedName("tracking_notes")
     @Expose
-    val trackingNotes: String?,
+    val trackingNotes: String,
     @SerializedName("first_issue")
     @Expose
-    val firstIssueId: Int?
+    val firstIssueId: Int?,
+    @SerializedName("notes")
+    @Expose
+    val notes: String,
+    @SerializedName("issue_count")
+    @Expose
+    val issueCount: Int
 ) : GcdJson<Series> {
     override fun toString(): String {
         return "$name ($yearBegan - $yearEnded)"
@@ -96,7 +102,9 @@ class GcdSeries(
             },
             publishingFormat = publishingFormat,
             description = trackingNotes,
-            firstIssueId = firstIssueId
+            firstIssueId = firstIssueId,
+            notes = notes,
+            issueCount = issueCount
         )
     }
 }

@@ -349,9 +349,7 @@ class Repository private constructor(val context: Context) {
                     }
                 }
             }
-        ).addMigrations(
-            migration_1_2
-        ).build()
+        ).addMigrations(migration_1_2, migration_2_3).build()
     }
 
     class DuplicateFragment : DialogFragment() {
@@ -395,6 +393,12 @@ class Repository private constructor(val context: Context) {
             "ALTER TABLE issue ADD COLUMN onSaleDateUncertain INTEGER NOT NULL DEFAULT 1",
             "ALTER TABLE issue ADD COLUMN coverDate TEXT",
             "ALTER TABLE issue ADD COLUMN notes TEXT",
+        )
+
+        val migration_2_3 = SimpleMigration(
+            2, 3,
+            """ALTER TABLE series ADD COLUMN notes TEXT""",
+            """ALTER TABLE series ADD COLUMN issueCount INTEGER NOT NULL DEFAULT 0"""
         )
     }
 

@@ -15,7 +15,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
     entities = [Issue::class, Series::class, Creator::class, Role::class, Credit::class,
         Publisher::class, Story::class, ExCredit::class, StoryType::class, NameDetail::class,
         Character::class, Appearance::class, MyCollection::class, Cover::class],
-    version = 2
+    version = 3
 )
 
 @TypeConverters(IssueTypeConverters::class)

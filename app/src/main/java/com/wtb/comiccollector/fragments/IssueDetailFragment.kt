@@ -173,7 +173,7 @@ class IssueDetailFragment : Fragment(), CreatorLinkCallback {
         issueCreditsFrame = view.findViewById(R.id.issue_credits_table) as ScrollView
         releaseDateTextView = view.findViewById(R.id.release_date_text_view)
         coverDateLongTextView = view.findViewById(R.id.cover_date_long_text_view)
-        coverDateTextView= view.findViewById(R.id.cover_date_text_view)
+        coverDateTextView = view.findViewById(R.id.cover_date_text_view)
         notesTextView = view.findViewById(R.id.notes_text_view)
         gcdLinkButton = view.findViewById(R.id.gcd_link) as Button
         collectionButton = view.findViewById(R.id.collectionButton) as Button

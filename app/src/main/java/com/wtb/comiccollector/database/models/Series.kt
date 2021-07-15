@@ -33,7 +33,9 @@ data class Series(
     var endDate: LocalDate? = null,
     var description: String? = null,
     var publishingFormat: String? = null,
-    val firstIssueId: Int? = null
+    val firstIssueId: Int? = null,
+    val notes: String? = null,
+    val issueCount: Int = 0
 ) : DataModel(), FilterOptionAutoCompletePopupItem, Serializable {
     override val tagName: String
         get() = "Series"
