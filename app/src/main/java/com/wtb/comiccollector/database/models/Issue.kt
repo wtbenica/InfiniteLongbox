@@ -45,6 +45,7 @@ data class Issue(
     var onSaleDateUncertain: Boolean = false,
     var coverDate: LocalDate? = null,
     var notes: String? = null,
+    val brandId: Int? = null
 ) : DataModel() {
 
     val coverFileName: String
@@ -151,4 +152,20 @@ data class Cover(
 ) : DataModel() {
     override val id: Int
         get() = coverId
+}
+
+@Entity
+data class Brand(
+    @PrimaryKey(autoGenerate = true) val brandId: Int = AUTO_ID,
+    var name: String,
+    var yearBegan: LocalDate? = null,
+    var yearEnded: LocalDate? = null,
+    var notes: String? = null,
+    var url: String? = null,
+    var issueCount: Int,
+    var yearBeganUncertain: Boolean,
+    var yearEndedUncertain: Boolean,
+) : DataModel() {
+    override val id: Int
+        get() = brandId
 }

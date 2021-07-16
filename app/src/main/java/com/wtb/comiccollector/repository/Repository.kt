@@ -351,7 +351,7 @@ class Repository private constructor(val context: Context) {
             }
         ).addMigrations(
             migration_1_2, migration_2_3, migration_3_4, migration_4_5,
-            migration_5_6, migration_6_7
+            migration_5_6, migration_6_7, migration_7_8
         )
             .build()
     }
@@ -458,6 +458,28 @@ class Repository private constructor(val context: Context) {
             """CREATE INDEX IF NOT EXISTS 'index_SeriesBond_targetId' ON 'SeriesBond'('targetId')""",
             """CREATE INDEX IF NOT EXISTS 'index_SeriesBond_originIssueId' ON 'SeriesBond'('originIssueId')""",
             """CREATE INDEX IF NOT EXISTS 'index_SeriesBond_bondTypeId' ON 'SeriesBond'('bondTypeId')""",
+        )
+
+        @Language("RoomSql")
+        val migration_7_8 = SimpleMigration(
+            7, 8,
+            """CREATE TABLE Brand (
+                brandId INTEGER NOT NULL,
+                name TEXT NOT NULL,
+                yearBegan TEXT,
+                yearEnded TEXT,
+                notes TEXT,
+                url TEXT,
+                issueCount INTEGER NOT NULL,
+                yearBeganUncertain INTEGER NOT NULL,
+                yearEndedUncertain INTEGER NOT NULL,
+                lastUpdated TEXT NOT NULL,
+                PRIMARY KEY(brandId)
+                )
+            """,
+            """ALTER TABLE issue ADD COLUMN brandId INTEGER""",
+            """ALTER TABLE seriesbond ADD COLUMN lastUpdated TEXT NOT NULL DEFAULT '1900-01-01'""",
+            """ALTER TABLE bondtype ADD COLUMN lastUpdated TEXT NOT NULL DEFAULT '1900-01-01'"""
         )
     }
 

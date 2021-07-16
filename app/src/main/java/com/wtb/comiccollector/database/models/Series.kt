@@ -8,66 +8,6 @@ import java.io.Serializable
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
-@Entity
-data class BondType(
-    @PrimaryKey(autoGenerate = true) val bondTypeId: Int = AUTO_ID,
-    val name: String,
-    var description: String,
-    var notes: String? = null,
-)
-
-@ExperimentalCoroutinesApi
-@Entity(
-    foreignKeys = [
-        ForeignKey(
-            entity = Series::class,
-            parentColumns = arrayOf("seriesId"),
-            childColumns = arrayOf("originId"),
-            onDelete = ForeignKey.CASCADE
-        ),
-        ForeignKey(
-            entity = Series::class,
-            parentColumns = arrayOf("seriesId"),
-            childColumns = arrayOf("targetId"),
-            onDelete = ForeignKey.CASCADE
-        ),
-        ForeignKey(
-            entity = Issue::class,
-            parentColumns = arrayOf("issueId"),
-            childColumns = arrayOf("originIssueId"),
-            onDelete = ForeignKey.CASCADE
-        ),
-        ForeignKey(
-            entity = Issue::class,
-            parentColumns = arrayOf("issueId"),
-            childColumns = arrayOf("targetIssueId"),
-            onDelete = ForeignKey.CASCADE
-        ),
-        ForeignKey(
-            entity = BondType::class,
-            parentColumns = arrayOf("bondTypeId"),
-            childColumns = arrayOf("bondTypeId"),
-            onDelete = ForeignKey.RESTRICT
-        )
-    ],
-    indices = [
-        Index(value = ["originId"]),
-        Index(value = ["targetId"]),
-        Index(value = ["originIssueId"]),
-        Index(value = ["targetIssueId"]),
-        Index(value = ["bondTypeId"]),
-    ]
-)
-data class SeriesBond(
-    @PrimaryKey(autoGenerate = true) var bondId: Int = AUTO_ID,
-    val originId: Int,
-    val targetId: Int,
-    val originIssueId: Int?,
-    val targetIssueId: Int?,
-    val bondTypeId: Int,
-    val notes: String?
-)
-
 @ExperimentalCoroutinesApi
 @Entity(
     foreignKeys = [
@@ -162,15 +102,74 @@ data class Publisher(
     }
 }
 
+@Entity
+data class BondType(
+    @PrimaryKey(autoGenerate = true) val bondTypeId: Int = AUTO_ID,
+    val name: String,
+    var description: String,
+    var notes: String? = null,
+): DataModel() {
+    override val id: Int
+        get() = bondTypeId
+}
+
 @ExperimentalCoroutinesApi
-data class SeriesAndPublisher(
-    @Embedded
-    val series: Series,
-
-    @Relation(parentColumn = "publisherId", entityColumn = "publisherId")
-    var publisher: Publisher
+@Entity(
+    foreignKeys = [
+        ForeignKey(
+            entity = Series::class,
+            parentColumns = arrayOf("seriesId"),
+            childColumns = arrayOf("originId"),
+            onDelete = ForeignKey.CASCADE
+        ),
+        ForeignKey(
+            entity = Series::class,
+            parentColumns = arrayOf("seriesId"),
+            childColumns = arrayOf("targetId"),
+            onDelete = ForeignKey.CASCADE
+        ),
+        ForeignKey(
+            entity = Issue::class,
+            parentColumns = arrayOf("issueId"),
+            childColumns = arrayOf("originIssueId"),
+            onDelete = ForeignKey.CASCADE
+        ),
+        ForeignKey(
+            entity = Issue::class,
+            parentColumns = arrayOf("issueId"),
+            childColumns = arrayOf("targetIssueId"),
+            onDelete = ForeignKey.CASCADE
+        ),
+        ForeignKey(
+            entity = BondType::class,
+            parentColumns = arrayOf("bondTypeId"),
+            childColumns = arrayOf("bondTypeId"),
+            onDelete = ForeignKey.RESTRICT
+        )
+    ],
+    indices = [
+        Index(value = ["originId"]),
+        Index(value = ["targetId"]),
+        Index(value = ["originIssueId"]),
+        Index(value = ["targetIssueId"]),
+        Index(value = ["bondTypeId"]),
+    ]
 )
+data class SeriesBond(
+    @PrimaryKey(autoGenerate = true) var bondId: Int = AUTO_ID,
+    val originId: Int,
+    val targetId: Int,
+    val originIssueId: Int?,
+    val targetIssueId: Int?,
+    val bondTypeId: Int,
+    val notes: String?
+) : DataModel() {
+    override val id: Int
+        get() = bondId
+}
 
+// it might be tempting to remove the second class and just use the first, but the second one is
+// used in an Issue POJO where the first one can't be: firstIssue can create a circular reference
 @ExperimentalCoroutinesApi
 data class FullSeries(
     @Embedded
@@ -182,3 +181,12 @@ data class FullSeries(
     @Relation(parentColumn = "firstIssueId", entityColumn = "issueId", entity = Issue::class)
     var firstIssue: FullIssue?
 ) : ListItem
+
+@ExperimentalCoroutinesApi
+data class SeriesAndPublisher(
+    @Embedded
+    val series: Series,
+
+    @Relation(parentColumn = "publisherId", entityColumn = "publisherId")
+    var publisher: Publisher
+)
