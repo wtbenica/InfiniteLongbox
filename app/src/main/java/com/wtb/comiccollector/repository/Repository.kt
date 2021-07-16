@@ -349,7 +349,7 @@ class Repository private constructor(val context: Context) {
                     }
                 }
             }
-        ).addMigrations(migration_1_2, migration_2_3, migration_3_4).build()
+        ).addMigrations(migration_1_2, migration_2_3, migration_3_4, migration_4_5, migration_5_6).build()
     }
 
     class DuplicateFragment : DialogFragment() {
@@ -407,6 +407,21 @@ class Repository private constructor(val context: Context) {
             3, 4,
             """ALTER TABLE namedetail ADD COLUMN sortName TEXT"""
         )
+
+        @Language("RoomSql")
+        val migration_4_5 = SimpleMigration(
+            4, 5,
+            """ALTER TABLE creator ADD COLUMN bio TEXT""")
+
+        @Language("RoomSql")
+        val migration_5_6 = SimpleMigration(
+            5, 6,
+            """ALTER TABLE publisher ADD COLUMN yearBegan TEXT""",
+            """ALTER TABLE publisher ADD COLUMN yearBeganUncertain INTEGER NOT NULL DEFAULT 1""",
+            """ALTER TABLE publisher ADD COLUMN yearEnded TEXT""",
+            """ALTER TABLE publisher ADD COLUMN yearEndedUncertain INTEGER NOT NULL DEFAULT 1""",
+            """ALTER TABLE publisher ADD COLUMN url TEXT"""
+            )
     }
 
     fun saveSeries(vararg series: Series) {

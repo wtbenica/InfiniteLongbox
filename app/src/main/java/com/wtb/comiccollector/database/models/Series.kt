@@ -75,7 +75,12 @@ data class Series(
 )
 data class Publisher(
     @PrimaryKey(autoGenerate = true) val publisherId: Int = AUTO_ID,
-    val publisher: String = ""
+    val publisher: String = "",
+    var yearBegan: LocalDate? = null,
+    var yearBeganUncertain: Boolean = true,
+    var yearEnded: LocalDate? = null,
+    var yearEndedUncertain: Boolean = true,
+    var url: String? = null,
 ) : DataModel(), FilterOptionAutoCompletePopupItem {
     override val tagName: String
         get() = "Publisher"

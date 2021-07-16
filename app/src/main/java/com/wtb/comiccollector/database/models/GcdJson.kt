@@ -82,7 +82,7 @@ class GcdSeries(
             seriesName = name,
             sortName = sortName,
             publisherId = publisher ?: AUTO_ID,
-            startDate = when (yearBeganUncertain as Int) {
+            startDate = when (yearBeganUncertain) {
                 0    -> LocalDate.of(
                     yearBegan ?: LocalDate.MIN.year,
                     1,
@@ -117,14 +117,50 @@ class GcdPublisher(
     @SerializedName("year_began")
     @Expose
     val yearBegan: Int?,
+    @SerializedName("year_began_uncertain")
+    @Expose
+    val yearBeganUncertain: Int,
     @SerializedName("year_ended")
     @Expose
-    val yearEnded: Int?
+    val yearEnded: Int?,
+    @SerializedName("year_ended_uncertain")
+    @Expose
+    val yearEndedUncertain: Int,
+    @SerializedName("url")
+    @Expose
+    var url: String
 ) : GcdJson<Publisher> {
     override fun toRoomModel(pk: Int): Publisher {
         return Publisher(
             publisherId = pk,
             publisher = name,
+            yearBegan = if (yearBegan != null) {
+                LocalDate.of(
+                    yearBegan,
+                    1,
+                    1
+                )
+            } else {
+                null
+            },
+            yearBeganUncertain = when (yearBeganUncertain) {
+                1    -> true
+                else -> false
+            },
+            yearEnded = if (yearEnded != null) {
+                LocalDate.of(
+                    yearEnded ?: LocalDate.MIN.year,
+                    1,
+                    1
+                )
+            } else {
+                null
+            },
+            yearEndedUncertain = when (yearEndedUncertain) {
+                1    -> true
+                else -> false
+            },
+            url = if (url == "") null else url
         )
     }
 }
@@ -262,12 +298,16 @@ class GcdCreator(
     @SerializedName("sort_name")
     @Expose
     val sortName: String,
+    @SerializedName("bio")
+    @Expose
+    val bio: String,
 ) : GcdJson<Creator> {
     override fun toRoomModel(pk: Int): Creator {
         return Creator(
             creatorId = pk,
             name = name,
-            sortName = sortName
+            sortName = sortName,
+            bio = if (bio == "") null else bio
         )
     }
 }
