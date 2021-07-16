@@ -349,7 +349,11 @@ class Repository private constructor(val context: Context) {
                     }
                 }
             }
-        ).addMigrations(migration_1_2, migration_2_3, migration_3_4, migration_4_5, migration_5_6).build()
+        ).addMigrations(
+            migration_1_2, migration_2_3, migration_3_4, migration_4_5,
+            migration_5_6, migration_6_7
+        )
+            .build()
     }
 
     class DuplicateFragment : DialogFragment() {
@@ -411,7 +415,8 @@ class Repository private constructor(val context: Context) {
         @Language("RoomSql")
         val migration_4_5 = SimpleMigration(
             4, 5,
-            """ALTER TABLE creator ADD COLUMN bio TEXT""")
+            """ALTER TABLE creator ADD COLUMN bio TEXT"""
+        )
 
         @Language("RoomSql")
         val migration_5_6 = SimpleMigration(
@@ -421,7 +426,39 @@ class Repository private constructor(val context: Context) {
             """ALTER TABLE publisher ADD COLUMN yearEnded TEXT""",
             """ALTER TABLE publisher ADD COLUMN yearEndedUncertain INTEGER NOT NULL DEFAULT 1""",
             """ALTER TABLE publisher ADD COLUMN url TEXT"""
-            )
+        )
+
+        @Language("RoomSql")
+        val migration_6_7 = SimpleMigration(
+            6, 7,
+            """CREATE TABLE 'BondType' (
+                'bondTypeId' INTEGER NOT NULL,
+                'name' TEXT NOT NULL,
+                'description' TEXT NOT NULL,
+                'notes' TEXT,
+                PRIMARY KEY('bondTypeId')
+                )""",
+            """CREATE TABLE 'SeriesBond' (
+                    'bondId' INTEGER NOT NULL,
+                    'originId' INTEGER NOT NULL,
+                    'targetId' INTEGER NOT NULL,
+                    'originIssueId' INTEGER,
+                    'targetIssueId' INTEGER,
+                    'bondTypeId' INTEGER NOT NULL,
+                    'notes' TEXT,
+                    PRIMARY KEY ('bondId'),
+                    FOREIGN KEY ('originId') REFERENCES 'Series'('seriesId') ON DELETE CASCADE,
+                    FOREIGN KEY ('targetId') REFERENCES 'Series'('seriesId') ON DELETE CASCADE,
+                    FOREIGN KEY ('originIssueId') REFERENCES 'Issue'('issueId') ON DELETE CASCADE,
+                    FOREIGN KEY ('targetIssueId') REFERENCES 'Issue'('issueId') ON DELETE CASCADE,
+                    FOREIGN KEY ('bondTypeId') REFERENCES 'BondType'('bondTypeId') ON DELETE RESTRICT
+                )""",
+            """CREATE INDEX IF NOT EXISTS 'index_SeriesBond_targetIssueId' ON 'SeriesBond'('targetIssueId')""",
+            """CREATE INDEX IF NOT EXISTS 'index_SeriesBond_originId' ON 'SeriesBond'('originId')""",
+            """CREATE INDEX IF NOT EXISTS 'index_SeriesBond_targetId' ON 'SeriesBond'('targetId')""",
+            """CREATE INDEX IF NOT EXISTS 'index_SeriesBond_originIssueId' ON 'SeriesBond'('originIssueId')""",
+            """CREATE INDEX IF NOT EXISTS 'index_SeriesBond_bondTypeId' ON 'SeriesBond'('bondTypeId')""",
+        )
     }
 
     fun saveSeries(vararg series: Series) {
