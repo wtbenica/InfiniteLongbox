@@ -99,7 +99,7 @@ class SortChip(context: Context?) : Chip(context) {
         set(value) {
             field = value
             text = value?.tag
-            icon = value?.order?.icon
+            value?.order?.icon?.let { setCloseIconResource(it) }
             field?.let {
                 if (isChecked) {
                     callback?.sortOrderChanged(it)
