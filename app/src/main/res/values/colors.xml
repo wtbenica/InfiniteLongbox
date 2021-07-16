@@ -11,8 +11,9 @@
     <color name="amnesia">#BACACA</color>
     <color name="amnesia_light">#CADADA</color>
     <color name="amnesia_light_light">#F3F3F3</color>
+    <color name="amnesia_light_transparent">#EEF3F3F3</color>
     <color name="amnesia_dark">#889999</color>
-    <color name="amnesia_text">#DDDD</color>
+    <color name="amnesia_text">#DFFF</color>
 
     <color name="fantasia_muted">#E8FDAD</color>
     <color name="fantasia_light_muted">#E3F6B0</color>

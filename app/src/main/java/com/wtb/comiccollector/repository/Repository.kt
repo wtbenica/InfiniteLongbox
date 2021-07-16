@@ -121,13 +121,6 @@ class Repository private constructor(val context: Context) {
                 }
             }
         }
-
-//        MainActivity.hasUnmeteredConnection.observeForever {
-//            hasUnmeteredConnection = it
-//            if (checkConnectionStatus()) {
-//                StaticUpdater(apiService, database, prefs).update()
-//            }
-//        }
     }
 
     private fun checkConnectionStatus() = hasConnection && hasUnmeteredConnection && isIdle
@@ -328,45 +321,40 @@ class Repository private constructor(val context: Context) {
      * issue objects
      */
     @Language("RoomSql")
-    private fun buildDatabase(context: Context): IssueDatabase = Room.databaseBuilder(
-        context.applicationContext,
-        IssueDatabase::class.java,
-        DATABASE_NAME
-    ).addCallback(
-        object : RoomDatabase.Callback() {
-            override fun onCreate(db: SupportSQLiteDatabase) {
-                super.onCreate(db)
-                val publisher =
-                    Publisher(publisherId = DUMMY_ID, publisher = "Dummy Publisher")
-                executor.execute {
-                    publisherDao.upsert(
-                        publisher,
-                    )
-
-                    seriesDao.upsert(
-                        Series(
-                            seriesId = DUMMY_ID,
-                            seriesName = "Dummy Series",
-                            publisherId = DUMMY_ID,
-                            startDate = LocalDate.MIN,
-                            endDate = LocalDate.MIN,
+    private fun buildDatabase(context: Context): IssueDatabase {
+        return Room.databaseBuilder(
+            context.applicationContext,
+            IssueDatabase::class.java,
+            DATABASE_NAME
+        ).addCallback(
+            object : RoomDatabase.Callback() {
+                override fun onCreate(db: SupportSQLiteDatabase) {
+                    super.onCreate(db)
+                    val publisher =
+                        Publisher(publisherId = DUMMY_ID, publisher = "Dummy Publisher")
+                    executor.execute {
+                        publisherDao.upsert(
+                            publisher,
                         )
-                    )
+
+                        seriesDao.upsert(
+                            Series(
+                                seriesId = DUMMY_ID,
+                                seriesName = "Dummy Series",
+                                publisherId = DUMMY_ID,
+                                startDate = LocalDate.MIN,
+                                endDate = LocalDate.MIN,
+                            )
+                        )
+                    }
                 }
             }
-        }
-    ).addMigrations(
-        SimpleMigration(
-            1, 2,
-            """
-       ALTER TABLE issue
-       ADD COLUMN publicationDate TEXT
-       """,
-            """
-       ALTER TABLE issue
-       ADD COLUMN onSaleDate TEXT
-       """)
-    ).build()
+        ).addMigrations(
+            migration_1_2, migration_2_3, migration_3_4, migration_4_5,
+            migration_5_6, migration_6_7, migration_7_8
+        )
+            .build()
+    }
 
     class DuplicateFragment : DialogFragment() {
         override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
@@ -400,6 +388,99 @@ class Repository private constructor(val context: Context) {
             editor.putString(key, LocalDate.now().toString())
             editor.apply()
         }
+
+        @Language("RoomSql")
+        val migration_1_2 = SimpleMigration(
+            1,
+            2,
+            """ALTER TABLE issue ADD COLUMN coverDateLong TEXT""",
+            "ALTER TABLE issue ADD COLUMN onSaleDateUncertain INTEGER NOT NULL DEFAULT 1",
+            "ALTER TABLE issue ADD COLUMN coverDate TEXT",
+            "ALTER TABLE issue ADD COLUMN notes TEXT",
+        )
+
+        @Language("RoomSql")
+        val migration_2_3 = SimpleMigration(
+            2, 3,
+            """ALTER TABLE series ADD COLUMN notes TEXT""",
+            """ALTER TABLE series ADD COLUMN issueCount INTEGER NOT NULL DEFAULT 0"""
+        )
+
+        @Language("RoomSql")
+        val migration_3_4 = SimpleMigration(
+            3, 4,
+            """ALTER TABLE namedetail ADD COLUMN sortName TEXT"""
+        )
+
+        @Language("RoomSql")
+        val migration_4_5 = SimpleMigration(
+            4, 5,
+            """ALTER TABLE creator ADD COLUMN bio TEXT"""
+        )
+
+        @Language("RoomSql")
+        val migration_5_6 = SimpleMigration(
+            5, 6,
+            """ALTER TABLE publisher ADD COLUMN yearBegan TEXT""",
+            """ALTER TABLE publisher ADD COLUMN yearBeganUncertain INTEGER NOT NULL DEFAULT 1""",
+            """ALTER TABLE publisher ADD COLUMN yearEnded TEXT""",
+            """ALTER TABLE publisher ADD COLUMN yearEndedUncertain INTEGER NOT NULL DEFAULT 1""",
+            """ALTER TABLE publisher ADD COLUMN url TEXT"""
+        )
+
+        @Language("RoomSql")
+        val migration_6_7 = SimpleMigration(
+            6, 7,
+            """CREATE TABLE 'BondType' (
+                'bondTypeId' INTEGER NOT NULL,
+                'name' TEXT NOT NULL,
+                'description' TEXT NOT NULL,
+                'notes' TEXT,
+                PRIMARY KEY('bondTypeId')
+                )""",
+            """CREATE TABLE 'SeriesBond' (
+                    'bondId' INTEGER NOT NULL,
+                    'originId' INTEGER NOT NULL,
+                    'targetId' INTEGER NOT NULL,
+                    'originIssueId' INTEGER,
+                    'targetIssueId' INTEGER,
+                    'bondTypeId' INTEGER NOT NULL,
+                    'notes' TEXT,
+                    PRIMARY KEY ('bondId'),
+                    FOREIGN KEY ('originId') REFERENCES 'Series'('seriesId') ON DELETE CASCADE,
+                    FOREIGN KEY ('targetId') REFERENCES 'Series'('seriesId') ON DELETE CASCADE,
+                    FOREIGN KEY ('originIssueId') REFERENCES 'Issue'('issueId') ON DELETE CASCADE,
+                    FOREIGN KEY ('targetIssueId') REFERENCES 'Issue'('issueId') ON DELETE CASCADE,
+                    FOREIGN KEY ('bondTypeId') REFERENCES 'BondType'('bondTypeId') ON DELETE RESTRICT
+                )""",
+            """CREATE INDEX IF NOT EXISTS 'index_SeriesBond_targetIssueId' ON 'SeriesBond'('targetIssueId')""",
+            """CREATE INDEX IF NOT EXISTS 'index_SeriesBond_originId' ON 'SeriesBond'('originId')""",
+            """CREATE INDEX IF NOT EXISTS 'index_SeriesBond_targetId' ON 'SeriesBond'('targetId')""",
+            """CREATE INDEX IF NOT EXISTS 'index_SeriesBond_originIssueId' ON 'SeriesBond'('originIssueId')""",
+            """CREATE INDEX IF NOT EXISTS 'index_SeriesBond_bondTypeId' ON 'SeriesBond'('bondTypeId')""",
+        )
+
+        @Language("RoomSql")
+        val migration_7_8 = SimpleMigration(
+            7, 8,
+            """CREATE TABLE Brand (
+                brandId INTEGER NOT NULL,
+                name TEXT NOT NULL,
+                yearBegan TEXT,
+                yearEnded TEXT,
+                notes TEXT,
+                url TEXT,
+                issueCount INTEGER NOT NULL,
+                yearBeganUncertain INTEGER NOT NULL,
+                yearEndedUncertain INTEGER NOT NULL,
+                lastUpdated TEXT NOT NULL,
+                PRIMARY KEY(brandId)
+                )
+            """,
+            """ALTER TABLE issue ADD COLUMN brandId INTEGER""",
+            """ALTER TABLE seriesbond ADD COLUMN lastUpdated TEXT NOT NULL DEFAULT '1900-01-01'""",
+            """ALTER TABLE bondtype ADD COLUMN lastUpdated TEXT NOT NULL DEFAULT '1900-01-01'"""
+        )
     }
 
     fun saveSeries(vararg series: Series) {

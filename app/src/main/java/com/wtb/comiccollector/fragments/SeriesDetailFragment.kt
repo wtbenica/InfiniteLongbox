@@ -38,8 +38,10 @@ class SeriesDetailFragment : Fragment() {
     private lateinit var volumeNumTextView: TextView
     private lateinit var publisherTextView: TextView
     private lateinit var dateRangeTextview: TextView
-    private lateinit var descriptionLabelTextView: TextView
-    private lateinit var descriptionTextView: TextView
+    private lateinit var trackingNotesLabelTextView: TextView
+    private lateinit var trackingNotesTextView: TextView
+    private lateinit var notesLabelTextView: TextView
+    private lateinit var notesTextView: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -58,8 +60,10 @@ class SeriesDetailFragment : Fragment() {
         volumeNumTextView = view.findViewById(R.id.details_series_volume)
         publisherTextView = view.findViewById(R.id.details_publisher)
         dateRangeTextview = view.findViewById(R.id.details_date_range)
-        descriptionLabelTextView = view.findViewById(R.id.label_description)
-        descriptionTextView = view.findViewById(R.id.details_description)
+        trackingNotesLabelTextView = view.findViewById(R.id.label_tracking_notes)
+        trackingNotesTextView = view.findViewById(R.id.details_tracking_notes)
+        notesLabelTextView = view.findViewById(R.id.label_notes)
+        notesTextView = view.findViewById(R.id.details_notes)
 
         seriesId?.let { seriesViewModel.loadSeries(it) }
 
@@ -102,14 +106,25 @@ class SeriesDetailFragment : Fragment() {
         publisherTextView.text = publisher.publisher
         dateRangeTextview.text = series.dateRange
 
-        series.description?.let {
-            if (it != "") {
-                descriptionTextView.text = it
-                descriptionLabelTextView.visibility = TextView.VISIBLE
-                descriptionTextView.visibility = TextView.VISIBLE
+        series.description.let {
+            if (it != null && it != "") {
+                trackingNotesTextView.text = it
+                trackingNotesLabelTextView.visibility = TextView.VISIBLE
+                trackingNotesTextView.visibility = TextView.VISIBLE
             } else {
-                descriptionLabelTextView.visibility = TextView.GONE
-                descriptionTextView.visibility = TextView.GONE
+                trackingNotesLabelTextView.visibility = TextView.GONE
+                trackingNotesTextView.visibility = TextView.GONE
+            }
+        }
+        
+        series.notes.let { 
+            if (it != null && it != "") {
+                notesTextView.text = it
+                notesLabelTextView.visibility = TextView.VISIBLE
+                notesTextView.visibility = TextView.VISIBLE
+            } else {
+                notesLabelTextView.visibility = TextView.GONE
+                notesTextView.visibility = TextView.GONE
             }
         }
     }

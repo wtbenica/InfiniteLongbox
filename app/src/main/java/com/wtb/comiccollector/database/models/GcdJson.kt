@@ -34,37 +34,43 @@ interface GcdJson<M : DataModel> {
 class GcdSeries(
     @SerializedName("name")
     @Expose
-    val name: String?,
+    val name: String,
     @SerializedName("sort_name")
     @Expose
-    val sortName: String?,
+    val sortName: String,
     @SerializedName("year_began")
     @Expose
     val yearBegan: Int?,
     @SerializedName("year_began_uncertain")
     @Expose
-    val yearBeganUncertain: Int?,
+    val yearBeganUncertain: Int,
     @SerializedName("year_ended")
     @Expose
     val yearEnded: Int?,
     @SerializedName("year_ended_uncertain")
     @Expose
-    val yearEndedUncertain: Int?,
+    val yearEndedUncertain: Int,
     @SerializedName("publication_dates")
     @Expose
-    val publicationDates: String?,
+    val publicationDates: String,
     @SerializedName("publisher")
     @Expose
     val publisher: Int?,
     @SerializedName("publishing_format")
     @Expose
-    val publishingFormat: String?,
+    val publishingFormat: String,
     @SerializedName("tracking_notes")
     @Expose
-    val trackingNotes: String?,
+    val trackingNotes: String,
     @SerializedName("first_issue")
     @Expose
-    val firstIssueId: Int?
+    val firstIssueId: Int?,
+    @SerializedName("notes")
+    @Expose
+    val notes: String,
+    @SerializedName("issue_count")
+    @Expose
+    val issueCount: Int
 ) : GcdJson<Series> {
     override fun toString(): String {
         return "$name ($yearBegan - $yearEnded)"
@@ -73,10 +79,10 @@ class GcdSeries(
     override fun toRoomModel(pk: Int): Series {
         return Series(
             seriesId = pk,
-            seriesName = name ?: "",
+            seriesName = name,
             sortName = sortName,
             publisherId = publisher ?: AUTO_ID,
-            startDate = when (yearBeganUncertain as Int) {
+            startDate = when (yearBeganUncertain) {
                 0    -> LocalDate.of(
                     yearBegan ?: LocalDate.MIN.year,
                     1,
@@ -94,9 +100,11 @@ class GcdSeries(
                 }
                 else -> null
             },
-            publishingFormat = publishingFormat,
-            description = trackingNotes,
-            firstIssueId = firstIssueId
+            publishingFormat = if (publishingFormat == "") null else publishingFormat,
+            description = if (trackingNotes == "") null else trackingNotes,
+            firstIssueId = firstIssueId,
+            notes = if (notes == "") null else notes,
+            issueCount = issueCount
         )
     }
 }
@@ -109,14 +117,50 @@ class GcdPublisher(
     @SerializedName("year_began")
     @Expose
     val yearBegan: Int?,
+    @SerializedName("year_began_uncertain")
+    @Expose
+    val yearBeganUncertain: Int,
     @SerializedName("year_ended")
     @Expose
-    val yearEnded: Int?
+    val yearEnded: Int?,
+    @SerializedName("year_ended_uncertain")
+    @Expose
+    val yearEndedUncertain: Int,
+    @SerializedName("url")
+    @Expose
+    var url: String
 ) : GcdJson<Publisher> {
     override fun toRoomModel(pk: Int): Publisher {
         return Publisher(
             publisherId = pk,
             publisher = name,
+            yearBegan = if (yearBegan != null) {
+                LocalDate.of(
+                    yearBegan,
+                    1,
+                    1
+                )
+            } else {
+                null
+            },
+            yearBeganUncertain = when (yearBeganUncertain) {
+                1    -> true
+                else -> false
+            },
+            yearEnded = if (yearEnded != null) {
+                LocalDate.of(
+                    yearEnded ?: LocalDate.MIN.year,
+                    1,
+                    1
+                )
+            } else {
+                null
+            },
+            yearEndedUncertain = when (yearEndedUncertain) {
+                1    -> true
+                else -> false
+            },
+            url = if (url == "") null else url
         )
     }
 }
@@ -154,10 +198,19 @@ class GcdIssue(
     val editing: String,
     @SerializedName("publication_date")
     @Expose
-    val publicationDate: String?,
+    val publicationDate: String,
     @SerializedName("on_sale_date")
     @Expose
     val onSaleDate: String,
+    @SerializedName("on_sale_date_uncertain")
+    @Expose
+    val onSaleDateUncertain: Int,
+    @SerializedName("key_date")
+    @Expose
+    val keyDate: String,
+    @SerializedName("notes")
+    @Expose
+    val notes: String,
     @SerializedName("no_barcode")
     @Expose
     val noBarcode: Int,
@@ -172,6 +225,8 @@ class GcdIssue(
     val variantOf: Int?,
 ) : GcdJson<Issue> {
     override fun toRoomModel(pk: Int): Issue {
+        val fixedPubDate = if (publicationDate == "") null else publicationDate
+        val fixedNotes = if (notes == "") null else notes
         return Issue(
             issueId = pk,
             seriesId = seriesId,
@@ -180,7 +235,11 @@ class GcdIssue(
             upc = barcode.toLongOrNull(),
             variantName = variantName,
             variantOf = variantOf,
-            sortCode = sortCode
+            sortCode = sortCode,
+            coverDateLong = fixedPubDate,
+            onSaleDateUncertain = onSaleDateUncertain == 1,
+            coverDate = Issue.formatDate(keyDate),
+            notes = fixedNotes
         )
     }
 }
@@ -239,12 +298,16 @@ class GcdCreator(
     @SerializedName("sort_name")
     @Expose
     val sortName: String,
+    @SerializedName("bio")
+    @Expose
+    val bio: String,
 ) : GcdJson<Creator> {
     override fun toRoomModel(pk: Int): Creator {
         return Creator(
             creatorId = pk,
             name = name,
-            sortName = sortName
+            sortName = sortName,
+            bio = if (bio == "") null else bio
         )
     }
 }
@@ -336,13 +399,17 @@ class GcdNameDetail(
     val creatorId: Int,
     @SerializedName("name")
     @Expose
-    val name: String
+    val name: String,
+    @SerializedName("sort_name")
+    @Expose
+    val sortName: String
 ) : GcdJson<NameDetail> {
     override fun toRoomModel(pk: Int): NameDetail {
         return NameDetail(
             nameDetailId = pk,
             creatorId = creatorId,
-            name = name
+            name = name,
+            sortName = if (sortName == "") null else sortName
         )
     }
 }

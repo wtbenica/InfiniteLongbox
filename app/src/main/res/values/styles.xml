@@ -15,7 +15,7 @@
     <style name="myActionBarStyle" parent="Widget.AppCompat.ActionBar.Solid">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">?attr/actionBarSize</item>
-        <item name="titleTextColor">@android:color/black</item>
+        <item name="titleTextColor">?attr/colorOnPrimary</item>
         <item name="titleTextAppearance">@style/myActionBarText</item>
         <item name="layout_scrollFlags">scroll|enterAlways</item>
         <item name="android:background">@android:color/transparent</item>
@@ -59,6 +59,6 @@
     <style name="IssueDetailVariantSpinnerStyle" parent="Widget.AppCompat.Spinner">
         <item name="android:layout_height">?attr/dropdownListPreferredItemHeight</item>
         <item name="android:textColor">?attr/colorOnPrimary</item>
-        <item name="android:popupBackground">@android:color/white</item>
+        <item name="android:popupBackground">?attr/colorOnSecondary</item>
     </style>
 </resources>

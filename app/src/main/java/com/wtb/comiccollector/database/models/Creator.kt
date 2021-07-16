@@ -10,7 +10,8 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 data class Creator(
     @PrimaryKey(autoGenerate = true) val creatorId: Int = AUTO_ID,
     var name: String,
-    var sortName: String
+    var sortName: String,
+    var bio: String? = null
 ) : DataModel(), FilterOptionAutoCompletePopupItem {
 
     override val id: Int
@@ -44,7 +45,8 @@ data class Creator(
 data class NameDetail(
     @PrimaryKey(autoGenerate = true) val nameDetailId: Int = AUTO_ID,
     var creatorId: Int,
-    var name: String
+    var name: String,
+    var sortName: String? = null
 ) : DataModel(), FilterOptionAutoCompletePopupItem {
     override val id: Int
         get() = nameDetailId

@@ -2,6 +2,8 @@ package com.wtb.comiccollector.fragments
 
 import android.content.Context
 import android.view.View
+import android.view.View.GONE
+import android.view.View.VISIBLE
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.Filter
@@ -9,6 +11,7 @@ import android.widget.TextView
 import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.R
 import com.wtb.comiccollector.database.models.FilterOptionAutoCompletePopupItem
+import com.wtb.comiccollector.database.models.Series
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 @ExperimentalCoroutinesApi
@@ -30,7 +33,11 @@ class FilterOptionsAdapter(ctx: Context, filterOptions: List<FilterOptionAutoCom
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
 
         val view =
-            convertView ?: View.inflate(context, R.layout.list_item_filter_option_auto_complete, null)
+            convertView ?: View.inflate(
+                context,
+                R.layout.list_item_filter_option_auto_complete,
+                null
+            )
 
         val itemText: TextView = view.findViewById(R.id.item_text)
         val optionTypeText: TextView = view.findViewById(R.id.filter_option_type_text)
@@ -39,11 +46,14 @@ class FilterOptionsAdapter(ctx: Context, filterOptions: List<FilterOptionAutoCom
         val filterOption: FilterOptionAutoCompletePopupItem = getItem(position)
 
         itemText.text = filterOption.toString()
-
         optionTypeText.text = filterOption.tagName
-
         optionTypeText.setTextColor(filterOption.textColor)
-
+        if (filterOption is Series) {
+            itemFormatText.visibility = VISIBLE
+            itemFormatText.text = filterOption.publishingFormat
+        } else {
+            itemFormatText.visibility = GONE
+        }
         return view
     }
 

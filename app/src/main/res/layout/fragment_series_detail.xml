@@ -63,27 +63,50 @@
         tools:text="DC/Vertigo" />
 
     <TextView
-        android:id="@+id/label_description"
+        android:id="@+id/label_tracking_notes"
         style="@style/SeriesDetailLabel"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:text="@string/label_description"
+        android:text="@string/series_detail_tracking_notes"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/details_publisher"
         tools:visibility="visible" />
 
     <TextView
-        android:id="@+id/details_description"
+        android:id="@+id/details_tracking_notes"
         style="@style/SeriesDetailText"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/label_description"
+        app:layout_constraintTop_toBottomOf="@+id/label_tracking_notes"
         tools:text="A guy whose brain is stuck in a robot body goes on adventures with a ragtag group of fellow outcasts."
         tools:visibility="visible" />
 
+    <TextView
+        android:id="@+id/label_notes"
+        style="@style/SeriesDetailLabel"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="@string/series_detail_notes"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/details_tracking_notes"
+        tools:visibility="visible" />
+
+    <TextView
+        android:id="@+id/details_notes"
+        style="@style/SeriesDetailText"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/label_notes"
+        tools:text="A guy whose brain is stuck in a robot body goes on adventures with a ragtag group of fellow outcasts."
+        tools:visibility="visible" />
 </androidx.constraintlayout.widget.ConstraintLayout>
