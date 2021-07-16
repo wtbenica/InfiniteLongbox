@@ -173,17 +173,19 @@ class SearchFilter(
 class SortType(
     val tag: String,
     val sortColumn: String,
+    val table: String,
     var order: SortOrder
 ) : Serializable {
 
     constructor(other: SortType) : this(
         other.tag,
         other.sortColumn,
+        other.table,
         other.order
     )
 
     val sortString: String
-        get() = "$sortColumn ${order.option}"
+        get() = "${table}.$sortColumn ${order.option}"
 
     override fun toString(): String = tag
 
@@ -193,12 +195,7 @@ class SortType(
 
         other as SortType
 
-        if (tag != other.tag) return false
-        if (sortColumn != other.sortColumn) return false
-        if (order != other.order) return false
-        if (sortString != other.sortString) return false
-
-        return true
+        return hashCode() == other.hashCode()
     }
 
     override fun hashCode(): Int {
@@ -208,6 +205,7 @@ class SortType(
             SortOrder.ASC  -> true.hashCode()
             SortOrder.DESC -> false.hashCode()
         }
+        result = 31 * result + table.hashCode()
         result = 31 * result + sortString.hashCode()
         return result
     }
@@ -228,11 +226,13 @@ class SortType(
                     SortType(
                         context!!.getString(R.string.sort_type_series_name),
                         context.getString(R.string.column_sort_name),
+                        "ss",
                         SortOrder.ASC
                     ),
                     SortType(
                         context.getString(R.string.sort_type_start_date),
                         context.getString(R.string.column_start_date),
+                        "ss",
                         SortOrder.DESC
                     )
                 )
@@ -243,11 +243,13 @@ class SortType(
                     SortType(
                         context!!.getString(R.string.sort_type_issue_number),
                         context.getString(R.string.column_issue_num),
+                        "ie",
                         SortOrder.ASC
                     ),
                     SortType(
                         context.getString(R.string.sort_type_release_date),
                         context.getString(R.string.column_release_date),
+                        "ie",
                         SortOrder.DESC
                     )
                 )
