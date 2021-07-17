@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal">
+
+    <TextView
+        android:id="@+id/info_row_label"
+        style="@style/RoleNameText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/margin_narrow"
+        android:background="@color/tag_publisher"
+        android:labelFor="@id/info_row_text"
+        android:padding="@dimen/margin_narrow"
+        android:text="@string/label_release_date"
+        android:textSize="14sp"
+        tools:showIn="@layout/fragment_display_issue" />
+
+    <TextView
+        android:id="@+id/info_row_text"
+        style="@style/CreatorNameText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:layout_marginStart="@dimen/margin_narrow"
+        android:textSize="14sp"
+        tools:text="May 6, 2021" />
+</LinearLayout>

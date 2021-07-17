@@ -6,6 +6,8 @@ import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.*
+import android.view.View.GONE
+import android.view.View.VISIBLE
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.*
@@ -87,9 +89,11 @@ class IssueDetailFragment : Fragment(), CreatorLinkCallback {
     private lateinit var issueCreditsFrame: ScrollView
     private lateinit var creditsBox: CreditsBox
 
+    private lateinit var labelReleaseDate: TextView
     private lateinit var releaseDateTextView: TextView
-    private lateinit var coverDateLongTextView: TextView
+    private lateinit var labelCoverDate: TextView
     private lateinit var coverDateTextView: TextView
+    private lateinit var labelNotes: TextView
     private lateinit var notesTextView: TextView
 
     private lateinit var gotoStartButton: Button
@@ -128,7 +132,8 @@ class IssueDetailFragment : Fragment(), CreatorLinkCallback {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
 
-        fullIssue = FullIssue(Issue(issueNumRaw = null), SeriesAndPublisher(Series(), Publisher()), null)
+        fullIssue =
+            FullIssue(Issue(issueNumRaw = null), SeriesAndPublisher(Series(), Publisher()), null)
         issueCredits = emptyList()
         issueStories = emptyList()
         variantCredits = emptyList()
@@ -171,9 +176,11 @@ class IssueDetailFragment : Fragment(), CreatorLinkCallback {
 
         coverImageView = view.findViewById(R.id.issue_cover) as ImageView
         issueCreditsFrame = view.findViewById(R.id.issue_credits_table) as ScrollView
+        labelReleaseDate = view.findViewById(R.id.label_release_date)
         releaseDateTextView = view.findViewById(R.id.release_date_text_view)
-        coverDateLongTextView = view.findViewById(R.id.cover_date_long_text_view)
+        labelCoverDate = view.findViewById(R.id.label_cover_date)
         coverDateTextView = view.findViewById(R.id.cover_date_text_view)
+        labelNotes = view.findViewById(R.id.label_notes)
         notesTextView = view.findViewById(R.id.notes_text_view)
         gcdLinkButton = view.findViewById(R.id.gcd_link) as Button
         collectionButton = view.findViewById(R.id.collectionButton) as Button
@@ -432,11 +439,42 @@ class IssueDetailFragment : Fragment(), CreatorLinkCallback {
         if (issue.issueId != AUTO_ID) {
             numUpdates += 1
 
+
+            issue.releaseDate.let {
+                if (it != null) {
+                    releaseDateTextView.text = it.format(DateTimeFormatter.ofPattern("MMM d, y"))
+                    labelReleaseDate.visibility = VISIBLE
+                    labelCoverDate.visibility = VISIBLE
+                } else {
+                    labelReleaseDate.visibility = GONE
+                    labelCoverDate.visibility = GONE
+                }
+            }
             issue.releaseDate?.format(DateTimeFormatter.ofPattern("MMM d, y"))
                 ?.let { releaseDateTextView.text = it }
-            coverDateLongTextView.text = issue.coverDateLong
-            coverDateTextView.text = issue.coverDate.toString()
-            notesTextView.text = issue.notes
+
+            issue.coverDate.let {
+                if (it != null) {
+                    coverDateTextView.text = it.format(DateTimeFormatter.ofPattern("MMM yyyy"))
+                    coverDateTextView.visibility = VISIBLE
+                    labelCoverDate.visibility = VISIBLE
+                } else {
+                    coverDateTextView.visibility = GONE
+                    labelCoverDate.visibility = GONE
+                }
+            }
+
+            issue.notes.let {
+                if (it != null && it != "") {
+                    notesTextView.text = issue.notes
+                    notesTextView.visibility = VISIBLE
+                    labelNotes.visibility = VISIBLE
+                } else {
+                    notesTextView.visibility = GONE
+                    labelNotes.visibility = GONE
+                }
+            }
+
             creditsBox.displayCredit()
 
             fullVariant?.issue?.let {

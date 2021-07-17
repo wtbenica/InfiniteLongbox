@@ -28,9 +28,6 @@ class OptionChipGroup(context: Context?, attributeSet: AttributeSet) :
         removeAllViews()
         addView(myCollectionChip)
         myCollectionChip.isChecked = filter.mMyCollection
-        if (filter.mMyCollection) {
-            filter.mShowVariants = true
-        }
 
         if (filter.returnsIssueList() && !filter.mMyCollection) {
             val variantChip = OptionChip(

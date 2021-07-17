@@ -16,7 +16,7 @@
             android:background="@color/tag_publisher"
             android:labelFor="@id/release_date_text_view"
             android:padding="@dimen/margin_narrow"
-            android:text="@string/release_date"
+            android:text="@string/label_release_date"
             android:textSize="14sp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
