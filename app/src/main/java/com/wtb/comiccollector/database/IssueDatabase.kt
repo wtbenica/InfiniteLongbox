@@ -16,7 +16,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
         Publisher::class, Story::class, ExCredit::class, StoryType::class, NameDetail::class,
         Character::class, Appearance::class, MyCollection::class, Cover::class,
         SeriesBond::class, BondType::class, Brand::class],
-    version = 8,
+    version = 9,
 )
 
 @TypeConverters(IssueTypeConverters::class)

@@ -351,7 +351,7 @@ class Repository private constructor(val context: Context) {
             }
         ).addMigrations(
             migration_1_2, migration_2_3, migration_3_4, migration_4_5,
-            migration_5_6, migration_6_7, migration_7_8
+            migration_5_6, migration_6_7, migration_7_8, migration_8_9
         )
             .build()
     }
@@ -480,6 +480,12 @@ class Repository private constructor(val context: Context) {
             """ALTER TABLE issue ADD COLUMN brandId INTEGER""",
             """ALTER TABLE seriesbond ADD COLUMN lastUpdated TEXT NOT NULL DEFAULT '1900-01-01'""",
             """ALTER TABLE bondtype ADD COLUMN lastUpdated TEXT NOT NULL DEFAULT '1900-01-01'"""
+        )
+
+        @Language("RoomSql")
+        val migration_8_9 = SimpleMigration(
+            8, 9,
+            """ALTER TABLE issue ADD COLUMN issueNumRaw TEXT"""
         )
     }
 

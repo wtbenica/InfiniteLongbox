@@ -128,7 +128,7 @@ class IssueDetailFragment : Fragment(), CreatorLinkCallback {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
 
-        fullIssue = FullIssue(Issue(), SeriesAndPublisher(Series(), Publisher()), null)
+        fullIssue = FullIssue(Issue(issueNumRaw = null), SeriesAndPublisher(Series(), Publisher()), null)
         issueCredits = emptyList()
         issueStories = emptyList()
         variantCredits = emptyList()

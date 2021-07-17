@@ -82,23 +82,17 @@ class GcdSeries(
             seriesName = name,
             sortName = sortName,
             publisherId = publisher ?: AUTO_ID,
-            startDate = when (yearBeganUncertain) {
-                0    -> LocalDate.of(
-                    yearBegan ?: LocalDate.MIN.year,
+            startDate = LocalDate.of(
+                yearBegan ?: LocalDate.MIN.year,
+                1,
+                1
+            ),
+            endDate = yearEnded?.let {
+                LocalDate.of(
+                    it,
                     1,
                     1
                 )
-                else -> null
-            },
-            endDate = when (yearEndedUncertain) {
-                0    -> yearEnded?.let {
-                    LocalDate.of(
-                        it,
-                        1,
-                        1
-                    )
-                }
-                else -> null
             },
             publishingFormat = if (publishingFormat == "") null else publishingFormat,
             description = if (trackingNotes == "") null else trackingNotes,
@@ -225,8 +219,6 @@ class GcdIssue(
     val variantOf: Int?,
 ) : GcdJson<Issue> {
     override fun toRoomModel(pk: Int): Issue {
-        val fixedPubDate = if (publicationDate == "") null else publicationDate
-        val fixedNotes = if (notes == "") null else notes
         return Issue(
             issueId = pk,
             seriesId = seriesId,
@@ -236,10 +228,11 @@ class GcdIssue(
             variantName = variantName,
             variantOf = variantOf,
             sortCode = sortCode,
-            coverDateLong = fixedPubDate,
+            coverDateLong = if (publicationDate == "") null else publicationDate,
             onSaleDateUncertain = onSaleDateUncertain == 1,
             coverDate = Issue.formatDate(keyDate),
-            notes = fixedNotes
+            notes = if (notes == "") null else notes,
+            issueNumRaw = number
         )
     }
 }

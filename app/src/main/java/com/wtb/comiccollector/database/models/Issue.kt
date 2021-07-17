@@ -45,7 +45,8 @@ data class Issue(
     var onSaleDateUncertain: Boolean = false,
     var coverDate: LocalDate? = null,
     var notes: String? = null,
-    val brandId: Int? = null
+    var brandId: Int? = null,
+    var issueNumRaw: String?
 ) : DataModel() {
 
     val coverFileName: String
