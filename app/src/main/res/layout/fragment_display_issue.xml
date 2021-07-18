@@ -18,87 +18,15 @@
         tools:scaleType="fitXY"
         tools:src="@tools:sample/backgrounds/scenic" />
 
-    <TextView
-        android:id="@+id/label_release_date"
-        style="@style/RoleNameText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/margin_narrow"
-        android:layout_marginTop="@dimen/margin_narrow"
-        android:background="@color/tag_publisher"
-        android:labelFor="@id/release_date_text_view"
-        android:padding="@dimen/margin_narrow"
-        android:text="@string/label_release_date"
-        android:textSize="14sp"
+    <com.wtb.comiccollector.views.IssueInfoBox
+        android:id="@+id/issue_info_box"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toTopOf="@id/collectionButton"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@id/issue_cover"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:showIn="@layout/fragment_display_issue"/>
+        app:layout_constraintTop_toTopOf="parent" />
 
-    <TextView
-        android:id="@+id/release_date_text_view"
-        style="@style/CreatorNameText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/margin_narrow"
-        android:textSize="14sp"
-        app:layout_constraintBottom_toBottomOf="@id/label_release_date"
-        app:layout_constraintStart_toEndOf="@+id/label_release_date"
-        app:layout_constraintTop_toTopOf="@id/label_release_date"
-        tools:text="May 6, 2021" />
-
-    <TextView
-        android:id="@+id/label_cover_date"
-        style="@style/RoleNameText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/margin_narrow"
-        android:layout_marginTop="@dimen/margin_narrow"
-        android:background="@color/tag_publisher"
-        android:labelFor="@id/cover_date_text_view"
-        android:padding="@dimen/margin_narrow"
-        android:text="@string/label_cover_date"
-        android:textSize="14sp"
-        app:layout_constraintStart_toEndOf="@id/issue_cover"
-        app:layout_constraintTop_toBottomOf="@id/label_release_date" />
-
-    <TextView
-        android:id="@+id/cover_date_text_view"
-        style="@style/CreatorNameText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/margin_narrow"
-        android:textSize="14sp"
-        app:layout_constraintBottom_toBottomOf="@id/label_cover_date"
-        app:layout_constraintStart_toEndOf="@+id/label_cover_date"
-        app:layout_constraintTop_toTopOf="@id/label_cover_date"
-        tools:text="May 6, 2021" />
-
-    <TextView
-        android:id="@+id/label_notes"
-        style="@style/RoleNameText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/margin_narrow"
-        android:layout_marginTop="@dimen/margin_narrow"
-        android:background="@color/tag_publisher"
-        android:labelFor="@id/release_date_text_view"
-        android:padding="@dimen/margin_narrow"
-        android:text="@string/label_notes"
-        android:textSize="14sp"
-        app:layout_constraintStart_toEndOf="@id/issue_cover"
-        app:layout_constraintTop_toBottomOf="@id/label_cover_date" />
-
-    <TextView
-        android:id="@+id/notes_text_view"
-        style="@style/CreatorNameText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/margin_narrow"
-        android:textSize="14sp"
-        app:layout_constraintBottom_toBottomOf="@id/label_notes"
-        app:layout_constraintStart_toEndOf="@+id/label_notes"
-        app:layout_constraintTop_toTopOf="@id/label_notes"
-        tools:text="May 6, 2021" />
     <Button
         android:id="@+id/collectionButton"
         android:layout_width="0dp"
@@ -258,10 +186,6 @@
             android:text="@string/grand_comic_database_tm"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
-
-        <com.wtb.comiccollector.views.IssueInfoBox
-            android:layout_width="match_parent"
-            android:layout_height="100dp"/>
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

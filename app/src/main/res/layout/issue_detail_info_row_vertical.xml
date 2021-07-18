@@ -3,31 +3,27 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="horizontal">
+    android:orientation="vertical">
 
     <TextView
         android:id="@+id/info_row_label"
         style="@style/RoleNameText"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="?attr/colorPrimary"
         android:labelFor="@id/info_row_text"
         android:padding="@dimen/margin_narrow"
         android:text="@string/label_release_date"
-        android:textSize="@dimen/text_small"
+        android:background="?attr/colorPrimary"
+        android:textSize="@dimen/text_medium"
         tools:showIn="@layout/fragment_display_issue" />
 
     <TextView
         android:id="@+id/info_row_text"
         style="@style/CreatorNameText"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:layout_gravity="center_vertical"
-        android:layout_weight="1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/margin_narrow"
         android:background="@drawable/primary_border"
-        android:gravity="center_vertical"
-        android:paddingStart="@dimen/margin_narrow"
-        android:paddingEnd="@dimen/margin_narrow"
         android:textSize="@dimen/text_small"
         tools:text="May 6, 2021" />
 </LinearLayout>

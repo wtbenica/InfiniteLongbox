@@ -6,8 +6,6 @@ import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.*
-import android.view.View.GONE
-import android.view.View.VISIBLE
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.*
@@ -23,11 +21,11 @@ import com.wtb.comiccollector.database.models.*
 import com.wtb.comiccollector.fragments_view_models.IssueDetailViewModel
 import com.wtb.comiccollector.views.CreatorLink
 import com.wtb.comiccollector.views.CreatorLinkCallback
+import com.wtb.comiccollector.views.IssueInfoBox
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import java.io.File
-import java.time.format.DateTimeFormatter
 import java.util.*
 
 // Bundle Argument Tags
@@ -89,12 +87,7 @@ class IssueDetailFragment : Fragment(), CreatorLinkCallback {
     private lateinit var issueCreditsFrame: ScrollView
     private lateinit var creditsBox: CreditsBox
 
-    private lateinit var labelReleaseDate: TextView
-    private lateinit var releaseDateTextView: TextView
-    private lateinit var labelCoverDate: TextView
-    private lateinit var coverDateTextView: TextView
-    private lateinit var labelNotes: TextView
-    private lateinit var notesTextView: TextView
+    private lateinit var infoBox: IssueInfoBox
 
     private lateinit var gotoStartButton: Button
     private lateinit var gotoSkipBackButton: Button
@@ -176,12 +169,7 @@ class IssueDetailFragment : Fragment(), CreatorLinkCallback {
 
         coverImageView = view.findViewById(R.id.issue_cover) as ImageView
         issueCreditsFrame = view.findViewById(R.id.issue_credits_table) as ScrollView
-        labelReleaseDate = view.findViewById(R.id.label_release_date)
-        releaseDateTextView = view.findViewById(R.id.release_date_text_view)
-        labelCoverDate = view.findViewById(R.id.label_cover_date)
-        coverDateTextView = view.findViewById(R.id.cover_date_text_view)
-        labelNotes = view.findViewById(R.id.label_notes)
-        notesTextView = view.findViewById(R.id.notes_text_view)
+        infoBox = view.findViewById(R.id.issue_info_box)
         gcdLinkButton = view.findViewById(R.id.gcd_link) as Button
         collectionButton = view.findViewById(R.id.collectionButton) as Button
         variantSpinnerHolder = view.findViewById(R.id.variant_spinner_holder)
@@ -379,14 +367,14 @@ class IssueDetailFragment : Fragment(), CreatorLinkCallback {
             issueDetailViewModel.addToCollection()
         }
 
-        // TODO: Deprecated
-        releaseDateTextView.setOnClickListener {
-            DatePickerFragment.newInstance(fullIssue.issue.releaseDate).apply {
-                setTargetFragment(this@IssueDetailFragment, RESULT_DATE_PICKER)
-                show(this@IssueDetailFragment.parentFragmentManager, DIALOG_DATE)
-            }
-        }
-
+//         TODO: This is for editing. n/a anymore?
+//        releaseDateTextView.setOnClickListener {
+//            DatePickerFragment.newInstance(fullIssue.issue.releaseDate).apply {
+//                setTargetFragment(this@IssueDetailFragment, RESULT_DATE_PICKER)
+//                show(this@IssueDetailFragment.parentFragmentManager, DIALOG_DATE)
+//            }
+//        }
+//
         variantSpinner.onItemSelectedListener =
             object : AdapterView.OnItemSelectedListener {
                 override fun onItemSelected(
@@ -439,42 +427,7 @@ class IssueDetailFragment : Fragment(), CreatorLinkCallback {
         if (issue.issueId != AUTO_ID) {
             numUpdates += 1
 
-
-            issue.releaseDate.let {
-                if (it != null) {
-                    releaseDateTextView.text = it.format(DateTimeFormatter.ofPattern("MMM d, y"))
-                    labelReleaseDate.visibility = VISIBLE
-                    labelCoverDate.visibility = VISIBLE
-                } else {
-                    labelReleaseDate.visibility = GONE
-                    labelCoverDate.visibility = GONE
-                }
-            }
-            issue.releaseDate?.format(DateTimeFormatter.ofPattern("MMM d, y"))
-                ?.let { releaseDateTextView.text = it }
-
-            issue.coverDate.let {
-                if (it != null) {
-                    coverDateTextView.text = it.format(DateTimeFormatter.ofPattern("MMM yyyy"))
-                    coverDateTextView.visibility = VISIBLE
-                    labelCoverDate.visibility = VISIBLE
-                } else {
-                    coverDateTextView.visibility = GONE
-                    labelCoverDate.visibility = GONE
-                }
-            }
-
-            issue.notes.let {
-                if (it != null && it != "") {
-                    notesTextView.text = issue.notes
-                    notesTextView.visibility = VISIBLE
-                    labelNotes.visibility = VISIBLE
-                } else {
-                    notesTextView.visibility = GONE
-                    labelNotes.visibility = GONE
-                }
-            }
-
+            infoBox.update(issue.releaseDate, issue.coverDate, issue.notes)
             creditsBox.displayCredit()
 
             fullVariant?.issue?.let {
