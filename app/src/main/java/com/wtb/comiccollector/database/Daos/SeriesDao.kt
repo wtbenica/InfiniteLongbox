@@ -9,8 +9,10 @@ import androidx.sqlite.db.SimpleSQLiteQuery
 import androidx.sqlite.db.SupportSQLiteQuery
 import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.SearchFilter
+import com.wtb.comiccollector.database.models.BondType
 import com.wtb.comiccollector.database.models.FullSeries
 import com.wtb.comiccollector.database.models.Series
+import com.wtb.comiccollector.database.models.SeriesBond
 import com.wtb.comiccollector.repository.DUMMY_ID
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -147,3 +149,10 @@ abstract class SeriesDao : BaseDao<Series>() {
     }
 
 }
+
+@Dao
+abstract class BondTypeDao : BaseDao<BondType>()
+
+@ExperimentalCoroutinesApi
+@Dao
+abstract class SeriesBondDao : BaseDao<SeriesBond>()

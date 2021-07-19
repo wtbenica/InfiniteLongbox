@@ -406,3 +406,58 @@ class GcdNameDetail(
         )
     }
 }
+
+class GcdBondType(
+    @SerializedName("name")
+    @Expose
+    val name: String,
+    @SerializedName("description")
+    @Expose
+    val description: String,
+    @SerializedName("notes")
+    @Expose
+    val notes: String
+) : GcdJson<BondType> {
+    override fun toRoomModel(pk: Int): BondType {
+        return BondType(
+            bondTypeId = pk,
+            name = name,
+            description = description,
+            notes = notes
+        )
+    }
+}
+
+@ExperimentalCoroutinesApi
+class GcdSeriesBond(
+    @SerializedName("origin")
+    @Expose
+    val origin: Int,
+    @SerializedName("target")
+    @Expose
+    val target: Int,
+    @SerializedName("origin_issue")
+    @Expose
+    val originIssue: Int,
+    @SerializedName("target_issue")
+    @Expose
+    val targetIssue: Int,
+    @SerializedName("bond_type")
+    @Expose
+    val bondType: Int,
+    @SerializedName("notes")
+    @Expose
+    val notes: String
+): GcdJson<SeriesBond> {
+    override fun toRoomModel(pk: Int): SeriesBond {
+        return SeriesBond(
+            bondId = pk,
+            originId = origin,
+            targetId = target,
+            originIssueId = originIssue,
+            targetIssueId = targetIssue,
+            bondTypeId = bondType,
+            notes = notes
+        )
+    }
+}

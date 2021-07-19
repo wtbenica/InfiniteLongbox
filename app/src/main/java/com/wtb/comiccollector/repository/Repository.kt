@@ -52,13 +52,15 @@ internal const val CREATOR_LIFETIME: Long = 7
 const val EXTERNAL = "http://24.176.172.169/"
 const val NIGHTWING = "http://192.168.0.141:8000/"
 const val ALFRED = "http://192.168.0.138:8000/"
-const val BASE_URL = ALFRED
+const val BASE_URL = NIGHTWING
 
 internal const val UPDATED_CREATORS = "updated_creators"
 internal const val UPDATED_PUBLISHERS = "updated_publishers"
 internal const val UPDATED_ROLES = "updated_roles"
 internal const val UPDATED_STORY_TYPES = "updated_story_types"
 internal const val UPDATED_SERIES = "updated_series"
+internal const val UPDATED_BOND_TYPE = "update_bond_type"
+internal const val UPDATED_SERIES_BONDS = "update_series_bonds"
 
 internal const val STATIC_DATA_LIFETIME: Long = 30
 internal const val SERIES_LIST_LIFETIME: Long = 7

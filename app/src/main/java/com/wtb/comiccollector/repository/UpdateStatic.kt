@@ -42,91 +42,134 @@ class StaticUpdater(
         )
 
         return CoroutineScope(Dispatchers.IO).async {
-            if (!DEBUG) {
-                val publishers = CoroutineScope(Dispatchers.IO).async pubs@{
-                    var result = emptyList<Item<GcdPublisher, Publisher>>()
+            val publishers = CoroutineScope(Dispatchers.IO).async pubs@{
+                var result = emptyList<Item<GcdPublisher, Publisher>>()
 
-                    if (checkIfStale(UPDATED_PUBLISHERS, STATIC_DATA_LIFETIME, prefs)) {
-                        try {
-                            Log.d(TAG, "update: Getting Publishers")
-                            result = webservice.getPublishers()
-                        } catch (e: SocketTimeoutException) {
-                            Log.d(TAG, "update: Getting Publishers: $e")
-                        } catch (e: ConnectException) {
-                            Log.d(TAG, "update: Getting Publishers: $e")
+                if (checkIfStale(UPDATED_PUBLISHERS, STATIC_DATA_LIFETIME, prefs)) {
+                    try {
+                        Log.d(TAG, "update: Getting Publishers")
+                        result = webservice.getPublishers()
+                    } catch (e: SocketTimeoutException) {
+                        Log.d(TAG, "update: Getting Publishers: $e")
+                    } catch (e: ConnectException) {
+                        Log.d(TAG, "update: Getting Publishers: $e")
+                    }
+                }
+
+                return@pubs result
+            }
+
+            val roles = CoroutineScope(Dispatchers.IO).async roles@{
+                var result = emptyList<Item<GcdRole, Role>>()
+
+                if (checkIfStale(UPDATED_ROLES, STATIC_DATA_LIFETIME, prefs)) {
+                    try {
+                        Log.d(TAG, "update: Getting Roles")
+                        result = webservice.getRoles()
+                    } catch (e: SocketTimeoutException) {
+                        Log.d(TAG, "update: Getting Roles: $e")
+                    } catch (e: ConnectException) {
+                        Log.d(TAG, "update: Getting Roles: $e")
+                    }
+                }
+
+                return@roles result
+            }
+
+            val storyTypes = CoroutineScope(Dispatchers.IO).async types@{
+                var result = emptyList<Item<GcdStoryType, StoryType>>()
+
+                if (checkIfStale(UPDATED_STORY_TYPES, STATIC_DATA_LIFETIME, prefs)) {
+                    try {
+                        Log.d(TAG, "update: Getting StoryTypes")
+                        result = webservice.getStoryTypes()
+                    } catch (e: SocketTimeoutException) {
+                        Log.d(TAG, "update: Getting StoryTypes SocketTimeout: $e")
+                    } catch (e: ConnectException) {
+                        Log.d(TAG, "update: Getting Publishers: $e")
+                    }
+                }
+                return@types result
+            }
+
+            val seriesBondTypes = CoroutineScope(Dispatchers.IO).async bondTypes@{
+                var result = emptyList<Item<GcdBondType, BondType>>()
+
+                if (checkIfStale(UPDATED_BOND_TYPE, STATIC_DATA_LIFETIME, prefs)) {
+                    Log.d(TAG, "Getting Series Bond Types")
+                    try {
+                        result = webservice.getBondTypes()
+                    } catch (e: SocketTimeoutException) {
+                        Log.d(TAG, "update: Getting BondTypes SocketTimeout: $e")
+                    } catch (e: ConnectException) {
+                        Log.d(TAG, "update: Getting BondTypes: $e")
+                    }
+                }
+                Log.d(TAG, "SBT RESULTS: ${result.size}")
+                return@bondTypes result
+            }.await().also {
+                Log.d(TAG, "bondTypes complete")
+            }
+
+            val seriesBonds = CoroutineScope(Dispatchers.IO).async seriesBonds@{
+                var result = emptyList<Item<GcdSeriesBond, SeriesBond>>()
+
+                if (checkIfStale(UPDATED_SERIES_BONDS, SERIES_LIST_LIFETIME, prefs)) {
+                    Log.d(TAG, "Getting Series Bonds")
+                    try {
+                        result = webservice.getSeriesBonds()
+                        Log.d(TAG, "setting new result")
+                    } catch (e: SocketTimeoutException) {
+                        Log.d(TAG, "update: Getting SeriesBonds SocketTimeout: $e")
+                    } catch (e: ConnectException) {
+                        Log.d(TAG, "update: Getting SeriesBonds: $e")
+                    }
+                }
+                Log.d(TAG, "SBS RESULTS: ${result.size}")
+                return@seriesBonds result
+            }.await().also {
+                Log.d(TAG, "seriesBonds complete")
+            }
+
+            withContext(CoroutineScope(Dispatchers.IO).coroutineContext) {
+                Log.d(TAG, "Uploading *(#RESPFPSEJFPWIHR(*")
+                database.transactionDao().upsertStatic(
+                    publishers = publishers.await()
+                        .map { it.toRoomModel() }
+                        .also {
+                            if (it.isNotEmpty()) {
+                                Repository.saveTime(prefs, UPDATED_PUBLISHERS)
+                            }
+                        },
+                    roles = roles.await()
+                        .map { it.toRoomModel() }
+                        .also {
+                            if (it.isNotEmpty()) {
+                                Repository.saveTime(prefs, UPDATED_ROLES)
+                            }
+                        },
+                    storyTypes = storyTypes.await()
+                        .map { it.toRoomModel() }
+                        .also {
+                            if (it.isNotEmpty()) {
+                                Repository.saveTime(prefs, UPDATED_STORY_TYPES)
+                            }
+                        },
+                    bondTypes = seriesBondTypes.map { it.toRoomModel() }
+                        .also {
+                            if (it.isNotEmpty()) {
+                                Repository.saveTime(prefs, UPDATED_BOND_TYPE)
+                            }
+                        },
+                    seriesBonds = seriesBonds.map { it.toRoomModel() }
+                        .also {
+                            if (it.isNotEmpty()) {
+                                Repository.saveTime(prefs, UPDATED_SERIES_BONDS)
+                            }
                         }
-                    }
-
-                    return@pubs result
-                }
-
-                val roles = CoroutineScope(Dispatchers.IO).async roles@{
-                    var result = emptyList<Item<GcdRole, Role>>()
-
-                    if (checkIfStale(UPDATED_ROLES, STATIC_DATA_LIFETIME, prefs)) {
-                        try {
-                            Log.d(TAG, "update: Getting Roles")
-                            result = webservice.getRoles()
-                        } catch (e: SocketTimeoutException) {
-                            Log.d(TAG, "update: Getting Roles: $e")
-                        } catch (e: ConnectException) {
-                            Log.d(TAG, "update: Getting Roles: $e")
-                        }
-                    }
-
-                    return@roles result
-                }
-
-                val storyTypes = CoroutineScope(Dispatchers.IO).async types@{
-                    var result = emptyList<Item<GcdStoryType, StoryType>>()
-
-                    if (checkIfStale(UPDATED_STORY_TYPES, STATIC_DATA_LIFETIME, prefs)) {
-                        try {
-                            Log.d(TAG, "update: Getting StoryTypes")
-                            result = webservice.getStoryTypes()
-                        } catch (e: SocketTimeoutException) {
-                            Log.d(TAG, "update: Getting StoryTypes SocketTimeout: $e")
-                        } catch (e: ConnectException) {
-                            Log.d(TAG, "update: Getting Publishers: $e")
-                        }
-                    }
-                    return@types result
-                }
-
-                withContext(CoroutineScope(Dispatchers.IO).coroutineContext) {
-                    database.transactionDao().upsertStatic(
-                        publishers = publishers.await()
-                            .map { it.toRoomModel() }
-                            .also {
-                                if (it.isNotEmpty()) {
-                                    Repository.saveTime(prefs, UPDATED_PUBLISHERS)
-                                }
-                            },
-                        roles = roles.await()
-                            .map { it.toRoomModel() }
-                            .also {
-                                if (it.isNotEmpty()) {
-                                    Repository.saveTime(prefs, UPDATED_ROLES)
-                                }
-                            },
-
-                        storyTypes = storyTypes.await()
-                            .map { it.toRoomModel() }
-                            .also {
-                                if (it.isNotEmpty()) {
-                                    Repository.saveTime(prefs, UPDATED_STORY_TYPES)
-                                }
-                            },
-                    )
-                }.let {
-                    withContext(Dispatchers.Default) {
-                        updateSeries()
-                    }.let {
-                        updateCreators()
-                    }
-                }
-            } else {
-                withContext(CoroutineScope(Dispatchers.IO).coroutineContext) {
+                )
+            }.let {
+                withContext(Dispatchers.Default) {
                     updateSeries()
                 }.let {
                     updateCreators()
@@ -136,7 +179,7 @@ class StaticUpdater(
     }
 
     private suspend fun updateSeries() {
-        if (checkIfStale(UPDATED_SERIES, SERIES_LIST_LIFETIME, prefs) && !DEBUG) {
+        if (checkIfStale(UPDATED_SERIES, SERIES_LIST_LIFETIME, prefs)) {
             var page = 0
             var stop = false
 
@@ -165,13 +208,13 @@ class StaticUpdater(
     }
 
     private suspend fun updateCreators() {
-        if (checkIfStale(UPDATED_CREATORS, SERIES_LIST_LIFETIME, prefs) && !DEBUG) {
+        if (checkIfStale(UPDATED_CREATORS, SERIES_LIST_LIFETIME, prefs)) {
             var page = 0
             var stop = false
 
-            CoroutineScope(Dispatchers.IO).async outer@ {
+            CoroutineScope(Dispatchers.IO).async outer@{
                 do {
-                    async creatorIds@ {
+                    async creatorIds@{
                         var result = emptyList<Int>()
 
                         try {
