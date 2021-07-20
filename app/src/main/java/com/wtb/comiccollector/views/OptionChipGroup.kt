@@ -18,11 +18,10 @@ class OptionChipGroup(context: Context?, attributeSet: AttributeSet) :
     private val myCollectionChip: OptionChip = OptionChip(
         context,
         "My Collection",
-        this,
-        { fmv, bool ->
-            fmv.myCollection((bool))
-        }
-    )
+        this
+    ) { fmv, bool ->
+        fmv.myCollection((bool))
+    }
 
     fun update(filter: SearchFilter) {
         removeAllViews()

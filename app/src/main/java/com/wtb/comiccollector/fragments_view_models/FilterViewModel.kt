@@ -36,7 +36,7 @@ class FilterViewModel : ViewModel() {
         repository.getCreatorsByFilter(it)
     }
 
-    val allOptions: Flow<List<FilterOptionAutoCompletePopupItem>> = combine(
+    private val allOptions: Flow<List<FilterOptionAutoCompletePopupItem>> = combine(
         seriesOptions,
         creatorOptions,
         publisherOptions
@@ -60,7 +60,6 @@ class FilterViewModel : ViewModel() {
             Character  -> allOptions
             NameDetail -> creatorOptions
             All        -> allOptions
-            null       -> TODO()
         }
     }
 

@@ -201,7 +201,7 @@ class IssueListFragment : ListFragment() {
 
     }
 
-    interface IssueListCallback : ListFragment.ListFragmentCallback {
+    interface IssueListCallback : ListFragmentCallback {
         fun onIssueSelected(issue: Issue)
         fun onNewIssue(issueId: Int)
     }

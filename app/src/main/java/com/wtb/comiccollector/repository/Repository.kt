@@ -1,3 +1,5 @@
+@file:Suppress("RemoveExplicitTypeArguments")
+
 package com.wtb.comiccollector.repository
 
 //import android.util.Log
@@ -21,10 +23,10 @@ import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.MainActivity
 import com.wtb.comiccollector.SearchFilter
 import com.wtb.comiccollector.Webservice
-import com.wtb.comiccollector.database.Daos.Count
-import com.wtb.comiccollector.database.Daos.REQUEST_LIMIT
 import com.wtb.comiccollector.database.IssueDatabase
 import com.wtb.comiccollector.database.SimpleMigration
+import com.wtb.comiccollector.database.daos.Count
+import com.wtb.comiccollector.database.daos.REQUEST_LIMIT
 import com.wtb.comiccollector.database.models.*
 import com.wtb.comiccollector.network.RetrofitAPIClient
 import kotlinx.coroutines.*

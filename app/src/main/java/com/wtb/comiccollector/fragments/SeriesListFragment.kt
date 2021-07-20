@@ -123,7 +123,7 @@ class SeriesListFragment : ListFragment() {
         }
     }
 
-    interface SeriesListCallback : ListFragment.ListFragmentCallback {
+    interface SeriesListCallback : ListFragmentCallback {
         fun onSeriesSelected(series: Series)
     }
 

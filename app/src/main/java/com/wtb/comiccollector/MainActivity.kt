@@ -296,12 +296,12 @@ class MainActivity : AppCompatActivity(),
     override fun setTitle(title: String?) {
         val actual = title ?: applicationInfo.loadLabel(packageManager)
         Log.d(TAG, "setTitle: $actual")
-        toolbar?.title = actual
+        toolbar.title = actual
     }
 
     override fun setToolbarScrollFlags(flags: Int) {
         Log.d(TAG, "setToolbarScrollFlags $flags")
-        toolbar?.updateLayoutParams<AppBarLayout.LayoutParams> { scrollFlags = flags }
+        toolbar.updateLayoutParams<AppBarLayout.LayoutParams> { scrollFlags = flags }
         if (flags and SCROLL_FLAG_SCROLL == SCROLL_FLAG_SCROLL) {
             appBarLayout.setExpanded(true, true)
         }

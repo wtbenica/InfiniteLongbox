@@ -1,4 +1,4 @@
-package com.wtb.comiccollector.database.Daos
+package com.wtb.comiccollector.database.daos
 
 import android.util.Log
 import androidx.paging.PagingSource
@@ -150,6 +150,7 @@ abstract class SeriesDao : BaseDao<Series>() {
 
 }
 
+@ExperimentalCoroutinesApi
 @Dao
 abstract class BondTypeDao : BaseDao<BondType>()
 

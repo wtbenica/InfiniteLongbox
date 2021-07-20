@@ -143,7 +143,7 @@ class GcdPublisher(
             },
             yearEnded = if (yearEnded != null) {
                 LocalDate.of(
-                    yearEnded ?: LocalDate.MIN.year,
+                    yearEnded,
                     1,
                     1
                 )
@@ -237,6 +237,7 @@ class GcdIssue(
     }
 }
 
+@ExperimentalCoroutinesApi
 class GcdCredit(
     @SerializedName("creator")
     @Expose
@@ -258,6 +259,7 @@ class GcdCredit(
     }
 }
 
+@ExperimentalCoroutinesApi
 class GcdExCredit(
     @SerializedName("creator")
     @Expose
@@ -438,10 +440,10 @@ class GcdSeriesBond(
     val target: Int,
     @SerializedName("origin_issue")
     @Expose
-    val originIssue: Int,
+    val originIssue: Int? = null,
     @SerializedName("target_issue")
     @Expose
-    val targetIssue: Int,
+    val targetIssue: Int? = null,
     @SerializedName("bond_type")
     @Expose
     val bondType: Int,

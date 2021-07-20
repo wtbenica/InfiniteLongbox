@@ -41,7 +41,7 @@ class CreatorLink(
     }
 
     companion object {
-        private val TAG = "CreatorLink"
+        private const val TAG = "CreatorLink"
     }
 }
 
