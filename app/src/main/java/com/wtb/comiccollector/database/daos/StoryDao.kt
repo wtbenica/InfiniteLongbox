@@ -1,10 +1,12 @@
-package com.wtb.comiccollector.database.Daos
+package com.wtb.comiccollector.database.daos
 
 import androidx.room.Dao
 import androidx.room.Query
 import com.wtb.comiccollector.database.models.Story
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 
+@ExperimentalCoroutinesApi
 @Dao
 abstract class StoryDao : BaseDao<Story>() {
     @Query(

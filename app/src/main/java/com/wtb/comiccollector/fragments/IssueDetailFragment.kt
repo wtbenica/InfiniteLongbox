@@ -16,16 +16,16 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.google.android.material.appbar.AppBarLayout
 import com.wtb.comiccollector.*
-import com.wtb.comiccollector.database.Daos.Count
+import com.wtb.comiccollector.database.daos.Count
 import com.wtb.comiccollector.database.models.*
 import com.wtb.comiccollector.fragments_view_models.IssueDetailViewModel
 import com.wtb.comiccollector.views.CreatorLink
 import com.wtb.comiccollector.views.CreatorLinkCallback
+import com.wtb.comiccollector.views.IssueInfoBox
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import java.io.File
-import java.time.format.DateTimeFormatter
 import java.util.*
 
 // Bundle Argument Tags
@@ -58,12 +58,6 @@ private const val STORY_TYPE_COVER = 6
 @ExperimentalCoroutinesApi
 class IssueDetailFragment : Fragment(), CreatorLinkCallback {
 
-    override fun onDetach() {
-        super.onDetach()
-
-        listFragmentCallback = null
-    }
-
     private var numUpdates = 0
     private var listFragmentCallback: ListFragment.ListFragmentCallback? = null
 
@@ -87,10 +81,7 @@ class IssueDetailFragment : Fragment(), CreatorLinkCallback {
     private lateinit var issueCreditsFrame: ScrollView
     private lateinit var creditsBox: CreditsBox
 
-    private lateinit var releaseDateTextView: TextView
-    private lateinit var coverDateLongTextView: TextView
-    private lateinit var coverDateTextView: TextView
-    private lateinit var notesTextView: TextView
+    private lateinit var infoBox: IssueInfoBox
 
     private lateinit var gotoStartButton: Button
     private lateinit var gotoSkipBackButton: Button
@@ -128,7 +119,8 @@ class IssueDetailFragment : Fragment(), CreatorLinkCallback {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
 
-        fullIssue = FullIssue(Issue(), SeriesAndPublisher(Series(), Publisher()), null)
+        fullIssue =
+            FullIssue(Issue(issueNumRaw = null), SeriesAndPublisher(Series(), Publisher()), null)
         issueCredits = emptyList()
         issueStories = emptyList()
         variantCredits = emptyList()
@@ -171,10 +163,7 @@ class IssueDetailFragment : Fragment(), CreatorLinkCallback {
 
         coverImageView = view.findViewById(R.id.issue_cover) as ImageView
         issueCreditsFrame = view.findViewById(R.id.issue_credits_table) as ScrollView
-        releaseDateTextView = view.findViewById(R.id.release_date_text_view)
-        coverDateLongTextView = view.findViewById(R.id.cover_date_long_text_view)
-        coverDateTextView = view.findViewById(R.id.cover_date_text_view)
-        notesTextView = view.findViewById(R.id.notes_text_view)
+        infoBox = view.findViewById(R.id.issue_info_box)
         gcdLinkButton = view.findViewById(R.id.gcd_link) as Button
         collectionButton = view.findViewById(R.id.collectionButton) as Button
         variantSpinnerHolder = view.findViewById(R.id.variant_spinner_holder)
@@ -195,7 +184,6 @@ class IssueDetailFragment : Fragment(), CreatorLinkCallback {
         return view
     }
 
-    @ExperimentalCoroutinesApi
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -301,6 +289,12 @@ class IssueDetailFragment : Fragment(), CreatorLinkCallback {
         )
     }
 
+    override fun onDetach() {
+        super.onDetach()
+
+        listFragmentCallback = null
+    }
+
     private fun updateNavBar() {
         this.currentPos = this.issuesInSeries.indexOf(this.fullIssue.issue.issueId)
         val found = currentPos != -1
@@ -372,14 +366,14 @@ class IssueDetailFragment : Fragment(), CreatorLinkCallback {
             issueDetailViewModel.addToCollection()
         }
 
-        // TODO: Deprecated
-        releaseDateTextView.setOnClickListener {
-            DatePickerFragment.newInstance(fullIssue.issue.releaseDate).apply {
-                setTargetFragment(this@IssueDetailFragment, RESULT_DATE_PICKER)
-                show(this@IssueDetailFragment.parentFragmentManager, DIALOG_DATE)
-            }
-        }
-
+//         TODO: This is for editing. n/a anymore?
+//        releaseDateTextView.setOnClickListener {
+//            DatePickerFragment.newInstance(fullIssue.issue.releaseDate).apply {
+//                setTargetFragment(this@IssueDetailFragment, RESULT_DATE_PICKER)
+//                show(this@IssueDetailFragment.parentFragmentManager, DIALOG_DATE)
+//            }
+//        }
+//
         variantSpinner.onItemSelectedListener =
             object : AdapterView.OnItemSelectedListener {
                 override fun onItemSelected(
@@ -432,11 +426,7 @@ class IssueDetailFragment : Fragment(), CreatorLinkCallback {
         if (issue.issueId != AUTO_ID) {
             numUpdates += 1
 
-            issue.releaseDate?.format(DateTimeFormatter.ofPattern("MMM d, y"))
-                ?.let { releaseDateTextView.text = it }
-            coverDateLongTextView.text = issue.coverDateLong
-            coverDateTextView.text = issue.coverDate.toString()
-            notesTextView.text = issue.notes
+            infoBox.update(issue.releaseDate, issue.coverDate, issue.notes)
             creditsBox.displayCredit()
 
             fullVariant?.issue?.let {
@@ -460,7 +450,7 @@ class IssueDetailFragment : Fragment(), CreatorLinkCallback {
 
     override fun creatorClicked(creator: NameDetailAndCreator) {
         Log.d(TAG, "creatorClicked")
-        val filter = SearchFilter(creators = setOf(creator.creator))
+        val filter = SearchFilter(creators = setOf(creator.creator), myCollection = false)
         listFragmentCallback?.updateFilter(filter)
     }
 

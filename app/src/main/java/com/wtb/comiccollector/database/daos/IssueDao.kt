@@ -1,4 +1,4 @@
-package com.wtb.comiccollector.database.Daos
+package com.wtb.comiccollector.database.daos
 
 import androidx.paging.PagingSource
 import androidx.room.Dao
@@ -27,7 +27,6 @@ abstract class IssueDao : BaseDao<Issue>() {
         var tableJoinString = String()
         var conditionsString = String()
         val args: ArrayList<Any> = arrayListOf()
-        var containsCondition = false
 
         tableJoinString +=
             """SELECT DISTINCT ie.*, ss.seriesName, pr.publisher 
@@ -113,7 +112,6 @@ abstract class IssueDao : BaseDao<Issue>() {
         var tableJoinString = String()
         var conditionsString = String()
         val args: ArrayList<Any> = arrayListOf()
-        var containsCondition = false
 
         tableJoinString +=
             "SELECT DISTINCT ie.*, ss.seriesName, pr.publisher " +

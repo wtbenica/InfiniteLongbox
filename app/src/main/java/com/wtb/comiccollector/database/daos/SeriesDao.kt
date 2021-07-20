@@ -1,4 +1,4 @@
-package com.wtb.comiccollector.database.Daos
+package com.wtb.comiccollector.database.daos
 
 import android.util.Log
 import androidx.paging.PagingSource
@@ -9,8 +9,10 @@ import androidx.sqlite.db.SimpleSQLiteQuery
 import androidx.sqlite.db.SupportSQLiteQuery
 import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.SearchFilter
+import com.wtb.comiccollector.database.models.BondType
 import com.wtb.comiccollector.database.models.FullSeries
 import com.wtb.comiccollector.database.models.Series
+import com.wtb.comiccollector.database.models.SeriesBond
 import com.wtb.comiccollector.repository.DUMMY_ID
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -80,7 +82,7 @@ abstract class SeriesDao : BaseDao<Series>() {
     abstract fun getAll(): Flow<List<Series>>
 
     @Query("SELECT * FROM series WHERE seriesId=:seriesId")
-    abstract fun getSeries(seriesId: Int): Flow<Series?>
+    abstract fun getSeries(seriesId: Int): Flow<FullSeries?>
 
     // PAGING SOURCE FUNCITONS
     @RawQuery(observedEntities = [Series::class])
@@ -147,3 +149,11 @@ abstract class SeriesDao : BaseDao<Series>() {
     }
 
 }
+
+@ExperimentalCoroutinesApi
+@Dao
+abstract class BondTypeDao : BaseDao<BondType>()
+
+@ExperimentalCoroutinesApi
+@Dao
+abstract class SeriesBondDao : BaseDao<SeriesBond>()

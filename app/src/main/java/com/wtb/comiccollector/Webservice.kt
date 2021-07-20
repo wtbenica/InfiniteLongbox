@@ -75,5 +75,10 @@ interface Webservice {
     suspend fun getSeriesByIds(@Path("seriesIds") seriesIds: List<Int>): List<Item<GcdSeries,
             Series>>
 
+    @GET("db_query/series_bonds")
+    suspend fun getSeriesBonds(): List<Item<GcdSeriesBond, SeriesBond>>
+
+    @GET("db_query/series_bond_types")
+    suspend fun getBondTypes(): List<Item<GcdBondType, BondType>>
 }
 

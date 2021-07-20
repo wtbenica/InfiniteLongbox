@@ -7,8 +7,8 @@ import androidx.paging.cachedIn
 import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.SearchFilter
 import com.wtb.comiccollector.database.models.FullIssue
+import com.wtb.comiccollector.database.models.FullSeries
 import com.wtb.comiccollector.database.models.Issue
-import com.wtb.comiccollector.database.models.Series
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 
@@ -20,7 +20,7 @@ class IssueListViewModel : ListViewModel<FullIssue>() {
     private val seriesIdLiveData = MutableLiveData<Int>()
     val seriesId: LiveData<Int> = seriesIdLiveData
 
-    var seriesLiveData: LiveData<Series?> =
+    var seriesLiveData: LiveData<FullSeries?> =
         Transformations.switchMap(filterLiveData) {
             it?.let { filter ->
                 filter.mSeries?.seriesId?.let { id -> repository.getSeries(id).asLiveData() }
@@ -32,7 +32,7 @@ class IssueListViewModel : ListViewModel<FullIssue>() {
         repository.getIssuesByFilterPaged(filter).asLiveData()
     }.asFlow().cachedIn(viewModelScope)
 
-    val series: Flow<Series?> = seriesId.switchMap { id ->
+    val series: Flow<FullSeries?> = seriesId.switchMap { id ->
         repository.getSeries(id).asLiveData()
     }.asFlow()
 

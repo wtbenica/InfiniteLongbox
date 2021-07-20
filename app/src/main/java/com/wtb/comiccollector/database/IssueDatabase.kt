@@ -5,7 +5,7 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
-import com.wtb.comiccollector.database.Daos.*
+import com.wtb.comiccollector.database.daos.*
 import com.wtb.comiccollector.database.models.*
 import com.wtb.comiccollector.database.models.Issue
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -16,7 +16,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
         Publisher::class, Story::class, ExCredit::class, StoryType::class, NameDetail::class,
         Character::class, Appearance::class, MyCollection::class, Cover::class,
         SeriesBond::class, BondType::class, Brand::class],
-    version = 8,
+    version = 9,
 )
 
 @TypeConverters(IssueTypeConverters::class)
@@ -37,6 +37,8 @@ abstract class IssueDatabase : RoomDatabase() {
     abstract fun appearanceDao(): AppearanceDao
     abstract fun collectionDao(): CollectionDao
     abstract fun coverDao(): CoverDao
+    abstract fun bondTypeDao(): BondTypeDao
+    abstract fun seriesBondDao(): SeriesBondDao
 }
 
 class SimpleMigration(from_version: Int, to_version: Int, private vararg val sql: String) :

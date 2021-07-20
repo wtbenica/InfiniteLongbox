@@ -10,7 +10,7 @@
     <string name="hint_publisher">Publisher</string>
     <string name="save">Save</string>
     <string name="cancel">Cancel</string>
-    <string name="release_date">Release Date</string>
+    <string name="label_release_date">Release Date</string>
     <string name="hint_first_name">First Name</string>
     <string name="hint_middle_name">Middle Name</string>
     <string name="hint_last_name">Last Name</string>
@@ -70,4 +70,6 @@
     <!--     Fragment Series Detail-->
     <string name="series_detail_notes">Notes</string>
     <string name="series_detail_tracking_notes">Tracking notes</string>
+    <string name="label_cover_date">Cover Date</string>
+    <string name="label_notes">Notes</string>
 </resources>

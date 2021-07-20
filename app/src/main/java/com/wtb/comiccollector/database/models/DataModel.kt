@@ -1,13 +1,12 @@
 package com.wtb.comiccollector.database.models
 
-import com.wtb.comiccollector.ComicCollectorApplication
 import com.wtb.comiccollector.ComicCollectorApplication.Companion.context
 import com.wtb.comiccollector.R
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import java.io.Serializable
 import java.time.LocalDate
 
-abstract class DataModel(var lastUpdated: LocalDate = LocalDate.now()) : Serializable {
+sealed class DataModel(var lastUpdated: LocalDate = LocalDate.now()) : Serializable {
 
     abstract val id: Int
 }
@@ -40,11 +39,11 @@ sealed interface FilterOptionAutoCompletePopupItem : Comparable<FilterOptionAuto
 
     val textColor: Int
         get() = when (this) {
-            is Series     -> ComicCollectorApplication.context?.getColor(R.color.tag_series)
+            is Series     -> context?.getColor(R.color.tag_series)
             is Creator,
-            is NameDetail -> ComicCollectorApplication.context?.getColor(R.color.tag_creator)
-            is Publisher  -> ComicCollectorApplication.context?.getColor(R.color.tag_publisher)
-            is Character  -> ComicCollectorApplication.context?.getColor(R.color.tag_character)
+            is NameDetail -> context?.getColor(R.color.tag_creator)
+            is Publisher  -> context?.getColor(R.color.tag_publisher)
+            is Character  -> context?.getColor(R.color.tag_character)
             is TextFilter -> null
         } ?: 0xFF000000.toInt()
 

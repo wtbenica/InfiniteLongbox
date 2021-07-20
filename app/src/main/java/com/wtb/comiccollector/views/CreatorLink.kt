@@ -7,6 +7,7 @@ import android.view.View
 import androidx.appcompat.widget.AppCompatTextView
 import com.wtb.comiccollector.R
 import com.wtb.comiccollector.database.models.NameDetailAndCreator
+import com.wtb.comiccollector.database.models.Series
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 @ExperimentalCoroutinesApi
@@ -41,11 +42,44 @@ class CreatorLink(
     }
 
     companion object {
-        private val TAG = "CreatorLink"
+        private const val TAG = "CreatorLink"
     }
 }
 
 @ExperimentalCoroutinesApi
 interface CreatorLinkCallback {
     fun creatorClicked(creator: NameDetailAndCreator)
+}
+
+@ExperimentalCoroutinesApi
+class SeriesLink(
+    context: Context,
+    attrs: AttributeSet,
+) : AppCompatTextView(context, attrs, R.attr.styleCreatorLink), View.OnClickListener {
+
+    internal var callback: SeriesLinkCallback? = null
+
+    internal var series: Series? = null
+        set(value) {
+            field = value
+            text = series?.seriesName
+        }
+
+    init {
+        setOnClickListener(this)
+    }
+
+    override fun onClick(v: View?) {
+        Log.d(TAG, "Creator Clicked!!!!!")
+        series?.let { callback?.seriesClicked(it) }
+    }
+
+    companion object {
+        private const val TAG = "CreatorLink"
+    }
+}
+
+@ExperimentalCoroutinesApi
+interface SeriesLinkCallback {
+    fun seriesClicked(series: Series)
 }

@@ -1,3 +1,5 @@
+@file:Suppress("RemoveExplicitTypeArguments")
+
 package com.wtb.comiccollector.repository
 
 //import android.util.Log
@@ -21,10 +23,10 @@ import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.MainActivity
 import com.wtb.comiccollector.SearchFilter
 import com.wtb.comiccollector.Webservice
-import com.wtb.comiccollector.database.Daos.Count
-import com.wtb.comiccollector.database.Daos.REQUEST_LIMIT
 import com.wtb.comiccollector.database.IssueDatabase
 import com.wtb.comiccollector.database.SimpleMigration
+import com.wtb.comiccollector.database.daos.Count
+import com.wtb.comiccollector.database.daos.REQUEST_LIMIT
 import com.wtb.comiccollector.database.models.*
 import com.wtb.comiccollector.network.RetrofitAPIClient
 import kotlinx.coroutines.*
@@ -52,13 +54,15 @@ internal const val CREATOR_LIFETIME: Long = 7
 const val EXTERNAL = "http://24.176.172.169/"
 const val NIGHTWING = "http://192.168.0.141:8000/"
 const val ALFRED = "http://192.168.0.138:8000/"
-const val BASE_URL = ALFRED
+const val BASE_URL = NIGHTWING
 
 internal const val UPDATED_CREATORS = "updated_creators"
 internal const val UPDATED_PUBLISHERS = "updated_publishers"
 internal const val UPDATED_ROLES = "updated_roles"
 internal const val UPDATED_STORY_TYPES = "updated_story_types"
 internal const val UPDATED_SERIES = "updated_series"
+internal const val UPDATED_BOND_TYPE = "update_bond_type"
+internal const val UPDATED_SERIES_BONDS = "update_series_bonds"
 
 internal const val STATIC_DATA_LIFETIME: Long = 30
 internal const val SERIES_LIST_LIFETIME: Long = 7
@@ -132,7 +136,7 @@ class Repository private constructor(val context: Context) {
     val allRoles: Flow<List<Role>> = roleDao.getRoleList()
 
     // SERIES METHODS
-    fun getSeries(seriesId: Int): Flow<Series?> = seriesDao.getSeries(seriesId)
+    fun getSeries(seriesId: Int): Flow<FullSeries?> = seriesDao.getSeries(seriesId)
 
     fun getSeriesByFilterPaged(filter: SearchFilter): Flow<PagingData<FullSeries>> {
         val newFilter = SearchFilter(filter)
@@ -351,7 +355,7 @@ class Repository private constructor(val context: Context) {
             }
         ).addMigrations(
             migration_1_2, migration_2_3, migration_3_4, migration_4_5,
-            migration_5_6, migration_6_7, migration_7_8
+            migration_5_6, migration_6_7, migration_7_8, migration_8_9
         )
             .build()
     }
@@ -480,6 +484,12 @@ class Repository private constructor(val context: Context) {
             """ALTER TABLE issue ADD COLUMN brandId INTEGER""",
             """ALTER TABLE seriesbond ADD COLUMN lastUpdated TEXT NOT NULL DEFAULT '1900-01-01'""",
             """ALTER TABLE bondtype ADD COLUMN lastUpdated TEXT NOT NULL DEFAULT '1900-01-01'"""
+        )
+
+        @Language("RoomSql")
+        val migration_8_9 = SimpleMigration(
+            8, 9,
+            """ALTER TABLE issue ADD COLUMN issueNumRaw TEXT"""
         )
     }
 

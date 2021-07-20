@@ -103,19 +103,19 @@
     <style name="myNewChip" parent="Widget.MaterialComponents.Chip.Entry">
         <item name="chipStrokeColor">@android:color/transparent</item>
         <item name="chipStrokeWidth">2dp</item>
-        <item name="chipIconSize">20dp</item>
-        <item name="closeIconSize">20dp</item>
-        <item name="chipMinHeight">36dp</item>
+        <item name="chipBackgroundColor">@color/filter_chip</item>
+        <item name="chipMinHeight">@dimen/chip_height</item>
         <item name="chipCornerRadius">0dp</item>
+        <item name="checkedIconSize">@dimen/chip_icon_size</item>
         <item name="checkedIconVisible">false</item>
+        <item name="checkedIcon">@drawable/ic_check_circle</item>
+        <item name="checkedIconTint">?attr/colorOnPrimary</item>
+        <item name="closeIconSize">@dimen/chip_icon_size</item>
+        <item name="closeIconTint">?attr/colorOnPrimary</item>
         <item name="chipStartPadding">@dimen/margin_default</item>
         <item name="chipEndPadding">@dimen/margin_default</item>
-        <item name="chipBackgroundColor">@color/filter_chip</item>
         <item name="android:textColor">?attr/colorOnPrimary</item>
         <item name="android:textAppearance">@style/myChipText</item>
-        <item name="checkedIconTint">?attr/colorOnPrimary</item>
-        <item name="closeIconTint">?attr/colorOnPrimary</item>
-        <item name="checkedIcon">@drawable/ic_check_circle</item>
         <item name="android:animateLayoutChanges">true</item>
     </style>
 

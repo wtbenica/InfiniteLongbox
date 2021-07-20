@@ -1,4 +1,4 @@
-package com.wtb.comiccollector.database.Daos
+package com.wtb.comiccollector.database.daos
 
 import androidx.room.Dao
 import androidx.room.Transaction
@@ -18,10 +18,12 @@ abstract class TransactionDao(private val database: IssueDatabase) {
         publishers: List<Publisher>? = null,
         roles: List<Role>? = null,
         storyTypes: List<StoryType>? = null,
+        bondTypes: List<BondType>? = null,
     ) {
-        publishers?.let { database.publisherDao().upsertSus(it) }
-        roles?.let { database.roleDao().upsertSus(it) }
-        storyTypes?.let { database.storyTypeDao().upsertSus(it) }
+        publishers?.let { if (it.isNotEmpty()) database.publisherDao().upsertSus(it) }
+        roles?.let { if (it.isNotEmpty()) database.roleDao().upsertSus(it) }
+        storyTypes?.let { if (it.isNotEmpty()) database.storyTypeDao().upsertSus(it) }
+        bondTypes?.let { if (it.isNotEmpty()) database.bondTypeDao().upsertSus(it) }
     }
 
     @Transaction
@@ -32,7 +34,8 @@ abstract class TransactionDao(private val database: IssueDatabase) {
         credits: List<Credit>? = null,
         exCredits: List<ExCredit>? = null,
         issues: List<Issue>? = null,
-        series: List<Series>? = null
+        series: List<Series>? = null,
+        seriesBonds: List<SeriesBond>? = null
     ) {
         series?.let { database.seriesDao().upsertSus(it) }
         issues?.let { database.issueDao().upsertSus(it) }
@@ -41,5 +44,6 @@ abstract class TransactionDao(private val database: IssueDatabase) {
         nameDetails?.let { database.nameDetailDao().upsertSus(it) }
         credits?.let { database.creditDao().upsertSus(it) }
         exCredits?.let { database.exCreditDao().upsertSus(it) }
+        seriesBonds?.let { database.seriesBondDao().upsertSus(it) }
     }
 }

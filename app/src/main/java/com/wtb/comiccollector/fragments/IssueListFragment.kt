@@ -50,7 +50,7 @@ class IssueListFragment : ListFragment() {
             }
 
             viewModel.series.collectLatest {
-                it?.seriesName?.let { name -> callback?.setTitle(name) }
+                it?.series?.seriesName?.let { name -> callback?.setTitle(name) }
             }
         }
     }
@@ -87,7 +87,7 @@ class IssueListFragment : ListFragment() {
         viewModel.seriesLiveData.observe(
             viewLifecycleOwner,
             {
-                callback?.setTitle(it?.seriesName)
+                callback?.setTitle(it?.series?.seriesName)
             }
         )
     }
@@ -201,7 +201,7 @@ class IssueListFragment : ListFragment() {
 
     }
 
-    interface IssueListCallback : ListFragment.ListFragmentCallback {
+    interface IssueListCallback : ListFragmentCallback {
         fun onIssueSelected(issue: Issue)
         fun onNewIssue(issueId: Int)
     }

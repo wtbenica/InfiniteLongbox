@@ -1,6 +1,7 @@
 package com.wtb.comiccollector.fragments_view_models
 
 import androidx.lifecycle.*
+import com.wtb.comiccollector.database.models.FullSeries
 import com.wtb.comiccollector.database.models.Publisher
 import com.wtb.comiccollector.database.models.Series
 import com.wtb.comiccollector.repository.Repository
@@ -13,14 +14,9 @@ class SeriesInfoViewModel : ViewModel() {
 
     private val repository: Repository = Repository.get()
     private val seriesIdLiveData = MutableLiveData<Int>()
-    private val publisherIdLiveData = MutableLiveData<Int>()
 
-    var seriesLiveData: LiveData<Series?> = seriesIdLiveData.switchMap { seriesId ->
+    var seriesLiveData: LiveData<FullSeries?> = seriesIdLiveData.switchMap { seriesId ->
         repository.getSeries(seriesId).asLiveData()
-    }
-
-    var publisherLiveData: LiveData<Publisher?> = publisherIdLiveData.switchMap { publisherId ->
-        repository.getPublisher(publisherId).asLiveData()
     }
 
     var allPublishersLiveData: LiveData<List<Publisher>> = repository.allPublishers.asLiveData()
@@ -40,9 +36,5 @@ class SeriesInfoViewModel : ViewModel() {
 
     fun loadSeries(seriesId: Int) {
         seriesIdLiveData.value = seriesId
-    }
-
-    fun loadPublisher(publisherId: Int) {
-        publisherIdLiveData.value = publisherId
     }
 }

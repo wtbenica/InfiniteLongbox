@@ -297,13 +297,20 @@ class FilterFragment : Fragment(),
     override fun filterChipCheckChanged(buttonView: FilterChip, checked: Boolean) {
         Log.d(TAG, "BV?: ${buttonView.isChecked} CK? $checked")
         if (checked) {
-            Log.d(TAG, "adding check ${buttonView.item} removing from disabled: ${disabledFilterChips.size}")
+            Log.d(
+                TAG,
+                "adding check ${buttonView.item} removing from disabled: ${disabledFilterChips.size}"
+            )
             disabledFilterChips.remove(buttonView)
             viewModel.addFilterItem(buttonView.item)
             Log.d(TAG, "checked DFC: ${disabledFilterChips.size}")
         } else {
-            Log.d(TAG, "removing check ${buttonView.item} adding to disabled: ${disabledFilterChips
-                .size}")
+            Log.d(
+                TAG, "removing check ${buttonView.item} adding to disabled: ${
+                    disabledFilterChips
+                        .size
+                }"
+            )
             disabledFilterChips.add(buttonView)
             viewModel.removeFilterItem(buttonView.item)
             Log.d(TAG, "not checked DFC: ${disabledFilterChips.size}")

@@ -1,10 +1,11 @@
-package com.wtb.comiccollector.database.Daos
+package com.wtb.comiccollector.database.daos
 
 import android.database.sqlite.SQLiteConstraintException
 import android.util.Log
 import androidx.room.*
 import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.database.models.DataModel
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 private const val TAG = APP + "BaseDao"
 const val REQUEST_LIMIT = 20
@@ -14,6 +15,7 @@ const val REQUEST_LIMIT = 20
  * I was having a problem where insert(REPLACE) is actually "try insert, if exists, delete then
  * insert," which, along with "on delete cascade" resulted in lost records
  */
+@ExperimentalCoroutinesApi
 @Dao
 abstract class BaseDao<T : DataModel> {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
@@ -90,7 +92,6 @@ abstract class BaseDao<T : DataModel> {
 
         try {
             val insertResult: List<Long> = insertSus(objList)
-
             for (i in insertResult.indices) {
                 if (insertResult[i] == -1L) {
                     update(objList[i])
