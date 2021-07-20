@@ -173,13 +173,19 @@ data class SeriesBond(
 @ExperimentalCoroutinesApi
 data class FullSeries(
     @Embedded
-    val series: Series,
+    val series: Series = Series(),
 
     @Relation(parentColumn = "publisherId", entityColumn = "publisherId")
-    var publisher: Publisher,
+    var publisher: Publisher = Publisher(),
 
     @Relation(parentColumn = "firstIssueId", entityColumn = "issueId", entity = Issue::class)
-    var firstIssue: FullIssue?
+    var firstIssue: FullIssue? = null,
+
+    @Relation(parentColumn = "seriesId", entityColumn="originId", entity = SeriesBond::class)
+    var seriesBondTo: Bond? = null,
+
+    @Relation(parentColumn = "seriesId", entityColumn = "targetId", entity = SeriesBond::class)
+    var seriesBondFrom: Bond? = null
 ) : ListItem
 
 @ExperimentalCoroutinesApi
@@ -189,4 +195,16 @@ data class SeriesAndPublisher(
 
     @Relation(parentColumn = "publisherId", entityColumn = "publisherId")
     var publisher: Publisher
+)
+
+@ExperimentalCoroutinesApi
+data class Bond(
+    @Embedded
+    val seriesBond: SeriesBond,
+
+    @Relation(parentColumn = "targetId", entityColumn = "seriesId")
+    var targetSeries: Series,
+
+    @Relation(parentColumn = "originId", entityColumn = "seriesId")
+    var originSeries: Series
 )

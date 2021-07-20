@@ -136,7 +136,7 @@ class Repository private constructor(val context: Context) {
     val allRoles: Flow<List<Role>> = roleDao.getRoleList()
 
     // SERIES METHODS
-    fun getSeries(seriesId: Int): Flow<Series?> = seriesDao.getSeries(seriesId)
+    fun getSeries(seriesId: Int): Flow<FullSeries?> = seriesDao.getSeries(seriesId)
 
     fun getSeriesByFilterPaged(filter: SearchFilter): Flow<PagingData<FullSeries>> {
         val newFilter = SearchFilter(filter)

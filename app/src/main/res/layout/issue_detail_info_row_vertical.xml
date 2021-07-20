@@ -11,10 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:labelFor="@id/info_row_text"
-        android:padding="@dimen/margin_narrow"
         android:text="@string/label_release_date"
-        android:background="?attr/colorPrimary"
-        android:textSize="@dimen/text_medium"
         tools:showIn="@layout/fragment_display_issue" />
 
     <TextView
@@ -22,8 +19,5 @@
         style="@style/CreatorNameText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="@dimen/margin_narrow"
-        android:background="@drawable/primary_border"
-        android:textSize="@dimen/text_small"
         tools:text="May 6, 2021" />
 </LinearLayout>

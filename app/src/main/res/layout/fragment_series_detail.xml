@@ -18,8 +18,8 @@
 
     <TextView
         android:id="@+id/details_series_volume"
-        android:layout_width="0dp"
         style="@style/SeriesDetailText"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         app:layout_constraintBottom_toBottomOf="@id/label_volume"
@@ -39,6 +39,65 @@
         app:layout_constraintTop_toTopOf="@id/details_series_volume"
         tools:text="Feb. 1994" />
 
+    <LinearLayout
+        android:id="@+id/continues_from_box"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/margin_default"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/label_volume">
+
+        <TextView
+            android:id="@+id/label_series_continues_from"
+            style="@style/SeriesDetailLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Continues From"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/label_volume" />
+
+        <com.wtb.comiccollector.views.SeriesLink
+            android:id="@+id/details_continues_from"
+            style="@style/SeriesDetailText"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_weight="1"
+            app:layout_constraintBottom_toBottomOf="@id/label_series_continues_from"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/label_series_continues_from"
+            app:layout_constraintTop_toTopOf="@id/label_series_continues_from"
+            tools:text="46720" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/continues_to_box"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/margin_default"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/continues_from_box">
+
+        <TextView
+            android:id="@+id/label_series_continues_as"
+            style="@style/SeriesDetailLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Continues As" />
+
+        <com.wtb.comiccollector.views.SeriesLink
+            android:id="@+id/details_continues_as"
+            style="@style/SeriesDetailText"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_weight="1"
+            tools:text="46720" />
+    </LinearLayout>
+
     <TextView
         android:id="@+id/label_publisher"
         style="@style/SeriesDetailLabel"
@@ -47,7 +106,7 @@
         android:layout_marginTop="8dp"
         android:text="@string/hint_publisher"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/label_volume" />
+        app:layout_constraintTop_toBottomOf="@id/continues_to_box" />
 
     <TextView
         android:id="@+id/details_publisher"
@@ -55,11 +114,10 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
         app:layout_constraintBottom_toBottomOf="@+id/label_publisher"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@id/label_publisher"
-        app:layout_constraintTop_toBottomOf="@+id/details_series_volume"
+        app:layout_constraintTop_toTopOf="@+id/label_publisher"
         tools:text="DC/Vertigo" />
 
     <TextView
@@ -71,7 +129,7 @@
         android:text="@string/series_detail_tracking_notes"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/details_publisher"
+        app:layout_constraintTop_toBottomOf="@+id/label_publisher"
         tools:visibility="visible" />
 
     <TextView

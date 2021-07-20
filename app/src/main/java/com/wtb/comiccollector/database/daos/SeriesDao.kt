@@ -82,7 +82,7 @@ abstract class SeriesDao : BaseDao<Series>() {
     abstract fun getAll(): Flow<List<Series>>
 
     @Query("SELECT * FROM series WHERE seriesId=:seriesId")
-    abstract fun getSeries(seriesId: Int): Flow<Series?>
+    abstract fun getSeries(seriesId: Int): Flow<FullSeries?>
 
     // PAGING SOURCE FUNCITONS
     @RawQuery(observedEntities = [Series::class])

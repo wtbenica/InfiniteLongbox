@@ -50,7 +50,7 @@ class IssueListFragment : ListFragment() {
             }
 
             viewModel.series.collectLatest {
-                it?.seriesName?.let { name -> callback?.setTitle(name) }
+                it?.series?.seriesName?.let { name -> callback?.setTitle(name) }
             }
         }
     }
@@ -87,7 +87,7 @@ class IssueListFragment : ListFragment() {
         viewModel.seriesLiveData.observe(
             viewLifecycleOwner,
             {
-                callback?.setTitle(it?.seriesName)
+                callback?.setTitle(it?.series?.seriesName)
             }
         )
     }

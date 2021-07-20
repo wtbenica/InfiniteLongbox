@@ -15,6 +15,7 @@ import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.*
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.viewModels
+import com.wtb.comiccollector.database.models.FullSeries
 import com.wtb.comiccollector.database.models.Publisher
 import com.wtb.comiccollector.database.models.Series
 import com.wtb.comiccollector.fragments_view_models.SeriesInfoViewModel
@@ -40,7 +41,7 @@ class SeriesInfoDialogFragment private constructor() : DialogFragment(),
     private val seriesInfoViewModel: SeriesInfoViewModel by viewModels()
 
     private lateinit var callback: SeriesInfoDialogCallback
-    private lateinit var series: Series
+    private lateinit var series: FullSeries
     private lateinit var publisher: Publisher
     private lateinit var publisherList: List<Publisher>
 
@@ -71,7 +72,7 @@ class SeriesInfoDialogFragment private constructor() : DialogFragment(),
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        series = Series()
+        series = FullSeries(Series(), Publisher(), null, null, null)
         publisher = Publisher()
         publisherList = emptyList()
 
@@ -122,17 +123,7 @@ class SeriesInfoDialogFragment private constructor() : DialogFragment(),
             {
                 it?.let {
                     series = it
-                    seriesInfoViewModel.loadPublisher(series.publisherId)
-                    updateUI()
-                }
-            }
-        )
-
-        seriesInfoViewModel.publisherLiveData.observe(
-            viewLifecycleOwner,
-            {
-                it?.let {
-                    publisher = it
+                    publisher = it.publisher
                     updateUI()
                 }
             }
@@ -143,10 +134,10 @@ class SeriesInfoDialogFragment private constructor() : DialogFragment(),
         when {
             resultCode != Activity.RESULT_OK -> return
             requestCode == RESULT_START_DATE && data != null -> {
-                series.startDate = data.getSerializableExtra(ARG_DATE) as LocalDate
+                series.series.startDate = data.getSerializableExtra(ARG_DATE) as LocalDate
             }
             requestCode == RESULT_END_DATE && data != null -> {
-                series.endDate = data.getSerializableExtra(ARG_DATE) as LocalDate
+                series.series.endDate = data.getSerializableExtra(ARG_DATE) as LocalDate
             }
         }
         updateUI()
@@ -157,13 +148,13 @@ class SeriesInfoDialogFragment private constructor() : DialogFragment(),
 
         seriesNameEditText.addTextChangedListener(
             SimpleTextWatcher {
-                series.seriesName = it.toString()
+                series.series.seriesName = it.toString()
             }
         )
 
         volumeNumberEditText.addTextChangedListener(
             SimpleTextWatcher {
-                series.volume = try {
+                series.series.volume = try {
                     it.toString().toInt()
                 } catch (e: Exception) {
                     1
@@ -196,7 +187,7 @@ class SeriesInfoDialogFragment private constructor() : DialogFragment(),
             ) {
                 parent?.let {
                     publisher = it.getItemAtPosition(position) as Publisher
-                    series.publisherId = publisher.publisherId
+                    series.series.publisherId = publisher.publisherId
                 }
             }
 
@@ -206,15 +197,15 @@ class SeriesInfoDialogFragment private constructor() : DialogFragment(),
         }
 
         okayButton.setOnClickListener { view ->
-            seriesInfoViewModel.updateSeries(series)
+            seriesInfoViewModel.updateSeries(series.series)
 
             val bundle = Bundle()
-            bundle.putSerializable(ARG_SERIES_ID, series.seriesId)
+            bundle.putSerializable(ARG_SERIES_ID, series.series.seriesId)
             val intent = Intent().putExtras(bundle)
             // TODO: Deprecated
             targetFragment?.onActivityResult(targetRequestCode, Activity.RESULT_OK, intent)
 
-            callback.onSaveSeriesClick(this, series)
+            callback.onSaveSeriesClick(this, series.series)
         }
 
         cancelButton.setOnClickListener { view ->
@@ -244,11 +235,11 @@ class SeriesInfoDialogFragment private constructor() : DialogFragment(),
     }
 
     private fun updateUI() {
-        seriesNameEditText.setText(series.seriesName)
-        volumeNumberEditText.setText(series.volume.toString())
+        seriesNameEditText.setText(series.series.seriesName)
+        volumeNumberEditText.setText(series.series.volume.toString())
         publisherSpinner.setSelection(publisherList.indexOf(publisher))
-        startDateEditText.text = series.startDate.toString()
-        endDateEditText.text = series.endDate.toString()
+        startDateEditText.text = series.series.startDate.toString()
+        endDateEditText.text = series.series.endDate.toString()
     }
 
     companion object {

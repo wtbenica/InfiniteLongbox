@@ -58,12 +58,6 @@ private const val STORY_TYPE_COVER = 6
 @ExperimentalCoroutinesApi
 class IssueDetailFragment : Fragment(), CreatorLinkCallback {
 
-    override fun onDetach() {
-        super.onDetach()
-
-        listFragmentCallback = null
-    }
-
     private var numUpdates = 0
     private var listFragmentCallback: ListFragment.ListFragmentCallback? = null
 
@@ -190,7 +184,6 @@ class IssueDetailFragment : Fragment(), CreatorLinkCallback {
         return view
     }
 
-    @ExperimentalCoroutinesApi
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -294,6 +287,12 @@ class IssueDetailFragment : Fragment(), CreatorLinkCallback {
                 }
             }
         )
+    }
+
+    override fun onDetach() {
+        super.onDetach()
+
+        listFragmentCallback = null
     }
 
     private fun updateNavBar() {
@@ -451,7 +450,7 @@ class IssueDetailFragment : Fragment(), CreatorLinkCallback {
 
     override fun creatorClicked(creator: NameDetailAndCreator) {
         Log.d(TAG, "creatorClicked")
-        val filter = SearchFilter(creators = setOf(creator.creator))
+        val filter = SearchFilter(creators = setOf(creator.creator), myCollection = false)
         listFragmentCallback?.updateFilter(filter)
     }
 

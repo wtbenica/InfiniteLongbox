@@ -10,4 +10,5 @@
     <attr name="colorStoryBoxTitle" format="reference" />
     <attr name="colorStoryBoxSubtitle" format="reference" />
     <attr name="styleCreatorLink" format="reference" />
+    <attr name="styleIssueInfoBox" format="reference" />
 </resources>

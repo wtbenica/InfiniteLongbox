@@ -3,10 +3,7 @@ package com.wtb.comiccollector.views
 import android.content.Context
 import android.util.AttributeSet
 import android.util.Log
-import android.view.Gravity
 import android.view.LayoutInflater
-import android.view.ViewGroup.LayoutParams.MATCH_PARENT
-import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.LinearLayout
 import android.widget.LinearLayout.VERTICAL
 import android.widget.ScrollView
@@ -21,11 +18,8 @@ class IssueInfoBox(context: Context, attrs: AttributeSet? = null) : ScrollView(c
     private var coverDate: LocalDate? = null
     private var notes: String? = null
 
-    val linearLayout = LinearLayout(context).apply {
-        layoutParams = LayoutParams(MATCH_PARENT, WRAP_CONTENT)
-        orientation = VERTICAL
-        gravity = Gravity.TOP
-    }
+    val view = inflate(context, R.layout.issue_detail_issue_info_box, null)
+    val linearLayout: LinearLayout = view.findViewById(R.id.issue_info_box)
 
     init {
         addView(linearLayout)
@@ -74,6 +68,7 @@ class IssueInfoBox(context: Context, attrs: AttributeSet? = null) : ScrollView(c
         private const val TAG = "IssueInfoBox"
     }
 }
+
 
 class IssueInfoRow(
     context: Context,
