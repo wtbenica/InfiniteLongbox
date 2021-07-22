@@ -9,20 +9,31 @@ import com.wtb.comiccollector.R
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 @ExperimentalCoroutinesApi
-@Entity
+@Entity(foreignKeys = [
+    ForeignKey(
+        entity = Publisher::class,
+        parentColumns = ["publisherId"],
+        childColumns = ["publisher"],
+        onDelete = ForeignKey.CASCADE
+    )
+],
+indices = [
+    Index(value=["publisher"])
+])
 data class Character(
     @PrimaryKey(autoGenerate = true) val characterId: Int = AUTO_ID,
-    var name: String,
-    var aka: String? = null
+    val name: String,
+    val alterEgo: String? = null,
+    val publisher: Int,
 ) : DataModel(), FilterOptionAutoCompletePopupItem {
 
     val sortName: String
         get() {
             val shortName = name.removePrefix("The ")
             return if (shortName == name) {
-                "$name [$aka]"
+                "$name [$alterEgo]"
             } else {
-                "$shortName, The [$aka]"
+                "$shortName, The [$alterEgo]"
             }
         }
 
@@ -48,26 +59,28 @@ data class Character(
         ForeignKey(
             entity = Story::class,
             parentColumns = arrayOf("storyId"),
-            childColumns = arrayOf("characterId"),
+            childColumns = arrayOf("story"),
             onDelete = ForeignKey.CASCADE
         ),
         ForeignKey(
             entity = Character::class,
             parentColumns = arrayOf("characterId"),
-            childColumns = arrayOf("characterId"),
+            childColumns = arrayOf("character"),
             onDelete = ForeignKey.CASCADE
         )
     ],
     indices = [
-        Index(value = ["storyId"]),
-        Index(value = ["characterId"])
+        Index(value = ["story"]),
+        Index(value = ["character"])
     ]
 )
 data class Appearance(
     @PrimaryKey(autoGenerate = true) val appearanceId: Int = AUTO_ID,
-    val storyId: Int,
-    val characterId: Int,
-    val details: String?
+    val story: Int,
+    val character: Int,
+    val details: String?,
+    val notes: String?,
+    val membership: String?
 ) : DataModel() {
     override val id: Int
         get() = appearanceId

@@ -13,7 +13,7 @@ abstract class CharacterDao : BaseDao<Character>() {
         """SELECT cr.*
             FROM character cr
             WHERE cr.name = :name
-            AND cr.aka = :aka
+            AND cr.alterEgo = :aka
         """
     )
     abstract suspend fun getCharacterByNameAndAka(name: String, aka: String): List<Character>?

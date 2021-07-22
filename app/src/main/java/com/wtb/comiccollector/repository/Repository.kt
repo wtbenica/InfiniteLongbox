@@ -135,7 +135,7 @@ class Repository private constructor(val context: Context) {
     val allCreators: Flow<List<Creator>> = creatorDao.getCreatorsList()
     val allRoles: Flow<List<Role>> = roleDao.getRoleList()
 
-    // SERIES METHODS
+    // SERIES METHODSTEXT
     fun getSeries(seriesId: Int): Flow<FullSeries?> = seriesDao.getSeries(seriesId)
 
     fun getSeriesByFilterPaged(filter: SearchFilter): Flow<PagingData<FullSeries>> {
@@ -355,7 +355,7 @@ class Repository private constructor(val context: Context) {
             }
         ).addMigrations(
             migration_1_2, migration_2_3, migration_3_4, migration_4_5,
-            migration_5_6, migration_6_7, migration_7_8, migration_8_9
+            migration_5_6, migration_6_7, migration_7_8, migration_8_9, migration_9_10
         )
             .build()
     }
@@ -489,7 +489,39 @@ class Repository private constructor(val context: Context) {
         @Language("RoomSql")
         val migration_8_9 = SimpleMigration(
             8, 9,
-            """ALTER TABLE issue ADD COLUMN issueNumRaw TEXT"""
+            """ALTER TABLE character ADD COLUMN publisher INTEGER"""
+        )
+
+        @Language("RoomSql")
+        val migration_9_10 = SimpleMigration(
+            9, 10,
+            """DROP TABLE Appearance""",
+            """DROP TABLE Character""",
+            """CREATE TABLE Character (
+                    characterId INTEGER NOT NULL,
+                    name TEXT NOT NULL,
+                    alterEgo TEXT,
+                    publisher INTEGER NOT NULL,
+                    lastUpdated TEXT NOT NULL,
+                    PRIMARY KEY (characterId),
+                    FOREIGN KEY (publisher) REFERENCES Publisher(publisherId) ON DELETE CASCADE
+                )""",
+            """CREATE INDEX IF NOT EXISTS index_Character_publisher ON Character(publisher)"""
+                .trimMargin(),
+            """CREATE TABLE Appearance (
+                    appearanceId INTEGER NOT NULL,
+                    story INTEGER NOT NULL,
+                    character INTEGER NOT NULL,
+                    details TEXT,
+                    notes TEXT,
+                    membership TEXT,
+                    lastUpdated TEXT NOT NULL,
+                    PRIMARY KEY (appearanceId),
+                    FOREIGN KEY (story) REFERENCES Story(storyId) ON DELETE CASCADE,
+                    FOREIGN KEY (character) REFERENCES Character(characterId) ON DELETE CASCADE
+                )""",
+            """CREATE INDEX IF NOT EXISTS index_Appearance_story ON Appearance(story)""",
+            """CREATE INDEX IF NOT EXISTS index_Appearance_character ON Appearance(character)""",
         )
     }
 
