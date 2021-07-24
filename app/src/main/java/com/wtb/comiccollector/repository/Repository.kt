@@ -63,6 +63,7 @@ internal const val UPDATED_STORY_TYPES = "updated_story_types"
 internal const val UPDATED_SERIES = "updated_series"
 internal const val UPDATED_BOND_TYPE = "update_bond_type"
 internal const val UPDATED_SERIES_BONDS = "update_series_bonds"
+internal const val UPDATED_CHARACTERS = "update_characters"
 
 internal const val STATIC_DATA_LIFETIME: Long = 30
 internal const val SERIES_LIST_LIFETIME: Long = 7
@@ -506,8 +507,7 @@ class Repository private constructor(val context: Context) {
                     PRIMARY KEY (characterId),
                     FOREIGN KEY (publisher) REFERENCES Publisher(publisherId) ON DELETE CASCADE
                 )""",
-            """CREATE INDEX IF NOT EXISTS index_Character_publisher ON Character(publisher)"""
-                .trimMargin(),
+            """CREATE INDEX IF NOT EXISTS index_Character_publisher ON Character(publisher)""",
             """CREATE TABLE Appearance (
                     appearanceId INTEGER NOT NULL,
                     story INTEGER NOT NULL,

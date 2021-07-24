@@ -80,5 +80,8 @@ interface Webservice {
 
     @GET("db_query/series_bond_types")
     suspend fun getBondTypes(): List<Item<GcdBondType, BondType>>
+
+    @GET("db_query/characters/{page}")
+    suspend fun getCharacters(@Path("page") page: Int): List<Item<GcdCharacter, Character>>
 }
 

@@ -47,7 +47,6 @@ class StaticUpdater(
 
                 if (checkIfStale(UPDATED_PUBLISHERS, STATIC_DATA_LIFETIME, prefs)) {
                     try {
-                        Log.d(TAG, "update: Getting Publishers")
                         result = webservice.getPublishers()
                     } catch (e: SocketTimeoutException) {
                         Log.d(TAG, "update: Getting Publishers: $e")
@@ -64,7 +63,6 @@ class StaticUpdater(
 
                 if (checkIfStale(UPDATED_ROLES, STATIC_DATA_LIFETIME, prefs)) {
                     try {
-                        Log.d(TAG, "update: Getting Roles")
                         result = webservice.getRoles()
                     } catch (e: SocketTimeoutException) {
                         Log.d(TAG, "update: Getting Roles: $e")
@@ -81,7 +79,6 @@ class StaticUpdater(
 
                 if (checkIfStale(UPDATED_STORY_TYPES, STATIC_DATA_LIFETIME, prefs)) {
                     try {
-                        Log.d(TAG, "update: Getting StoryTypes")
                         result = webservice.getStoryTypes()
                     } catch (e: SocketTimeoutException) {
                         Log.d(TAG, "update: Getting StoryTypes SocketTimeout: $e")
@@ -96,7 +93,6 @@ class StaticUpdater(
                 var result = emptyList<Item<GcdBondType, BondType>>()
 
                 if (checkIfStale(UPDATED_BOND_TYPE, STATIC_DATA_LIFETIME, prefs)) {
-                    Log.d(TAG, "Getting Series Bond Types")
                     try {
                         result = webservice.getBondTypes()
                     } catch (e: SocketTimeoutException) {
@@ -105,12 +101,10 @@ class StaticUpdater(
                         Log.d(TAG, "update: Getting BondTypes: $e")
                     }
                 }
-                Log.d(TAG, "SBT RESULTS: ${result.size}")
                 return@bondTypes result
             }.await().also {
                 Log.d(TAG, "bondTypes complete")
             }
-
 
             withContext(Dispatchers.Default) {
                 Log.d(TAG, "EMOSTO")
@@ -150,6 +144,7 @@ class StaticUpdater(
                     updateSeries()
                     updateSeriesBond()
                     updateCreators()
+                    updateCharacters()
                 }
             }
         }
@@ -158,42 +153,32 @@ class StaticUpdater(
     private suspend fun updateSeriesBond() {
         CoroutineScope(Dispatchers.IO).async seriesBonds@{
             var result = emptyList<Item<GcdSeriesBond, SeriesBond>>()
-            Log.d(TAG, "HELLO")
-            if (checkIfStale(UPDATED_SERIES_BONDS, SERIES_LIST_LIFETIME, prefs) || true) {
-                Log.d(TAG, "Getting Series Bonds")
+            if (checkIfStale(UPDATED_SERIES_BONDS, SERIES_LIST_LIFETIME, prefs)) {
                 try {
                     result = webservice.getSeriesBonds()
-                    Log.d(TAG, "setting new result series bonds")
                 } catch (e: SocketTimeoutException) {
                     Log.d(TAG, "update: Getting SeriesBonds SocketTimeout: $e")
                 } catch (e: ConnectException) {
                     Log.d(TAG, "update: Getting SeriesBonds: $e")
                 }
             }
-            Log.d(TAG, "SBS RESULTS: ${result.size}")
             return@seriesBonds result
         }.await().let { seriesBondItems: List<Item<GcdSeriesBond, SeriesBond>> ->
             val issueIds =
                 seriesBondItems.mapNotNull { it.toRoomModel().originIssueId } +
                         seriesBondItems.mapNotNull { it.toRoomModel().targetIssueId }
-            Log.d(TAG, "seriesBondItems: ${seriesBondItems.size}")
-            Log.d(TAG, "issueIds: ${issueIds.size}")
             var issueItems = emptyList<Item<GcdIssue, Issue>>()
 
-            try {
-                issueItems = webservice.getIssues(issueIds = issueIds)
-                Log.d(
-                    TAG,
-                    "setting new result issues ${issueItems.size}"
-                )
-            } catch (e: SocketTimeoutException) {
-                Log.d(TAG, "update: Getting issues SocketTimeout: $e")
-            } catch (e: ConnectException) {
-                Log.d(TAG, "update: issues SeriesBonds: $e")
+            if (issueItems.isNotEmpty()) {
+                try {
+                    issueItems = webservice.getIssues(issueIds = issueIds)
+                } catch (e: SocketTimeoutException) {
+                    Log.d(TAG, "update: Getting issues SocketTimeout: $e")
+                } catch (e: ConnectException) {
+                    Log.d(TAG, "update: issues SeriesBonds: $e")
+                }
             }
-
             val issues = issueItems.map { it.toRoomModel() }
-            Log.d(TAG, "ISSUES: ${issues.size}")
             val seriesBonds = seriesBondItems.map { it.toRoomModel() }
             database.transactionDao().upsertSus(
                 issues = issues,
@@ -210,6 +195,7 @@ class StaticUpdater(
 
             do {
                 try {
+                    Log.d(TAG, "SERIES!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
                     webservice.getSeries(page).let { seriesItems ->
                         if (seriesItems.isEmpty()) {
                             stop = true
@@ -234,6 +220,8 @@ class StaticUpdater(
 
             if (success)
                 Repository.saveTime(prefs, UPDATED_SERIES)
+
+            Log.d(TAG, "ENDSERIES SLFKJ!!!????@")
         }
     }
 
@@ -288,6 +276,43 @@ class StaticUpdater(
             }.await().let {
                 Repository.saveTime(prefs, UPDATED_CREATORS)
             }
+        }
+    }
+
+    private suspend fun updateCharacters() {
+        if (checkIfStale(UPDATED_CHARACTERS, SERIES_LIST_LIFETIME, prefs) || true) {
+            var page = 0
+            var stop = false
+            var success = true
+
+            do {
+                try {
+                    webservice.getCharacters(page).let { characterItems ->
+                        if (characterItems.isEmpty()) {
+                            stop = true
+                        } else {
+                            Log.d(TAG, "$characterItems")
+                            characterItems.map { it.toRoomModel() }.forEach {
+                                Log.d(TAG, "Insert: ${it.name}, ${it.alterEgo} ${it.publisher}")
+                                database.characterDao().upsertSus(it)
+                            }
+                        }
+                    }
+                } catch (e: SocketTimeoutException) {
+                    Log.d(TAG, "updateCharacters: $e")
+                    stop = true
+                    success = false
+                } catch (e: ConnectException) {
+                    Log.d(TAG, "updateCharacters: $e")
+                    stop = true
+                    success = false
+                }
+
+                page += 1
+            } while (!stop)
+
+            if (success)
+                Repository.saveTime(prefs, UPDATED_CHARACTERS)
         }
     }
 }

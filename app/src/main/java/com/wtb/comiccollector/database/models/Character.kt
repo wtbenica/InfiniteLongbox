@@ -9,17 +9,19 @@ import com.wtb.comiccollector.R
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 @ExperimentalCoroutinesApi
-@Entity(foreignKeys = [
-    ForeignKey(
-        entity = Publisher::class,
-        parentColumns = ["publisherId"],
-        childColumns = ["publisher"],
-        onDelete = ForeignKey.CASCADE
-    )
-],
-indices = [
-    Index(value=["publisher"])
-])
+@Entity(
+    foreignKeys = [
+        ForeignKey(
+            entity = Publisher::class,
+            parentColumns = ["publisherId"],
+            childColumns = ["publisher"],
+            onDelete = ForeignKey.CASCADE
+        )
+    ],
+    indices = [
+        Index(value = ["publisher"])
+    ]
+)
 data class Character(
     @PrimaryKey(autoGenerate = true) val characterId: Int = AUTO_ID,
     val name: String,
@@ -41,13 +43,14 @@ data class Character(
         get() = characterId
 
     companion object : FilterTypeSpinnerOption {
-        override val displayName: String = ComicCollectorApplication.context!!.getString(R.string.filter_type_character)
+        override val displayName: String =
+            ComicCollectorApplication.context!!.getString(R.string.filter_type_character)
 
         override fun toString(): String = displayName
     }
 
     override val tagName: String
-        get() = "Character"
+        get() = ComicCollectorApplication.context!!.getString(R.string.filter_type_character)
 
     override val compareValue: String
         get() = name
