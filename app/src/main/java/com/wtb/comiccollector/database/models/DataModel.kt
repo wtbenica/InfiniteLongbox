@@ -16,14 +16,7 @@ sealed interface FilterTypeSpinnerOption {
     val displayName: String
 }
 
-@ExperimentalCoroutinesApi
-class All {
-    companion object : FilterTypeSpinnerOption {
-        override val displayName: String = context!!.getString(R.string.filter_type_all)
-
-        override fun toString(): String = displayName
-    }
-}
+sealed interface FilterType
 
 /*
 TODO: This should include SERIES, PUBLISHER, CHARACTER, CREATOR. The issue is with CREATOR:
@@ -31,7 +24,7 @@ TODO: This should include SERIES, PUBLISHER, CHARACTER, CREATOR. The issue is wi
  then getting results by CREATOR. This is a big TODO that could become very complicated very quickly
 */
 @ExperimentalCoroutinesApi
-sealed interface FilterOptionAutoCompletePopupItem : Comparable<FilterOptionAutoCompletePopupItem>,
+sealed interface FilterAutoCompleteType : FilterType, Comparable<FilterAutoCompleteType>,
     Serializable {
     val tagName: String
 
@@ -44,10 +37,10 @@ sealed interface FilterOptionAutoCompletePopupItem : Comparable<FilterOptionAuto
             is NameDetail -> context?.getColor(R.color.tag_creator)
             is Publisher  -> context?.getColor(R.color.tag_publisher)
             is Character  -> context?.getColor(R.color.tag_character)
-            is TextFilter -> null
+            else          -> throw IllegalStateException("Invalid type: $this")
         } ?: 0xFF000000.toInt()
 
-    override fun compareTo(other: FilterOptionAutoCompletePopupItem): Int =
+    override fun compareTo(other: FilterAutoCompleteType): Int =
         this.compareValue.compareTo(other.compareValue)
 
     companion object {
@@ -55,15 +48,16 @@ sealed interface FilterOptionAutoCompletePopupItem : Comparable<FilterOptionAuto
     }
 }
 
-interface ListItem
+sealed interface ListItem
 
 @ExperimentalCoroutinesApi
-data class TextFilter(val text: String) : FilterOptionAutoCompletePopupItem {
-    override val tagName: String
-        get() = "Text"
+class All {
+    companion object : FilterTypeSpinnerOption {
+        override val displayName: String = context!!.getString(R.string.filter_type_all)
 
-    override val compareValue: String
-        get() = text
-
-    override fun toString(): String = "\"$text\""
+        override fun toString(): String = displayName
+    }
 }
+
+@ExperimentalCoroutinesApi
+data class TextFilter(val text: String) : FilterType

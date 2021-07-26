@@ -1,13 +1,11 @@
 package com.wtb.comiccollector
 
 import android.annotation.SuppressLint
-import androidx.fragment.app.Fragment
 import com.wtb.comiccollector.database.models.*
-import com.wtb.comiccollector.fragments.IssueListFragment
-import com.wtb.comiccollector.fragments.SeriesListFragment
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import java.io.Serializable
 import java.time.LocalDate
+import kotlin.reflect.KClass
 
 const val ARG_FILTER = "Filter"
 
@@ -23,7 +21,9 @@ class SearchFilter(
     myCollection: Boolean = true,
     sortType: SortType? = null,
     textFilter: TextFilter? = null,
-    showVariants: Boolean = false
+    showVariants: Boolean = false,
+    character: Character? = null,
+    viewOptionsIndex: Int = 0
 ) : Serializable {
 
     constructor(filter: SearchFilter) : this(
@@ -35,7 +35,9 @@ class SearchFilter(
         filter.mMyCollection,
         filter.mSortType,
         filter.mTextFilter,
-        filter.mShowVariants
+        filter.mShowVariants,
+        filter.mCharacter,
+        filter.mViewOptionsIndex
     )
 
     override fun equals(other: Any?): Boolean {
@@ -47,8 +49,8 @@ class SearchFilter(
     var mSeries: Series? = series
         set(value) {
             // sets selected sort option to default if it's not of the same type
-            if (getSortOptions(value) != getSortOptions()) {
-                mSortType = getSortOptions(value)[0]
+            if (getSortOptions() != getSortOptions()) {
+                mSortType = getSortOptions()[0]
             }
             field = value
         }
@@ -59,27 +61,48 @@ class SearchFilter(
     var mSortType: SortType = sortType ?: getSortOptions()[0]
     var mTextFilter: TextFilter? = textFilter
     var mShowVariants: Boolean = showVariants
+    var mCharacter: Character? = character
+    var mViewOptionsIndex = viewOptionsIndex
+
+    val viewOptions: Pair<List<KClass<out ListItem>>, Int>
+        get() = if (mSeries != null) {
+            val first = listOf(FullIssue::class, Character::class, NameDetailAndCreator::class)
+            Pair(first, mViewOptionsIndex % first.size)
+        } else {
+            val first = listOf(FullSeries::class, Character::class, NameDetailAndCreator::class)
+            Pair(first, mViewOptionsIndex % first.size)
+        }
+
+    val viewOption: KClass<out ListItem>
+        get() = viewOptions.first[viewOptions.second]
+
+    fun nextOption() {
+        mViewOptionsIndex++
+    }
 
     fun hasCreator() = mCreators.isNotEmpty()
     fun returnsIssueList() = mSeries != null || mShowIssues
     fun hasPublisher() = mPublishers.isNotEmpty()
     fun hasDateFilter() = mStartDate != LocalDate.MIN || mEndDate != LocalDate.MAX
+    fun hasCharacter() = mCharacter == null
     fun isEmpty(): Boolean {
         return mCreators.isEmpty() && mSeries == null && mPublishers.isEmpty() && mStartDate ==
-                LocalDate.MIN && mEndDate == LocalDate.MAX && !mMyCollection
+                LocalDate.MIN && mEndDate == LocalDate.MAX && !mMyCollection && mCharacter == null
     }
 
     fun isNotEmpty(): Boolean = !isEmpty()
 
     // TODO: CvND
-    fun addFilter(vararg items: FilterOptionAutoCompletePopupItem) {
+    fun addFilter(vararg items: FilterType) {
         items.forEach { item ->
             when (item) {
                 is Series     -> addSeries(item)
                 is Creator    -> addCreator(item)
                 is Publisher  -> addPublisher(item)
                 is TextFilter -> addTextFilter(item)
-                is NameDetail -> {}
+                is NameDetail -> {
+                }
+                is Character  -> addCharacter(item)
             }
         }
     }
@@ -98,19 +121,24 @@ class SearchFilter(
         mPublishers = newPublishers
     }
 
+    private fun addCharacter(character: Character) {
+
+    }
+
     private fun addTextFilter(item: TextFilter) {
         mTextFilter = item
     }
 
     // TODO: CvND
-    fun removeFilter(vararg items: FilterOptionAutoCompletePopupItem) {
+    fun removeFilter(vararg items: FilterType) {
         items.forEach { item ->
             when (item) {
                 is Series     -> removeSeries()
                 is Creator    -> removeCreator(item)
                 is Publisher  -> removePublisher(item)
                 is TextFilter -> removeTextFilter(item)
-                is NameDetail -> {}
+                is NameDetail -> {
+                }
             }
         }
     }
@@ -134,19 +162,21 @@ class SearchFilter(
             mTextFilter = null
     }
 
-    fun getFragment(): Fragment =
-        when (mSeries) {
-            null -> SeriesListFragment.newInstance()
-            else -> IssueListFragment.newInstance()
-        }
+    //    fun getFragment(): Fragment =
+//        when (mSeries) {
+//            null -> CharacterListFragment.newInstance()
+//            else -> IssueListFragment.newInstance()
+//        }
+//
+    fun getSortOptions(): List<SortType> = when (viewOption) {
+        Character::class            -> SortType.Companion.ItemSort.CHARACTER.options
+        FullIssue::class            -> SortType.Companion.ItemSort.ISSUE.options
+        FullSeries::class           -> SortType.Companion.ItemSort.SERIES.options
+        NameDetailAndCreator::class -> SortType.Companion.ItemSort.CREATOR.options
+        else                        -> throw IllegalStateException("illegal view type: ${viewOption.simpleName}")
+    }
 
-    fun getSortOptions(series: Series? = mSeries): List<SortType> =
-        when (series) {
-            null -> SortType.Companion.ItemSort.SERIES.options
-            else -> SortType.Companion.ItemSort.ISSUE.options
-        }
-
-    fun getAll(): Set<FilterOptionAutoCompletePopupItem> {
+    fun getAll(): Set<FilterType> {
         val series = mSeries?.let { setOf(it) } ?: emptySet()
         val textFilter = mTextFilter?.let { setOf(it) } ?: emptySet()
         return mCreators + mPublishers + series + textFilter
@@ -162,6 +192,7 @@ class SearchFilter(
         result = 31 * result + mSortType.hashCode()
         result = 31 * result + mTextFilter.hashCode()
         result = 31 * result + mShowVariants.hashCode()
+        result = 31 * result + mViewOptionsIndex.hashCode()
         return result
     }
 
@@ -252,6 +283,26 @@ class SortType(
                         context.getString(R.string.column_release_date),
                         "ie",
                         SortOrder.DESC
+                    )
+                )
+            ),
+            CHARACTER(
+                listOf(
+                    SortType(
+                        "Name",
+                        "name",
+                        "ch",
+                        SortOrder.ASC
+                    )
+                )
+            ),
+            CREATOR(
+                listOf(
+                    SortType(
+                        "Name",
+                        "name",
+                        "cr",
+                        SortOrder.ASC
                     )
                 )
             )

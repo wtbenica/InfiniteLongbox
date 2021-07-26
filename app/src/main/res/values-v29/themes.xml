@@ -4,10 +4,10 @@
     <style name="Theme.ComicCollector" parent="Theme.MaterialComponents.Light.NoActionBar">
 
         <!-- Primary brand color. -->
-        <item name="colorPrimary">@color/fantasia</item>
-        <item name="colorPrimaryVariant">@color/fantasia_light</item>
-        <item name="colorPrimaryDark">@color/fantasia_dark</item>
-        <item name="colorPrimaryLightLight">@color/fantasia_light_light</item>
+        <item name="colorPrimary">@color/fantasia_dark</item>
+        <item name="colorPrimaryVariant">@color/fantasia</item>
+        <item name="colorPrimaryDark">@color/fantasia_dark_dark</item>
+        <item name="colorPrimaryLightLight">@color/fantasia_light</item>
         <item name="colorOnPrimary">@color/fantasia_text</item>
 
         <!-- Secondary brand color. -->

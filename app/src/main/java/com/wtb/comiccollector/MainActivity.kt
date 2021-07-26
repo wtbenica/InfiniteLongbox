@@ -28,13 +28,8 @@ import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.appbar.AppBarLayout.LayoutParams.SCROLL_FLAG_SCROLL
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetBehavior.*
-import com.wtb.comiccollector.database.models.Creator
-import com.wtb.comiccollector.database.models.Issue
-import com.wtb.comiccollector.database.models.Series
-import com.wtb.comiccollector.fragments.FilterFragment
-import com.wtb.comiccollector.fragments.IssueDetailFragment
-import com.wtb.comiccollector.fragments.IssueListFragment
-import com.wtb.comiccollector.fragments.SeriesListFragment
+import com.wtb.comiccollector.database.models.*
+import com.wtb.comiccollector.fragments.*
 import com.wtb.comiccollector.fragments_view_models.FilterViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
@@ -51,6 +46,7 @@ class MainActivity : AppCompatActivity(),
     SeriesListFragment.SeriesListCallback,
     IssueListFragment.IssueListCallback,
     SeriesInfoDialogFragment.SeriesInfoDialogCallback,
+    CharacterListFragment.CharacterListCallback,
     NewCreatorDialogFragment.NewCreatorDialogCallback,
     FilterFragment.FilterFragmentCallback {
 
@@ -203,6 +199,12 @@ class MainActivity : AppCompatActivity(),
         filterFragment?.addFilterItem(series)
     }
 
+    // CharacterListFragment.CharacterListCallbacks
+    override fun onCharacterSelected(character: Character) {
+        Log.d(TAG, "ADDING CHARACTER $character")
+        filterFragment?.addFilterItem(character)
+    }
+
     // FilterFragmentCallback
     override fun onHandleClick() {
         if (bottomSheetBehavior.state == STATE_COLLAPSED) {
@@ -320,13 +322,13 @@ class MainActivity : AppCompatActivity(),
 
         fun getStateName(newState: Int): String {
             return when (newState) {
-                STATE_EXPANDED -> "EXPANDED"
+                STATE_EXPANDED      -> "EXPANDED"
                 STATE_HALF_EXPANDED -> "HALF-EXPANDED"
-                STATE_COLLAPSED -> "COLLAPSED"
-                STATE_DRAGGING -> "DRAGGING"
-                STATE_HIDDEN -> "HIDDEN"
-                STATE_SETTLING -> "SETTLING"
-                else -> "THAT'S ODD!"
+                STATE_COLLAPSED     -> "COLLAPSED"
+                STATE_DRAGGING      -> "DRAGGING"
+                STATE_HIDDEN        -> "HIDDEN"
+                STATE_SETTLING      -> "SETTLING"
+                else                -> "THAT'S ODD!"
             }
         }
 
@@ -342,9 +344,12 @@ class MainActivity : AppCompatActivity(),
 
     inner class ResultFragmentManager {
         val fragment: Flow<Fragment?> = filterViewModel.filter.mapLatest {
-            when (it.returnsIssueList()) {
-                true -> issueListFragment
-                else -> seriesListFragment
+            when (it.viewOption) {
+                FullIssue::class            -> issueListFragment
+                Character::class            -> characterListFragment
+                FullSeries::class           -> seriesListFragment
+                NameDetailAndCreator::class -> seriesListFragment
+                else                        -> throw IllegalStateException("illegal viewOption: ${it.viewOption}")
             }
         }
 
@@ -359,6 +364,13 @@ class MainActivity : AppCompatActivity(),
             get() {
                 if (field == null) {
                     field = IssueListFragment.newInstance()
+                }
+                return field
+            }
+        private var characterListFragment: CharacterListFragment? = null
+            get() {
+                if (field == null) {
+                    field = CharacterListFragment.newInstance()
                 }
                 return field
             }

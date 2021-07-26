@@ -10,5 +10,5 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 abstract class RoleDao : BaseDao<Role>() {
     @Query("SELECT * FROM role")
-    abstract fun getRoleList(): Flow<List<Role>>
+    abstract fun getAll(): Flow<List<Role>>
 }

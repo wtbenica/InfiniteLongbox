@@ -6,4 +6,4 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 @ExperimentalCoroutinesApi
 @Dao
-abstract class AppearanceDao: BaseDao<Appearance>()
+abstract class AppearanceDao : BaseDao<Appearance>()

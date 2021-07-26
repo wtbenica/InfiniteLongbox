@@ -36,7 +36,7 @@ data class Series(
     val firstIssueId: Int? = null,
     val notes: String? = null,
     val issueCount: Int = 0
-) : DataModel(), FilterOptionAutoCompletePopupItem, Serializable {
+) : DataModel(), FilterAutoCompleteType, Serializable {
     override val tagName: String
         get() = "Series"
 
@@ -81,7 +81,7 @@ data class Publisher(
     var yearEnded: LocalDate? = null,
     var yearEndedUncertain: Boolean = true,
     var url: String? = null,
-) : DataModel(), FilterOptionAutoCompletePopupItem {
+) : DataModel(), FilterAutoCompleteType {
     override val tagName: String
         get() = "Publisher"
 

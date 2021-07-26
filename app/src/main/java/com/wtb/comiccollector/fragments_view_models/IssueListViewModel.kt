@@ -5,7 +5,6 @@ import androidx.lifecycle.*
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import com.wtb.comiccollector.APP
-import com.wtb.comiccollector.SearchFilter
 import com.wtb.comiccollector.database.models.FullIssue
 import com.wtb.comiccollector.database.models.FullSeries
 import com.wtb.comiccollector.database.models.Issue
@@ -35,10 +34,6 @@ class IssueListViewModel : ListViewModel<FullIssue>() {
     val series: Flow<FullSeries?> = seriesId.switchMap { id ->
         repository.getSeries(id).asLiveData()
     }.asFlow()
-
-    fun setFilter(filter: SearchFilter) {
-        filterLiveData.value = filter
-    }
 
     fun addIssue(issue: Issue) {
         Log.d(TAG, "addIssue")

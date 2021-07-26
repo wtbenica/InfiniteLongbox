@@ -5,6 +5,7 @@ import androidx.paging.PagingSource
 import androidx.room.Dao
 import androidx.room.Query
 import androidx.room.RawQuery
+import androidx.room.Transaction
 import androidx.sqlite.db.SimpleSQLiteQuery
 import androidx.sqlite.db.SupportSQLiteQuery
 import com.wtb.comiccollector.APP
@@ -23,6 +24,13 @@ private const val TAG = APP + "SeriesDao"
 @ExperimentalCoroutinesApi
 @Dao
 abstract class SeriesDao : BaseDao<Series>() {
+    @Query("SELECT * FROM series")
+    abstract fun getAll(): Flow<List<Series>>
+
+    @Transaction
+    @Query("SELECT * FROM series WHERE seriesId=:seriesId")
+    abstract fun getSeries(seriesId: Int): Flow<FullSeries?>
+
     // FLOW FUNCTIONS
     @RawQuery(observedEntities = [Series::class])
     abstract fun getSeriesByQuery(query: SupportSQLiteQuery): Flow<List<Series>>
@@ -42,7 +50,7 @@ abstract class SeriesDao : BaseDao<Series>() {
         if (filter.hasPublisher()) {
             tableJoinString += "JOIN publisher pr ON ss.publisherId = pr.publisherId "
 
-            val publisherList = modelsToSqlIdString(filter.mPublishers)
+            val publisherList = Companion.modelsToSqlIdString(filter.mPublishers)
 
             conditionsString += "AND pr.publisherId IN $publisherList "
         }
@@ -54,7 +62,7 @@ abstract class SeriesDao : BaseDao<Series>() {
                         "JOIN credit ct on ct.storyId = sy.storyId " +
                         "JOIN namedetail nl on nl.nameDetailId = ct.nameDetailId "
 
-            val creatorsList = modelsToSqlIdString(filter.mCreators)
+            val creatorsList = Companion.modelsToSqlIdString(filter.mCreators)
 
             conditionsString += "AND nl.creatorId IN $creatorsList "
         }
@@ -78,12 +86,6 @@ abstract class SeriesDao : BaseDao<Series>() {
         return getSeriesByQuery(query)
     }
 
-    @Query("SELECT * FROM series")
-    abstract fun getAll(): Flow<List<Series>>
-
-    @Query("SELECT * FROM series WHERE seriesId=:seriesId")
-    abstract fun getSeries(seriesId: Int): Flow<FullSeries?>
-
     // PAGING SOURCE FUNCITONS
     @RawQuery(observedEntities = [Series::class])
     abstract fun getSeriesByQueryPagingSource(query: SupportSQLiteQuery): PagingSource<Int, FullSeries>
@@ -93,19 +95,20 @@ abstract class SeriesDao : BaseDao<Series>() {
         var tableJoinString = String()
         var conditionsString = String()
         val args: ArrayList<Any> = arrayListOf()
+        fun connectword(): String = if (conditionsString.isEmpty()) "WHERE" else "AND"
 
         tableJoinString +=
             "SELECT DISTINCT ss.* " +
                     "FROM series ss "
 
-        conditionsString += "WHERE ss.seriesId != $DUMMY_ID "
+        conditionsString += "${connectword()} ss.seriesId != $DUMMY_ID "
 
         if (filter.hasPublisher()) {
             tableJoinString += "JOIN publisher pr ON ss.publisherId = pr.publisherId "
 
-            val publisherList = modelsToSqlIdString(filter.mPublishers)
+            val publisherList = Companion.modelsToSqlIdString(filter.mPublishers)
 
-            conditionsString += "AND pr.publisherId IN $publisherList "
+            conditionsString += "${connectword()} pr.publisherId IN $publisherList "
         }
 
         if (filter.hasCreator()) {
@@ -117,17 +120,22 @@ abstract class SeriesDao : BaseDao<Series>() {
                     LEFT JOIN excredit ect on ect.storyId = sy.storyId
                     LEFT JOIN namedetail nl2 on nl2.nameDetailId = ect.nameDetailId """
 
-            val creatorsList = modelsToSqlIdString(filter.mCreators)
+            val creatorsList = Companion.modelsToSqlIdString(filter.mCreators)
 
             conditionsString +=
-                """AND (nl.creatorId IN $creatorsList 
+                """${connectword()} (nl.creatorId IN $creatorsList 
                 OR nl2.creatorId in $creatorsList)"""
         }
 
         if (filter.hasDateFilter()) {
-            conditionsString += "AND ss.startDate < ? AND ss.endDate > ? "
+            conditionsString += "${connectword()} ss.startDate < ? ${connectword()} ss.endDate > ? "
             args.add(filter.mEndDate)
             args.add(filter.mStartDate)
+        }
+
+        filter.mSeries?.let {
+            conditionsString += "${connectword()} ss.seriesId = ? "
+            args.add(it.seriesId)
         }
 
         if (filter.mMyCollection) {
@@ -137,7 +145,7 @@ abstract class SeriesDao : BaseDao<Series>() {
 
         filter.mTextFilter?.let {
             Log.d(TAG, "THERE'S A TEXT FILTER!!!!!!!!!!!! $it")
-            conditionsString += "AND ss.seriesName like '%${it.text}%' "
+            conditionsString += "${connectword()} ss.seriesName like '%${it.text}%' "
         }
 
         val query = SimpleSQLiteQuery(
@@ -147,7 +155,6 @@ abstract class SeriesDao : BaseDao<Series>() {
 
         return getSeriesByQueryPagingSource(query)
     }
-
 }
 
 @ExperimentalCoroutinesApi

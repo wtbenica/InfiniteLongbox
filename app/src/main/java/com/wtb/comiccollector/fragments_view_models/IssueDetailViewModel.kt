@@ -35,7 +35,6 @@ class IssueDetailViewModel : ViewModel() {
 
 
     val issue: StateFlow<FullIssue?> = issueId.flatMapLatest { id ->
-        Log.d(TAG, "issueId changed: $id")
         repository.getIssue(id)
     }.stateIn(
         scope = viewModelScope,
@@ -55,8 +54,8 @@ class IssueDetailViewModel : ViewModel() {
 
     val variantLiveData: LiveData<FullIssue?> =
         variantId.flatMapLatest { id ->
-            Log.d(TAG, "variantId changed, updating variantLiveData $id")
-            repository.getIssue(id) }.asLiveData()
+            repository.getIssue(id)
+        }.asLiveData()
 
     val variantStoriesLiveData: LiveData<List<Story>> =
         variantId.flatMapLatest { issueId -> repository.getStoriesByIssue(issueId) }.asLiveData()
@@ -121,31 +120,19 @@ class IssueDetailViewModel : ViewModel() {
 
     var allRolesLiveData: LiveData<List<Role>> = repository.allRoles.asLiveData()
 
-    fun updateIssue(issue: Issue) {
-        repository.saveIssue(issue)
+    fun upsert(dataModel: DataModel) {
+        when (dataModel) {
+            is Series -> repository.saveSeries(dataModel)
+            is Creator -> repository.saveCreator(dataModel)
+            is Credit -> repository.saveCredit(dataModel)
+            is Issue -> repository.saveIssue(dataModel)
+            is Role -> repository.saveRole(dataModel)
+        }
     }
 
-    fun deleteIssue(issue: Issue) {
-        repository.deleteIssue(issue)
-    }
-
-    fun upsertSeries(series: Series) {
-        repository.saveSeries(series)
-    }
-
-    fun upsertCreator(creator: Creator) {
-        repository.saveCreator(creator)
-    }
-
-    fun upsertCredit(credit: Credit) {
-        repository.saveCredit(credit)
-    }
-
-    fun deleteSeries(series: Series) {
-        repository.deleteSeries(series)
-    }
-
-    fun deleteCredit(credit: Credit) {
-        repository.deleteCredit(credit)
+    fun delete(dataModel: DataModel) {
+        when (dataModel) {
+            is Issue -> repository.deleteIssue(dataModel)
+        }
     }
 }

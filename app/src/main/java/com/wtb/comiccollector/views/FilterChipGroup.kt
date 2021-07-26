@@ -4,7 +4,7 @@ import android.content.Context
 import android.util.AttributeSet
 import com.google.android.material.chip.Chip
 import com.wtb.comiccollector.APP
-import com.wtb.comiccollector.database.models.FilterOptionAutoCompletePopupItem
+import com.wtb.comiccollector.database.models.FilterType
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 class FilterChipGroup(context: Context?, attributeSet: AttributeSet) :
@@ -13,12 +13,12 @@ class FilterChipGroup(context: Context?, attributeSet: AttributeSet) :
 @ExperimentalCoroutinesApi
 class FilterChip(context: Context?) : Chip(context) {
 
-    lateinit var item: FilterOptionAutoCompletePopupItem
+    lateinit var item: FilterType
     private var caller: FilterChipCallbacks? = null
 
     constructor(
         context: Context?,
-        item: FilterOptionAutoCompletePopupItem,
+        item: FilterType,
         caller: FilterChipCallbacks
     ) : this(context) {
         this.item = item
@@ -35,8 +35,6 @@ class FilterChip(context: Context?) : Chip(context) {
         this.isCheckedIconVisible = false
         this.isChecked = true
     }
-
-    override fun toString(): String = item.tagName
 
     companion object {
         private const val TAG = APP + "FilterChip"

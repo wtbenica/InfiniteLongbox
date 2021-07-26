@@ -21,7 +21,8 @@ import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.R
 import com.wtb.comiccollector.SearchFilter
 import com.wtb.comiccollector.SortType
-import com.wtb.comiccollector.database.models.FilterOptionAutoCompletePopupItem
+import com.wtb.comiccollector.database.models.FilterAutoCompleteType
+import com.wtb.comiccollector.database.models.FilterType
 import com.wtb.comiccollector.database.models.FilterTypeSpinnerOption
 import com.wtb.comiccollector.fragments_view_models.FilterViewModel
 import com.wtb.comiccollector.views.*
@@ -94,7 +95,7 @@ class FilterFragment : Fragment(),
             }
 
             viewModel.filterOptions.asLiveData()
-                .observe(context as LifecycleOwner) { filterObjects: List<FilterOptionAutoCompletePopupItem> ->
+                .observe(context as LifecycleOwner) { filterObjects: List<FilterAutoCompleteType> ->
                     searchAutoComplete.setAdapter(
                         FilterOptionsAdapter(
                             requireContext(),
@@ -174,7 +175,6 @@ class FilterFragment : Fragment(),
             override fun onNothingSelected(parent: AdapterView<*>?) {
                 // Do nothing
             }
-
         }
     }
 
@@ -239,7 +239,7 @@ class FilterFragment : Fragment(),
     }
 
     private fun updateFilterCard(value: SearchFilter) {
-        val newFilters: Set<FilterOptionAutoCompletePopupItem> = value.getAll()
+        val newFilters: Set<FilterType> = value.getAll()
 
         filterChipGroup.removeAllViews()
         newFilters.forEach { addChip(it) }
@@ -262,7 +262,7 @@ class FilterFragment : Fragment(),
         filterAddButton.visibility = VISIBLE
     }
 
-    private fun addChip(item: FilterOptionAutoCompletePopupItem) {
+    private fun addChip(item: FilterType) {
         val chip = FilterChip(context, item, this)
         filterChipGroup.addView(chip)
     }
@@ -281,7 +281,7 @@ class FilterFragment : Fragment(),
     }
 
     // SearchTextViewCallback
-    override fun addFilterItem(option: FilterOptionAutoCompletePopupItem) =
+    override fun addFilterItem(option: FilterType) =
         viewModel.addFilterItem(option)
 
     override fun hideKeyboard() {
@@ -322,6 +322,10 @@ class FilterFragment : Fragment(),
     override fun checkChanged(action: (FilterViewModel, Boolean) -> Unit, isChecked: Boolean) {
         Log.d(TAG, "checkChanged: $isChecked")
         action(viewModel, isChecked)
+    }
+
+    override fun onClickViewChip() {
+        viewModel.nextView()
     }
 
     // SortChipGroupCallback

@@ -1,7 +1,6 @@
 package com.wtb.comiccollector.fragments
 
 import android.animation.ValueAnimator
-import android.content.Context
 import android.os.Bundle
 import android.view.*
 import android.view.View.GONE
@@ -30,14 +29,9 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 @ExperimentalCoroutinesApi
-class IssueListFragment : ListFragment() {
+class IssueListFragment : ListFragment<Issue>() {
 
     private val viewModel: IssueListViewModel by viewModels()
-
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        callback = context as IssueListCallback?
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -134,7 +128,7 @@ class IssueListFragment : ListFragment() {
         private val issueNumTextView: TextView =
             itemView.findViewById(R.id.list_item_issue_number_text)
         private val issueVariantName: TextView =
-            itemView.findViewById(R.id.list_item_variant_name_text)
+            itemView.findViewById(R.id.list_item_character_name_text)
         private val wrapper: ConstraintLayout = itemView.findViewById(R.id.wrapper)
 
         init {

@@ -493,10 +493,10 @@ class GcdCharacterAppearance(
     @SerializedName("details")
     @Expose
     val details: String?,
-    @SerializedName("character_id")
+    @SerializedName("character")
     @Expose
     val characterId: Int,
-    @SerializedName("storyId")
+    @SerializedName("story")
     @Expose
     val storyId: Int,
     @SerializedName("notes")

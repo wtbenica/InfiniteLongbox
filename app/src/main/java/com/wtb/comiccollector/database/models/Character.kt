@@ -1,9 +1,6 @@
 package com.wtb.comiccollector.database.models
 
-import androidx.room.Entity
-import androidx.room.ForeignKey
-import androidx.room.Index
-import androidx.room.PrimaryKey
+import androidx.room.*
 import com.wtb.comiccollector.ComicCollectorApplication
 import com.wtb.comiccollector.R
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -19,7 +16,9 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
         )
     ],
     indices = [
-        Index(value = ["publisher"])
+        Index(value = ["publisher"]),
+        Index(value = ["name"]),
+        Index(value = ["alterEgo"])
     ]
 )
 data class Character(
@@ -27,7 +26,7 @@ data class Character(
     val name: String,
     val alterEgo: String? = null,
     val publisher: Int,
-) : DataModel(), FilterOptionAutoCompletePopupItem {
+) : DataModel(), FilterAutoCompleteType, FilterType, ListItem {
 
     val sortName: String
         get() {
@@ -88,3 +87,16 @@ data class Appearance(
     override val id: Int
         get() = appearanceId
 }
+
+
+@ExperimentalCoroutinesApi
+data class FullCharacter(
+    @Embedded
+    val character: Character,
+
+    @Relation(parentColumn = "publisher", entityColumn = "publisherId")
+    var publisher: Publisher,
+
+    @Relation(parentColumn="characterId", entityColumn = "character" )
+    var appearance: Appearance
+)

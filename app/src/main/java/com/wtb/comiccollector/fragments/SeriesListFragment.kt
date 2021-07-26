@@ -1,6 +1,5 @@
 package com.wtb.comiccollector.fragments
 
-import android.content.Context
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
@@ -29,15 +28,9 @@ import kotlinx.coroutines.launch
 private const val TAG = APP + "SeriesListFragment"
 
 @ExperimentalCoroutinesApi
-class SeriesListFragment : ListFragment() {
+class SeriesListFragment : ListFragment<Series>() {
 
     private val viewModel: SeriesListViewModel by viewModels()
-
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        callback = context as SeriesListCallback?
-
-    }
 
     override fun onResume() {
         super.onResume()
@@ -97,10 +90,10 @@ class SeriesListFragment : ListFragment() {
         private lateinit var item: FullSeries
 
         private val seriesTextView: TextView =
-            itemView.findViewById(R.id.list_item_variant_name_text)
+            itemView.findViewById(R.id.list_item_series_name_text)
         private val seriesImageView: ImageView = itemView.findViewById(R.id.series_imageview)
-        private val seriesDateRangeTextView: TextView = itemView.findViewById(R.id.list_item_dates)
-        private val formatTextView: TextView = itemView.findViewById(R.id.list_item_format)
+        private val seriesDateRangeTextView: TextView = itemView.findViewById(R.id.list_item_pub_dates)
+        private val formatTextView: TextView = itemView.findViewById(R.id.list_item_series_format)
 
         init {
             itemView.setOnClickListener(this)
@@ -115,7 +108,7 @@ class SeriesListFragment : ListFragment() {
             uri.let { seriesImageView.setImageURI(it) }
 
             seriesDateRangeTextView.text = this.item.series.dateRange
-            formatTextView.text =  this.item.series.publishingFormat?.lowercase()
+            formatTextView.text = this.item.series.publishingFormat?.lowercase()
         }
 
         override fun onClick(v: View?) {

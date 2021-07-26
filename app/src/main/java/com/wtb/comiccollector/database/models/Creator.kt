@@ -6,13 +6,18 @@ import com.wtb.comiccollector.R
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 @ExperimentalCoroutinesApi
-@Entity
+@Entity(
+    indices = [
+        Index(value = ["name"]),
+        Index(value = ["sortName"])
+    ]
+)
 data class Creator(
     @PrimaryKey(autoGenerate = true) val creatorId: Int = AUTO_ID,
     var name: String,
     var sortName: String,
     var bio: String? = null
-) : DataModel(), FilterOptionAutoCompletePopupItem {
+) : DataModel(), FilterAutoCompleteType {
 
     override val id: Int
         get() = creatorId
@@ -40,6 +45,8 @@ data class Creator(
     ],
     indices = [
         Index(value = arrayOf("creatorId")),
+        Index(value = ["name"]),
+        Index(value = ["sortName"])
     ]
 )
 data class NameDetail(
@@ -47,7 +54,7 @@ data class NameDetail(
     var creatorId: Int,
     var name: String,
     var sortName: String? = null
-) : DataModel(), FilterOptionAutoCompletePopupItem {
+) : DataModel(), FilterAutoCompleteType {
     override val id: Int
         get() = nameDetailId
 
@@ -71,4 +78,4 @@ data class NameDetailAndCreator(
 
     @Relation(parentColumn = "creatorId", entityColumn = "creatorId")
     var creator: Creator
-)
+): ListItem

@@ -42,118 +42,111 @@ class StaticUpdater(
         )
 
         return CoroutineScope(Dispatchers.IO).async {
-            val publishers = CoroutineScope(Dispatchers.IO).async pubs@{
-                var result = emptyList<Item<GcdPublisher, Publisher>>()
-
-                if (checkIfStale(UPDATED_PUBLISHERS, STATIC_DATA_LIFETIME, prefs)) {
-                    try {
-                        result = webservice.getPublishers()
-                    } catch (e: SocketTimeoutException) {
-                        Log.d(TAG, "update: Getting Publishers: $e")
-                    } catch (e: ConnectException) {
-                        Log.d(TAG, "update: Getting Publishers: $e")
-                    }
-                }
-
-                return@pubs result
-            }
-
-            val roles = CoroutineScope(Dispatchers.IO).async roles@{
-                var result = emptyList<Item<GcdRole, Role>>()
-
-                if (checkIfStale(UPDATED_ROLES, STATIC_DATA_LIFETIME, prefs)) {
-                    try {
-                        result = webservice.getRoles()
-                    } catch (e: SocketTimeoutException) {
-                        Log.d(TAG, "update: Getting Roles: $e")
-                    } catch (e: ConnectException) {
-                        Log.d(TAG, "update: Getting Roles: $e")
-                    }
-                }
-
-                return@roles result
-            }
-
-            val storyTypes = CoroutineScope(Dispatchers.IO).async types@{
-                var result = emptyList<Item<GcdStoryType, StoryType>>()
-
-                if (checkIfStale(UPDATED_STORY_TYPES, STATIC_DATA_LIFETIME, prefs)) {
-                    try {
-                        result = webservice.getStoryTypes()
-                    } catch (e: SocketTimeoutException) {
-                        Log.d(TAG, "update: Getting StoryTypes SocketTimeout: $e")
-                    } catch (e: ConnectException) {
-                        Log.d(TAG, "update: Getting Publishers: $e")
-                    }
-                }
-                return@types result
-            }
-
-            val seriesBondTypes = CoroutineScope(Dispatchers.IO).async bondTypes@{
-                var result = emptyList<Item<GcdBondType, BondType>>()
-
-                if (checkIfStale(UPDATED_BOND_TYPE, STATIC_DATA_LIFETIME, prefs)) {
-                    try {
-                        result = webservice.getBondTypes()
-                    } catch (e: SocketTimeoutException) {
-                        Log.d(TAG, "update: Getting BondTypes SocketTimeout: $e")
-                    } catch (e: ConnectException) {
-                        Log.d(TAG, "update: Getting BondTypes: $e")
-                    }
-                }
-                return@bondTypes result
-            }.await().also {
-                Log.d(TAG, "bondTypes complete")
-            }
+            val publishers = refreshPublishersAsync()
+            val roles = refreshRolesAsync()
+            val storyTypes = refreshStoryTypesAsync()
+            val seriesBondTypes = refreshSeriesBondTypesAsync()
 
             withContext(Dispatchers.Default) {
                 Log.d(TAG, "EMOSTO")
                 database.transactionDao().upsertStatic(
-                    publishers = publishers.await()
-                        .map { it.toRoomModel() }
-                        .also {
-                            if (it.isNotEmpty()) {
-                                Repository.saveTime(prefs, UPDATED_PUBLISHERS)
-                            }
-                        },
-                    roles = roles.await()
-                        .map { it.toRoomModel() }
-                        .also {
-                            if (it.isNotEmpty()) {
-                                Repository.saveTime(prefs, UPDATED_ROLES)
-                            }
-                        },
-                    storyTypes = storyTypes.await()
-                        .map { it.toRoomModel() }
-                        .also {
-                            if (it.isNotEmpty()) {
-                                Repository.saveTime(prefs, UPDATED_STORY_TYPES)
-                            }
-                        },
-                    bondTypes = seriesBondTypes.map { it.toRoomModel() }
-                        .also {
-                            if (it.isNotEmpty()) {
-                                Repository.saveTime(prefs, UPDATED_BOND_TYPE)
-                            }
-                        },
+                    publishers = prepareItems(publishers, UPDATED_PUBLISHERS),
+                    roles = prepareItems(roles, UPDATED_ROLES),
+                    storyTypes = prepareItems(storyTypes, UPDATED_STORY_TYPES),
+                    bondTypes = prepareItems(seriesBondTypes, UPDATED_BOND_TYPE),
                 )
                 Log.d(TAG, "ENDING")
             }.let {
                 withContext(Dispatchers.Default) {
                     Log.d(TAG, "Start")
-                    updateSeries()
-                    updateSeriesBond()
-                    updateCreators()
-                    updateCharacters()
+                    refreshSeries()
+                    refreshSeriesBonds()
+                    refreshCreators()
+                    refreshCharacters()
                 }
             }
         }
     }
 
-    private suspend fun updateSeriesBond() {
+    private suspend fun <G : GcdJson<M>, M : DataModel> prepareItems(
+        items: Deferred<List<Item<G, M>>>,
+        saveTag: String
+    ): List<M> =
+        items.await()
+            .map { it.toRoomModel() }
+            .also {
+                if (it.isNotEmpty()) {
+                    Repository.saveTime(prefs, saveTag)
+                }
+            }
+
+
+    private fun refreshStoryTypesAsync() = CoroutineScope(Dispatchers.IO).async types@{
+        var result = emptyList<Item<GcdStoryType, StoryType>>()
+
+        if (checkIfStale(UPDATED_STORY_TYPES, STATIC_DATA_LIFETIME, prefs) && !DEBUG) {
+            try {
+                result = webservice.getStoryTypes()
+            } catch (e: SocketTimeoutException) {
+                Log.d(TAG, "update: Getting StoryTypes SocketTimeout: $e")
+            } catch (e: ConnectException) {
+                Log.d(TAG, "update: Getting Publishers: $e")
+            }
+        }
+        return@types result
+    }
+
+    private fun refreshSeriesBondTypesAsync() = CoroutineScope(Dispatchers.IO).async bondTypes@{
+        var result = emptyList<Item<GcdBondType, BondType>>()
+
+        if (checkIfStale(UPDATED_BOND_TYPE, STATIC_DATA_LIFETIME, prefs) && !DEBUG) {
+            try {
+                result = webservice.getBondTypes()
+            } catch (e: SocketTimeoutException) {
+                Log.d(TAG, "update: Getting BondTypes SocketTimeout: $e")
+            } catch (e: ConnectException) {
+                Log.d(TAG, "update: Getting BondTypes: $e")
+            }
+        }
+        return@bondTypes result
+    }
+
+    private fun refreshRolesAsync() = CoroutineScope(Dispatchers.IO).async roles@{
+        var result = emptyList<Item<GcdRole, Role>>()
+
+        if (checkIfStale(UPDATED_ROLES, STATIC_DATA_LIFETIME, prefs) && !DEBUG) {
+            try {
+                result = webservice.getRoles()
+            } catch (e: SocketTimeoutException) {
+                Log.d(TAG, "update: Getting Roles: $e")
+            } catch (e: ConnectException) {
+                Log.d(TAG, "update: Getting Roles: $e")
+            }
+        }
+
+        return@roles result
+    }
+
+    private fun refreshPublishersAsync() = CoroutineScope(Dispatchers.IO).async pubs@{
+        var result = emptyList<Item<GcdPublisher, Publisher>>()
+
+        if (checkIfStale(UPDATED_PUBLISHERS, STATIC_DATA_LIFETIME, prefs) && !DEBUG) {
+            try {
+                result = webservice.getPublishers()
+            } catch (e: SocketTimeoutException) {
+                Log.d(TAG, "update: Getting Publishers: $e")
+            } catch (e: ConnectException) {
+                Log.d(TAG, "update: Getting Publishers: $e")
+            }
+        }
+
+        return@pubs result
+    }
+
+    private suspend fun refreshSeriesBonds() {
         CoroutineScope(Dispatchers.IO).async seriesBonds@{
             var result = emptyList<Item<GcdSeriesBond, SeriesBond>>()
-            if (checkIfStale(UPDATED_SERIES_BONDS, SERIES_LIST_LIFETIME, prefs)) {
+            if (checkIfStale(UPDATED_SERIES_BONDS, SERIES_LIST_LIFETIME, prefs) && !DEBUG) {
                 try {
                     result = webservice.getSeriesBonds()
                 } catch (e: SocketTimeoutException) {
@@ -182,12 +175,12 @@ class StaticUpdater(
             val seriesBonds = seriesBondItems.map { it.toRoomModel() }
             database.transactionDao().upsertSus(
                 issues = issues,
-                seriesBonds = seriesBonds
+                seriesBonds = seriesBonds,
             ).also { Log.d(TAG, "upsert seriesBonds/issues") }
         }
     }
 
-    private suspend fun updateSeries() {
+    private suspend fun refreshSeries() {
         if (checkIfStale(UPDATED_SERIES, SERIES_LIST_LIFETIME, prefs) && !DEBUG) {
             var page = 0
             var stop = false
@@ -225,8 +218,8 @@ class StaticUpdater(
         }
     }
 
-    private suspend fun updateCreators() {
-        if (checkIfStale(UPDATED_CREATORS, SERIES_LIST_LIFETIME, prefs)) {
+    private suspend fun refreshCreators() {
+        if (checkIfStale(UPDATED_CREATORS, SERIES_LIST_LIFETIME, prefs) && !DEBUG) {
             var page = 0
             var stop = false
 
@@ -279,8 +272,8 @@ class StaticUpdater(
         }
     }
 
-    private suspend fun updateCharacters() {
-        if (checkIfStale(UPDATED_CHARACTERS, SERIES_LIST_LIFETIME, prefs) || true) {
+    private suspend fun refreshCharacters() {
+        if (checkIfStale(UPDATED_CHARACTERS, SERIES_LIST_LIFETIME, prefs) && !DEBUG) {
             var page = 0
             var stop = false
             var success = true

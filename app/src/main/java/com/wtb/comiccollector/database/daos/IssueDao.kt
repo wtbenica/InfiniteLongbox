@@ -24,57 +24,29 @@ abstract class IssueDao : BaseDao<Issue>() {
     abstract fun getFullIssuesByQuery(query: SupportSQLiteQuery): Flow<List<FullIssue>>
 
     fun getIssuesByFilter(filter: SearchFilter): Flow<List<FullIssue>> {
-        var tableJoinString = String()
-        var conditionsString = String()
-        val args: ArrayList<Any> = arrayListOf()
-
-        tableJoinString +=
-            """SELECT DISTINCT ie.*, ss.seriesName, pr.publisher 
-                FROM issue ie 
-                JOIN series ss ON ie.seriesId = ss.seriesId 
-                JOIN publisher pr ON ss.publisherId = pr.publisherId 
-                LEFT JOIN cover cr ON ie.issueId = cr.issueId """
-
-        conditionsString +=
-            "WHERE ss.seriesId = ${filter.mSeries?.seriesId} "
-
-        if (filter.hasPublisher()) {
-            val publisherList = modelsToSqlIdString(filter.mPublishers)
-
-            conditionsString += "AND pr.publisherId IN $publisherList "
-        }
-
-        if (filter.hasCreator()) {
-            tableJoinString +=
-                "JOIN story sy on sy.issueId = ie.issueId " +
-                        "JOIN credit ct on ct.storyId = sy.storyId " +
-                        "JOIN namedetail nl on nl.nameDetailId = ct.nameDetailId "
-
-            val creatorsList = modelsToSqlIdString(filter.mCreators)
-
-            conditionsString += "AND nl.creatorId IN $creatorsList "
-        }
-
-        if (filter.hasDateFilter()) {
-            conditionsString += "AND ss.startDate < ? AND ss.endDate > ? "
-            args.add(filter.mEndDate)
-            args.add(filter.mStartDate)
-        }
-
-        if (filter.mMyCollection) {
-            tableJoinString += "JOIN mycollection mc ON mc.issueId = ie.issueId "
-        }
-
-        if (!filter.mShowVariants) {
-            conditionsString += "AND ie.variantOf IS NULL "
-        }
-
-        val query = SimpleSQLiteQuery(
-            tableJoinString + conditionsString + "ORDER BY ${filter.mSortType.sortString}",
-            args.toArray()
-        )
+        val query = createIssueQuery(filter)
 
         return getFullIssuesByQuery(query)
+    }
+
+    // PAGING SOURCE FUNCTIONS
+    @RawQuery(observedEntities = [FullIssue::class])
+    abstract fun getFullIssuesByQueryPagingSource(query: SupportSQLiteQuery): PagingSource<Int, FullIssue>
+
+    fun getIssuesByFilterPagingSource(filter: SearchFilter): PagingSource<Int, FullIssue> {
+        val query = createIssueQuery(filter)
+
+        return getFullIssuesByQueryPagingSource(query)
+    }
+
+    // SUSPEND FUNCTIONS
+    @RawQuery(observedEntities = [FullIssue::class])
+    abstract suspend fun getFullIssuesByQuerySus(query: SupportSQLiteQuery): List<FullIssue>
+
+    suspend fun getIssuesByFilterSus(filter: SearchFilter): List<FullIssue> {
+        val query = createIssueQuery(filter)
+
+        return getFullIssuesByQuerySus(query)
     }
 
     @Query(
@@ -102,69 +74,6 @@ abstract class IssueDao : BaseDao<Issue>() {
     )
     abstract fun getFullIssue(issueId: Int): Flow<FullIssue?>
 
-    // PAGING SOURCE FUNCTIONS
-    @RawQuery(observedEntities = [FullIssue::class])
-    abstract fun getFullIssuesByQueryPagingSource(query: SupportSQLiteQuery): PagingSource<Int, FullIssue>
-
-    fun getIssuesByFilterPagingSource(filter: SearchFilter): PagingSource<Int, FullIssue> {
-        val mSeries = filter.mSeries
-
-        var tableJoinString = String()
-        var conditionsString = String()
-        val args: ArrayList<Any> = arrayListOf()
-
-        tableJoinString +=
-            "SELECT DISTINCT ie.*, ss.seriesName, pr.publisher " +
-                    "FROM issue ie " +
-                    "JOIN series ss ON ie.seriesId = ss.seriesId " +
-                    "JOIN publisher pr ON ss.publisherId = pr.publisherId "
-
-        conditionsString +=
-            "WHERE ss.seriesId = ${mSeries?.seriesId} "
-
-        if (filter.hasPublisher()) {
-            val publisherList = modelsToSqlIdString(filter.mPublishers)
-
-            conditionsString += "AND pr.publisherId IN $publisherList "
-        }
-
-        if (filter.hasCreator()) {
-            tableJoinString +=
-                "JOIN story sy on sy.issueId = ie.issueId " +
-                        "LEFT JOIN credit ct on ct.storyId = sy.storyId " +
-                        "LEFT JOIN namedetail nl on nl.nameDetailId = ct.nameDetailId " +
-                        "LEFT JOIN excredit ect on ect.storyId = sy.storyId " +
-                        "LEFT JOIN namedetail nl2 on nl2.nameDetailId = ect.nameDetailId "
-
-            val creatorsList = modelsToSqlIdString(filter.mCreators)
-
-            conditionsString += "AND (nl.creatorId IN $creatorsList " +
-                    "OR nl2.creatorId IN $creatorsList) "
-        }
-
-        if (filter.hasDateFilter()) {
-            conditionsString += "AND ss.startDate < ? AND ss.endDate > ? "
-            args.add(filter.mEndDate)
-            args.add(filter.mStartDate)
-        }
-
-        if (filter.mMyCollection) {
-            tableJoinString += "JOIN mycollection mc ON mc.issueId = ie.issueId "
-        }
-
-        if (!filter.mShowVariants) {
-            conditionsString += "AND ie.variantOf IS NULL "
-        }
-
-        val query = SimpleSQLiteQuery(
-            tableJoinString + conditionsString + "ORDER BY ${filter.mSortType.sortString} ",
-            args.toArray()
-        )
-
-        return getFullIssuesByQueryPagingSource(query)
-    }
-
-    // SUSPEND FUNCTIONS
     @Transaction
     @Query(
         """SELECT ie.*  
@@ -176,4 +85,65 @@ abstract class IssueDao : BaseDao<Issue>() {
         WHERE ie.issueId=:issueId"""
     )
     abstract suspend fun getIssueSus(issueId: Int): FullIssue?
+
+    companion object {
+        private fun createIssueQuery(filter: SearchFilter): SimpleSQLiteQuery {
+            var tableJoinString = String()
+            var conditionsString = String()
+            val args: ArrayList<Any> = arrayListOf()
+            fun connectword(): String = if (conditionsString.isEmpty()) "WHERE" else "AND"
+
+            tableJoinString +=
+                """SELECT DISTINCT ie.* 
+                        FROM issue ie 
+                        JOIN series ss ON ie.seriesId = ss.seriesId 
+                        JOIN publisher pr ON ss.publisherId = pr.publisherId 
+                        LEFT JOIN cover cr ON ie.issueId = cr.issueId """
+
+            filter.mSeries?.let {
+                conditionsString +=
+                    "${connectword()} ss.seriesId = ${it.seriesId} "
+            }
+
+            if (filter.hasPublisher()) {
+                val publisherList = modelsToSqlIdString(filter.mPublishers)
+
+                conditionsString += "${connectword()} pr.publisherId IN $publisherList "
+            }
+
+            if (filter.hasCreator()) {
+                tableJoinString +=
+                    """JOIN story sy on sy.issueId = ie.issueId 
+                                LEFT JOIN credit ct on ct.storyId = sy.storyId 
+                                LEFT JOIN namedetail nl on nl.nameDetailId = ct.nameDetailId 
+                                LEFT JOIN excredit ect on ect.storyId = sy.storyId 
+                                LEFT JOIN namedetail nl2 on nl2.nameDetailId = ect.nameDetailId """
+
+                val creatorsList = modelsToSqlIdString(filter.mCreators)
+
+                conditionsString += "${connectword()} (nl.creatorId IN $creatorsList " +
+                        "OR nl2.creatorId IN $creatorsList) "
+            }
+
+            if (filter.hasDateFilter()) {
+                conditionsString += "${connectword()} ss.startDate < ? AND ss.endDate > ? "
+                args.add(filter.mEndDate)
+                args.add(filter.mStartDate)
+            }
+
+            if (filter.mMyCollection) {
+                tableJoinString += "JOIN mycollection mc ON mc.issueId = ie.issueId "
+            }
+
+            if (!filter.mShowVariants) {
+                conditionsString += "${connectword()} ie.variantOf IS NULL "
+            }
+
+            val query = SimpleSQLiteQuery(
+                tableJoinString + conditionsString + "ORDER BY ${filter.mSortType.sortString}",
+                args.toArray()
+            )
+            return query
+        }
+    }
 }

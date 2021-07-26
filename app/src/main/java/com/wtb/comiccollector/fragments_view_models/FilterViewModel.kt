@@ -23,7 +23,7 @@ class FilterViewModel : ViewModel() {
 
     val filter: StateFlow<SearchFilter> = theOneTrueFilter
 
-    private val seriesOptions: Flow<List<FilterOptionAutoCompletePopupItem>> =
+    private val seriesOptions: Flow<List<FilterAutoCompleteType>> =
         filter.flatMapLatest {
             repository.getSeriesByFilter(it)
         }
@@ -36,19 +36,23 @@ class FilterViewModel : ViewModel() {
         repository.getCreatorsByFilter(it)
     }
 
-    private val allOptions: Flow<List<FilterOptionAutoCompletePopupItem>> = combine(
+    private val characterOptions = filter.flatMapLatest {
+        repository.getCharactersByFilter(it)
+    }
+
+    private val allOptions: Flow<List<FilterAutoCompleteType>> = combine(
         seriesOptions,
         creatorOptions,
         publisherOptions
     )
-    { series: List<FilterOptionAutoCompletePopupItem>, creators: List<FilterOptionAutoCompletePopupItem>, publishers: List<FilterOptionAutoCompletePopupItem> ->
+    { series: List<FilterAutoCompleteType>, creators: List<FilterAutoCompleteType>, publishers: List<FilterAutoCompleteType> ->
         Log.d(
             TAG, "filterOptions: ${series.size} series; ${creators.size} creators; ${
                 publishers
                     .size
             } publishers;"
         )
-        val res: List<FilterOptionAutoCompletePopupItem> = series + creators + publishers
+        val res: List<FilterAutoCompleteType> = series + creators + publishers
         Log.d(TAG, "filterOptions: ${res.size}")
         res.sorted()
     }
@@ -57,7 +61,7 @@ class FilterViewModel : ViewModel() {
         when (it) {
             Series     -> seriesOptions
             Publisher  -> publisherOptions
-            Character  -> allOptions
+            Character  -> characterOptions
             NameDetail -> creatorOptions
             All        -> allOptions
         }
@@ -71,14 +75,14 @@ class FilterViewModel : ViewModel() {
         this.filterTypeSpinnerOption.value = filterTypeSpinnerOption
     }
 
-    fun addFilterItem(item: FilterOptionAutoCompletePopupItem) {
+    fun addFilterItem(item: FilterType) {
         Log.d(TAG, "ADDING ITEM: $item")
         val newVal = SearchFilter(theOneTrueFilter.value)
         newVal.addFilter(item)
         theOneTrueFilter.value = newVal
     }
 
-    fun removeFilterItem(item: FilterOptionAutoCompletePopupItem) {
+    fun removeFilterItem(item: FilterType) {
         val newVal = SearchFilter(theOneTrueFilter.value)
         newVal.removeFilter(item)
         theOneTrueFilter.value = newVal
@@ -106,6 +110,12 @@ class FilterViewModel : ViewModel() {
     fun showIssues(show: Boolean) {
         val newVal = SearchFilter(theOneTrueFilter.value)
         newVal.mShowIssues = show
+        theOneTrueFilter.value = newVal
+    }
+
+    fun nextView() {
+        val newVal = SearchFilter(theOneTrueFilter.value)
+        newVal.nextOption()
         theOneTrueFilter.value = newVal
     }
 }

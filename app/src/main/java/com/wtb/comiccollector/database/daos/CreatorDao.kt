@@ -41,7 +41,7 @@ abstract class CreatorDao : BaseDao<Creator>() {
             tableJoinString +=
                 "LEFT JOIN publisher pr ON ss.publisherId = pr.publisherId "
 
-            val publisherList = modelsToSqlIdString(filter.mPublishers)
+            val publisherList = Companion.modelsToSqlIdString(filter.mPublishers)
 
             conditionsString += "AND pr.publisherId IN $publisherList"
         }
@@ -72,7 +72,7 @@ abstract class CreatorDao : BaseDao<Creator>() {
     abstract fun getCreatorsByQuery(query: SupportSQLiteQuery): Flow<List<Creator>>
 
     @Query("SELECT * FROM creator ORDER BY sortName ASC")
-    abstract fun getCreatorsList(): Flow<List<Creator>>
+    abstract fun getAll(): Flow<List<Creator>>
 
 //    @Query(
 //        """

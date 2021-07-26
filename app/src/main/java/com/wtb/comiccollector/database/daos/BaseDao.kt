@@ -18,6 +18,7 @@ const val REQUEST_LIMIT = 20
 @ExperimentalCoroutinesApi
 @Dao
 abstract class BaseDao<T : DataModel> {
+
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     abstract fun insert(obj: T): Long
 
@@ -102,9 +103,8 @@ abstract class BaseDao<T : DataModel> {
         }
     }
 
-    protected fun <T : DataModel> modelsToSqlIdString(models: Collection<T>) =
-        models.map { it.id }.toString().replace(
-            "[", "" +
-                    "("
-        ).replace("]", ")")
+    companion object {
+        internal fun <T : DataModel> modelsToSqlIdString(models: Collection<T>) =
+            models.map { it.id }.toString().replace("[", "(").replace("]", ")")
+    }
 }

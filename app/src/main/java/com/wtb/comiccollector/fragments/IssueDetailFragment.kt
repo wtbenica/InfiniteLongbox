@@ -297,16 +297,15 @@ class IssueDetailFragment : Fragment(), CreatorLinkCallback {
 
     private fun updateNavBar() {
         this.currentPos = this.issuesInSeries.indexOf(this.fullIssue.issue.issueId)
-        val found = currentPos != -1
+        val found = currentPos >= 0
 
-        this.gotoStartButton.isEnabled = (currentPos != 0) && found
+        this.gotoStartButton.isEnabled = (currentPos > 0) && found
         this.gotoSkipBackButton.isEnabled = (currentPos >= 10) && found
-        this.gotoPreviousButton.isEnabled = (currentPos != 0) && found
-        this.gotoNextButton.isEnabled =
-            (currentPos != this.issuesInSeries.size - 1) && found
+        this.gotoPreviousButton.isEnabled = (currentPos > 0) && found
+        this.gotoNextButton.isEnabled = (currentPos < this.issuesInSeries.size - 1) && found
         this.gotoSkipForwardButton.isEnabled =
             (currentPos <= this.issuesInSeries.size - 11) && found
-        this.gotoEndButton.isEnabled = (currentPos != this.issuesInSeries.size - 1) && found
+        this.gotoEndButton.isEnabled = (currentPos < this.issuesInSeries.size - 1) && found
     }
 
     private fun setCollectionButton(count: Count) {
@@ -412,7 +411,7 @@ class IssueDetailFragment : Fragment(), CreatorLinkCallback {
         return when (item.itemId) {
             R.id.delete_issue -> {
                 saveIssue = false
-                issueDetailViewModel.deleteIssue(fullIssue.issue)
+                issueDetailViewModel.delete(fullIssue.issue)
                 requireActivity().onBackPressed()
                 true
             }

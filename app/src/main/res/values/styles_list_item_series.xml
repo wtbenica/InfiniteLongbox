@@ -11,7 +11,7 @@
         <item name="android:padding">14dp</item>
     </style>
 
-    <style name="ListItemSeriesTitleText" parent="TextAppearance.AppCompat.Light.SearchResult.Title">
+    <style name="ListItemTitleText" parent="TextAppearance.AppCompat.Light.SearchResult.Title">
         <item name="android:fontFamily">sans-serif-condensed</item>
         <item name="android:textStyle">bold</item>
         <item name="android:textSize">18sp</item>
@@ -21,7 +21,15 @@
         <item name="fontFamily">@font/archivo_black</item>
     </style>
 
-    <style name="ListItemSeriesMetaBox">
+    <style name="ListItemTitleText.Series">
+        <item name="android:background">@drawable/background_series_title</item>
+    </style>
+
+    <style name="ListItemTitleText.Character">
+        <item name="android:background">@drawable/background_character_name</item>
+    </style>
+
+    <style name="ListItemMetaBox">
         <item name="android:background">@drawable/background_series_dates</item>
     </style>
 
