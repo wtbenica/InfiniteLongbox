@@ -78,4 +78,13 @@ data class NameDetailAndCreator(
 
     @Relation(parentColumn = "creatorId", entityColumn = "creatorId")
     var creator: Creator
-): ListItem
+) : ListItem
+
+@ExperimentalCoroutinesApi
+data class FullCreator(
+    @Embedded
+    val creator: Creator,
+
+    @Relation(parentColumn = "creatorId", entityColumn = "creatorId")
+    var nameDetail: List<NameDetail>
+)

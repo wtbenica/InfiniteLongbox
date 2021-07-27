@@ -181,3 +181,15 @@ data class FullCredit(
         }
     }
 }
+
+@ExperimentalCoroutinesApi
+data class FullStory(
+    @Embedded
+    val story: Story,
+
+    @Relation(parentColumn = "storyType", entityColumn = "typeId")
+    var storyType: StoryType,
+
+    @Relation(parentColumn = "issueId", entityColumn = "issueId", entity = Issue::class)
+    val issue: FullIssue,
+    )

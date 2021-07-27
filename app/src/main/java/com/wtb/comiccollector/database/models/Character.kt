@@ -97,6 +97,18 @@ data class FullCharacter(
     @Relation(parentColumn = "publisher", entityColumn = "publisherId")
     var publisher: Publisher,
 
-    @Relation(parentColumn="characterId", entityColumn = "character" )
-    var appearance: Appearance
+    @Relation(parentColumn = "characterId", entityColumn = "character", entity = Appearance::class)
+    var appearance: List<FullAppearance>
+)
+
+@ExperimentalCoroutinesApi
+data class FullAppearance(
+    @Embedded
+    val appearance: Appearance,
+
+    @Relation(parentColumn = "story", entityColumn = "storyId", entity = Story::class)
+    var story: FullStory,
+
+    @Relation(parentColumn = "character", entityColumn = "characterId")
+    val character: Character
 )

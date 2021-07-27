@@ -39,8 +39,9 @@ class UpdateCharacter(
             val stories: List<Story> =
                 issues.flatMap { database.storyDao().getStoriesSus(it.issue.issueId) }
             try {
-                val appearances: List<Appearance> = webservice
-                    .getAppearancesByStory(stories.map { it.issueId }).map { it.toRoomModel() }
+                val appearances: List<Appearance> =
+                    webservice.getAppearancesByStory(stories.map { it.issueId })
+                        .map { it.toRoomModel() }
                 database.appearanceDao().upsertSus(appearances)
             } catch (e: SocketTimeoutException) {
                 Log.d(TAG, "getAppearancesByStory $e")

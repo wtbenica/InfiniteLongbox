@@ -47,6 +47,7 @@ class MainActivity : AppCompatActivity(),
     IssueListFragment.IssueListCallback,
     SeriesInfoDialogFragment.SeriesInfoDialogCallback,
     CharacterListFragment.CharacterListCallback,
+    CreatorListFragment.CreatorListCallback,
     NewCreatorDialogFragment.NewCreatorDialogCallback,
     FilterFragment.FilterFragmentCallback {
 
@@ -201,8 +202,11 @@ class MainActivity : AppCompatActivity(),
 
     // CharacterListFragment.CharacterListCallbacks
     override fun onCharacterSelected(character: Character) {
-        Log.d(TAG, "ADDING CHARACTER $character")
-        filterFragment?.addFilterItem(character)
+        updateFilter(SearchFilter(character = character, myCollection = false))
+    }
+
+    override fun onCreatorSelected(creator: Creator) {
+        updateFilter(SearchFilter(creators = setOf(creator), myCollection = false))
     }
 
     // FilterFragmentCallback
@@ -348,7 +352,7 @@ class MainActivity : AppCompatActivity(),
                 FullIssue::class            -> issueListFragment
                 Character::class            -> characterListFragment
                 FullSeries::class           -> seriesListFragment
-                NameDetailAndCreator::class -> seriesListFragment
+                NameDetailAndCreator::class -> creatorListFragment
                 else                        -> throw IllegalStateException("illegal viewOption: ${it.viewOption}")
             }
         }
@@ -371,6 +375,13 @@ class MainActivity : AppCompatActivity(),
             get() {
                 if (field == null) {
                     field = CharacterListFragment.newInstance()
+                }
+                return field
+            }
+        private var creatorListFragment: CreatorListFragment? = null
+            get() {
+                if (field == null) {
+                    field = CreatorListFragment.newInstance()
                 }
                 return field
             }

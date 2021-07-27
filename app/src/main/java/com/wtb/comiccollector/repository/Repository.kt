@@ -198,6 +198,31 @@ class Repository private constructor(val context: Context) {
         ).flow
     }
 
+    // CREATOR METHODS
+    fun getCreatorsByFilter(filter: SearchFilter): Flow<List<Creator>> {
+        Log.d(TAG, "getCreatorsByFilter")
+        return if (filter.mCreators.isEmpty()) {
+            creatorDao.getCreatorsByFilter(filter)
+        } else {
+            flow { emit(emptyList<Creator>()) }
+        }
+    }
+
+    fun getCreatorsByFilterPaged(filter: SearchFilter): Flow<PagingData<FullCreator>> {
+        val newFilter = SearchFilter(filter)
+        updateSeries(newFilter.mSeries)
+        updateCreators(newFilter.mCreators)
+        updateCharacters(filter)
+
+        return Pager(
+            config = PagingConfig(
+                pageSize = REQUEST_LIMIT,
+                enablePlaceholders = true
+            ),
+            pagingSourceFactory = { creatorDao.getCreatorsByFilterPagingSource(newFilter) }
+        ).flow
+    }
+
     // ISSUE METHODS
     fun getIssue(issueId: Int): Flow<FullIssue?> {
         if (hasConnection) {
@@ -246,16 +271,6 @@ class Repository private constructor(val context: Context) {
         val res = (credits1 ?: emptyList()) + (credits2 ?: emptyList())
         sort(res)
         res
-    }
-
-    // CREATOR METHODS
-    fun getCreatorsByFilter(filter: SearchFilter): Flow<List<Creator>> {
-        Log.d(TAG, "getCreatorsByFilter")
-        return if (filter.mCreators.isEmpty()) {
-            creatorDao.getCreatorsByFilter(filter)
-        } else {
-            flow { emit(emptyList<Creator>()) }
-        }
     }
 
     // PUBLISHER METHODS
@@ -319,49 +334,6 @@ class Repository private constructor(val context: Context) {
     fun updateIssueCover(issue: FullIssue) {
         if (hasConnection) {
             UpdateIssueCover(database, context, prefs).update(issue.issue.issueId)
-        }
-    }
-
-    suspend fun getValidFilterOptions(filter: SearchFilter): Flow<List<FilterAutoCompleteType>> {
-        val seriesList: Flow<List<FilterAutoCompleteType>> =
-            when {
-                filter.isEmpty()       -> allSeries
-                filter.mSeries == null -> getSeriesByFilter(filter)
-                else                   -> flow { emit(emptyList<FilterAutoCompleteType>()) }
-            }
-
-        val creatorsList: Flow<List<FilterAutoCompleteType>> =
-            when {
-                filter.isEmpty()           -> allCreators
-                filter.mCreators.isEmpty() -> getCreatorsByFilter(filter)
-                else                       -> flow { emit(emptyList<FilterAutoCompleteType>()) }
-            }
-
-        val publishersList: Flow<List<FilterAutoCompleteType>> =
-            when {
-                filter.isEmpty()             -> allPublishers
-                filter.mPublishers.isEmpty() -> publisherDao.getPublishersByFilter(filter)
-                else                         -> flow { emit(emptyList<FilterAutoCompleteType>()) }
-            }
-
-        val characterList: Flow<List<FilterAutoCompleteType>> =
-            when {
-                filter.isEmpty()       -> allCharacters
-                !filter.hasCharacter() -> characterDao.getCharacterFilterOptions(filter)
-                else                   -> flow { emit(emptyList<FilterAutoCompleteType>()) }
-            }
-
-        return combine(
-            seriesList,
-            creatorsList,
-            publishersList,
-            characterList
-        )
-        { series: List<FilterAutoCompleteType>, creators: List<FilterAutoCompleteType>,
-          publishers: List<FilterAutoCompleteType>, characters: List<FilterAutoCompleteType> ->
-            val res: List<FilterAutoCompleteType> = series + creators + publishers + characters
-            sort(res)
-            res
         }
     }
 
