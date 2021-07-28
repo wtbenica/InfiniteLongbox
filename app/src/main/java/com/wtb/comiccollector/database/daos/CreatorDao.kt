@@ -13,7 +13,6 @@ import com.wtb.comiccollector.database.models.FullCreator
 import com.wtb.comiccollector.repository.DUMMY_ID
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
-import java.util.*
 
 @ExperimentalCoroutinesApi
 @Dao
@@ -28,7 +27,7 @@ abstract class CreatorDao : BaseDao<Creator>() {
 
     fun getCreatorsByFilter(filter: SearchFilter): Flow<List<Creator>> {
 
-        val query = Companion.getCreatorQuery(filter)
+        val query = getCreatorQuery(filter)
 
         return getCreatorsByQuery(query)
     }
@@ -46,18 +45,30 @@ abstract class CreatorDao : BaseDao<Creator>() {
     companion object {
         private fun getCreatorQuery(filter: SearchFilter): SimpleSQLiteQuery {
             var tableJoinString = String()
+            var tableJoinString2 = String()
             var conditionsString = String()
             val args: ArrayList<Any> = arrayListOf()
             fun connectword(): String = if (conditionsString.isEmpty()) "WHERE" else "AND"
 
+            //language=RoomSql
             tableJoinString +=
                 """SELECT DISTINCT cr.* 
                         FROM creator cr 
                         JOIN nameDetail nd ON cr.creatorId = nd.creatorId 
                         JOIN credit ct ON ct.nameDetailId = nd.nameDetailId 
-                         JOIN story sy ON ct.storyId = sy.storyId 
-                         JOIN issue ie ON ie.issueId = sy.issueId 
-                         JOIN series ss ON ie.seriesId = ss.seriesId """
+                        JOIN story sy ON ct.storyId = sy.storyId 
+                        JOIN issue ie ON ie.issueId = sy.issueId 
+                        JOIN series ss ON ie.seriesId = ss.seriesId """
+
+            //language=RoomSql
+            tableJoinString2 +=
+                """SELECT DISTINCT cr.* 
+                        FROM creator cr 
+                        JOIN nameDetail nd ON cr.creatorId = nd.creatorId 
+                        JOIN excredit ect ON ect.nameDetailId = nd.nameDetailId 
+                        JOIN story sy ON ect.storyId = sy.storyId 
+                        JOIN issue ie ON ie.issueId = sy.issueId 
+                        JOIN series ss ON ie.seriesId = ss.seriesId  """
 
             conditionsString += "${connectword()} cr.creatorId != $DUMMY_ID "
 
@@ -66,30 +77,39 @@ abstract class CreatorDao : BaseDao<Creator>() {
             }
 
             if (filter.hasPublisher()) {
-                tableJoinString +=
-                    """LEFT JOIN publisher pr ON ss.publisherId = pr.publisherId """
+                val s = """LEFT JOIN publisher pr ON ss.publisherId = pr.publisherId """
+                tableJoinString += s
+                tableJoinString2 += s
 
                 val publisherList = modelsToSqlIdString(filter.mPublishers)
 
-                conditionsString += """${connectword()} pr.publisherId IN $publisherList """
+                conditionsString += """${connectword()} pr.publisherId IN $publisherList  """
             }
 
             if (filter.hasDateFilter()) {
-                conditionsString += "AND ie.releaseDate < ? AND ie.releaseDate > ? "
+                //language=RoomSql
+                conditionsString += """${connectword()} ie.releaseDate < ? 
+                    AND ie.releaseDate > ? """
                 args.add(filter.mEndDate)
                 args.add(filter.mStartDate)
-
+                args.add(filter.mEndDate)
+                args.add(filter.mStartDate)
             }
 
             if (filter.mMyCollection) {
-                tableJoinString += """JOIN mycollection mc ON mc.issueId = ie.issueId """
+                val s = """JOIN mycollection mc ON mc.issueId = ie.issueId """
+                tableJoinString += s
+                tableJoinString2 += s
             }
 
-            val query = SimpleSQLiteQuery(
-                tableJoinString + conditionsString,
-                args.toArray()
+            val allArgs: ArrayList<Any> = arrayListOf()
+            args.forEach { allArgs.add(it) }
+            args.forEach { allArgs.add(it) }
+
+            return SimpleSQLiteQuery(
+                tableJoinString + conditionsString + "UNION " + tableJoinString2 + conditionsString,
+                allArgs.toArray()
             )
-            return query
         }
     }
 }

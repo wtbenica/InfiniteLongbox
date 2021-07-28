@@ -26,7 +26,7 @@ class UpdateIssueCover(
     val prefs: SharedPreferences
 ) : Updater() {
     internal fun update(issueId: Int) {
-        if (checkIfStale(ISSUE_TAG(issueId), ISSUE_LIFETIME, prefs)) {
+        if (Companion.checkIfStale(ISSUE_TAG(issueId), ISSUE_LIFETIME, prefs)) {
             CoroutineScope(Dispatchers.IO).launch {
                 val fullIssueDeferred =
                     CoroutineScope(Dispatchers.IO).async {

@@ -43,16 +43,12 @@ class FilterViewModel : ViewModel() {
     private val allOptions: Flow<List<FilterAutoCompleteType>> = combine(
         seriesOptions,
         creatorOptions,
-        publisherOptions
+        publisherOptions,
+        characterOptions
     )
-    { series: List<FilterAutoCompleteType>, creators: List<FilterAutoCompleteType>, publishers: List<FilterAutoCompleteType> ->
-        Log.d(
-            TAG, "filterOptions: ${series.size} series; ${creators.size} creators; ${
-                publishers
-                    .size
-            } publishers;"
-        )
-        val res: List<FilterAutoCompleteType> = series + creators + publishers
+    { series: List<FilterAutoCompleteType>, creators: List<FilterAutoCompleteType>, publishers:
+    List<FilterAutoCompleteType>, characters: List<FilterAutoCompleteType> ->
+        val res: List<FilterAutoCompleteType> = series + creators + publishers + characters
         Log.d(TAG, "filterOptions: ${res.size}")
         res.sorted()
     }
@@ -68,7 +64,7 @@ class FilterViewModel : ViewModel() {
     }
 
     fun setFilter(filter: SearchFilter) {
-        this.theOneTrueFilter.value = filter
+        theOneTrueFilter.value = filter
     }
 
     fun setFilterOptionType(filterTypeSpinnerOption: FilterTypeSpinnerOption) {
@@ -79,43 +75,43 @@ class FilterViewModel : ViewModel() {
         Log.d(TAG, "ADDING ITEM: $item")
         val newVal = SearchFilter(theOneTrueFilter.value)
         newVal.addFilter(item)
-        theOneTrueFilter.value = newVal
+        setFilter(newVal)
     }
 
     fun removeFilterItem(item: FilterType) {
         val newVal = SearchFilter(theOneTrueFilter.value)
         newVal.removeFilter(item)
-        theOneTrueFilter.value = newVal
+        setFilter(newVal)
     }
 
     fun setSortOption(sortType: SortType) {
         Log.d(TAG, "setSortOption: ${sortType.sortString} ${sortType.order}")
         val newVal = SearchFilter(theOneTrueFilter.value)
         newVal.mSortType = sortType
-        theOneTrueFilter.value = newVal
+        setFilter(newVal)
     }
 
     fun myCollection(isChecked: Boolean) {
         val newVal = SearchFilter(theOneTrueFilter.value)
         newVal.mMyCollection = isChecked
-        theOneTrueFilter.value = newVal
+        setFilter(newVal)
     }
 
     fun showVariants(isChecked: Boolean) {
         val newVal = SearchFilter(theOneTrueFilter.value)
         newVal.mShowVariants = isChecked
-        theOneTrueFilter.value = newVal
+        setFilter(newVal)
     }
 
     fun showIssues(show: Boolean) {
         val newVal = SearchFilter(theOneTrueFilter.value)
         newVal.mShowIssues = show
-        theOneTrueFilter.value = newVal
+        setFilter(newVal)
     }
 
     fun nextView() {
         val newVal = SearchFilter(theOneTrueFilter.value)
         newVal.nextOption()
-        theOneTrueFilter.value = newVal
+        setFilter(newVal)
     }
 }

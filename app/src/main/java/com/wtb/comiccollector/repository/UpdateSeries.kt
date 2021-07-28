@@ -5,12 +5,11 @@ import android.util.Log
 import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.Webservice
 import com.wtb.comiccollector.database.IssueDatabase
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
+import com.wtb.comiccollector.database.models.Issue
+import com.wtb.comiccollector.database.models.models
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.launch
-import java.net.ConnectException
-import java.net.SocketTimeoutException
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 
 private const val TAG = APP + "UpdateSeries"
 
@@ -34,20 +33,17 @@ class UpdateSeries(
      *
      * @param seriesId
      */
-    internal fun update(seriesId: Int) {
+    internal suspend fun update(seriesId: Int) {
         Log.d(TAG, "About to get series $seriesId issues")
-        if (checkIfStale(SERIES_TAG(seriesId), SERIES_LIST_LIFETIME, prefs)) {
-            CoroutineScope(Dispatchers.IO).launch {
-                try {
-                    webservice.getIssuesBySeries(seriesId).let { issueItems ->
-                        database.issueDao().upsertSus(issueItems.map { it.toRoomModel() })
-                    }
-                    Repository.saveTime(prefs, SERIES_TAG(seriesId))
-                } catch (e: SocketTimeoutException) {
-                    Log.d(TAG, "update: $e")
-                } catch (e: ConnectException) {
-                    Log.d(TAG, "update: $e")
-                }
+        if (Companion.checkIfStale(SERIES_TAG(seriesId), WEEKLY, prefs)) {
+            coroutineScope {
+                val issues: List<Issue> = runSafely("getIssuesBySeriesId", seriesId) {
+                    async { webservice.getIssuesBySeries(seriesId) }
+                }?.models ?: emptyList()
+
+                database.issueDao().upsertSus(issues)
+            }.let {
+                Repository.saveTime(prefs, SERIES_TAG(seriesId))
             }
         }
     }

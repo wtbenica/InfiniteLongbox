@@ -12,7 +12,8 @@ const val ARG_FILTER = "Filter"
 private const val TAG = APP + "Filter_SortChipGroup"
 
 @ExperimentalCoroutinesApi
-class SearchFilter(
+class SearchFilter
+    (
     creators: Set<Creator>? = null,
     series: Series? = null,
     publishers: Set<Publisher>? = null,
@@ -58,7 +59,7 @@ class SearchFilter(
     var mStartDate: LocalDate = startDate ?: LocalDate.MIN
     var mEndDate: LocalDate = endDate ?: LocalDate.MAX
     var mMyCollection: Boolean = myCollection
-    var mSortType: SortType = sortType ?: getSortOptions()[0]
+    var mSortType: SortType? = sortType ?: getSortOptions()[0]
     var mTextFilter: TextFilter? = textFilter
     var mShowVariants: Boolean = showVariants
     var mCharacter: Character? = character
@@ -81,7 +82,6 @@ class SearchFilter(
     }
 
     fun hasCreator() = mCreators.isNotEmpty()
-    fun returnsIssueList() = mSeries != null || mShowIssues
     fun hasPublisher() = mPublishers.isNotEmpty()
     fun hasDateFilter() = mStartDate != LocalDate.MIN || mEndDate != LocalDate.MAX
     fun hasCharacter() = mCharacter == null
@@ -100,11 +100,14 @@ class SearchFilter(
                 is Creator    -> addCreator(item)
                 is Publisher  -> addPublisher(item)
                 is TextFilter -> addTextFilter(item)
-                is NameDetail -> {
-                }
+                is NameDetail -> { }
                 is Character  -> addCharacter(item)
             }
         }
+    }
+
+    private fun addSeries(series: Series) {
+        this.mSeries = series
     }
 
     private fun addCreator(vararg creator: Creator) {
@@ -112,21 +115,17 @@ class SearchFilter(
         mCreators = newCreators
     }
 
-    private fun addSeries(series: Series) {
-        this.mSeries = series
-    }
-
     private fun addPublisher(vararg publisher: Publisher) {
         val newPublishers = mPublishers + publisher.toSet()
         mPublishers = newPublishers
     }
 
-    private fun addCharacter(character: Character) {
-
-    }
-
     private fun addTextFilter(item: TextFilter) {
         mTextFilter = item
+    }
+
+    private fun addCharacter(character: Character) {
+        mCharacter = character
     }
 
     // TODO: CvND
@@ -139,17 +138,18 @@ class SearchFilter(
                 is TextFilter -> removeTextFilter(item)
                 is NameDetail -> {
                 }
+                is Character  -> removeCharacter()
             }
         }
+    }
+
+    private fun removeSeries() {
+        this.mSeries = null
     }
 
     private fun removeCreator(vararg creator: Creator) {
         val newCreators = mCreators - creator.toSet()
         mCreators = newCreators
-    }
-
-    private fun removeSeries() {
-        this.mSeries = null
     }
 
     private fun removePublisher(vararg publisher: Publisher) {
@@ -162,12 +162,10 @@ class SearchFilter(
             mTextFilter = null
     }
 
-    //    fun getFragment(): Fragment =
-//        when (mSeries) {
-//            null -> CharacterListFragment.newInstance()
-//            else -> IssueListFragment.newInstance()
-//        }
-//
+    private fun removeCharacter() {
+        this.mCharacter = null
+    }
+
     fun getSortOptions(): List<SortType> = when (viewOption) {
         Character::class            -> SortType.Companion.ItemSort.CHARACTER.options
         FullIssue::class            -> SortType.Companion.ItemSort.ISSUE.options
@@ -179,7 +177,8 @@ class SearchFilter(
     fun getAll(): Set<FilterType> {
         val series = mSeries?.let { setOf(it) } ?: emptySet()
         val textFilter = mTextFilter?.let { setOf(it) } ?: emptySet()
-        return mCreators + mPublishers + series + textFilter
+        val character = mCharacter?.let { setOf(it) } ?: emptySet()
+        return mCreators + mPublishers + series + textFilter + character
     }
 
     override fun hashCode(): Int {
@@ -192,13 +191,14 @@ class SearchFilter(
         result = 31 * result + mSortType.hashCode()
         result = 31 * result + mTextFilter.hashCode()
         result = 31 * result + mShowVariants.hashCode()
+        result = 31 * result + mCharacter.hashCode()
         result = 31 * result + mViewOptionsIndex.hashCode()
         return result
     }
 
     override fun toString(): String =
         "Series: $mSeries Creators: ${mCreators.size} Pubs: " +
-                "${mPublishers.size} MyCol: $mMyCollection T: ${mTextFilter?.text}"
+                "${mPublishers.size} MyCol: $mMyCollection T: ${mTextFilter?.text} ${mCharacter?.name}"
 }
 
 class SortType(

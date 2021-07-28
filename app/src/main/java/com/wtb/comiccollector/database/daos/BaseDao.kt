@@ -86,7 +86,7 @@ abstract class BaseDao<T : DataModel> {
     open suspend fun upsertSus(objList: List<T>) {
 
         val objClass = if (objList.isNotEmpty()) {
-            objList[0]::class.toString().split(".").last().split(" ").first()
+            objList[0]::class.simpleName
         } else {
             "Empty List"
         }

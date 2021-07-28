@@ -43,7 +43,7 @@ const val DUMMY_ID = Int.MAX_VALUE
 
 private const val DATABASE_NAME = "issue-database"
 private const val TAG = APP + "Repository"
-const val DEBUG = true
+const val DEBUG = false
 
 internal const val SHARED_PREFS = "CCPrefs"
 
@@ -57,16 +57,19 @@ const val ALFRED = "http://192.168.0.138:8000/"
 const val BASE_URL = NIGHTWING
 
 internal const val UPDATED_CREATORS = "updated_creators"
+internal const val UPDATED_CREATORS_PAGE = "updated_creators_page"
 internal const val UPDATED_PUBLISHERS = "updated_publishers"
 internal const val UPDATED_ROLES = "updated_roles"
 internal const val UPDATED_STORY_TYPES = "updated_story_types"
 internal const val UPDATED_SERIES = "updated_series"
+internal const val UPDATED_SERIES_PAGE = "updated_series_page"
 internal const val UPDATED_BOND_TYPE = "update_bond_type"
-internal const val UPDATED_SERIES_BONDS = "update_series_bonds"
+internal const val UPDATED_BONDS = "update_series_bonds"
 internal const val UPDATED_CHARACTERS = "update_characters"
+internal const val UPDATED_CHARACTERS_PAGE = "update_characters_page"
 
-internal const val STATIC_DATA_LIFETIME: Long = 30
-internal const val SERIES_LIST_LIFETIME: Long = 7
+internal const val MONTHLY: Long = 30
+internal const val WEEKLY: Long = 7
 
 internal fun UPDATED_TAG(id: Int, type: String): String = "$type${id}_UPDATED"
 
@@ -105,7 +108,7 @@ class Repository private constructor(val context: Context) {
 
     private val retrofit = RetrofitAPIClient.getRetrofitClient()
 
-    private val apiService: Webservice by lazy {
+    private val webservice: Webservice by lazy {
         retrofit.create(Webservice::class.java)
     }
 
@@ -118,7 +121,7 @@ class Repository private constructor(val context: Context) {
                 //  means that this is async async await. Look into
                 MainActivity.activeJob = CoroutineScope(Dispatchers.IO).launch {
                     withContext(Dispatchers.Default) {
-                        StaticUpdater(apiService, database, prefs).updateAsync()
+                        StaticUpdater(webservice, database, prefs).updateAsync()
                     }.let {
                         Log.d(TAG, "Static update done")
                         isIdle = true
@@ -191,7 +194,7 @@ class Repository private constructor(val context: Context) {
 
         return Pager(
             config = PagingConfig(
-                pageSize = REQUEST_LIMIT,
+                pageSize = REQUEST_LIMIT * 4,
                 enablePlaceholders = true
             ),
             pagingSourceFactory = { characterDao.getCharactersByFilterPagingSource(newFilter) }
@@ -216,7 +219,7 @@ class Repository private constructor(val context: Context) {
 
         return Pager(
             config = PagingConfig(
-                pageSize = REQUEST_LIMIT,
+                pageSize = REQUEST_LIMIT * 4,
                 enablePlaceholders = true
             ),
             pagingSourceFactory = { creatorDao.getCreatorsByFilterPagingSource(newFilter) }
@@ -230,7 +233,7 @@ class Repository private constructor(val context: Context) {
                 withContext(Dispatchers.Default) {
                     UpdateIssueCover(database, context, prefs).update(issueId = issueId)
                 }.let {
-                    UpdateIssueCredit(apiService, database, prefs).update(issueId = issueId)
+                    UpdateIssueCredit(webservice, database, prefs).update(issueId = issueId)
                 }
             }
         }
@@ -261,7 +264,7 @@ class Repository private constructor(val context: Context) {
     fun getVariants(issueId: Int): Flow<List<Issue>> = issueDao.getVariants(issueId)
 
     // STORY METHODS
-    fun getStoriesByIssue(issueId: Int): Flow<List<Story>> = storyDao.getStories(issueId)
+    fun getStoriesByIssue(issueId: Int): Flow<List<Story>> = storyDao.getStoriesFlow(issueId)
 
     // CREDIT METHODS``
     fun getCreditsByIssue(issueId: Int): Flow<List<FullCredit>> = combine(
@@ -287,13 +290,15 @@ class Repository private constructor(val context: Context) {
         publisherDao.getPublisher(publisherId)
 
     private fun updateSeries(series: Series?) {
-        series?.let {
-            if (hasConnection) {
-                UpdateSeries(
-                    webservice = apiService,
-                    database = database,
-                    prefs = prefs
-                ).update(seriesId = it.seriesId)
+        CoroutineScope(Dispatchers.IO).launch {
+            series?.let {
+                if (hasConnection) {
+                    UpdateSeries(
+                        webservice = webservice,
+                        database = database,
+                        prefs = prefs
+                    ).update(seriesId = it.seriesId)
+                }
             }
         }
     }
@@ -302,8 +307,8 @@ class Repository private constructor(val context: Context) {
         val creatorIds = creators.map { it.creatorId }
         if (hasConnection && creatorIds.isNotEmpty()) {
             CoroutineScope(Dispatchers.IO).launch {
-                UpdateCreator(
-                    apiService = apiService,
+                CreatorUpdater(
+                    webservice = webservice,
                     database = database,
                     prefs = prefs
                 ).updateAll(creatorIds = creatorIds)
@@ -314,8 +319,8 @@ class Repository private constructor(val context: Context) {
     private fun updateCharacters(filter: SearchFilter) {
         if (hasConnection) {
             CoroutineScope(Dispatchers.IO).launch {
-                UpdateCharacter(
-                    webservice = apiService,
+                CharacterUpdater(
+                    webservice = webservice,
                     database = database,
                     prefs = prefs
                 ).update(filter)
@@ -325,7 +330,7 @@ class Repository private constructor(val context: Context) {
 
     fun updateIssue(issue: FullIssue) {
         if (hasConnection) {
-            UpdateIssueCredit(apiService, database, prefs).update(issue.issue.issueId)
+            UpdateIssueCredit(webservice, database, prefs).update(issue.issue.issueId)
             UpdateIssueCover(database, context, prefs).update(issue.issue.issueId)
 //            UpdateIssueCharacters(database, context, prefs).update(issue.issue.issueId)
         }
@@ -407,10 +412,20 @@ class Repository private constructor(val context: Context) {
                 ?: throw IllegalStateException("IssueRepository must be initialized")
         }
 
-        fun saveTime(prefs: SharedPreferences, key: String) {
+        fun savePrefValue(prefs: SharedPreferences, key: String, value: Any) {
             val editor = prefs.edit()
-            editor.putString(key, LocalDate.now().toString())
+            when (value) {
+                is String -> editor.putString(key, value)
+                is Int -> editor.putInt(key, value)
+                is Boolean -> editor.putBoolean(key, value)
+                is Float -> editor.putFloat(key, value)
+                is Long -> editor.putLong(key, value)
+            }
             editor.apply()
+        }
+
+        fun saveTime(prefs: SharedPreferences, key: String) {
+            savePrefValue(prefs, key, LocalDate.now().toString())
         }
 
         @Language("RoomSql")

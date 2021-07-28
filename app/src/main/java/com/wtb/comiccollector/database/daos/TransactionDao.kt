@@ -27,7 +27,7 @@ abstract class TransactionDao(private val database: IssueDatabase) {
     }
 
     @Transaction
-    open suspend fun upsertSus(
+    open suspend fun upsert(
         stories: List<Story>? = null,
         creators: List<Creator>? = null,
         nameDetails: List<NameDetail>? = null,
@@ -36,7 +36,8 @@ abstract class TransactionDao(private val database: IssueDatabase) {
         issues: List<Issue>? = null,
         series: List<Series>? = null,
         seriesBonds: List<SeriesBond>? = null,
-        appearances: List<Appearance>? = null
+        appearances: List<Appearance>? = null,
+        characters: List<Character>? = null,
     ) {
         series?.let { database.seriesDao().upsertSus(it) }
         issues?.let { database.issueDao().upsertSus(it) }
@@ -47,5 +48,6 @@ abstract class TransactionDao(private val database: IssueDatabase) {
         exCredits?.let { database.exCreditDao().upsertSus(it) }
         seriesBonds?.let { database.seriesBondDao().upsertSus(it) }
         appearances?.let { database.appearanceDao().upsertSus(it) }
+        characters?.let { database.characterDao().upsertSus(it) }
     }
 }

@@ -1,5 +1,6 @@
 package com.wtb.comiccollector.database.daos
 
+import android.util.Log
 import androidx.paging.PagingSource
 import androidx.room.Dao
 import androidx.room.Query
@@ -31,7 +32,7 @@ abstract class CharacterDao : BaseDao<Character>() {
 
     fun getCharacterFilterOptions(filter: SearchFilter): Flow<List<Character>> {
         val query = getCharacterQuery(filter)
-
+        Log.d(TAG, "creatorQuery: ${query.sql}")
         return getCharacterByQuery(query)
     }
 
@@ -41,7 +42,7 @@ abstract class CharacterDao : BaseDao<Character>() {
 
     fun getCharactersByFilterPagingSource(filter: SearchFilter): PagingSource<Int, FullCharacter> {
         val query = getCharacterQuery(filter)
-
+        Log.d(TAG, "creatorQuery: ${query.sql}")
         return getCharactersByQueryPagingSource(query)
     }
 
@@ -61,7 +62,7 @@ abstract class CharacterDao : BaseDao<Character>() {
         if (filter.hasPublisher()) {
             val publisherList = modelsToSqlIdString(filter.mPublishers)
 
-            conditionsString += "${connectword()} ch.publisherId IN $publisherList "
+            conditionsString += "${connectword()} ch.publisher IN $publisherList "
         }
 
         if (filter.hasCreator()) {
@@ -89,11 +90,10 @@ abstract class CharacterDao : BaseDao<Character>() {
             tableJoinString += """JOIN mycollection mc ON mc.issueId = ie.issueId """
         }
 
-        val query = SimpleSQLiteQuery(
+        return SimpleSQLiteQuery(
             tableJoinString + conditionsString + "ORDER BY ch.name",
             args.toArray()
         )
-        return query
     }
 
 //    @Query(
@@ -121,4 +121,7 @@ abstract class CharacterDao : BaseDao<Character>() {
 //        }
 //    }
 //
+    companion object {
+        private const val TAG = "CharacterDao"
+    }
 }

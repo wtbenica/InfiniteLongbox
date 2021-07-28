@@ -4,6 +4,7 @@ import android.content.Context
 import android.util.AttributeSet
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.View
 import android.widget.LinearLayout
 import android.widget.LinearLayout.VERTICAL
 import android.widget.ScrollView
@@ -18,7 +19,7 @@ class IssueInfoBox(context: Context, attrs: AttributeSet? = null) : ScrollView(c
     private var coverDate: LocalDate? = null
     private var notes: String? = null
 
-    val view = inflate(context, R.layout.issue_detail_issue_info_box, null)
+    val view: View = inflate(context, R.layout.issue_detail_issue_info_box, null)
     val linearLayout: LinearLayout = view.findViewById(R.id.issue_info_box)
 
     init {

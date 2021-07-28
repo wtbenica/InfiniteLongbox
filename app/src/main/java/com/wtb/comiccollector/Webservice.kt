@@ -1,9 +1,13 @@
 package com.wtb.comiccollector
 
+import android.util.Log
 import com.wtb.comiccollector.database.models.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import retrofit2.HttpException
 import retrofit2.http.GET
 import retrofit2.http.Path
+import java.net.ConnectException
+import java.net.SocketTimeoutException
 
 @ExperimentalCoroutinesApi
 interface Webservice {
@@ -32,8 +36,8 @@ interface Webservice {
     @GET("/db_query/issue/{issueId}/stories")
     suspend fun getStoriesByIssue(@Path("issueId") issueId: Int): List<Item<GcdStory, Story>>
 
-    @GET("/db_query/issues/{issueId}/stories")
-    suspend fun getStoriesByIssues(@Path("issues") issues: List<Int>): List<Item<GcdStory, Story>>
+    @GET("/db_query/issues/{issueIds}/stories")
+    suspend fun getStoriesByIssues(@Path("issueIds") issueIds: List<Int>): List<Item<GcdStory, Story>>
 
     @GET("/db_query/creator_name/{name}/stories")
     suspend fun getStoriesByName(@Path("name") name: String): List<Item<GcdStory, Story>>
@@ -90,5 +94,24 @@ interface Webservice {
     @GET("db_query/story/{storyIds}/characters")
     suspend fun getAppearancesByStory(@Path("storyIds") storyIds: List<Int>):
             List<Item<GcdCharacterAppearance, Appearance>>
+
+    @GET("db_query/character/{characterId}/appearances")
+    suspend fun getAppearances(@Path("characterId") characterId: Int): List<Item<GcdCharacterAppearance, Appearance>>
+
+    companion object {
+        private const val TAG = "Webservice"
+
+        fun runSafely(lambda: () -> Any) {
+            try {
+                lambda()
+            } catch (e: SocketTimeoutException) {
+                Log.d(TAG, "$lambda $e")
+            } catch (e: ConnectException) {
+                Log.d(TAG, "$lambda $e")
+            } catch (e: HttpException) {
+                Log.d(TAG, "$lambda $e")
+            }
+        }
+    }
 }
 

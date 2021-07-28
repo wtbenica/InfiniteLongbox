@@ -39,7 +39,7 @@ class CreatorListFragment : ListFragment<Series>() {
 
         lifecycleScope.launch {
             filterViewModel.filter.collectLatest { filter ->
-                Log.d(TAG, "Updating filter: ${filter.mSortType.order}")
+                Log.d(TAG, "Updating filter: ${filter.mSortType?.order}")
                 viewModel.setFilter(filter)
             }
         }

@@ -41,18 +41,20 @@ data class Character(
     override val id: Int
         get() = characterId
 
+    override val tagName: String
+        get() = ComicCollectorApplication.context!!.getString(R.string.filter_type_character)
+
+    override val compareValue: String
+        get() = name
+
+    override fun toString(): String = name
+
     companion object : FilterTypeSpinnerOption {
         override val displayName: String =
             ComicCollectorApplication.context!!.getString(R.string.filter_type_character)
 
         override fun toString(): String = displayName
     }
-
-    override val tagName: String
-        get() = ComicCollectorApplication.context!!.getString(R.string.filter_type_character)
-
-    override val compareValue: String
-        get() = name
 }
 
 @ExperimentalCoroutinesApi

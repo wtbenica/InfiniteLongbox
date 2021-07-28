@@ -357,38 +357,18 @@ class MainActivity : AppCompatActivity(),
             }
         }
 
-        private var seriesListFragment: SeriesListFragment? = null
-            get() {
-                if (field == null) {
-                    field = SeriesListFragment.newInstance()
-                }
-                return field
-            }
-        private var issueListFragment: IssueListFragment? = null
-            get() {
-                if (field == null) {
-                    field = IssueListFragment.newInstance()
-                }
-                return field
-            }
-        private var characterListFragment: CharacterListFragment? = null
-            get() {
-                if (field == null) {
-                    field = CharacterListFragment.newInstance()
-                }
-                return field
-            }
-        private var creatorListFragment: CreatorListFragment? = null
-            get() {
-                if (field == null) {
-                    field = CreatorListFragment.newInstance()
-                }
-                return field
-            }
+        private val seriesListFragment: SeriesListFragment
+            get() = SeriesListFragment.newInstance()
+        private val issueListFragment: IssueListFragment
+            get()  = IssueListFragment.newInstance()
+        private val characterListFragment: CharacterListFragment
+            get()  = CharacterListFragment.newInstance()
+        private val creatorListFragment: CreatorListFragment
+            get()  = CreatorListFragment.newInstance()
     }
 
     override fun updateFilter(filter: SearchFilter) {
-        Log.d(TAG, "updateFilter")
+        Log.d(TAG, "updateFilter $filter")
         filterViewModel.setFilter(filter)
     }
 }

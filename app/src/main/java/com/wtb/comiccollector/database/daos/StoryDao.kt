@@ -9,21 +9,14 @@ import kotlinx.coroutines.flow.Flow
 @ExperimentalCoroutinesApi
 @Dao
 abstract class StoryDao : BaseDao<Story>() {
-    @Query(
-        """
-            SELECT st.*
-            FROM story st
-            JOIN issue iss on iss.issueId = st.issueId
-            JOIN storytype type ON type.typeId = st.storyType
-            WHERE st.issueId = :issueId
-            AND (st.storyType = 19 OR st.storyType= 6)
-            ORDER BY sequenceNumber
-        """
-    )
-    abstract fun getStories(issueId: Int): Flow<List<Story>>
+    @Query(query)
+    abstract fun getStoriesFlow(issueId: Int): Flow<List<Story>>
 
-    @Query(
-        """
+    @Query(query)
+    abstract fun getStories(issueId: Int): List<Story>
+
+    companion object {
+        const val query = """
             SELECT st.*
             FROM story st
             JOIN issue iss on iss.issueId = st.issueId
@@ -32,6 +25,5 @@ abstract class StoryDao : BaseDao<Story>() {
             AND (st.storyType = 19 OR st.storyType= 6)
             ORDER BY sequenceNumber
         """
-    )
-    abstract fun getStoriesSus(issueId: Int): List<Story>
+    }
 }

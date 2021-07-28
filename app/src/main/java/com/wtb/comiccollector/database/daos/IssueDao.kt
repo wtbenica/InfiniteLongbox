@@ -1,5 +1,6 @@
 package com.wtb.comiccollector.database.daos
 
+import android.util.Log
 import androidx.paging.PagingSource
 import androidx.room.Dao
 import androidx.room.Query
@@ -25,7 +26,7 @@ abstract class IssueDao : BaseDao<Issue>() {
 
     fun getIssuesByFilter(filter: SearchFilter): Flow<List<FullIssue>> {
         val query = createIssueQuery(filter)
-
+        Log.d(TAG, "getIssuesByFilter: ${query.sql}")
         return getFullIssuesByQuery(query)
     }
 
@@ -35,7 +36,7 @@ abstract class IssueDao : BaseDao<Issue>() {
 
     fun getIssuesByFilterPagingSource(filter: SearchFilter): PagingSource<Int, FullIssue> {
         val query = createIssueQuery(filter)
-
+        Log.d(TAG, "getIssuesByFilterPagingSource: ${query.sql}")
         return getFullIssuesByQueryPagingSource(query)
     }
 
@@ -45,7 +46,7 @@ abstract class IssueDao : BaseDao<Issue>() {
 
     suspend fun getIssuesByFilterSus(filter: SearchFilter): List<FullIssue> {
         val query = createIssueQuery(filter)
-
+        Log.d(TAG, "getIssuesByFilterSus: ${query.sql}")
         return getFullIssuesByQuerySus(query)
     }
 
@@ -98,7 +99,8 @@ abstract class IssueDao : BaseDao<Issue>() {
                         FROM issue ie 
                         JOIN series ss ON ie.seriesId = ss.seriesId 
                         JOIN publisher pr ON ss.publisherId = pr.publisherId 
-                        LEFT JOIN cover cr ON ie.issueId = cr.issueId """
+                        LEFT JOIN cover cr ON ie.issueId = cr.issueId 
+                        LEFT JOIN story sy on sy.issueId = ie.issueId """
 
             filter.mSeries?.let {
                 conditionsString +=
@@ -113,8 +115,7 @@ abstract class IssueDao : BaseDao<Issue>() {
 
             if (filter.hasCreator()) {
                 tableJoinString +=
-                    """JOIN story sy on sy.issueId = ie.issueId 
-                                LEFT JOIN credit ct on ct.storyId = sy.storyId 
+                    """LEFT JOIN credit ct on ct.storyId = sy.storyId 
                                 LEFT JOIN namedetail nl on nl.nameDetailId = ct.nameDetailId 
                                 LEFT JOIN excredit ect on ect.storyId = sy.storyId 
                                 LEFT JOIN namedetail nl2 on nl2.nameDetailId = ect.nameDetailId """
@@ -135,15 +136,23 @@ abstract class IssueDao : BaseDao<Issue>() {
                 tableJoinString += "JOIN mycollection mc ON mc.issueId = ie.issueId "
             }
 
+            filter.mCharacter?.let {
+                tableJoinString += """JOIN appearance ap ON ap.story = sy.storyId """
+
+                conditionsString += "${connectword()} ap.character = ? "
+
+                args.add(it.characterId)
+            }
+
             if (!filter.mShowVariants) {
                 conditionsString += "${connectword()} ie.variantOf IS NULL "
             }
 
-            val query = SimpleSQLiteQuery(
-                tableJoinString + conditionsString + "ORDER BY ${filter.mSortType.sortString}",
+            val sortClause: String = filter.mSortType?.let { "ORDER BY ${it.sortString}" } ?: ""
+            return SimpleSQLiteQuery(
+                tableJoinString + conditionsString + sortClause,
                 args.toArray()
             )
-            return query
         }
     }
 }

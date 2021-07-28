@@ -108,7 +108,7 @@ data class BondType(
     val name: String,
     var description: String,
     var notes: String? = null,
-): DataModel() {
+) : DataModel() {
     override val id: Int
         get() = bondTypeId
 }
@@ -181,7 +181,7 @@ data class FullSeries(
     @Relation(parentColumn = "firstIssueId", entityColumn = "issueId", entity = Issue::class)
     var firstIssue: FullIssue? = null,
 
-    @Relation(parentColumn = "seriesId", entityColumn="originId", entity = SeriesBond::class)
+    @Relation(parentColumn = "seriesId", entityColumn = "originId", entity = SeriesBond::class)
     var seriesBondTo: Bond? = null,
 
     @Relation(parentColumn = "seriesId", entityColumn = "targetId", entity = SeriesBond::class)

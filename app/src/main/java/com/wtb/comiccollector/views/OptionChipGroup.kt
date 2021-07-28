@@ -67,15 +67,16 @@ class ViewChip @JvmOverloads constructor(
     context: Context?,
     private val caller: ViewChipCallback? = null,
     private var viewTypeIndex: Int = 0,
-    private val viewTypes: List<KClass<out ListItem>> = listOf(
+    viewTypes: List<KClass<out ListItem>>? = null
+) : Chip(context) {
+
+    private val mViewTypes = viewTypes ?: listOf(
         FullSeries::class,
         Character::class,
         NameDetailAndCreator::class
     )
-) : Chip(context) {
-
     private val viewType: KClass<out ListItem>
-        get() = viewTypes[viewTypeIndex % viewTypes.size]
+        get() = mViewTypes[viewTypeIndex % mViewTypes.size]
 
     init {
         isCloseIconVisible = false

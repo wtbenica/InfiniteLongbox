@@ -60,4 +60,6 @@ class All {
 }
 
 @ExperimentalCoroutinesApi
-data class TextFilter(val text: String) : FilterType
+data class TextFilter(val text: String) : FilterType {
+    override fun toString(): String = "\"$text\""
+}

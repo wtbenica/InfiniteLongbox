@@ -39,7 +39,7 @@ class CharacterListFragment : ListFragment<Series>() {
 
         lifecycleScope.launch {
             filterViewModel.filter.collectLatest { filter ->
-                Log.d(TAG, "Updating filter: ${filter.mSortType.order}")
+                Log.d(TAG, "Updating filter: ${filter.mSortType?.order}")
                 viewModel.setFilter(filter)
             }
         }
@@ -55,8 +55,6 @@ class CharacterListFragment : ListFragment<Series>() {
 
         lifecycleScope.launch {
             viewModel.characterList.collectLatest {
-                Log.d(TAG, "Collected the latest characters " +
-                        "DFFFFFFFFFFFFFFFFFFFFFSSSSSSSSSSSSSSSSSSSSSSSSSSS")
                 adapter.submitData(it)
             }
         }
