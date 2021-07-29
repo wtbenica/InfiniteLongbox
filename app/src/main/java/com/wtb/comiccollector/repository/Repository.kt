@@ -134,32 +134,52 @@ class Repository private constructor(val context: Context) {
     private fun checkConnectionStatus() = hasConnection && hasUnmeteredConnection && isIdle
 
     // Static Items
-    val allSeries: Flow<List<Series>> = seriesDao.getAll()
+//    val allSeries: Flow<List<Series>> = seriesDao.getAll()
     val allPublishers: Flow<List<Publisher>> = publisherDao.getAll()
-    val allCreators: Flow<List<Creator>> = creatorDao.getAll()
-    val allCharacters: Flow<List<Character>> = characterDao.getAll()
-    val allRoles: Flow<List<Role>> = roleDao.getAll()
+//    val allCreators: Flow<List<Creator>> = creatorDao.getAll()
+//    val allCharacters: Flow<List<Character>> = characterDao.getAll()
+//    val allRoles: Flow<List<Role>> = roleDao.getAll()
 
-    // SERIES METHODS
-    fun getSeries(seriesId: Int): Flow<FullSeries?> = seriesDao.getSeries(seriesId)
-
-    fun getSeriesByFilter(filter: SearchFilter): Flow<List<Series>> {
+    // FILTER OPTIONS
+    fun getFilterOptionsSeries(filter: SearchFilter): Flow<List<Series>> {
         Log.d(TAG, "getSeriesByFilter")
-        val mSeries = filter.mSeries
-        updateSeries(mSeries)
+        updateSeries(filter.mSeries)
         updateCreators(filter.mCreators)
-        return if (mSeries == null) {
+        return if (filter.mSeries == null) {
             seriesDao.getSeriesByFilter(filter)
         } else {
             flow { emit(emptyList<Series>()) }
         }
     }
 
+    fun getFilterOptionsCharacter(filter: SearchFilter): Flow<List<Character>> {
+        Log.d(TAG, "getCharactersByFilter")
+        updateSeries(filter.mSeries)
+        updateCreators(filter.mCreators)
+        updateCharacters(filter)
+
+        return if (!filter.hasCharacter()) {
+            characterDao.getCharacterFilterOptions(filter)
+        } else {
+            flow { emit(emptyList<Character>()) }
+        }
+    }
+
+    fun getFilterOptionsCreator(filter: SearchFilter): Flow<List<Creator>> {
+        Log.d(TAG, "getCreatorsByFilter")
+        return if (filter.mCreators.isEmpty()) {
+            creatorDao.getCreatorsByFilter(filter)
+        } else {
+            flow { emit(emptyList<Creator>()) }
+        }
+    }
+
+    // SERIES METHODS
+    fun getSeries(seriesId: Int): Flow<FullSeries?> = seriesDao.getSeries(seriesId)
+
     fun getSeriesByFilterPaged(filter: SearchFilter): Flow<PagingData<FullSeries>> {
         val newFilter = SearchFilter(filter)
         Log.d(TAG, "getSeriesByFilterPaged")
-        updateSeries(newFilter.mSeries)
-        updateCreators(newFilter.mCreators)
 
         return Pager(
             config = PagingConfig(
@@ -173,24 +193,8 @@ class Repository private constructor(val context: Context) {
     }
 
     // CHARACTER METHODS
-    fun getCharactersByFilter(filter: SearchFilter): Flow<List<Character>> {
-        Log.d(TAG, "getCharactersByFilter")
-        updateSeries(filter.mSeries)
-        updateCreators(filter.mCreators)
-        updateCharacters(filter)
-
-        return if (!filter.hasCharacter()) {
-            characterDao.getCharacterFilterOptions(filter)
-        } else {
-            flow { emit(emptyList<Character>()) }
-        }
-    }
-
     fun getCharactersByFilterPaged(filter: SearchFilter): Flow<PagingData<FullCharacter>> {
         val newFilter = SearchFilter(filter)
-        updateSeries(newFilter.mSeries)
-        updateCreators(newFilter.mCreators)
-        updateCharacters(filter)
 
         return Pager(
             config = PagingConfig(
@@ -202,20 +206,8 @@ class Repository private constructor(val context: Context) {
     }
 
     // CREATOR METHODS
-    fun getCreatorsByFilter(filter: SearchFilter): Flow<List<Creator>> {
-        Log.d(TAG, "getCreatorsByFilter")
-        return if (filter.mCreators.isEmpty()) {
-            creatorDao.getCreatorsByFilter(filter)
-        } else {
-            flow { emit(emptyList<Creator>()) }
-        }
-    }
-
     fun getCreatorsByFilterPaged(filter: SearchFilter): Flow<PagingData<FullCreator>> {
         val newFilter = SearchFilter(filter)
-        updateSeries(newFilter.mSeries)
-        updateCreators(newFilter.mCreators)
-        updateCharacters(filter)
 
         return Pager(
             config = PagingConfig(
@@ -242,16 +234,10 @@ class Repository private constructor(val context: Context) {
     }
 
     fun getIssuesByFilter(filter: SearchFilter): Flow<List<FullIssue>> {
-        updateSeries(filter.mSeries)
-        updateCreators(filter.mCreators)
-
         return issueDao.getIssuesByFilter(filter = filter)
     }
 
     fun getIssuesByFilterPaged(filter: SearchFilter): Flow<PagingData<FullIssue>> {
-        updateSeries(filter.mSeries)
-        updateCreators(filter.mCreators)
-
         return Pager(
             config = PagingConfig(pageSize = REQUEST_LIMIT, enablePlaceholders = true),
             pagingSourceFactory = {
@@ -277,7 +263,7 @@ class Repository private constructor(val context: Context) {
     }
 
     // PUBLISHER METHODS
-    fun getPublishersByFilter(filter: SearchFilter): Flow<List<Publisher>> {
+    fun getFilterOptionsPublisher(filter: SearchFilter): Flow<List<Publisher>> {
         Log.d(TAG, "getPublishersByFilter")
         return if (filter.mPublishers.isEmpty()) {
             publisherDao.getPublishersByFilter(filter)
@@ -286,9 +272,11 @@ class Repository private constructor(val context: Context) {
         }
     }
 
-    fun getPublisher(publisherId: Int): Flow<Publisher?> =
-        publisherDao.getPublisher(publisherId)
-
+    /***
+     * Update Series - Checks for connection and refreshes series issues
+     *
+     * @param series
+     */
     private fun updateSeries(series: Series?) {
         CoroutineScope(Dispatchers.IO).launch {
             series?.let {
@@ -303,15 +291,19 @@ class Repository private constructor(val context: Context) {
         }
     }
 
-    private fun updateCreators(creators: Set<Creator>) {
-        val creatorIds = creators.map { it.creatorId }
+    /***
+     * Update Creators - Checks for connection and updates issues, stories,
+     * credits, and character appearances for each creator id
+     */
+    private fun updateCreators(creators: Collection<Creator>) {
+        val creatorIds: List<Int> = creators.map { it.creatorId }
         if (hasConnection && creatorIds.isNotEmpty()) {
             CoroutineScope(Dispatchers.IO).launch {
                 CreatorUpdater(
                     webservice = webservice,
                     database = database,
                     prefs = prefs
-                ).updateAll(creatorIds = creatorIds)
+                ).update(creatorIds = creatorIds)
             }
         }
     }
@@ -325,14 +317,6 @@ class Repository private constructor(val context: Context) {
                     prefs = prefs
                 ).update(filter)
             }
-        }
-    }
-
-    fun updateIssue(issue: FullIssue) {
-        if (hasConnection) {
-            UpdateIssueCredit(webservice, database, prefs).update(issue.issue.issueId)
-            UpdateIssueCover(database, context, prefs).update(issue.issue.issueId)
-//            UpdateIssueCharacters(database, context, prefs).update(issue.issue.issueId)
         }
     }
 

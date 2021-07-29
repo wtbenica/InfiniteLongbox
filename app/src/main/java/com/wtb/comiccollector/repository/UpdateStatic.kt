@@ -53,7 +53,7 @@ class StaticUpdater(
     private suspend fun getPublishers(): List<Publisher> = supervisorScope {
         if (Companion.checkIfStale(UPDATED_PUBLISHERS, MONTHLY, prefs) && !DEBUG) {
             Log.d(TAG, "getPublishers STALE")
-            runSafely("update: Getting Publishers", null) {
+            runSafely("update: Getting Publishers") {
                 async { webservice.getPublishers() }
             }?.models ?: emptyList()
         } else {
@@ -65,7 +65,7 @@ class StaticUpdater(
     private suspend fun getRoles(): List<Role> = supervisorScope {
         if (Companion.checkIfStale(UPDATED_ROLES, MONTHLY, prefs) && !DEBUG) {
             Log.d(TAG, "getRoles STALE")
-            runSafely("getRoles", null) {
+            runSafely("getRoles") {
                 async { webservice.getRoles() }
             }?.models ?: emptyList()
         } else {
@@ -77,7 +77,7 @@ class StaticUpdater(
     private suspend fun getStoryTypes(): List<StoryType> = supervisorScope {
         if (Companion.checkIfStale(UPDATED_STORY_TYPES, MONTHLY, prefs) && !DEBUG) {
             Log.d(TAG, "getStoryTypes STALE")
-            runSafely("getStoryTypes", null) {
+            runSafely("getStoryTypes") {
                 async { webservice.getStoryTypes() }
             }?.models ?: emptyList()
         } else {
@@ -89,7 +89,7 @@ class StaticUpdater(
     private suspend fun getBondTypes(): List<BondType> = supervisorScope {
         if (Companion.checkIfStale(UPDATED_BOND_TYPE, MONTHLY, prefs) && !DEBUG) {
             Log.d(TAG, "getBondTypes STALE")
-            runSafely("getBondTypes", null) {
+            runSafely("getBondTypes") {
                 async { webservice.getBondTypes() }
             }?.models ?: emptyList()
         } else {
@@ -226,9 +226,9 @@ class StaticUpdater(
 
     private suspend fun getSeriesBonds(): List<SeriesBond>? = supervisorScope {
         Log.d(TAG, "getSeriesBonds")
-        runSafely("getSeriesBonds", null, {
+        runSafely("getSeriesBonds") {
             async { webservice.getSeriesBonds() }
-        })?.models
+        }?.models
     }
 
     private suspend fun getIssuesByIds(issueIds: List<Int>): List<Issue>? = supervisorScope {

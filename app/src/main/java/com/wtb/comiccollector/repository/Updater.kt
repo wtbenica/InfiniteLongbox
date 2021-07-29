@@ -2,6 +2,7 @@ package com.wtb.comiccollector.repository
 
 import android.content.SharedPreferences
 import android.util.Log
+import com.wtb.comiccollector.APP
 import kotlinx.coroutines.Deferred
 import retrofit2.HttpException
 import java.net.ConnectException
@@ -16,14 +17,14 @@ import java.time.LocalDate
 open class Updater {
 
     companion object {
-        private const val TAG = "Updater"
+        private const val TAG = APP + "Updater"
 
         suspend fun <T : Any, A : Any> runSafely(
             name: String,
             arg: A,
             queryFunction: (A) -> Deferred<T>,
         ): T? {
-            return try {
+            val result: T? = try {
                 if (arg !is List<*> || arg.isNotEmpty()) {
                     Log.d(TAG, "Trying to run safely with args: $queryFunction")
                     queryFunction(arg).await()
@@ -31,20 +32,21 @@ open class Updater {
                     null
                 }
             } catch (e: SocketTimeoutException) {
-                Log.d(TAG, "$name $e")
+                Log.d(TAG, "A $name $e")
                 null
             } catch (e: ConnectException) {
-                Log.d(TAG, "$name $e")
+                Log.d(TAG, "B $name $e")
                 null
             } catch (e: HttpException) {
-                Log.d(TAG, "$name $e")
+                Log.d(TAG, "C $name $e")
                 null
             }
+
+            return result
         }
 
-        suspend fun <T : Any, A : Nothing?> runSafely(
+        suspend fun <T : Any> runSafely(
             name: String,
-            arg: A,
             queryFunction: () -> Deferred<T>,
         ): T? {
             Log.d(TAG, "Trying to run safely start: $queryFunction")
@@ -52,13 +54,13 @@ open class Updater {
                 Log.d(TAG, "Trying to run safely return: $queryFunction")
                 queryFunction().await()
             } catch (e: SocketTimeoutException) {
-                Log.d(TAG, "$name $e")
+                Log.d(TAG, "D $name $e")
                 null
             } catch (e: ConnectException) {
-                Log.d(TAG, "$name $e")
+                Log.d(TAG, "E $name $e")
                 null
             } catch (e: HttpException) {
-                Log.d(TAG, "$name $e")
+                Log.d(TAG, "F $name $e")
                 null
             }
 

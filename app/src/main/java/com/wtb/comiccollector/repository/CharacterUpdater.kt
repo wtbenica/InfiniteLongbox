@@ -64,14 +64,14 @@ class CharacterUpdater(
     }
 
     private suspend fun getAppearancesByStory(stories: List<Story>) =
-        coroutineScope {
+        supervisorScope {
             runSafely("getAppearancesByStory", stories.ids) {
                 async { webservice.getAppearancesByStory(it).models }
             } ?: emptyList()
         }
 
     private suspend fun getStoriesByIssues(issues: List<Issue>) =
-        coroutineScope {
+        supervisorScope {
             runSafely("getStoriesByIssues", issues.ids) {
                 async { webservice.getStoriesByIssues(it).models }
             } ?: emptyList()
@@ -88,14 +88,14 @@ class CharacterUpdater(
         }
 
     private suspend fun getIssuesBySeries(seriesId: Int) =
-        coroutineScope {
+        supervisorScope {
             runSafely("getIssuesBySeries: $seriesId", seriesId) {
                 async { webservice.getIssuesBySeries(it).models }
             } ?: emptyList()
         }
 
     private suspend fun getVariantsOf(issues: List<Issue>): List<Issue> =
-        coroutineScope {
+        supervisorScope {
             val variantOfIds = issues.mapNotNull { it.variantOf }
 
             runSafely("getIssues: variantsOf", variantOfIds) {

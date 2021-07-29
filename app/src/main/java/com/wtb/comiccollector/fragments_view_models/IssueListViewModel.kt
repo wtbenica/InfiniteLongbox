@@ -7,7 +7,6 @@ import androidx.paging.cachedIn
 import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.database.models.FullIssue
 import com.wtb.comiccollector.database.models.FullSeries
-import com.wtb.comiccollector.database.models.Issue
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 
@@ -34,13 +33,6 @@ class IssueListViewModel : ListViewModel<FullIssue>() {
     val series: Flow<FullSeries?> = seriesId.switchMap { id ->
         repository.getSeries(id).asLiveData()
     }.asFlow()
-
-    fun addIssue(issue: Issue) {
-        Log.d(TAG, "addIssue")
-        repository.saveIssue(issue)
-    }
-
-    fun updateIssue(issue: FullIssue) = repository.updateIssue(issue)
 
     fun updateIssueCover(issue: FullIssue) = repository.updateIssueCover(issue)
 }

@@ -51,7 +51,8 @@ abstract class IssueDao : BaseDao<Issue>() {
     }
 
     @Query(
-        """SELECT ie.* FROM issue ie
+        """SELECT ie.* 
+            FROM issue ie
             JOIN issue ie2 ON ie2.issueId = ie.issueId
             WHERE ie.issueId=:issueId 
             OR ie.variantOf=:issueId 
@@ -67,10 +68,6 @@ abstract class IssueDao : BaseDao<Issue>() {
     @Query(
         """SELECT ie.*  
         FROM issue ie 
-        JOIN series ss ON ie.seriesId = ss.seriesId 
-        JOIN publisher pr ON ss.publisherId = pr.publisherId
-        LEFT JOIN mycollection mn ON ie.issueId = mn.issueId
-        LEFT JOIN cover cr ON ie.issueId = cr.issueId
         WHERE ie.issueId=:issueId"""
     )
     abstract fun getFullIssue(issueId: Int): Flow<FullIssue?>
@@ -79,10 +76,6 @@ abstract class IssueDao : BaseDao<Issue>() {
     @Query(
         """SELECT ie.*  
         FROM issue ie 
-        JOIN series ss ON ie.seriesId = ss.seriesId 
-        JOIN publisher pr ON ss.publisherId = pr.publisherId
-        LEFT JOIN mycollection mn ON ie.issueId = mn.issueId
-        LEFT JOIN cover cr ON ie.issueId = cr.issueId
         WHERE ie.issueId=:issueId"""
     )
     abstract suspend fun getIssueSus(issueId: Int): FullIssue?

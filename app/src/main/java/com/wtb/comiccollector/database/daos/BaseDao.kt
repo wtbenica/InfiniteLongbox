@@ -105,6 +105,9 @@ abstract class BaseDao<T : DataModel> {
 
     companion object {
         internal fun <T : DataModel> modelsToSqlIdString(models: Collection<T>) =
-            models.map { it.id }.toString().replace("[", "(").replace("]", ")")
+            idsToSqlIdString(models.map { it.id })
+
+        internal fun idsToSqlIdString(ids: Collection<Int>) =
+            ids.toString().replace("[", "(").replace("]", ")")
     }
 }

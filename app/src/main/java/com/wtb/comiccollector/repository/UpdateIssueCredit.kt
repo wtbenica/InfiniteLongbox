@@ -21,10 +21,6 @@ class UpdateIssueCredit(
     val database: IssueDatabase,
     val prefs: SharedPreferences
 ) : Updater() {
-    internal fun updateAll(issueIds: List<Int>) {
-        issueIds.forEach { update(it) }
-    }
-
     internal fun update(issueId: Int) {
         if (Companion.checkIfStale(ISSUE_TAG(issueId), ISSUE_LIFETIME, prefs)) {
             val storyItemsCall = CoroutineScope(Dispatchers.IO).async stories@{

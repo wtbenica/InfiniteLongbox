@@ -1,6 +1,7 @@
 package com.wtb.comiccollector.repository
 
 import android.content.SharedPreferences
+import android.util.Log
 import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.Webservice
 import com.wtb.comiccollector.database.IssueDatabase
@@ -26,6 +27,10 @@ class CreatorUpdater(
     val prefs: SharedPreferences
 ) : Updater() {
 
+    init {
+        Log.d(TAG, "CREATOR UPDATER INIT")
+    }
+
     /**
      * UpdateAll
      *
@@ -33,37 +38,23 @@ class CreatorUpdater(
      *
      * @param creatorIds
      */
-    internal suspend fun updateAll(creatorIds: List<Int>) {
-//        creatorIds.forEach { update(it) }
-        val allStories: MutableList<Story> = mutableListOf()
-        val allIssues = mutableListOf<Issue>()
-        val allCredits = mutableListOf<Credit>()
-        val allExCredits = mutableListOf<ExCredit>()
-        val allAppearances = mutableListOf<Appearance>()
-
-        creatorIds.forEach {
-            val meta: CreatorMeta = getCreditsByNameDetails(it)
-            allStories.addAll(meta.stories)
-            allIssues.addAll(meta.issues)
-            allCredits.addAll(meta.credits)
-            allExCredits.addAll(meta.exCredits)
-            allAppearances.addAll(meta.appearances)
-        }
+    internal suspend fun update(creatorIds: List<Int>) {
+        val meta: CreatorMeta = getCreditsByCreatorIds(creatorIds)
 
         CoroutineScope(Dispatchers.IO).launch {
             database.transactionDao().upsert(
-                stories = allStories,
-                issues = allIssues,
-                credits = allCredits,
-                exCredits = allExCredits,
-                appearances = allAppearances
+                stories = meta.stories,
+                issues = meta.issues,
+                credits = meta.credits,
+                exCredits = meta.exCredits,
+                appearances = meta.appearances
             )
         }
 
     }
 
-    private suspend fun getCreditsByNameDetails(creatorId: Int): CreatorMeta {
-        val nameDetails: List<NameDetailAndCreator> = getNameDetailsByCreatorId(creatorId)
+    private suspend fun getCreditsByCreatorIds(creatorIds: List<Int>): CreatorMeta {
+        val nameDetails: List<NameDetailAndCreator> = getLocalNameDetailsByCreatorId(creatorIds)
         val credits: List<Credit> = getCreditsByNameDetails(nameDetails)
         val stories: List<Story> = getStoriesByCredits(credits)
         val issues: List<Issue> = getIssuesByStories(stories)
@@ -89,16 +80,10 @@ class CreatorUpdater(
         val appearances: List<Appearance>
     )
 
-    private suspend fun getAppearancesByStories(stories: List<Story>): List<Appearance> =
-        coroutineScope {
-            runSafely("refreshAppearances", stories.ids) {
-                async { webservice.getAppearancesByStory(it) }
-            }?.models ?: emptyList()
-        }
-
-    private suspend fun getNameDetailsByCreatorId(creatorId: Int): List<NameDetailAndCreator> =
+    private suspend fun getLocalNameDetailsByCreatorId(creatorIds: List<Int>):
+            List<NameDetailAndCreator> =
         CoroutineScope(Dispatchers.IO).async {
-            database.nameDetailDao().getNameDetailsByCreatorId(creatorId)
+            database.nameDetailDao().getNameDetailsByCreatorIds(creatorIds)
         }.await()
 
     private suspend fun getCreditsByNameDetails(nameDetails: List<NameDetailAndCreator>): List<Credit> =
@@ -109,7 +94,6 @@ class CreatorUpdater(
                 async { webservice.getCreditsByNameDetail(it) }
             }?.models ?: emptyList()
         }
-
 
     private suspend fun getStoriesByCredits(credits: List<CreditX>): List<Story> =
         coroutineScope {
@@ -143,6 +127,13 @@ class CreatorUpdater(
 
             runSafely("getExCreditsByNameDetails", nameDetailIds) {
                 async { webservice.getExtractedCreditsByNameDetail(it) }
+            }?.models ?: emptyList()
+        }
+
+    private suspend fun getAppearancesByStories(stories: List<Story>): List<Appearance> =
+        coroutineScope {
+            runSafely("refreshAppearances", stories.ids) {
+                async { webservice.getAppearancesByStory(it) }
             }?.models ?: emptyList()
         }
 }

@@ -74,8 +74,9 @@
 
     <style name="FilterCardChipGroup" parent="Widget.MaterialComponents.ChipGroup">
         <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_width">wrap_content</item>
         <item name="android:minHeight">?attr/dropdownListPreferredItemHeight</item>
-        <item name="singleLine">false</item>
+        <item name="singleLine">true</item>
         <item name="android:background">?attr/colorOnSecondary</item>
         <item name="chipSpacingVertical">@dimen/margin_default</item>
         <item name="chipSpacingHorizontal">@dimen/margin_default</item>

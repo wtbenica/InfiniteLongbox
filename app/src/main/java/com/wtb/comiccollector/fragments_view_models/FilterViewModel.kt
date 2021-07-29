@@ -25,19 +25,19 @@ class FilterViewModel : ViewModel() {
 
     private val seriesOptions: Flow<List<FilterAutoCompleteType>> =
         filter.flatMapLatest {
-            repository.getSeriesByFilter(it)
+            repository.getFilterOptionsSeries(it)
         }
 
     private val publisherOptions = filter.flatMapLatest {
-        repository.getPublishersByFilter(it)
+        repository.getFilterOptionsPublisher(it)
     }
 
     private val creatorOptions = filter.flatMapLatest {
-        repository.getCreatorsByFilter(it)
+        repository.getFilterOptionsCreator(it)
     }
 
     private val characterOptions = filter.flatMapLatest {
-        repository.getCharactersByFilter(it)
+        repository.getFilterOptionsCharacter(it)
     }
 
     private val allOptions: Flow<List<FilterAutoCompleteType>> = combine(
