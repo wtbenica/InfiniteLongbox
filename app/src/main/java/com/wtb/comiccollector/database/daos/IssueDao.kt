@@ -20,6 +20,10 @@ private const val TAG = APP + "IssueDao"
 @ExperimentalCoroutinesApi
 @Dao
 abstract class IssueDao : BaseDao<Issue>() {
+
+    @Query("SELECT * FROM issue WHERE issueId=:id")
+    abstract suspend fun get(id: Int): Issue?
+
     // FLOW FUNCTIONS
     @RawQuery(observedEntities = [FullIssue::class])
     abstract fun getFullIssuesByQuery(query: SupportSQLiteQuery): Flow<List<FullIssue>>

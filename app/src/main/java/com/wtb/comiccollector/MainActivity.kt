@@ -123,7 +123,6 @@ class MainActivity : AppCompatActivity(),
 
         bottomSheetBehavior.addBottomSheetCallback(object : BottomSheetCallback() {
             override fun onStateChanged(bottomSheet: View, newState: Int) {
-                Log.d(TAG, "onStateChanged: ${getStateName(newState)}")
                 filterFragment?.visibleState = newState
             }
 
@@ -158,7 +157,6 @@ class MainActivity : AppCompatActivity(),
                                                        ConnectivityManager.NetworkCallback() {
             override fun onAvailable(network: Network) {
                 super.onAvailable(network)
-                Log.d(TAG, "NetworkCallback onAvailable")
                 hasConnection.postValue(true)
                 activeJob?.let { job ->
                     if (job.isCancelled) {
@@ -169,14 +167,12 @@ class MainActivity : AppCompatActivity(),
 
             override fun onLost(network: Network) {
                 super.onLost(network)
-                Log.d(TAG, "NetworkCallback onLost")
                 hasConnection.postValue(false)
                 activeJob?.cancel()
             }
 
             override fun onUnavailable() {
                 super.onUnavailable()
-                Log.d(TAG, "NetworkCallback onUnavailable")
                 hasConnection.postValue(true)
             }
 
@@ -196,7 +192,6 @@ class MainActivity : AppCompatActivity(),
 
     // SeriesListFragment.SeriesListCallbacks
     override fun onSeriesSelected(series: Series) {
-        Log.d(TAG, "ADDING SERIES $series")
         filterFragment?.addFilterItem(series)
     }
 
@@ -301,12 +296,10 @@ class MainActivity : AppCompatActivity(),
     // ListFragmentCallback
     override fun setTitle(title: String?) {
         val actual = title ?: applicationInfo.loadLabel(packageManager)
-        Log.d(TAG, "setTitle: $actual")
         toolbar.title = actual
     }
 
     override fun setToolbarScrollFlags(flags: Int) {
-        Log.d(TAG, "setToolbarScrollFlags $flags")
         toolbar.updateLayoutParams<AppBarLayout.LayoutParams> { scrollFlags = flags }
         if (flags and SCROLL_FLAG_SCROLL == SCROLL_FLAG_SCROLL) {
             appBarLayout.setExpanded(true, true)
@@ -368,7 +361,6 @@ class MainActivity : AppCompatActivity(),
     }
 
     override fun updateFilter(filter: SearchFilter) {
-        Log.d(TAG, "updateFilter $filter")
         filterViewModel.setFilter(filter)
     }
 }

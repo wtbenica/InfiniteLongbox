@@ -100,7 +100,7 @@ class CreatorUpdater(
             val storyIds = credits.map { it.storyId }
 
             runSafely("getStoriesByIds", storyIds) {
-                async { webservice.getStories(it) }
+                async { webservice.getStoriesByIds(it) }
             }?.models ?: emptyList()
         }
 
@@ -108,7 +108,7 @@ class CreatorUpdater(
         coroutineScope {
             val issueIds = storiesCall.map { it.issueId }
             runSafely("getIssuesByIds", issueIds) {
-                async { webservice.getIssues(issueIds) }
+                async { webservice.getIssuesByIds(issueIds) }
             }?.models ?: emptyList()
         }
 
@@ -117,7 +117,7 @@ class CreatorUpdater(
             val variantsOfIds = issuesCall.mapNotNull { it.variantOf }
 
             runSafely("getIssuesByIds Variants", variantsOfIds) {
-                async { webservice.getIssues(it) }
+                async { webservice.getIssuesByIds(it) }
             }?.models ?: emptyList()
         }
 

@@ -43,7 +43,7 @@ const val DUMMY_ID = Int.MAX_VALUE
 
 private const val DATABASE_NAME = "issue-database"
 private const val TAG = APP + "Repository"
-const val DEBUG = false
+const val DEBUG = true
 
 internal const val SHARED_PREFS = "CCPrefs"
 
@@ -56,17 +56,29 @@ const val NIGHTWING = "http://192.168.0.141:8000/"
 const val ALFRED = "http://192.168.0.138:8000/"
 const val BASE_URL = NIGHTWING
 
-internal const val UPDATED_CREATORS = "updated_creators"
-internal const val UPDATED_CREATORS_PAGE = "updated_creators_page"
-internal const val UPDATED_PUBLISHERS = "updated_publishers"
 internal const val UPDATED_ROLES = "updated_roles"
 internal const val UPDATED_STORY_TYPES = "updated_story_types"
-internal const val UPDATED_SERIES = "updated_series"
-internal const val UPDATED_SERIES_PAGE = "updated_series_page"
+internal const val UPDATED_PUBLISHERS = "updated_publishers"
 internal const val UPDATED_BOND_TYPE = "update_bond_type"
 internal const val UPDATED_BONDS = "update_series_bonds"
+internal const val UPDATED_CREATORS = "updated_creators"
+internal const val UPDATED_CREATORS_PAGE = "updated_creators_page"
+internal const val UPDATED_SERIES = "updated_series"
+internal const val UPDATED_SERIES_PAGE = "updated_series_page"
 internal const val UPDATED_CHARACTERS = "update_characters"
 internal const val UPDATED_CHARACTERS_PAGE = "update_characters_page"
+internal const val UPDATED_ISSUES = "updated_issues"
+internal const val UPDATED_ISSUES_PAGE = "updated_issues_page"
+internal const val UPDATED_STORIES = "updated_stories"
+internal const val UPDATED_STORIES_PAGE = "updated_stories_page"
+internal const val UPDATED_CREDITS = "updated_credits"
+internal const val UPDATED_CREDITS_PAGE = "update_credits_page"
+internal const val UPDATED_EXCREDITS = "updated_excredits"
+internal const val UPDATED_EXCREDITS_PAGE = "updated_excredits_page"
+internal const val UPDATED_APPEARANCES = "updated_appearances"
+internal const val UPDATED_APPEARANCES_PAGE = "updated_appearances_page"
+internal const val UPDATED_NAME_DETAILS = "update_name_details"
+internal const val UPDATED_NAME_DETAILS_PAGE = "update_name_details_page"
 
 internal const val MONTHLY: Long = 30
 internal const val WEEKLY: Long = 7
@@ -112,6 +124,10 @@ class Repository private constructor(val context: Context) {
         retrofit.create(Webservice::class.java)
     }
 
+    private val updater: StaticUpdater by lazy {
+        StaticUpdater(webservice, database, prefs)
+    }
+
     init {
         MainActivity.hasConnection.observeForever {
             hasConnection = it
@@ -121,7 +137,7 @@ class Repository private constructor(val context: Context) {
                 //  means that this is async async await. Look into
                 MainActivity.activeJob = CoroutineScope(Dispatchers.IO).launch {
                     withContext(Dispatchers.Default) {
-                        StaticUpdater(webservice, database, prefs).updateAsync()
+                        updater.updateAsync()
                     }.let {
                         Log.d(TAG, "Static update done")
                         isIdle = true
@@ -143,8 +159,8 @@ class Repository private constructor(val context: Context) {
     // FILTER OPTIONS
     fun getFilterOptionsSeries(filter: SearchFilter): Flow<List<Series>> {
         Log.d(TAG, "getSeriesByFilter")
-        updateSeries(filter.mSeries)
-        updateCreators(filter.mCreators)
+//        updateSeries(filter.mSeries)
+//        updateCreators(filter.mCreators)
         return if (filter.mSeries == null) {
             seriesDao.getSeriesByFilter(filter)
         } else {
@@ -154,9 +170,9 @@ class Repository private constructor(val context: Context) {
 
     fun getFilterOptionsCharacter(filter: SearchFilter): Flow<List<Character>> {
         Log.d(TAG, "getCharactersByFilter")
-        updateSeries(filter.mSeries)
-        updateCreators(filter.mCreators)
-        updateCharacters(filter)
+//        updateSeries(filter.mSeries)
+//        updateCreators(filter.mCreators)
+//        updateCharacters(filter)
 
         return if (!filter.hasCharacter()) {
             characterDao.getCharacterFilterOptions(filter)
@@ -224,8 +240,6 @@ class Repository private constructor(val context: Context) {
             CoroutineScope(Dispatchers.IO).launch {
                 withContext(Dispatchers.Default) {
                     UpdateIssueCover(database, context, prefs).update(issueId = issueId)
-                }.let {
-                    UpdateIssueCredit(webservice, database, prefs).update(issueId = issueId)
                 }
             }
         }
@@ -250,7 +264,13 @@ class Repository private constructor(val context: Context) {
     fun getVariants(issueId: Int): Flow<List<Issue>> = issueDao.getVariants(issueId)
 
     // STORY METHODS
-    fun getStoriesByIssue(issueId: Int): Flow<List<Story>> = storyDao.getStoriesFlow(issueId)
+    fun getStoriesByIssue(issueId: Int): Flow<List<Story>> {
+        CoroutineScope(Dispatchers.IO).launch {
+            updater.updateStories(issueId)
+        }
+
+        return storyDao.getStoriesFlow(issueId)
+    }
 
     // CREDIT METHODS``
     fun getCreditsByIssue(issueId: Int): Flow<List<FullCredit>> = combine(
@@ -269,54 +289,6 @@ class Repository private constructor(val context: Context) {
             publisherDao.getPublishersByFilter(filter)
         } else {
             flow { emit(emptyList<Publisher>()) }
-        }
-    }
-
-    /***
-     * Update Series - Checks for connection and refreshes series issues
-     *
-     * @param series
-     */
-    private fun updateSeries(series: Series?) {
-        CoroutineScope(Dispatchers.IO).launch {
-            series?.let {
-                if (hasConnection) {
-                    UpdateSeries(
-                        webservice = webservice,
-                        database = database,
-                        prefs = prefs
-                    ).update(seriesId = it.seriesId)
-                }
-            }
-        }
-    }
-
-    /***
-     * Update Creators - Checks for connection and updates issues, stories,
-     * credits, and character appearances for each creator id
-     */
-    private fun updateCreators(creators: Collection<Creator>) {
-        val creatorIds: List<Int> = creators.map { it.creatorId }
-        if (hasConnection && creatorIds.isNotEmpty()) {
-            CoroutineScope(Dispatchers.IO).launch {
-                CreatorUpdater(
-                    webservice = webservice,
-                    database = database,
-                    prefs = prefs
-                ).update(creatorIds = creatorIds)
-            }
-        }
-    }
-
-    private fun updateCharacters(filter: SearchFilter) {
-        if (hasConnection) {
-            CoroutineScope(Dispatchers.IO).launch {
-                CharacterUpdater(
-                    webservice = webservice,
-                    database = database,
-                    prefs = prefs
-                ).update(filter)
-            }
         }
     }
 
@@ -399,11 +371,11 @@ class Repository private constructor(val context: Context) {
         fun savePrefValue(prefs: SharedPreferences, key: String, value: Any) {
             val editor = prefs.edit()
             when (value) {
-                is String -> editor.putString(key, value)
-                is Int -> editor.putInt(key, value)
+                is String  -> editor.putString(key, value)
+                is Int     -> editor.putInt(key, value)
                 is Boolean -> editor.putBoolean(key, value)
-                is Float -> editor.putFloat(key, value)
-                is Long -> editor.putLong(key, value)
+                is Float   -> editor.putFloat(key, value)
+                is Long    -> editor.putLong(key, value)
             }
             editor.apply()
         }

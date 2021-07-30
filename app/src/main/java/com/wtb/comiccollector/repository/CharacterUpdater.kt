@@ -99,7 +99,7 @@ class CharacterUpdater(
             val variantOfIds = issues.mapNotNull { it.variantOf }
 
             runSafely("getIssues: variantsOf", variantOfIds) {
-                async { webservice.getIssues(it).models }
+                async { webservice.getIssuesByIds(it).models }
             } ?: emptyList()
         }
 
@@ -127,48 +127,48 @@ class CharacterUpdater(
     }
 
     private suspend fun getAppearances(characterId: Int): List<Appearance> =
-        coroutineScope {
+        supervisorScope {
             runSafely("getAppearances", characterId) {
                 async { webservice.getAppearances(characterId).models }
             } ?: emptyList()
         }
 
     private suspend fun getStories(appearances: List<Appearance>): List<Story> =
-        coroutineScope {
+        supervisorScope {
             val storyIds = appearances.map { it.story }
 
             runSafely("getStories", storyIds) {
-                async { webservice.getStories(it).models }
+                async { webservice.getStoriesByIds(it).models }
             } ?: emptyList()
         }
 
     private suspend fun getIssuesByCharacterId(stories: List<Story>): List<Issue> =
-        coroutineScope {
+        supervisorScope {
             val issueIds = stories.map { it.issueId }
 
             runSafely("getIssues", issueIds) {
-                async { webservice.getIssues(it).models }
+                async { webservice.getIssuesByIds(it).models }
             } ?: emptyList()
         }
 
     private suspend fun getVariants(issues: List<Issue>): List<Issue> =
-        coroutineScope {
+        supervisorScope {
             val variantOfIds = issues.mapNotNull { it.variantOf }
 
             runSafely("getIssuesVariants", variantOfIds) {
-                async { webservice.getIssues(it).models }
+                async { webservice.getIssuesByIds(it).models }
             } ?: emptyList()
         }
 
     private suspend fun getCredits(stories: List<Story>): List<Credit> =
-        coroutineScope {
+        supervisorScope {
             runSafely("getCreditsByStories", stories.ids) {
-                async { webservice.getCreditsByStories(it).models }
+                async { webservice.getCreditsByStoryIds(it).models }
             } ?: emptyList()
         }
 
     private suspend fun getNameDetails(credits: List<Credit>): List<NameDetail> =
-        coroutineScope {
+        supervisorScope {
             val nameDetailIds = credits.map { it.nameDetailId }
 
             runSafely("getNameDetailsByIds", nameDetailIds) {
@@ -177,14 +177,14 @@ class CharacterUpdater(
         }
 
     private suspend fun getExCredits(stories: List<Story>) =
-        coroutineScope {
+        supervisorScope {
             runSafely("getCreditsByStories", stories.ids) {
                 async { webservice.getExtractedCreditsByStories(it).models }
             } ?: emptyList()
         }
 
     private suspend fun getExNameDetails(exCredits: List<ExCredit>): List<NameDetail> =
-        coroutineScope {
+        supervisorScope {
             val exNameDetailIds = exCredits.map { it.nameDetailId }
 
             runSafely(

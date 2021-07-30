@@ -9,6 +9,9 @@ import kotlinx.coroutines.flow.Flow
 @ExperimentalCoroutinesApi
 @Dao
 abstract class StoryDao : BaseDao<Story>() {
+    @Query("SELECT * FROM story WHERE storyId = :id")
+    abstract suspend fun get(id: Int): Story?
+
     @Query(query)
     abstract fun getStoriesFlow(issueId: Int): Flow<List<Story>>
 

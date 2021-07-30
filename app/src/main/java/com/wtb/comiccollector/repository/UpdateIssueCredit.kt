@@ -45,7 +45,7 @@ class UpdateIssueCredit(
                         try {
                             Log.d(TAG, "CREDIT_UPDATE Refreshing issue credits getCredits $issueId")
                             result =
-                                webservice.getCreditsByStories(storyItems.map { item -> item.pk })
+                                webservice.getCreditsByStoryIds(storyItems.map { item -> item.pk })
                         } catch (e: SocketTimeoutException) {
                             Log.d(TAG, "update: Getting Credits: $e")
                         } catch (e: ConnectException) {

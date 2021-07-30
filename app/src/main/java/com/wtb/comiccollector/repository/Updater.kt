@@ -26,7 +26,6 @@ open class Updater {
         ): T? {
             val result: T? = try {
                 if (arg !is List<*> || arg.isNotEmpty()) {
-                    Log.d(TAG, "Trying to run safely with args: $queryFunction")
                     queryFunction(arg).await()
                 } else {
                     null
@@ -49,9 +48,7 @@ open class Updater {
             name: String,
             queryFunction: () -> Deferred<T>,
         ): T? {
-            Log.d(TAG, "Trying to run safely start: $queryFunction")
             val result: T? = try {
-                Log.d(TAG, "Trying to run safely return: $queryFunction")
                 queryFunction().await()
             } catch (e: SocketTimeoutException) {
                 Log.d(TAG, "D $name $e")

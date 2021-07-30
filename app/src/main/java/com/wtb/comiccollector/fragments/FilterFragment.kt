@@ -3,7 +3,6 @@ package com.wtb.comiccollector.fragments
 import android.content.Context
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.View.*
@@ -246,11 +245,9 @@ class FilterFragment : Fragment(),
         disabledFilterChips.forEach { filterChipGroup.addView(it) }
 
         if (filterChipGroup.isEmpty()) {
-            Log.d(TAG, "filterChipGroup is empty ${filterChipGroup.childCount}")
             collapseFilterCard()
             searchSection.visibility = VISIBLE
         } else {
-            Log.d(TAG, "filterChipGroup is NOT empty ${filterChipGroup.childCount}")
             showChipsHideBox()
             expandFilterCard()
         }
@@ -295,32 +292,17 @@ class FilterFragment : Fragment(),
     }
 
     override fun filterChipCheckChanged(buttonView: FilterChip, checked: Boolean) {
-        Log.d(TAG, "BV?: ${buttonView.isChecked} CK? $checked")
         if (checked) {
-            Log.d(
-                TAG,
-                "adding check ${buttonView.item} removing from disabled: ${disabledFilterChips.size}"
-            )
             disabledFilterChips.remove(buttonView)
             viewModel.addFilterItem(buttonView.item)
-            Log.d(TAG, "checked DFC: ${disabledFilterChips.size}")
         } else {
-            Log.d(
-                TAG, "removing check ${buttonView.item} adding to disabled: ${
-                    disabledFilterChips
-                        .size
-                }"
-            )
             disabledFilterChips.add(buttonView)
             viewModel.removeFilterItem(buttonView.item)
-            Log.d(TAG, "not checked DFC: ${disabledFilterChips.size}")
-            Log.d(TAG, "Adding $buttonView to disabledFilterChips ${disabledFilterChips.size}")
         }
     }
 
     // OptionChipGroupCallback
     override fun checkChanged(action: (FilterViewModel, Boolean) -> Unit, isChecked: Boolean) {
-        Log.d(TAG, "checkChanged: $isChecked")
         action(viewModel, isChecked)
     }
 
@@ -330,7 +312,6 @@ class FilterFragment : Fragment(),
 
     // SortChipGroupCallback
     override fun sortOrderChanged(sortType: SortType) {
-        Log.d(TAG, "Telling the viewModel to set the sort option: ${sortType.sortString}")
         viewModel.setSortOption(sortType)
     }
 

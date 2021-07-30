@@ -2,7 +2,6 @@
 
 package com.wtb.comiccollector.fragments_view_models
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
@@ -73,19 +72,16 @@ class IssueDetailViewModel : ViewModel() {
         variantId.flatMapLatest { repository.inCollection(it) }.asLiveData()
 
     fun loadIssue(issueId: Int) {
-        Log.d(TAG, "loadIssue: $issueId")
         _issueId.value = issueId
     }
 
     fun getIssueId() = issueId.value
 
     fun loadVariant(issueId: Int?, line: Int) {
-        Log.d(TAG, "loadVariant $line")
         _variantId.value = issueId ?: AUTO_ID
     }
 
     fun clearVariant() {
-        Log.d(TAG, "Clearing variant ${_variantId.value}")
         _variantId.value = AUTO_ID
     }
 
