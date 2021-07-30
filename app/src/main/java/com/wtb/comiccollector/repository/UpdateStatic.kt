@@ -1,16 +1,17 @@
 package com.wtb.comiccollector.repository
 
 import android.content.SharedPreferences
+import android.net.Uri
 import android.util.Log
 import com.wtb.comiccollector.APP
+import com.wtb.comiccollector.ComicCollectorApplication.Companion.context
 import com.wtb.comiccollector.Webservice
 import com.wtb.comiccollector.database.IssueDatabase
 import com.wtb.comiccollector.database.daos.BaseDao
 import com.wtb.comiccollector.database.models.*
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.async
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.supervisorScope
+import kotlinx.coroutines.*
+import org.jsoup.Jsoup
+import java.net.URL
 import kotlin.reflect.KClass
 
 private const val TAG = APP + "UpdateStatic"
@@ -29,8 +30,13 @@ class StaticUpdater(
     private val database: IssueDatabase,
     private val prefs: SharedPreferences,
 ) : Updater() {
+    
+    private val issueUpdater: IssueUpdater by lazy {
+        IssueUpdater()
+    }
+
     /**
-     *  Updates publisher, series, role, and storytype tables
+     *  UpdateAsync - Updates publisher, series, role, and storytype tables
      */
     @ExperimentalCoroutinesApi
     internal suspend fun updateAsync() {
@@ -40,10 +46,10 @@ class StaticUpdater(
         val bondTypes: List<BondType> = getBondTypes()
 
         database.transactionDao().upsertStatic(
-            publishers = saveTimeIfNotEmpty(publishers, UPDATED_PUBLISHERS),
-            roles = saveTimeIfNotEmpty(roles, UPDATED_ROLES),
-            storyTypes = saveTimeIfNotEmpty(storyTypes, UPDATED_STORY_TYPES),
-            bondTypes = saveTimeIfNotEmpty(bondTypes, UPDATED_BOND_TYPE),
+            publishers = saveTimeIfNotEmpty(prefs, publishers, UPDATED_PUBLISHERS),
+            roles = saveTimeIfNotEmpty(prefs, roles, UPDATED_ROLES),
+            storyTypes = saveTimeIfNotEmpty(prefs, storyTypes, UPDATED_STORY_TYPES),
+            bondTypes = saveTimeIfNotEmpty(prefs, bondTypes, UPDATED_BOND_TYPE),
         )
 
         if (!DEBUG) {
@@ -283,13 +289,121 @@ class StaticUpdater(
         }
     }
 
-    @ExperimentalCoroutinesApi
-    private fun <M : DataModel> saveTimeIfNotEmpty(items: List<M>, saveTag: String): List<M> =
-        items.also {
-            if (it.isNotEmpty()) {
-                Repository.saveTime(prefs, saveTag)
+    fun updateIssue(issueId: Int) = issueUpdater.updateIssue(issueId)
+
+    inner class IssueUpdater {
+        fun updateIssue(issueId: Int) {
+            updateStoryDetails(issueId)
+            updateCover(issueId)
+        }
+
+        private fun updateStoryDetails(issueId: Int) {
+            CoroutineScope(Dispatchers.IO).launch {
+                var stories: List<Story> = database.storyDao().getStories(issueId)
+                if (stories.isEmpty()) {
+                    stories = supervisorScope {
+                        runSafely("getStoriesByIssue", issueId) {
+                            async { webservice.getStoriesByIssue(it).models }
+                        } ?: emptyList()
+                    }
+                    checkFKeysStory(stories)
+                    database.storyDao().upsert(stories)
+                }
+
+                var credits: List<Credit> = database.creditDao().getCreditsByStoryIds(stories.ids)
+                if (credits.isEmpty()) {
+                    credits = supervisorScope {
+                        runSafely("getCreditsByStoryIds", stories.ids) {
+                            async { webservice.getCreditsByStoryIds(it).models }
+                        } ?: emptyList()
+                    }
+                    checkFKeysCredit(credits)
+                    database.creditDao().upsert(credits)
+                }
+
+                var excredits: List<ExCredit> =
+                    database.exCreditDao().getExCreditsByStoryIds(stories.ids)
+                if (excredits.isEmpty()) {
+                    excredits = supervisorScope {
+                        runSafely("getExCreditsByStoryIds", stories.ids) {
+                            async { webservice.getExtractedCreditsByStories(it).models }
+                        } ?: emptyList()
+                    }
+                    checkFKeysCredit(excredits)
+                    database.exCreditDao().upsert(excredits)
+                }
+
+                var appearances: List<Appearance> =
+                    database.appearanceDao().getAppearancesByStoryIds(stories.ids)
+                if (appearances.isEmpty()) {
+                    appearances = supervisorScope {
+                        runSafely("getAppearancesByStory", stories.ids) {
+                            async { webservice.getAppearancesByStory(it).models }
+                        } ?: emptyList()
+                    }
+                    checkFKeysAppearance(appearances)
+                    database.appearanceDao().upsert(appearances)
+                }
             }
         }
+
+        private fun updateCover(issueId: Int) {
+            if (checkIfStale(ISSUE_TAG(issueId), ISSUE_LIFETIME, prefs)) {
+                CoroutineScope(Dispatchers.IO).launch {
+                    database.issueDao().getIssueSus(issueId)?.let { issue ->
+                        if (issue.coverUri == null) {
+                            kotlin.runCatching {
+                                val doc = Jsoup.connect(issue.issue.url).get()
+
+                                val noCover = doc.getElementsByClass("no_cover").size == 1
+
+                                val coverImgElements = doc.getElementsByClass("cover_img")
+                                val wraparoundElements =
+                                    doc.getElementsByClass("wraparound_cover_img")
+
+                                val elements = when {
+                                    coverImgElements.size > 0   -> coverImgElements
+                                    wraparoundElements.size > 0 -> wraparoundElements
+                                    else                        -> null
+                                }
+
+                                val src = elements?.get(0)?.attr("src")
+
+                                val url = src?.let { URL(it) }
+
+                                if (!noCover && url != null) {
+                                    val image = CoroutineScope(Dispatchers.IO).async {
+                                        url.toBitmap()
+                                    }
+
+                                    CoroutineScope(Dispatchers.Default).launch {
+                                        val bitmap = image.await()
+
+                                        bitmap?.let {
+                                            val savedUri: Uri? =
+                                                it.saveToInternalStorage(
+                                                    context!!,
+                                                    issue.issue.coverFileName
+                                                )
+
+                                            val cover =
+                                                Cover(issueId = issueId, coverUri = savedUri)
+                                            database.coverDao().upsertSus(listOf(cover))
+                                        }
+                                    }
+                                } else if (noCover) {
+                                    val cover = Cover(issueId = issueId, coverUri = null)
+                                    database.coverDao().upsertSus(cover)
+                                } else {
+                                    Log.d(TAG, "COVER UPDATER No Cover Found")
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
 
     companion object {
         private suspend fun <G : GcdJson<M>, M : DataModel> getItemsByPage(
@@ -340,53 +454,15 @@ class StaticUpdater(
                 }
             }
         }
-    }
 
-    suspend fun updateStories(issueId: Int) {
-        var stories: List<Story> = database.storyDao().getStories(issueId)
-
-        if (stories.isEmpty()) {
-            stories = supervisorScope {
-                runSafely("getStoriesByIssue", issueId) {
-                    async { webservice.getStoriesByIssue(it).models }
-                } ?: emptyList()
+        @ExperimentalCoroutinesApi
+        private fun <M : DataModel> saveTimeIfNotEmpty(
+            prefs: SharedPreferences,
+            items: List<M>, saveTag: String): List<M> =
+            items.also {
+                if (it.isNotEmpty()) {
+                    Repository.saveTime(prefs, saveTag)
+                }
             }
-            checkFKeysStory(stories)
-            database.storyDao().upsert(stories)
-        }
-
-        var credits: List<Credit> = database.creditDao().getCreditsByStoryIds(stories.ids)
-        if (credits.isEmpty()) {
-            credits = supervisorScope {
-                runSafely("getCreditsByStoryIds", stories.ids) {
-                    async { webservice.getCreditsByStoryIds(it).models }
-                } ?: emptyList()
-            }
-            checkFKeysCredit(credits)
-            database.creditDao().upsert(credits)
-        }
-
-        var excredits: List<ExCredit> = database.exCreditDao().getExCreditsByStoryIds(stories.ids)
-        if (excredits.isEmpty()) {
-            excredits = supervisorScope {
-                runSafely("getExCreditsByStoryIds", stories.ids) {
-                    async { webservice.getExtractedCreditsByStories(it).models }
-                } ?: emptyList()
-            }
-            checkFKeysCredit(excredits)
-            database.exCreditDao().upsert(excredits)
-        }
-
-        var appearances: List<Appearance> =
-            database.appearanceDao().getAppearancesByStoryIds(stories.ids)
-        if (appearances.isEmpty()) {
-            appearances = supervisorScope {
-                runSafely("getAppearancesByStory", stories.ids) {
-                    async { webservice.getAppearancesByStory(it).models }
-                } ?: emptyList()
-            }
-            checkFKeysAppearance(appearances)
-            database.appearanceDao().upsert(appearances)
-        }
     }
 }

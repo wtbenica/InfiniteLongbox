@@ -77,7 +77,7 @@ class IssueDetailViewModel : ViewModel() {
 
     fun getIssueId() = issueId.value
 
-    fun loadVariant(issueId: Int?, line: Int) {
+    fun loadVariant(issueId: Int?) {
         _variantId.value = issueId ?: AUTO_ID
     }
 

@@ -23,7 +23,7 @@ abstract class ListViewModel<T: ListItem> : ViewModel() {
         }
     }.asFlow().cachedIn(viewModelScope)
 
-    fun setFilter(filter: SearchFilter) {
+    open fun setFilter(filter: SearchFilter) {
         filterLiveData.value = filter
     }
 }

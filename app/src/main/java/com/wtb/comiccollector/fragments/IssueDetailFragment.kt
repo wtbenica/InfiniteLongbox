@@ -130,12 +130,10 @@ class IssueDetailFragment : Fragment(), CreatorLinkCallback {
         val variantOf = arguments?.getSerializable(ARG_VARIANT_OF) as Int?
 
         if (variantOf == null) {
-
-            issueDetailViewModel.loadVariant(null, 140)
+            issueDetailViewModel.loadVariant(null)
             issueDetailViewModel.loadIssue(issueId)
         } else {
-
-            issueDetailViewModel.loadVariant(issueId, 144)
+            issueDetailViewModel.loadVariant(issueId)
             issueDetailViewModel.loadIssue(variantOf)
         }
 
@@ -389,7 +387,7 @@ class IssueDetailFragment : Fragment(), CreatorLinkCallback {
                             .getIssueId()
 
                         if (selectionIsVariant) {
-                            issueDetailViewModel.loadVariant(selectedIssueId, 393)
+                            issueDetailViewModel.loadVariant(selectedIssueId)
                         }
 
                         updateCover()

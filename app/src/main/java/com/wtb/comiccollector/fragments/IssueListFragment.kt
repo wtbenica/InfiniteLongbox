@@ -2,6 +2,7 @@ package com.wtb.comiccollector.fragments
 
 import android.animation.ValueAnimator
 import android.os.Bundle
+import android.util.Log
 import android.view.*
 import android.view.View.GONE
 import android.view.View.VISIBLE
@@ -14,7 +15,9 @@ import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.FragmentTransaction
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
@@ -35,16 +38,13 @@ class IssueListFragment : ListFragment<Issue>() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-//        setHasOptionsMenu(true)
 
         lifecycleScope.launch {
-            filterViewModel.filter.collectLatest { filter ->
-                updateSeriesDetailFragment(filter.mSeries?.seriesId)
-                viewModel.setFilter(filter)
-            }
-
-            viewModel.series.collectLatest {
-                it?.series?.seriesName?.let { name -> callback?.setTitle(name) }
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                filterViewModel.filter.collectLatest { filter ->
+                    updateSeriesDetailFragment(filter.mSeries?.seriesId)
+                    viewModel.setFilter(filter)
+                }
             }
         }
     }
@@ -81,6 +81,7 @@ class IssueListFragment : ListFragment<Issue>() {
         viewModel.seriesLiveData.observe(
             viewLifecycleOwner,
             {
+                Log.d(TAG, "BBB collecting series 3")
                 callback?.setTitle(it?.series?.seriesName)
             }
         )
@@ -137,7 +138,7 @@ class IssueListFragment : ListFragment<Issue>() {
 
         fun bind(issue: FullIssue?) {
             this.fullIssue = issue
-            this.fullIssue?.let { viewModel.updateIssueCover(it) }
+            this.fullIssue?.let { viewModel.updateIssueCover(it.issue.issueId) }
             val coverUri = this.fullIssue?.coverUri
 
             if (fullIssue?.cover != null) {

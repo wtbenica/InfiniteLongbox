@@ -1,13 +1,11 @@
 package com.wtb.comiccollector
 
 import android.app.Activity
-import android.content.Context
 import android.net.ConnectivityManager
 import android.net.Network
 import android.net.NetworkCapabilities
 import android.os.Bundle
 import android.util.Log
-import android.util.TypedValue
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
@@ -74,9 +72,8 @@ class MainActivity : AppCompatActivity(),
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        filterFragment = supportFragmentManager.findFragmentByTag(
-            resources.getString(R.string.tag_filter_fragment)
-        ) as FilterFragment?
+        filterFragment =
+            supportFragmentManager.findFragmentByTag(resources.getString(R.string.tag_filter_fragment)) as FilterFragment?
         mainLayout = findViewById(R.id.main_activity)
         appBarLayout = findViewById(R.id.app_bar_layout)
         toolbar = findViewById(R.id.action_bar)
@@ -178,7 +175,7 @@ class MainActivity : AppCompatActivity(),
 
             override fun onCapabilitiesChanged(
                 network: Network,
-                networkCapabilities: NetworkCapabilities
+                networkCapabilities: NetworkCapabilities,
             ) {
                 super.onCapabilitiesChanged(network, networkCapabilities)
                 hasUnmeteredConnection.postValue(
@@ -273,7 +270,7 @@ class MainActivity : AppCompatActivity(),
     // SeriesInfoDialogCallback
     override fun onSaveSeriesClick(
         dialog: DialogFragment,
-        series: Series
+        series: Series,
     ) {
         // TODO: MainActivity onSaveSeriesClick
         dialog.dismiss()
@@ -287,7 +284,7 @@ class MainActivity : AppCompatActivity(),
     // NewCreatorDialogCallback
     override fun onSaveCreatorClick(
         dialog: DialogFragment,
-        creator: Creator
+        creator: Creator,
     ) {
         // TODO: Not yet implemented
         dialog.dismiss()
@@ -316,27 +313,6 @@ class MainActivity : AppCompatActivity(),
                 Log.d(TAG, "HAS CONNECTION: $it")
             }
         }
-
-        fun getStateName(newState: Int): String {
-            return when (newState) {
-                STATE_EXPANDED      -> "EXPANDED"
-                STATE_HALF_EXPANDED -> "HALF-EXPANDED"
-                STATE_COLLAPSED     -> "COLLAPSED"
-                STATE_DRAGGING      -> "DRAGGING"
-                STATE_HIDDEN        -> "HIDDEN"
-                STATE_SETTLING      -> "SETTLING"
-                else                -> "THAT'S ODD!"
-            }
-        }
-
-        fun resolveThemeAttribute(
-            attr: Int,
-            context: Context? = ComicCollectorApplication.context
-        ): Int {
-            val value = TypedValue()
-            context?.theme?.resolveAttribute(attr, value, true)
-            return value.data
-        }
     }
 
     inner class ResultFragmentManager {
@@ -353,11 +329,11 @@ class MainActivity : AppCompatActivity(),
         private val seriesListFragment: SeriesListFragment
             get() = SeriesListFragment.newInstance()
         private val issueListFragment: IssueListFragment
-            get()  = IssueListFragment.newInstance()
+            get() = IssueListFragment.newInstance()
         private val characterListFragment: CharacterListFragment
-            get()  = CharacterListFragment.newInstance()
+            get() = CharacterListFragment.newInstance()
         private val creatorListFragment: CreatorListFragment
-            get()  = CreatorListFragment.newInstance()
+            get() = CreatorListFragment.newInstance()
     }
 
     override fun updateFilter(filter: SearchFilter) {
