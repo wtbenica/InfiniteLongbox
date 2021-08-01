@@ -35,7 +35,7 @@ data class Series(
     var publishingFormat: String? = null,
     val firstIssueId: Int? = null,
     val notes: String? = null,
-    val issueCount: Int = 0
+    val issueCount: Int = 0,
 ) : DataModel(), FilterAutoCompleteType, Serializable {
     override val tagName: String
         get() = "Series"
@@ -162,7 +162,7 @@ data class SeriesBond(
     val originIssueId: Int?,
     val targetIssueId: Int?,
     val bondTypeId: Int,
-    val notes: String?
+    val notes: String?,
 ) : DataModel() {
     override val id: Int
         get() = bondId
@@ -185,7 +185,7 @@ data class FullSeries(
     var seriesBondTo: Bond? = null,
 
     @Relation(parentColumn = "seriesId", entityColumn = "targetId", entity = SeriesBond::class)
-    var seriesBondFrom: Bond? = null
+    var seriesBondFrom: Bond? = null,
 ) : ListItem
 
 @ExperimentalCoroutinesApi
@@ -194,7 +194,7 @@ data class SeriesAndPublisher(
     val series: Series,
 
     @Relation(parentColumn = "publisherId", entityColumn = "publisherId")
-    var publisher: Publisher
+    var publisher: Publisher,
 )
 
 @ExperimentalCoroutinesApi
@@ -206,5 +206,5 @@ data class Bond(
     var targetSeries: Series,
 
     @Relation(parentColumn = "originId", entityColumn = "seriesId")
-    var originSeries: Series
+    var originSeries: Series,
 )

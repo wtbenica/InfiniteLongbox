@@ -9,6 +9,7 @@ import com.wtb.comiccollector.database.models.*
 import com.wtb.comiccollector.repository.Repository
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
+import kotlin.reflect.KClass
 
 private const val TAG = APP + "FilterViewModel"
 
@@ -19,8 +20,8 @@ class FilterViewModel : ViewModel() {
 
     private val theOneTrueFilter: MutableStateFlow<SearchFilter> = MutableStateFlow(SearchFilter())
 
-    private val filterTypeSpinnerOption: MutableStateFlow<FilterTypeSpinnerOption> =
-        MutableStateFlow(All.Companion as FilterTypeSpinnerOption)
+    private val filterTypeSpinnerOption: MutableStateFlow<KClass<*>> =
+        MutableStateFlow(All.Companion::class as KClass<*>)
 
     val filter: StateFlow<SearchFilter> = theOneTrueFilter
 
@@ -55,11 +56,12 @@ class FilterViewModel : ViewModel() {
 
     val filterOptions = filterTypeSpinnerOption.flatMapLatest {
         when (it) {
-            Series     -> seriesOptions
-            Publisher  -> publisherOptions
-            Character  -> characterOptions
-            NameDetail -> creatorOptions
-            All        -> allOptions
+            Series.Companion::class     -> seriesOptions
+            Publisher.Companion::class  -> publisherOptions
+            Character.Companion::class  -> characterOptions
+            NameDetail.Companion::class -> creatorOptions
+            All.Companion::class        -> allOptions
+            else -> throw IllegalStateException("filterOption can't be ${it.simpleName}")
         }
     }
 
@@ -67,7 +69,7 @@ class FilterViewModel : ViewModel() {
         theOneTrueFilter.value = filter
     }
 
-    fun setFilterOptionType(filterTypeSpinnerOption: FilterTypeSpinnerOption) {
+    fun setFilterOptionType(filterTypeSpinnerOption: KClass<*>) {
         this.filterTypeSpinnerOption.value = filterTypeSpinnerOption
     }
 

@@ -3,6 +3,7 @@ package com.wtb.comiccollector.fragments
 import android.content.Context
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.View.*
@@ -20,13 +21,12 @@ import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.R
 import com.wtb.comiccollector.SearchFilter
 import com.wtb.comiccollector.SortType
-import com.wtb.comiccollector.database.models.FilterAutoCompleteType
-import com.wtb.comiccollector.database.models.FilterType
-import com.wtb.comiccollector.database.models.FilterTypeSpinnerOption
+import com.wtb.comiccollector.database.models.*
 import com.wtb.comiccollector.fragments_view_models.FilterViewModel
 import com.wtb.comiccollector.views.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
+import kotlin.reflect.KClass
 
 private const val TAG = APP + "FilterFragment"
 
@@ -80,7 +80,7 @@ class FilterFragment : Fragment(),
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View? {
         val view = inflater.inflate(R.layout.fragment_filter, container, false)
         onCreateViewFindViews(view)
@@ -148,25 +148,42 @@ class FilterFragment : Fragment(),
 
         searchAutoComplete.callbacks = this
 
-
-        val objects = FilterTypeSpinnerOption::class.sealedSubclasses.map { it.objectInstance }
-            .sortedBy { it.toString() }
-        searchBoxSpinner.adapter = ArrayAdapter(
+        searchBoxSpinner.adapter = object : ArrayAdapter<KClass<*>?>(
             requireContext(),
             R.layout.list_item_search_type,
-            R.id.text_sort_type,
-            objects
-        )
+            R.id.text_filter_option,
+            filterTypeOptions
+        ) {
+            override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
+                val view = convertView ?: View.inflate(
+                    context,
+                    R.layout.list_item_search_type,
+                    null
+                )
+                val sortText: TextView = view.findViewById(R.id.text_filter_option)
+                val item = getItem(position)
+                sortText.text = item?.objectInstance.toString()
+                return view
+            }
+
+            override fun getDropDownView(
+                position: Int,
+                convertView: View?,
+                parent: ViewGroup,
+            ): View {
+                return getView(position, convertView, parent)
+            }
+        }
+
         searchBoxSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(
                 parent: AdapterView<*>?,
                 view: View?,
                 position: Int,
-                id: Long
+                id: Long,
             ) {
                 parent?.let {
-                    val selectedFilterOption =
-                        (it.getItemAtPosition(position) as FilterTypeSpinnerOption)
+                    val selectedFilterOption = it.getItemAtPosition(position) as KClass<*>
                     viewModel.setFilterOptionType(selectedFilterOption)
                 }
             }
@@ -278,8 +295,13 @@ class FilterFragment : Fragment(),
     }
 
     // SearchTextViewCallback
-    override fun addFilterItem(option: FilterType) =
+    override fun addFilterItem(option: FilterType) {
+        if (option is TextFilter) {
+            option.type =
+                (searchBoxSpinner.selectedItem as KClass<*>).objectInstance as FilterTypeSpinnerOption
+        }
         viewModel.addFilterItem(option)
+    }
 
     override fun hideKeyboard() {
         callback?.hideKeyboard()
@@ -323,6 +345,13 @@ class FilterFragment : Fragment(),
 
     companion object {
         fun newInstance() = FilterFragment()
+
+        val filterTypeOptions: List<KClass<*>> = FilterTypeSpinnerOption::class.sealedSubclasses
+            .sortedBy { it.objectInstance.toString() }
+
+        init {
+            Log.d(TAG, "FTO: ${filterTypeOptions.size} $filterTypeOptions")
+        }
     }
 }
 

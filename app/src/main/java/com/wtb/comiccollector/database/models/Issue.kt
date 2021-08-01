@@ -8,6 +8,8 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
+import kotlin.reflect.KClass
+import kotlin.reflect.full.companionObject
 
 const val AUTO_ID = 0
 
@@ -46,7 +48,7 @@ data class Issue(
     var coverDate: LocalDate? = null,
     var notes: String? = null,
     var brandId: Int? = null,
-    var issueNumRaw: String?
+    var issueNumRaw: String?,
 ) : DataModel() {
 
     val coverFileName: String
@@ -120,7 +122,7 @@ data class FullIssue @ExperimentalCoroutinesApi constructor(
     var cover: Cover? = null,
 
     @Relation(parentColumn = "issueId", entityColumn = "issueId")
-    var myCollection: MyCollection? = null
+    var myCollection: MyCollection? = null,
 ) : ListItem {
     val series: Series
         get() = seriesAndPublisher.series
@@ -149,7 +151,7 @@ data class FullIssue @ExperimentalCoroutinesApi constructor(
 data class Cover(
     @PrimaryKey(autoGenerate = true) val coverId: Int = AUTO_ID,
     var issueId: Int,
-    var coverUri: Uri? = null
+    var coverUri: Uri? = null,
 ) : DataModel() {
     override val id: Int
         get() = coverId

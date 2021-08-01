@@ -16,7 +16,7 @@ data class Creator(
     @PrimaryKey(autoGenerate = true) val creatorId: Int = AUTO_ID,
     var name: String,
     var sortName: String,
-    var bio: String? = null
+    var bio: String? = null,
 ) : DataModel(), FilterAutoCompleteType {
 
     override val id: Int
@@ -53,7 +53,7 @@ data class NameDetail(
     @PrimaryKey(autoGenerate = true) val nameDetailId: Int = AUTO_ID,
     var creatorId: Int,
     var name: String,
-    var sortName: String? = null
+    var sortName: String? = null,
 ) : DataModel(), FilterAutoCompleteType {
     override val id: Int
         get() = nameDetailId
@@ -77,7 +77,7 @@ data class NameDetailAndCreator(
     val nameDetail: NameDetail,
 
     @Relation(parentColumn = "creatorId", entityColumn = "creatorId")
-    var creator: Creator
+    var creator: Creator,
 ) : ListItem
 
 @ExperimentalCoroutinesApi
@@ -86,5 +86,5 @@ data class FullCreator(
     val creator: Creator,
 
     @Relation(parentColumn = "creatorId", entityColumn = "creatorId")
-    var nameDetail: List<NameDetail>
+    var nameDetail: List<NameDetail>,
 )

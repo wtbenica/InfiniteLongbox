@@ -38,7 +38,7 @@ class SearchAutoComplete(context: Context, attributeSet: AttributeSet) :
                 if (tempItem != null) {
                     callbacks?.addFilterItem(tempItem)
                 } else {
-                    callbacks?.addFilterItem(TextFilter(v.text.toString(), All.Companion::class))
+                    callbacks?.addFilterItem(TextFilter(v.text.toString(), All))
                 }
                 text.clear()
                 true

@@ -21,7 +21,7 @@ class SearchFilter
     endDate: LocalDate? = null,
     myCollection: Boolean = true,
     sortType: SortType? = null,
-    textFilter: TextFilter<*>? = null,
+    textFilter: TextFilter? = null,
     showVariants: Boolean = false,
     character: Character? = null,
     viewOptionsIndex: Int = 0,
@@ -60,7 +60,7 @@ class SearchFilter
     var mEndDate: LocalDate = endDate ?: LocalDate.MAX
     var mMyCollection: Boolean = myCollection
     var mSortType: SortType? = sortType ?: getSortOptions()[0]
-    var mTextFilter: TextFilter<*>? = textFilter
+    var mTextFilter: TextFilter? = textFilter
     var mShowVariants: Boolean = showVariants
     var mCharacter: Character? = character
     var mViewOptionsIndex = viewOptionsIndex
@@ -81,28 +81,36 @@ class SearchFilter
         mViewOptionsIndex++
     }
 
-    fun hasCreator() = mCreators.isNotEmpty()
-    fun hasPublisher() = mPublishers.isNotEmpty()
-    fun hasDateFilter() = mStartDate != LocalDate.MIN || mEndDate != LocalDate.MAX
-    fun hasCharacter() = mCharacter == null
-    fun isEmpty(): Boolean {
-        return mCreators.isEmpty() && mSeries == null && mPublishers.isEmpty() && mStartDate ==
-                LocalDate.MIN && mEndDate == LocalDate.MAX && !mMyCollection && mCharacter == null
+    fun t() {
+        val k: FilterTypeSpinnerOption = NameDetail
     }
 
-    fun isNotEmpty(): Boolean = !isEmpty()
+    fun hasCreator() = mCreators.isNotEmpty() || mTextFilter?.type == All ||
+            mTextFilter?.type == NameDetail
 
-    // TODO: CvND
+    fun hasPublisher() = mPublishers.isNotEmpty() || mTextFilter?.type == All ||
+            mTextFilter?.type == Publisher
+
+    fun hasDateFilter() = mStartDate != LocalDate.MIN || mEndDate != LocalDate.MAX
+    fun hasCharacter() = mCharacter != null || mTextFilter?.type == All ||
+            mTextFilter?.type == Character
+
+    fun hasSeries(): Boolean = mSeries != null || mTextFilter?.type == All ||
+            mTextFilter?.type == Series
+
     fun addFilter(vararg items: FilterType) {
         items.forEach { item ->
             when (item) {
-                is Series        -> addSeries(item)
-                is Creator       -> addCreator(item)
-                is Publisher     -> addPublisher(item)
-                is TextFilter<*> -> addTextFilter(item)
-                is NameDetail    -> {
+                is Series     -> addSeries(item)
+                is Creator    -> addCreator(item)
+                is Publisher  -> addPublisher(item)
+                is TextFilter -> addTextFilter(item)
+                is NameDetail -> {
+                    // maybe should add namedetail as option. if someone wanted to find uses of
+                    // alias specifically. How to differentiate though? creator and namedetail don't
+                    // describe what sets them apart
                 }
-                is Character     -> addCharacter(item)
+                is Character  -> addCharacter(item)
             }
         }
     }
@@ -121,7 +129,7 @@ class SearchFilter
         mPublishers = newPublishers
     }
 
-    private fun <T : FilterTypeSpinnerOption> addTextFilter(item: TextFilter<T>) {
+    private fun addTextFilter(item: TextFilter) {
         mTextFilter = item
     }
 
@@ -136,7 +144,7 @@ class SearchFilter
                 is Series        -> removeSeries()
                 is Creator       -> removeCreator(item)
                 is Publisher     -> removePublisher(item)
-                is TextFilter<*> -> removeTextFilter(item)
+                is TextFilter -> removeTextFilter(item)
                 is NameDetail    -> {
                 }
                 is Character     -> removeCharacter()
@@ -158,7 +166,7 @@ class SearchFilter
         mPublishers = newPublishers
     }
 
-    private fun <T : FilterTypeSpinnerOption> removeTextFilter(item: TextFilter<T>) {
+    private fun removeTextFilter(item: TextFilter) {
         if (item == mTextFilter)
             mTextFilter = null
     }

@@ -5,7 +5,6 @@ import com.wtb.comiccollector.R
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import java.io.Serializable
 import java.time.LocalDate
-import kotlin.reflect.KClass
 
 sealed class DataModel(var lastUpdated: LocalDate = LocalDate.now()) : Serializable {
 
@@ -62,9 +61,9 @@ class All {
 }
 
 @ExperimentalCoroutinesApi
-data class TextFilter<T : FilterTypeSpinnerOption>(
+data class TextFilter(
     val text: String,
-    val type: KClass<T>,
+    var type: FilterTypeSpinnerOption,
 ) : FilterType {
     override fun toString(): String = "\"$text\""
 }
