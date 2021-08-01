@@ -28,8 +28,6 @@ abstract class IssueDao : BaseDao<Issue>("issue") {
     fun getIssuesByFilter(filter: SearchFilter): Flow<List<FullIssue>> {
         val query = createIssueQuery(filter)
         Log.d(TAG, "getIssuesByFilter")
-        Log.d(TAG, "ISSUE QUERY----------------------------------------------------------")
-        Log.d(TAG, query.sql)
         return getFullIssuesByQuery(query)
     }
 

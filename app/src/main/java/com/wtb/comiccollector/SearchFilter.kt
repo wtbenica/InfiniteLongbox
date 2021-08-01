@@ -21,10 +21,10 @@ class SearchFilter
     endDate: LocalDate? = null,
     myCollection: Boolean = true,
     sortType: SortType? = null,
-    textFilter: TextFilter? = null,
+    textFilter: TextFilter<*>? = null,
     showVariants: Boolean = false,
     character: Character? = null,
-    viewOptionsIndex: Int = 0
+    viewOptionsIndex: Int = 0,
 ) : Serializable {
 
     constructor(filter: SearchFilter) : this(
@@ -60,7 +60,7 @@ class SearchFilter
     var mEndDate: LocalDate = endDate ?: LocalDate.MAX
     var mMyCollection: Boolean = myCollection
     var mSortType: SortType? = sortType ?: getSortOptions()[0]
-    var mTextFilter: TextFilter? = textFilter
+    var mTextFilter: TextFilter<*>? = textFilter
     var mShowVariants: Boolean = showVariants
     var mCharacter: Character? = character
     var mViewOptionsIndex = viewOptionsIndex
@@ -96,12 +96,13 @@ class SearchFilter
     fun addFilter(vararg items: FilterType) {
         items.forEach { item ->
             when (item) {
-                is Series     -> addSeries(item)
-                is Creator    -> addCreator(item)
-                is Publisher  -> addPublisher(item)
-                is TextFilter -> addTextFilter(item)
-                is NameDetail -> { }
-                is Character  -> addCharacter(item)
+                is Series        -> addSeries(item)
+                is Creator       -> addCreator(item)
+                is Publisher     -> addPublisher(item)
+                is TextFilter<*> -> addTextFilter(item)
+                is NameDetail    -> {
+                }
+                is Character     -> addCharacter(item)
             }
         }
     }
@@ -120,7 +121,7 @@ class SearchFilter
         mPublishers = newPublishers
     }
 
-    private fun addTextFilter(item: TextFilter) {
+    private fun <T : FilterTypeSpinnerOption> addTextFilter(item: TextFilter<T>) {
         mTextFilter = item
     }
 
@@ -132,13 +133,13 @@ class SearchFilter
     fun removeFilter(vararg items: FilterType) {
         items.forEach { item ->
             when (item) {
-                is Series     -> removeSeries()
-                is Creator    -> removeCreator(item)
-                is Publisher  -> removePublisher(item)
-                is TextFilter -> removeTextFilter(item)
-                is NameDetail -> {
+                is Series        -> removeSeries()
+                is Creator       -> removeCreator(item)
+                is Publisher     -> removePublisher(item)
+                is TextFilter<*> -> removeTextFilter(item)
+                is NameDetail    -> {
                 }
-                is Character  -> removeCharacter()
+                is Character     -> removeCharacter()
             }
         }
     }
@@ -157,7 +158,7 @@ class SearchFilter
         mPublishers = newPublishers
     }
 
-    private fun removeTextFilter(item: TextFilter) {
+    private fun <T : FilterTypeSpinnerOption> removeTextFilter(item: TextFilter<T>) {
         if (item == mTextFilter)
             mTextFilter = null
     }
@@ -205,7 +206,7 @@ class SortType(
     val tag: String,
     val sortColumn: String,
     val table: String,
-    var order: SortOrder
+    var order: SortOrder,
 ) : Serializable {
 
     constructor(other: SortType) : this(

@@ -9,6 +9,7 @@ import android.view.inputmethod.EditorInfo
 import android.widget.AdapterView
 import com.google.android.material.textfield.MaterialAutoCompleteTextView
 import com.wtb.comiccollector.APP
+import com.wtb.comiccollector.database.models.All
 import com.wtb.comiccollector.database.models.FilterAutoCompleteType
 import com.wtb.comiccollector.database.models.FilterType
 import com.wtb.comiccollector.database.models.TextFilter
@@ -37,7 +38,7 @@ class SearchAutoComplete(context: Context, attributeSet: AttributeSet) :
                 if (tempItem != null) {
                     callbacks?.addFilterItem(tempItem)
                 } else {
-                    callbacks?.addFilterItem(TextFilter(v.text.toString()))
+                    callbacks?.addFilterItem(TextFilter(v.text.toString(), All.Companion::class))
                 }
                 text.clear()
                 true

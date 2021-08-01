@@ -37,7 +37,6 @@ abstract class SeriesDao : BaseDao<Series>("series") {
     abstract fun getSeriesByQuery(query: SupportSQLiteQuery): Flow<List<Series>>
 
     fun getSeriesByFilter(filter: SearchFilter): Flow<List<Series>> {
-
         val query = getSeriesQuery(filter)
         Log.d(TAG, "getSeriesByQuery")
         return getSeriesByQuery(query)

@@ -5,6 +5,7 @@ import com.wtb.comiccollector.R
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import java.io.Serializable
 import java.time.LocalDate
+import kotlin.reflect.KClass
 
 sealed class DataModel(var lastUpdated: LocalDate = LocalDate.now()) : Serializable {
 
@@ -32,12 +33,13 @@ sealed interface FilterAutoCompleteType : FilterType, Comparable<FilterAutoCompl
 
     val textColor: Int
         get() = when (this) {
-            is Series     -> context?.getColor(R.color.tag_series)
+            is Series    -> context?.getColor(R.color.tag_series)
             is Creator,
-            is NameDetail -> context?.getColor(R.color.tag_creator)
-            is Publisher  -> context?.getColor(R.color.tag_publisher)
-            is Character  -> context?.getColor(R.color.tag_character)
-            else          -> throw IllegalStateException("Invalid type: $this")
+            is NameDetail,
+                         -> context?.getColor(R.color.tag_creator)
+            is Publisher -> context?.getColor(R.color.tag_publisher)
+            is Character -> context?.getColor(R.color.tag_character)
+            else         -> throw IllegalStateException("Invalid type: $this")
         } ?: 0xFF000000.toInt()
 
     override fun compareTo(other: FilterAutoCompleteType): Int =
@@ -60,6 +62,9 @@ class All {
 }
 
 @ExperimentalCoroutinesApi
-data class TextFilter(val text: String) : FilterType {
+data class TextFilter<T : FilterTypeSpinnerOption>(
+    val text: String,
+    val type: KClass<T>,
+) : FilterType {
     override fun toString(): String = "\"$text\""
 }

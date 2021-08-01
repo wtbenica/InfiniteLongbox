@@ -18,27 +18,23 @@ class FilterViewModel : ViewModel() {
     private val repository: Repository = Repository.get()
 
     private val theOneTrueFilter: MutableStateFlow<SearchFilter> = MutableStateFlow(SearchFilter())
+
     private val filterTypeSpinnerOption: MutableStateFlow<FilterTypeSpinnerOption> =
-        MutableStateFlow(All.Companion::class.objectInstance as FilterTypeSpinnerOption)
+        MutableStateFlow(All.Companion as FilterTypeSpinnerOption)
 
     val filter: StateFlow<SearchFilter> = theOneTrueFilter
 
     private val seriesOptions: Flow<List<FilterAutoCompleteType>> =
-        filter.flatMapLatest {
-            repository.getFilterOptionsSeries(it)
-        }
+        filter.flatMapLatest { repository.getFilterOptionsSeries(it) }
 
-    private val publisherOptions = filter.flatMapLatest {
-        repository.getFilterOptionsPublisher(it)
-    }
+    private val publisherOptions =
+        filter.flatMapLatest { repository.getFilterOptionsPublisher(it) }
 
-    private val creatorOptions = filter.flatMapLatest {
-        repository.getFilterOptionsCreator(it)
-    }
+    private val creatorOptions =
+        filter.flatMapLatest { repository.getFilterOptionsCreator(it) }
 
-    private val characterOptions = filter.flatMapLatest {
-        repository.getFilterOptionsCharacter(it)
-    }
+    private val characterOptions =
+        filter.flatMapLatest { repository.getFilterOptionsCharacter(it) }
 
     private val allOptions: Flow<List<FilterAutoCompleteType>> = combine(
         seriesOptions,
@@ -46,8 +42,12 @@ class FilterViewModel : ViewModel() {
         publisherOptions,
         characterOptions
     )
-    { series: List<FilterAutoCompleteType>, creators: List<FilterAutoCompleteType>, publishers:
-    List<FilterAutoCompleteType>, characters: List<FilterAutoCompleteType> ->
+    {
+            series: List<FilterAutoCompleteType>, creators: List<FilterAutoCompleteType>,
+            publishers:
+            List<FilterAutoCompleteType>,
+            characters: List<FilterAutoCompleteType>,
+        ->
         val res: List<FilterAutoCompleteType> = series + creators + publishers + characters
         Log.d(TAG, "filterOptions: ${res.size}")
         res.sorted()
