@@ -8,15 +8,13 @@ import kotlinx.coroutines.flow.Flow
 
 @ExperimentalCoroutinesApi
 @Dao
-abstract class StoryDao : BaseDao<Story>() {
-    @Query("SELECT * FROM story WHERE storyId = :id")
-    abstract suspend fun get(id: Int): Story?
+abstract class StoryDao : BaseDao<Story>("Story") {
 
     @Query(query)
     abstract fun getStoriesFlow(issueId: Int): Flow<List<Story>>
 
     @Query(query)
-    abstract fun getStories(issueId: Int): List<Story>
+    abstract suspend fun getStories(issueId: Int): List<Story>
 
     companion object {
         const val query = """

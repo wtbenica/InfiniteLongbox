@@ -14,7 +14,7 @@ import java.util.*
 
 @ExperimentalCoroutinesApi
 @Dao
-abstract class PublisherDao : BaseDao<Publisher>() {
+abstract class PublisherDao : BaseDao<Publisher>("publisher") {
     @Query("SELECT * FROM publisher WHERE publisherId = :publisherId")
     abstract fun getPublisher(publisherId: Int): Flow<Publisher?>
 

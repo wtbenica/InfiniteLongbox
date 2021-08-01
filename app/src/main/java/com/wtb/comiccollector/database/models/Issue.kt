@@ -39,7 +39,7 @@ data class Issue(
     var releaseDate: LocalDate? = null,
     var upc: Long? = null,
     var variantName: String = "",
-    var variantOf: Int? = null,
+    val variantOf: Int? = null,
     var sortCode: Int = 0,
     var coverDateLong: String? = null,
     var onSaleDateUncertain: Boolean = false,

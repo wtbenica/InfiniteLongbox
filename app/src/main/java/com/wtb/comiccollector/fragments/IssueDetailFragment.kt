@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.util.Log
 import android.view.*
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
@@ -418,7 +417,6 @@ class IssueDetailFragment : Fragment(), CreatorLinkCallback {
     }
 
     private fun updateUI() {
-
         val issue = currentIssue.issue
         if (issue.issueId != AUTO_ID) {
             numUpdates += 1
@@ -432,8 +430,6 @@ class IssueDetailFragment : Fragment(), CreatorLinkCallback {
             }
 
             updateCover()
-        } else {
-            Log.d(TAG, "updateUI: Dummy")
         }
     }
 
@@ -446,7 +442,6 @@ class IssueDetailFragment : Fragment(), CreatorLinkCallback {
     }
 
     override fun creatorClicked(creator: NameDetailAndCreator) {
-
         val filter = SearchFilter(creators = setOf(creator.creator), myCollection = false)
         listFragmentCallback?.updateFilter(filter)
     }

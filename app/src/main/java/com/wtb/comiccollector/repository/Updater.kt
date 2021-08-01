@@ -19,45 +19,64 @@ open class Updater {
     companion object {
         private const val TAG = APP + "Updater"
 
-        suspend fun <T : Any, A : Any> runSafely(
+        /**
+         * Run safely - runs queryFunction and awaits results. Logs SocketTimeout-, Connect-, and
+         * Http- exceptions. Also avoids making remote calls with empty list.
+         * @param ResultType - Result type
+         * @param ArgType - Arg type
+         * @param name Function name, shown  in exception log message
+         * @param arg
+         * @param queryFunction
+         * @return null on one of the listed exceptions or if it was called with an empty arg list
+         */
+        suspend fun <ResultType : Any, ArgType : Any> runSafely(
             name: String,
-            arg: A,
-            queryFunction: (A) -> Deferred<T>,
-        ): T? {
-            val result: T? = try {
+            arg: ArgType,
+            queryFunction: (ArgType) -> Deferred<ResultType>,
+        ): ResultType? {
+            val result: ResultType? = try {
                 if (arg !is List<*> || arg.isNotEmpty()) {
                     queryFunction(arg).await()
                 } else {
                     null
                 }
             } catch (e: SocketTimeoutException) {
-                Log.d(TAG, "A $name $e")
+                Log.d(TAG, "$name $e")
                 null
             } catch (e: ConnectException) {
-                Log.d(TAG, "B $name $e")
+                Log.d(TAG, "$name $e")
                 null
             } catch (e: HttpException) {
-                Log.d(TAG, "C $name $e")
+                Log.d(TAG, "$name $e")
                 null
             }
 
             return result
         }
 
-        suspend fun <T : Any> runSafely(
+        /**
+         * Run safely - runs queryFunction and awaits results. Logs SocketTimeout-, Connect-, and
+         * Http- exceptions. Also avoids making remote calls with empty list.
+         * @param ResultType - Result type
+         * @param ArgType - Arg type
+         * @param name Function name, shown  in exception log message
+         * @param queryFunction
+         * @return null on one of the listed exceptions or if it was called with an empty arg list
+         */
+        suspend fun <ResultType : Any> runSafely(
             name: String,
-            queryFunction: () -> Deferred<T>,
-        ): T? {
-            val result: T? = try {
+            queryFunction: () -> Deferred<ResultType>,
+        ): ResultType? {
+            val result: ResultType? = try {
                 queryFunction().await()
             } catch (e: SocketTimeoutException) {
-                Log.d(TAG, "D $name $e")
+                Log.d(TAG, "$name $e")
                 null
             } catch (e: ConnectException) {
-                Log.d(TAG, "E $name $e")
+                Log.d(TAG, "$name $e")
                 null
             } catch (e: HttpException) {
-                Log.d(TAG, "F $name $e")
+                Log.d(TAG, "$name $e")
                 null
             }
 
@@ -77,7 +96,7 @@ open class Updater {
         internal fun checkIfStale(
             prefsKey: String,
             shelfLife: Long,
-            prefs: SharedPreferences
+            prefs: SharedPreferences,
         ): Boolean {
             val lastUpdated = LocalDate.parse(prefs.getString(prefsKey, "${LocalDate.MIN}"))
             val isStale = LocalDate.now() > lastUpdated.plusDays(shelfLife)

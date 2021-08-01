@@ -1,7 +1,6 @@
 package com.wtb.comiccollector.database.daos
 
 import androidx.room.Dao
-import androidx.room.Query
 import androidx.room.RawQuery
 import androidx.sqlite.db.SimpleSQLiteQuery
 import androidx.sqlite.db.SupportSQLiteQuery
@@ -11,10 +10,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 @ExperimentalCoroutinesApi
 @Dao
-abstract class NameDetailDao : BaseDao<NameDetail>() {
-
-    @Query("SELECT * FROM namedetail WHERE nameDetailId=:id")
-    abstract suspend fun get(id: Int): NameDetail?
+abstract class NameDetailDao : BaseDao<NameDetail>("namedetail") {
 
     @RawQuery(observedEntities = [NameDetailAndCreator::class])
     abstract suspend fun getNameDetailsRaw(query: SupportSQLiteQuery): List<NameDetailAndCreator>

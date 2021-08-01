@@ -17,10 +17,7 @@ import java.util.*
 
 @ExperimentalCoroutinesApi
 @Dao
-abstract class CharacterDao : BaseDao<Character>() {
-
-    @Query("SELECT * FROM character WHERE characterId = :id")
-    abstract suspend fun get(id: Int): Character?
+abstract class CharacterDao : BaseDao<Character>("character") {
 
     @Query("SELECT * FROM character ORDER BY name ASC")
     abstract fun getAll(): Flow<List<Character>>

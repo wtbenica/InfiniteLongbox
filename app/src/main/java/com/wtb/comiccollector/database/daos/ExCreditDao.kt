@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.Flow
 
 @ExperimentalCoroutinesApi
 @Dao
-abstract class ExCreditDao : BaseDao<ExCredit>() {
+abstract class ExCreditDao : BaseDao<ExCredit>("excredit") {
 
     @Query("SELECT * FROM excredit WHERE storyId IN (:storyIds)")
     abstract fun getExCreditsByStoryIds(storyIds: List<Int>): List<ExCredit>

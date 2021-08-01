@@ -6,4 +6,4 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 @ExperimentalCoroutinesApi
 @Dao
-abstract class StoryTypeDao : BaseDao<StoryType>()
+abstract class StoryTypeDao : BaseDao<StoryType>("storytype")

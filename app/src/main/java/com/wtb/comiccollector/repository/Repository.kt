@@ -43,7 +43,7 @@ const val DUMMY_ID = Int.MAX_VALUE
 
 private const val DATABASE_NAME = "issue-database"
 private const val TAG = APP + "Repository"
-const val DEBUG = true
+const val DEBUG = false
 
 internal const val SHARED_PREFS = "CCPrefs"
 
@@ -236,8 +236,11 @@ class Repository private constructor(val context: Context) {
 
     // ISSUE METHODS
     fun getIssue(issueId: Int): Flow<FullIssue?> {
-        updateIssueCover(issueId)
-        updater.updateIssue(issueId)
+        if (issueId != AUTO_ID) {
+            updateIssueCover(issueId)
+            updater.updateIssue(issueId)
+        }
+
         return issueDao.getFullIssue(issueId = issueId)
     }
 

@@ -16,10 +16,7 @@ import kotlinx.coroutines.flow.Flow
 
 @ExperimentalCoroutinesApi
 @Dao
-abstract class CreatorDao : BaseDao<Creator>() {
-
-    @Query("SELECT * FROM creator WHERE creatorId = :id")
-    abstract suspend fun get(id: Int): Creator?
+abstract class CreatorDao : BaseDao<Creator>("creator") {
 
     @Query("SELECT * FROM creator ORDER BY sortName ASC")
     abstract fun getAll(): Flow<List<Creator>>

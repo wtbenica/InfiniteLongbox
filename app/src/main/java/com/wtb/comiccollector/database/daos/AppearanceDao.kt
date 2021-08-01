@@ -7,7 +7,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 @ExperimentalCoroutinesApi
 @Dao
-abstract class AppearanceDao : BaseDao<Appearance>() {
+abstract class AppearanceDao : BaseDao<Appearance>("appearance") {
 
     @Query("SELECT * FROM appearance WHERE story IN (:storyIds)")
     abstract fun getAppearancesByStoryIds(storyIds: List<Int>): List<Appearance>

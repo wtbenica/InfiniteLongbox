@@ -11,7 +11,7 @@ private const val TAG = APP + "CollectionDao"
 
 @ExperimentalCoroutinesApi
 @Dao
-abstract class CollectionDao : BaseDao<MyCollection>() {
+abstract class CollectionDao : BaseDao<MyCollection>("collection") {
 
     @Query(
         """

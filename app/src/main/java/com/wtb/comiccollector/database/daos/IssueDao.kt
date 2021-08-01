@@ -19,10 +19,7 @@ private const val TAG = APP + "IssueDao"
 
 @ExperimentalCoroutinesApi
 @Dao
-abstract class IssueDao : BaseDao<Issue>() {
-
-    @Query("SELECT * FROM issue WHERE issueId=:id")
-    abstract suspend fun get(id: Int): Issue?
+abstract class IssueDao : BaseDao<Issue>("issue") {
 
     // FLOW FUNCTIONS
     @RawQuery(observedEntities = [FullIssue::class])
@@ -30,7 +27,7 @@ abstract class IssueDao : BaseDao<Issue>() {
 
     fun getIssuesByFilter(filter: SearchFilter): Flow<List<FullIssue>> {
         val query = createIssueQuery(filter)
-        Log.d(TAG, "getIssuesByFilter: ${query.sql}")
+        Log.d(TAG, "getIssuesByFilter")
         return getFullIssuesByQuery(query)
     }
 
@@ -40,7 +37,7 @@ abstract class IssueDao : BaseDao<Issue>() {
 
     fun getIssuesByFilterPagingSource(filter: SearchFilter): PagingSource<Int, FullIssue> {
         val query = createIssueQuery(filter)
-        Log.d(TAG, "getIssuesByFilterPagingSource: ${query.sql}")
+        Log.d(TAG, "getIssuesByFilterPagingSource")
         return getFullIssuesByQueryPagingSource(query)
     }
 
@@ -50,7 +47,7 @@ abstract class IssueDao : BaseDao<Issue>() {
 
     suspend fun getIssuesByFilterSus(filter: SearchFilter): List<FullIssue> {
         val query = createIssueQuery(filter)
-        Log.d(TAG, "getIssuesByFilterSus: ${query.sql}")
+        Log.d(TAG, "getIssuesByFilterSus")
         return getFullIssuesByQuerySus(query)
     }
 

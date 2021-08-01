@@ -118,6 +118,9 @@ interface Webservice {
     @GET("db_query/character/{characterId}/appearances")
     suspend fun getAppearances(@Path("characterId") characterId: Int): List<Item<GcdCharacterAppearance, Appearance>>
 
+    @GET("db_query/publishers/ids/{ids}")
+    suspend fun getPublishersByIds(ids: List<Int>): List<Item<GcdPublisher, Publisher>>
+
     companion object {
         private const val TAG = "Webservice"
 

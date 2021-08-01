@@ -6,4 +6,4 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 @ExperimentalCoroutinesApi
 @Dao
-abstract class CoverDao : BaseDao<Cover>()
+abstract class CoverDao : BaseDao<Cover>("cover")

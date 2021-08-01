@@ -12,7 +12,8 @@ import com.wtb.comiccollector.database.models.*
 import kotlinx.coroutines.*
 import org.jsoup.Jsoup
 import java.net.URL
-import kotlin.reflect.KClass
+import kotlin.reflect.KSuspendFunction0
+import kotlin.reflect.KSuspendFunction1
 
 private const val TAG = APP + "UpdateStatic"
 
@@ -30,293 +31,299 @@ class StaticUpdater(
     private val database: IssueDatabase,
     private val prefs: SharedPreferences,
 ) : Updater() {
-    
-    private val issueUpdater: IssueUpdater by lazy {
-        IssueUpdater()
-    }
+
+    private val issueUpdater: IssueUpdater by lazy { IssueUpdater() }
 
     /**
      *  UpdateAsync - Updates publisher, series, role, and storytype tables
      */
     @ExperimentalCoroutinesApi
     internal suspend fun updateAsync() {
-        val publishers: List<Publisher> = getPublishers()
-        val roles: List<Role> = getRoles()
-        val storyTypes: List<StoryType> = getStoryTypes()
-        val bondTypes: List<BondType> = getBondTypes()
-
         database.transactionDao().upsertStatic(
-            publishers = saveTimeIfNotEmpty(prefs, publishers, UPDATED_PUBLISHERS),
-            roles = saveTimeIfNotEmpty(prefs, roles, UPDATED_ROLES),
-            storyTypes = saveTimeIfNotEmpty(prefs, storyTypes, UPDATED_STORY_TYPES),
-            bondTypes = saveTimeIfNotEmpty(prefs, bondTypes, UPDATED_BOND_TYPE),
+            publishers = getPublishers(),
+            roles = getRoles(),
+            storyTypes = getStoryTypes(),
+            bondTypes = getBondTypes(),
         )
 
-        if (!DEBUG) {
-            refresh<Series>(
-                prefs = prefs, savePageTag = UPDATED_SERIES_PAGE,
-                saveTag = UPDATED_SERIES,
-                getItemsByPage = this@StaticUpdater::refreshSeriesByPage,
-                dao = database.seriesDao()
-            )
-
-            refresh<Character>(
-                prefs = prefs, savePageTag = UPDATED_CHARACTERS_PAGE,
-                saveTag = UPDATED_CHARACTERS,
-                getItemsByPage = this@StaticUpdater::refreshCharactersByPage,
-                dao = database.characterDao()
-            )
-
-            refresh<Creator>(
-                prefs = prefs, savePageTag = UPDATED_CREATORS_PAGE,
-                saveTag = UPDATED_CREATORS,
-                getItemsByPage = this@StaticUpdater::refreshCreatorsByPage,
-                dao = database.creatorDao()
-            )
-
-            val bonds: List<SeriesBond>? = getSeriesBonds()
-            if (bonds != null) {
-                database.seriesBondDao().upsert(bonds)
-                Repository.saveTime(prefs, UPDATED_BONDS)
-            }
-
-            refresh<NameDetail>(
-                prefs = prefs, savePageTag = UPDATED_NAME_DETAILS_PAGE,
-                saveTag = UPDATED_NAME_DETAILS,
-                getItemsByPage = this@StaticUpdater::refreshNameDetailsByPage,
-                dao = database.nameDetailDao(),
-                followup = this@StaticUpdater::checkFKeysNameDetail
-            )
-
-            refresh<Issue>(
-                prefs = prefs, savePageTag = UPDATED_ISSUES_PAGE,
-                saveTag = UPDATED_ISSUES,
-                getItemsByPage = this@StaticUpdater::refreshIssuesByPage,
-                dao = database.issueDao(),
-                followup = this@StaticUpdater::checkFKeysIssue
-            )
-        }
-
-        refresh<Story>(
-            prefs = prefs, savePageTag = UPDATED_STORIES_PAGE,
-            saveTag = UPDATED_STORIES,
-            getItemsByPage = this@StaticUpdater::refreshStoriesByPage,
-            dao = database.storyDao(),
-            followup = this@StaticUpdater::checkFKeysStory
+        refreshAllPaged<Series>(
+            prefs = prefs,
+            savePageTag = UPDATED_SERIES_PAGE,
+            saveTag = UPDATED_SERIES,
+            getItemsByPage = this::getSeriesByPage,
+            verifyForeignKeys = this::checkFKeysSeries,
+            dao = database.seriesDao()
         )
 
-        refresh<Appearance>(
-            prefs = prefs, savePageTag = UPDATED_APPEARANCES_PAGE,
-            saveTag = UPDATED_APPEARANCES,
-            getItemsByPage = this@StaticUpdater::refreshAppearancesByPage,
-            dao = database.appearanceDao(),
-            followup = this@StaticUpdater::checkFKeysAppearance
+        refreshAllPaged<Creator>(
+            prefs = prefs,
+            savePageTag = UPDATED_CREATORS_PAGE,
+            saveTag = UPDATED_CREATORS,
+            getItemsByPage = this::getCreatorsByPage,
+            dao = database.creatorDao()
         )
 
-        refresh<Credit>(
-            prefs = prefs, savePageTag = UPDATED_CREDITS_PAGE,
-            saveTag = UPDATED_CREDITS,
-            getItemsByPage = this@StaticUpdater::refreshCreditsByPage,
-            dao = database.creditDao(),
-            followup = this@StaticUpdater::checkFKeysCredit
+        refreshAllPaged<NameDetail>(
+            prefs = prefs,
+            savePageTag = UPDATED_NAME_DETAILS_PAGE,
+            saveTag = UPDATED_NAME_DETAILS,
+            getItemsByPage = this::getNameDetailsByPage,
+            verifyForeignKeys = this::checkFKeysNameDetail,
+            dao = database.nameDetailDao()
         )
 
-        refresh<ExCredit>(
-            prefs = prefs, savePageTag = UPDATED_EXCREDITS_PAGE,
-            saveTag = UPDATED_EXCREDITS,
-            getItemsByPage = this@StaticUpdater::refreshExCreditsByPage,
-            dao = database.exCreditDao()
-        )
-    }
-
-    private suspend fun getPublishers(): List<Publisher> = supervisorScope {
-        if (checkIfStale(UPDATED_PUBLISHERS, MONTHLY, prefs) && !DEBUG) {
-            Log.d(TAG, "getPublishers STALE")
-            runSafely("update: Getting Publishers") {
-                async { webservice.getPublishers() }
-            }?.models ?: emptyList()
-        } else {
-            Log.d(TAG, "getPublishers NOT STALE")
-            emptyList()
-        }
-    }
-
-    private suspend fun getRoles(): List<Role> = supervisorScope {
-        if (checkIfStale(UPDATED_ROLES, MONTHLY, prefs) && !DEBUG) {
-            Log.d(TAG, "getRoles STALE")
-            runSafely("getRoles") {
-                async { webservice.getRoles() }
-            }?.models ?: emptyList()
-        } else {
-            Log.d(TAG, "getRoles NOT STALE")
-            emptyList()
-        }
-    }
-
-    private suspend fun getStoryTypes(): List<StoryType> = supervisorScope {
-        if (checkIfStale(UPDATED_STORY_TYPES, MONTHLY, prefs) && !DEBUG) {
-            Log.d(TAG, "getStoryTypes STALE")
-            runSafely("getStoryTypes") {
-                async { webservice.getStoryTypes() }
-            }?.models ?: emptyList()
-        } else {
-            Log.d(TAG, "getStoryTypes NOT STALE")
-            emptyList()
-        }
-    }
-
-    private suspend fun getBondTypes(): List<BondType> = supervisorScope {
-        if (checkIfStale(UPDATED_BOND_TYPE, MONTHLY, prefs) && !DEBUG) {
-            Log.d(TAG, "getBondTypes STALE")
-            runSafely("getBondTypes") {
-                async { webservice.getBondTypes() }
-            }?.models ?: emptyList()
-        } else {
-            Log.d(TAG, "getBondTypes NOT STALE")
-            emptyList()
-        }
-    }
-
-    private suspend fun getSeriesBonds(): List<SeriesBond>? = supervisorScope {
-        runSafely("getSeriesBonds") {
-            async { webservice.getSeriesBonds() }
-        }?.models
-    }
-
-    private suspend fun refreshIssuesByPage(page: Int): List<Issue>? =
-        getItemsByPage(
-            page,
-            webservice::getIssuesByPage,
-            Issue::class
+        refreshAllPaged<Character>(
+            prefs = prefs,
+            savePageTag = UPDATED_CHARACTERS_PAGE,
+            saveTag = UPDATED_CHARACTERS,
+            getItemsByPage = this::getCharactersByPage,
+            dao = database.characterDao()
         )
 
-    private suspend fun refreshStoriesByPage(page: Int): List<Story>? =
-        getItemsByPage(page, webservice::getStoriesByPage, Story::class)
+        refreshAll<SeriesBond>(
+            prefs = prefs,
+            saveTag = UPDATED_BONDS,
+            getItems = this::getSeriesBonds,
+            followup = this::checkFKeysSeriesBond,
+            dao = database.seriesBondDao()
+        )
 
-    private suspend fun refreshCharactersByPage(page: Int): List<Character>? =
-        getItemsByPage(page, webservice::getCharactersByPage, Character::class)
+//        refreshPaged<Issue>(
+//            prefs = prefs, savePageTag = UPDATED_ISSUES_PAGE,
+//            saveTag = UPDATED_ISSUES,
+//            getItemsByPage = this::getIssuesByPage,
+//            dao = database.issueDao(),
+//            followup = this::checkFKeysIssue
+//        )
+//
+//        refreshPaged<Story>(
+//            prefs = prefs, savePageTag = UPDATED_STORIES_PAGE,
+//            saveTag = UPDATED_STORIES,
+//            getItemsByPage = this::getStoriesByPage,
+//            dao = database.storyDao(),
+//            followup = this::checkFKeysStory
+//        )
+//
+//        refreshPaged<Appearance>(
+//            prefs = prefs, savePageTag = UPDATED_APPEARANCES_PAGE,
+//            saveTag = UPDATED_APPEARANCES,
+//            getItemsByPage = this::getAppearancesByPage,
+//            dao = database.appearanceDao(),
+//            followup = this::checkFKeysAppearance
+//        )
+//
+//        Log.d(TAG, "Updating Credit")
+//        refreshPaged<Credit>(
+//            prefs = prefs, savePageTag = UPDATED_CREDITS_PAGE,
+//            saveTag = UPDATED_CREDITS,
+//            getItemsByPage = this::getCreditsByPage,
+//            dao = database.creditDao(),
+//            followup = this::checkFKeysCredit
+//        )
+//
+//        refreshPaged<ExCredit>(
+//            prefs = prefs, savePageTag = UPDATED_EXCREDITS_PAGE,
+//            saveTag = UPDATED_EXCREDITS,
+//            getItemsByPage = this::getExCreditsByPage,
+//            dao = database.exCreditDao()
+//        )
+    }
 
-    private suspend fun refreshSeriesByPage(page: Int): List<Series>? =
-        getItemsByPage(page, webservice::getSeriesByPage, Series::class)
+    private suspend fun getPublishers(): List<Publisher>? =
+        getItems(prefs, webservice::getPublishers, UPDATED_PUBLISHERS)
 
-    private suspend fun refreshCreatorsByPage(page: Int): List<Creator>? =
-        getItemsByPage(page, webservice::getCreatorsByPage, Creator::class)
+    private suspend fun getRoles(): List<Role>? =
+        getItems(prefs, webservice::getRoles, UPDATED_ROLES)
 
-    private suspend fun refreshAppearancesByPage(page: Int): List<Appearance>? =
-        getItemsByPage(page, webservice::getAppearancesByPage, Appearance::class)
+    private suspend fun getStoryTypes(): List<StoryType>? =
+        getItems(prefs, webservice::getStoryTypes, UPDATED_STORY_TYPES)
 
-    private suspend fun refreshCreditsByPage(page: Int): List<Credit>? =
-        getItemsByPage(page, webservice::getCreditsByPage, Credit::class)
+    private suspend fun getBondTypes(): List<BondType>? =
+        getItems(prefs, webservice::getBondTypes, UPDATED_BOND_TYPE)
 
-    private suspend fun refreshExCreditsByPage(page: Int): List<ExCredit>? =
-        getItemsByPage(page, webservice::getExCreditsByPage, ExCredit::class)
+    private suspend fun getSeriesBonds(): List<SeriesBond>? =
+        getItems(prefs, webservice::getSeriesBonds, UPDATED_BONDS)
 
-    private suspend fun refreshNameDetailsByPage(page: Int): List<NameDetail>? =
-        getItemsByPage(page, webservice::getNameDetailsByPage, NameDetail::class)
+    private suspend fun getCharactersByPage(page: Int): List<Character>? =
+        getItemsByArgument(page, webservice::getCharactersByPage)
+
+    private suspend fun getSeriesByPage(page: Int): List<Series>? =
+        getItemsByArgument(page, webservice::getSeriesByPage)
+
+    private suspend fun getCreatorsByPage(page: Int): List<Creator>? =
+        getItemsByArgument(page, webservice::getCreatorsByPage)
+
+    private suspend fun getNameDetailsByPage(page: Int): List<NameDetail>? =
+        getItemsByArgument(page, webservice::getNameDetailsByPage)
+
+    private suspend fun getSeriesByIds(seriesIds: List<Int>): List<Series>? =
+        getItemsByArgument(seriesIds, webservice::getSeriesByIds)
+
+    //       private suspend fun getIssuesByPage(page: Int): List<Issue>? =
+//        getItemsByArgument(page, webservice::getIssuesByPage, Issue::class)
+//
+//    private suspend fun getStoriesByPage(page: Int): List<Story>? =
+//        getItemsByArgument(page, webservice::getStoriesByPage, Story::class)
+//
+//    private suspend fun getAppearancesByPage(page: Int): List<Appearance>? =
+//        getItemsByArgument(page, webservice::getAppearancesByPage, Appearance::class)
+//
+//    private suspend fun getCreditsByPage(page: Int): List<Credit>? =
+//        getItemsByArgument(page, webservice::getCreditsByPage, Credit::class)
+//
+//    private suspend fun getExCreditsByPage(page: Int): List<ExCredit>? =
+//        getItemsByArgument(page, webservice::getExCreditsByPage, ExCredit::class)
+//
+
+    private suspend fun checkFKeysSeries(series: List<Series>) {
+        checkSeriesFkPublisher(series)
+    }
+
+    private suspend fun checkSeriesFkPublisher(series: List<Series>) =
+        updateMissingForeignKeyModels(series,
+                                      Series::publisherId,
+                                      database.publisherDao(),
+                                      webservice::getPublishersByIds)
 
     private suspend fun checkFKeysNameDetail(nameDetails: List<NameDetail>) {
-        val creatorIds: List<Int> = nameDetails.map { it.creatorId }
-        val missingIds =
-            creatorIds.mapNotNull { if (database.creatorDao().get(it) == null) it else null }
-        if (missingIds.isNotEmpty()) {
-            val creators = webservice.getCreatorsByIds(missingIds).models
-            database.creatorDao().upsert(creators)
-        }
+        checkNameDetailFkCreator(nameDetails)
     }
 
+    private suspend fun checkNameDetailFkCreator(nameDetails: List<NameDetail>) =
+        updateMissingForeignKeyModels(nameDetails,
+                                      NameDetail::creatorId,
+                                      database.creatorDao(),
+                                      webservice::getCreatorsByIds)
+
+
     private suspend fun checkFKeysIssue(issues: List<Issue>) {
-        val variantOfIds: List<Int> = issues.mapNotNull { it.variantOf }
-        val missingIssueIds =
-            variantOfIds.mapNotNull { if (database.issueDao().get(it) == null) it else null }
-        if (missingIssueIds.isNotEmpty()) {
-            val missingIssues = webservice.getIssuesByIds(missingIssueIds).models
-            checkFKeysIssue(missingIssues)
-            database.issueDao().upsert(missingIssues)
-        }
+        checkIssueFkSeries(issues)
+        checkIssueFkVariantOf(issues)
+    }
+
+    private suspend fun checkIssueFkSeries(issues: List<Issue>) =
+        updateMissingForeignKeyModels(issues,
+                                      Issue::seriesId,
+                                      database.seriesDao(),
+                                      webservice::getSeriesByIds,
+                                      this@StaticUpdater::checkFKeysSeries)
+
+    private suspend fun checkIssueFkVariantOf(issues: List<Issue>) =
+        updateMissingForeignKeyModels(issues,
+                                      Issue::variantOf,
+                                      database.issueDao(),
+                                      webservice::getIssuesByIds,
+                                      this@StaticUpdater::checkFKeysIssue)
+
+    private suspend fun checkSeriesBondFkOriginIssue(seriesBonds: List<SeriesBond>) =
+        updateMissingForeignKeyModels(seriesBonds,
+                                      SeriesBond::originIssueId,
+                                      database.issueDao(),
+                                      webservice::getIssuesByIds,
+                                      this@StaticUpdater::checkFKeysIssue)
+
+    private suspend fun checkSeriesBondFkOriginSeries(seriesBonds: List<SeriesBond>) =
+        updateMissingForeignKeyModels(seriesBonds,
+                                      SeriesBond::originId,
+                                      database.seriesDao(),
+                                      webservice::getSeriesByIds,
+                                      this@StaticUpdater::checkFKeysSeries)
+
+    private suspend fun checkSeriesBondFkTargetSeries(seriesBonds: List<SeriesBond>) =
+        updateMissingForeignKeyModels(seriesBonds,
+                                      SeriesBond::targetId,
+                                      database.seriesDao(),
+                                      webservice::getSeriesByIds,
+                                      this@StaticUpdater::checkFKeysSeries)
+
+    private suspend fun checkSeriesBondFkTargetIssue(seriesBonds: List<SeriesBond>) =
+        updateMissingForeignKeyModels(seriesBonds,
+                                      SeriesBond::targetIssueId,
+                                      database.issueDao(),
+                                      webservice::getIssuesByIds,
+                                      this@StaticUpdater::checkFKeysIssue)
+
+
+    private suspend fun checkFKeysSeriesBond(bonds: List<SeriesBond>) {
+        checkSeriesBondFkOriginIssue(bonds)
+        checkSeriesBondFkOriginSeries(bonds)
+        checkSeriesBondFkTargetIssue(bonds)
+        checkSeriesBondFkTargetSeries(bonds)
     }
 
     private suspend fun checkFKeysStory(stories: List<Story>) {
-        val issueIds: List<Int> = stories.map { it.issueId }
-        val missingIssueIds =
-            issueIds.mapNotNull { if (database.issueDao().get(it) == null) it else null }
-        if (missingIssueIds.isNotEmpty()) {
-            val missingIssues = webservice.getIssuesByIds(missingIssueIds).models
-            checkFKeysIssue(missingIssues)
-            database.issueDao().upsert(missingIssues)
-        }
+        checkStoryFkIssue(stories)
     }
+
+    private suspend fun checkStoryFkIssue(stories: List<Story>) =
+        updateMissingForeignKeyModels(stories,
+                                      Story::issueId,
+                                      database.issueDao(),
+                                      webservice::getIssuesByIds,
+                                      this@StaticUpdater::checkFKeysIssue)
 
     private suspend fun checkFKeysAppearance(appearances: List<Appearance>) {
-        val missingCharacterIds: List<Int> = appearances.mapNotNull {
-            val id = it.character
-            if (database.characterDao().get(id) == null) id else null
-        }
-        if (missingCharacterIds.isNotEmpty()) {
-            val missingCharacters = webservice.getCharactersByIds(missingCharacterIds).models
-            database.characterDao().upsert(missingCharacters)
-        }
-
-        val missingStoryIds = appearances.mapNotNull {
-            val id = it.story
-            if (database.storyDao().get(id) == null) id else null
-        }
-        if (missingStoryIds.isNotEmpty()) {
-            val missingStories = webservice.getStoriesByIds(missingStoryIds).models
-            checkFKeysStory(missingStories)
-            database.storyDao().upsert(missingStories)
-        }
+        checkAppearanceFkCharacter(appearances)
+        checkAppearanceFkStory(appearances)
     }
 
-    private suspend fun <T : CreditX> checkFKeysCredit(credits: List<T>) {
-        val missingNameDetailIds: List<Int> = credits.mapNotNull {
-            val id = it.nameDetailId
-            if (database.nameDetailDao().get(id) == null) id else null
-        }
-        if (missingNameDetailIds.isNotEmpty()) {
-            val missingNameDetails = webservice.getNameDetailsByIds(missingNameDetailIds).models
-            checkFKeysNameDetail(missingNameDetails)
-            database.nameDetailDao().upsert(missingNameDetails)
-        }
+    private suspend fun checkAppearanceFkCharacter(appearances: List<Appearance>) =
+        updateMissingForeignKeyModels(appearances,
+                                      Appearance::character,
+                                      database.characterDao(),
+                                      webservice::getCharactersByIds)
 
-        val missingStoryIds = credits.mapNotNull {
-            val id = it.storyId
-            if (database.storyDao().get(id) == null) id else null
-        }
-        if (missingStoryIds.isNotEmpty()) {
-            val missingStories = webservice.getStoriesByIds(missingStoryIds).models
-            checkFKeysStory(missingStories)
-            database.storyDao().upsert(missingStories)
-        }
+    private suspend fun checkAppearanceFkStory(appearances: List<Appearance>) =
+        updateMissingForeignKeyModels(appearances,
+                                      Appearance::story,
+                                      database.storyDao(),
+                                      webservice::getStoriesByIds,
+                                      this@StaticUpdater::checkFKeysStory)
+
+    private suspend fun <T : CreditX> checkCreditFkNameDetail(credits: List<T>) =
+        updateMissingForeignKeyModels(credits,
+                                      CreditX::nameDetailId,
+                                      database.nameDetailDao(),
+                                      webservice::getNameDetailsByIds,
+                                      this@StaticUpdater::checkFKeysNameDetail)
+
+    private suspend fun <T : CreditX> checkCreditFkStory(credits: List<T>) =
+        updateMissingForeignKeyModels(credits,
+                                      CreditX::storyId,
+                                      database.storyDao(),
+                                      webservice::getStoriesByIds,
+                                      this@StaticUpdater::checkFKeysStory)
+
+    private suspend fun <T : CreditX> checkFKeysCredit(credits: List<T>) {
+        checkCreditFkNameDetail(credits)
+        checkCreditFkStory(credits)
     }
 
     fun updateIssue(issueId: Int) = issueUpdater.updateIssue(issueId)
 
     inner class IssueUpdater {
         fun updateIssue(issueId: Int) {
+            Log.d(TAG, "updateIssue: $issueId")
             updateStoryDetails(issueId)
             updateCover(issueId)
         }
 
         private fun updateStoryDetails(issueId: Int) {
             CoroutineScope(Dispatchers.IO).launch {
+                Log.d(TAG, "This is BASE_URL: $BASE_URL")
                 var stories: List<Story> = database.storyDao().getStories(issueId)
                 if (stories.isEmpty()) {
-                    stories = supervisorScope {
-                        runSafely("getStoriesByIssue", issueId) {
-                            async { webservice.getStoriesByIssue(it).models }
-                        } ?: emptyList()
-                    }
+                    stories =
+                        getItemsByArgument(issueId, webservice::getStoriesByIssue) ?: emptyList()
                     checkFKeysStory(stories)
                     database.storyDao().upsert(stories)
                 }
 
                 var credits: List<Credit> = database.creditDao().getCreditsByStoryIds(stories.ids)
                 if (credits.isEmpty()) {
-                    credits = supervisorScope {
-                        runSafely("getCreditsByStoryIds", stories.ids) {
-                            async { webservice.getCreditsByStoryIds(it).models }
-                        } ?: emptyList()
-                    }
+                    credits =
+                        getItemsByArgument(listOf(issueId), webservice::getCreditsByStoryIds)
+                            ?: emptyList()
                     checkFKeysCredit(credits)
                     database.creditDao().upsert(credits)
                 }
@@ -324,11 +331,10 @@ class StaticUpdater(
                 var excredits: List<ExCredit> =
                     database.exCreditDao().getExCreditsByStoryIds(stories.ids)
                 if (excredits.isEmpty()) {
-                    excredits = supervisorScope {
-                        runSafely("getExCreditsByStoryIds", stories.ids) {
-                            async { webservice.getExtractedCreditsByStories(it).models }
-                        } ?: emptyList()
-                    }
+                    excredits =
+                        getItemsByArgument(listOf(issueId),
+                                           webservice::getExtractedCreditsByStories) ?: emptyList()
+
                     checkFKeysCredit(excredits)
                     database.exCreditDao().upsert(excredits)
                 }
@@ -336,11 +342,9 @@ class StaticUpdater(
                 var appearances: List<Appearance> =
                     database.appearanceDao().getAppearancesByStoryIds(stories.ids)
                 if (appearances.isEmpty()) {
-                    appearances = supervisorScope {
-                        runSafely("getAppearancesByStory", stories.ids) {
-                            async { webservice.getAppearancesByStory(it).models }
-                        } ?: emptyList()
-                    }
+                    appearances =
+                        getItemsByArgument(listOf(issueId), webservice::getAppearancesByStory)
+                            ?: emptyList()
                     checkFKeysAppearance(appearances)
                     database.appearanceDao().upsert(appearances)
                 }
@@ -406,23 +410,51 @@ class StaticUpdater(
     }
 
     companion object {
-        private suspend fun <G : GcdJson<M>, M : DataModel> getItemsByPage(
-            page: Int,
-            apiCall: suspend (Int) -> List<Item<G, M>>,
-            mclass: KClass<M>,
-        ): List<M>? =
+        /**
+         * Get items by argument
+         *
+         * @return null on connection error
+         */
+        private suspend fun <GcdType : GcdJson<ModelType>, ModelType : DataModel, ArgType : Any> getItemsByArgument(
+            arg: ArgType,
+            apiCall: KSuspendFunction1<ArgType, List<Item<GcdType, ModelType>>>,
+        ): List<ModelType>? =
             supervisorScope {
-                runSafely("getItemsByPage ${mclass::simpleName}", page) {
+                runSafely("getItemsByArgument: ${apiCall.name}", arg) {
                     async { apiCall(it) }
                 }?.models
             }
 
-        private suspend fun <T : DataModel> refresh(
-            prefs: SharedPreferences, savePageTag: String,
+        /**
+         * Get items - checks if stale and retrieves items
+         * @return null on connection error
+         */
+        private suspend fun <GcdType : GcdJson<ModelType>, ModelType : DataModel> getItems(
+            prefs: SharedPreferences,
+            apiCall: KSuspendFunction0<List<Item<GcdType, ModelType>>>,
             saveTag: String,
-            getItemsByPage: suspend (Int) -> List<T>?,
-            dao: BaseDao<T>,
-            followup: suspend (List<T>) -> Unit = {},
+        ): List<ModelType>? =
+            supervisorScope {
+                if (checkIfStale(saveTag, WEEKLY, prefs)) {
+                    runSafely("getItems: ${apiCall.name}") {
+                        async { apiCall() }
+                    }?.models
+                } else {
+                    emptyList()
+                }
+            }
+
+        /**
+         * Get all paged - calls getItemsByPage , performs verifyForeignKeys on each page, then
+         * saves each page to dao
+         */
+        private suspend fun <ModelType : DataModel> refreshAllPaged(
+            prefs: SharedPreferences,
+            savePageTag: String,
+            saveTag: String,
+            getItemsByPage: suspend (Int) -> List<ModelType>?,
+            verifyForeignKeys: suspend (List<ModelType>) -> Unit = {},
+            dao: BaseDao<ModelType>,
         ) {
             if (checkIfStale(saveTag, WEEKLY, prefs)) {
                 var page = prefs.getInt(savePageTag, 0)
@@ -431,10 +463,10 @@ class StaticUpdater(
 
                 do {
                     coroutineScope {
-                        val itemPage: List<T>? = getItemsByPage(page)
+                        val itemPage: List<ModelType>? = getItemsByPage(page)
 
                         if (itemPage != null && itemPage.isNotEmpty()) {
-                            followup(itemPage)
+                            verifyForeignKeys(itemPage)
                             dao.upsertSus(itemPage)
                             Repository.savePrefValue(prefs, savePageTag, page)
                         } else if (itemPage != null) {
@@ -455,14 +487,66 @@ class StaticUpdater(
             }
         }
 
-        @ExperimentalCoroutinesApi
-        private fun <M : DataModel> saveTimeIfNotEmpty(
+        /**
+         * Refresh all - gets items, performs followup, then saves using dao
+         */
+        private suspend fun <ModelType : DataModel> refreshAll(
             prefs: SharedPreferences,
-            items: List<M>, saveTag: String): List<M> =
+            saveTag: String,
+            getItems: suspend () -> List<ModelType>?,
+            followup: suspend (List<ModelType>) -> Unit = {},
+            dao: BaseDao<ModelType>,
+        ) {
+            if (checkIfStale(saveTag, WEEKLY, prefs)) {
+                coroutineScope {
+                    val items: List<ModelType>? = getItems()
+
+                    if (items != null && items.isNotEmpty()) {
+                        followup(items)
+                        dao.upsertSus(items)
+                        Repository.saveTime(prefs, saveTag)
+                    }
+                }
+            }
+        }
+
+        @ExperimentalCoroutinesApi
+        private fun <ModelType : DataModel> saveTimeIfNotEmpty(
+            prefs: SharedPreferences,
+            items: List<ModelType>?,
+            saveTag: String,
+        ): List<ModelType>? =
             items.also {
-                if (it.isNotEmpty()) {
+                if (it != null && it.isNotEmpty()) {
                     Repository.saveTime(prefs, saveTag)
                 }
             }
+
+        /**
+         * Get missing foreign key models
+         */
+        private suspend fun <
+                ModelType : DataModel,
+                GcdFkType : GcdJson<FKModel>,
+                FKModel : DataModel,
+                > updateMissingForeignKeyModels(
+            items: List<ModelType>,
+            getFkId: (ModelType) -> Int?,
+            fkDao: BaseDao<FKModel>,
+            getItems: KSuspendFunction1<List<Int>, List<Item<GcdFkType, FKModel>>>,
+            followup: (suspend (List<FKModel>) -> Unit)? = null,
+        ) {
+            val fkIds: List<Int> = items.mapNotNull { getFkId(it) }
+            val missingIds: List<Int> = fkIds.mapNotNull {
+                if (fkDao.get(it) == null) it else null
+            }
+
+            val missingItems = getItemsByArgument(missingIds, getItems)
+
+            if (missingItems != null && missingItems.isNotEmpty()) {
+                followup?.let { it(missingItems) }
+                fkDao.upsert(missingItems)
+            }
+        }
     }
 }
