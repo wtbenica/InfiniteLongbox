@@ -55,6 +55,7 @@ class FilterViewModel : ViewModel() {
     }
 
     val filterOptions = filterTypeSpinnerOption.flatMapLatest {
+        Log.d(TAG, "FilterOption: $it")
         when (it) {
             Series.Companion::class     -> seriesOptions
             Publisher.Companion::class  -> publisherOptions
@@ -66,6 +67,7 @@ class FilterViewModel : ViewModel() {
     }
 
     fun setFilter(filter: SearchFilter) {
+        Log.d(TAG, "setting filter!!: ${filter.mSortType}")
         theOneTrueFilter.value = filter
     }
 

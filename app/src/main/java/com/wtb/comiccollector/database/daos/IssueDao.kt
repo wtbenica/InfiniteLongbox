@@ -10,8 +10,7 @@ import androidx.sqlite.db.SimpleSQLiteQuery
 import androidx.sqlite.db.SupportSQLiteQuery
 import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.SearchFilter
-import com.wtb.comiccollector.database.models.FullIssue
-import com.wtb.comiccollector.database.models.Issue
+import com.wtb.comiccollector.database.models.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 
@@ -28,6 +27,7 @@ abstract class IssueDao : BaseDao<Issue>("issue") {
     fun getIssuesByFilter(filter: SearchFilter): Flow<List<FullIssue>> {
         val query = createIssueQuery(filter)
         Log.d(TAG, "getIssuesByFilter")
+        Log.d(TAG, query.sql)
         return getFullIssuesByQuery(query)
     }
 
@@ -38,6 +38,7 @@ abstract class IssueDao : BaseDao<Issue>("issue") {
     fun getIssuesByFilterPagingSource(filter: SearchFilter): PagingSource<Int, FullIssue> {
         val query = createIssueQuery(filter)
         Log.d(TAG, "getIssuesByFilterPagingSource")
+        Log.d(TAG, query.sql)
         return getFullIssuesByQueryPagingSource(query)
     }
 
@@ -83,69 +84,103 @@ abstract class IssueDao : BaseDao<Issue>("issue") {
 
     companion object {
         private fun createIssueQuery(filter: SearchFilter): SimpleSQLiteQuery {
-            var tableJoinString = String()
-            var conditionsString = String()
+            val tableJoinString = StringBuilder()
+            val conditionsString = StringBuilder()
             val args: ArrayList<Any> = arrayListOf()
             fun connectword(): String = if (conditionsString.isEmpty()) "WHERE" else "AND"
 
-            tableJoinString +=
-                """SELECT DISTINCT ie.* 
+            tableJoinString.append("""SELECT DISTINCT ie.* 
                         FROM issue ie 
-                        JOIN series ss ON ie.seriesId = ss.seriesId 
-                        JOIN publisher pr ON ss.publisherId = pr.publisherId 
                         LEFT JOIN cover cr ON ie.issueId = cr.issueId 
-                        LEFT JOIN story sy on sy.issueId = ie.issueId """
+                        LEFT JOIN story sy on sy.issueId = ie.issueId 
+                        """)
 
             filter.mSeries?.let {
-                conditionsString +=
-                    "${connectword()} ss.seriesId = ${it.seriesId} "
+                conditionsString.append("""${connectword()} ie.seriesId = ? 
+                """)
+                args.add(it.seriesId)
             }
 
             if (filter.hasPublisher()) {
-                val publisherList = modelsToSqlIdString(filter.mPublishers)
+                tableJoinString.append("""JOIN series ss ON ie.seriesId = ss.seriesId 
+                """)
 
-                conditionsString += "${connectword()} pr.publisherId IN $publisherList "
+                if (filter.mPublishers.isNotEmpty()) {
+                    val publisherList = modelsToSqlIdString(filter.mPublishers)
+
+                    conditionsString.append("""${connectword()} ss.publisherId IN $publisherList 
+                    """)
+                }
             }
 
-            if (filter.hasCreator()) {
-                tableJoinString +=
-                    """LEFT JOIN credit ct on ct.storyId = sy.storyId 
-                                LEFT JOIN namedetail nl on nl.nameDetailId = ct.nameDetailId 
-                                LEFT JOIN excredit ect on ect.storyId = sy.storyId 
-                                LEFT JOIN namedetail nl2 on nl2.nameDetailId = ect.nameDetailId """
+            if (filter.mTextFilter?.type in listOf(All, Publisher)) {
+                tableJoinString.append("""JOIN publisher pr ON ss.publisherId = pr.publisherId 
+                """)
+            }
 
+            if (filter.mCreators.isNotEmpty()) {
                 val creatorsList = modelsToSqlIdString(filter.mCreators)
 
-                conditionsString += "${connectword()} (nl.creatorId IN $creatorsList " +
-                        "OR nl2.creatorId IN $creatorsList) "
+                conditionsString.append("""${connectword()} sy.storyId IN (
+                SELECT storyId
+                FROM credit ct
+                JOIN namedetail nl on nl.nameDetailId = ct.nameDetailId
+                WHERE nl.creatorId IN $creatorsList)
+                OR sy.storyId IN (
+                SELECT storyId
+                FROM excredit ect
+                JOIN namedetail nl on nl.nameDetailId = ect.nameDetailId
+                WHERE nl.creatorId IN $creatorsList) 
+            """)
+            }
+
+            if (filter.mTextFilter?.type in listOf(All, NameDetail)) {
+                tableJoinString.append("""LEFT JOIN credit ct on ct.storyId = sy.storyId 
+                            LEFT JOIN namedetail nl on nl.nameDetailId = ct.nameDetailId 
+                            LEFT JOIN excredit ect on ect.storyId = sy.storyId
+                            LEFT JOIN namedetail nl2 on nl2.nameDetailId = ect.nameDetailId """)
             }
 
             if (filter.hasDateFilter()) {
-                conditionsString += "${connectword()} ss.startDate < ? AND ss.endDate > ? "
+                conditionsString.append("""${connectword()} ss.startDate < ? 
+                    ${connectword()} ss.endDate > ? """)
                 args.add(filter.mEndDate)
                 args.add(filter.mStartDate)
             }
 
             if (filter.mMyCollection) {
-                tableJoinString += "JOIN mycollection mc ON mc.issueId = ie.issueId "
+                conditionsString.append("""${connectword()} ie.issueId IN (
+                    SELECT issueId
+                    FROM mycollection) 
+                """)
             }
 
-            filter.mCharacter?.let {
-                tableJoinString += """JOIN appearance ap ON ap.story = sy.storyId """
+            if (filter.hasCharacter()) {
+                tableJoinString.append("""LEFT JOIN appearance ap ON ap.story = sy.storyId 
+                """)
 
-                conditionsString += "${connectword()} ap.character = ? "
+                filter.mCharacter?.let {
+                    conditionsString.append("""${connectword()} ap.character = ? 
+                    """)
+                    args.add(it.characterId)
+                }
 
-                args.add(it.characterId)
+                if (filter.mTextFilter?.type in listOf(All, Character)) {
+                    tableJoinString.append("""LEFT JOIN character ch ON ch.characterId = ap.character 
+                    """)
+                }
             }
 
             if (!filter.mShowVariants) {
-                conditionsString += "${connectword()} ie.variantOf IS NULL "
+                conditionsString.append("${connectword()} ie.variantOf IS NULL "
+                )
             }
 
+            Log.d(TAG, "get query: ${filter.mSortType}")
             val sortClause: String = filter.mSortType?.let { "ORDER BY ${it.sortString}" } ?: ""
 
             return SimpleSQLiteQuery(
-                tableJoinString + conditionsString + sortClause,
+                "$tableJoinString$conditionsString$sortClause",
                 args.toArray()
             )
         }

@@ -296,6 +296,7 @@ class FilterFragment : Fragment(),
 
     // SearchTextViewCallback
     override fun addFilterItem(option: FilterType) {
+        Log.d(TAG, "setting filter: add item $option")
         if (option is TextFilter) {
             option.type =
                 (searchBoxSpinner.selectedItem as KClass<*>).objectInstance as FilterTypeSpinnerOption

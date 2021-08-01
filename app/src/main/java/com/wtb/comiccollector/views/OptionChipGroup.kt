@@ -31,7 +31,7 @@ class OptionChipGroup(context: Context?, attributeSet: AttributeSet) :
         addView(myCollectionChip)
         myCollectionChip.isChecked = filter.mMyCollection
 
-        val viewChip = ViewChip(context, this, filter.viewOptions.second, filter.viewOptions.first)
+        val viewChip = ViewChip(context, this, filter.viewOption)
         addView(viewChip)
 
         if (filter.viewOption == FullIssue::class && !filter.mMyCollection) {
@@ -66,26 +66,23 @@ class OptionChipGroup(context: Context?, attributeSet: AttributeSet) :
 class ViewChip @JvmOverloads constructor(
     context: Context?,
     private val caller: ViewChipCallback? = null,
-    private var viewTypeIndex: Int = 0,
-    viewTypes: List<KClass<out ListItem>>? = null
+    viewType: KClass<out ListItem> = null ?: FullSeries::class
 ) : Chip(context) {
 
-    private val mViewTypes = viewTypes ?: listOf(
-        FullSeries::class,
-        Character::class,
-        NameDetailAndCreator::class
-    )
-    private val viewType: KClass<out ListItem>
-        get() = mViewTypes[viewTypeIndex % mViewTypes.size]
+    private val mViewType: KClass<out ListItem> = viewType
 
     init {
         isCloseIconVisible = false
         isChecked = true
         isCheckable = false
-        text = viewType.simpleName
+        text = when (mViewType) {
+            FullSeries::class -> "Series"
+            FullIssue::class -> "Issues"
+            Character::class -> "Characters"
+            NameDetailAndCreator::class -> "Creators"
+            else -> "CACADOOTY"
+        }
         this.setOnClickListener {
-            viewTypeIndex++
-            text = viewType.simpleName
             caller?.onClickViewChip()
         }
     }

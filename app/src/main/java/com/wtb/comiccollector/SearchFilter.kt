@@ -49,11 +49,12 @@ class SearchFilter
     var mCreators: Set<Creator> = creators ?: setOf()
     var mSeries: Series? = series
         set(value) {
-            // sets selected sort option to default if it's not of the same type
-            if (getSortOptions() != getSortOptions()) {
-                mSortType = getSortOptions()[0]
-            }
+            val oldOptions = getSortOptions()
             field = value
+            val newOptions = getSortOptions()
+            if (oldOptions != newOptions) {
+                mSortType = newOptions[0]
+            }
         }
     var mPublishers: Set<Publisher> = publishers ?: setOf()
     var mStartDate: LocalDate = startDate ?: LocalDate.MIN
@@ -63,19 +64,18 @@ class SearchFilter
     var mTextFilter: TextFilter? = textFilter
     var mShowVariants: Boolean = showVariants
     var mCharacter: Character? = character
-    var mViewOptionsIndex = viewOptionsIndex
 
-    val viewOptions: Pair<List<KClass<out ListItem>>, Int>
-        get() = if (mSeries != null) {
-            val first = listOf(FullIssue::class, Character::class, NameDetailAndCreator::class)
-            Pair(first, mViewOptionsIndex % first.size)
-        } else {
-            val first = listOf(FullSeries::class, Character::class, NameDetailAndCreator::class)
-            Pair(first, mViewOptionsIndex % first.size)
-        }
+    var mViewOptionsIndex = viewOptionsIndex
+        get() = field % viewOptions.size
+    val viewOptions: List<KClass<out ListItem>>
+        get() = if (mSeries != null)
+            listOf(FullIssue::class, Character::class, NameDetailAndCreator::class)
+        else
+            listOf(FullSeries::class, Character::class, NameDetailAndCreator::class)
+
 
     val viewOption: KClass<out ListItem>
-        get() = viewOptions.first[viewOptions.second]
+        get() = viewOptions[mViewOptionsIndex]
 
     fun nextOption() {
         mViewOptionsIndex++
@@ -141,13 +141,13 @@ class SearchFilter
     fun removeFilter(vararg items: FilterType) {
         items.forEach { item ->
             when (item) {
-                is Series        -> removeSeries()
-                is Creator       -> removeCreator(item)
-                is Publisher     -> removePublisher(item)
+                is Series     -> removeSeries()
+                is Creator    -> removeCreator(item)
+                is Publisher  -> removePublisher(item)
                 is TextFilter -> removeTextFilter(item)
-                is NameDetail    -> {
+                is NameDetail -> {
                 }
-                is Character     -> removeCharacter()
+                is Character  -> removeCharacter()
             }
         }
     }

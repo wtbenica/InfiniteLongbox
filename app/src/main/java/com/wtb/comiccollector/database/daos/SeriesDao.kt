@@ -77,60 +77,76 @@ abstract class SeriesDao : BaseDao<Series>("series") {
 
             conditions.append("${connectword()} ss.seriesId != $DUMMY_ID ")
 
-            if (filter.hasPublisher()) {
-                table.append("""JOIN publisher pr ON ss.publisherId = pr.publisherId """)
-
+            if (filter.mPublishers.isNotEmpty()) {
                 val publisherList = modelsToSqlIdString(filter.mPublishers)
 
-                if (filter.mPublishers.isNotEmpty()) {
-                    conditions.append("""${connectword()} pr.publisherId IN $publisherList """)
-                }
+                conditions.append("""${connectword()} ss.publisherId IN $publisherList """)
             }
 
-            if (filter.hasCreator()) {
-                table.append(
-                    """LEFT JOIN credit ct on ct.storyId = sy.storyId 
-                            LEFT JOIN namedetail nl on nl.nameDetailId = ct.nameDetailId 
-                            LEFT JOIN excredit ect on ect.storyId = sy.storyId
-                            LEFT JOIN namedetail nl2 on nl2.nameDetailId = ect.nameDetailId """)
+            if (filter.mTextFilter?.type in listOf(All, Publisher)) {
+                table.append("""JOIN publisher pr ON ss.publisherId = pr.publisherId 
+                """)
+            }
 
+            if (filter.mCreators.isNotEmpty()) {
                 val creatorsList = modelsToSqlIdString(filter.mCreators)
 
-                if (filter.mCreators.isNotEmpty()) {
-                    conditions.append(
-                        """${connectword()} (nl.creatorId IN $creatorsList 
-                        OR nl2.creatorId in $creatorsList)""")
-                }
+                conditions.append("""${connectword()} sy.storyId IN (
+                SELECT storyId
+                FROM credit ct
+                JOIN namedetail nl on nl.nameDetailId = ct.nameDetailId
+                WHERE nl.creatorId IN $creatorsList)
+                OR sy.storyId IN (
+                SELECT storyId
+                FROM excredit ect
+                JOIN namedetail nl on nl.nameDetailId = ect.nameDetailId
+                WHERE nl.creatorId IN $creatorsList) 
+            """)
+            }
+
+            if (filter.mTextFilter?.type in listOf(All, NameDetail)) {
+                table.append("""LEFT JOIN credit ct on ct.storyId = sy.storyId 
+                            LEFT JOIN namedetail nl on nl.nameDetailId = ct.nameDetailId 
+                            LEFT JOIN excredit ect on ect.storyId = sy.storyId
+                            LEFT JOIN namedetail nl2 on nl2.nameDetailId = ect.nameDetailId 
+                            """)
             }
 
             if (filter.hasDateFilter()) {
-                conditions.append("""${connectword()} ss.startDate < ? ${connectword()} ss.endDate > ? """)
+                conditions.append("""${connectword()} ss.startDate < ? 
+                    ${connectword()} ss.endDate > ? 
+                    """)
                 args.add(filter.mEndDate)
                 args.add(filter.mStartDate)
             }
 
-            if (filter.hasSeries()) {
-                filter.mSeries?.let {
-                    conditions.append("""${connectword()} ss.seriesId = ? """)
-                    args.add(it.seriesId)
-                }
-            }
-
+//            filter.mSeries?.let {
+//                conditions.append("""${connectword()} ss.seriesId = ?
+//                """)
+//                args.add(it.seriesId)
+//            }
+//
             if (filter.hasCharacter()) {
-                table.append("""LEFT JOIN appearance ap ON ap.story = sy.storyId """)
-
-                if (filter.mTextFilter?.type == All.Companion::class || filter.mTextFilter?.type == Character.Companion::class) {
-                    table.append("""LEFT JOIN character ch ON ch.characterId = ap.character """)
-                }
+                table.append("""LEFT JOIN appearance ap ON ap.story = sy.storyId 
+                """)
 
                 filter.mCharacter?.let {
-                    conditions.append("""${connectword()} ap.character = ? """)
+                    conditions.append("""${connectword()} ap.character = ? 
+                    """)
                     args.add(it.characterId)
+                }
+
+                if (filter.mTextFilter?.type in listOf(All, Character)) {
+                    table.append("""LEFT JOIN character ch ON ch.characterId = ap.character 
+                    """)
                 }
             }
 
             if (filter.mMyCollection) {
-                table.append("JOIN mycollection mc ON mc.issueId = ie.issueId ")
+                conditions.append("""${connectword()} ie.issueId IN (
+                    SELECT issueId
+                    FROM mycollection) 
+                """)
             }
 
             filter.mTextFilter?.let { textFilter ->

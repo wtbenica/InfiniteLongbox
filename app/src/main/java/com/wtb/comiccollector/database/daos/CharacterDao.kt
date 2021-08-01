@@ -8,6 +8,7 @@ import androidx.room.RawQuery
 import androidx.room.Transaction
 import androidx.sqlite.db.SimpleSQLiteQuery
 import androidx.sqlite.db.SupportSQLiteQuery
+import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.SearchFilter
 import com.wtb.comiccollector.database.models.Character
 import com.wtb.comiccollector.database.models.FullCharacter
@@ -32,7 +33,7 @@ abstract class CharacterDao : BaseDao<Character>("character") {
 
     fun getCharacterFilterOptions(filter: SearchFilter): Flow<List<Character>> {
         val query = getCharacterQuery(filter)
-        Log.d(TAG, "creatorQuery: ${query.sql}")
+        Log.d(TAG, "creatorQuery filterOptions: ${query.sql}")
         return getCharacterByQuery(query)
     }
 
@@ -42,86 +43,67 @@ abstract class CharacterDao : BaseDao<Character>("character") {
 
     fun getCharactersByFilterPagingSource(filter: SearchFilter): PagingSource<Int, FullCharacter> {
         val query = getCharacterQuery(filter)
-        Log.d(TAG, "creatorQuery: ${query.sql}")
+        Log.d(TAG, "creatorQuery paged: ${query.sql}")
         return getCharactersByQueryPagingSource(query)
     }
 
     private fun getCharacterQuery(filter: SearchFilter): SimpleSQLiteQuery {
-        var tableJoinString = String()
-        var conditionsString = String()
+        val tableJoinString = StringBuilder()
+        val conditionsString = StringBuilder()
         val args: ArrayList<Any> = arrayListOf()
 
         fun connectword(): String = if (conditionsString.isEmpty()) "WHERE" else "AND"
 
-        tableJoinString += """SELECT DISTINCT ch.* 
+        tableJoinString.append("""SELECT DISTINCT ch.* 
                 FROM character ch 
-                LEFT JOIN appearance ap ON ap.character = ch.characterId 
-                LEFT JOIN story sy ON ap.story = sy.storyId 
-                LEFT JOIN issue ie ON sy.issueId = ie.issueId """
+                JOIN appearance ap ON ap.character = ch.characterId 
+                JOIN story sy ON ap.story = sy.storyId 
+                JOIN issue ie ON sy.issueId = ie.issueId 
+                """)
 
         if (filter.hasPublisher()) {
             val publisherList = modelsToSqlIdString(filter.mPublishers)
 
-            conditionsString += "${connectword()} ch.publisher IN $publisherList "
+            conditionsString.append("""${connectword()} ch.publisher IN $publisherList  
+            """)
         }
 
         if (filter.hasCreator()) {
-            tableJoinString += """LEFT JOIN credit ct on ct.storyId = sy.storyId
-                        LEFT JOIN namedetail nl on nl.nameDetailId = ct.nameDetailId
-                        LEFT JOIN excredit ect on ect.storyId = sy.storyId
-                        LEFT JOIN namedetail nl2 on nl2.nameDetailId = ect.nameDetailId """
-
             val creatorsList = modelsToSqlIdString(filter.mCreators)
 
-            conditionsString += "${connectword()} (nl.creatorId IN $creatorsList " +
-                    "or nl2.creatorId IN $creatorsList) "
+            conditionsString.append("""${connectword()} sy.storyId IN (
+                SELECT storyId
+                FROM credit ct
+                JOIN namedetail nl on nl.nameDetailId = ct.nameDetailId
+                WHERE nl.creatorId IN $creatorsList)
+                OR sy.storyId IN (
+                SELECT storyId
+                FROM excredit ect
+                JOIN namedetail nl on nl.nameDetailId = ect.nameDetailId
+                WHERE nl.creatorId IN $creatorsList) 
+            """)
         }
 
         filter.mSeries?.let {
-            tableJoinString += """JOIN series ss ON ss.seriesId = ie.seriesId """
-
-            conditionsString +=
-                """${connectword()} ss.seriesId = ? """
+            conditionsString.append("""${connectword()} ie.seriesId = ? 
+                """)
 
             args.add(it.seriesId)
         }
 
         if (filter.mMyCollection) {
-            tableJoinString += """JOIN mycollection mc ON mc.issueId = ie.issueId """
+            conditionsString.append("""${connectword()} ie.issueId IN (
+                SELECT issueId
+                FROM mycollection) 
+                """)
         }
 
         return SimpleSQLiteQuery(
-            tableJoinString + conditionsString + "ORDER BY ch.name",
-            args.toArray()
+            "$tableJoinString$conditionsString ORDER BY ch.name", args.toArray()
         )
     }
 
-//    @Query(
-//        """SELECT cr.*
-//            FROM character cr
-//            WHERE cr.name = :name
-//            AND cr.alterEgo = :aka
-//        """
-//    )
-//    abstract suspend fun getCharacterByNameAndAka(name: String, aka: String): List<Character>?
-//
-//    @Query(
-//        """SELECT cr.*
-//            FROM character cr
-//            WHERE cr.name = :name
-//        """
-//    )
-//    abstract suspend fun getCharacterByName(name: String): List<Character>?
-//
-//    suspend fun getCharacterByInfo(name: String, aka: String? = null): List<Character>? {
-//        return if (aka == null) {
-//            getCharacterByName(name)
-//        } else {
-//            getCharacterByNameAndAka(name, aka)
-//        }
-//    }
-//
     companion object {
-        private const val TAG = "CharacterDao"
+        private const val TAG = APP + "CharacterDao"
     }
 }

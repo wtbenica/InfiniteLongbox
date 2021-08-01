@@ -1,5 +1,6 @@
 package com.wtb.comiccollector.fragments_view_models
 
+import android.util.Log
 import androidx.lifecycle.*
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
@@ -23,6 +24,7 @@ class IssueListViewModel : ListViewModel<FullIssue>() {
 
     override fun setFilter(filter: SearchFilter) {
         super.setFilter(filter)
+        Log.d(TAG, "Setting filter!!: ${filter.mSortType}")
         val series = filter.mSeries
         if (series != null) {
             seriesIdLiveData.value = series.seriesId
@@ -30,6 +32,7 @@ class IssueListViewModel : ListViewModel<FullIssue>() {
     }
 
     val issueList: Flow<PagingData<FullIssue>> = filter.switchMap { filter ->
+        Log.d(TAG, "issueList!: ${filter.mSortType}")
         repository.getIssuesByFilterPaged(filter).asLiveData()
     }.asFlow().cachedIn(viewModelScope)
 

@@ -55,6 +55,7 @@ class CharacterListFragment : ListFragment<Series>() {
 
         lifecycleScope.launch {
             viewModel.characterList.collectLatest {
+                Log.d(TAG, "It's a new character list!")
                 adapter.submitData(it)
             }
         }

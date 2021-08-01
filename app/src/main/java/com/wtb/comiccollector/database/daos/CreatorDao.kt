@@ -10,7 +10,6 @@ import com.wtb.comiccollector.SearchFilter
 import com.wtb.comiccollector.database.models.Character
 import com.wtb.comiccollector.database.models.Creator
 import com.wtb.comiccollector.database.models.FullCreator
-import com.wtb.comiccollector.repository.DUMMY_ID
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 
@@ -44,52 +43,51 @@ abstract class CreatorDao : BaseDao<Creator>("creator") {
 
     companion object {
         private fun getCreatorQuery(filter: SearchFilter): SimpleSQLiteQuery {
-            var tableJoinString = String()
-            var tableJoinString2 = String()
-            var conditionsString = String()
+            val tableJoinString = StringBuilder()
+            val tableJoinString2 = StringBuilder()
+            val conditionsString = StringBuilder()
             val args: ArrayList<Any> = arrayListOf()
             fun connectword(): String = if (conditionsString.isEmpty()) "WHERE" else "AND"
 
             //language=RoomSql
-            tableJoinString +=
+            tableJoinString.append(
                 """SELECT DISTINCT cr.* 
                         FROM creator cr 
                         JOIN nameDetail nd ON cr.creatorId = nd.creatorId 
                         JOIN credit ct ON ct.nameDetailId = nd.nameDetailId 
                         JOIN story sy ON ct.storyId = sy.storyId 
                         JOIN issue ie ON ie.issueId = sy.issueId 
-                        JOIN series ss ON ie.seriesId = ss.seriesId """
+                        JOIN series ss ON ie.seriesId = ss.seriesId 
+                        """)
 
             //language=RoomSql
-            tableJoinString2 +=
+            tableJoinString2.append(
                 """SELECT DISTINCT cr.* 
                         FROM creator cr 
                         JOIN nameDetail nd ON cr.creatorId = nd.creatorId 
                         JOIN excredit ect ON ect.nameDetailId = nd.nameDetailId 
                         JOIN story sy ON ect.storyId = sy.storyId 
                         JOIN issue ie ON ie.issueId = sy.issueId 
-                        JOIN series ss ON ie.seriesId = ss.seriesId  """
-
-            conditionsString += "${connectword()} cr.creatorId != $DUMMY_ID "
+                        JOIN series ss ON ie.seriesId = ss.seriesId  
+                        """)
 
             filter.mSeries?.let {
-                conditionsString += """${connectword()} ss.seriesId = ${it.seriesId} """
+                conditionsString.append("""${connectword()} ss.seriesId = ${it.seriesId} 
+                """)
             }
 
             if (filter.hasPublisher()) {
-                val s = """LEFT JOIN publisher pr ON ss.publisherId = pr.publisherId """
-                tableJoinString += s
-                tableJoinString2 += s
-
                 val publisherList = modelsToSqlIdString(filter.mPublishers)
 
-                conditionsString += """${connectword()} pr.publisherId IN $publisherList  """
+                conditionsString.append("""${connectword()} ss.publisherId IN $publisherList  
+                """)
             }
 
             if (filter.hasDateFilter()) {
                 //language=RoomSql
-                conditionsString += """${connectword()} ie.releaseDate < ? 
-                    AND ie.releaseDate > ? """
+                conditionsString.append("""${connectword()} ie.releaseDate < ? 
+                    AND ie.releaseDate > ? 
+                    """)
                 args.add(filter.mEndDate)
                 args.add(filter.mStartDate)
                 args.add(filter.mEndDate)
@@ -97,9 +95,10 @@ abstract class CreatorDao : BaseDao<Creator>("creator") {
             }
 
             if (filter.mMyCollection) {
-                val s = """JOIN mycollection mc ON mc.issueId = ie.issueId """
-                tableJoinString += s
-                tableJoinString2 += s
+                conditionsString.append("""${connectword()} ie.issueId IN (
+                    SELECT issueId
+                    FROM mycollection) 
+                """)
             }
 
             val allArgs: ArrayList<Any> = arrayListOf()
@@ -107,7 +106,7 @@ abstract class CreatorDao : BaseDao<Creator>("creator") {
             args.forEach { allArgs.add(it) }
 
             return SimpleSQLiteQuery(
-                tableJoinString + conditionsString + "UNION " + tableJoinString2 + conditionsString,
+                "$tableJoinString$conditionsString UNION $tableJoinString2$conditionsString",
                 allArgs.toArray()
             )
         }

@@ -42,6 +42,7 @@ class IssueListFragment : ListFragment<Issue>() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 filterViewModel.filter.collectLatest { filter ->
+                    Log.d(TAG, "Setting Filter: ${filter.mSortType}")
                     updateSeriesDetailFragment(filter.mSeries?.seriesId)
                     viewModel.setFilter(filter)
                 }
