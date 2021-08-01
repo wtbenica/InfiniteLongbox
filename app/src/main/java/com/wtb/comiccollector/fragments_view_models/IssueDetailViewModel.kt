@@ -2,7 +2,6 @@
 
 package com.wtb.comiccollector.fragments_view_models
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
@@ -35,7 +34,6 @@ class IssueDetailViewModel : ViewModel() {
 
 
     val issue: StateFlow<FullIssue?> = issueId.flatMapLatest { id ->
-        Log.d(TAG, "issueId changed: $id")
         repository.getIssue(id)
     }.stateIn(
         scope = viewModelScope,
@@ -44,7 +42,10 @@ class IssueDetailViewModel : ViewModel() {
     )
 
     val issueList: LiveData<List<FullIssue>> = issue.flatMapLatest { fullIssue ->
-        repository.getIssuesByFilter(SearchFilter(series = fullIssue?.series, myCollection = false))
+        val seriesId = (fullIssue?.series?.seriesId
+            ?: AUTO_ID)
+        repository.getIssuesByFilter(SearchFilter(series = Series(seriesId = seriesId),
+                                                  myCollection = false))
     }.asLiveData()
 
     val issueStoriesLiveData: LiveData<List<Story>> =
@@ -55,8 +56,8 @@ class IssueDetailViewModel : ViewModel() {
 
     val variantLiveData: LiveData<FullIssue?> =
         variantId.flatMapLatest { id ->
-            Log.d(TAG, "variantId changed, updating variantLiveData $id")
-            repository.getIssue(id) }.asLiveData()
+            repository.getIssue(id)
+        }.asLiveData()
 
     val variantStoriesLiveData: LiveData<List<Story>> =
         variantId.flatMapLatest { issueId -> repository.getStoriesByIssue(issueId) }.asLiveData()
@@ -74,19 +75,16 @@ class IssueDetailViewModel : ViewModel() {
         variantId.flatMapLatest { repository.inCollection(it) }.asLiveData()
 
     fun loadIssue(issueId: Int) {
-        Log.d(TAG, "loadIssue: $issueId")
         _issueId.value = issueId
     }
 
     fun getIssueId() = issueId.value
 
-    fun loadVariant(issueId: Int?, line: Int) {
-        Log.d(TAG, "loadVariant $line")
+    fun loadVariant(issueId: Int?) {
         _variantId.value = issueId ?: AUTO_ID
     }
 
     fun clearVariant() {
-        Log.d(TAG, "Clearing variant ${_variantId.value}")
         _variantId.value = AUTO_ID
     }
 
@@ -110,42 +108,30 @@ class IssueDetailViewModel : ViewModel() {
     }
 
 
-    /***
-     * This stuff is only used in the issue edit fragment, iow: not used
-     */
-    var allSeriesLiveData: LiveData<List<Series>> = repository.allSeries.asLiveData()
-
-    var allPublishersLiveData: LiveData<List<Publisher>> = repository.allPublishers.asLiveData()
-
-    var allCreatorsLiveData: LiveData<List<Creator>> = repository.allCreators.asLiveData()
-
-    var allRolesLiveData: LiveData<List<Role>> = repository.allRoles.asLiveData()
-
-    fun updateIssue(issue: Issue) {
-        repository.saveIssue(issue)
+    //    /***
+//     * This stuff is only used in the issue edit fragment, iow: not used
+//     */
+//    var allSeriesLiveData: LiveData<List<Series>> = repository.allSeries.asLiveData()
+//
+//    var allPublishersLiveData: LiveData<List<Publisher>> = repository.allPublishers.asLiveData()
+//
+//    var allCreatorsLiveData: LiveData<List<Creator>> = repository.allCreators.asLiveData()
+//
+//    var allRolesLiveData: LiveData<List<Role>> = repository.allRoles.asLiveData()
+//
+    fun upsert(dataModel: DataModel) {
+        when (dataModel) {
+            is Series  -> repository.saveSeries(dataModel)
+            is Creator -> repository.saveCreator(dataModel)
+            is Credit  -> repository.saveCredit(dataModel)
+            is Issue   -> repository.saveIssue(dataModel)
+            is Role    -> repository.saveRole(dataModel)
+        }
     }
 
-    fun deleteIssue(issue: Issue) {
-        repository.deleteIssue(issue)
-    }
-
-    fun upsertSeries(series: Series) {
-        repository.saveSeries(series)
-    }
-
-    fun upsertCreator(creator: Creator) {
-        repository.saveCreator(creator)
-    }
-
-    fun upsertCredit(credit: Credit) {
-        repository.saveCredit(credit)
-    }
-
-    fun deleteSeries(series: Series) {
-        repository.deleteSeries(series)
-    }
-
-    fun deleteCredit(credit: Credit) {
-        repository.deleteCredit(credit)
+    fun delete(dataModel: DataModel) {
+        when (dataModel) {
+            is Issue -> repository.deleteIssue(dataModel)
+        }
     }
 }

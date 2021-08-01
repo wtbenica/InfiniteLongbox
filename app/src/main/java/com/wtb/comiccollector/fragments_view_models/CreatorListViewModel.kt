@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import com.wtb.comiccollector.APP
+import com.wtb.comiccollector.database.models.FullCreator
 import com.wtb.comiccollector.database.models.FullSeries
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -14,9 +15,9 @@ import kotlinx.coroutines.flow.Flow
 private const val TAG = APP + "SeriesListViewModel"
 
 @ExperimentalCoroutinesApi
-class SeriesListViewModel : ListViewModel<FullSeries>() {
+class CreatorListViewModel : ListViewModel<FullSeries>() {
 
-    val seriesList: Flow<PagingData<FullSeries>> = filter.switchMap {
-        repository.getSeriesByFilterPaged(it).asLiveData()
+    val creatorList: Flow<PagingData<FullCreator>> = filter.switchMap {
+        repository.getCreatorsByFilterPaged(it).asLiveData()
     }.asFlow().cachedIn(viewModelScope)
 }

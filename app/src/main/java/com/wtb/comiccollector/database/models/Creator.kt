@@ -6,13 +6,18 @@ import com.wtb.comiccollector.R
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 @ExperimentalCoroutinesApi
-@Entity
+@Entity(
+    indices = [
+        Index(value = ["name"]),
+        Index(value = ["sortName"])
+    ]
+)
 data class Creator(
     @PrimaryKey(autoGenerate = true) val creatorId: Int = AUTO_ID,
     var name: String,
     var sortName: String,
-    var bio: String? = null
-) : DataModel(), FilterOptionAutoCompletePopupItem {
+    var bio: String? = null,
+) : DataModel(), FilterAutoCompleteType {
 
     override val id: Int
         get() = creatorId
@@ -40,14 +45,16 @@ data class Creator(
     ],
     indices = [
         Index(value = arrayOf("creatorId")),
+        Index(value = ["name"]),
+        Index(value = ["sortName"])
     ]
 )
 data class NameDetail(
     @PrimaryKey(autoGenerate = true) val nameDetailId: Int = AUTO_ID,
     var creatorId: Int,
     var name: String,
-    var sortName: String? = null
-) : DataModel(), FilterOptionAutoCompletePopupItem {
+    var sortName: String? = null,
+) : DataModel(), FilterAutoCompleteType {
     override val id: Int
         get() = nameDetailId
 
@@ -70,5 +77,14 @@ data class NameDetailAndCreator(
     val nameDetail: NameDetail,
 
     @Relation(parentColumn = "creatorId", entityColumn = "creatorId")
-    var creator: Creator
+    var creator: Creator,
+) : ListItem
+
+@ExperimentalCoroutinesApi
+data class FullCreator(
+    @Embedded
+    val creator: Creator,
+
+    @Relation(parentColumn = "creatorId", entityColumn = "creatorId")
+    var nameDetail: List<NameDetail>,
 )

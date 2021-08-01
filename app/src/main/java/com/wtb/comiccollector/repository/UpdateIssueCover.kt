@@ -23,63 +23,57 @@ private const val TAG = APP + "UpdateIssueCover"
 class UpdateIssueCover(
     val database: IssueDatabase,
     val context: Context,
-    val prefs: SharedPreferences
+    val prefs: SharedPreferences,
 ) : Updater() {
     internal fun update(issueId: Int) {
-        if (checkIfStale(ISSUE_TAG(issueId), ISSUE_LIFETIME, prefs)) {
+        if (Companion.checkIfStale(ISSUE_TAG(issueId), ISSUE_LIFETIME, prefs)) {
             CoroutineScope(Dispatchers.IO).launch {
-                val fullIssueDeferred =
-                    CoroutineScope(Dispatchers.IO).async {
-                        database.issueDao().getIssueSus(issueId)
-                    }
-                fullIssueDeferred.await()?.let { issue ->
+                database.issueDao().getIssueSus(issueId)?.let { issue ->
                     if (issue.coverUri == null) {
-                        CoroutineScope(Dispatchers.IO).launch {
-                            kotlin.runCatching {
-                                val doc = Jsoup.connect(issue.issue.url).get()
+                        kotlin.runCatching {
+                            val doc = Jsoup.connect(issue.issue.url).get()
 
-                                val noCover = doc.getElementsByClass("no_cover").size == 1
+                            val noCover = doc.getElementsByClass("no_cover").size == 1
 
-                                val coverImgElements = doc.getElementsByClass("cover_img")
-                                val wraparoundElements =
-                                    doc.getElementsByClass("wraparound_cover_img")
+                            val coverImgElements = doc.getElementsByClass("cover_img")
+                            val wraparoundElements =
+                                doc.getElementsByClass("wraparound_cover_img")
 
-                                val elements = when {
-                                    coverImgElements.size > 0   -> coverImgElements
-                                    wraparoundElements.size > 0 -> wraparoundElements
-                                    else                        -> null
+                            val elements = when {
+                                coverImgElements.size > 0   -> coverImgElements
+                                wraparoundElements.size > 0 -> wraparoundElements
+                                else                        -> null
+                            }
+
+                            val src = elements?.get(0)?.attr("src")
+
+                            val url = src?.let { URL(it) }
+
+                            if (!noCover && url != null) {
+                                val image = CoroutineScope(Dispatchers.IO).async {
+                                    url.toBitmap()
                                 }
 
-                                val src = elements?.get(0)?.attr("src")
+                                CoroutineScope(Dispatchers.Default).launch {
+                                    val bitmap = image.await()
 
-                                val url = src?.let { URL(it) }
+                                    bitmap?.let {
+                                        val savedUri: Uri? =
+                                            it.saveToInternalStorage(
+                                                context,
+                                                issue.issue.coverFileName
+                                            )
 
-                                if (!noCover && url != null) {
-                                    val image = CoroutineScope(Dispatchers.IO).async {
-                                        url.toBitmap()
+                                        val cover =
+                                            Cover(issueId = issueId, coverUri = savedUri)
+                                        database.coverDao().upsertSus(listOf(cover))
                                     }
-
-                                    CoroutineScope(Dispatchers.Default).launch {
-                                        val bitmap = image.await()
-
-                                        bitmap?.let {
-                                            val savedUri: Uri? =
-                                                it.saveToInternalStorage(
-                                                    context,
-                                                    issue.issue.coverFileName
-                                                )
-
-                                            val cover =
-                                                Cover(issueId = issueId, coverUri = savedUri)
-                                            database.coverDao().upsertSus(listOf(cover))
-                                        }
-                                    }
-                                } else if (noCover) {
-                                    val cover = Cover(issueId = issueId, coverUri = null)
-                                    database.coverDao().upsertSus(cover)
-                                } else {
-                                    Log.d(TAG, "COVER UPDATER No Cover Found")
                                 }
+                            } else if (noCover) {
+                                val cover = Cover(issueId = issueId, coverUri = null)
+                                database.coverDao().upsertSus(cover)
+                            } else {
+                                Log.d(TAG, "COVER UPDATER No Cover Found")
                             }
                         }
                     }

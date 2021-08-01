@@ -72,4 +72,10 @@
     <string name="series_detail_tracking_notes">Tracking notes</string>
     <string name="label_cover_date">Cover Date</string>
     <string name="label_notes">Notes</string>
+    <string name="table_col_series_name">ss.seriesName</string>
+    <string name="table_col_publisher">pr.publisher</string>
+    <string name="table_col_namedetail">nl.name</string>
+    <string name="table_col_character_name">ch.name</string>
+    <string name="table_col_character_alterego">ch.alterEgo</string>
+    <string name="table_col_namedetail2">nl2.name</string>
 </resources>

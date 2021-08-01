@@ -9,6 +9,7 @@ import com.wtb.comiccollector.database.models.*
 import com.wtb.comiccollector.repository.Repository
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
+import kotlin.reflect.KClass
 
 private const val TAG = APP + "FilterViewModel"
 
@@ -18,94 +19,103 @@ class FilterViewModel : ViewModel() {
     private val repository: Repository = Repository.get()
 
     private val theOneTrueFilter: MutableStateFlow<SearchFilter> = MutableStateFlow(SearchFilter())
-    private val filterTypeSpinnerOption: MutableStateFlow<FilterTypeSpinnerOption> =
-        MutableStateFlow(All.Companion::class.objectInstance as FilterTypeSpinnerOption)
+
+    private val filterTypeSpinnerOption: MutableStateFlow<KClass<*>> =
+        MutableStateFlow(All.Companion::class as KClass<*>)
 
     val filter: StateFlow<SearchFilter> = theOneTrueFilter
 
-    private val seriesOptions: Flow<List<FilterOptionAutoCompletePopupItem>> =
-        filter.flatMapLatest {
-            repository.getSeriesByFilter(it)
-        }
+    private val seriesOptions: Flow<List<FilterAutoCompleteType>> =
+        filter.flatMapLatest { repository.getFilterOptionsSeries(it) }
 
-    private val publisherOptions = filter.flatMapLatest {
-        repository.getPublishersByFilter(it)
-    }
+    private val publisherOptions =
+        filter.flatMapLatest { repository.getFilterOptionsPublisher(it) }
 
-    private val creatorOptions = filter.flatMapLatest {
-        repository.getCreatorsByFilter(it)
-    }
+    private val creatorOptions =
+        filter.flatMapLatest { repository.getFilterOptionsCreator(it) }
 
-    private val allOptions: Flow<List<FilterOptionAutoCompletePopupItem>> = combine(
+    private val characterOptions =
+        filter.flatMapLatest { repository.getFilterOptionsCharacter(it) }
+
+    private val allOptions: Flow<List<FilterAutoCompleteType>> = combine(
         seriesOptions,
         creatorOptions,
-        publisherOptions
+        publisherOptions,
+        characterOptions
     )
-    { series: List<FilterOptionAutoCompletePopupItem>, creators: List<FilterOptionAutoCompletePopupItem>, publishers: List<FilterOptionAutoCompletePopupItem> ->
-        Log.d(
-            TAG, "filterOptions: ${series.size} series; ${creators.size} creators; ${
-                publishers
-                    .size
-            } publishers;"
-        )
-        val res: List<FilterOptionAutoCompletePopupItem> = series + creators + publishers
+    {
+            series: List<FilterAutoCompleteType>, creators: List<FilterAutoCompleteType>,
+            publishers:
+            List<FilterAutoCompleteType>,
+            characters: List<FilterAutoCompleteType>,
+        ->
+        val res: List<FilterAutoCompleteType> = series + creators + publishers + characters
         Log.d(TAG, "filterOptions: ${res.size}")
         res.sorted()
     }
 
     val filterOptions = filterTypeSpinnerOption.flatMapLatest {
+        Log.d(TAG, "FilterOption: $it")
         when (it) {
-            Series     -> seriesOptions
-            Publisher  -> publisherOptions
-            Character  -> allOptions
-            NameDetail -> creatorOptions
-            All        -> allOptions
+            Series.Companion::class     -> seriesOptions
+            Publisher.Companion::class  -> publisherOptions
+            Character.Companion::class  -> characterOptions
+            NameDetail.Companion::class -> creatorOptions
+            All.Companion::class        -> allOptions
+            else -> throw IllegalStateException("filterOption can't be ${it.simpleName}")
         }
     }
 
     fun setFilter(filter: SearchFilter) {
-        this.theOneTrueFilter.value = filter
+        Log.d(TAG, "setting filter!!: ${filter.mSortType}")
+        theOneTrueFilter.value = filter
     }
 
-    fun setFilterOptionType(filterTypeSpinnerOption: FilterTypeSpinnerOption) {
+    fun setFilterOptionType(filterTypeSpinnerOption: KClass<*>) {
         this.filterTypeSpinnerOption.value = filterTypeSpinnerOption
     }
 
-    fun addFilterItem(item: FilterOptionAutoCompletePopupItem) {
+    fun addFilterItem(item: FilterType) {
         Log.d(TAG, "ADDING ITEM: $item")
         val newVal = SearchFilter(theOneTrueFilter.value)
         newVal.addFilter(item)
-        theOneTrueFilter.value = newVal
+        setFilter(newVal)
     }
 
-    fun removeFilterItem(item: FilterOptionAutoCompletePopupItem) {
+    fun removeFilterItem(item: FilterType) {
         val newVal = SearchFilter(theOneTrueFilter.value)
         newVal.removeFilter(item)
-        theOneTrueFilter.value = newVal
+        setFilter(newVal)
     }
 
     fun setSortOption(sortType: SortType) {
         Log.d(TAG, "setSortOption: ${sortType.sortString} ${sortType.order}")
         val newVal = SearchFilter(theOneTrueFilter.value)
         newVal.mSortType = sortType
-        theOneTrueFilter.value = newVal
+        setFilter(newVal)
     }
 
     fun myCollection(isChecked: Boolean) {
         val newVal = SearchFilter(theOneTrueFilter.value)
         newVal.mMyCollection = isChecked
-        theOneTrueFilter.value = newVal
+        setFilter(newVal)
     }
 
     fun showVariants(isChecked: Boolean) {
         val newVal = SearchFilter(theOneTrueFilter.value)
         newVal.mShowVariants = isChecked
-        theOneTrueFilter.value = newVal
+        setFilter(newVal)
     }
 
     fun showIssues(show: Boolean) {
         val newVal = SearchFilter(theOneTrueFilter.value)
         newVal.mShowIssues = show
-        theOneTrueFilter.value = newVal
+        setFilter(newVal)
+    }
+
+    fun nextView() {
+        val newVal = SearchFilter(theOneTrueFilter.value)
+        newVal.nextOption()
+        setFilter(newVal)
     }
 }

@@ -1,8 +1,8 @@
 package com.wtb.comiccollector.fragments
 
 import android.animation.ValueAnimator
-import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.*
 import android.view.View.GONE
 import android.view.View.VISIBLE
@@ -15,7 +15,9 @@ import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.FragmentTransaction
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
@@ -30,27 +32,20 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 @ExperimentalCoroutinesApi
-class IssueListFragment : ListFragment() {
+class IssueListFragment : ListFragment<Issue>() {
 
     private val viewModel: IssueListViewModel by viewModels()
 
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        callback = context as IssueListCallback?
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-//        setHasOptionsMenu(true)
 
         lifecycleScope.launch {
-            filterViewModel.filter.collectLatest { filter ->
-                updateSeriesDetailFragment(filter.mSeries?.seriesId)
-                viewModel.setFilter(filter)
-            }
-
-            viewModel.series.collectLatest {
-                it?.series?.seriesName?.let { name -> callback?.setTitle(name) }
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                filterViewModel.filter.collectLatest { filter ->
+                    Log.d(TAG, "Setting Filter: ${filter.mSortType}")
+                    updateSeriesDetailFragment(filter.mSeries?.seriesId)
+                    viewModel.setFilter(filter)
+                }
             }
         }
     }
@@ -87,6 +82,7 @@ class IssueListFragment : ListFragment() {
         viewModel.seriesLiveData.observe(
             viewLifecycleOwner,
             {
+                Log.d(TAG, "BBB collecting series 3")
                 callback?.setTitle(it?.series?.seriesName)
             }
         )
@@ -134,7 +130,7 @@ class IssueListFragment : ListFragment() {
         private val issueNumTextView: TextView =
             itemView.findViewById(R.id.list_item_issue_number_text)
         private val issueVariantName: TextView =
-            itemView.findViewById(R.id.list_item_variant_name_text)
+            itemView.findViewById(R.id.list_item_character_name_text)
         private val wrapper: ConstraintLayout = itemView.findViewById(R.id.wrapper)
 
         init {
@@ -143,7 +139,7 @@ class IssueListFragment : ListFragment() {
 
         fun bind(issue: FullIssue?) {
             this.fullIssue = issue
-            this.fullIssue?.let { viewModel.updateIssueCover(it) }
+            this.fullIssue?.let { viewModel.updateIssueCover(it.issue.issueId) }
             val coverUri = this.fullIssue?.coverUri
 
             if (fullIssue?.cover != null) {

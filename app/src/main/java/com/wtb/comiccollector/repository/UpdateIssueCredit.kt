@@ -17,21 +17,17 @@ private const val TAG = APP + "UpdateIssueCredit"
  */
 @ExperimentalCoroutinesApi
 class UpdateIssueCredit(
-    val apiService: Webservice,
+    val webservice: Webservice,
     val database: IssueDatabase,
     val prefs: SharedPreferences
 ) : Updater() {
-    internal fun updateAll(issueIds: List<Int>) {
-        issueIds.forEach { update(it) }
-    }
-
     internal fun update(issueId: Int) {
-        if (checkIfStale(ISSUE_TAG(issueId), ISSUE_LIFETIME, prefs)) {
+        if (Companion.checkIfStale(ISSUE_TAG(issueId), ISSUE_LIFETIME, prefs)) {
             val storyItemsCall = CoroutineScope(Dispatchers.IO).async stories@{
                 var result = emptyList<Item<GcdStory, Story>>()
 
                 try {
-                    result = apiService.getStoriesByIssue(issueId)
+                    result = webservice.getStoriesByIssue(issueId)
                 } catch (e: SocketTimeoutException) {
                     Log.d(TAG, "update: Getting Stories: $e")
                 } catch (e: ConnectException) {
@@ -49,7 +45,7 @@ class UpdateIssueCredit(
                         try {
                             Log.d(TAG, "CREDIT_UPDATE Refreshing issue credits getCredits $issueId")
                             result =
-                                apiService.getCreditsByStories(storyItems.map { item -> item.pk })
+                                webservice.getCreditsByStoryIds(storyItems.map { item -> item.pk })
                         } catch (e: SocketTimeoutException) {
                             Log.d(TAG, "update: Getting Credits: $e")
                         } catch (e: ConnectException) {
@@ -72,7 +68,7 @@ class UpdateIssueCredit(
                                 "CREDIT_UPDATE Refreshing issue credits getExCredits $issueId"
                             )
                             result =
-                                apiService.getExtractedCreditsByStories(storyItems.map { item -> item.pk })
+                                webservice.getExtractedCreditsByStories(storyItems.map { item -> item.pk })
                         } catch (e: SocketTimeoutException) {
                             Log.d(TAG, "update: Getting exCredits: $e")
                         } catch (e: ConnectException) {
@@ -90,7 +86,7 @@ class UpdateIssueCredit(
                 val extracts =
                     extractedCreditItemsCall.await()?.map { it.toRoomModel() } ?: emptyList()
 
-                database.transactionDao().upsertSus(
+                database.transactionDao().upsert(
                     stories = stories,
                     credits = credits,
                     exCredits = extracts,

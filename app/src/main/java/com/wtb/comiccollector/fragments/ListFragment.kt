@@ -1,5 +1,6 @@
 package com.wtb.comiccollector.fragments
 
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -16,11 +17,12 @@ import com.google.android.material.appbar.AppBarLayout.LayoutParams.SCROLL_FLAG_
 import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.R
 import com.wtb.comiccollector.SearchFilter
+import com.wtb.comiccollector.database.models.DataModel
 import com.wtb.comiccollector.fragments_view_models.FilterViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 @ExperimentalCoroutinesApi
-abstract class ListFragment : Fragment() {
+abstract class ListFragment<T : DataModel> : Fragment() {
     private val PEEK_HEIGHT
         get() = resources.getDimension(R.dimen.peek_height).toInt()
     protected val filterViewModel: FilterViewModel by viewModels({ requireActivity() })
@@ -29,9 +31,13 @@ abstract class ListFragment : Fragment() {
 
     private lateinit var details: FrameLayout
 
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        callback = context as ListFragmentCallback
+    }
+
     override fun onResume() {
         super.onResume()
-
         callback?.setToolbarScrollFlags(SCROLL_FLAG_SCROLL or SCROLL_FLAG_ENTER_ALWAYS)
     }
 

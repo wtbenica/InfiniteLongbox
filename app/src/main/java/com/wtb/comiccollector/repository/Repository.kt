@@ -54,18 +54,34 @@ internal const val CREATOR_LIFETIME: Long = 7
 const val EXTERNAL = "http://24.176.172.169/"
 const val NIGHTWING = "http://192.168.0.141:8000/"
 const val ALFRED = "http://192.168.0.138:8000/"
-const val BASE_URL = NIGHTWING
+const val BASE_URL = ALFRED
 
-internal const val UPDATED_CREATORS = "updated_creators"
-internal const val UPDATED_PUBLISHERS = "updated_publishers"
 internal const val UPDATED_ROLES = "updated_roles"
 internal const val UPDATED_STORY_TYPES = "updated_story_types"
-internal const val UPDATED_SERIES = "updated_series"
+internal const val UPDATED_PUBLISHERS = "updated_publishers"
 internal const val UPDATED_BOND_TYPE = "update_bond_type"
-internal const val UPDATED_SERIES_BONDS = "update_series_bonds"
+internal const val UPDATED_BONDS = "update_series_bonds"
+internal const val UPDATED_CREATORS = "updated_creators"
+internal const val UPDATED_CREATORS_PAGE = "updated_creators_page"
+internal const val UPDATED_SERIES = "updated_series"
+internal const val UPDATED_SERIES_PAGE = "updated_series_page"
+internal const val UPDATED_CHARACTERS = "update_characters"
+internal const val UPDATED_CHARACTERS_PAGE = "update_characters_page"
+internal const val UPDATED_ISSUES = "updated_issues"
+internal const val UPDATED_ISSUES_PAGE = "updated_issues_page"
+internal const val UPDATED_STORIES = "updated_stories"
+internal const val UPDATED_STORIES_PAGE = "updated_stories_page"
+internal const val UPDATED_CREDITS = "updated_credits"
+internal const val UPDATED_CREDITS_PAGE = "update_credits_page"
+internal const val UPDATED_EXCREDITS = "updated_excredits"
+internal const val UPDATED_EXCREDITS_PAGE = "updated_excredits_page"
+internal const val UPDATED_APPEARANCES = "updated_appearances"
+internal const val UPDATED_APPEARANCES_PAGE = "updated_appearances_page"
+internal const val UPDATED_NAME_DETAILS = "update_name_details"
+internal const val UPDATED_NAME_DETAILS_PAGE = "update_name_details_page"
 
-internal const val STATIC_DATA_LIFETIME: Long = 30
-internal const val SERIES_LIST_LIFETIME: Long = 7
+internal const val MONTHLY: Long = 30
+internal const val WEEKLY: Long = 7
 
 internal fun UPDATED_TAG(id: Int, type: String): String = "$type${id}_UPDATED"
 
@@ -104,8 +120,12 @@ class Repository private constructor(val context: Context) {
 
     private val retrofit = RetrofitAPIClient.getRetrofitClient()
 
-    private val apiService: Webservice by lazy {
+    private val webservice: Webservice by lazy {
         retrofit.create(Webservice::class.java)
+    }
+
+    private val updater: StaticUpdater by lazy {
+        StaticUpdater(webservice, database, prefs)
     }
 
     init {
@@ -117,7 +137,7 @@ class Repository private constructor(val context: Context) {
                 //  means that this is async async await. Look into
                 MainActivity.activeJob = CoroutineScope(Dispatchers.IO).launch {
                     withContext(Dispatchers.Default) {
-                        StaticUpdater(apiService, database, prefs).updateAsync()
+                        updater.updateAsync()
                     }.let {
                         Log.d(TAG, "Static update done")
                         isIdle = true
@@ -130,10 +150,45 @@ class Repository private constructor(val context: Context) {
     private fun checkConnectionStatus() = hasConnection && hasUnmeteredConnection && isIdle
 
     // Static Items
-    val allSeries: Flow<List<Series>> = seriesDao.getAll()
-    val allPublishers: Flow<List<Publisher>> = publisherDao.getPublishersList()
-    val allCreators: Flow<List<Creator>> = creatorDao.getCreatorsList()
-    val allRoles: Flow<List<Role>> = roleDao.getRoleList()
+//    val allSeries: Flow<List<Series>> = seriesDao.getAll()
+    val allPublishers: Flow<List<Publisher>> = publisherDao.getAll()
+//    val allCreators: Flow<List<Creator>> = creatorDao.getAll()
+//    val allCharacters: Flow<List<Character>> = characterDao.getAll()
+//    val allRoles: Flow<List<Role>> = roleDao.getAll()
+
+    // FILTER OPTIONS
+    fun getFilterOptionsSeries(filter: SearchFilter): Flow<List<Series>> {
+        Log.d(TAG, "getSeriesByFilter")
+//        updateSeries(filter.mSeries)
+//        updateCreators(filter.mCreators)
+        return if (filter.mSeries == null) {
+            seriesDao.getSeriesByFilter(filter)
+        } else {
+            flow { emit(emptyList<Series>()) }
+        }
+    }
+
+    fun getFilterOptionsCharacter(filter: SearchFilter): Flow<List<Character>> {
+        Log.d(TAG, "getCharactersByFilter")
+//        updateSeries(filter.mSeries)
+//        updateCreators(filter.mCreators)
+//        updateCharacters(filter)
+
+        return if (!filter.hasCharacter()) {
+            characterDao.getCharacterFilterOptions(filter)
+        } else {
+            flow { emit(emptyList<Character>()) }
+        }
+    }
+
+    fun getFilterOptionsCreator(filter: SearchFilter): Flow<List<Creator>> {
+        Log.d(TAG, "getCreatorsByFilter")
+        return if (filter.mCreators.isEmpty()) {
+            creatorDao.getCreatorsByFilter(filter)
+        } else {
+            flow { emit(emptyList<Creator>()) }
+        }
+    }
 
     // SERIES METHODS
     fun getSeries(seriesId: Int): Flow<FullSeries?> = seriesDao.getSeries(seriesId)
@@ -141,64 +196,59 @@ class Repository private constructor(val context: Context) {
     fun getSeriesByFilterPaged(filter: SearchFilter): Flow<PagingData<FullSeries>> {
         val newFilter = SearchFilter(filter)
         Log.d(TAG, "getSeriesByFilterPaged")
-        val mSeries = newFilter.mSeries
-        if (mSeries == null) {
-            refreshFilterOptions(mSeries, newFilter.mCreators)
-        } else {
-            Log.d(TAG, "getSeriesByFilterPagingSource: Wasn't expecting to see a series here")
-            newFilter.mSeries = null
-        }
 
         return Pager(
             config = PagingConfig(
                 pageSize = REQUEST_LIMIT,
                 enablePlaceholders = true
             ),
-            pagingSourceFactory = { seriesDao.getSeriesByFilterPagingSource(newFilter) }
+            pagingSourceFactory = {
+                seriesDao.getSeriesByFilterPagingSource(newFilter)
+            }
         ).flow
     }
 
-    fun getSeriesByFilter(filter: SearchFilter): Flow<List<Series>> {
-        Log.d(TAG, "getSeriesByFilter")
-        val mSeries = filter.mSeries
-        return if (mSeries == null) {
-            refreshFilterOptions(mSeries, filter.mCreators)
-            seriesDao.getSeriesByFilter(filter)
-        } else {
-            flow { emit(emptyList<Series>()) }
-        }
+    // CHARACTER METHODS
+    fun getCharactersByFilterPaged(filter: SearchFilter): Flow<PagingData<FullCharacter>> {
+        val newFilter = SearchFilter(filter)
+
+        return Pager(
+            config = PagingConfig(
+                pageSize = REQUEST_LIMIT * 4,
+                enablePlaceholders = true
+            ),
+            pagingSourceFactory = { characterDao.getCharactersByFilterPagingSource(newFilter) }
+        ).flow
+    }
+
+    // CREATOR METHODS
+    fun getCreatorsByFilterPaged(filter: SearchFilter): Flow<PagingData<FullCreator>> {
+        val newFilter = SearchFilter(filter)
+
+        return Pager(
+            config = PagingConfig(
+                pageSize = REQUEST_LIMIT * 4,
+                enablePlaceholders = true
+            ),
+            pagingSourceFactory = { creatorDao.getCreatorsByFilterPagingSource(newFilter) }
+        ).flow
     }
 
     // ISSUE METHODS
     fun getIssue(issueId: Int): Flow<FullIssue?> {
-        if (hasConnection) {
-            CoroutineScope(Dispatchers.IO).launch {
-                withContext(Dispatchers.Default) {
-                    UpdateIssueCover(database, context, prefs).update(issueId = issueId)
-                }.let {
-                    UpdateIssueCredit(apiService, database, prefs).update(issueId = issueId)
-                }
-            }
+        if (issueId != AUTO_ID) {
+            updateIssueCover(issueId)
+            updater.updateIssue(issueId)
         }
 
         return issueDao.getFullIssue(issueId = issueId)
     }
 
     fun getIssuesByFilter(filter: SearchFilter): Flow<List<FullIssue>> {
-        val mSeries = filter.mSeries
-        if (mSeries != null) {
-            refreshFilterOptions(series = mSeries, creators = filter.mCreators)
-        }
         return issueDao.getIssuesByFilter(filter = filter)
     }
 
     fun getIssuesByFilterPaged(filter: SearchFilter): Flow<PagingData<FullIssue>> {
-        val mSeries = filter.mSeries
-
-        if (mSeries != null) {
-            refreshFilterOptions(series = mSeries, creators = filter.mCreators)
-        }
-
         return Pager(
             config = PagingConfig(pageSize = REQUEST_LIMIT, enablePlaceholders = true),
             pagingSourceFactory = {
@@ -211,9 +261,15 @@ class Repository private constructor(val context: Context) {
     fun getVariants(issueId: Int): Flow<List<Issue>> = issueDao.getVariants(issueId)
 
     // STORY METHODS
-    fun getStoriesByIssue(issueId: Int): Flow<List<Story>> = storyDao.getStories(issueId)
+    fun getStoriesByIssue(issueId: Int): Flow<List<Story>> {
+//        CoroutineScope(Dispatchers.IO).launch {
+//            updater.updateIssue(issueId)
+//        }
+//
+        return storyDao.getStoriesFlow(issueId)
+    }
 
-    // CREDIT METHODS
+    // CREDIT METHODS``
     fun getCreditsByIssue(issueId: Int): Flow<List<FullCredit>> = combine(
         creditDao.getIssueCredits(issueId),
         exCreditDao.getIssueExtractedCredits(issueId)
@@ -223,18 +279,8 @@ class Repository private constructor(val context: Context) {
         res
     }
 
-    // CREATOR METHODS
-    fun getCreatorsByFilter(filter: SearchFilter): Flow<List<Creator>> {
-        Log.d(TAG, "getCreatorsByFilter")
-        return if (filter.mCreators.isEmpty()) {
-            creatorDao.getCreatorsByFilter(filter)
-        } else {
-            flow { emit(emptyList<Creator>()) }
-        }
-    }
-
     // PUBLISHER METHODS
-    fun getPublishersByFilter(filter: SearchFilter): Flow<List<Publisher>> {
+    fun getFilterOptionsPublisher(filter: SearchFilter): Flow<List<Publisher>> {
         Log.d(TAG, "getPublishersByFilter")
         return if (filter.mPublishers.isEmpty()) {
             publisherDao.getPublishersByFilter(filter)
@@ -243,61 +289,9 @@ class Repository private constructor(val context: Context) {
         }
     }
 
-    fun getPublisher(publisherId: Int): Flow<Publisher?> =
-        publisherDao.getPublisher(publisherId)
-
-    private fun refreshFilterOptions(series: Series?, creators: Set<Creator>) {
-        val creatorIds = creators.map { it.creatorId }
-
-        if (hasConnection && creatorIds.isNotEmpty()) {
-            CoroutineScope(Dispatchers.IO).launch {
-                UpdateCreator(
-                    apiService = apiService,
-                    database = database,
-                    prefs = prefs
-                ).updateAll(creatorIds = creatorIds)
-            }
-        }
-
-        series?.let {
-            if (hasConnection) {
-                UpdateSeries(webservice = apiService, database = database, prefs = prefs)
-                    .update(seriesId = it.seriesId)
-            }
-        }
-    }
-
-    suspend fun getValidFilterOptions(filter: SearchFilter): Flow<List<FilterOptionAutoCompletePopupItem>> {
-        val seriesList: Flow<List<FilterOptionAutoCompletePopupItem>> =
-            when {
-                filter.isEmpty()       -> allSeries
-                filter.mSeries == null -> getSeriesByFilter(filter)
-                else                   -> flow { emit(emptyList<FilterOptionAutoCompletePopupItem>()) }
-            }
-
-        val creatorsList: Flow<List<FilterOptionAutoCompletePopupItem>> =
-            when {
-                filter.isEmpty()           -> allCreators
-                filter.mCreators.isEmpty() -> getCreatorsByFilter(filter)
-                else                       -> flow { emit(emptyList<FilterOptionAutoCompletePopupItem>()) }
-            }
-
-        val publishersList: Flow<List<FilterOptionAutoCompletePopupItem>> =
-            when {
-                filter.isEmpty()             -> allPublishers
-                filter.mPublishers.isEmpty() -> publisherDao.getPublishersByFilter(filter)
-                else                         -> flow { emit(emptyList<FilterOptionAutoCompletePopupItem>()) }
-            }
-
-        return combine(
-            seriesList,
-            creatorsList,
-            publishersList
-        )
-        { series: List<FilterOptionAutoCompletePopupItem>, creators: List<FilterOptionAutoCompletePopupItem>, publishers: List<FilterOptionAutoCompletePopupItem> ->
-            val res: List<FilterOptionAutoCompletePopupItem> = series + creators + publishers
-            sort(res)
-            res
+    fun updateIssueCover(issueId: Int) {
+        if (hasConnection) {
+            UpdateIssueCover(database, context, prefs).update(issueId)
         }
     }
 
@@ -314,11 +308,6 @@ class Repository private constructor(val context: Context) {
     }
 
     fun inCollection(issueId: Int): Flow<Count> = collectionDao.inCollection(issueId)
-
-/*
-    FUTURE IMPLEMENTATION
-    fun getCoverImage(issue: Issue): File = File(filesDir, issue.coverFileName)
-*/
 
     /**
      * Builds database and adds dummy publisher and series, which are used for creating new empty
@@ -355,21 +344,10 @@ class Repository private constructor(val context: Context) {
             }
         ).addMigrations(
             migration_1_2, migration_2_3, migration_3_4, migration_4_5,
-            migration_5_6, migration_6_7, migration_7_8, migration_8_9
+            migration_5_6, migration_6_7, migration_7_8, migration_8_9, migration_9_10,
+            migration_10_11
         )
             .build()
-    }
-
-    class DuplicateFragment : DialogFragment() {
-        override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-            return activity?.let {
-                val builder = AlertDialog.Builder(it)
-                builder.setTitle("Duplicate Issue")
-                    .setMessage("This is a duplicate issue and will not be saved")
-                    .setPositiveButton("OK") { dialogInterface: DialogInterface, i: Int -> }
-                builder.create()
-            } ?: throw IllegalStateException("Activity cannot be null")
-        }
     }
 
     companion object {
@@ -387,10 +365,20 @@ class Repository private constructor(val context: Context) {
                 ?: throw IllegalStateException("IssueRepository must be initialized")
         }
 
-        fun saveTime(prefs: SharedPreferences, key: String) {
+        fun savePrefValue(prefs: SharedPreferences, key: String, value: Any) {
             val editor = prefs.edit()
-            editor.putString(key, LocalDate.now().toString())
+            when (value) {
+                is String  -> editor.putString(key, value)
+                is Int     -> editor.putInt(key, value)
+                is Boolean -> editor.putBoolean(key, value)
+                is Float   -> editor.putFloat(key, value)
+                is Long    -> editor.putLong(key, value)
+            }
             editor.apply()
+        }
+
+        fun saveTime(prefs: SharedPreferences, key: String) {
+            savePrefValue(prefs, key, LocalDate.now().toString())
         }
 
         @Language("RoomSql")
@@ -489,7 +477,49 @@ class Repository private constructor(val context: Context) {
         @Language("RoomSql")
         val migration_8_9 = SimpleMigration(
             8, 9,
-            """ALTER TABLE issue ADD COLUMN issueNumRaw TEXT"""
+            """ALTER TABLE character ADD COLUMN publisher INTEGER"""
+        )
+
+        @Language("RoomSql")
+        val migration_9_10 = SimpleMigration(
+            9, 10,
+            """DROP TABLE Appearance""",
+            """DROP TABLE Character""",
+            """CREATE TABLE Character (
+                    characterId INTEGER NOT NULL,
+                    name TEXT NOT NULL,
+                    alterEgo TEXT,
+                    publisher INTEGER NOT NULL,
+                    lastUpdated TEXT NOT NULL,
+                    PRIMARY KEY (characterId),
+                    FOREIGN KEY (publisher) REFERENCES Publisher(publisherId) ON DELETE CASCADE
+                )""",
+            """CREATE INDEX IF NOT EXISTS index_Character_publisher ON Character(publisher)""",
+            """CREATE TABLE Appearance (
+                    appearanceId INTEGER NOT NULL,
+                    story INTEGER NOT NULL,
+                    character INTEGER NOT NULL,
+                    details TEXT,
+                    notes TEXT,
+                    membership TEXT,
+                    lastUpdated TEXT NOT NULL,
+                    PRIMARY KEY (appearanceId),
+                    FOREIGN KEY (story) REFERENCES Story(storyId) ON DELETE CASCADE,
+                    FOREIGN KEY (character) REFERENCES Character(characterId) ON DELETE CASCADE
+                )""",
+            """CREATE INDEX IF NOT EXISTS index_Appearance_story ON Appearance(story)""",
+            """CREATE INDEX IF NOT EXISTS index_Appearance_character ON Appearance(character)""",
+        )
+
+        @Language("RoomSql")
+        val migration_10_11 = SimpleMigration(
+            10, 11,
+            """CREATE INDEX IF NOT EXISTS index_Character_name ON Character(name)""",
+            """CREATE INDEX IF NOT EXISTS index_Character_alterEgo ON Character(alterEgo)""",
+            """CREATE INDEX IF NOT EXISTS index_Creator_name ON Creator(name)""",
+            """CREATE INDEX IF NOT EXISTS index_Creator_alterEgo ON Creator(sortName)""",
+            """CREATE INDEX IF NOT EXISTS index_NameDetail_name ON NameDetail(name)""",
+            """CREATE INDEX IF NOT EXISTS index_NameDetail_sortName ON NameDetail(sortName)""",
         )
     }
 
@@ -571,16 +601,20 @@ class Repository private constructor(val context: Context) {
         }
     }
 
-    fun updateIssue(issue: FullIssue) {
-        if (hasConnection) {
-            UpdateIssueCredit(apiService, database, prefs).update(issue.issue.issueId)
-            UpdateIssueCover(database, context, prefs).update(issue.issue.issueId)
+    class DuplicateFragment : DialogFragment() {
+        override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+            return activity?.let {
+                val builder = AlertDialog.Builder(it)
+                builder.setTitle("Duplicate Issue")
+                    .setMessage("This is a duplicate issue and will not be saved")
+                    .setPositiveButton("OK") { dialogInterface: DialogInterface, i: Int -> }
+                builder.create()
+            } ?: throw IllegalStateException("Activity cannot be null")
         }
     }
 
-    fun updateIssueCover(issue: FullIssue) {
-        if (hasConnection) {
-            UpdateIssueCover(database, context, prefs).update(issue.issue.issueId)
-        }
-    }
+/*
+    FUTURE IMPLEMENTATION
+    fun getCoverImage(issue: Issue): File = File(filesDir, issue.coverFileName)
+*/
 }

@@ -10,25 +10,25 @@ import android.widget.Filter
 import android.widget.TextView
 import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.R
-import com.wtb.comiccollector.database.models.FilterOptionAutoCompletePopupItem
+import com.wtb.comiccollector.database.models.FilterAutoCompleteType
 import com.wtb.comiccollector.database.models.Series
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 @ExperimentalCoroutinesApi
-class FilterOptionsAdapter(ctx: Context, filterOptions: List<FilterOptionAutoCompletePopupItem>) :
-    ArrayAdapter<FilterOptionAutoCompletePopupItem>(ctx, LAYOUT, filterOptions) {
+class FilterOptionsAdapter(ctx: Context, filters: List<FilterAutoCompleteType>) :
+    ArrayAdapter<FilterAutoCompleteType>(ctx, LAYOUT, filters) {
 
     companion object {
         private const val LAYOUT = R.layout.list_item_filter_option_auto_complete
         private const val TAG = APP + "FilterOptionsAdapter"
     }
 
-    private var allOptions: List<FilterOptionAutoCompletePopupItem> = filterOptions
-    private var mOptions: List<FilterOptionAutoCompletePopupItem> = filterOptions
+    private var alls: List<FilterAutoCompleteType> = filters
+    private var mOptions: List<FilterAutoCompleteType> = filters
 
     override fun getCount(): Int = mOptions.size
 
-    override fun getItem(position: Int): FilterOptionAutoCompletePopupItem = mOptions[position]
+    override fun getItem(position: Int): FilterAutoCompleteType = mOptions[position]
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
 
@@ -43,14 +43,14 @@ class FilterOptionsAdapter(ctx: Context, filterOptions: List<FilterOptionAutoCom
         val optionTypeText: TextView = view.findViewById(R.id.filter_option_type_text)
         val itemFormatText: TextView = view.findViewById(R.id.format_text)
 
-        val filterOption: FilterOptionAutoCompletePopupItem = getItem(position)
+        val filter: FilterAutoCompleteType = getItem(position)
 
-        itemText.text = filterOption.toString()
-        optionTypeText.text = filterOption.tagName
-        optionTypeText.setTextColor(filterOption.textColor)
-        if (filterOption is Series) {
+        itemText.text = filter.toString()
+        optionTypeText.text = filter.tagName
+        optionTypeText.setTextColor(filter.textColor)
+        if (filter is Series) {
             itemFormatText.visibility = VISIBLE
-            itemFormatText.text = filterOption.publishingFormat
+            itemFormatText.text = filter.publishingFormat
         } else {
             itemFormatText.visibility = GONE
         }
@@ -64,9 +64,9 @@ class FilterOptionsAdapter(ctx: Context, filterOptions: List<FilterOptionAutoCom
 
                 val results = FilterResults()
                 results.values = if (query == null || query.isEmpty()) {
-                    allOptions
+                    alls
                 } else {
-                    allOptions.filter {
+                    alls.filter {
                         it.compareValue.lowercase().contains(query)
                     }
                 }
@@ -78,10 +78,10 @@ class FilterOptionsAdapter(ctx: Context, filterOptions: List<FilterOptionAutoCom
                 constraint: CharSequence?,
                 results: FilterResults?
             ) {
-                val optionsList: MutableList<FilterOptionAutoCompletePopupItem> = mutableListOf()
+                val optionsList: MutableList<FilterAutoCompleteType> = mutableListOf()
 
                 for (item in (results?.values as List<*>)) {
-                    if (item is FilterOptionAutoCompletePopupItem) {
+                    if (item is FilterAutoCompleteType) {
                         optionsList.add(item)
                     }
                 }

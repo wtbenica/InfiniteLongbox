@@ -1,20 +1,19 @@
 package com.wtb.comiccollector
 
 import android.annotation.SuppressLint
-import androidx.fragment.app.Fragment
 import com.wtb.comiccollector.database.models.*
-import com.wtb.comiccollector.fragments.IssueListFragment
-import com.wtb.comiccollector.fragments.SeriesListFragment
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import java.io.Serializable
 import java.time.LocalDate
+import kotlin.reflect.KClass
 
 const val ARG_FILTER = "Filter"
 
 private const val TAG = APP + "Filter_SortChipGroup"
 
 @ExperimentalCoroutinesApi
-class SearchFilter(
+class SearchFilter
+    (
     creators: Set<Creator>? = null,
     series: Series? = null,
     publishers: Set<Publisher>? = null,
@@ -23,7 +22,9 @@ class SearchFilter(
     myCollection: Boolean = true,
     sortType: SortType? = null,
     textFilter: TextFilter? = null,
-    showVariants: Boolean = false
+    showVariants: Boolean = false,
+    character: Character? = null,
+    viewOptionsIndex: Int = 0,
 ) : Serializable {
 
     constructor(filter: SearchFilter) : this(
@@ -35,7 +36,9 @@ class SearchFilter(
         filter.mMyCollection,
         filter.mSortType,
         filter.mTextFilter,
-        filter.mShowVariants
+        filter.mShowVariants,
+        filter.mCharacter,
+        filter.mViewOptionsIndex
     )
 
     override fun equals(other: Any?): Boolean {
@@ -46,51 +49,79 @@ class SearchFilter(
     var mCreators: Set<Creator> = creators ?: setOf()
     var mSeries: Series? = series
         set(value) {
-            // sets selected sort option to default if it's not of the same type
-            if (getSortOptions(value) != getSortOptions()) {
-                mSortType = getSortOptions(value)[0]
-            }
+            val oldOptions = getSortOptions()
             field = value
+            val newOptions = getSortOptions()
+            if (oldOptions != newOptions) {
+                mSortType = newOptions[0]
+            }
         }
     var mPublishers: Set<Publisher> = publishers ?: setOf()
     var mStartDate: LocalDate = startDate ?: LocalDate.MIN
     var mEndDate: LocalDate = endDate ?: LocalDate.MAX
     var mMyCollection: Boolean = myCollection
-    var mSortType: SortType = sortType ?: getSortOptions()[0]
+    var mSortType: SortType? = sortType ?: getSortOptions()[0]
     var mTextFilter: TextFilter? = textFilter
     var mShowVariants: Boolean = showVariants
+    var mCharacter: Character? = character
 
-    fun hasCreator() = mCreators.isNotEmpty()
-    fun returnsIssueList() = mSeries != null || mShowIssues
-    fun hasPublisher() = mPublishers.isNotEmpty()
-    fun hasDateFilter() = mStartDate != LocalDate.MIN || mEndDate != LocalDate.MAX
-    fun isEmpty(): Boolean {
-        return mCreators.isEmpty() && mSeries == null && mPublishers.isEmpty() && mStartDate ==
-                LocalDate.MIN && mEndDate == LocalDate.MAX && !mMyCollection
+    var mViewOptionsIndex = viewOptionsIndex
+        get() = field % viewOptions.size
+    val viewOptions: List<KClass<out ListItem>>
+        get() = if (mSeries != null)
+            listOf(FullIssue::class, Character::class, NameDetailAndCreator::class)
+        else
+            listOf(FullSeries::class, Character::class, NameDetailAndCreator::class)
+
+
+    val viewOption: KClass<out ListItem>
+        get() = viewOptions[mViewOptionsIndex]
+
+    fun nextOption() {
+        mViewOptionsIndex++
     }
 
-    fun isNotEmpty(): Boolean = !isEmpty()
+    fun t() {
+        val k: FilterTypeSpinnerOption = NameDetail
+    }
 
-    // TODO: CvND
-    fun addFilter(vararg items: FilterOptionAutoCompletePopupItem) {
+    fun hasCreator() = mCreators.isNotEmpty() || mTextFilter?.type == All ||
+            mTextFilter?.type == NameDetail
+
+    fun hasPublisher() = mPublishers.isNotEmpty() || mTextFilter?.type == All ||
+            mTextFilter?.type == Publisher
+
+    fun hasDateFilter() = mStartDate != LocalDate.MIN || mEndDate != LocalDate.MAX
+    fun hasCharacter() = mCharacter != null || mTextFilter?.type == All ||
+            mTextFilter?.type == Character
+
+    fun hasSeries(): Boolean = mSeries != null || mTextFilter?.type == All ||
+            mTextFilter?.type == Series
+
+    fun addFilter(vararg items: FilterType) {
         items.forEach { item ->
             when (item) {
                 is Series     -> addSeries(item)
                 is Creator    -> addCreator(item)
                 is Publisher  -> addPublisher(item)
                 is TextFilter -> addTextFilter(item)
-                is NameDetail -> {}
+                is NameDetail -> {
+                    // maybe should add namedetail as option. if someone wanted to find uses of
+                    // alias specifically. How to differentiate though? creator and namedetail don't
+                    // describe what sets them apart
+                }
+                is Character  -> addCharacter(item)
             }
         }
+    }
+
+    private fun addSeries(series: Series) {
+        this.mSeries = series
     }
 
     private fun addCreator(vararg creator: Creator) {
         val newCreators = mCreators + creator.toSet()
         mCreators = newCreators
-    }
-
-    private fun addSeries(series: Series) {
-        this.mSeries = series
     }
 
     private fun addPublisher(vararg publisher: Publisher) {
@@ -102,26 +133,32 @@ class SearchFilter(
         mTextFilter = item
     }
 
+    private fun addCharacter(character: Character) {
+        mCharacter = character
+    }
+
     // TODO: CvND
-    fun removeFilter(vararg items: FilterOptionAutoCompletePopupItem) {
+    fun removeFilter(vararg items: FilterType) {
         items.forEach { item ->
             when (item) {
                 is Series     -> removeSeries()
                 is Creator    -> removeCreator(item)
                 is Publisher  -> removePublisher(item)
                 is TextFilter -> removeTextFilter(item)
-                is NameDetail -> {}
+                is NameDetail -> {
+                }
+                is Character  -> removeCharacter()
             }
         }
+    }
+
+    private fun removeSeries() {
+        this.mSeries = null
     }
 
     private fun removeCreator(vararg creator: Creator) {
         val newCreators = mCreators - creator.toSet()
         mCreators = newCreators
-    }
-
-    private fun removeSeries() {
-        this.mSeries = null
     }
 
     private fun removePublisher(vararg publisher: Publisher) {
@@ -134,22 +171,23 @@ class SearchFilter(
             mTextFilter = null
     }
 
-    fun getFragment(): Fragment =
-        when (mSeries) {
-            null -> SeriesListFragment.newInstance()
-            else -> IssueListFragment.newInstance()
-        }
+    private fun removeCharacter() {
+        this.mCharacter = null
+    }
 
-    fun getSortOptions(series: Series? = mSeries): List<SortType> =
-        when (series) {
-            null -> SortType.Companion.ItemSort.SERIES.options
-            else -> SortType.Companion.ItemSort.ISSUE.options
-        }
+    fun getSortOptions(): List<SortType> = when (viewOption) {
+        Character::class            -> SortType.Companion.ItemSort.CHARACTER.options
+        FullIssue::class            -> SortType.Companion.ItemSort.ISSUE.options
+        FullSeries::class           -> SortType.Companion.ItemSort.SERIES.options
+        NameDetailAndCreator::class -> SortType.Companion.ItemSort.CREATOR.options
+        else                        -> throw IllegalStateException("illegal view type: ${viewOption.simpleName}")
+    }
 
-    fun getAll(): Set<FilterOptionAutoCompletePopupItem> {
+    fun getAll(): Set<FilterType> {
         val series = mSeries?.let { setOf(it) } ?: emptySet()
         val textFilter = mTextFilter?.let { setOf(it) } ?: emptySet()
-        return mCreators + mPublishers + series + textFilter
+        val character = mCharacter?.let { setOf(it) } ?: emptySet()
+        return mCreators + mPublishers + series + textFilter + character
     }
 
     override fun hashCode(): Int {
@@ -162,19 +200,21 @@ class SearchFilter(
         result = 31 * result + mSortType.hashCode()
         result = 31 * result + mTextFilter.hashCode()
         result = 31 * result + mShowVariants.hashCode()
+        result = 31 * result + mCharacter.hashCode()
+        result = 31 * result + mViewOptionsIndex.hashCode()
         return result
     }
 
     override fun toString(): String =
         "Series: $mSeries Creators: ${mCreators.size} Pubs: " +
-                "${mPublishers.size} MyCol: $mMyCollection T: ${mTextFilter?.text}"
+                "${mPublishers.size} MyCol: $mMyCollection T: ${mTextFilter?.text} ${mCharacter?.name}"
 }
 
 class SortType(
     val tag: String,
     val sortColumn: String,
     val table: String,
-    var order: SortOrder
+    var order: SortOrder,
 ) : Serializable {
 
     constructor(other: SortType) : this(
@@ -252,6 +292,26 @@ class SortType(
                         context.getString(R.string.column_release_date),
                         "ie",
                         SortOrder.DESC
+                    )
+                )
+            ),
+            CHARACTER(
+                listOf(
+                    SortType(
+                        "Name",
+                        "name",
+                        "ch",
+                        SortOrder.ASC
+                    )
+                )
+            ),
+            CREATOR(
+                listOf(
+                    SortType(
+                        "Name",
+                        "name",
+                        "cr",
+                        SortOrder.ASC
                     )
                 )
             )

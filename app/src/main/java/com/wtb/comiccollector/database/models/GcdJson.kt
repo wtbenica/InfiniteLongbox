@@ -5,6 +5,8 @@ import com.google.gson.annotations.SerializedName
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import java.time.LocalDate
 
+private const val TAG = "GcdJson"
+
 // TODO: do all these val need to be nullable?
 class Item<G : GcdJson<M>, M : DataModel>(
     @SerializedName("model")
@@ -25,6 +27,12 @@ class Item<G : GcdJson<M>, M : DataModel>(
         return fields.toRoomModel(this.pk)
     }
 }
+
+val <G : GcdJson<M>, M : DataModel> List<Item<G, M>>.models: List<M>
+    get() = this.map { it.toRoomModel() }
+
+val <M : DataModel> List<M>.ids: List<Int>
+    get() = this.map { it.id }
 
 interface GcdJson<M : DataModel> {
     fun toRoomModel(pk: Int): M
@@ -450,7 +458,7 @@ class GcdSeriesBond(
     @SerializedName("notes")
     @Expose
     val notes: String
-): GcdJson<SeriesBond> {
+) : GcdJson<SeriesBond> {
     override fun toRoomModel(pk: Int): SeriesBond {
         return SeriesBond(
             bondId = pk,
@@ -463,3 +471,56 @@ class GcdSeriesBond(
         )
     }
 }
+
+@ExperimentalCoroutinesApi
+class GcdCharacter(
+    @SerializedName("name")
+    @Expose
+    val name: String,
+    @SerializedName("alter_ego")
+    @Expose
+    val alterEgo: String?,
+    @SerializedName("publisher")
+    @Expose
+    val publisherId: Int
+) : GcdJson<Character> {
+    override fun toRoomModel(pk: Int): Character {
+        return Character(
+            characterId = pk,
+            name = name,
+            alterEgo = alterEgo,
+            publisher = publisherId
+        )
+    }
+}
+
+@ExperimentalCoroutinesApi
+class GcdCharacterAppearance(
+    @SerializedName("details")
+    @Expose
+    val details: String?,
+    @SerializedName("character")
+    @Expose
+    val characterId: Int,
+    @SerializedName("story")
+    @Expose
+    val storyId: Int,
+    @SerializedName("notes")
+    @Expose
+    val notes: String?,
+    @SerializedName("membership")
+    @Expose
+    val membership: String?
+) : GcdJson<Appearance> {
+    override fun toRoomModel(pk: Int): Appearance {
+        return Appearance(
+            appearanceId = pk,
+            details = details,
+            story = storyId,
+            character = characterId,
+            notes = notes,
+            membership = membership,
+        )
+    }
+}
+

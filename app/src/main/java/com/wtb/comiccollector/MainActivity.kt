@@ -1,13 +1,11 @@
 package com.wtb.comiccollector
 
 import android.app.Activity
-import android.content.Context
 import android.net.ConnectivityManager
 import android.net.Network
 import android.net.NetworkCapabilities
 import android.os.Bundle
 import android.util.Log
-import android.util.TypedValue
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
@@ -28,13 +26,8 @@ import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.appbar.AppBarLayout.LayoutParams.SCROLL_FLAG_SCROLL
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetBehavior.*
-import com.wtb.comiccollector.database.models.Creator
-import com.wtb.comiccollector.database.models.Issue
-import com.wtb.comiccollector.database.models.Series
-import com.wtb.comiccollector.fragments.FilterFragment
-import com.wtb.comiccollector.fragments.IssueDetailFragment
-import com.wtb.comiccollector.fragments.IssueListFragment
-import com.wtb.comiccollector.fragments.SeriesListFragment
+import com.wtb.comiccollector.database.models.*
+import com.wtb.comiccollector.fragments.*
 import com.wtb.comiccollector.fragments_view_models.FilterViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
@@ -51,6 +44,8 @@ class MainActivity : AppCompatActivity(),
     SeriesListFragment.SeriesListCallback,
     IssueListFragment.IssueListCallback,
     SeriesInfoDialogFragment.SeriesInfoDialogCallback,
+    CharacterListFragment.CharacterListCallback,
+    CreatorListFragment.CreatorListCallback,
     NewCreatorDialogFragment.NewCreatorDialogCallback,
     FilterFragment.FilterFragmentCallback {
 
@@ -77,9 +72,8 @@ class MainActivity : AppCompatActivity(),
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        filterFragment = supportFragmentManager.findFragmentByTag(
-            resources.getString(R.string.tag_filter_fragment)
-        ) as FilterFragment?
+        filterFragment =
+            supportFragmentManager.findFragmentByTag(resources.getString(R.string.tag_filter_fragment)) as FilterFragment?
         mainLayout = findViewById(R.id.main_activity)
         appBarLayout = findViewById(R.id.app_bar_layout)
         toolbar = findViewById(R.id.action_bar)
@@ -126,7 +120,6 @@ class MainActivity : AppCompatActivity(),
 
         bottomSheetBehavior.addBottomSheetCallback(object : BottomSheetCallback() {
             override fun onStateChanged(bottomSheet: View, newState: Int) {
-                Log.d(TAG, "onStateChanged: ${getStateName(newState)}")
                 filterFragment?.visibleState = newState
             }
 
@@ -161,7 +154,6 @@ class MainActivity : AppCompatActivity(),
                                                        ConnectivityManager.NetworkCallback() {
             override fun onAvailable(network: Network) {
                 super.onAvailable(network)
-                Log.d(TAG, "NetworkCallback onAvailable")
                 hasConnection.postValue(true)
                 activeJob?.let { job ->
                     if (job.isCancelled) {
@@ -172,20 +164,18 @@ class MainActivity : AppCompatActivity(),
 
             override fun onLost(network: Network) {
                 super.onLost(network)
-                Log.d(TAG, "NetworkCallback onLost")
                 hasConnection.postValue(false)
                 activeJob?.cancel()
             }
 
             override fun onUnavailable() {
                 super.onUnavailable()
-                Log.d(TAG, "NetworkCallback onUnavailable")
                 hasConnection.postValue(true)
             }
 
             override fun onCapabilitiesChanged(
                 network: Network,
-                networkCapabilities: NetworkCapabilities
+                networkCapabilities: NetworkCapabilities,
             ) {
                 super.onCapabilitiesChanged(network, networkCapabilities)
                 hasUnmeteredConnection.postValue(
@@ -199,8 +189,16 @@ class MainActivity : AppCompatActivity(),
 
     // SeriesListFragment.SeriesListCallbacks
     override fun onSeriesSelected(series: Series) {
-        Log.d(TAG, "ADDING SERIES $series")
         filterFragment?.addFilterItem(series)
+    }
+
+    // CharacterListFragment.CharacterListCallbacks
+    override fun onCharacterSelected(character: Character) {
+        updateFilter(SearchFilter(character = character, myCollection = false))
+    }
+
+    override fun onCreatorSelected(creator: Creator) {
+        updateFilter(SearchFilter(creators = setOf(creator), myCollection = false))
     }
 
     // FilterFragmentCallback
@@ -272,7 +270,7 @@ class MainActivity : AppCompatActivity(),
     // SeriesInfoDialogCallback
     override fun onSaveSeriesClick(
         dialog: DialogFragment,
-        series: Series
+        series: Series,
     ) {
         // TODO: MainActivity onSaveSeriesClick
         dialog.dismiss()
@@ -286,7 +284,7 @@ class MainActivity : AppCompatActivity(),
     // NewCreatorDialogCallback
     override fun onSaveCreatorClick(
         dialog: DialogFragment,
-        creator: Creator
+        creator: Creator,
     ) {
         // TODO: Not yet implemented
         dialog.dismiss()
@@ -295,12 +293,10 @@ class MainActivity : AppCompatActivity(),
     // ListFragmentCallback
     override fun setTitle(title: String?) {
         val actual = title ?: applicationInfo.loadLabel(packageManager)
-        Log.d(TAG, "setTitle: $actual")
         toolbar.title = actual
     }
 
     override fun setToolbarScrollFlags(flags: Int) {
-        Log.d(TAG, "setToolbarScrollFlags $flags")
         toolbar.updateLayoutParams<AppBarLayout.LayoutParams> { scrollFlags = flags }
         if (flags and SCROLL_FLAG_SCROLL == SCROLL_FLAG_SCROLL) {
             appBarLayout.setExpanded(true, true)
@@ -317,55 +313,30 @@ class MainActivity : AppCompatActivity(),
                 Log.d(TAG, "HAS CONNECTION: $it")
             }
         }
-
-        fun getStateName(newState: Int): String {
-            return when (newState) {
-                STATE_EXPANDED -> "EXPANDED"
-                STATE_HALF_EXPANDED -> "HALF-EXPANDED"
-                STATE_COLLAPSED -> "COLLAPSED"
-                STATE_DRAGGING -> "DRAGGING"
-                STATE_HIDDEN -> "HIDDEN"
-                STATE_SETTLING -> "SETTLING"
-                else -> "THAT'S ODD!"
-            }
-        }
-
-        fun resolveThemeAttribute(
-            attr: Int,
-            context: Context? = ComicCollectorApplication.context
-        ): Int {
-            val value = TypedValue()
-            context?.theme?.resolveAttribute(attr, value, true)
-            return value.data
-        }
     }
 
     inner class ResultFragmentManager {
         val fragment: Flow<Fragment?> = filterViewModel.filter.mapLatest {
-            when (it.returnsIssueList()) {
-                true -> issueListFragment
-                else -> seriesListFragment
+            when (it.viewOption) {
+                FullIssue::class            -> issueListFragment
+                Character::class            -> characterListFragment
+                FullSeries::class           -> seriesListFragment
+                NameDetailAndCreator::class -> creatorListFragment
+                else                        -> throw IllegalStateException("illegal viewOption: ${it.viewOption}")
             }
         }
 
-        private var seriesListFragment: SeriesListFragment? = null
-            get() {
-                if (field == null) {
-                    field = SeriesListFragment.newInstance()
-                }
-                return field
-            }
-        private var issueListFragment: IssueListFragment? = null
-            get() {
-                if (field == null) {
-                    field = IssueListFragment.newInstance()
-                }
-                return field
-            }
+        private val seriesListFragment: SeriesListFragment
+            get() = SeriesListFragment.newInstance()
+        private val issueListFragment: IssueListFragment
+            get() = IssueListFragment.newInstance()
+        private val characterListFragment: CharacterListFragment
+            get() = CharacterListFragment.newInstance()
+        private val creatorListFragment: CreatorListFragment
+            get() = CreatorListFragment.newInstance()
     }
 
     override fun updateFilter(filter: SearchFilter) {
-        Log.d(TAG, "updateFilter")
         filterViewModel.setFilter(filter)
     }
 }

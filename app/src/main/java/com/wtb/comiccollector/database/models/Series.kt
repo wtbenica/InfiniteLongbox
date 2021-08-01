@@ -35,8 +35,8 @@ data class Series(
     var publishingFormat: String? = null,
     val firstIssueId: Int? = null,
     val notes: String? = null,
-    val issueCount: Int = 0
-) : DataModel(), FilterOptionAutoCompletePopupItem, Serializable {
+    val issueCount: Int = 0,
+) : DataModel(), FilterAutoCompleteType, Serializable {
     override val tagName: String
         get() = "Series"
 
@@ -81,7 +81,7 @@ data class Publisher(
     var yearEnded: LocalDate? = null,
     var yearEndedUncertain: Boolean = true,
     var url: String? = null,
-) : DataModel(), FilterOptionAutoCompletePopupItem {
+) : DataModel(), FilterAutoCompleteType {
     override val tagName: String
         get() = "Publisher"
 
@@ -108,7 +108,7 @@ data class BondType(
     val name: String,
     var description: String,
     var notes: String? = null,
-): DataModel() {
+) : DataModel() {
     override val id: Int
         get() = bondTypeId
 }
@@ -162,7 +162,7 @@ data class SeriesBond(
     val originIssueId: Int?,
     val targetIssueId: Int?,
     val bondTypeId: Int,
-    val notes: String?
+    val notes: String?,
 ) : DataModel() {
     override val id: Int
         get() = bondId
@@ -181,11 +181,11 @@ data class FullSeries(
     @Relation(parentColumn = "firstIssueId", entityColumn = "issueId", entity = Issue::class)
     var firstIssue: FullIssue? = null,
 
-    @Relation(parentColumn = "seriesId", entityColumn="originId", entity = SeriesBond::class)
+    @Relation(parentColumn = "seriesId", entityColumn = "originId", entity = SeriesBond::class)
     var seriesBondTo: Bond? = null,
 
     @Relation(parentColumn = "seriesId", entityColumn = "targetId", entity = SeriesBond::class)
-    var seriesBondFrom: Bond? = null
+    var seriesBondFrom: Bond? = null,
 ) : ListItem
 
 @ExperimentalCoroutinesApi
@@ -194,7 +194,7 @@ data class SeriesAndPublisher(
     val series: Series,
 
     @Relation(parentColumn = "publisherId", entityColumn = "publisherId")
-    var publisher: Publisher
+    var publisher: Publisher,
 )
 
 @ExperimentalCoroutinesApi
@@ -206,5 +206,5 @@ data class Bond(
     var targetSeries: Series,
 
     @Relation(parentColumn = "originId", entityColumn = "seriesId")
-    var originSeries: Series
+    var originSeries: Series,
 )

@@ -14,12 +14,12 @@ import java.util.*
 
 @ExperimentalCoroutinesApi
 @Dao
-abstract class PublisherDao : BaseDao<Publisher>() {
+abstract class PublisherDao : BaseDao<Publisher>("publisher") {
     @Query("SELECT * FROM publisher WHERE publisherId = :publisherId")
     abstract fun getPublisher(publisherId: Int): Flow<Publisher?>
 
     @Query("SELECT * FROM publisher WHERE publisherId != $DUMMY_ID ORDER BY publisher ASC")
-    abstract fun getPublishersList(): Flow<List<Publisher>>
+    abstract fun getAll(): Flow<List<Publisher>>
 
     @Query("SELECT * FROM publisher WHERE publisherId IN (:publisherIds)")
     abstract fun getPublishers(publisherIds: List<Int>?): Flow<List<Publisher>?>
@@ -54,7 +54,7 @@ abstract class PublisherDao : BaseDao<Publisher>() {
                         "JOIN nameDetail nd ON ct.nameDetailId = nd.nameDetailId " +
                         "JOIN creator cr ON cr.creatorId = nd.creatorId "
 
-            val creatorIds = modelsToSqlIdString(filter.mCreators)
+            val creatorIds = Companion.modelsToSqlIdString(filter.mCreators)
 
             conditionsString +=
                 "AND cr.creatorId IN $creatorIds"

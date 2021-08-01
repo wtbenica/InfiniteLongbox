@@ -8,7 +8,6 @@ import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.SearchFilter
 import com.wtb.comiccollector.database.models.FullIssue
 import com.wtb.comiccollector.database.models.FullSeries
-import com.wtb.comiccollector.database.models.Issue
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 
@@ -18,34 +17,24 @@ private const val TAG = APP + "IssueListViewModel"
 class IssueListViewModel : ListViewModel<FullIssue>() {
 
     private val seriesIdLiveData = MutableLiveData<Int>()
-    val seriesId: LiveData<Int> = seriesIdLiveData
 
-    var seriesLiveData: LiveData<FullSeries?> =
-        Transformations.switchMap(filterLiveData) {
-            it?.let { filter ->
-                filter.mSeries?.seriesId?.let { id -> repository.getSeries(id).asLiveData() }
-            }
+    var seriesLiveData: LiveData<FullSeries?> = seriesIdLiveData.switchMap { seriesId ->
+        repository.getSeries(seriesId).asLiveData()
+    }
+
+    override fun setFilter(filter: SearchFilter) {
+        super.setFilter(filter)
+        Log.d(TAG, "Setting filter!!: ${filter.mSortType}")
+        val series = filter.mSeries
+        if (series != null) {
+            seriesIdLiveData.value = series.seriesId
         }
+    }
 
     val issueList: Flow<PagingData<FullIssue>> = filter.switchMap { filter ->
-        Log.d(TAG, "issueList: filterChanged")
+        Log.d(TAG, "issueList!: ${filter.mSortType}")
         repository.getIssuesByFilterPaged(filter).asLiveData()
     }.asFlow().cachedIn(viewModelScope)
 
-    val series: Flow<FullSeries?> = seriesId.switchMap { id ->
-        repository.getSeries(id).asLiveData()
-    }.asFlow()
-
-    fun setFilter(filter: SearchFilter) {
-        filterLiveData.value = filter
-    }
-
-    fun addIssue(issue: Issue) {
-        Log.d(TAG, "addIssue")
-        repository.saveIssue(issue)
-    }
-
-    fun updateIssue(issue: FullIssue) = repository.updateIssue(issue)
-
-    fun updateIssueCover(issue: FullIssue) = repository.updateIssueCover(issue)
+    fun updateIssueCover(issueId: Int) = repository.updateIssueCover(issueId)
 }

@@ -130,12 +130,10 @@ class IssueDetailFragment : Fragment(), CreatorLinkCallback {
         val variantOf = arguments?.getSerializable(ARG_VARIANT_OF) as Int?
 
         if (variantOf == null) {
-            Log.d(TAG, "NO VARIANT_OF")
-            issueDetailViewModel.loadVariant(null, 140)
+            issueDetailViewModel.loadVariant(null)
             issueDetailViewModel.loadIssue(issueId)
         } else {
-            Log.d(TAG, "WHOO-HEE THERE'S A VARIANT_OF")
-            issueDetailViewModel.loadVariant(issueId, 144)
+            issueDetailViewModel.loadVariant(issueId)
             issueDetailViewModel.loadIssue(variantOf)
         }
 
@@ -156,7 +154,7 @@ class IssueDetailFragment : Fragment(), CreatorLinkCallback {
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View? {
 
         val view = inflater.inflate(R.layout.fragment_display_issue, container, false)
@@ -190,6 +188,7 @@ class IssueDetailFragment : Fragment(), CreatorLinkCallback {
         issueDetailViewModel.issueList.observe(
             viewLifecycleOwner,
             { issues ->
+                Log.d(TAG, "issueList observation ${issues.size}")
                 this@IssueDetailFragment.issuesInSeries = issues.map { it.issue.issueId }
                 updateNavBar()
             }
@@ -210,7 +209,7 @@ class IssueDetailFragment : Fragment(), CreatorLinkCallback {
             viewLifecycleOwner,
             { stories: List<Story>? ->
                 stories?.let {
-                    Log.d(TAG, "issueStories updated: ${stories.size}")
+
                     this.issueStories = it
                     updateUI()
                 }
@@ -221,7 +220,7 @@ class IssueDetailFragment : Fragment(), CreatorLinkCallback {
             viewLifecycleOwner,
             {
                 it?.let { variant ->
-                    Log.d(TAG, "variantLiveData changed, updating fullVariant")
+
                     fullVariant = variant
                     updateUI()
                 }
@@ -297,16 +296,15 @@ class IssueDetailFragment : Fragment(), CreatorLinkCallback {
 
     private fun updateNavBar() {
         this.currentPos = this.issuesInSeries.indexOf(this.fullIssue.issue.issueId)
-        val found = currentPos != -1
+        val found = currentPos >= 0
 
-        this.gotoStartButton.isEnabled = (currentPos != 0) && found
+        this.gotoStartButton.isEnabled = (currentPos > 0) && found
         this.gotoSkipBackButton.isEnabled = (currentPos >= 10) && found
-        this.gotoPreviousButton.isEnabled = (currentPos != 0) && found
-        this.gotoNextButton.isEnabled =
-            (currentPos != this.issuesInSeries.size - 1) && found
+        this.gotoPreviousButton.isEnabled = (currentPos > 0) && found
+        this.gotoNextButton.isEnabled = (currentPos < this.issuesInSeries.size - 1) && found
         this.gotoSkipForwardButton.isEnabled =
             (currentPos <= this.issuesInSeries.size - 11) && found
-        this.gotoEndButton.isEnabled = (currentPos != this.issuesInSeries.size - 1) && found
+        this.gotoEndButton.isEnabled = (currentPos < this.issuesInSeries.size - 1) && found
     }
 
     private fun setCollectionButton(count: Count) {
@@ -380,7 +378,7 @@ class IssueDetailFragment : Fragment(), CreatorLinkCallback {
                     parent: AdapterView<*>?,
                     view: View?,
                     position: Int,
-                    id: Long
+                    id: Long,
                 ) {
                     parent?.let {
                         val selectedIssueId =
@@ -390,7 +388,7 @@ class IssueDetailFragment : Fragment(), CreatorLinkCallback {
                             .getIssueId()
 
                         if (selectionIsVariant) {
-                            issueDetailViewModel.loadVariant(selectedIssueId, 393)
+                            issueDetailViewModel.loadVariant(selectedIssueId)
                         }
 
                         updateCover()
@@ -412,7 +410,7 @@ class IssueDetailFragment : Fragment(), CreatorLinkCallback {
         return when (item.itemId) {
             R.id.delete_issue -> {
                 saveIssue = false
-                issueDetailViewModel.deleteIssue(fullIssue.issue)
+                issueDetailViewModel.delete(fullIssue.issue)
                 requireActivity().onBackPressed()
                 true
             }
@@ -421,7 +419,6 @@ class IssueDetailFragment : Fragment(), CreatorLinkCallback {
     }
 
     private fun updateUI() {
-        Log.d(TAG, "updateUI")
         val issue = currentIssue.issue
         if (issue.issueId != AUTO_ID) {
             numUpdates += 1
@@ -435,8 +432,6 @@ class IssueDetailFragment : Fragment(), CreatorLinkCallback {
             }
 
             updateCover()
-        } else {
-            Log.d(TAG, "updateUI: Dummy")
         }
     }
 
@@ -449,7 +444,6 @@ class IssueDetailFragment : Fragment(), CreatorLinkCallback {
     }
 
     override fun creatorClicked(creator: NameDetailAndCreator) {
-        Log.d(TAG, "creatorClicked")
         val filter = SearchFilter(creators = setOf(creator.creator), myCollection = false)
         listFragmentCallback?.updateFilter(filter)
     }
@@ -459,7 +453,7 @@ class IssueDetailFragment : Fragment(), CreatorLinkCallback {
         fun newInstance(
             issueId: Int? = null,
             openAsEditable: Boolean = true,
-            variantOf: Int? = null
+            variantOf: Int? = null,
         ): IssueDetailFragment =
             IssueDetailFragment().apply {
                 arguments = Bundle().apply {
@@ -495,7 +489,7 @@ class IssueDetailFragment : Fragment(), CreatorLinkCallback {
 
         private fun combineCredits(
             original: List<Story>,
-            variant: List<Story>
+            variant: List<Story>,
         ): List<Story> =
             if (STORY_TYPE_COVER in variant.map { it.storyType }) {
                 original.mapNotNull {

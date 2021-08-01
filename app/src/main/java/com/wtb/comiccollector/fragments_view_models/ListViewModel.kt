@@ -10,6 +10,7 @@ import com.wtb.comiccollector.repository.Repository
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 
+// TODO: Not sure what the point of giving this a param type. it isn't used.
 @ExperimentalCoroutinesApi
 abstract class ListViewModel<T: ListItem> : ViewModel() {
     protected val repository: Repository = Repository.get()
@@ -21,4 +22,8 @@ abstract class ListViewModel<T: ListItem> : ViewModel() {
             repository.getSeriesByFilterPaged(it).asLiveData()
         }
     }.asFlow().cachedIn(viewModelScope)
+
+    open fun setFilter(filter: SearchFilter) {
+        filterLiveData.value = filter
+    }
 }

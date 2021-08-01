@@ -3,21 +3,30 @@ package com.wtb.comiccollector.database.daos
 import android.database.sqlite.SQLiteConstraintException
 import android.util.Log
 import androidx.room.*
+import androidx.sqlite.db.SimpleSQLiteQuery
+import androidx.sqlite.db.SupportSQLiteQuery
 import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.database.models.DataModel
+import com.wtb.comiccollector.database.models.Issue
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 private const val TAG = APP + "BaseDao"
 const val REQUEST_LIMIT = 20
 
-/**
- * BaseDao provides generic insert, update, delete, and upsert (insert if not exist, else update)
- * I was having a problem where insert(REPLACE) is actually "try insert, if exists, delete then
- * insert," which, along with "on delete cascade" resulted in lost records
- */
 @ExperimentalCoroutinesApi
 @Dao
-abstract class BaseDao<T : DataModel> {
+abstract class BaseDao<T : DataModel>(private val tableName: String) {
+
+    @RawQuery
+    protected abstract fun getDataModelByQuery(query: SupportSQLiteQuery): T?
+
+    fun get(id: Int): T? {
+        val query = SimpleSQLiteQuery("SELECT * FROM $tableName WHERE ${tableName + "Id"} = $id")
+
+        return getDataModelByQuery(query)
+    }
+
+
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     abstract fun insert(obj: T): Long
 
@@ -61,23 +70,26 @@ abstract class BaseDao<T : DataModel> {
     @Transaction
     open fun upsert(objList: List<T>) {
 
-        try {
-            val insertResult = insert(objList)
-            val updateList = mutableListOf<T>()
+        val objClass = if (objList.isNotEmpty()) {
+            objList[0]::class.simpleName
+        } else {
+            "Empty List"
+        }
 
-            for (i in insertResult.indices) {
-                if (insertResult[i] == -1L) {
-                    updateList.add(objList[i])
-                }
-            }
+        for (obj in objList) {
+            try {
+                val insertResult = insert(obj)
 
-            if (updateList.isNotEmpty()) {
-                for (obj in updateList) {
+                if (insertResult == -1L) {
                     update(obj)
                 }
+            } catch (sqlEx: SQLiteConstraintException) {
+                val s = when (obj) {
+                    is Issue -> "Issue(issueId=${obj.issueId}, seriesId=${obj.seriesId}, variantOf=${obj.variantOf}"
+                    else     -> obj
+                }
+                Log.d(TAG, "UGH!: $objClass $s $sqlEx")
             }
-        } catch (sqlEx: SQLiteConstraintException) {
-            Log.d(TAG, "upsert(objList): ${this.javaClass} $sqlEx ${objList[0]} ${objList.size}")
         }
     }
 
@@ -85,26 +97,31 @@ abstract class BaseDao<T : DataModel> {
     open suspend fun upsertSus(objList: List<T>) {
 
         val objClass = if (objList.isNotEmpty()) {
-            objList[0]::class.toString().split(".").last().split(" ").first()
+            objList[0]::class.simpleName
         } else {
             "Empty List"
         }
 
-        try {
-            val insertResult: List<Long> = insertSus(objList)
-            for (i in insertResult.indices) {
-                if (insertResult[i] == -1L) {
-                    update(objList[i])
+        for (obj in objList) {
+            try {
+                val insertResult: Long = insertSus(obj)
+                if (insertResult == -1L) {
+                    update(obj)
                 }
+            } catch (sqlEx: SQLiteConstraintException) {
+                Log.d(TAG, "UGH SUS: $objClass $obj $sqlEx ${sqlEx.stackTrace} ${
+                    sqlEx
+                        .message
+                }")
             }
-        } catch (sqlEx: SQLiteConstraintException) {
-            Log.d(TAG, "UGH $objClass $sqlEx ${sqlEx.stackTrace} ${sqlEx.message}")
         }
     }
 
-    protected fun <T : DataModel> modelsToSqlIdString(models: Collection<T>) =
-        models.map { it.id }.toString().replace(
-            "[", "" +
-                    "("
-        ).replace("]", ")")
+    companion object {
+        internal fun <T : DataModel> modelsToSqlIdString(models: Collection<T>) =
+            idsToSqlIdString(models.map { it.id })
+
+        internal fun idsToSqlIdString(ids: Collection<Int>) =
+            ids.toString().replace("[", "(").replace("]", ")")
+    }
 }

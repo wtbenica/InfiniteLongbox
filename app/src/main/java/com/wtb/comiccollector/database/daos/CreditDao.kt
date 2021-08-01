@@ -10,7 +10,11 @@ import kotlinx.coroutines.flow.Flow
 
 @ExperimentalCoroutinesApi
 @Dao
-abstract class CreditDao : BaseDao<Credit>() {
+abstract class CreditDao : BaseDao<Credit>("credit") {
+
+    @Query("SELECT * FROM credit WHERE storyId IN (:storyIds)")
+    abstract fun getCreditsByStoryIds(storyIds: List<Int>): List<Credit>
+
     @Transaction
     @Query(
         """

@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.Flow
 
 @ExperimentalCoroutinesApi
 @Dao
-abstract class RoleDao : BaseDao<Role>() {
+abstract class RoleDao : BaseDao<Role>("role") {
     @Query("SELECT * FROM role")
-    abstract fun getRoleList(): Flow<List<Role>>
+    abstract fun getAll(): Flow<List<Role>>
 }
