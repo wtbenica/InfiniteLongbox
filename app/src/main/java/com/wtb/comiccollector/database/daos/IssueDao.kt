@@ -28,6 +28,8 @@ abstract class IssueDao : BaseDao<Issue>("issue") {
     fun getIssuesByFilter(filter: SearchFilter): Flow<List<FullIssue>> {
         val query = createIssueQuery(filter)
         Log.d(TAG, "getIssuesByFilter")
+        Log.d(TAG, "ISSUE QUERY----------------------------------------------------------")
+        Log.d(TAG, query.sql)
         return getFullIssuesByQuery(query)
     }
 
@@ -143,6 +145,7 @@ abstract class IssueDao : BaseDao<Issue>("issue") {
             }
 
             val sortClause: String = filter.mSortType?.let { "ORDER BY ${it.sortString}" } ?: ""
+
             return SimpleSQLiteQuery(
                 tableJoinString + conditionsString + sortClause,
                 args.toArray()

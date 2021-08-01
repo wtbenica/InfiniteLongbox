@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.view.*
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
@@ -187,6 +188,7 @@ class IssueDetailFragment : Fragment(), CreatorLinkCallback {
         issueDetailViewModel.issueList.observe(
             viewLifecycleOwner,
             { issues ->
+                Log.d(TAG, "issueList observation ${issues.size}")
                 this@IssueDetailFragment.issuesInSeries = issues.map { it.issue.issueId }
                 updateNavBar()
             }

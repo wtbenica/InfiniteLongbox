@@ -42,7 +42,10 @@ class IssueDetailViewModel : ViewModel() {
     )
 
     val issueList: LiveData<List<FullIssue>> = issue.flatMapLatest { fullIssue ->
-        repository.getIssuesByFilter(SearchFilter(series = fullIssue?.series, myCollection = false))
+        val seriesId = (fullIssue?.series?.seriesId
+            ?: AUTO_ID)
+        repository.getIssuesByFilter(SearchFilter(series = Series(seriesId = seriesId),
+                                                  myCollection = false))
     }.asLiveData()
 
     val issueStoriesLiveData: LiveData<List<Story>> =
@@ -105,7 +108,7 @@ class IssueDetailViewModel : ViewModel() {
     }
 
 
-//    /***
+    //    /***
 //     * This stuff is only used in the issue edit fragment, iow: not used
 //     */
 //    var allSeriesLiveData: LiveData<List<Series>> = repository.allSeries.asLiveData()
@@ -118,11 +121,11 @@ class IssueDetailViewModel : ViewModel() {
 //
     fun upsert(dataModel: DataModel) {
         when (dataModel) {
-            is Series -> repository.saveSeries(dataModel)
+            is Series  -> repository.saveSeries(dataModel)
             is Creator -> repository.saveCreator(dataModel)
-            is Credit -> repository.saveCredit(dataModel)
-            is Issue -> repository.saveIssue(dataModel)
-            is Role -> repository.saveRole(dataModel)
+            is Credit  -> repository.saveCredit(dataModel)
+            is Issue   -> repository.saveIssue(dataModel)
+            is Role    -> repository.saveRole(dataModel)
         }
     }
 
