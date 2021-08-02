@@ -13,8 +13,7 @@ import java.net.SocketTimeoutException
 interface Webservice {
     // GET By ID list
     @GET("db_query/series/{seriesIds}")
-    suspend fun getSeriesByIds(@Path("seriesIds") seriesIds: List<Int>): List<Item<GcdSeries,
-            Series>>
+    suspend fun getSeriesByIds(@Path("seriesIds") seriesIds: List<Int>): List<Item<GcdSeries, Series>>
 
     @GET("/db_query/issues/{issueIds}")
     suspend fun getIssuesByIds(@Path("issueIds") issueIds: List<Int>): List<Item<GcdIssue, Issue>>
@@ -29,9 +28,7 @@ interface Webservice {
     suspend fun getCharactersByIds(@Path("ids") ids: List<Int>): List<Item<GcdCharacter, Character>>
 
     @GET("/db_query/name_detail/{nameDetailIds}")
-    suspend fun getNameDetailsByIds(@Path("nameDetailIds") nameDetailIds: List<Int>):
-            List<Item<GcdNameDetail, NameDetail>>
-
+    suspend fun getNameDetailsByIds(@Path("nameDetailIds") nameDetailIds: List<Int>): List<Item<GcdNameDetail, NameDetail>>
 
     // GET Issues
     @GET("/db_query/issues_list/{page}")
@@ -45,8 +42,7 @@ interface Webservice {
     suspend fun getCreditsByNameDetail(@Path("nameDetailIds") nameDetailIds: List<Int>): List<Item<GcdCredit, Credit>>
 
     @GET("/db_query/name_detail/{nameDetailIds}/extracts")
-    suspend fun getExtractedCreditsByNameDetail(@Path("nameDetailIds") nameDetailIds: List<Int>):
-            List<Item<GcdExCredit, ExCredit>>
+    suspend fun getExtractedCreditsByNameDetail(@Path("nameDetailIds") nameDetailIds: List<Int>): List<Item<GcdExCredit, ExCredit>>
 
     @GET("/db_query/stories/{storyIds}/credits")
     suspend fun getCreditsByStoryIds(@Path("storyIds") storyIds: List<Int>): List<Item<GcdCredit, Credit>>
@@ -79,12 +75,10 @@ interface Webservice {
 
     // GET NameDetails
     @GET("/db_query/name_details/creator_ids/{creatorIds}")
-    suspend fun getNameDetailsByCreatorIds(@Path("creatorIds") creatorIds: List<Int>):
-            List<Item<GcdNameDetail, NameDetail>>
+    suspend fun getNameDetailsByCreatorIds(@Path("creatorIds") creatorIds: List<Int>): List<Item<GcdNameDetail, NameDetail>>
 
     @GET("/db_query/name_detail/name/{name}")
-    suspend fun getNameDetailByName(@Path("name") name: String): List<Item<GcdNameDetail,
-            NameDetail>>
+    suspend fun getNameDetailByName(@Path("name") name: String): List<Item<GcdNameDetail, NameDetail>>
 
     // GET Publishers, Roles, Series, StoryTypes, Stories
     @GET("/db_query/publisher")
@@ -109,8 +103,7 @@ interface Webservice {
     suspend fun getCharactersByPage(@Path("page") page: Int): List<Item<GcdCharacter, Character>>
 
     @GET("db_query/story/{storyIds}/characters")
-    suspend fun getAppearancesByStory(@Path("storyIds") storyIds: List<Int>):
-            List<Item<GcdCharacterAppearance, Appearance>>
+    suspend fun getAppearancesByStory(@Path("storyIds") storyIds: List<Int>): List<Item<GcdCharacterAppearance, Appearance>>
 
     @GET("db_query/appearances_list/{page}")
     suspend fun getAppearancesByPage(@Path("page") page: Int): List<Item<GcdCharacterAppearance, Appearance>>

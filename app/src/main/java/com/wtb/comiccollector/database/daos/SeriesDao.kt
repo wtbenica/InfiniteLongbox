@@ -88,28 +88,76 @@ abstract class SeriesDao : BaseDao<Series>("series") {
                 """)
             }
 
-            if (filter.mCreators.isNotEmpty()) {
-                val creatorsList = modelsToSqlIdString(filter.mCreators)
+            if (filter.hasCreator()) {
+                var needsOr = false
+                conditions.append("""${connectword()} ss.seriesId IN (
+                    SELECT ie.seriesId
+                    FROM issue ie
+                    WHERE ie.issueId IN (
+                        SELECT sy.issueId
+                        FROM story sy
+                        WHERE (
+                """)
 
-                conditions.append("""${connectword()} sy.storyId IN (
-                SELECT storyId
-                FROM credit ct
-                JOIN namedetail nl on nl.nameDetailId = ct.nameDetailId
-                WHERE nl.creatorId IN $creatorsList)
-                OR sy.storyId IN (
-                SELECT storyId
-                FROM excredit ect
-                JOIN namedetail nl on nl.nameDetailId = ect.nameDetailId
-                WHERE nl.creatorId IN $creatorsList) 
-            """)
-            }
+                if (filter.mCreators.isNotEmpty()) {
+                    needsOr = true
+                    val creatorsList = modelsToSqlIdString(filter.mCreators)
 
-            if (filter.mTextFilter?.type in listOf(All, NameDetail)) {
-                table.append("""LEFT JOIN credit ct on ct.storyId = sy.storyId 
-                            LEFT JOIN namedetail nl on nl.nameDetailId = ct.nameDetailId 
-                            LEFT JOIN excredit ect on ect.storyId = sy.storyId
-                            LEFT JOIN namedetail nl2 on nl2.nameDetailId = ect.nameDetailId 
-                            """)
+                    conditions.append("""
+                            sy.storyId IN (
+                                SELECT storyId
+                                FROM credit ct
+                                JOIN namedetail nl on nl.nameDetailId = ct.nameDetailId
+                                WHERE nl.creatorId IN $creatorsList
+                            )
+                            OR sy.storyId IN (
+                                SELECT storyId
+                                FROM excredit ect
+                                JOIN namedetail nl on nl.nameDetailId = ect.nameDetailId
+                                WHERE nl.creatorId IN $creatorsList
+                            )
+                        )
+                    )
+                ) 
+                """)
+                }
+
+                if (filter.mTextFilter?.type in listOf(All, NameDetail)) {
+                    if (needsOr) conditions.append("""OR """)
+                    conditions.append("""
+                            sy.storyId IN (
+                                SELECT ct.storyId
+                                FROM credit ct
+                                WHERE (
+                                    ct.nameDetailId IN (
+                                        SELECT nl.nameDetailId
+                                        FROM nameDetail nl
+                                        WHERE (
+                                            nl.name LIKE '%${filter.mTextFilter?.text}%' 
+                                            OR nl.alterego LIKE '%${filter.mTextFilter?.text}%'
+                                        )
+                                    )                
+                                )
+                            )
+                            OR sy.storyId IN (
+                                SELECT ect.storyId
+                                FROM excredit ect
+                                WHERE (
+                                    ect.nameDetailId IN (
+                                        SELECT nl.nameDetailId
+                                        FROM nameDetail nl
+                                        WHERE (
+                                            nl.name LIKE '%${filter.mTextFilter?.text}%' 
+                                            OR nl.alterego LIKE '%${filter.mTextFilter?.text}%'
+                                        )
+                                    )                
+                                )
+                            )
+                        )
+                    )
+                )
+                """)
+                }
             }
 
             if (filter.hasDateFilter()) {
@@ -127,13 +175,23 @@ abstract class SeriesDao : BaseDao<Series>("series") {
 //            }
 //
             if (filter.hasCharacter()) {
-                table.append("""LEFT JOIN appearance ap ON ap.story = sy.storyId 
-                """)
-
-                filter.mCharacter?.let {
-                    conditions.append("""${connectword()} ap.character = ? 
+                filter.mCharacter?.characterId?.let {
+                    conditions.append("""${connectword()} ss.seriesId IN (
+                    SELECT ie.seriesId
+                            FROM issue ie
+                            WHERE ie.issueId IN (
+                            SELECT sy.issueId
+                                    FROM story sy
+                                    WHERE sy.storyId IN (
+                                    SELECT ap.story
+                                            FROM appearance ap
+                                            WHERE ap.character = ?
+                                    )
+                            )
+                    )
                     """)
-                    args.add(it.characterId)
+
+                    args.add(it)
                 }
 
                 if (filter.mTextFilter?.type in listOf(All, Character)) {
@@ -180,6 +238,7 @@ abstract class SeriesDao : BaseDao<Series>("series") {
             }
 
             val sortClause: String = filter.mSortType?.let { """ORDER BY ${it.sortString}""" } ?: ""
+
             return SimpleSQLiteQuery(
                 "$table$conditions$sortClause",
                 args.toArray()

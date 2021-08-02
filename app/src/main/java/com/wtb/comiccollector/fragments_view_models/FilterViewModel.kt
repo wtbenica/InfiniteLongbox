@@ -62,13 +62,22 @@ class FilterViewModel : ViewModel() {
             Character.Companion::class  -> characterOptions
             NameDetail.Companion::class -> creatorOptions
             All.Companion::class        -> allOptions
-            else -> throw IllegalStateException("filterOption can't be ${it.simpleName}")
+            else                        -> throw IllegalStateException("filterOption can't be ${it.simpleName}")
         }
     }
 
     fun setFilter(filter: SearchFilter) {
         Log.d(TAG, "setting filter!!: ${filter.mSortType}")
-        theOneTrueFilter.value = filter
+        filter.mCharacter?.let {
+            repository.updateCharacter(it.characterId)
+        }
+        filter.mSeries?.let {
+            repository.updateSeries(it.seriesId)
+        }
+        if (filter.mCreators.isNotEmpty()) {
+            repository.updateCreators(filter.mCreators.ids)
+        }
+        theOneTrueFilter.value = SearchFilter(filter)
     }
 
     fun setFilterOptionType(filterTypeSpinnerOption: KClass<*>) {

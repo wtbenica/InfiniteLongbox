@@ -22,10 +22,10 @@ private const val TAG = APP + "CreatorUpdater"
  */
 @ExperimentalCoroutinesApi
 class CreatorUpdater(
-    val webservice: Webservice,
-    val database: IssueDatabase,
-    val prefs: SharedPreferences
-) : Updater() {
+    webservice: Webservice,
+     database: IssueDatabase,
+     prefs: SharedPreferences
+) : Updater(webservice, database, prefs) {
 
     init {
         Log.d(TAG, "CREATOR UPDATER INIT")
@@ -38,10 +38,31 @@ class CreatorUpdater(
      *
      * @param creatorIds
      */
-    internal suspend fun update(creatorIds: List<Int>) {
-        val meta: CreatorMeta = getCreditsByCreatorIds(creatorIds)
-
+    internal fun update_new(creatorIds: List<Int>) {
         CoroutineScope(Dispatchers.IO).launch {
+            val nameDetails: List<NameDetailAndCreator> = getLocalNameDetailsByCreatorId(creatorIds)
+
+            for (name in nameDetails) {
+                val id = name.nameDetail.nameDetailId
+                refreshById(
+                    prefs,
+                    CREATOR_TAG(id),
+                    this@CreatorUpdater::getCreditsByNameDetailId,
+                    this@CreatorUpdater::checkFKeysCredit,
+                    database.creditDao(),
+                    id
+                )
+            }
+        }
+    }
+
+    private suspend fun getCreditsByNameDetailId(creatorId: Int): List<Credit>? =
+        getItemsByArgument(listOf(creatorId), webservice::getCreditsByNameDetail)
+
+    internal fun update(creatorIds: List<Int>) {
+        CoroutineScope(Dispatchers.IO).launch {
+            val meta: CreatorMeta = getCreditsByCreatorIds(creatorIds)
+
             database.transactionDao().upsert(
                 stories = meta.stories,
                 issues = meta.issues,
@@ -50,7 +71,6 @@ class CreatorUpdater(
                 appearances = meta.appearances
             )
         }
-
     }
 
     private suspend fun getCreditsByCreatorIds(creatorIds: List<Int>): CreatorMeta {

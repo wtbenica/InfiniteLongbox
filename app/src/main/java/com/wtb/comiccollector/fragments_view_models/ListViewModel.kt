@@ -24,6 +24,7 @@ abstract class ListViewModel<T: ListItem> : ViewModel() {
     }.asFlow().cachedIn(viewModelScope)
 
     open fun setFilter(filter: SearchFilter) {
+        filter.getSortOptions()
         filterLiveData.value = filter
     }
 }

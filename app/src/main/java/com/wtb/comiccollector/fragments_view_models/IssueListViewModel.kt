@@ -24,7 +24,9 @@ class IssueListViewModel : ListViewModel<FullIssue>() {
 
     override fun setFilter(filter: SearchFilter) {
         super.setFilter(filter)
-        Log.d(TAG, "Setting filter!!: ${filter.mSortType}")
+        if (filter.mViewOption != FullIssue::class) {
+
+        }
         val series = filter.mSeries
         if (series != null) {
             seriesIdLiveData.value = series.seriesId
@@ -32,7 +34,7 @@ class IssueListViewModel : ListViewModel<FullIssue>() {
     }
 
     val issueList: Flow<PagingData<FullIssue>> = filter.switchMap { filter ->
-        Log.d(TAG, "issueList!: ${filter.mSortType}")
+        Log.d(TAG, "issueList!: ${filter.mSortType} ${filter.mViewOption}")
         repository.getIssuesByFilterPaged(filter).asLiveData()
     }.asFlow().cachedIn(viewModelScope)
 

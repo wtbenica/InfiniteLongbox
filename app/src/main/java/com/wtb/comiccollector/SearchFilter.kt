@@ -1,6 +1,7 @@
 package com.wtb.comiccollector
 
 import android.annotation.SuppressLint
+import android.util.Log
 import com.wtb.comiccollector.database.models.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import java.io.Serializable
@@ -53,7 +54,10 @@ class SearchFilter
             field = value
             val newOptions = getSortOptions()
             if (oldOptions != newOptions) {
+                Log.d(TAG, "SETTING mSortType to ${newOptions[0]}")
                 mSortType = newOptions[0]
+            } else {
+                Log.d(TAG, "NOT!!!! SETTING mSortType to ${newOptions[0]}")
             }
         }
     var mPublishers: Set<Publisher> = publishers ?: setOf()
@@ -66,24 +70,26 @@ class SearchFilter
     var mCharacter: Character? = character
 
     var mViewOptionsIndex = viewOptionsIndex
-        get() = field % viewOptions.size
-    val viewOptions: List<KClass<out ListItem>>
-        get() = if (mSeries != null)
+        get() = field % mViewOptions.size
+
+    val mViewOptions: List<KClass<out ListItem>>
+        get() = if (mSeries != null) {
             listOf(FullIssue::class, Character::class, NameDetailAndCreator::class)
-        else
+        } else {
             listOf(FullSeries::class, Character::class, NameDetailAndCreator::class)
+        }
 
-
-    val viewOption: KClass<out ListItem>
-        get() = viewOptions[mViewOptionsIndex]
+    val mViewOption: KClass<out ListItem>
+        get() = mViewOptions[mViewOptionsIndex]
 
     fun nextOption() {
         mViewOptionsIndex++
     }
 
-    fun t() {
-        val k: FilterTypeSpinnerOption = NameDetail
-    }
+    fun isEmpty() = mCreators.isEmpty() && mSeries == null && mCharacter == null &&
+            !hasDateFilter() && mPublishers.isEmpty() && mMyCollection == false
+
+    fun isNotEmpty() = !isEmpty()
 
     fun hasCreator() = mCreators.isNotEmpty() || mTextFilter?.type == All ||
             mTextFilter?.type == NameDetail
@@ -175,12 +181,14 @@ class SearchFilter
         this.mCharacter = null
     }
 
-    fun getSortOptions(): List<SortType> = when (viewOption) {
-        Character::class            -> SortType.Companion.ItemSort.CHARACTER.options
-        FullIssue::class            -> SortType.Companion.ItemSort.ISSUE.options
-        FullSeries::class           -> SortType.Companion.ItemSort.SERIES.options
-        NameDetailAndCreator::class -> SortType.Companion.ItemSort.CREATOR.options
-        else                        -> throw IllegalStateException("illegal view type: ${viewOption.simpleName}")
+    fun getSortOptions(): List<SortType> {
+        return when (mViewOption) {
+            Character::class            -> SortType.Companion.SortTypeOptions.CHARACTER.options
+            FullIssue::class            -> SortType.Companion.SortTypeOptions.ISSUE.options
+            FullSeries::class           -> SortType.Companion.SortTypeOptions.SERIES.options
+            NameDetailAndCreator::class -> SortType.Companion.SortTypeOptions.CREATOR.options
+            else                        -> throw IllegalStateException("illegal view type: ${mViewOption.simpleName}")
+        }
     }
 
     fun getAll(): Set<FilterType> {
@@ -261,7 +269,7 @@ class SortType(
         @SuppressLint("StaticFieldLeak")
         val context = ComicCollectorApplication.context
 
-        enum class ItemSort(val options: List<SortType>) {
+        enum class SortTypeOptions(val options: List<SortType>) {
             SERIES(
                 listOf(
                     SortType(

@@ -317,12 +317,12 @@ class MainActivity : AppCompatActivity(),
 
     inner class ResultFragmentManager {
         val fragment: Flow<Fragment?> = filterViewModel.filter.mapLatest {
-            when (it.viewOption) {
+            when (it.mViewOption) {
                 FullIssue::class            -> issueListFragment
                 Character::class            -> characterListFragment
                 FullSeries::class           -> seriesListFragment
                 NameDetailAndCreator::class -> creatorListFragment
-                else                        -> throw IllegalStateException("illegal viewOption: ${it.viewOption}")
+                else                        -> throw IllegalStateException("illegal viewOption: ${it.mViewOption}")
             }
         }
 

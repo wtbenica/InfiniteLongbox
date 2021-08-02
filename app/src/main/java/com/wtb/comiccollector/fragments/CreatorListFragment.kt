@@ -7,7 +7,9 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -38,9 +40,11 @@ class CreatorListFragment : ListFragment<Series>() {
         super.onCreate(savedInstanceState)
 
         lifecycleScope.launch {
-            filterViewModel.filter.collectLatest { filter ->
-                Log.d(TAG, "Updating filter: ${filter.mSortType?.order}")
-                viewModel.setFilter(filter)
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                filterViewModel.filter.collectLatest { filter ->
+                    Log.d(TAG, "Updating filter: ${filter.mSortType?.order}")
+                    viewModel.setFilter(filter)
+                }
             }
         }
     }
@@ -54,12 +58,10 @@ class CreatorListFragment : ListFragment<Series>() {
         listRecyclerView.adapter = adapter
 
         lifecycleScope.launch {
-            viewModel.creatorList.collectLatest {
-                Log.d(
-                    TAG, "Collected the latest characters " +
-                            "DFFFFFFFFFFFFFFFFFFFFFSSSSSSSSSSSSSSSSSSSSSSSSSSS"
-                )
-                adapter.submitData(it)
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.creatorList.collectLatest {
+                    adapter.submitData(it)
+                }
             }
         }
     }
