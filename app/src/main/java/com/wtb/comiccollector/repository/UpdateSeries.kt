@@ -23,10 +23,10 @@ private const val TAG = APP + "UpdateSeries"
  */
 @ExperimentalCoroutinesApi
 class UpdateSeries(
-    private val webservice: Webservice,
-    val database: IssueDatabase,
-    val prefs: SharedPreferences
-) : Updater() {
+    webservice: Webservice,
+    database: IssueDatabase,
+    prefs: SharedPreferences,
+) : Updater(webservice, database, prefs) {
 
     /**
      * Update - refreshes series issues

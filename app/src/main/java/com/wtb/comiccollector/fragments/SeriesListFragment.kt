@@ -6,12 +6,12 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.animation.AnimationUtils
-import android.view.animation.LayoutAnimationController
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.paging.PagingDataAdapter
 import androidx.paging.map
 import androidx.recyclerview.widget.DiffUtil
@@ -43,9 +43,11 @@ class SeriesListFragment : ListFragment<Series>() {
 //        setHasOptionsMenu(true)
 
         lifecycleScope.launch {
-            filterViewModel.filter.collectLatest { filter ->
-                Log.d(TAG, "Updating filter: ${filter.mSortType?.order}")
-                viewModel.setFilter(filter)
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                filterViewModel.filter.collectLatest { filter ->
+                    Log.d(TAG, "Updating filter: ${filter.mSortType?.order}")
+                    viewModel.setFilter(filter)
+                }
             }
         }
     }
@@ -59,23 +61,25 @@ class SeriesListFragment : ListFragment<Series>() {
         listRecyclerView.adapter = adapter
 
         lifecycleScope.launch {
-            viewModel.seriesList.collectLatest {
-                Log.d(TAG, "Incoming data: ${it.map { it.series.seriesName }}")
-                adapter.submitData(it)
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.seriesList.collectLatest {
+                    Log.d(TAG, "Incoming data: ${it.map { it.series.seriesName }}")
+                    adapter.submitData(it)
+                }
             }
         }
     }
 
-    private fun runLayoutAnimation(view: RecyclerView) {
-        val context = view.context
-        val controller: LayoutAnimationController =
-            AnimationUtils.loadLayoutAnimation(context, R.anim.layout_animation_fall_down)
-
-        view.layoutAnimation = controller
-        view.adapter?.notifyDataSetChanged()
-        view.scheduleLayoutAnimation()
-    }
-
+//    private fun runLayoutAnimation(view: RecyclerView) {
+//        val context = view.context
+//        val controller: LayoutAnimationController =
+//            AnimationUtils.loadLayoutAnimation(context, R.anim.layout_animation_fall_down)
+//
+//        view.layoutAnimation = controller
+//        view.adapter?.notifyDataSetChanged()
+//        view.scheduleLayoutAnimation()
+//    }
+//
     inner class SeriesAdapter :
         PagingDataAdapter<FullSeries, SeriesHolder>(DIFF_CALLBACK) {
 

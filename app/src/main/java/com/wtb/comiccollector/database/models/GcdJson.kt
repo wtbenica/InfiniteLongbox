@@ -31,7 +31,7 @@ class Item<G : GcdJson<M>, M : DataModel>(
 val <G : GcdJson<M>, M : DataModel> List<Item<G, M>>.models: List<M>
     get() = this.map { it.toRoomModel() }
 
-val <M : DataModel> List<M>.ids: List<Int>
+val <M : DataModel> Collection<M>.ids: List<Int>
     get() = this.map { it.id }
 
 interface GcdJson<M : DataModel> {

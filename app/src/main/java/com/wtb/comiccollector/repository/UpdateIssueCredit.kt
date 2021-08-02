@@ -17,10 +17,10 @@ private const val TAG = APP + "UpdateIssueCredit"
  */
 @ExperimentalCoroutinesApi
 class UpdateIssueCredit(
-    val webservice: Webservice,
-    val database: IssueDatabase,
-    val prefs: SharedPreferences
-) : Updater() {
+    webservice: Webservice,
+    database: IssueDatabase,
+    prefs: SharedPreferences,
+) : Updater(webservice, database, prefs) {
     internal fun update(issueId: Int) {
         if (Companion.checkIfStale(ISSUE_TAG(issueId), ISSUE_LIFETIME, prefs)) {
             val storyItemsCall = CoroutineScope(Dispatchers.IO).async stories@{
@@ -37,7 +37,7 @@ class UpdateIssueCredit(
                 return@stories result
             }
 
-            val creditItemsCall = CoroutineScope(Dispatchers.IO).async credits@ {
+            val creditItemsCall = CoroutineScope(Dispatchers.IO).async credits@{
                 var result: List<Item<GcdCredit, Credit>>? = null
 
                 storyItemsCall.await().let { storyItems ->
@@ -57,7 +57,7 @@ class UpdateIssueCredit(
                 return@credits result
             }
 
-            val extractedCreditItemsCall = CoroutineScope(Dispatchers.IO).async exCredits@ {
+            val extractedCreditItemsCall = CoroutineScope(Dispatchers.IO).async exCredits@{
                 var result: List<Item<GcdExCredit, ExCredit>>? = null
 
                 storyItemsCall.await().let { storyItems ->

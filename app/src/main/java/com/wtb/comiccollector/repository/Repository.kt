@@ -89,6 +89,7 @@ internal fun SERIES_TAG(id: Int): String = UPDATED_TAG(id, "SERIES_")
 internal fun ISSUE_TAG(id: Int) = UPDATED_TAG(id, "ISSUE_")
 internal fun PUBLISHER_TAG(id: Int): String = UPDATED_TAG(id, "PUBLISHER_")
 internal fun CREATOR_TAG(id: Int): String = UPDATED_TAG(id, "CREATOR_")
+internal fun CHARACTER_TAG(id: Int): String = UPDATED_TAG(id, "CHARACTER_")
 
 @ExperimentalCoroutinesApi
 class Repository private constructor(val context: Context) {
@@ -291,7 +292,7 @@ class Repository private constructor(val context: Context) {
 
     fun updateIssueCover(issueId: Int) {
         if (hasConnection) {
-            UpdateIssueCover(database, context, prefs).update(issueId)
+            UpdateIssueCover(webservice, database, prefs, context).update(issueId)
         }
     }
 
@@ -600,6 +601,10 @@ class Repository private constructor(val context: Context) {
             creditDao.delete(credit)
         }
     }
+
+    fun updateCharacter(characterId: Int) = updater.updateCharacter(characterId)
+    fun updateSeries(seriesId: Int) = updater.updateSeries(seriesId)
+    fun updateCreators(creatorIds: List<Int>) = updater.updateCreators(creatorIds)
 
     class DuplicateFragment : DialogFragment() {
         override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {

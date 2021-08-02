@@ -76,7 +76,9 @@ class IssueListFragment : ListFragment<Issue>() {
         listRecyclerView.adapter = adapter
 
         lifecycleScope.launch {
-            viewModel.issueList.collectLatest { adapter.submitData(it) }
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.issueList.collectLatest { adapter.submitData(it) }
+            }
         }
 
         viewModel.seriesLiveData.observe(

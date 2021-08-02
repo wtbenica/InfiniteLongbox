@@ -10,6 +10,7 @@ import androidx.sqlite.db.SimpleSQLiteQuery
 import androidx.sqlite.db.SupportSQLiteQuery
 import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.SearchFilter
+import com.wtb.comiccollector.SortType
 import com.wtb.comiccollector.database.models.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -27,7 +28,7 @@ abstract class IssueDao : BaseDao<Issue>("issue") {
     fun getIssuesByFilter(filter: SearchFilter): Flow<List<FullIssue>> {
         val query = createIssueQuery(filter)
         Log.d(TAG, "getIssuesByFilter")
-        Log.d(TAG, query.sql)
+        Log.d(TAG, "${query.sql} ${query.toString()}")
         return getFullIssuesByQuery(query)
     }
 
@@ -38,7 +39,7 @@ abstract class IssueDao : BaseDao<Issue>("issue") {
     fun getIssuesByFilterPagingSource(filter: SearchFilter): PagingSource<Int, FullIssue> {
         val query = createIssueQuery(filter)
         Log.d(TAG, "getIssuesByFilterPagingSource")
-        Log.d(TAG, query.sql)
+        Log.d(TAG, "${query.sql} ${query.toString()}")
         return getFullIssuesByQueryPagingSource(query)
     }
 
@@ -49,6 +50,7 @@ abstract class IssueDao : BaseDao<Issue>("issue") {
     suspend fun getIssuesByFilterSus(filter: SearchFilter): List<FullIssue> {
         val query = createIssueQuery(filter)
         Log.d(TAG, "getIssuesByFilterSus")
+        Log.d(TAG, "${query.sql} ${query.toString()}")
         return getFullIssuesByQuerySus(query)
     }
 
@@ -177,7 +179,15 @@ abstract class IssueDao : BaseDao<Issue>("issue") {
             }
 
             Log.d(TAG, "get query: ${filter.mSortType}")
-            val sortClause: String = filter.mSortType?.let { "ORDER BY ${it.sortString}" } ?: ""
+            val sortClause: String = filter.mSortType?.let {
+                val sortString: String = if (it !in SortType.Companion.SortTypeOptions.ISSUE
+                        .options) {
+                    SortType.Companion.SortTypeOptions.ISSUE.options[0].sortString
+                } else {
+                    it.sortString
+                }
+                "ORDER BY ${sortString}"
+            } ?: ""
 
             return SimpleSQLiteQuery(
                 "$tableJoinString$conditionsString$sortClause",

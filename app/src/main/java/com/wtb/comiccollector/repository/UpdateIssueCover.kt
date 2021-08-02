@@ -8,6 +8,7 @@ import android.graphics.BitmapFactory
 import android.net.Uri
 import android.util.Log
 import com.wtb.comiccollector.APP
+import com.wtb.comiccollector.Webservice
 import com.wtb.comiccollector.database.IssueDatabase
 import com.wtb.comiccollector.database.models.Cover
 import kotlinx.coroutines.*
@@ -21,10 +22,11 @@ private const val TAG = APP + "UpdateIssueCover"
 
 @ExperimentalCoroutinesApi
 class UpdateIssueCover(
-    val database: IssueDatabase,
+    webservice: Webservice,
+    database: IssueDatabase,
+    prefs: SharedPreferences,
     val context: Context,
-    val prefs: SharedPreferences,
-) : Updater() {
+) : Updater(webservice, database, prefs) {
     internal fun update(issueId: Int) {
         if (Companion.checkIfStale(ISSUE_TAG(issueId), ISSUE_LIFETIME, prefs)) {
             CoroutineScope(Dispatchers.IO).launch {

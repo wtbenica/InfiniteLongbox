@@ -7,7 +7,9 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -38,9 +40,11 @@ class CharacterListFragment : ListFragment<Series>() {
         super.onCreate(savedInstanceState)
 
         lifecycleScope.launch {
-            filterViewModel.filter.collectLatest { filter ->
-                Log.d(TAG, "Updating filter: ${filter.mSortType?.order}")
-                viewModel.setFilter(filter)
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                filterViewModel.filter.collectLatest { filter ->
+                    Log.d(TAG, "Updating filter: ${filter.mSortType?.order}")
+                    viewModel.setFilter(filter)
+                }
             }
         }
     }
@@ -54,9 +58,11 @@ class CharacterListFragment : ListFragment<Series>() {
         listRecyclerView.adapter = adapter
 
         lifecycleScope.launch {
-            viewModel.characterList.collectLatest {
-                Log.d(TAG, "It's a new character list!")
-                adapter.submitData(it)
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.characterList.collectLatest {
+                    Log.d(TAG, "It's a new character list!")
+                    adapter.submitData(it)
+                }
             }
         }
     }
@@ -114,7 +120,7 @@ class CharacterListFragment : ListFragment<Series>() {
 
             override fun areContentsTheSame(
                 oldItem: FullCharacter,
-                newItem: FullCharacter
+                newItem: FullCharacter,
             ): Boolean =
                 oldItem == newItem
         }
