@@ -12,9 +12,7 @@ import android.widget.*
 import androidx.core.view.*
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.asLiveData
-import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.*
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.chip.ChipGroup
 import com.wtb.comiccollector.APP
@@ -25,6 +23,7 @@ import com.wtb.comiccollector.database.models.*
 import com.wtb.comiccollector.fragments_view_models.FilterViewModel
 import com.wtb.comiccollector.views.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlin.reflect.KClass
 
@@ -87,14 +86,14 @@ class FilterFragment : Fragment(),
         onCreateViewInitViews()
 
         lifecycleScope.launch {
-            viewModel.filter.asLiveData().observe(context as LifecycleOwner) { filter ->
-                this@FilterFragment.currFilter = filter
-                sortChipGroup.update(filter)
-                optionsChipGroup.update(filter)
-            }
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.filter.collectLatest { filter ->
+                    this@FilterFragment.currFilter = filter
+                    sortChipGroup.update(filter)
+                    optionsChipGroup.update(filter)
+                }
 
-            viewModel.filterOptions.asLiveData()
-                .observe(context as LifecycleOwner) { filterObjects: List<FilterAutoCompleteType> ->
+                viewModel.filterOptions.collectLatest { filterObjects ->
                     searchAutoComplete.setAdapter(
                         FilterOptionsAdapter(
                             requireContext(),
@@ -106,6 +105,7 @@ class FilterFragment : Fragment(),
                         searchAutoComplete.refreshAutoCompleteResults()
                     }
                 }
+            }
         }
 
         return view

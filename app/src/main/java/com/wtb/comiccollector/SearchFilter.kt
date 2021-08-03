@@ -221,7 +221,7 @@ class SearchFilter
 class SortType(
     val tag: String,
     val sortColumn: String,
-    val table: String,
+    val table: String?,
     var order: SortOrder,
 ) : Serializable {
 
@@ -233,9 +233,18 @@ class SortType(
     )
 
     val sortString: String
-        get() = "${table}.$sortColumn ${order.option}"
+        get() = "${table?.let { "${it}." } ?: ""}$sortColumn ${order.option}"
 
     override fun toString(): String = tag
+
+    fun toggle(): SortType {
+        order = when (order) {
+            SortOrder.ASC  -> SortOrder.DESC
+            SortOrder.DESC -> SortOrder.ASC
+        }
+
+        return this
+    }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -268,6 +277,10 @@ class SortType(
     companion object {
         @SuppressLint("StaticFieldLeak")
         val context = ComicCollectorApplication.context
+
+        fun List<SortType>.containsSortType(elem: SortType): Boolean {
+            return this.contains(elem) or this.contains(SortType(elem).toggle())
+        }
 
         enum class SortTypeOptions(val options: List<SortType>) {
             SERIES(
@@ -318,7 +331,7 @@ class SortType(
                     SortType(
                         "Name",
                         "name",
-                        "cr",
+                        null,
                         SortOrder.ASC
                     )
                 )

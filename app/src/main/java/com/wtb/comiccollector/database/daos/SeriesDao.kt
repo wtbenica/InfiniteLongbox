@@ -12,6 +12,8 @@ import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.ComicCollectorApplication.Companion.context
 import com.wtb.comiccollector.R
 import com.wtb.comiccollector.SearchFilter
+import com.wtb.comiccollector.SortType
+import com.wtb.comiccollector.SortType.Companion.containsSortType
 import com.wtb.comiccollector.database.models.*
 import com.wtb.comiccollector.repository.DUMMY_ID
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -237,7 +239,19 @@ abstract class SeriesDao : BaseDao<Series>("series") {
                 conditions.append(""") """)
             }
 
-            val sortClause: String = filter.mSortType?.let { """ORDER BY ${it.sortString}""" } ?: ""
+            val sortClause: String = filter.mSortType?.let {
+                val isValid =
+                    SortType.Companion.SortTypeOptions.SERIES.options.containsSortType(it)
+//                it !in SortType.Companion.SortTypeOptions.SERIES.options
+                Log.d(TAG, "isVALid? $it $isValid")
+                val sortString: String =
+                    if (isValid) {
+                        it.sortString
+                    } else {
+                        SortType.Companion.SortTypeOptions.SERIES.options[0].sortString
+                    }
+                "ORDER BY ${sortString}"
+            } ?: ""
 
             return SimpleSQLiteQuery(
                 "$table$conditions$sortClause",

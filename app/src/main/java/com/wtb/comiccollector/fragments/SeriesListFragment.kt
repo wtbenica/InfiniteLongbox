@@ -2,7 +2,6 @@ package com.wtb.comiccollector.fragments
 
 import android.net.Uri
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,7 +12,6 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.paging.PagingDataAdapter
-import androidx.paging.map
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -40,12 +38,10 @@ class SeriesListFragment : ListFragment<Series>() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-//        setHasOptionsMenu(true)
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 filterViewModel.filter.collectLatest { filter ->
-                    Log.d(TAG, "Updating filter: ${filter.mSortType?.order}")
                     viewModel.setFilter(filter)
                 }
             }
@@ -63,7 +59,6 @@ class SeriesListFragment : ListFragment<Series>() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.seriesList.collectLatest {
-                    Log.d(TAG, "Incoming data: ${it.map { it.series.seriesName }}")
                     adapter.submitData(it)
                 }
             }

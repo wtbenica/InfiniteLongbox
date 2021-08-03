@@ -7,6 +7,8 @@ import androidx.room.RawQuery
 import androidx.sqlite.db.SimpleSQLiteQuery
 import androidx.sqlite.db.SupportSQLiteQuery
 import com.wtb.comiccollector.SearchFilter
+import com.wtb.comiccollector.SortType
+import com.wtb.comiccollector.SortType.Companion.containsSortType
 import com.wtb.comiccollector.database.models.Character
 import com.wtb.comiccollector.database.models.Creator
 import com.wtb.comiccollector.database.models.FullCreator
@@ -105,8 +107,31 @@ abstract class CreatorDao : BaseDao<Creator>("creator") {
             args.forEach { allArgs.add(it) }
             args.forEach { allArgs.add(it) }
 
+            val sortClause: String = filter.mSortType?.let {
+                val isValid =
+                    SortType.Companion.SortTypeOptions.CREATOR.options.containsSortType(it)
+//                it !in SortType.Companion.SortTypeOptions.CREATOR.options
+                val sortString: String =
+                    if (isValid) {
+                        it.sortString
+                    } else {
+                        SortType.Companion.SortTypeOptions.CREATOR.options[0].sortString
+                    }
+                "ORDER BY ${sortString}"
+            } ?: ""
+
+
             return SimpleSQLiteQuery(
-                "$tableJoinString$conditionsString UNION $tableJoinString2$conditionsString",
+                """
+                    SELECT *
+                    FROM 
+                    ( 
+                        $tableJoinString$conditionsString 
+                        UNION 
+                        $tableJoinString2$conditionsString 
+                    ) 
+                    $sortClause
+                """,
                 allArgs.toArray()
             )
         }
