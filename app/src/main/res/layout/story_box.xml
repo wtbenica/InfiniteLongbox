@@ -45,108 +45,43 @@
         android:layout_height="wrap_content"
         android:animateLayoutChanges="true"
         android:orientation="vertical"
-        android:paddingStart="0dp"
-        android:paddingTop="@dimen/margin_default"
-        android:paddingEnd="@dimen/margin_default"
         android:visibility="gone"
         tools:visibility="visible">
 
-        <LinearLayout
-            android:id="@+id/synopsis_box"
-            style="@style/Subsection"
+        <TextView
+            android:id="@+id/label_synopsis"
+            style="@style/StoryBoxSubtitleText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:animateLayoutChanges="true"
-            android:orientation="vertical">
+            android:padding="@dimen/margin_narrow"
+            android:text="@string/synopsis"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
-            <androidx.constraintlayout.widget.ConstraintLayout
-                style="@style/StoryBoxSubtitleBar"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-
-                <View
-                    android:layout_width="0dp"
-                    android:layout_height="@dimen/margin_narrow"
-                    app:layout_constraintEnd_toEndOf="@id/synopsis_dropdown_button"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-                <TextView
-                    android:id="@+id/label_synopsis"
-                    style="@style/StoryBoxSubtitleText"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:text="@string/synopsis"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-                <ImageButton
-                    android:id="@+id/synopsis_dropdown_button"
-                    style="@style/StoryBoxDropdownButton.Subtitle"
-                    android:layout_width="wrap_content"
-                    android:layout_height="0dp"
-                    android:layout_marginStart="@dimen/margin_default"
-                    android:contentDescription="@string/synopsis_dropdown_button"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-            </androidx.constraintlayout.widget.ConstraintLayout>
-
-            <TextView
-                android:id="@+id/synopsis"
-                style="@style/ContentBox"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                tools:text="Cliff feels out of place again. Dorothy and Josh spend some time together. The group goes to therapy." />
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/characters_box"
-            style="@style/Subsection"
+        <TextView
+            android:id="@+id/synopsis"
+            style="@style/ContentBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:animateLayoutChanges="true"
-            android:orientation="vertical">
+            android:padding="@dimen/margin_default"
+            tools:text="Cliff feels out of place again. Dorothy and Josh spend some time together. The group goes to therapy." />
 
-            <androidx.constraintlayout.widget.ConstraintLayout
-                style="@style/StoryBoxSubtitleBar"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+        <TextView
+            android:id="@+id/label_characters"
+            style="@style/StoryBoxSubtitleText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/margin_narrow"
+            android:text="@string/characters"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
-                <TextView
-                    android:id="@+id/label_characters"
-                    style="@style/StoryBoxSubtitleText"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:text="@string/characters"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-                <ImageButton
-                    android:id="@+id/characters_dropdown_button"
-                    style="@style/StoryBoxDropdownButton.Subtitle"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/margin_default"
-                    android:contentDescription="@string/characters_dropdown_button"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-
-            </androidx.constraintlayout.widget.ConstraintLayout>
-
-            <TextView
-                android:id="@+id/characters"
-                style="@style/ContentBox"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                tools:text="Robotman, Crazy Jane, Rebis, Dorothy Spinner, the Chief" />
-        </LinearLayout>
+        <TextView
+            android:id="@+id/characters"
+            style="@style/ContentBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/margin_default"
+            tools:text="Robotman, Crazy Jane, Rebis, Dorothy Spinner, the Chief" />
     </LinearLayout>
-
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/margin_narrow"
-        android:background="?attr/colorPrimary" />
 </LinearLayout>
