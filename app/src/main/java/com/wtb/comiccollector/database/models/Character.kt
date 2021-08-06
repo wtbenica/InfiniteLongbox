@@ -71,11 +71,25 @@ data class Character(
             parentColumns = arrayOf("characterId"),
             childColumns = arrayOf("character"),
             onDelete = ForeignKey.CASCADE
-        )
+        ),
+        ForeignKey(
+            entity = Issue::class,
+            parentColumns = arrayOf("issueId"),
+            childColumns = arrayOf("issue"),
+            onDelete = ForeignKey.CASCADE
+        ),
+        ForeignKey(
+            entity = Series::class,
+            parentColumns = arrayOf("seriesId"),
+            childColumns = arrayOf("series"),
+            onDelete = ForeignKey.CASCADE
+        ),
     ],
     indices = [
         Index(value = ["story"]),
-        Index(value = ["character"])
+        Index(value = ["character"]),
+        Index(value = ["issue"]),
+        Index(value = ["series"])
     ]
 )
 data class Appearance(
@@ -84,7 +98,9 @@ data class Appearance(
     val character: Int,
     val details: String?,
     val notes: String?,
-    val membership: String?
+    val membership: String?,
+    val issue: Int?,
+    val series: Int?,
 ) : DataModel() {
     override val id: Int
         get() = appearanceId
@@ -109,5 +125,5 @@ data class FullAppearance(
     var story: FullStory,
 
     @Relation(parentColumn = "character", entityColumn = "characterId")
-    val character: Character
+    val character: Character,
 )

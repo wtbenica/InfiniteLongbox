@@ -255,14 +255,22 @@ class GcdCredit(
     val roleId: Int,
     @SerializedName("story")
     @Expose
-    val storyId: Int
-) : GcdJson<Credit> {
+    val storyId: Int,
+    @SerializedName("issue")
+    @Expose
+    val issue: Int,
+    @SerializedName("series")
+    @Expose
+    val series: Int,
+    ) : GcdJson<Credit> {
     override fun toRoomModel(pk: Int): Credit {
         return Credit(
             creditId = pk,
             storyId = storyId,
             nameDetailId = nameDetailId,
             roleId = roleId,
+            issue = issue,
+            series = series
         )
     }
 }
@@ -277,7 +285,13 @@ class GcdExCredit(
     val roleId: Int,
     @SerializedName("story")
     @Expose
-    val storyId: Int
+    val storyId: Int,
+    @SerializedName("issue")
+    @Expose
+    val issue: Int,
+    @SerializedName("series")
+    @Expose
+    val series: Int,
 ) : GcdJson<ExCredit> {
     override fun toRoomModel(pk: Int): ExCredit {
         return ExCredit(
@@ -285,6 +299,8 @@ class GcdExCredit(
             storyId = storyId,
             nameDetailId = nameDetailId,
             roleId = roleId,
+            issue = issue,
+            series = series
         )
     }
 }
@@ -510,7 +526,13 @@ class GcdCharacterAppearance(
     val notes: String?,
     @SerializedName("membership")
     @Expose
-    val membership: String?
+    val membership: String?,
+    @SerializedName("issue")
+    @Expose
+    val issue: Int,
+    @SerializedName("series")
+    @Expose
+    val series: Int,
 ) : GcdJson<Appearance> {
     override fun toRoomModel(pk: Int): Appearance {
         return Appearance(
@@ -520,6 +542,8 @@ class GcdCharacterAppearance(
             character = characterId,
             notes = notes,
             membership = membership,
+            issue = issue,
+            series = series
         )
     }
 }

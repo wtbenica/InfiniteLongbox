@@ -170,12 +170,6 @@ abstract class SeriesDao : BaseDao<Series>("series") {
                 args.add(filter.mStartDate)
             }
 
-//            filter.mSeries?.let {
-//                conditions.append("""${connectword()} ss.seriesId = ?
-//                """)
-//                args.add(it.seriesId)
-//            }
-//
             if (filter.hasCharacter()) {
                 filter.mCharacter?.characterId?.let {
                     conditions.append("""${connectword()} ss.seriesId IN (

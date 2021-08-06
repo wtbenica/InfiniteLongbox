@@ -346,7 +346,7 @@ class Repository private constructor(val context: Context) {
         ).addMigrations(
             migration_1_2, migration_2_3, migration_3_4, migration_4_5,
             migration_5_6, migration_6_7, migration_7_8, migration_8_9, migration_9_10,
-            migration_10_11
+            migration_10_11, migration_11_12
         )
             .build()
     }
@@ -521,6 +521,34 @@ class Repository private constructor(val context: Context) {
             """CREATE INDEX IF NOT EXISTS index_Creator_alterEgo ON Creator(sortName)""",
             """CREATE INDEX IF NOT EXISTS index_NameDetail_name ON NameDetail(name)""",
             """CREATE INDEX IF NOT EXISTS index_NameDetail_sortName ON NameDetail(sortName)""",
+        )
+
+        val migration_11_12 = SimpleMigration(
+            11, 12,
+            """ALTER TABLE credit 
+                ADD COLUMN issue INTEGER REFERENCES Issue(issueId) ON DELETE CASCADE
+                """,
+            """ALTER TABLE credit
+                ADD COLUMN series INTEGER REFERENCES Series(seriesId) ON DELETE CASCADE
+            """,
+            """ALTER TABLE excredit
+                ADD COLUMN issue INTEGER REFERENCES Issue(issueId) ON DELETE CASCADE
+            """,
+            """ALTER TABLE excredit
+                ADD COLUMN series INTEGER REFERENCES Series(seriesId) ON DELETE CASCADE
+            """,
+            """ALTER TABLE appearance
+                ADD COLUMN issue INTEGER REFERENCES Issue(issueId) ON DELETE CASCADE
+            """,
+            """ALTER TABLE appearance
+                ADD COLUMN series INTEGER REFERENCES Series(seriesId) ON DELETE CASCADE
+            """,
+            """CREATE INDEX IF NOT EXISTS index_Credit_series ON Credit(series)""",
+            """CREATE INDEX IF NOT EXISTS index_Credit_issue ON Credit(issue)""",
+            """CREATE INDEX IF NOT EXISTS index_ExCredit_series ON ExCredit(series)""",
+            """CREATE INDEX IF NOT EXISTS index_ExCredit_issue ON ExCredit(issue)""",
+            """CREATE INDEX IF NOT EXISTS index_Appearance_series ON Appearance(series)""",
+            """CREATE INDEX IF NOT EXISTS index_Appearance_issue ON Appearance(issue)""",
         )
     }
 
