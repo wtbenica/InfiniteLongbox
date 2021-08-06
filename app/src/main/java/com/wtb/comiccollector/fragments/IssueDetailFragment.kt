@@ -49,6 +49,21 @@ private const val DIALOG_DATE = "DialogDate"
 private const val ADD_SERIES_ID = -2
 private const val STORY_TYPE_COVER = 6
 
+fun View.toggleVisibility() {
+    this.visibility = if (this.visibility == View.GONE) {
+        View.VISIBLE
+    } else {
+        View.GONE
+    }
+}
+
+fun ImageButton.toggleIcon(view: View) =
+    this.setImageResource(if (view.visibility == LinearLayout.GONE) {
+        R.drawable.arrow_down_24
+    } else {
+        R.drawable.arrow_up_24
+    })
+
 /**
  * A simple [Fragment] subclass.
  * Use the [IssueDetailFragment.newInstance] factory method to
@@ -516,38 +531,30 @@ class IssueDetailFragment : Fragment(), CreatorLinkCallback {
             val storyDetailButton: ImageButton = findViewById(R.id.story_dropdown_button)
             val storyDetailBox: LinearLayout = findViewById(R.id.story_details_box)
             storyDetailButton.setOnClickListener {
-                storyDetailBox.visibility = toggleVisibility(storyDetailBox)
-                (it as ImageButton).setImageResource(toggleIcon(storyDetailBox))
+                storyDetailBox.toggleVisibility()
+                (it as ImageButton).toggleIcon(storyDetailBox)
             }
 
             if (story.synopsis != null && story.synopsis != "") {
                 hasAddedInfo = true
-                val synopsisButton: ImageButton =
-                    findViewById(R.id.synopsis_dropdown_button)
-                val synopsis = findViewById<TextView>(R.id.synopsis)
+                val synopsis: TextView = findViewById(R.id.synopsis)
                 synopsis.text = story.synopsis
-                synopsisButton.setOnClickListener {
-                    synopsis.visibility = toggleVisibility(synopsis)
-                    (it as ImageButton).setImageResource(toggleIcon(synopsis))
-                }
             } else {
-                val synopsisBox = findViewById<LinearLayout>(R.id.synopsis_box)
+                val synopsisBox: TextView = findViewById(R.id.label_synopsis)
+                val synopsis: TextView = findViewById(R.id.synopsis)
                 synopsisBox.visibility = GONE
+                synopsis.visibility = GONE
             }
 
             if (story.characters != null && story.characters != "") {
                 hasAddedInfo = true
-                val charactersButton: ImageButton =
-                    findViewById(R.id.characters_dropdown_button)
-                val characters = findViewById<TextView>(R.id.characters)
+                val characters: TextView = findViewById(R.id.characters)
                 characters.text = story.characters
-                charactersButton.setOnClickListener {
-                    characters.visibility = toggleVisibility(characters)
-                    (it as ImageButton).setImageResource(toggleIcon(characters))
-                }
             } else {
-                val charactersBox = findViewById<LinearLayout>(R.id.characters_box)
-                charactersBox.visibility = GONE
+                val synopsisBox: TextView = findViewById(R.id.label_characters)
+                val characters: TextView = findViewById(R.id.characters)
+                synopsisBox.visibility = GONE
+                characters.visibility = GONE
             }
 
             val storyTitle = findViewById<TextView>(R.id.story_title)
@@ -577,18 +584,6 @@ class IssueDetailFragment : Fragment(), CreatorLinkCallback {
                 storyDetailButton.visibility = VISIBLE
             }
         }
-
-        private fun toggleVisibility(view: View) = if (view.visibility == GONE) {
-            VISIBLE
-        } else {
-            GONE
-        }
-
-        private fun toggleIcon(view: View): Int = if (view.visibility == GONE) {
-            R.drawable.arrow_down_24
-        } else {
-            R.drawable.arrow_up_24
-        }
     }
 
     inner class CreditsRow(context: Context, private val fullCredit: FullCredit) :
@@ -602,23 +597,23 @@ class IssueDetailFragment : Fragment(), CreatorLinkCallback {
             })
         }
     }
+}
 
-    class RoleNameTextView(context: Context) :
-        androidx.appcompat.widget.AppCompatTextView(context) {
+class RoleNameTextView(context: Context) :
+    androidx.appcompat.widget.AppCompatTextView(context) {
 
-        constructor(context: Context, role: String = "") : this(context) {
-            text = role.replaceFirstChar { it.uppercase() }
-        }
+    constructor(context: Context, role: String = "") : this(context) {
+        text = role.replaceFirstChar { it.uppercase() }
+    }
 
-        init {
-            layoutParams = TableRow.LayoutParams(WRAP_CONTENT, WRAP_CONTENT)
-            setPaddingRelative(
-                resources.getDimension(R.dimen.margin_wide).toInt(),
-                resources.getDimension(R.dimen.margin_narrow).toInt(),
-                resources.getDimension(R.dimen.margin_wide).toInt(),
-                resources.getDimension(R.dimen.margin_narrow).toInt()
-            )
-            setTextAppearance(R.style.RoleNameText)
-        }
+    init {
+        layoutParams = TableRow.LayoutParams(WRAP_CONTENT, WRAP_CONTENT)
+        setPaddingRelative(
+            resources.getDimension(R.dimen.margin_wide).toInt(),
+            resources.getDimension(R.dimen.margin_narrow).toInt(),
+            resources.getDimension(R.dimen.margin_wide).toInt(),
+            resources.getDimension(R.dimen.margin_narrow).toInt()
+        )
+        setTextAppearance(R.style.RoleNameText)
     }
 }

@@ -11,6 +11,7 @@ import androidx.sqlite.db.SupportSQLiteQuery
 import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.SearchFilter
 import com.wtb.comiccollector.SortType
+import com.wtb.comiccollector.SortType.Companion.containsSortType
 import com.wtb.comiccollector.database.models.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -123,7 +124,7 @@ abstract class IssueDao : BaseDao<Issue>("issue") {
             if (filter.mCreators.isNotEmpty()) {
                 val creatorsList = modelsToSqlIdString(filter.mCreators)
 
-                conditionsString.append("""${connectword()} sy.storyId IN (
+                conditionsString.append("""${connectword()} (sy.storyId IN (
                 SELECT storyId
                 FROM credit ct
                 JOIN namedetail nl on nl.nameDetailId = ct.nameDetailId
@@ -132,7 +133,7 @@ abstract class IssueDao : BaseDao<Issue>("issue") {
                 SELECT storyId
                 FROM excredit ect
                 JOIN namedetail nl on nl.nameDetailId = ect.nameDetailId
-                WHERE nl.creatorId IN $creatorsList) 
+                WHERE nl.creatorId IN $creatorsList)) 
             """)
             }
 
@@ -178,14 +179,16 @@ abstract class IssueDao : BaseDao<Issue>("issue") {
                 )
             }
 
-            Log.d(TAG, "get query: ${filter.mSortType}")
             val sortClause: String = filter.mSortType?.let {
-                val sortString: String = if (it !in SortType.Companion.SortTypeOptions.ISSUE
-                        .options) {
-                    SortType.Companion.SortTypeOptions.ISSUE.options[0].sortString
-                } else {
-                    it.sortString
-                }
+                val isValid =
+                    SortType.Companion.SortTypeOptions.ISSUE.options.containsSortType(it)
+//                it !in SortType.Companion.SortTypeOptions.ISSUE.options
+                val sortString: String =
+                    if (isValid) {
+                        it.sortString
+                    } else {
+                        SortType.Companion.SortTypeOptions.ISSUE.options[0].sortString
+                    }
                 "ORDER BY ${sortString}"
             } ?: ""
 

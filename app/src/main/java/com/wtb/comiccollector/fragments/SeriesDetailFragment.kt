@@ -9,6 +9,7 @@ import android.view.View
 import android.view.View.GONE
 import android.view.View.VISIBLE
 import android.view.ViewGroup
+import android.widget.ImageButton
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.fragment.app.Fragment
@@ -49,10 +50,13 @@ class SeriesDetailFragment : Fragment(), SeriesLinkCallback {
     private lateinit var continuesAs: SeriesLink
     private lateinit var publisherTextView: TextView
     private lateinit var dateRangeTextview: TextView
-    private lateinit var trackingNotesLabelTextView: TextView
+    private lateinit var trackingNotesHeader: LinearLayout
     private lateinit var trackingNotesTextView: TextView
-    private lateinit var notesLabelTextView: TextView
+    private lateinit var trackingDropdownButton: ImageButton
+    private lateinit var notesLabelHeader: LinearLayout
     private lateinit var notesTextView: TextView
+    private lateinit var notesDropdownButton: ImageButton
+    private lateinit var notesBox: LinearLayout
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -80,10 +84,23 @@ class SeriesDetailFragment : Fragment(), SeriesLinkCallback {
         }
         publisherTextView = view.findViewById(R.id.details_publisher)
         dateRangeTextview = view.findViewById(R.id.details_date_range)
-        trackingNotesLabelTextView = view.findViewById(R.id.label_tracking_notes)
+        trackingNotesHeader = view.findViewById(R.id.header_tracking)
         trackingNotesTextView = view.findViewById(R.id.details_tracking_notes)
-        notesLabelTextView = view.findViewById(R.id.label_notes)
+        trackingDropdownButton = view.findViewById(R.id.tracking_dropdown_button)
+        notesLabelHeader = view.findViewById(R.id.header_notes)
         notesTextView = view.findViewById(R.id.details_notes)
+        notesDropdownButton = view.findViewById(R.id.notes_dropdown_button)
+        notesBox = view.findViewById(R.id.notes_box)
+
+        trackingDropdownButton.setOnClickListener {
+            trackingNotesTextView.toggleVisibility()
+            (it as ImageButton).toggleIcon(trackingNotesTextView)
+        }
+
+        notesDropdownButton.setOnClickListener {
+            notesBox.toggleVisibility()
+            (it as ImageButton).toggleIcon(notesBox)
+        }
 
         seriesId?.let { seriesViewModel.loadSeries(it) }
 
@@ -135,10 +152,10 @@ class SeriesDetailFragment : Fragment(), SeriesLinkCallback {
         series.series.description.let {
             if (it != null && it != "") {
                 trackingNotesTextView.text = it
-                trackingNotesLabelTextView.visibility = TextView.VISIBLE
+                trackingNotesHeader.visibility = TextView.VISIBLE
                 trackingNotesTextView.visibility = TextView.VISIBLE
             } else {
-                trackingNotesLabelTextView.visibility = TextView.GONE
+                trackingNotesHeader.visibility = TextView.GONE
                 trackingNotesTextView.visibility = TextView.GONE
             }
         }
@@ -146,10 +163,10 @@ class SeriesDetailFragment : Fragment(), SeriesLinkCallback {
         series.series.notes.let {
             if (it != null && it != "") {
                 notesTextView.text = it
-                notesLabelTextView.visibility = TextView.VISIBLE
+                notesLabelHeader.visibility = TextView.VISIBLE
                 notesTextView.visibility = TextView.VISIBLE
             } else {
-                notesLabelTextView.visibility = TextView.GONE
+                notesLabelHeader.visibility = TextView.GONE
                 notesTextView.visibility = TextView.GONE
             }
         }

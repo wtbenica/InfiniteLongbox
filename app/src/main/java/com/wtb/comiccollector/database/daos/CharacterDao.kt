@@ -8,10 +8,8 @@ import androidx.room.RawQuery
 import androidx.room.Transaction
 import androidx.sqlite.db.SimpleSQLiteQuery
 import androidx.sqlite.db.SupportSQLiteQuery
-import com.wtb.comiccollector.APP
-import com.wtb.comiccollector.ComicCollectorApplication
-import com.wtb.comiccollector.R
-import com.wtb.comiccollector.SearchFilter
+import com.wtb.comiccollector.*
+import com.wtb.comiccollector.SortType.Companion.containsSortType
 import com.wtb.comiccollector.database.models.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -131,9 +129,21 @@ abstract class CharacterDao : BaseDao<Character>("character") {
             conditionsString.append(""") """)
         }
 
+        val sortClause: String = filter.mSortType?.let {
+            val isValid =
+                SortType.Companion.SortTypeOptions.CHARACTER.options.containsSortType(it)
+//                it !in SortType.Companion.SortTypeOptions.CHARACTER.options
+            val sortString: String =
+                if (isValid) {
+                    it.sortString
+                } else {
+                    SortType.Companion.SortTypeOptions.CHARACTER.options[0].sortString
+                }
+            "ORDER BY ${sortString}"
+        } ?: ""
 
         return SimpleSQLiteQuery(
-            "$tableJoinString$conditionsString ORDER BY ch.name", args.toArray()
+            "$tableJoinString$conditionsString$sortClause", args.toArray()
         )
     }
 

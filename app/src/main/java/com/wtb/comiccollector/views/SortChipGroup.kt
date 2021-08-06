@@ -81,14 +81,7 @@ class SortChip(context: Context?) : Chip(context) {
         setOnClickListener { _ ->
             Log.d(TAG, "Chip ${if (isChecked) "is" else "isn't"} checked")
             if (isChecked) {
-                sortType = sortType?.let { it: SortType ->
-                    SortType(it).apply {
-                        order = when (order) {
-                            SortType.SortOrder.ASC  -> SortType.SortOrder.DESC
-                            SortType.SortOrder.DESC -> SortType.SortOrder.ASC
-                        }
-                    }
-                }
+                sortType = sortType?.toggle()
             } else {
                 super.callOnClick()
             }

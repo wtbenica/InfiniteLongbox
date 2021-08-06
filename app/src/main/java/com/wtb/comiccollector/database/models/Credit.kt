@@ -8,6 +8,8 @@ abstract class CreditX : DataModel() {
     abstract var storyId: Int
     abstract var nameDetailId: Int
     abstract var roleId: Int
+    abstract var issue: Int?
+    abstract var series: Int?
 }
 
 @ExperimentalCoroutinesApi
@@ -16,7 +18,9 @@ abstract class CreditX : DataModel() {
         Index(value = ["storyId", "nameDetailId", "roleId"], unique = true),
         Index(value = ["storyId"]),
         Index(value = ["nameDetailId"]),
-        Index(value = ["roleId"])
+        Index(value = ["roleId"]),
+        Index(value = ["issue"]),
+        Index(value = ["series"]),
     ],
     foreignKeys = [
         ForeignKey(
@@ -36,14 +40,28 @@ abstract class CreditX : DataModel() {
             parentColumns = arrayOf("roleId"),
             childColumns = arrayOf("roleId"),
             onDelete = ForeignKey.CASCADE
-        )
+        ),
+        ForeignKey(
+            entity = Issue::class,
+            parentColumns = arrayOf("issueId"),
+            childColumns = arrayOf("issue"),
+            onDelete = ForeignKey.CASCADE
+        ),
+        ForeignKey(
+            entity = Series::class,
+            parentColumns = arrayOf("seriesId"),
+            childColumns = arrayOf("series"),
+            onDelete = ForeignKey.CASCADE
+        ),
     ]
 )
 class Credit(
     @PrimaryKey(autoGenerate = true) override val creditId: Int = AUTO_ID,
     override var storyId: Int,
     override var nameDetailId: Int,
-    override var roleId: Int
+    override var roleId: Int,
+    override var issue: Int?,
+    override var series: Int?,
 ) : CreditX() {
     override val id: Int
         get() = creditId
@@ -55,7 +73,9 @@ class Credit(
         Index(value = ["storyId", "nameDetailId", "roleId"], unique = true),
         Index(value = ["storyId"]),
         Index(value = ["nameDetailId"]),
-        Index(value = ["roleId"])
+        Index(value = ["roleId"]),
+        Index(value = ["issue"]),
+        Index(value = ["series"]),
     ],
     foreignKeys = [
         ForeignKey(
@@ -75,14 +95,28 @@ class Credit(
             parentColumns = arrayOf("roleId"),
             childColumns = arrayOf("roleId"),
             onDelete = ForeignKey.CASCADE
-        )
+        ),
+        ForeignKey(
+            entity = Issue::class,
+            parentColumns = arrayOf("issueId"),
+            childColumns = arrayOf("issue"),
+            onDelete = ForeignKey.CASCADE
+        ),
+        ForeignKey(
+            entity = Series::class,
+            parentColumns = arrayOf("seriesId"),
+            childColumns = arrayOf("series"),
+            onDelete = ForeignKey.CASCADE
+        ),
     ]
 )
 data class ExCredit(
     @PrimaryKey(autoGenerate = true) override val creditId: Int = AUTO_ID,
     override var storyId: Int,
     override var nameDetailId: Int,
-    override var roleId: Int
+    override var roleId: Int,
+    override var issue: Int?,
+    override var series: Int?,
 ) : CreditX() {
     override val id: Int
         get() = creditId
@@ -119,7 +153,7 @@ data class Story(
 data class StoryType(
     @PrimaryKey(autoGenerate = true) val typeId: Int = AUTO_ID,
     val name: String,
-    val sortCode: Int
+    val sortCode: Int,
 ) : DataModel() {
     override val id: Int
         get() = typeId
@@ -129,7 +163,7 @@ data class StoryType(
 data class Role(
     @PrimaryKey(autoGenerate = true) val roleId: Int = AUTO_ID,
     var roleName: String = "",
-    var sortOrder: Int
+    var sortOrder: Int,
 ) : DataModel() {
     override val id: Int
         get() = roleId
@@ -164,7 +198,7 @@ data class FullCredit(
     @Relation(parentColumn = "storyId", entityColumn = "storyId")
     val story: Story,
 
-    val sortCode: Int
+    val sortCode: Int,
 ) : Comparable<FullCredit> {
     override fun compareTo(other: FullCredit): Int {
         val sortCodeCompare = this.sortCode.compareTo(other.sortCode)
@@ -192,4 +226,4 @@ data class FullStory(
 
     @Relation(parentColumn = "issueId", entityColumn = "issueId", entity = Issue::class)
     val issue: FullIssue,
-    )
+)
