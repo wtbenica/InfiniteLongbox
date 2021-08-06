@@ -94,6 +94,7 @@ class FilterFragment : Fragment(),
                 }
 
                 viewModel.filterOptions.collectLatest { filterObjects ->
+                    Log.d(TAG, "This is the new filterOptions: $filterObjects")
                     searchAutoComplete.setAdapter(
                         FilterOptionsAdapter(
                             requireContext(),
@@ -297,10 +298,6 @@ class FilterFragment : Fragment(),
     // SearchTextViewCallback
     override fun addFilterItem(option: FilterType) {
         Log.d(TAG, "setting filter: add item $option")
-        if (option is TextFilter) {
-            option.type =
-                (searchBoxSpinner.selectedItem as KClass<*>).objectInstance as FilterTypeSpinnerOption
-        }
         viewModel.addFilterItem(option)
     }
 

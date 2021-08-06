@@ -24,7 +24,6 @@ import com.wtb.comiccollector.MainActivity
 import com.wtb.comiccollector.SearchFilter
 import com.wtb.comiccollector.Webservice
 import com.wtb.comiccollector.database.IssueDatabase
-import com.wtb.comiccollector.database.SimpleMigration
 import com.wtb.comiccollector.database.daos.Count
 import com.wtb.comiccollector.database.daos.REQUEST_LIMIT
 import com.wtb.comiccollector.database.models.*
@@ -43,7 +42,7 @@ const val DUMMY_ID = Int.MAX_VALUE
 
 private const val DATABASE_NAME = "issue-database"
 private const val TAG = APP + "Repository"
-const val DEBUG = false
+const val DEBUG = true
 
 internal const val SHARED_PREFS = "CCPrefs"
 
@@ -54,7 +53,7 @@ internal const val CREATOR_LIFETIME: Long = 7
 const val EXTERNAL = "http://24.176.172.169/"
 const val NIGHTWING = "http://192.168.0.141:8000/"
 const val ALFRED = "http://192.168.0.138:8000/"
-const val BASE_URL = ALFRED
+const val BASE_URL = NIGHTWING
 
 internal const val UPDATED_ROLES = "updated_roles"
 internal const val UPDATED_STORY_TYPES = "updated_story_types"
@@ -134,10 +133,11 @@ class Repository private constructor(val context: Context) {
             hasConnection = it
             if (checkConnectionStatus()) {
                 isIdle = false
+
                 // TODO: A lint inspection pointed out that update returns a Deferred, which
                 //  means that this is async async await. Look into
                 MainActivity.activeJob = CoroutineScope(Dispatchers.IO).launch {
-                    withContext(Dispatchers.Default) {
+                    withContext(Dispatchers.IO) {
                         updater.updateAsync()
                     }.let {
                         Log.d(TAG, "Static update done")
@@ -296,9 +296,10 @@ class Repository private constructor(val context: Context) {
         }
     }
 
-    fun addToCollection(issueId: Int) {
+    fun addToCollection(issue: FullIssue) {
         executor.execute {
-            collectionDao.insert(MyCollection(issueId = issueId))
+            collectionDao.insert(MyCollection(issue = issue.issue.issueId,
+                                              series = issue.series.seriesId))
         }
     }
 
@@ -335,7 +336,7 @@ class Repository private constructor(val context: Context) {
                             Series(
                                 seriesId = DUMMY_ID,
                                 seriesName = "Dummy Series",
-                                publisherId = DUMMY_ID,
+                                publisher = DUMMY_ID,
                                 startDate = LocalDate.MIN,
                                 endDate = LocalDate.MIN,
                             )
@@ -344,9 +345,9 @@ class Repository private constructor(val context: Context) {
                 }
             }
         ).addMigrations(
-            migration_1_2, migration_2_3, migration_3_4, migration_4_5,
-            migration_5_6, migration_6_7, migration_7_8, migration_8_9, migration_9_10,
-            migration_10_11, migration_11_12
+//            migration_1_2, migration_2_3, migration_3_4, migration_4_5,
+//            migration_5_6, migration_6_7, migration_7_8, migration_8_9, migration_9_10,
+//            migration_10_11, migration_11_12, migration_12_13
         )
             .build()
     }
@@ -382,174 +383,183 @@ class Repository private constructor(val context: Context) {
             savePrefValue(prefs, key, LocalDate.now().toString())
         }
 
-        @Language("RoomSql")
-        val migration_1_2 = SimpleMigration(
-            1,
-            2,
-            """ALTER TABLE issue ADD COLUMN coverDateLong TEXT""",
-            "ALTER TABLE issue ADD COLUMN onSaleDateUncertain INTEGER NOT NULL DEFAULT 1",
-            "ALTER TABLE issue ADD COLUMN coverDate TEXT",
-            "ALTER TABLE issue ADD COLUMN notes TEXT",
-        )
-
-        @Language("RoomSql")
-        val migration_2_3 = SimpleMigration(
-            2, 3,
-            """ALTER TABLE series ADD COLUMN notes TEXT""",
-            """ALTER TABLE series ADD COLUMN issueCount INTEGER NOT NULL DEFAULT 0"""
-        )
-
-        @Language("RoomSql")
-        val migration_3_4 = SimpleMigration(
-            3, 4,
-            """ALTER TABLE namedetail ADD COLUMN sortName TEXT"""
-        )
-
-        @Language("RoomSql")
-        val migration_4_5 = SimpleMigration(
-            4, 5,
-            """ALTER TABLE creator ADD COLUMN bio TEXT"""
-        )
-
-        @Language("RoomSql")
-        val migration_5_6 = SimpleMigration(
-            5, 6,
-            """ALTER TABLE publisher ADD COLUMN yearBegan TEXT""",
-            """ALTER TABLE publisher ADD COLUMN yearBeganUncertain INTEGER NOT NULL DEFAULT 1""",
-            """ALTER TABLE publisher ADD COLUMN yearEnded TEXT""",
-            """ALTER TABLE publisher ADD COLUMN yearEndedUncertain INTEGER NOT NULL DEFAULT 1""",
-            """ALTER TABLE publisher ADD COLUMN url TEXT"""
-        )
-
-        @Language("RoomSql")
-        val migration_6_7 = SimpleMigration(
-            6, 7,
-            """CREATE TABLE 'BondType' (
-                'bondTypeId' INTEGER NOT NULL,
-                'name' TEXT NOT NULL,
-                'description' TEXT NOT NULL,
-                'notes' TEXT,
-                PRIMARY KEY('bondTypeId')
-                )""",
-            """CREATE TABLE 'SeriesBond' (
-                    'bondId' INTEGER NOT NULL,
-                    'originId' INTEGER NOT NULL,
-                    'targetId' INTEGER NOT NULL,
-                    'originIssueId' INTEGER,
-                    'targetIssueId' INTEGER,
-                    'bondTypeId' INTEGER NOT NULL,
-                    'notes' TEXT,
-                    PRIMARY KEY ('bondId'),
-                    FOREIGN KEY ('originId') REFERENCES 'Series'('seriesId') ON DELETE CASCADE,
-                    FOREIGN KEY ('targetId') REFERENCES 'Series'('seriesId') ON DELETE CASCADE,
-                    FOREIGN KEY ('originIssueId') REFERENCES 'Issue'('issueId') ON DELETE CASCADE,
-                    FOREIGN KEY ('targetIssueId') REFERENCES 'Issue'('issueId') ON DELETE CASCADE,
-                    FOREIGN KEY ('bondTypeId') REFERENCES 'BondType'('bondTypeId') ON DELETE RESTRICT
-                )""",
-            """CREATE INDEX IF NOT EXISTS 'index_SeriesBond_targetIssueId' ON 'SeriesBond'('targetIssueId')""",
-            """CREATE INDEX IF NOT EXISTS 'index_SeriesBond_originId' ON 'SeriesBond'('originId')""",
-            """CREATE INDEX IF NOT EXISTS 'index_SeriesBond_targetId' ON 'SeriesBond'('targetId')""",
-            """CREATE INDEX IF NOT EXISTS 'index_SeriesBond_originIssueId' ON 'SeriesBond'('originIssueId')""",
-            """CREATE INDEX IF NOT EXISTS 'index_SeriesBond_bondTypeId' ON 'SeriesBond'('bondTypeId')""",
-        )
-
-        @Language("RoomSql")
-        val migration_7_8 = SimpleMigration(
-            7, 8,
-            """CREATE TABLE Brand (
-                brandId INTEGER NOT NULL,
-                name TEXT NOT NULL,
-                yearBegan TEXT,
-                yearEnded TEXT,
-                notes TEXT,
-                url TEXT,
-                issueCount INTEGER NOT NULL,
-                yearBeganUncertain INTEGER NOT NULL,
-                yearEndedUncertain INTEGER NOT NULL,
-                lastUpdated TEXT NOT NULL,
-                PRIMARY KEY(brandId)
-                )
-            """,
-            """ALTER TABLE issue ADD COLUMN brandId INTEGER""",
-            """ALTER TABLE seriesbond ADD COLUMN lastUpdated TEXT NOT NULL DEFAULT '1900-01-01'""",
-            """ALTER TABLE bondtype ADD COLUMN lastUpdated TEXT NOT NULL DEFAULT '1900-01-01'"""
-        )
-
-        @Language("RoomSql")
-        val migration_8_9 = SimpleMigration(
-            8, 9,
-            """ALTER TABLE character ADD COLUMN publisher INTEGER"""
-        )
-
-        @Language("RoomSql")
-        val migration_9_10 = SimpleMigration(
-            9, 10,
-            """DROP TABLE Appearance""",
-            """DROP TABLE Character""",
-            """CREATE TABLE Character (
-                    characterId INTEGER NOT NULL,
-                    name TEXT NOT NULL,
-                    alterEgo TEXT,
-                    publisher INTEGER NOT NULL,
-                    lastUpdated TEXT NOT NULL,
-                    PRIMARY KEY (characterId),
-                    FOREIGN KEY (publisher) REFERENCES Publisher(publisherId) ON DELETE CASCADE
-                )""",
-            """CREATE INDEX IF NOT EXISTS index_Character_publisher ON Character(publisher)""",
-            """CREATE TABLE Appearance (
-                    appearanceId INTEGER NOT NULL,
-                    story INTEGER NOT NULL,
-                    character INTEGER NOT NULL,
-                    details TEXT,
-                    notes TEXT,
-                    membership TEXT,
-                    lastUpdated TEXT NOT NULL,
-                    PRIMARY KEY (appearanceId),
-                    FOREIGN KEY (story) REFERENCES Story(storyId) ON DELETE CASCADE,
-                    FOREIGN KEY (character) REFERENCES Character(characterId) ON DELETE CASCADE
-                )""",
-            """CREATE INDEX IF NOT EXISTS index_Appearance_story ON Appearance(story)""",
-            """CREATE INDEX IF NOT EXISTS index_Appearance_character ON Appearance(character)""",
-        )
-
-        @Language("RoomSql")
-        val migration_10_11 = SimpleMigration(
-            10, 11,
-            """CREATE INDEX IF NOT EXISTS index_Character_name ON Character(name)""",
-            """CREATE INDEX IF NOT EXISTS index_Character_alterEgo ON Character(alterEgo)""",
-            """CREATE INDEX IF NOT EXISTS index_Creator_name ON Creator(name)""",
-            """CREATE INDEX IF NOT EXISTS index_Creator_alterEgo ON Creator(sortName)""",
-            """CREATE INDEX IF NOT EXISTS index_NameDetail_name ON NameDetail(name)""",
-            """CREATE INDEX IF NOT EXISTS index_NameDetail_sortName ON NameDetail(sortName)""",
-        )
-
-        val migration_11_12 = SimpleMigration(
-            11, 12,
-            """ALTER TABLE credit 
-                ADD COLUMN issue INTEGER REFERENCES Issue(issueId) ON DELETE CASCADE
-                """,
-            """ALTER TABLE credit
-                ADD COLUMN series INTEGER REFERENCES Series(seriesId) ON DELETE CASCADE
-            """,
-            """ALTER TABLE excredit
-                ADD COLUMN issue INTEGER REFERENCES Issue(issueId) ON DELETE CASCADE
-            """,
-            """ALTER TABLE excredit
-                ADD COLUMN series INTEGER REFERENCES Series(seriesId) ON DELETE CASCADE
-            """,
-            """ALTER TABLE appearance
-                ADD COLUMN issue INTEGER REFERENCES Issue(issueId) ON DELETE CASCADE
-            """,
-            """ALTER TABLE appearance
-                ADD COLUMN series INTEGER REFERENCES Series(seriesId) ON DELETE CASCADE
-            """,
-            """CREATE INDEX IF NOT EXISTS index_Credit_series ON Credit(series)""",
-            """CREATE INDEX IF NOT EXISTS index_Credit_issue ON Credit(issue)""",
-            """CREATE INDEX IF NOT EXISTS index_ExCredit_series ON ExCredit(series)""",
-            """CREATE INDEX IF NOT EXISTS index_ExCredit_issue ON ExCredit(issue)""",
-            """CREATE INDEX IF NOT EXISTS index_Appearance_series ON Appearance(series)""",
-            """CREATE INDEX IF NOT EXISTS index_Appearance_issue ON Appearance(issue)""",
-        )
+        /*
+        I'm leaving these here as templates
+         */
+//        @Language("RoomSql")
+//        val migration_1_2 = SimpleMigration(
+//            1,
+//            2,
+//            """ALTER TABLE issue ADD COLUMN coverDateLong TEXT""",
+//            "ALTER TABLE issue ADD COLUMN onSaleDateUncertain INTEGER NOT NULL DEFAULT 1",
+//            "ALTER TABLE issue ADD COLUMN coverDate TEXT",
+//            "ALTER TABLE issue ADD COLUMN notes TEXT",
+//        )
+//
+//        @Language("RoomSql")
+//        val migration_2_3 = SimpleMigration(
+//            2, 3,
+//            """ALTER TABLE series ADD COLUMN notes TEXT""",
+//            """ALTER TABLE series ADD COLUMN issueCount INTEGER NOT NULL DEFAULT 0"""
+//        )
+//
+//        @Language("RoomSql")
+//        val migration_3_4 = SimpleMigration(
+//            3, 4,
+//            """ALTER TABLE namedetail ADD COLUMN sortName TEXT"""
+//        )
+//
+//        @Language("RoomSql")
+//        val migration_4_5 = SimpleMigration(
+//            4, 5,
+//            """ALTER TABLE creator ADD COLUMN bio TEXT"""
+//        )
+//
+//        @Language("RoomSql")
+//        val migration_5_6 = SimpleMigration(
+//            5, 6,
+//            """ALTER TABLE publisher ADD COLUMN yearBegan TEXT""",
+//            """ALTER TABLE publisher ADD COLUMN yearBeganUncertain INTEGER NOT NULL DEFAULT 1""",
+//            """ALTER TABLE publisher ADD COLUMN yearEnded TEXT""",
+//            """ALTER TABLE publisher ADD COLUMN yearEndedUncertain INTEGER NOT NULL DEFAULT 1""",
+//            """ALTER TABLE publisher ADD COLUMN url TEXT"""
+//        )
+//
+//        @Language("RoomSql")
+//        val migration_6_7 = SimpleMigration(
+//            6, 7,
+//            """CREATE TABLE 'BondType' (
+//                'bondTypeId' INTEGER NOT NULL,
+//                'name' TEXT NOT NULL,
+//                'description' TEXT NOT NULL,
+//                'notes' TEXT,
+//                PRIMARY KEY('bondTypeId')
+//                )""",
+//            """CREATE TABLE 'SeriesBond' (
+//                    'bondId' INTEGER NOT NULL,
+//                    'originId' INTEGER NOT NULL,
+//                    'targetId' INTEGER NOT NULL,
+//                    'originIssueId' INTEGER,
+//                    'targetIssueId' INTEGER,
+//                    'bondTypeId' INTEGER NOT NULL,
+//                    'notes' TEXT,
+//                    PRIMARY KEY ('bondId'),
+//                    FOREIGN KEY ('originId') REFERENCES 'Series'('seriesId') ON DELETE CASCADE,
+//                    FOREIGN KEY ('targetId') REFERENCES 'Series'('seriesId') ON DELETE CASCADE,
+//                    FOREIGN KEY ('originIssueId') REFERENCES 'Issue'('issueId') ON DELETE CASCADE,
+//                    FOREIGN KEY ('targetIssueId') REFERENCES 'Issue'('issueId') ON DELETE CASCADE,
+//                    FOREIGN KEY ('bondTypeId') REFERENCES 'BondType'('bondTypeId') ON DELETE RESTRICT
+//                )""",
+//            """CREATE INDEX IF NOT EXISTS 'index_SeriesBond_targetIssueId' ON 'SeriesBond'('targetIssueId')""",
+//            """CREATE INDEX IF NOT EXISTS 'index_SeriesBond_originId' ON 'SeriesBond'('originId')""",
+//            """CREATE INDEX IF NOT EXISTS 'index_SeriesBond_targetId' ON 'SeriesBond'('targetId')""",
+//            """CREATE INDEX IF NOT EXISTS 'index_SeriesBond_originIssueId' ON 'SeriesBond'('originIssueId')""",
+//            """CREATE INDEX IF NOT EXISTS 'index_SeriesBond_bondTypeId' ON 'SeriesBond'('bondTypeId')""",
+//        )
+//
+//        @Language("RoomSql")
+//        val migration_7_8 = SimpleMigration(
+//            7, 8,
+//            """CREATE TABLE Brand (
+//                brandId INTEGER NOT NULL,
+//                name TEXT NOT NULL,
+//                yearBegan TEXT,
+//                yearEnded TEXT,
+//                notes TEXT,
+//                url TEXT,
+//                issueCount INTEGER NOT NULL,
+//                yearBeganUncertain INTEGER NOT NULL,
+//                yearEndedUncertain INTEGER NOT NULL,
+//                lastUpdated TEXT NOT NULL,
+//                PRIMARY KEY(brandId)
+//                )
+//            """,
+//            """ALTER TABLE issue ADD COLUMN brandId INTEGER""",
+//            """ALTER TABLE seriesbond ADD COLUMN lastUpdated TEXT NOT NULL DEFAULT '1900-01-01'""",
+//            """ALTER TABLE bondtype ADD COLUMN lastUpdated TEXT NOT NULL DEFAULT '1900-01-01'"""
+//        )
+//
+//        @Language("RoomSql")
+//        val migration_8_9 = SimpleMigration(
+//            8, 9,
+//            """ALTER TABLE character ADD COLUMN publisher INTEGER"""
+//        )
+//
+//        @Language("RoomSql")
+//        val migration_9_10 = SimpleMigration(
+//            9, 10,
+//            """DROP TABLE Appearance""",
+//            """DROP TABLE Character""",
+//            """CREATE TABLE Character (
+//                    characterId INTEGER NOT NULL,
+//                    name TEXT NOT NULL,
+//                    alterEgo TEXT,
+//                    publisher INTEGER NOT NULL,
+//                    lastUpdated TEXT NOT NULL,
+//                    PRIMARY KEY (characterId),
+//                    FOREIGN KEY (publisher) REFERENCES Publisher(publisherId) ON DELETE CASCADE
+//                )""",
+//            """CREATE INDEX IF NOT EXISTS index_Character_publisher ON Character(publisher)""",
+//            """CREATE TABLE Appearance (
+//                    appearanceId INTEGER NOT NULL,
+//                    story INTEGER NOT NULL,
+//                    character INTEGER NOT NULL,
+//                    details TEXT,
+//                    notes TEXT,
+//                    membership TEXT,
+//                    lastUpdated TEXT NOT NULL,
+//                    PRIMARY KEY (appearanceId),
+//                    FOREIGN KEY (story) REFERENCES Story(storyId) ON DELETE CASCADE,
+//                    FOREIGN KEY (character) REFERENCES Character(characterId) ON DELETE CASCADE
+//                )""",
+//            """CREATE INDEX IF NOT EXISTS index_Appearance_story ON Appearance(story)""",
+//            """CREATE INDEX IF NOT EXISTS index_Appearance_character ON Appearance(character)""",
+//        )
+//
+//        @Language("RoomSql")
+//        val migration_10_11 = SimpleMigration(
+//            10, 11,
+//            """CREATE INDEX IF NOT EXISTS index_Character_name ON Character(name)""",
+//            """CREATE INDEX IF NOT EXISTS index_Character_alterEgo ON Character(alterEgo)""",
+//            """CREATE INDEX IF NOT EXISTS index_Creator_name ON Creator(name)""",
+//            """CREATE INDEX IF NOT EXISTS index_Creator_alterEgo ON Creator(sortName)""",
+//            """CREATE INDEX IF NOT EXISTS index_NameDetail_name ON NameDetail(name)""",
+//            """CREATE INDEX IF NOT EXISTS index_NameDetail_sortName ON NameDetail(sortName)""",
+//        )
+//
+//        val migration_11_12 = SimpleMigration(
+//            11, 12,
+//            """ALTER TABLE credit
+//                ADD COLUMN issue INTEGER REFERENCES Issue(issueId) ON DELETE CASCADE
+//                """,
+//            """ALTER TABLE credit
+//                ADD COLUMN series INTEGER REFERENCES Series(seriesId) ON DELETE CASCADE
+//            """,
+//            """ALTER TABLE excredit
+//                ADD COLUMN issue INTEGER REFERENCES Issue(issueId) ON DELETE CASCADE
+//            """,
+//            """ALTER TABLE excredit
+//                ADD COLUMN series INTEGER REFERENCES Series(seriesId) ON DELETE CASCADE
+//            """,
+//            """ALTER TABLE appearance
+//                ADD COLUMN issue INTEGER REFERENCES Issue(issueId) ON DELETE CASCADE
+//            """,
+//            """ALTER TABLE appearance
+//                ADD COLUMN series INTEGER REFERENCES Series(seriesId) ON DELETE CASCADE
+//            """,
+//            """CREATE INDEX IF NOT EXISTS index_Credit_series ON Credit(series)""",
+//            """CREATE INDEX IF NOT EXISTS index_Credit_issue ON Credit(issue)""",
+//            """CREATE INDEX IF NOT EXISTS index_ExCredit_series ON ExCredit(series)""",
+//            """CREATE INDEX IF NOT EXISTS index_ExCredit_issue ON ExCredit(issue)""",
+//            """CREATE INDEX IF NOT EXISTS index_Appearance_series ON Appearance(series)""",
+//            """CREATE INDEX IF NOT EXISTS index_Appearance_issue ON Appearance(issue)""",
+//        )
+//
+//        val migration_12_13 = SimpleMigration(
+//            12, 13,
+//            """ALTER TABLE mycollection
+//                ADD FOREIGN KEY (series) REFERENCES Series(seriesId) ON DELETE CASCADE"""
+//        )
     }
 
     fun saveSeries(vararg series: Series) {

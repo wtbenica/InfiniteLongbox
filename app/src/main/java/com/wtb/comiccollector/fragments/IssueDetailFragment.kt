@@ -235,7 +235,6 @@ class IssueDetailFragment : Fragment(), CreatorLinkCallback {
             viewLifecycleOwner,
             {
                 it?.let { variant ->
-
                     fullVariant = variant
                     updateUI()
                 }
@@ -490,7 +489,7 @@ class IssueDetailFragment : Fragment(), CreatorLinkCallback {
 
         fun displayCredit() {
             this.removeAllViews()
-            val stories = combineCredits(issueStories, variantStories)
+            val stories = getCompleteVariantStories(issueStories, variantStories)
             stories.forEach { story ->
                 this.addView(StoryRow(context, story))
                 val credits = issueCredits + variantCredits
@@ -502,7 +501,10 @@ class IssueDetailFragment : Fragment(), CreatorLinkCallback {
             }
         }
 
-        private fun combineCredits(
+        /**
+         * Get complete variant stories - returns the full story list for the variant issues
+         */
+        private fun getCompleteVariantStories(
             original: List<Story>,
             variant: List<Story>,
         ): List<Story> =

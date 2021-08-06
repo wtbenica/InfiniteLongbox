@@ -33,7 +33,7 @@ abstract class Updater(
 
     internal suspend fun checkSeriesFkPublisher(series: List<Series>) =
         checkForMissingForeignKeyModels(series,
-                                        Series::publisherId,
+                                        Series::publisher,
                                         database.publisherDao(),
                                         webservice::getPublishersByIds)
 
@@ -43,7 +43,7 @@ abstract class Updater(
 
     internal suspend fun checkNameDetailFkCreator(nameDetails: List<NameDetail>) =
         checkForMissingForeignKeyModels(nameDetails,
-                                        NameDetail::creatorId,
+                                        NameDetail::creator,
                                         database.creatorDao(),
                                         webservice::getCreatorsByIds)
 
@@ -55,7 +55,7 @@ abstract class Updater(
 
     internal suspend fun checkIssueFkSeries(issues: List<Issue>) =
         checkForMissingForeignKeyModels(issues,
-                                        Issue::seriesId,
+                                        Issue::series,
                                         database.seriesDao(),
                                         webservice::getSeriesByIds,
                                         this@Updater::checkFKeysSeries)
@@ -69,28 +69,28 @@ abstract class Updater(
 
     internal suspend fun checkSeriesBondFkOriginIssue(seriesBonds: List<SeriesBond>) =
         checkForMissingForeignKeyModels(seriesBonds,
-                                        SeriesBond::originIssueId,
+                                        SeriesBond::originIssue,
                                         database.issueDao(),
                                         webservice::getIssuesByIds,
                                         this@Updater::checkFKeysIssue)
 
     internal suspend fun checkSeriesBondFkOriginSeries(seriesBonds: List<SeriesBond>) =
         checkForMissingForeignKeyModels(seriesBonds,
-                                        SeriesBond::originId,
+                                        SeriesBond::origin,
                                         database.seriesDao(),
                                         webservice::getSeriesByIds,
                                         this@Updater::checkFKeysSeries)
 
     internal suspend fun checkSeriesBondFkTargetSeries(seriesBonds: List<SeriesBond>) =
         checkForMissingForeignKeyModels(seriesBonds,
-                                        SeriesBond::targetId,
+                                        SeriesBond::target,
                                         database.seriesDao(),
                                         webservice::getSeriesByIds,
                                         this@Updater::checkFKeysSeries)
 
     internal suspend fun checkSeriesBondFkTargetIssue(seriesBonds: List<SeriesBond>) =
         checkForMissingForeignKeyModels(seriesBonds,
-                                        SeriesBond::targetIssueId,
+                                        SeriesBond::targetIssue,
                                         database.issueDao(),
                                         webservice::getIssuesByIds,
                                         this@Updater::checkFKeysIssue)
@@ -140,14 +140,14 @@ abstract class Updater(
 
     internal suspend fun <T : CreditX> checkCreditFkNameDetail(credits: List<T>) =
         checkForMissingForeignKeyModels(credits,
-                                        CreditX::nameDetailId,
+                                        CreditX::nameDetail,
                                         database.nameDetailDao(),
                                         webservice::getNameDetailsByIds,
                                         this@Updater::checkFKeysNameDetail)
 
     internal suspend fun <T : CreditX> checkCreditFkStory(credits: List<T>) =
         checkForMissingForeignKeyModels(credits,
-                                        CreditX::storyId,
+                                        CreditX::story,
                                         database.storyDao(),
                                         webservice::getStoriesByIds,
                                         this@Updater::checkFKeysStory)

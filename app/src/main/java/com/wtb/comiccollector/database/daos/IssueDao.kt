@@ -12,7 +12,8 @@ import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.SearchFilter
 import com.wtb.comiccollector.SortType
 import com.wtb.comiccollector.SortType.Companion.containsSortType
-import com.wtb.comiccollector.database.models.*
+import com.wtb.comiccollector.database.models.FullIssue
+import com.wtb.comiccollector.database.models.Issue
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 
@@ -116,11 +117,6 @@ abstract class IssueDao : BaseDao<Issue>("issue") {
                 }
             }
 
-            if (filter.mTextFilter?.type in listOf(All, Publisher)) {
-                tableJoinString.append("""JOIN publisher pr ON ss.publisherId = pr.publisherId 
-                """)
-            }
-
             if (filter.mCreators.isNotEmpty()) {
                 val creatorsList = modelsToSqlIdString(filter.mCreators)
 
@@ -135,13 +131,6 @@ abstract class IssueDao : BaseDao<Issue>("issue") {
                 JOIN namedetail nl on nl.nameDetailId = ect.nameDetailId
                 WHERE nl.creatorId IN $creatorsList)) 
             """)
-            }
-
-            if (filter.mTextFilter?.type in listOf(All, NameDetail)) {
-                tableJoinString.append("""LEFT JOIN credit ct on ct.storyId = sy.storyId 
-                            LEFT JOIN namedetail nl on nl.nameDetailId = ct.nameDetailId 
-                            LEFT JOIN excredit ect on ect.storyId = sy.storyId
-                            LEFT JOIN namedetail nl2 on nl2.nameDetailId = ect.nameDetailId """)
             }
 
             if (filter.hasDateFilter()) {
@@ -167,16 +156,21 @@ abstract class IssueDao : BaseDao<Issue>("issue") {
                     """)
                     args.add(it.characterId)
                 }
-
-                if (filter.mTextFilter?.type in listOf(All, Character)) {
-                    tableJoinString.append("""LEFT JOIN character ch ON ch.characterId = ap.character 
-                    """)
-                }
             }
 
             if (!filter.mShowVariants) {
                 conditionsString.append("${connectword()} ie.variantOf IS NULL "
                 )
+            }
+
+            filter.mTextFilter?.let { textFilter ->
+                Log.d(TAG, "*************************************************************")
+                Log.d(TAG, "*************************************************************")
+                Log.d(TAG, "*************************************************************")
+                Log.d(TAG, "SERIOUS TODO, BUT STILL WANT IT TO RUN FOR THE MOMENT!")
+                Log.d(TAG, "*************************************************************")
+                Log.d(TAG, "*************************************************************")
+                Log.d(TAG, "*************************************************************")
             }
 
             val sortClause: String = filter.mSortType?.let {

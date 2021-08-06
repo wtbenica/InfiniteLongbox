@@ -39,6 +39,7 @@ class CreatorUpdater(
      * @param creatorIds
      */
     internal fun update_new(creatorIds: List<Int>) {
+        Log.d(TAG, "UPDATING cREAtoRS: $creatorIds")
         CoroutineScope(Dispatchers.IO).launch {
             val nameDetails: List<NameDetailAndCreator> = getLocalNameDetailsByCreatorId(creatorIds)
 
@@ -117,7 +118,7 @@ class CreatorUpdater(
 
     private suspend fun getStoriesByCredits(credits: List<CreditX>): List<Story> =
         coroutineScope {
-            val storyIds = credits.map { it.storyId }
+            val storyIds = credits.map { it.story }
 
             runSafely("getStoriesByIds", storyIds) {
                 async { webservice.getStoriesByIds(it) }

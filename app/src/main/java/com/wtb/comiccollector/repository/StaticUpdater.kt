@@ -89,46 +89,6 @@ class StaticUpdater(
             followup = this::checkFKeysSeriesBond,
             dao = database.seriesBondDao()
         )
-
-//        refreshPaged<Issue>(
-//            prefs = prefs, savePageTag = UPDATED_ISSUES_PAGE,
-//            saveTag = UPDATED_ISSUES,
-//            getItemsByPage = this::getIssuesByPage,
-//            dao = database.issueDao(),
-//            followup = this::checkFKeysIssue
-//        )
-//
-//        refreshPaged<Story>(
-//            prefs = prefs, savePageTag = UPDATED_STORIES_PAGE,
-//            saveTag = UPDATED_STORIES,
-//            getItemsByPage = this::getStoriesByPage,
-//            dao = database.storyDao(),
-//            followup = this::checkFKeysStory
-//        )
-//
-//        refreshPaged<Appearance>(
-//            prefs = prefs, savePageTag = UPDATED_APPEARANCES_PAGE,
-//            saveTag = UPDATED_APPEARANCES,
-//            getItemsByPage = this::getAppearancesByPage,
-//            dao = database.appearanceDao(),
-//            followup = this::checkFKeysAppearance
-//        )
-//
-//        Log.d(TAG, "Updating Credit")
-//        refreshPaged<Credit>(
-//            prefs = prefs, savePageTag = UPDATED_CREDITS_PAGE,
-//            saveTag = UPDATED_CREDITS,
-//            getItemsByPage = this::getCreditsByPage,
-//            dao = database.creditDao(),
-//            followup = this::checkFKeysCredit
-//        )
-//
-//        refreshPaged<ExCredit>(
-//            prefs = prefs, savePageTag = UPDATED_EXCREDITS_PAGE,
-//            saveTag = UPDATED_EXCREDITS,
-//            getItemsByPage = this::getExCreditsByPage,
-//            dao = database.exCreditDao()
-//        )
     }
 
     internal suspend fun getPublishers(): List<Publisher>? =
@@ -414,12 +374,12 @@ class StaticUpdater(
                                                 )
 
                                             val cover =
-                                                Cover(issueId = issueId, coverUri = savedUri)
+                                                Cover(issue= issueId, coverUri = savedUri)
                                             database.coverDao().upsertSus(listOf(cover))
                                         }
                                     }
                                 } else if (noCover) {
-                                    val cover = Cover(issueId = issueId, coverUri = null)
+                                    val cover = Cover(issue= issueId, coverUri = null)
                                     database.coverDao().upsertSus(cover)
                                 } else {
                                     Log.d(TAG, "COVER UPDATER No Cover Found")

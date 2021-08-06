@@ -9,8 +9,6 @@ import androidx.room.Transaction
 import androidx.sqlite.db.SimpleSQLiteQuery
 import androidx.sqlite.db.SupportSQLiteQuery
 import com.wtb.comiccollector.APP
-import com.wtb.comiccollector.ComicCollectorApplication.Companion.context
-import com.wtb.comiccollector.R
 import com.wtb.comiccollector.SearchFilter
 import com.wtb.comiccollector.SortType
 import com.wtb.comiccollector.SortType.Companion.containsSortType
@@ -73,9 +71,7 @@ abstract class SeriesDao : BaseDao<Series>("series") {
             fun connectword(): String = if (conditions.isEmpty()) "WHERE" else "AND"
 
             table.append("""SELECT DISTINCT ss.* 
-                FROM series ss 
-                LEFT JOIN issue ie on ie.seriesId = ss.seriesId 
-                LEFT JOIN story sy on sy.issueId = ie.issueId """)
+                FROM series ss """)
 
             conditions.append("${connectword()} ss.seriesId != $DUMMY_ID ")
 
@@ -85,81 +81,18 @@ abstract class SeriesDao : BaseDao<Series>("series") {
                 conditions.append("""${connectword()} ss.publisherId IN $publisherList """)
             }
 
-            if (filter.mTextFilter?.type in listOf(All, Publisher)) {
-                table.append("""JOIN publisher pr ON ss.publisherId = pr.publisherId 
-                """)
-            }
-
             if (filter.hasCreator()) {
-                var needsOr = false
-                conditions.append("""${connectword()} ss.seriesId IN (
-                    SELECT ie.seriesId
-                    FROM issue ie
-                    WHERE ie.issueId IN (
-                        SELECT sy.issueId
-                        FROM story sy
-                        WHERE (
-                """)
-
-                if (filter.mCreators.isNotEmpty()) {
-                    needsOr = true
-                    val creatorsList = modelsToSqlIdString(filter.mCreators)
-
-                    conditions.append("""
-                            sy.storyId IN (
-                                SELECT storyId
-                                FROM credit ct
-                                JOIN namedetail nl on nl.nameDetailId = ct.nameDetailId
-                                WHERE nl.creatorId IN $creatorsList
-                            )
-                            OR sy.storyId IN (
-                                SELECT storyId
-                                FROM excredit ect
-                                JOIN namedetail nl on nl.nameDetailId = ect.nameDetailId
-                                WHERE nl.creatorId IN $creatorsList
-                            )
-                        )
-                    )
-                ) 
-                """)
-                }
-
-                if (filter.mTextFilter?.type in listOf(All, NameDetail)) {
-                    if (needsOr) conditions.append("""OR """)
-                    conditions.append("""
-                            sy.storyId IN (
-                                SELECT ct.storyId
-                                FROM credit ct
-                                WHERE (
-                                    ct.nameDetailId IN (
-                                        SELECT nl.nameDetailId
-                                        FROM nameDetail nl
-                                        WHERE (
-                                            nl.name LIKE '%${filter.mTextFilter?.text}%' 
-                                            OR nl.alterego LIKE '%${filter.mTextFilter?.text}%'
-                                        )
-                                    )                
-                                )
-                            )
-                            OR sy.storyId IN (
-                                SELECT ect.storyId
-                                FROM excredit ect
-                                WHERE (
-                                    ect.nameDetailId IN (
-                                        SELECT nl.nameDetailId
-                                        FROM nameDetail nl
-                                        WHERE (
-                                            nl.name LIKE '%${filter.mTextFilter?.text}%' 
-                                            OR nl.alterego LIKE '%${filter.mTextFilter?.text}%'
-                                        )
-                                    )                
-                                )
-                            )
-                        )
-                    )
-                )
-                """)
-                }
+                val creatorsList = modelsToSqlIdString(filter.mCreators)
+                conditions.append(
+                    """${connectword()} ss.seriesId IN (
+                        SELECT ct.series
+                        FROM credit ct
+                        WHERE ct.nameDetailId IN $creatorsList) 
+                    OR ss.seriesId IN (
+                        SELECT ect.series
+                        FROM excredit ect
+                        WHERE ect.nameDetailId IN $creatorsList)
+                    """)
             }
 
             if (filter.hasDateFilter()) {
@@ -170,80 +103,37 @@ abstract class SeriesDao : BaseDao<Series>("series") {
                 args.add(filter.mStartDate)
             }
 
-            if (filter.hasCharacter()) {
-                filter.mCharacter?.characterId?.let {
-                    conditions.append("""${connectword()} ss.seriesId IN (
-                    SELECT ie.seriesId
-                            FROM issue ie
-                            WHERE ie.issueId IN (
-                            SELECT sy.issueId
-                                    FROM story sy
-                                    WHERE sy.storyId IN (
-                                    SELECT ap.story
-                                            FROM appearance ap
-                                            WHERE ap.character = ?
-                                    )
-                            )
-                    )
-                    """)
+            filter.mCharacter?.characterId?.let {
+                conditions.append(
+                    """${connectword()} ss.seriesId IN (
+                        SELECT ap.seriesId
+                        FROM appearance ap
+                        WHERE ap.character = $it
+                         """)
 
-                    args.add(it)
-                }
-
-                if (filter.mTextFilter?.type in listOf(All, Character)) {
-                    table.append("""LEFT JOIN character ch ON ch.characterId = ap.character 
-                    """)
-                }
+                args.add(it)
             }
 
             if (filter.mMyCollection) {
-                conditions.append("""${connectword()} ie.issueId IN (
-                    SELECT issueId
+                conditions.append("""${connectword()} ss.seriesId IN (
+                    SELECT series
                     FROM mycollection) 
                 """)
             }
 
             filter.mTextFilter?.let { textFilter ->
-                val lookup: Map<FilterTypeSpinnerOption, List<String?>> =
-                    mapOf(Pair(Series, listOf(context?.getString(R.string.table_col_series_name))),
-                          Pair(Publisher, listOf(context?.getString(R.string.table_col_publisher))),
-                          Pair(NameDetail, listOf(context?.getString(R.string.table_col_namedetail),
-                                                  context?.getString(R.string.table_col_namedetail2))),
-                          Pair(Character,
-                               listOf(context?.getString(R.string.table_col_character_name),
-                                      context?.getString(R.string.table_col_character_alterego))))
 
-                conditions.append("${connectword()} (")
-
-                when (textFilter.type) {
-                    All.Companion::class -> {
-                        lookup.forEach {
-                            addTypeFilterElse(it.value,
-                                              textFilter,
-                                              conditions)
-                        }
-                    }
-                    else                 -> {
-                        addTypeFilterElse(lookup[textFilter.type],
-                                          textFilter,
-                                          conditions)
-                    }
-                }
-
-                conditions.append(""") """)
             }
 
             val sortClause: String = filter.mSortType?.let {
-                val isValid =
-                    SortType.Companion.SortTypeOptions.SERIES.options.containsSortType(it)
-//                it !in SortType.Companion.SortTypeOptions.SERIES.options
-                Log.d(TAG, "isVALid? $it $isValid")
-                val sortString: String =
-                    if (isValid) {
-                        it.sortString
-                    } else {
-                        SortType.Companion.SortTypeOptions.SERIES.options[0].sortString
-                    }
+                val isValid = SortType.Companion.SortTypeOptions.SERIES.options.containsSortType(it)
+
+                val sortString: String = if (isValid) {
+                    it.sortString
+                } else {
+                    SortType.Companion.SortTypeOptions.SERIES.options[0].sortString
+                }
+
                 "ORDER BY ${sortString}"
             } ?: ""
 

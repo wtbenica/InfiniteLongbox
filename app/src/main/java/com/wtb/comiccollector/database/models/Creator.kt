@@ -14,9 +14,9 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 )
 data class Creator(
     @PrimaryKey(autoGenerate = true) val creatorId: Int = AUTO_ID,
-    var name: String,
-    var sortName: String,
-    var bio: String? = null,
+    val name: String,
+    val sortName: String,
+    val bio: String? = null,
 ) : DataModel(), FilterAutoCompleteType {
 
     override val id: Int
@@ -39,21 +39,21 @@ data class Creator(
         ForeignKey(
             entity = Creator::class,
             parentColumns = arrayOf("creatorId"),
-            childColumns = arrayOf("creatorId"),
+            childColumns = arrayOf("creator"),
             onDelete = ForeignKey.CASCADE
         )
     ],
     indices = [
-        Index(value = arrayOf("creatorId")),
+        Index(value = arrayOf("creator")),
         Index(value = ["name"]),
         Index(value = ["sortName"])
     ]
 )
 data class NameDetail(
     @PrimaryKey(autoGenerate = true) val nameDetailId: Int = AUTO_ID,
-    var creatorId: Int,
-    var name: String,
-    var sortName: String? = null,
+    val creator: Int,
+    val name: String,
+    val sortName: String? = null,
 ) : DataModel(), FilterAutoCompleteType {
     override val id: Int
         get() = nameDetailId
@@ -76,8 +76,8 @@ data class NameDetailAndCreator(
     @Embedded
     val nameDetail: NameDetail,
 
-    @Relation(parentColumn = "creatorId", entityColumn = "creatorId")
-    var creator: Creator,
+    @Relation(parentColumn = "creator", entityColumn = "creatorId")
+    val creator: Creator,
 ) : ListItem
 
 @ExperimentalCoroutinesApi
@@ -85,6 +85,6 @@ data class FullCreator(
     @Embedded
     val creator: Creator,
 
-    @Relation(parentColumn = "creatorId", entityColumn = "creatorId")
-    var nameDetail: List<NameDetail>,
+    @Relation(parentColumn = "creatorId", entityColumn = "creator")
+    val nameDetail: List<NameDetail>,
 )

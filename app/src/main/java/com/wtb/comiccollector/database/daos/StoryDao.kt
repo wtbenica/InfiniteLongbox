@@ -20,11 +20,10 @@ abstract class StoryDao : BaseDao<Story>("Story") {
         const val query = """
             SELECT st.*
             FROM story st
-            JOIN issue iss on iss.issueId = st.issueId
-            JOIN storytype type ON type.typeId = st.storyType
+            JOIN storytype type ON type.storyTypeId = st.storyType
             WHERE st.issueId = :issueId
             AND (st.storyType = 19 OR st.storyType= 6)
-            ORDER BY sequenceNumber
+            ORDER BY st.sequenceNumber
         """
     }
 }

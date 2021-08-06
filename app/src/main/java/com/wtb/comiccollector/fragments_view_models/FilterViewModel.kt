@@ -67,7 +67,6 @@ class FilterViewModel : ViewModel() {
     }
 
     fun setFilter(filter: SearchFilter) {
-        Log.d(TAG, "setting filter!!: ${filter.mSortType}")
         filter.mCharacter?.let {
             repository.updateCharacter(it.characterId)
         }

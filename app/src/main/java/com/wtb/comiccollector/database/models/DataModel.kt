@@ -63,7 +63,6 @@ class All {
 @ExperimentalCoroutinesApi
 data class TextFilter(
     val text: String,
-    var type: FilterTypeSpinnerOption,
 ) : FilterType {
     override fun toString(): String = "\"$text\""
 }

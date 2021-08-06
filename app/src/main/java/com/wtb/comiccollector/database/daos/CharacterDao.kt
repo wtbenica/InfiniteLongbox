@@ -8,9 +8,13 @@ import androidx.room.RawQuery
 import androidx.room.Transaction
 import androidx.sqlite.db.SimpleSQLiteQuery
 import androidx.sqlite.db.SupportSQLiteQuery
-import com.wtb.comiccollector.*
+import com.wtb.comiccollector.APP
+import com.wtb.comiccollector.SearchFilter
+import com.wtb.comiccollector.SortType
 import com.wtb.comiccollector.SortType.Companion.containsSortType
-import com.wtb.comiccollector.database.models.*
+import com.wtb.comiccollector.database.models.Character
+import com.wtb.comiccollector.database.models.FullCharacter
+import com.wtb.comiccollector.database.models.TextFilter
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import java.util.*
@@ -101,32 +105,13 @@ abstract class CharacterDao : BaseDao<Character>("character") {
         }
 
         filter.mTextFilter?.let { textFilter ->
-            val lookup: Map<FilterTypeSpinnerOption, List<String?>> =
-                mapOf(Pair(Series,
-                           listOf(ComicCollectorApplication.context?.getString(R.string.table_col_series_name))),
-                      Pair(Publisher,
-                           listOf(ComicCollectorApplication.context?.getString(R.string.table_col_publisher))),
-                      Pair(NameDetail,
-                           listOf(ComicCollectorApplication.context?.getString(R.string.table_col_namedetail),
-                                  ComicCollectorApplication.context?.getString(R.string.table_col_namedetail2))),
-                      Pair(Character,
-                           listOf(ComicCollectorApplication.context?.getString(R.string.table_col_character_name),
-                                  ComicCollectorApplication.context?.getString(R.string.table_col_character_alterego))))
-
-            conditionsString.append("${connectword()} (")
-
-            when (textFilter.type) {
-                All.Companion::class -> {
-                    lookup.forEach {
-                        conditionsString.append(addTypeFilterElse(it.value, textFilter))
-                    }
-                }
-                else                 -> {
-                    conditionsString.append(addTypeFilterElse(lookup[textFilter.type], textFilter))
-                }
-            }
-
-            conditionsString.append(""") """)
+            Log.d(TAG,"*************************************************************")
+            Log.d(TAG,"*************************************************************")
+            Log.d(TAG,"*************************************************************")
+            Log.d(TAG, "SERIOUS TODO, BUT STILL WANT IT TO RUN FOR THE MOMENT!")
+            Log.d(TAG,"*************************************************************")
+            Log.d(TAG,"*************************************************************")
+            Log.d(TAG,"*************************************************************")
         }
 
         val sortClause: String = filter.mSortType?.let {
@@ -184,4 +169,11 @@ abstract class CharacterDao : BaseDao<Character>("character") {
             return res
         }
     }
+
+//    fun getCharacterIdsByFilter(filter: SearchFilter) {
+//        val t = listOf(filter.mSeries, filter.mCreators, filter.mCharacter, filter.mTextFilter,
+//                       filter.mPublishers, Pair(filter.mStartDate, filter.mEndDate), filter.mMyCollection)
+//
+//        val issuesInMyCollection = CollectionDao().
+//    }
 }

@@ -17,7 +17,7 @@ abstract class CollectionDao : BaseDao<MyCollection>("collection") {
         """
             SELECT COUNT(*) as count
             FROM mycollection mc
-            WHERE mc.issueId = :issueId
+            WHERE mc.issue = :issueId
         """
     )
     abstract fun inCollection(issueId: Int): Flow<Count>
@@ -25,7 +25,7 @@ abstract class CollectionDao : BaseDao<MyCollection>("collection") {
     @Query(
         """
             DELETE FROM mycollection
-            WHERE issueId = :issueId
+            WHERE issue = :issueId
         """
     )
     abstract fun deleteById(issueId: Int)

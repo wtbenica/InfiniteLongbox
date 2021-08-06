@@ -91,18 +91,14 @@ class SearchFilter
 
     fun isNotEmpty() = !isEmpty()
 
-    fun hasCreator() = mCreators.isNotEmpty() || mTextFilter?.type == All ||
-            mTextFilter?.type == NameDetail
+    fun hasCreator() = mCreators.isNotEmpty()
 
-    fun hasPublisher() = mPublishers.isNotEmpty() || mTextFilter?.type == All ||
-            mTextFilter?.type == Publisher
+    fun hasPublisher() = mPublishers.isNotEmpty()
 
     fun hasDateFilter() = mStartDate != LocalDate.MIN || mEndDate != LocalDate.MAX
-    fun hasCharacter() = mCharacter != null || mTextFilter?.type == All ||
-            mTextFilter?.type == Character
+    fun hasCharacter() = mCharacter != null
 
-    fun hasSeries(): Boolean = mSeries != null || mTextFilter?.type == All ||
-            mTextFilter?.type == Series
+    fun hasSeries(): Boolean = mSeries != null
 
     fun addFilter(vararg items: FilterType) {
         items.forEach { item ->
@@ -198,24 +194,27 @@ class SearchFilter
         return mCreators + mPublishers + series + textFilter + character
     }
 
+    override fun toString(): String =
+        "Series: $mSeries Creators: ${mCreators.size} Pubs: " +
+                "${mPublishers.size} MyCol: $mMyCollection T: ${mTextFilter?.text} ${mCharacter?.name}"
+
     override fun hashCode(): Int {
-        var result = mCreators.hashCode()
+        var result = mShowIssues.hashCode()
+        result = 31 * result + mCreators.hashCode()
         result = 31 * result + (mSeries?.hashCode() ?: 0)
         result = 31 * result + mPublishers.hashCode()
         result = 31 * result + mStartDate.hashCode()
         result = 31 * result + mEndDate.hashCode()
         result = 31 * result + mMyCollection.hashCode()
-        result = 31 * result + mSortType.hashCode()
-        result = 31 * result + mTextFilter.hashCode()
+        result = 31 * result + (mSortType?.hashCode() ?: 0)
+        result = 31 * result + (mTextFilter?.hashCode() ?: 0)
         result = 31 * result + mShowVariants.hashCode()
-        result = 31 * result + mCharacter.hashCode()
-        result = 31 * result + mViewOptionsIndex.hashCode()
+        result = 31 * result + (mCharacter?.hashCode() ?: 0)
+        result = 31 * result + mViewOptionsIndex
+        result = 31 * result + mViewOptions.hashCode()
+        result = 31 * result + mViewOption.hashCode()
         return result
     }
-
-    override fun toString(): String =
-        "Series: $mSeries Creators: ${mCreators.size} Pubs: " +
-                "${mPublishers.size} MyCol: $mMyCollection T: ${mTextFilter?.text} ${mCharacter?.name}"
 }
 
 class SortType(

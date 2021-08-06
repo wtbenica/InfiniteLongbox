@@ -12,7 +12,7 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 abstract class ExCreditDao : BaseDao<ExCredit>("excredit") {
 
-    @Query("SELECT * FROM excredit WHERE storyId IN (:storyIds)")
+    @Query("SELECT * FROM excredit WHERE story IN (:storyIds)")
     abstract fun getExCreditsByStoryIds(storyIds: List<Int>): List<ExCredit>
 
     @Transaction
@@ -20,11 +20,11 @@ abstract class ExCreditDao : BaseDao<ExCredit>("excredit") {
         """
             SELECT exc.*, st.sortCode
             FROM excredit exc
-            JOIN story sr on exc.storyId = sr.storyId
-            JOIN storytype st on st.typeId = sr.storyType
-            JOIN role ON exc.roleId = role.roleId
-            JOIN namedetail nd ON nd.nameDetailId = exc.nameDetailId
-            JOIN creator c on c.creatorId = nd.creatorId
+            JOIN story sr on exc.story = sr.storyId
+            JOIN storytype st on st.storyTypeId = sr.storyType
+            JOIN role ON exc.role = role.roleId
+            JOIN namedetail nd ON nd.nameDetailId = exc.nameDetail
+            JOIN creator c on c.creatorId = nd.creator
             WHERE sr.issueId = :issueId
             ORDER BY st.sortCode, sr.sequenceNumber, role.sortOrder
         """
