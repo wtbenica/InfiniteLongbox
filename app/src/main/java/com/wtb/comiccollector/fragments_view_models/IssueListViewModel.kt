@@ -24,9 +24,6 @@ class IssueListViewModel : ListViewModel<FullIssue>() {
 
     override fun setFilter(filter: SearchFilter) {
         super.setFilter(filter)
-        if (filter.mViewOption != FullIssue::class) {
-
-        }
         val series = filter.mSeries
         if (series != null) {
             seriesIdLiveData.value = series.seriesId

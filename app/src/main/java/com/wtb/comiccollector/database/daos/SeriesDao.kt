@@ -1,6 +1,5 @@
 package com.wtb.comiccollector.database.daos
 
-import android.util.Log
 import androidx.paging.PagingSource
 import androidx.room.Dao
 import androidx.room.Query
@@ -37,7 +36,7 @@ abstract class SeriesDao : BaseDao<Series>("series") {
 
     fun getSeriesByFilter(filter: SearchFilter): Flow<List<Series>> {
         val query = getSeriesQuery(filter)
-        Log.d(TAG, "getSeriesByQuery")
+
         return getSeriesByQuery(query)
     }
 
@@ -48,8 +47,7 @@ abstract class SeriesDao : BaseDao<Series>("series") {
     fun getSeriesByFilterPagingSource(filter: SearchFilter): PagingSource<Int, FullSeries> {
 
         val query = getSeriesQuery(filter)
-        Log.d(TAG, "getSeriesByQueryPagingSource")
-        Log.d(TAG, query.sql)
+
         return getSeriesByQueryPagingSource(query)
     }
 
@@ -59,7 +57,7 @@ abstract class SeriesDao : BaseDao<Series>("series") {
 
     suspend fun getSeriesByFilterSus(filter: SearchFilter): List<FullSeries> {
         val query = getSeriesQuery(filter)
-        Log.d(TAG, "getSeriesByQuerySus")
+
         return getSeriesByQuerySus(query)
     }
 

@@ -1,6 +1,5 @@
 package com.wtb.comiccollector.database.daos
 
-import android.util.Log
 import androidx.paging.PagingSource
 import androidx.room.Dao
 import androidx.room.Query
@@ -30,7 +29,7 @@ abstract class CreatorDao : BaseDao<Creator>("creator") {
     fun getCreatorsByFilter(filter: SearchFilter): Flow<List<Creator>> {
 
         val query = getCreatorQuery(filter)
-        Log.d(TAG, "characterQuery paged: ${query.sql}")
+
         return getCreatorsByQuery(query)
     }
 
@@ -40,7 +39,7 @@ abstract class CreatorDao : BaseDao<Creator>("creator") {
 
     fun getCreatorsByFilterPagingSource(filter: SearchFilter): PagingSource<Int, FullCreator> {
         val query = getCreatorQuery(filter)
-        Log.d(TAG, "characterQuery paged: ${query.sql}")
+
         return getCreatorsByQueryPagingSource(query)
     }
 

@@ -29,8 +29,7 @@ abstract class IssueDao : BaseDao<Issue>("issue") {
 
     fun getIssuesByFilter(filter: SearchFilter): Flow<List<FullIssue>> {
         val query = createIssueQuery(filter)
-        Log.d(TAG, "getIssuesByFilter")
-        Log.d(TAG, "${query.sql} ${query.toString()}")
+
         return getFullIssuesByQuery(query)
     }
 
@@ -40,8 +39,7 @@ abstract class IssueDao : BaseDao<Issue>("issue") {
 
     fun getIssuesByFilterPagingSource(filter: SearchFilter): PagingSource<Int, FullIssue> {
         val query = createIssueQuery(filter)
-        Log.d(TAG, "getIssuesByFilterPagingSource")
-        Log.d(TAG, "${query.sql} ${query.toString()}")
+
         return getFullIssuesByQueryPagingSource(query)
     }
 
@@ -51,8 +49,7 @@ abstract class IssueDao : BaseDao<Issue>("issue") {
 
     suspend fun getIssuesByFilterSus(filter: SearchFilter): List<FullIssue> {
         val query = createIssueQuery(filter)
-        Log.d(TAG, "getIssuesByFilterSus")
-        Log.d(TAG, "${query.sql} ${query.toString()}")
+
         return getFullIssuesByQuerySus(query)
     }
 

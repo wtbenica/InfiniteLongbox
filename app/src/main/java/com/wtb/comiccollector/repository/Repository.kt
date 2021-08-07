@@ -31,6 +31,7 @@ import com.wtb.comiccollector.network.RetrofitAPIClient
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flow
 import org.intellij.lang.annotations.Language
 import java.time.LocalDate
@@ -42,7 +43,7 @@ const val DUMMY_ID = Int.MAX_VALUE
 
 private const val DATABASE_NAME = "issue-database"
 private const val TAG = APP + "Repository"
-const val DEBUG = false
+const val DEBUG = true
 
 internal const val SHARED_PREFS = "CCPrefs"
 
@@ -151,34 +152,24 @@ class Repository private constructor(val context: Context) {
     private fun checkConnectionStatus() = hasConnection && hasUnmeteredConnection && isIdle
 
     // Static Items
-//    val allSeries: Flow<List<Series>> = seriesDao.getAll()
     val allPublishers: Flow<List<Publisher>> = publisherDao.getAll()
-//    val allCreators: Flow<List<Creator>> = creatorDao.getAll()
-//    val allCharacters: Flow<List<Character>> = characterDao.getAll()
-//    val allRoles: Flow<List<Role>> = roleDao.getAll()
 
     // FILTER OPTIONS
     fun getFilterOptionsSeries(filter: SearchFilter): Flow<List<Series>> {
-        Log.d(TAG, "getSeriesByFilter")
-//        updateSeries(filter.mSeries)
-//        updateCreators(filter.mCreators)
         return if (filter.mSeries == null) {
             seriesDao.getSeriesByFilter(filter)
         } else {
-            flow { emit(emptyList<Series>()) }
+            emptyFlow()
         }
     }
 
     fun getFilterOptionsCharacter(filter: SearchFilter): Flow<List<Character>> {
         Log.d(TAG, "getCharactersByFilter")
-//        updateSeries(filter.mSeries)
-//        updateCreators(filter.mCreators)
-//        updateCharacters(filter)
 
         return if (!filter.hasCharacter()) {
             characterDao.getCharacterFilterOptions(filter)
         } else {
-            flow { emit(emptyList<Character>()) }
+            emptyFlow()
         }
     }
 
@@ -187,7 +178,7 @@ class Repository private constructor(val context: Context) {
         return if (filter.mCreators.isEmpty()) {
             creatorDao.getCreatorsByFilter(filter)
         } else {
-            flow { emit(emptyList<Creator>()) }
+            emptyFlow()
         }
     }
 
@@ -263,10 +254,7 @@ class Repository private constructor(val context: Context) {
 
     // STORY METHODS
     fun getStoriesByIssue(issueId: Int): Flow<List<Story>> {
-//        CoroutineScope(Dispatchers.IO).launch {
-//            updater.updateIssue(issueId)
-//        }
-//
+
         return storyDao.getStoriesFlow(issueId)
     }
 

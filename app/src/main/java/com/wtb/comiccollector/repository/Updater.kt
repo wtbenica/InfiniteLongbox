@@ -260,14 +260,15 @@ abstract class Updater(
             dao: BaseDao<ModelType>,
             id: Int,
         ): List<ModelType> {
-            Log.d(TAG, "refreshingById")
+            Log.d(TAG, "updateById start")
             return if (saveTag?.let { checkIfStale(it, WEEKLY, prefs) } != false) {
                 coroutineScope {
-                    Log.d(TAG, "refreshingById for sure")
+                    Log.d(TAG, "updateById for sure not stale!")
                     val items: List<ModelType>? = getItems(id)
 
                     if (items != null && items.isNotEmpty()) {
-                        Log.d(TAG, "Got some items, followup now")
+                        Log.d(TAG,
+                              "Got ${items.size} ${items[0]::class.simpleName} items, followup now")
                         followup(items)
                         Log.d(TAG, "we are upserting ")
                         dao.upsertSus(items)

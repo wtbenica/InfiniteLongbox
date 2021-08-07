@@ -42,7 +42,7 @@ interface Webservice {
     suspend fun getCreditsByNameDetail(@Path("nameDetailIds") nameDetailIds: List<Int>): List<Item<GcdCredit, Credit>>
 
     @GET("/db_query/name_detail/{nameDetailIds}/extracts")
-    suspend fun getExtractedCreditsByNameDetail(@Path("nameDetailIds") nameDetailIds: List<Int>): List<Item<GcdExCredit, ExCredit>>
+    suspend fun getExCreditsByNameDetail(@Path("nameDetailIds") nameDetailIds: List<Int>): List<Item<GcdExCredit, ExCredit>>
 
     @GET("/db_query/stories/{storyId}/credits")
     suspend fun getCreditsByStoryId(@Path("storyId") storyId: Int): List<Item<GcdCredit, Credit>>

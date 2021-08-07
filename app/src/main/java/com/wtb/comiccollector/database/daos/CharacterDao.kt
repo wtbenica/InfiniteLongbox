@@ -1,6 +1,5 @@
 package com.wtb.comiccollector.database.daos
 
-import android.util.Log
 import androidx.paging.PagingSource
 import androidx.room.Dao
 import androidx.room.Query
@@ -36,7 +35,7 @@ abstract class CharacterDao : BaseDao<Character>("character") {
 
     fun getCharacterFilterOptions(filter: SearchFilter): Flow<List<Character>> {
         val query = getCharacterQuery(filter)
-        Log.d(TAG, "characterQuery filterOptions: ${query.sql}")
+
         return getCharacterByQuery(query)
     }
 
@@ -46,7 +45,7 @@ abstract class CharacterDao : BaseDao<Character>("character") {
 
     fun getCharactersByFilterPagingSource(filter: SearchFilter): PagingSource<Int, FullCharacter> {
         val query = getCharacterQuery(filter)
-        Log.d(TAG, "characterQuery paged: ${query.sql}")
+
         return getCharactersByQueryPagingSource(query)
     }
 
@@ -76,7 +75,9 @@ abstract class CharacterDao : BaseDao<Character>("character") {
         if (filter.mCreators.isNotEmpty()) {
             val creatorsList = modelsToSqlIdString(filter.mCreators)
 
-            conditionsString.append("""${connectword()} sy.storyId IN (
+            tableJoinString.append("""JOIN story sy ON sy.storyId = ap.story """)
+
+            conditionsString.append("""${connectword()} (sy.storyId IN (
                 SELECT story
                 FROM credit ct
                 JOIN namedetail nl on nl.nameDetailId = ct.nameDetail
@@ -85,7 +86,7 @@ abstract class CharacterDao : BaseDao<Character>("character") {
                 SELECT story
                 FROM excredit ect
                 JOIN namedetail nl on nl.nameDetailId = ect.nameDetail
-                WHERE nl.creator IN $creatorsList) 
+                WHERE nl.creator IN $creatorsList))
             """)
         }
 

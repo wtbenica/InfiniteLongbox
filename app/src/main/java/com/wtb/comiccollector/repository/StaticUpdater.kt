@@ -47,7 +47,9 @@ class StaticUpdater(
             database.nameDetailDao().getNameDetailsByCreatorId(creatorId)
 
         nameDetails.forEach { nameDetail ->
+            Log.d(TAG, "Update NameDetail: ${nameDetail.name} of ${nameDetails.size}")
             updateNameDetailCredits(nameDetail.id)
+            updateNameDetailExCredits(nameDetail.id)
         }
     }
 
@@ -103,16 +105,25 @@ class StaticUpdater(
                                database.appearanceDao(),
                                characterId)
 
-    private suspend fun updateNameDetailCredits(creatorId: Int) {
+    private suspend fun updateNameDetailCredits(nameDetailId: Int) =
         updateById<Credit>(
             prefs,
-            CREATOR_TAG(creatorId),
+            CREATOR_TAG(nameDetailId),
             this@StaticUpdater::getCreditsByNameDetailId,
             this@StaticUpdater::checkFKeysCredit,
             database.creditDao(),
-            creatorId
+            nameDetailId
         )
-    }
+
+    private suspend fun updateNameDetailExCredits(nameDetailId: Int) =
+        updateById<ExCredit>(
+            prefs,
+            CREATOR_TAG(nameDetailId),
+            this@StaticUpdater::getExCreditsByNameDetailId,
+            this@StaticUpdater::checkFKeysCredit,
+            database.exCreditDao(),
+            nameDetailId
+        )
 
     private suspend fun getAppearancesByStoryId(storyId: Int): List<Appearance>? =
         getItemsByArgument(storyId, webservice::getAppearancesByStoryId)
@@ -132,8 +143,11 @@ class StaticUpdater(
     private suspend fun getAppearancesByCharacterId(characterId: Int): List<Appearance>? =
         getItemsByArgument(characterId, webservice::getAppearances)
 
-    private suspend fun getCreditsByNameDetailId(creatorId: Int): List<Credit>? =
-        getItemsByArgument(listOf(creatorId), webservice::getCreditsByNameDetail)
+    private suspend fun getCreditsByNameDetailId(nameDetailId: Int): List<Credit>? =
+        getItemsByArgument(listOf(nameDetailId), webservice::getCreditsByNameDetail)
+
+    private suspend fun getExCreditsByNameDetailId(nameDetailId: Int): List<ExCredit>? =
+        getItemsByArgument(listOf(nameDetailId), webservice::getExCreditsByNameDetail)
 
     /**
      *  UpdateAsync - Updates publisher, series, role, and storytype tables
