@@ -36,7 +36,7 @@ abstract class CharacterDao : BaseDao<Character>("character") {
 
     fun getCharacterFilterOptions(filter: SearchFilter): Flow<List<Character>> {
         val query = getCharacterQuery(filter)
-        Log.d(TAG, "creatorQuery filterOptions: ${query.sql}")
+        Log.d(TAG, "characterQuery filterOptions: ${query.sql}")
         return getCharacterByQuery(query)
     }
 
@@ -46,7 +46,7 @@ abstract class CharacterDao : BaseDao<Character>("character") {
 
     fun getCharactersByFilterPagingSource(filter: SearchFilter): PagingSource<Int, FullCharacter> {
         val query = getCharacterQuery(filter)
-        Log.d(TAG, "creatorQuery paged: ${query.sql}")
+        Log.d(TAG, "characterQuery paged: ${query.sql}")
         return getCharactersByQueryPagingSource(query)
     }
 
@@ -80,18 +80,18 @@ abstract class CharacterDao : BaseDao<Character>("character") {
             conditionsString.append("""${connectword()} sy.storyId IN (
                 SELECT storyId
                 FROM credit ct
-                JOIN namedetail nl on nl.nameDetailId = ct.nameDetailId
-                WHERE nl.creatorId IN $creatorsList)
+                JOIN namedetail nl on nl.nameDetailId = ct.nameDetail
+                WHERE nl.creator IN $creatorsList)
                 OR sy.storyId IN (
                 SELECT storyId
                 FROM excredit ect
-                JOIN namedetail nl on nl.nameDetailId = ect.nameDetailId
-                WHERE nl.creatorId IN $creatorsList) 
+                JOIN namedetail nl on nl.nameDetailId = ect.nameDetail
+                WHERE nl.creator IN $creatorsList) 
             """)
         }
 
         filter.mSeries?.let {
-            conditionsString.append("""${connectword()} ie.seriesId = ? 
+            conditionsString.append("""${connectword()} ie.series = ? 
                 """)
 
             args.add(it.seriesId)
@@ -105,19 +105,16 @@ abstract class CharacterDao : BaseDao<Character>("character") {
         }
 
         filter.mTextFilter?.let { textFilter ->
-            Log.d(TAG,"*************************************************************")
-            Log.d(TAG,"*************************************************************")
-            Log.d(TAG,"*************************************************************")
-            Log.d(TAG, "SERIOUS TODO, BUT STILL WANT IT TO RUN FOR THE MOMENT!")
-            Log.d(TAG,"*************************************************************")
-            Log.d(TAG,"*************************************************************")
-            Log.d(TAG,"*************************************************************")
+            val text = textFilterToString(textFilter.text)
+            conditionsString.append(
+                """${connectword()} ch.name LIKE '$text'
+                    OR ch.alterEgo LIKE '$text'
+                    """)
         }
 
         val sortClause: String = filter.mSortType?.let {
             val isValid =
                 SortType.Companion.SortTypeOptions.CHARACTER.options.containsSortType(it)
-//                it !in SortType.Companion.SortTypeOptions.CHARACTER.options
             val sortString: String =
                 if (isValid) {
                     it.sortString

@@ -13,18 +13,13 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 abstract class NameDetailDao : BaseDao<NameDetail>("namedetail") {
 
     @RawQuery(observedEntities = [NameDetailAndCreator::class])
-    abstract suspend fun getNameDetailsRaw(query: SupportSQLiteQuery): List<NameDetailAndCreator>
+    abstract suspend fun getNameDetailsRaw(query: SupportSQLiteQuery): List<NameDetail>
 
-    suspend fun getNameDetailsByCreatorIds(creatorIds: List<Int>): List<NameDetailAndCreator> {
-        val ids = idsToSqlIdString(creatorIds)
-        val args: ArrayList<Any> = arrayListOf()
-
+    suspend fun getNameDetailsByCreatorId(creatorId: Int): List<NameDetail> {
         val query = SimpleSQLiteQuery(
-            """
-        SELECT *
-        FROM namedetail nd
-        WHERE nd.creatorId IN $ids """
-        )
+            """SELECT *
+                FROM namedetail nd
+                WHERE nd.creator = $creatorId """)
 
         return getNameDetailsRaw(query)
     }

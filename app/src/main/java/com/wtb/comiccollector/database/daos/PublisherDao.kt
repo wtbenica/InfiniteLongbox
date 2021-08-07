@@ -31,48 +31,58 @@ abstract class PublisherDao : BaseDao<Publisher>("publisher") {
 
     fun getPublishersByFilter(filter: SearchFilter): Flow<List<Publisher>> {
         val mSeries = filter.mSeries
-        var tableJoinString = String()
-        var conditionsString = String()
+        val tableJoinString = StringBuilder()
+        val conditionsString = StringBuilder()
         val args: ArrayList<Any> = arrayListOf()
 
-        tableJoinString +=
-            "SELECT DISTINCT pr.* " +
-                    "FROM publisher pr " +
-                    "JOIN series ss ON ss.publisherId = pr.publisherId " +
-                    "JOIN issue ie ON ie.seriesId = ss.seriesId "
+        tableJoinString.append(
+            """SELECT DISTINCT pr.* 
+                FROM publisher pr 
+                JOIN series ss ON ss.publisher = pr.publisherId 
+                """)
 
-        conditionsString += "WHERE pr.publisherId != $DUMMY_ID "
+        conditionsString.append("""WHERE pr.publisherId != $DUMMY_ID """)
 
         if (mSeries != null) {
-            conditionsString += "AND ss.seriesId = ${mSeries.seriesId} "
+            conditionsString.append("""AND ss.seriesId = ${mSeries.seriesId} """)
         }
 
         if (filter.hasCreator()) {
-            tableJoinString +=
-                "JOIN story sy ON sy.issueId = ie.issueId " +
-                        "JOIN credit ct ON ct.storyId = sy.storyId " +
-                        "JOIN nameDetail nd ON ct.nameDetailId = nd.nameDetailId " +
-                        "JOIN creator cr ON cr.creatorId = nd.creatorId "
+            tableJoinString.append(
+                """JOIN credit ct ON ct.series = ss.seriesId 
+                    JOIN nameDetail nd ON ct.nameDetail = nd.nameDetailId 
+                    JOIN creator cr ON cr.creatorId = nd.creator """)
 
             val creatorIds = Companion.modelsToSqlIdString(filter.mCreators)
 
-            conditionsString +=
-                "AND cr.creatorId IN $creatorIds"
+            conditionsString.append(
+                """AND cr.creatorId IN $creatorIds """)
         }
 
         if (filter.hasDateFilter()) {
-            conditionsString += "AND ie.releaseDate < ? AND ie.releaseDate > ? "
+            tableJoinString.append("""JOIN issue ie ON ie.series = ss.seriesId 
+            """)
+            conditionsString.append("""AND ie.releaseDate < ? 
+                AND ie.releaseDate > ? 
+            """)
             args.add(filter.mEndDate)
             args.add(filter.mStartDate)
         }
 
         if (filter.mMyCollection) {
-            tableJoinString += "JOIN issue ie2 on ie2.seriesId = ss.seriesId " +
-                    "JOIN mycollection mc ON mc.issueId = ie2.issueId "
+            tableJoinString.append("""JOIN mycollection mc ON mc.series = ss.seriesId 
+            """)
+        }
+        
+        filter.mTextFilter?.let { textFilter -> 
+            val text = textFilterToString(textFilter.text)
+            
+            conditionsString.append("""AND pr.publisher like '$text' 
+            """)
         }
 
         val query = SimpleSQLiteQuery(
-            tableJoinString + conditionsString,
+            "$tableJoinString$conditionsString",
             args.toArray()
         )
 

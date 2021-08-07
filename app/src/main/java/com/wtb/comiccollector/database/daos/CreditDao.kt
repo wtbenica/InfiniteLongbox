@@ -20,13 +20,11 @@ abstract class CreditDao : BaseDao<Credit>("credit") {
         """
             SELECT cr.*, st.sortCode
             FROM credit cr
-            JOIN story sr on cr.story = sr.storyId
-            JOIN storytype st on st.storyTypeId = sr.storyType
+            JOIN story sy on cr.story = sy.storyId
+            JOIN storytype st on st.storyTypeId = sy.storyType
             JOIN role ON cr.role = role.roleId
-            JOIN namedetail nd ON nd.nameDetailId = cr.nameDetail
-            JOIN creator c on c.creatorId = nd.creator
-            WHERE sr.issueId = :issueId
-            ORDER BY st.sortCode, sr.sequenceNumber, role.sortOrder
+            WHERE sy.issue = :issueId
+            ORDER BY st.sortCode, sy.sequenceNumber, role.sortOrder
         """
     )
     abstract fun getIssueCredits(issueId: Int): Flow<List<FullCredit>>

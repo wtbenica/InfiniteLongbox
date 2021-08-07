@@ -27,14 +27,113 @@ class StaticUpdater(
     prefs: SharedPreferences,
 ) : Updater(webservice, database, prefs) {
 
-    internal val issueUpdater: IssueUpdater by lazy { IssueUpdater() }
-    internal val characterUpdater: CharacterUpdater by lazy { CharacterUpdater() }
-    internal val seriesUpdater: SeriesUpdater by lazy { SeriesUpdater() }
-    internal val creatorUpdater: CreatorUpdater by lazy {
-        CreatorUpdater(webservice,
-                       database,
-                       prefs)
+    fun updateSeries(seriesId: Int) = CoroutineScope(Dispatchers.IO).launch {
+        updateSeriesIssues(seriesId)
     }
+
+    fun updateCharacter(characterId: Int) = CoroutineScope(Dispatchers.IO).launch {
+        updateCharacterAppearances(characterId)
+    }
+
+    fun updateIssue(issueId: Int) = CoroutineScope(Dispatchers.IO).launch {
+        updateIssueStoryDetails(issueId)
+        updateIssueCover(issueId)
+    }
+
+    fun updateCreators(creatorIds: List<Int>) = creatorIds.forEach(this::updateCreator)
+
+    private fun updateCreator(creatorId: Int) = CoroutineScope(Dispatchers.IO).launch {
+        val nameDetails: List<NameDetail> =
+            database.nameDetailDao().getNameDetailsByCreatorId(creatorId)
+
+        nameDetails.forEach { nameDetail ->
+            updateNameDetailCredits(nameDetail.id)
+        }
+    }
+
+    private suspend fun updateIssueStoryDetails(issueId: Int) {
+        val stories: List<Story> = updateIssueStories(issueId)
+        stories.ids.map { updateStoryCredits(it) }
+        stories.ids.map { updateStoryAppearances(it) }
+    }
+
+    private suspend fun updateStoryAppearances(storyId: Int): List<Appearance> =
+        updateById<Appearance>(prefs,
+                               null,
+                               this@StaticUpdater::getAppearancesByStoryId,
+                               this@StaticUpdater::checkFKeysAppearance,
+                               database.appearanceDao(),
+                               storyId)
+
+    private suspend fun updateStoryCredits(storyId: Int): List<CreditX> =
+        updateById<Credit>(prefs,
+                           null,
+                           this@StaticUpdater::getCreditsByStoryId,
+                           this@StaticUpdater::checkFKeysCredit,
+                           database.creditDao(),
+                           storyId) +
+                updateById<ExCredit>(prefs,
+                                     null,
+                                     this@StaticUpdater::getExCreditsByStoryId,
+                                     this@StaticUpdater::checkFKeysCredit,
+                                     database.exCreditDao(),
+                                     storyId)
+
+    private suspend fun updateIssueStories(issueId: Int): List<Story> =
+        updateById<Story>(prefs,
+                          null,
+                          this@StaticUpdater::getStoriesByIssueId,
+                          this@StaticUpdater::checkFKeysStory,
+                          database.storyDao(),
+                          issueId)
+
+    private suspend fun updateSeriesIssues(seriesId: Int) =
+        updateById<Issue>(prefs,
+                          SERIES_TAG(seriesId),
+                          this@StaticUpdater::getIssuesBySeriesId,
+                          this@StaticUpdater::checkFKeysIssue,
+                          database.issueDao(),
+                          seriesId)
+
+    private suspend fun updateCharacterAppearances(characterId: Int) =
+        updateById<Appearance>(prefs,
+                               CHARACTER_TAG(characterId),
+                               this@StaticUpdater::getAppearancesByCharacterId,
+                               this@StaticUpdater::checkFKeysAppearance,
+                               database.appearanceDao(),
+                               characterId)
+
+    private suspend fun updateNameDetailCredits(creatorId: Int) {
+        updateById<Credit>(
+            prefs,
+            CREATOR_TAG(creatorId),
+            this@StaticUpdater::getCreditsByNameDetailId,
+            this@StaticUpdater::checkFKeysCredit,
+            database.creditDao(),
+            creatorId
+        )
+    }
+
+    private suspend fun getAppearancesByStoryId(storyId: Int): List<Appearance>? =
+        getItemsByArgument(storyId, webservice::getAppearancesByStoryId)
+
+    private suspend fun getCreditsByStoryId(storyId: Int): List<Credit>? =
+        getItemsByArgument(storyId, webservice::getCreditsByStoryId)
+
+    private suspend fun getExCreditsByStoryId(storyId: Int): List<ExCredit>? =
+        getItemsByArgument(storyId, webservice::getExCreditsByStoryId)
+
+    private suspend fun getStoriesByIssueId(issueId: Int): List<Story>? =
+        getItemsByArgument(issueId, webservice::getStoriesByIssue)
+
+    private suspend fun getIssuesBySeriesId(seriesId: Int): List<Issue>? =
+        getItemsByArgument(seriesId, webservice::getIssuesBySeries)
+
+    private suspend fun getAppearancesByCharacterId(characterId: Int): List<Appearance>? =
+        getItemsByArgument(characterId, webservice::getAppearances)
+
+    private suspend fun getCreditsByNameDetailId(creatorId: Int): List<Credit>? =
+        getItemsByArgument(listOf(creatorId), webservice::getCreditsByNameDetail)
 
     /**
      *  UpdateAsync - Updates publisher, series, role, and storytype tables
@@ -48,23 +147,34 @@ class StaticUpdater(
             bondTypes = getBondTypes(),
         )
 
-        refreshAllPaged<Series>(
-            prefs = prefs,
-            savePageTag = UPDATED_SERIES_PAGE,
-            saveTag = UPDATED_SERIES,
-            getItemsByPage = this::getSeriesByPage,
-            verifyForeignKeys = this::checkFKeysSeries,
-            dao = database.seriesDao()
-        )
+        getAllSeries()
+        getAllCreators()
+        getAllNameDetails()
+        getAllCharacters()
+        getAllSeriesBonds()
+    }
 
-        refreshAllPaged<Creator>(
+    private suspend fun getAllSeriesBonds() {
+        refreshAll<SeriesBond>(
             prefs = prefs,
-            savePageTag = UPDATED_CREATORS_PAGE,
-            saveTag = UPDATED_CREATORS,
-            getItemsByPage = this::getCreatorsByPage,
-            dao = database.creatorDao()
+            saveTag = UPDATED_BONDS,
+            getItems = this::getSeriesBonds,
+            followup = this::checkFKeysSeriesBond,
+            dao = database.seriesBondDao()
         )
+    }
 
+    private suspend fun getAllCharacters() {
+        refreshAllPaged<Character>(
+            prefs = prefs,
+            savePageTag = UPDATED_CHARACTERS_PAGE,
+            saveTag = UPDATED_CHARACTERS,
+            getItemsByPage = this::getCharactersByPage,
+            dao = database.characterDao()
+        )
+    }
+
+    private suspend fun getAllNameDetails() {
         refreshAllPaged<NameDetail>(
             prefs = prefs,
             savePageTag = UPDATED_NAME_DETAILS_PAGE,
@@ -73,21 +183,26 @@ class StaticUpdater(
             verifyForeignKeys = this::checkFKeysNameDetail,
             dao = database.nameDetailDao()
         )
+    }
 
-        refreshAllPaged<Character>(
+    private suspend fun getAllCreators() {
+        refreshAllPaged<Creator>(
             prefs = prefs,
-            savePageTag = UPDATED_CHARACTERS_PAGE,
-            saveTag = UPDATED_CHARACTERS,
-            getItemsByPage = this::getCharactersByPage,
-            dao = database.characterDao()
+            savePageTag = UPDATED_CREATORS_PAGE,
+            saveTag = UPDATED_CREATORS,
+            getItemsByPage = this::getCreatorsByPage,
+            dao = database.creatorDao()
         )
+    }
 
-        refreshAll<SeriesBond>(
+    private suspend fun getAllSeries() {
+        refreshAllPaged<Series>(
             prefs = prefs,
-            saveTag = UPDATED_BONDS,
-            getItems = this::getSeriesBonds,
-            followup = this::checkFKeysSeriesBond,
-            dao = database.seriesBondDao()
+            savePageTag = UPDATED_SERIES_PAGE,
+            saveTag = UPDATED_SERIES,
+            getItemsByPage = this::getSeriesByPage,
+            verifyForeignKeys = this::checkFKeysSeries,
+            dao = database.seriesDao()
         )
     }
 
@@ -118,272 +233,55 @@ class StaticUpdater(
     internal suspend fun getNameDetailsByPage(page: Int): List<NameDetail>? =
         getItemsByArgument(page, webservice::getNameDetailsByPage)
 
-    internal suspend fun getSeriesByIds(seriesIds: List<Int>): List<Series>? =
-        getItemsByArgument(seriesIds, webservice::getSeriesByIds)
-
-    //       internal suspend fun getIssuesByPage(page: Int): List<Issue>? =
-//        getItemsByArgument(page, webservice::getIssuesByPage, Issue::class)
-//
-//    internal suspend fun getStoriesByPage(page: Int): List<Story>? =
-//        getItemsByArgument(page, webservice::getStoriesByPage, Story::class)
-//
-//    internal suspend fun getAppearancesByPage(page: Int): List<Appearance>? =
-//        getItemsByArgument(page, webservice::getAppearancesByPage, Appearance::class)
-//
-//    internal suspend fun getCreditsByPage(page: Int): List<Credit>? =
-//        getItemsByArgument(page, webservice::getCreditsByPage, Credit::class)
-//
-//    internal suspend fun getExCreditsByPage(page: Int): List<ExCredit>? =
-//        getItemsByArgument(page, webservice::getExCreditsByPage, ExCredit::class)
-//
-
-    fun updateIssue(issueId: Int) = issueUpdater.updateIssue(issueId)
-    fun updateCharacter(characterId: Int) = characterUpdater.update(characterId)
-
-    fun updateSeries(seriesId: Int) = seriesUpdater.update(seriesId)
-    fun updateCreators(creatorIds: List<Int>) = creatorUpdater.update_new(creatorIds)
-
-    inner class SeriesUpdater : Updater(webservice, database, prefs) {
-        fun update(seriesId: Int) {
+    internal fun updateIssueCover(issueId: Int) {
+        if (checkIfStale(ISSUE_TAG(issueId), ISSUE_LIFETIME, prefs)) {
             CoroutineScope(Dispatchers.IO).launch {
-                refreshById<Issue>(
-                    prefs,
-                    SERIES_TAG(seriesId),
-                    this@SeriesUpdater::getIssuesBySeriesId,
-                    this@StaticUpdater::checkFKeysIssue,
-                    database.issueDao(),
-                    seriesId
-                )
-            }
-        }
+                database.issueDao().getIssueSus(issueId)?.let { issue ->
+                    if (issue.coverUri == null) {
+                        kotlin.runCatching {
+                            val doc = Jsoup.connect(issue.issue.url).get()
 
-        private suspend fun getIssuesBySeriesId(seriesId: Int): List<Issue>? =
-            getItemsByArgument(seriesId, webservice::getIssuesBySeries)
-    }
+                            val noCover = doc.getElementsByClass("no_cover").size == 1
 
-    /**
-     * UpdateCharacter
-     *
-     * @property webservice
-     * @property database
-     * @property prefs
-     * @constructor Create empty UpdateSeries
-     */
-    @ExperimentalCoroutinesApi
-    inner class CharacterUpdater : Updater(webservice, database, prefs) {
+                            val coverImgElements = doc.getElementsByClass("cover_img")
+                            val wraparoundElements =
+                                doc.getElementsByClass("wraparound_cover_img")
 
-        internal fun update(characterId: Int) {
-            CoroutineScope(Dispatchers.IO).launch {
-                refreshById<Appearance>(
-                    prefs,
-                    CHARACTER_TAG(characterId),
-                    this@CharacterUpdater::getAppearancesByCharacterId,
-                    this@StaticUpdater::checkFKeysAppearance,
-                    database.appearanceDao(),
-                    characterId
-                )
-            }
-        }
+                            val elements = when {
+                                coverImgElements.size > 0   -> coverImgElements
+                                wraparoundElements.size > 0 -> wraparoundElements
+                                else                        -> null
+                            }
 
-        private suspend fun getAppearancesByCharacterId(characterId: Int): List<Appearance>? =
-            getItemsByArgument(characterId, webservice::getAppearances)
+                            val src = elements?.get(0)?.attr("src")
 
-//        private suspend fun getIssuesBySeries(seriesId: Int) =
-//            supervisorScope {
-//                runSafely("getIssuesBySeries: $seriesId", seriesId) {
-//                    async { webservice.getIssuesBySeries(it).models }
-//                } ?: emptyList()
-//            }
-//
-//        private suspend fun getVariantsOf(issues: List<Issue>): List<Issue> =
-//            supervisorScope {
-//                val variantOfIds = issues.mapNotNull { it.variantOf }
-//
-//                runSafely("getIssues: variantsOf", variantOfIds) {
-//                    async { webservice.getIssuesByIds(it).models }
-//                } ?: emptyList()
-//            }
-//
-//        private suspend fun getAppearancesByStory(stories: List<Story>) =
-//            supervisorScope {
-//                runSafely("getAppearancesByStory", stories.ids) {
-//                    async { webservice.getAppearancesByStory(it).models }
-//                } ?: emptyList()
-//            }
-//
-//        private suspend fun getStoriesByIssues(issues: List<Issue>) =
-//            supervisorScope {
-//                runSafely("getStoriesByIssues", issues.ids) {
-//                    async { webservice.getStoriesByIssues(it).models }
-//                } ?: emptyList()
-//            }
-//
-//        private suspend fun getSeriesIssuesAndVariantsOf(seriesId: Int) =
-//            withContext(CoroutineScope(Dispatchers.IO).coroutineContext) {
-//                val issues: List<Issue> = getIssuesBySeries(seriesId)
-//                val variantsOf: List<Issue> = getVariantsOf(issues)
-//
-//                database.issueDao().upsert(variantsOf + issues)
-//
-//                issues
-//            }
-//
-//        private suspend fun getStories(appearances: List<Appearance>): List<Story>? =
-//            getItemsByArgument(appearances.map { it.story }, webservice::getStoriesByIds)
-//
-//        private suspend fun getIssuesByCharacterId(stories: List<Story>): List<Issue> =
-//            supervisorScope {
-//                val issueIds = stories.map { it.issueId }
-//
-//                runSafely("getIssues", issueIds) {
-//                    async { webservice.getIssuesByIds(it).models }
-//                } ?: emptyList()
-//            }
-//
-//        private suspend fun getVariants(issues: List<Issue>): List<Issue> =
-//            supervisorScope {
-//                val variantOfIds = issues.mapNotNull { it.variantOf }
-//
-//                runSafely("getIssuesVariants", variantOfIds) {
-//                    async { webservice.getIssuesByIds(it).models }
-//                } ?: emptyList()
-//            }
-//
-//        private suspend fun getCredits(stories: List<Story>): List<Credit> =
-//            supervisorScope {
-//                runSafely("getCreditsByStories", stories.ids) {
-//                    async { webservice.getCreditsByStoryIds(it).models }
-//                } ?: emptyList()
-//            }
-//
-//        private suspend fun getNameDetails(credits: List<Credit>): List<NameDetail> =
-//            supervisorScope {
-//                val nameDetailIds = credits.map { it.nameDetailId }
-//
-//                runSafely("getNameDetailsByIds", nameDetailIds) {
-//                    async { webservice.getNameDetailsByIds(nameDetailIds).models }
-//                } ?: emptyList()
-//            }
-//
-//        private suspend fun getExCredits(stories: List<Story>) =
-//            supervisorScope {
-//                runSafely("getCreditsByStories", stories.ids) {
-//                    async { webservice.getExtractedCreditsByStories(it).models }
-//                } ?: emptyList()
-//            }
-//
-//        private suspend fun getExNameDetails(exCredits: List<ExCredit>): List<NameDetail> =
-//            supervisorScope {
-//                val exNameDetailIds = exCredits.map { it.nameDetailId }
-//
-//                runSafely(
-//                    "getExNameDetailsByIds",
-//                    exNameDetailIds
-//                ) {
-//                    async { webservice.getNameDetailsByIds(exNameDetailIds).models }
-//                } ?: emptyList()
-//            }
-    }
+                            val url = src?.let { URL(it) }
 
-    inner class IssueUpdater {
-        fun updateIssue(issueId: Int) {
-            Log.d(TAG, "updateIssue: $issueId")
-            updateStoryDetails(issueId)
-            updateCover(issueId)
-        }
-
-        internal fun updateStoryDetails(issueId: Int) {
-            CoroutineScope(Dispatchers.IO).launch {
-                var stories: List<Story> = database.storyDao().getStories(issueId)
-                if (stories.isEmpty()) {
-                    stories =
-                        getItemsByArgument(issueId, webservice::getStoriesByIssue) ?: emptyList()
-                    checkFKeysStory(stories)
-                    database.storyDao().upsert(stories)
-                }
-
-                var credits: List<Credit> = database.creditDao().getCreditsByStoryIds(stories.ids)
-                if (credits.isEmpty()) {
-                    credits =
-                        getItemsByArgument(stories.ids, webservice::getCreditsByStoryIds)
-                            ?: emptyList()
-                    checkFKeysCredit(credits)
-                    database.creditDao().upsert(credits)
-                }
-
-                var excredits: List<ExCredit> =
-                    database.exCreditDao().getExCreditsByStoryIds(stories.ids)
-                if (excredits.isEmpty()) {
-                    excredits =
-                        getItemsByArgument(stories.ids,
-                                           webservice::getExtractedCreditsByStories) ?: emptyList()
-
-                    checkFKeysCredit(excredits)
-                    database.exCreditDao().upsert(excredits)
-                }
-
-                var appearances: List<Appearance> =
-                    database.appearanceDao().getAppearancesByStoryIds(stories.ids)
-                if (appearances.isEmpty()) {
-                    appearances =
-                        getItemsByArgument(stories.ids, webservice::getAppearancesByStory)
-                            ?: emptyList()
-                    checkFKeysAppearance(appearances)
-                    database.appearanceDao().upsert(appearances)
-                }
-            }
-        }
-
-        internal fun updateCover(issueId: Int) {
-            if (checkIfStale(ISSUE_TAG(issueId), ISSUE_LIFETIME, prefs)) {
-                CoroutineScope(Dispatchers.IO).launch {
-                    database.issueDao().getIssueSus(issueId)?.let { issue ->
-                        if (issue.coverUri == null) {
-                            kotlin.runCatching {
-                                val doc = Jsoup.connect(issue.issue.url).get()
-
-                                val noCover = doc.getElementsByClass("no_cover").size == 1
-
-                                val coverImgElements = doc.getElementsByClass("cover_img")
-                                val wraparoundElements =
-                                    doc.getElementsByClass("wraparound_cover_img")
-
-                                val elements = when {
-                                    coverImgElements.size > 0   -> coverImgElements
-                                    wraparoundElements.size > 0 -> wraparoundElements
-                                    else                        -> null
+                            if (!noCover && url != null) {
+                                val image = CoroutineScope(Dispatchers.IO).async {
+                                    url.toBitmap()
                                 }
 
-                                val src = elements?.get(0)?.attr("src")
+                                CoroutineScope(Dispatchers.Default).launch {
+                                    val bitmap = image.await()
 
-                                val url = src?.let { URL(it) }
+                                    bitmap?.let {
+                                        val savedUri: Uri? =
+                                            it.saveToInternalStorage(
+                                                context!!,
+                                                issue.issue.coverFileName
+                                            )
 
-                                if (!noCover && url != null) {
-                                    val image = CoroutineScope(Dispatchers.IO).async {
-                                        url.toBitmap()
+                                        val cover =
+                                            Cover(issue = issueId, coverUri = savedUri)
+                                        database.coverDao().upsertSus(listOf(cover))
                                     }
-
-                                    CoroutineScope(Dispatchers.Default).launch {
-                                        val bitmap = image.await()
-
-                                        bitmap?.let {
-                                            val savedUri: Uri? =
-                                                it.saveToInternalStorage(
-                                                    context!!,
-                                                    issue.issue.coverFileName
-                                                )
-
-                                            val cover =
-                                                Cover(issue= issueId, coverUri = savedUri)
-                                            database.coverDao().upsertSus(listOf(cover))
-                                        }
-                                    }
-                                } else if (noCover) {
-                                    val cover = Cover(issue= issueId, coverUri = null)
-                                    database.coverDao().upsertSus(cover)
-                                } else {
-                                    Log.d(TAG, "COVER UPDATER No Cover Found")
                                 }
+                            } else if (noCover) {
+                                val cover = Cover(issue = issueId, coverUri = null)
+                                database.coverDao().upsertSus(cover)
+                            } else {
+                                Log.d(TAG, "COVER UPDATER No Cover Found")
                             }
                         }
                     }
@@ -394,127 +292,6 @@ class StaticUpdater(
 
     companion object {
         internal const val TAG = APP + "UpdateStatic"
-
-//        /**
-//         * Get items - checks if stale and retrieves items
-//         * @return null on connection error
-//         */
-//        internal suspend fun <GcdType : GcdJson<ModelType>, ModelType : DataModel> getItems(
-//            prefs: SharedPreferences,
-//            apiCall: KSuspendFunction0<List<Item<GcdType, ModelType>>>,
-//            saveTag: String,
-//        ): List<ModelType>? =
-//            supervisorScope {
-//                if (checkIfStale(saveTag, WEEKLY, prefs)) {
-//                    runSafely("getItems: ${apiCall.name}") {
-//                        async { apiCall() }
-//                    }?.models
-//                } else {
-//                    emptyList()
-//                }
-//            }
-//
-//        /**
-//         * Get all paged - calls getItemsByPage , performs verifyForeignKeys on each page, then
-//         * saves each page to dao
-//         */
-//        internal suspend fun <ModelType : DataModel> refreshAllPaged(
-//            prefs: SharedPreferences,
-//            savePageTag: String,
-//            saveTag: String,
-//            getItemsByPage: suspend (Int) -> List<ModelType>?,
-//            verifyForeignKeys: suspend (List<ModelType>) -> Unit = {},
-//            dao: BaseDao<ModelType>,
-//        ) {
-//            if (checkIfStale(saveTag, WEEKLY, prefs)) {
-//                var page = prefs.getInt(savePageTag, 0)
-//                var stop = false
-//                var success = true
-//
-//                do {
-//                    coroutineScope {
-//                        val itemPage: List<ModelType>? = getItemsByPage(page)
-//
-//                        if (itemPage != null && itemPage.isNotEmpty()) {
-//                            verifyForeignKeys(itemPage)
-//                            dao.upsertSus(itemPage)
-//                            Repository.savePrefValue(prefs, savePageTag, page)
-//                        } else if (itemPage != null) {
-//                            stop = true
-//                        } else {
-//                            stop = true
-//                            success = false
-//                        }
-//                    }
-//
-//                    page += 1
-//                } while (!stop)
-//
-//                if (success) {
-//                    Repository.savePrefValue(prefs, savePageTag, 0)
-//                    Repository.saveTime(prefs, saveTag)
-//                }
-//            }
-//        }
-//
-//        /**
-//         * Refresh all - gets items, performs followup, then saves using dao
-//         */
-//        internal suspend fun <ModelType : DataModel> refreshAll(
-//            prefs: SharedPreferences,
-//            saveTag: String,
-//            getItems: suspend () -> List<ModelType>?,
-//            followup: suspend (List<ModelType>) -> Unit = {},
-//            dao: BaseDao<ModelType>,
-//        ) {
-//            if (checkIfStale(saveTag, WEEKLY, prefs)) {
-//                coroutineScope {
-//                    val items: List<ModelType>? = getItems()
-//
-//                    if (items != null && items.isNotEmpty()) {
-//                        followup(items)
-//                        dao.upsertSus(items)
-//                        Repository.saveTime(prefs, saveTag)
-//                    }
-//                }
-//            }
-//        }
-//
-//        @ExperimentalCoroutinesApi
-//        internal fun <ModelType : DataModel> saveTimeIfNotEmpty(
-//            prefs: SharedPreferences,
-//            items: List<ModelType>?,
-//            saveTag: String,
-//        ): List<ModelType>? =
-//            items.also {
-//                if (it != null && it.isNotEmpty()) {
-//                    Repository.saveTime(prefs, saveTag)
-//                }
-//            }
-//
-//        /**
-//         * Get missing foreign key models
-//         */
-//        internal suspend fun <M : DataModel, FG : GcdJson<FM>, FM : DataModel>
-//                checkForMissingForeignKeyModels(
-//            itemsToCheck: List<M>,
-//            getForeignKey: (M) -> Int?,
-//            foreignKeyDao: BaseDao<FM>,
-//            getFkItems: KSuspendFunction1<List<Int>, List<Item<FG, FM>>>,
-//            fkFollowup: (suspend (List<FM>) -> Unit)? = null,
-//        ) {
-//            val fkIds: List<Int> = itemsToCheck.mapNotNull { getForeignKey(it) }
-//            val missingIds: List<Int> = fkIds.mapNotNull {
-//                if (foreignKeyDao.get(it) == null) it else null
-//            }
-//
-//            val missingItems = getItemsByArgument(missingIds, getFkItems)
-//
-//            if (missingItems != null && missingItems.isNotEmpty()) {
-//                fkFollowup?.let { it(missingItems) }
-//                foreignKeyDao.upsert(missingItems)
-//            }
-//        }
     }
 }
 

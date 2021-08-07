@@ -44,8 +44,8 @@ interface Webservice {
     @GET("/db_query/name_detail/{nameDetailIds}/extracts")
     suspend fun getExtractedCreditsByNameDetail(@Path("nameDetailIds") nameDetailIds: List<Int>): List<Item<GcdExCredit, ExCredit>>
 
-    @GET("/db_query/stories/{storyIds}/credits")
-    suspend fun getCreditsByStoryIds(@Path("storyIds") storyIds: List<Int>): List<Item<GcdCredit, Credit>>
+    @GET("/db_query/stories/{storyId}/credits")
+    suspend fun getCreditsByStoryId(@Path("storyId") storyId: Int): List<Item<GcdCredit, Credit>>
 
     @GET("/db_query/credits_list/{page}")
     suspend fun getCreditsByPage(@Path("page") page: Int): List<Item<GcdCredit, Credit>>
@@ -53,8 +53,8 @@ interface Webservice {
     @GET("/db_query/excredits_list/{page}")
     suspend fun getExCreditsByPage(@Path("page") page: Int): List<Item<GcdExCredit, ExCredit>>
 
-    @GET("/db_query/stories/{storyIds}/extracts")
-    suspend fun getExtractedCreditsByStories(@Path("storyIds") storyIds: List<Int>): List<Item<GcdExCredit, ExCredit>>
+    @GET("/db_query/stories/{storyId}/extracts")
+    suspend fun getExCreditsByStoryId(@Path("storyId") storyId: Int): List<Item<GcdExCredit, ExCredit>>
 
     @GET("/db_query/name_details_list/{page}")
     suspend fun getNameDetailsByPage(@Path("page") page: Int): List<Item<GcdNameDetail, NameDetail>>
@@ -102,8 +102,8 @@ interface Webservice {
     @GET("db_query/characters/{page}")
     suspend fun getCharactersByPage(@Path("page") page: Int): List<Item<GcdCharacter, Character>>
 
-    @GET("db_query/story/{storyIds}/characters")
-    suspend fun getAppearancesByStory(@Path("storyIds") storyIds: List<Int>): List<Item<GcdCharacterAppearance, Appearance>>
+    @GET("db_query/story/{storyId}/characters")
+    suspend fun getAppearancesByStoryId(@Path("storyId") storyId: Int): List<Item<GcdCharacterAppearance, Appearance>>
 
     @GET("db_query/appearances_list/{page}")
     suspend fun getAppearancesByPage(@Path("page") page: Int): List<Item<GcdCharacterAppearance, Appearance>>

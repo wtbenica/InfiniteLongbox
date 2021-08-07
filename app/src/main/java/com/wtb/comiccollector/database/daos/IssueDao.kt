@@ -95,24 +95,24 @@ abstract class IssueDao : BaseDao<Issue>("issue") {
 
             tableJoinString.append("""SELECT DISTINCT ie.* 
                         FROM issue ie 
-                        LEFT JOIN cover cr ON ie.issueId = cr.issueId 
-                        LEFT JOIN story sy on sy.issueId = ie.issueId 
+                        LEFT JOIN cover cr ON ie.issueId = cr.issue 
+                        LEFT JOIN story sy on sy.issue = ie.issueId 
                         """)
 
             filter.mSeries?.let {
-                conditionsString.append("""${connectword()} ie.seriesId = ? 
+                conditionsString.append("""${connectword()} ie.series = ? 
                 """)
                 args.add(it.seriesId)
             }
 
             if (filter.hasPublisher()) {
-                tableJoinString.append("""JOIN series ss ON ie.seriesId = ss.seriesId 
+                tableJoinString.append("""JOIN series ss ON ie.series = ss.seriesId 
                 """)
 
                 if (filter.mPublishers.isNotEmpty()) {
                     val publisherList = modelsToSqlIdString(filter.mPublishers)
 
-                    conditionsString.append("""${connectword()} ss.publisherId IN $publisherList 
+                    conditionsString.append("""${connectword()} ss.publisher IN $publisherList 
                     """)
                 }
             }
@@ -121,15 +121,15 @@ abstract class IssueDao : BaseDao<Issue>("issue") {
                 val creatorsList = modelsToSqlIdString(filter.mCreators)
 
                 conditionsString.append("""${connectword()} (sy.storyId IN (
-                SELECT storyId
+                SELECT story
                 FROM credit ct
-                JOIN namedetail nl on nl.nameDetailId = ct.nameDetailId
-                WHERE nl.creatorId IN $creatorsList)
+                JOIN namedetail nl on nl.nameDetailId = ct.nameDetail
+                WHERE nl.creator IN $creatorsList)
                 OR sy.storyId IN (
-                SELECT storyId
+                SELECT story
                 FROM excredit ect
-                JOIN namedetail nl on nl.nameDetailId = ect.nameDetailId
-                WHERE nl.creatorId IN $creatorsList)) 
+                JOIN namedetail nl on nl.nameDetailId = ect.nameDetail
+                WHERE nl.creator IN $creatorsList)) 
             """)
             }
 
@@ -142,7 +142,7 @@ abstract class IssueDao : BaseDao<Issue>("issue") {
 
             if (filter.mMyCollection) {
                 conditionsString.append("""${connectword()} ie.issueId IN (
-                    SELECT issueId
+                    SELECT issue
                     FROM mycollection) 
                 """)
             }
@@ -163,6 +163,7 @@ abstract class IssueDao : BaseDao<Issue>("issue") {
                 )
             }
 
+            // TODO: what does a text filter mean in an issue list?
             filter.mTextFilter?.let { textFilter ->
                 Log.d(TAG, "*************************************************************")
                 Log.d(TAG, "*************************************************************")
@@ -176,7 +177,6 @@ abstract class IssueDao : BaseDao<Issue>("issue") {
             val sortClause: String = filter.mSortType?.let {
                 val isValid =
                     SortType.Companion.SortTypeOptions.ISSUE.options.containsSortType(it)
-//                it !in SortType.Companion.SortTypeOptions.ISSUE.options
                 val sortString: String =
                     if (isValid) {
                         it.sortString

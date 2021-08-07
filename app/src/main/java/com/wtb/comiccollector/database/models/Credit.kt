@@ -140,7 +140,7 @@ data class Story(
     val synopsis: String? = null,
     val notes: String? = null,
     val sequenceNumber: Int = 0,
-    val issueId: Int,
+    val issue: Int,
 ) : DataModel() {
     override val id: Int
         get() = storyId

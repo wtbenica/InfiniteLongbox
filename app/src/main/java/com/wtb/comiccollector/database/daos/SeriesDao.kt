@@ -78,7 +78,7 @@ abstract class SeriesDao : BaseDao<Series>("series") {
             if (filter.mPublishers.isNotEmpty()) {
                 val publisherList = modelsToSqlIdString(filter.mPublishers)
 
-                conditions.append("""${connectword()} ss.publisherId IN $publisherList """)
+                conditions.append("""${connectword()} ss.publisher IN $publisherList """)
             }
 
             if (filter.hasCreator()) {
@@ -87,11 +87,11 @@ abstract class SeriesDao : BaseDao<Series>("series") {
                     """${connectword()} ss.seriesId IN (
                         SELECT ct.series
                         FROM credit ct
-                        WHERE ct.nameDetailId IN $creatorsList) 
+                        WHERE ct.nameDetail IN $creatorsList) 
                     OR ss.seriesId IN (
                         SELECT ect.series
                         FROM excredit ect
-                        WHERE ect.nameDetailId IN $creatorsList)
+                        WHERE ect.nameDetail IN $creatorsList)
                     """)
             }
 
@@ -106,7 +106,7 @@ abstract class SeriesDao : BaseDao<Series>("series") {
             filter.mCharacter?.characterId?.let {
                 conditions.append(
                     """${connectword()} ss.seriesId IN (
-                        SELECT ap.seriesId
+                        SELECT ap.series
                         FROM appearance ap
                         WHERE ap.character = $it
                          """)
@@ -122,7 +122,10 @@ abstract class SeriesDao : BaseDao<Series>("series") {
             }
 
             filter.mTextFilter?.let { textFilter ->
+                val text = textFilterToString(textFilter.text)
 
+                conditions.append("""${connectword()} ss.seriesName like '$text' 
+                """)
             }
 
             val sortClause: String = filter.mSortType?.let {

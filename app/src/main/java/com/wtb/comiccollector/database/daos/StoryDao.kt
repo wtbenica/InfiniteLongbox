@@ -5,6 +5,7 @@ import androidx.room.Query
 import com.wtb.comiccollector.database.models.Story
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
+import org.intellij.lang.annotations.Language
 
 @ExperimentalCoroutinesApi
 @Dao
@@ -17,13 +18,14 @@ abstract class StoryDao : BaseDao<Story>("Story") {
     abstract suspend fun getStories(issueId: Int): List<Story>
 
     companion object {
+        @Language("RoomSql")
         const val query = """
-            SELECT st.*
-            FROM story st
-            JOIN storytype type ON type.storyTypeId = st.storyType
-            WHERE st.issueId = :issueId
-            AND (st.storyType = 19 OR st.storyType= 6)
-            ORDER BY st.sequenceNumber
+            SELECT sy.*
+            FROM story sy
+            JOIN storytype se ON se.storyTypeId = sy.storyType
+            WHERE sy.issue = :issueId
+            AND (sy.storyType = 19 OR sy.storyType= 6)
+            ORDER BY sy.sequenceNumber
         """
     }
 }

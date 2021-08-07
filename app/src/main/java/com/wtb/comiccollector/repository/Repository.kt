@@ -42,7 +42,7 @@ const val DUMMY_ID = Int.MAX_VALUE
 
 private const val DATABASE_NAME = "issue-database"
 private const val TAG = APP + "Repository"
-const val DEBUG = true
+const val DEBUG = false
 
 internal const val SHARED_PREFS = "CCPrefs"
 

@@ -109,13 +109,13 @@ abstract class Updater(
 
     internal suspend fun checkStoryFkIssue(stories: List<Story>) =
         checkForMissingForeignKeyModels(stories,
-                                        Story::issueId,
+                                        Story::issue,
                                         database.issueDao(),
                                         webservice::getIssuesByIds,
                                         this@Updater::checkFKeysIssue)
 
     internal suspend fun checkFKeysAppearance(appearances: List<Appearance>) {
-        Log.d(Updater.TAG, "Shits")
+        Log.d(TAG, "Shits")
         checkAppearanceFkCharacter(appearances)
         checkAppearanceFkStory(appearances)
     }
@@ -171,7 +171,8 @@ abstract class Updater(
             arg: ArgType,
             queryFunction: (ArgType) -> Deferred<ResultType>,
         ): ResultType? {
-            val result: ResultType? = try {
+
+            return try {
                 if (arg !is List<*> || arg.isNotEmpty()) {
                     queryFunction(arg).await()
                 } else {
@@ -187,24 +188,23 @@ abstract class Updater(
                 Log.d(TAG, "$name $e")
                 null
             }
-
-            return result
         }
 
         /**
-         * Run safely - runs queryFunction and awaits results. Logs SocketTimeout-, Connect-, and
+         * Run safely
+         *
+         *  runs queryFunction and awaits results. Logs SocketTimeout-, Connect-, and
          * Http- exceptions. Also avoids making remote calls with empty list.
-         * @param ResultType - Result type
-         * @param ArgType - Arg type
+         * @param ResultType Result type
          * @param name Function name, shown  in exception log message
-         * @param queryFunction
          * @return null on one of the listed exceptions or if it was called with an empty arg list
          */
         suspend fun <ResultType : Any> runSafely(
             name: String,
             queryFunction: () -> Deferred<ResultType>,
         ): ResultType? {
-            val result: ResultType? = try {
+
+            return try {
                 queryFunction().await()
             } catch (e: SocketTimeoutException) {
                 Log.d(TAG, "$name $e")
@@ -216,18 +216,12 @@ abstract class Updater(
                 Log.d(TAG, "$name $e")
                 null
             }
-
-            return result
         }
 
         /**
          * Check if stale
-         *
-         * @param prefsKey
-         * @param shelfLife
-         * @param prefs
-         * @return
-         */// TODO: This should probably get moved out of SharedPreferences and stored with each record.
+         */
+        // TODO: This should probably get moved out of SharedPreferences and stored with each record.
         //  The tradeoff: an extra local db query vs. having a larger prefs which will end up having
         //  a value for every item in the database.
         internal fun checkIfStale(
@@ -242,7 +236,6 @@ abstract class Updater(
 
         /**
          * Get items by argument
-         *
          * @return null on connection error
          */
         internal suspend fun <GcdType : GcdJson<ModelType>, ModelType : DataModel, ArgType : Any>
@@ -259,16 +252,16 @@ abstract class Updater(
         /**
          * Refresh all - gets items, performs followup, then saves using dao
          */
-        internal suspend fun <ModelType : DataModel> refreshById(
+        internal suspend fun <ModelType : DataModel> updateById(
             prefs: SharedPreferences,
-            saveTag: String,
+            saveTag: String?,
             getItems: suspend (Int) -> List<ModelType>?,
             followup: suspend (List<ModelType>) -> Unit = {},
             dao: BaseDao<ModelType>,
             id: Int,
-        ) {
+        ): List<ModelType> {
             Log.d(TAG, "refreshingById")
-            if (checkIfStale(saveTag, WEEKLY, prefs)) {
+            return if (saveTag?.let { checkIfStale(it, WEEKLY, prefs) } != false) {
                 coroutineScope {
                     Log.d(TAG, "refreshingById for sure")
                     val items: List<ModelType>? = getItems(id)
@@ -276,11 +269,14 @@ abstract class Updater(
                     if (items != null && items.isNotEmpty()) {
                         Log.d(TAG, "Got some items, followup now")
                         followup(items)
-                        Log.d(TAG, "NOW We aaaarE UPserting")
+                        Log.d(TAG, "we are upserting ")
                         dao.upsertSus(items)
-                        Repository.saveTime(prefs, saveTag)
+                        saveTag?.let { Repository.saveTime(prefs, it) }
                     }
+                    return@coroutineScope items ?: emptyList()
                 }
+            } else {
+                emptyList()
             }
         }
 
@@ -368,18 +364,6 @@ abstract class Updater(
                 }
             }
         }
-
-        @ExperimentalCoroutinesApi
-        internal fun <ModelType : DataModel> saveTimeIfNotEmpty(
-            prefs: SharedPreferences,
-            items: List<ModelType>?,
-            saveTag: String,
-        ): List<ModelType>? =
-            items.also {
-                if (it != null && it.isNotEmpty()) {
-                    Repository.saveTime(prefs, saveTag)
-                }
-            }
 
         /**
          * Get missing foreign key models

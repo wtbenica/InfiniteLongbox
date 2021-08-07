@@ -23,9 +23,7 @@ abstract class ExCreditDao : BaseDao<ExCredit>("excredit") {
             JOIN story sr on exc.story = sr.storyId
             JOIN storytype st on st.storyTypeId = sr.storyType
             JOIN role ON exc.role = role.roleId
-            JOIN namedetail nd ON nd.nameDetailId = exc.nameDetail
-            JOIN creator c on c.creatorId = nd.creator
-            WHERE sr.issueId = :issueId
+            WHERE sr.issue = :issueId
             ORDER BY st.sortCode, sr.sequenceNumber, role.sortOrder
         """
     )
