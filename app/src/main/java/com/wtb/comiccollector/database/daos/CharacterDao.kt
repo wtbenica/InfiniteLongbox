@@ -63,8 +63,7 @@ abstract class CharacterDao : BaseDao<Character>("character") {
 
         if (filter.isNotEmpty()) {
             tableJoinString.append("""JOIN appearance ap ON ap.character = ch.characterId 
-                JOIN story sy ON ap.story = sy.storyId 
-                JOIN issue ie ON sy.issueId = ie.issueId 
+                JOIN issue ie ON ap.issue = ie.issueId 
                 """)
         }
         if (filter.mPublishers.isNotEmpty()) {
@@ -78,12 +77,12 @@ abstract class CharacterDao : BaseDao<Character>("character") {
             val creatorsList = modelsToSqlIdString(filter.mCreators)
 
             conditionsString.append("""${connectword()} sy.storyId IN (
-                SELECT storyId
+                SELECT story
                 FROM credit ct
                 JOIN namedetail nl on nl.nameDetailId = ct.nameDetail
                 WHERE nl.creator IN $creatorsList)
                 OR sy.storyId IN (
-                SELECT storyId
+                SELECT story
                 FROM excredit ect
                 JOIN namedetail nl on nl.nameDetailId = ect.nameDetail
                 WHERE nl.creator IN $creatorsList) 
@@ -99,7 +98,7 @@ abstract class CharacterDao : BaseDao<Character>("character") {
 
         if (filter.mMyCollection) {
             conditionsString.append("""${connectword()} ie.issueId IN (
-                SELECT issueId
+                SELECT issue
                 FROM mycollection) 
                 """)
         }

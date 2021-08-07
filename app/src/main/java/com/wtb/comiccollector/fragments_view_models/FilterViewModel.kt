@@ -44,9 +44,9 @@ class FilterViewModel : ViewModel() {
         characterOptions
     )
     {
-            series: List<FilterAutoCompleteType>, creators: List<FilterAutoCompleteType>,
-            publishers:
-            List<FilterAutoCompleteType>,
+            series: List<FilterAutoCompleteType>,
+            creators: List<FilterAutoCompleteType>,
+            publishers: List<FilterAutoCompleteType>,
             characters: List<FilterAutoCompleteType>,
         ->
         val res: List<FilterAutoCompleteType> = series + creators + publishers + characters
