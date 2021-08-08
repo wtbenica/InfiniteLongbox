@@ -17,7 +17,7 @@ data class Creator(
     val name: String,
     val sortName: String,
     val bio: String? = null,
-) : DataModel(), FilterAutoCompleteType {
+) : DataModel(), FilterModel {
 
     override val id: Int
         get() = creatorId
@@ -54,11 +54,11 @@ data class NameDetail(
     val creator: Int,
     val name: String,
     val sortName: String? = null,
-) : DataModel(), FilterAutoCompleteType {
+) : DataModel(), FilterModel {
     override val id: Int
         get() = nameDetailId
 
-    companion object : FilterTypeSpinnerOption {
+    companion object : FilterType {
         override val displayName: String = context!!.getString(R.string.filter_type_creator)
 
         override fun toString(): String = displayName

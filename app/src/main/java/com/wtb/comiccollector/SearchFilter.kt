@@ -100,7 +100,7 @@ class SearchFilter
 
     fun hasSeries(): Boolean = mSeries != null
 
-    fun addFilter(vararg items: FilterType) {
+    fun addFilter(vararg items: FilterItem) {
         items.forEach { item ->
             when (item) {
                 is Series     -> addSeries(item)
@@ -140,7 +140,7 @@ class SearchFilter
     }
 
     // TODO: CvND
-    fun removeFilter(vararg items: FilterType) {
+    fun removeFilter(vararg items: FilterItem) {
         items.forEach { item ->
             when (item) {
                 is Series     -> removeSeries()
@@ -187,7 +187,7 @@ class SearchFilter
         }
     }
 
-    fun getAll(): Set<FilterType> {
+    fun getAll(): Set<FilterItem> {
         val series = mSeries?.let { setOf(it) } ?: emptySet()
         val textFilter = mTextFilter?.let { setOf(it) } ?: emptySet()
         val character = mCharacter?.let { setOf(it) } ?: emptySet()

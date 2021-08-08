@@ -26,7 +26,7 @@ data class Character(
     val name: String,
     val alterEgo: String? = null,
     val publisher: Int,
-) : DataModel(), FilterAutoCompleteType, FilterType, ListItem {
+) : DataModel(), FilterModel, ListItem {
 
     val sortName: String
         get() {
@@ -49,7 +49,7 @@ data class Character(
 
     override fun toString(): String = name
 
-    companion object : FilterTypeSpinnerOption {
+    companion object : FilterType {
         override val displayName: String =
             ComicCollectorApplication.context!!.getString(R.string.filter_type_character)
 

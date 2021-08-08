@@ -11,23 +11,36 @@ sealed class DataModel(var lastUpdated: LocalDate = LocalDate.now()) : Serializa
     abstract val id: Int
 }
 
-// Include: Series, Creator, Character, Publisher
-sealed interface FilterTypeSpinnerOption {
+/**
+ * Filter type
+ * A static class/companion object that can be used to limit search autocomplete dropdown
+ * results: FilterModels + All
+ */
+sealed interface FilterType {
     val displayName: String
 }
 
-sealed interface FilterType
+/**
+ * Filter item
+ * Filter models (series, character, creator, publisher, namedetail) + Text Filter: items that
+ * can appear in the search autocomplete box.
+ */
+sealed interface FilterItem
 
 /*
 TODO: This should include SERIES, PUBLISHER, CHARACTER, CREATOR. The issue is with CREATOR:
  whether to use CREATOR or NAME_DETAIL or both. Should look for "name_string" in NAME_DETAIL,
  then getting results by CREATOR. This is a big TODO that could become very complicated very quickly
 */
+/**
+ * Filter item
+ * A model that can be used in a filter (series, character, creator, publisher, namedetail) and
+ * can show up in the search autocomplete dropdown list
+ */
 @ExperimentalCoroutinesApi
-sealed interface FilterAutoCompleteType : FilterType, Comparable<FilterAutoCompleteType>,
-    Serializable {
-    val tagName: String
+sealed interface FilterModel : FilterItem, Comparable<FilterModel>, Serializable {
 
+    val tagName: String
     val compareValue: String
 
     val textColor: Int
@@ -41,7 +54,7 @@ sealed interface FilterAutoCompleteType : FilterType, Comparable<FilterAutoCompl
             else         -> throw IllegalStateException("Invalid type: $this")
         } ?: 0xFF000000.toInt()
 
-    override fun compareTo(other: FilterAutoCompleteType): Int =
+    override fun compareTo(other: FilterModel): Int =
         this.compareValue.compareTo(other.compareValue)
 
     companion object {
@@ -53,16 +66,17 @@ sealed interface ListItem
 
 @ExperimentalCoroutinesApi
 class All {
-    companion object : FilterTypeSpinnerOption {
+    companion object : FilterType {
         override val displayName: String = context!!.getString(R.string.filter_type_all)
 
         override fun toString(): String = displayName
     }
 }
 
+
 @ExperimentalCoroutinesApi
 data class TextFilter(
     val text: String,
-) : FilterType {
+) : FilterItem {
     override fun toString(): String = "\"$text\""
 }

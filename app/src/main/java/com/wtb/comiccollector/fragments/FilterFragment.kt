@@ -85,26 +85,31 @@ class FilterFragment : Fragment(),
         onCreateViewFindViews(view)
         onCreateViewInitViews()
 
+        viewModel.filterType.observeForever {
+            Log.d(TAG, "FILTER TYPE CHANGED TO ${it.simpleName}")
+        }
+
+        viewModel.filterOptions.observeForever { filterOptions ->
+            // THIS IS NOT HAPPENING
+            Log.d(TAG, "This is the new filterOptions: $filterOptions")
+            searchAutoComplete.setAdapter(
+                FilterOptionsAdapter(
+                    context = requireContext(),
+                    filterOptions = filterOptions
+                )
+            )
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                searchAutoComplete.refreshAutoCompleteResults()
+            }
+        }
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.filter.collectLatest { filter ->
+                    Log.d(TAG, "THe filter is doing its thing!!!!!!")
                     this@FilterFragment.currFilter = filter
                     sortChipGroup.update(filter)
                     optionsChipGroup.update(filter)
-                }
-
-                viewModel.filterOptions.collectLatest { filterObjects ->
-                    Log.d(TAG, "This is the new filterOptions: $filterObjects")
-                    searchAutoComplete.setAdapter(
-                        FilterOptionsAdapter(
-                            requireContext(),
-                            filterObjects
-                        )
-                    )
-
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                        searchAutoComplete.refreshAutoCompleteResults()
-                    }
                 }
             }
         }
@@ -185,7 +190,7 @@ class FilterFragment : Fragment(),
             ) {
                 parent?.let {
                     val selectedFilterOption = it.getItemAtPosition(position) as KClass<*>
-                    viewModel.setFilterOptionType(selectedFilterOption)
+                    viewModel.setFilterType(selectedFilterOption)
                 }
             }
 
@@ -256,7 +261,7 @@ class FilterFragment : Fragment(),
     }
 
     private fun updateFilterCard(value: SearchFilter) {
-        val newFilters: Set<FilterType> = value.getAll()
+        val newFilters: Set<FilterItem> = value.getAll()
 
         filterChipGroup.removeAllViews()
         newFilters.forEach { addChip(it) }
@@ -277,7 +282,7 @@ class FilterFragment : Fragment(),
         filterAddButton.visibility = VISIBLE
     }
 
-    private fun addChip(item: FilterType) {
+    private fun addChip(item: FilterItem) {
         val chip = FilterChip(context, item, this)
         filterChipGroup.addView(chip)
     }
@@ -296,7 +301,7 @@ class FilterFragment : Fragment(),
     }
 
     // SearchTextViewCallback
-    override fun addFilterItem(option: FilterType) {
+    override fun addFilterItem(option: FilterItem) {
         Log.d(TAG, "setting filter: add item $option")
         viewModel.addFilterItem(option)
     }
@@ -344,7 +349,7 @@ class FilterFragment : Fragment(),
     companion object {
         fun newInstance() = FilterFragment()
 
-        val filterTypeOptions: List<KClass<*>> = FilterTypeSpinnerOption::class.sealedSubclasses
+        val filterTypeOptions: List<KClass<*>> = FilterType::class.sealedSubclasses
             .sortedBy { it.objectInstance.toString() }
 
         init {

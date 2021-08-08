@@ -4,7 +4,7 @@ import android.content.Context
 import android.util.AttributeSet
 import com.google.android.material.chip.Chip
 import com.wtb.comiccollector.APP
-import com.wtb.comiccollector.database.models.FilterType
+import com.wtb.comiccollector.database.models.FilterItem
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 class FilterChipGroup(context: Context?, attributeSet: AttributeSet) :
@@ -13,12 +13,12 @@ class FilterChipGroup(context: Context?, attributeSet: AttributeSet) :
 @ExperimentalCoroutinesApi
 class FilterChip(context: Context?) : Chip(context) {
 
-    lateinit var item: FilterType
+    lateinit var item: FilterItem
     private var caller: FilterChipCallbacks? = null
 
     constructor(
         context: Context?,
-        item: FilterType,
+        item: FilterItem,
         caller: FilterChipCallbacks
     ) : this(context) {
         this.item = item

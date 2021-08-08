@@ -1,5 +1,6 @@
 package com.wtb.comiccollector.database.daos
 
+import android.util.Log
 import androidx.paging.PagingSource
 import androidx.room.Dao
 import androidx.room.Query
@@ -36,7 +37,7 @@ abstract class SeriesDao : BaseDao<Series>("series") {
 
     fun getSeriesByFilter(filter: SearchFilter): Flow<List<Series>> {
         val query = getSeriesQuery(filter)
-
+        Log.d(TAG, "Getting series filter options: ${query.sql} $query")
         return getSeriesByQuery(query)
     }
 
@@ -106,10 +107,8 @@ abstract class SeriesDao : BaseDao<Series>("series") {
                     """${connectword()} ss.seriesId IN (
                         SELECT ap.series
                         FROM appearance ap
-                        WHERE ap.character = $it
+                        WHERE ap.character = $it)
                          """)
-
-                args.add(it)
             }
 
             if (filter.mMyCollection) {

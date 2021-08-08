@@ -38,7 +38,7 @@ data class Series(
     val firstIssue: Int? = null,
     val notes: String? = null,
     val issueCount: Int = 0,
-) : DataModel(), FilterAutoCompleteType, Serializable {
+) : DataModel(), FilterModel, Serializable {
     override val tagName: String
         get() = "Series"
 
@@ -62,8 +62,8 @@ data class Series(
             })"
         } ?: ""
 
-    companion object : FilterTypeSpinnerOption {
-        override val displayName: String = context!!.getString(R.string.filter_type_series)
+    companion object : FilterType {
+        override var displayName: String = context!!.getString(R.string.filter_type_series)
 
         override fun toString(): String = displayName
     }
@@ -83,7 +83,7 @@ data class Publisher(
     val yearEnded: LocalDate? = null,
     val yearEndedUncertain: Boolean = true,
     val url: String? = null,
-) : DataModel(), FilterAutoCompleteType {
+) : DataModel(), FilterModel {
     override val tagName: String
         get() = "Publisher"
 
@@ -93,12 +93,10 @@ data class Publisher(
     override val id: Int
         get() = publisherId
 
-    override fun toString(): String {
-        return publisher
-    }
+    override fun toString(): String = publisher
 
-    companion object : FilterTypeSpinnerOption {
-        override val displayName: String = context!!.getString(R.string.filter_type_publisher)
+    companion object : FilterType {
+        override var displayName: String = context!!.getString(R.string.filter_type_publisher)
 
         override fun toString(): String = displayName
     }
