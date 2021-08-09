@@ -9,6 +9,7 @@ import com.wtb.comiccollector.database.daos.BaseDao
 import com.wtb.comiccollector.database.models.*
 import kotlinx.coroutines.*
 import retrofit2.HttpException
+import java.lang.Integer.min
 import java.net.ConnectException
 import java.net.SocketTimeoutException
 import java.time.LocalDate
@@ -27,8 +28,49 @@ abstract class Updater(
     val prefs: SharedPreferences,
 ) {
 
+    internal suspend fun<T: DataModel> checkFKeys(
+        models: List<T>,
+        func: KSuspendFunction1<List<T>, Unit>,
+    ) {
+        var i = 0
+        val listSize = 500
+        do {
+            func(models.subList(i * listSize, min((i + 1) * listSize, models.size)))
+        } while (++i * listSize < models.size)
+    }
+
+    internal suspend fun checkFKeysStory(stories: List<Story>) {
+        checkFKeys(stories, this::checkStoryFkIssue)
+    }
+
     internal suspend fun checkFKeysSeries(series: List<Series>) {
-        checkSeriesFkPublisher(series)
+        checkFKeys(series, this::checkSeriesFkPublisher)
+    }
+
+    internal suspend fun checkFKeysNameDetail(nameDetails: List<NameDetail>) {
+        checkFKeys(nameDetails, this::checkNameDetailFkCreator)
+    }
+
+    internal suspend fun checkFKeysIssue(issues: List<Issue>) {
+        checkFKeys(issues, this::checkIssueFkSeries)
+        checkFKeys(issues, this::checkIssueFkVariantOf)
+    }
+
+    internal suspend fun checkFKeysSeriesBond(bonds: List<SeriesBond>) {
+        checkSeriesBondFkOriginIssue(bonds)
+        checkSeriesBondFkOriginSeries(bonds)
+        checkSeriesBondFkTargetIssue(bonds)
+        checkSeriesBondFkTargetSeries(bonds)
+    }
+
+    internal suspend fun checkFKeysAppearance(appearances: List<Appearance>) {
+        checkAppearanceFkCharacter(appearances)
+        checkAppearanceFkStory(appearances)
+    }
+
+    internal suspend fun <T : CreditX> checkFKeysCredit(credits: List<T>) {
+        checkFKeys(credits, this::checkCreditFkNameDetail)
+        checkFKeys(credits, this::checkCreditFkStory)
     }
 
     internal suspend fun checkSeriesFkPublisher(series: List<Series>) =
@@ -37,21 +79,12 @@ abstract class Updater(
                                         database.publisherDao(),
                                         webservice::getPublishersByIds)
 
-    internal suspend fun checkFKeysNameDetail(nameDetails: List<NameDetail>) {
-        checkNameDetailFkCreator(nameDetails)
-    }
-
     internal suspend fun checkNameDetailFkCreator(nameDetails: List<NameDetail>) =
         checkForMissingForeignKeyModels(nameDetails,
                                         NameDetail::creator,
                                         database.creatorDao(),
                                         webservice::getCreatorsByIds)
 
-
-    internal suspend fun checkFKeysIssue(issues: List<Issue>) {
-        checkIssueFkSeries(issues)
-        checkIssueFkVariantOf(issues)
-    }
 
     internal suspend fun checkIssueFkSeries(issues: List<Issue>) =
         checkForMissingForeignKeyModels(issues,
@@ -96,29 +129,12 @@ abstract class Updater(
                                         this@Updater::checkFKeysIssue)
 
 
-    internal suspend fun checkFKeysSeriesBond(bonds: List<SeriesBond>) {
-        checkSeriesBondFkOriginIssue(bonds)
-        checkSeriesBondFkOriginSeries(bonds)
-        checkSeriesBondFkTargetIssue(bonds)
-        checkSeriesBondFkTargetSeries(bonds)
-    }
-
-    internal suspend fun checkFKeysStory(stories: List<Story>) {
-        checkStoryFkIssue(stories)
-    }
-
     internal suspend fun checkStoryFkIssue(stories: List<Story>) =
         checkForMissingForeignKeyModels(stories,
                                         Story::issue,
                                         database.issueDao(),
                                         webservice::getIssuesByIds,
                                         this@Updater::checkFKeysIssue)
-
-    internal suspend fun checkFKeysAppearance(appearances: List<Appearance>) {
-        Log.d(TAG, "Shits")
-        checkAppearanceFkCharacter(appearances)
-        checkAppearanceFkStory(appearances)
-    }
 
     internal suspend fun checkAppearanceFkCharacter(appearances: List<Appearance>) =
         checkForMissingForeignKeyModels(appearances,
@@ -132,11 +148,6 @@ abstract class Updater(
                                         database.storyDao(),
                                         webservice::getStoriesByIds,
                                         this@Updater::checkFKeysStory)
-
-    internal suspend fun <T : CreditX> checkFKeysCredit(credits: List<T>) {
-        checkCreditFkNameDetail(credits)
-        checkCreditFkStory(credits)
-    }
 
     internal suspend fun <T : CreditX> checkCreditFkNameDetail(credits: List<T>) =
         checkForMissingForeignKeyModels(credits,
@@ -159,11 +170,7 @@ abstract class Updater(
         /**
          * Run safely - runs queryFunction and awaits results. Logs SocketTimeout-, Connect-, and
          * Http- exceptions. Also avoids making remote calls with empty list.
-         * @param ResultType - Result type
-         * @param ArgType - Arg type
          * @param name Function name, shown  in exception log message
-         * @param arg
-         * @param queryFunction
          * @return null on one of the listed exceptions or if it was called with an empty arg list
          */
         suspend fun <ResultType : Any, ArgType : Any> runSafely(
@@ -195,7 +202,6 @@ abstract class Updater(
          *
          *  runs queryFunction and awaits results. Logs SocketTimeout-, Connect-, and
          * Http- exceptions. Also avoids making remote calls with empty list.
-         * @param ResultType Result type
          * @param name Function name, shown  in exception log message
          * @return null on one of the listed exceptions or if it was called with an empty arg list
          */
@@ -260,17 +266,12 @@ abstract class Updater(
             dao: BaseDao<ModelType>,
             id: Int,
         ): List<ModelType> {
-            Log.d(TAG, "updateById start")
             return if (saveTag?.let { checkIfStale(it, WEEKLY, prefs) } != false) {
                 coroutineScope {
-                    Log.d(TAG, "updateById for sure not stale!")
                     val items: List<ModelType>? = getItems(id)
 
                     if (items != null && items.isNotEmpty()) {
-                        Log.d(TAG,
-                              "Got ${items.size} ${items[0]::class.simpleName} items, followup now")
                         followup(items)
-                        Log.d(TAG, "we are upserting ")
                         dao.upsertSus(items)
                         saveTag?.let { Repository.saveTime(prefs, it) }
                     }

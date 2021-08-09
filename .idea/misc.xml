@@ -3,8 +3,17 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="app/src/main/res/drawable/background_series_dates.xml" value="0.12863247863247862" />
+        <entry key="app/src/main/res/drawable/background_series_title.xml" value="0.12863247863247862" />
+        <entry key="app/src/main/res/drawable/primary_border.xml" value="0.1111111111111111" />
+        <entry key="app/src/main/res/drawable/primary_dark_border.xml" value="0.1111111111111111" />
+        <entry key="app/src/main/res/layout/fragment_display_issue.xml" value="0.5" />
         <entry key="app/src/main/res/layout/fragment_filter.xml" value="0.2636752136752137" />
         <entry key="app/src/main/res/layout/fragment_series_detail.xml" value="0.67" />
+        <entry key="app/src/main/res/layout/issue_detail_info_row.xml" value="0.25" />
+        <entry key="app/src/main/res/layout/issue_detail_info_row_vertical.xml" value="0.75" />
+        <entry key="app/src/main/res/layout/issue_detail_issue_info_box.xml" value="0.11153846153846154" />
+        <entry key="app/src/main/res/layout/list_item_series.xml" value="0.33" />
         <entry key="app/src/main/res/layout/story_box.xml" value="0.1" />
       </map>
     </option>

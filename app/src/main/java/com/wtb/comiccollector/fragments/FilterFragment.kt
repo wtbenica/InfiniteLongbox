@@ -85,13 +85,7 @@ class FilterFragment : Fragment(),
         onCreateViewFindViews(view)
         onCreateViewInitViews()
 
-        viewModel.filterType.observeForever {
-            Log.d(TAG, "FILTER TYPE CHANGED TO ${it.simpleName}")
-        }
-
         viewModel.filterOptions.observeForever { filterOptions ->
-            // THIS IS NOT HAPPENING
-            Log.d(TAG, "This is the new filterOptions: $filterOptions")
             searchAutoComplete.setAdapter(
                 FilterOptionsAdapter(
                     context = requireContext(),
@@ -103,10 +97,10 @@ class FilterFragment : Fragment(),
                 searchAutoComplete.refreshAutoCompleteResults()
             }
         }
+
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.filter.collectLatest { filter ->
-                    Log.d(TAG, "THe filter is doing its thing!!!!!!")
                     this@FilterFragment.currFilter = filter
                     sortChipGroup.update(filter)
                     optionsChipGroup.update(filter)
@@ -191,6 +185,13 @@ class FilterFragment : Fragment(),
                 parent?.let {
                     val selectedFilterOption = it.getItemAtPosition(position) as KClass<*>
                     viewModel.setFilterType(selectedFilterOption)
+
+                    searchAutoComplete.showDropDown()
+
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                        searchAutoComplete.refreshAutoCompleteResults()
+                    }
+
                 }
             }
 

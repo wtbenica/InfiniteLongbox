@@ -45,9 +45,10 @@ class StaticUpdater(
     private fun updateCreator(creatorId: Int) = CoroutineScope(Dispatchers.IO).launch {
         val nameDetails: List<NameDetail> =
             database.nameDetailDao().getNameDetailsByCreatorId(creatorId)
-
-        nameDetails.forEach { nameDetail ->
-            Log.d(TAG, "Update NameDetail: ${nameDetail.name} of ${nameDetails.size}")
+        Log.d(TAG, "CRUP: nameDetails: ${nameDetails.size}")
+        nameDetails.forEachIndexed { index, nameDetail ->
+            Log.d(TAG,
+                  "CRUP: nameDetail: ${nameDetail.id} ${nameDetail.name} $index of ${nameDetails.size}")
             updateNameDetailCredits(nameDetail.id)
             updateNameDetailExCredits(nameDetail.id)
         }
@@ -105,20 +106,22 @@ class StaticUpdater(
                                database.appearanceDao(),
                                characterId)
 
-    private suspend fun updateNameDetailCredits(nameDetailId: Int) =
+    private suspend fun updateNameDetailCredits(nameDetailId: Int) {
+        Log.d(TAG, "CRUP: $nameDetailId")
         updateById<Credit>(
             prefs,
-            CREATOR_TAG(nameDetailId),
+            null,
             this@StaticUpdater::getCreditsByNameDetailId,
             this@StaticUpdater::checkFKeysCredit,
             database.creditDao(),
             nameDetailId
         )
+    }
 
     private suspend fun updateNameDetailExCredits(nameDetailId: Int) =
         updateById<ExCredit>(
             prefs,
-            CREATOR_TAG(nameDetailId),
+            null,
             this@StaticUpdater::getExCreditsByNameDetailId,
             this@StaticUpdater::checkFKeysCredit,
             database.exCreditDao(),
@@ -220,34 +223,34 @@ class StaticUpdater(
         )
     }
 
-    internal suspend fun getPublishers(): List<Publisher>? =
+    private suspend fun getPublishers(): List<Publisher>? =
         getItems(prefs, webservice::getPublishers, UPDATED_PUBLISHERS)
 
-    internal suspend fun getRoles(): List<Role>? =
+    private suspend fun getRoles(): List<Role>? =
         getItems(prefs, webservice::getRoles, UPDATED_ROLES)
 
-    internal suspend fun getStoryTypes(): List<StoryType>? =
+    private suspend fun getStoryTypes(): List<StoryType>? =
         getItems(prefs, webservice::getStoryTypes, UPDATED_STORY_TYPES)
 
-    internal suspend fun getBondTypes(): List<BondType>? =
+    private suspend fun getBondTypes(): List<BondType>? =
         getItems(prefs, webservice::getBondTypes, UPDATED_BOND_TYPE)
 
-    internal suspend fun getSeriesBonds(): List<SeriesBond>? =
+    private suspend fun getSeriesBonds(): List<SeriesBond>? =
         getItems(prefs, webservice::getSeriesBonds, UPDATED_BONDS)
 
-    internal suspend fun getCharactersByPage(page: Int): List<Character>? =
+    private suspend fun getCharactersByPage(page: Int): List<Character>? =
         getItemsByArgument(page, webservice::getCharactersByPage)
 
-    internal suspend fun getSeriesByPage(page: Int): List<Series>? =
+    private suspend fun getSeriesByPage(page: Int): List<Series>? =
         getItemsByArgument(page, webservice::getSeriesByPage)
 
-    internal suspend fun getCreatorsByPage(page: Int): List<Creator>? =
+    private suspend fun getCreatorsByPage(page: Int): List<Creator>? =
         getItemsByArgument(page, webservice::getCreatorsByPage)
 
-    internal suspend fun getNameDetailsByPage(page: Int): List<NameDetail>? =
+    private suspend fun getNameDetailsByPage(page: Int): List<NameDetail>? =
         getItemsByArgument(page, webservice::getNameDetailsByPage)
 
-    internal fun updateIssueCover(issueId: Int) {
+    private fun updateIssueCover(issueId: Int) {
         if (checkIfStale(ISSUE_TAG(issueId), ISSUE_LIFETIME, prefs)) {
             CoroutineScope(Dispatchers.IO).launch {
                 database.issueDao().getIssueSus(issueId)?.let { issue ->

@@ -109,10 +109,7 @@ abstract class BaseDao<T : DataModel>(private val tableName: String) {
                     update(obj)
                 }
             } catch (sqlEx: SQLiteConstraintException) {
-                Log.d(TAG, "UGH SUS: $objClass $obj $sqlEx ${sqlEx.stackTrace} ${
-                    sqlEx
-                        .message
-                }")
+                Log.d(TAG, "UGH SUS: $objClass $obj $sqlEx ${sqlEx.stackTrace} ${sqlEx.message}")
             }
         }
     }

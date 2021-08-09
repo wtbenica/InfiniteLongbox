@@ -37,7 +37,7 @@ abstract class SeriesDao : BaseDao<Series>("series") {
 
     fun getSeriesByFilter(filter: SearchFilter): Flow<List<Series>> {
         val query = getSeriesQuery(filter)
-        Log.d(TAG, "Getting series filter options: ${query.sql} $query")
+
         return getSeriesByQuery(query)
     }
 
@@ -48,7 +48,7 @@ abstract class SeriesDao : BaseDao<Series>("series") {
     fun getSeriesByFilterPagingSource(filter: SearchFilter): PagingSource<Int, FullSeries> {
 
         val query = getSeriesQuery(filter)
-
+        Log.d(TAG, "Paging: ${query.sql} $query")
         return getSeriesByQueryPagingSource(query)
     }
 
@@ -86,11 +86,17 @@ abstract class SeriesDao : BaseDao<Series>("series") {
                     """${connectword()} ss.seriesId IN (
                         SELECT ct.series
                         FROM credit ct
-                        WHERE ct.nameDetail IN $creatorsList) 
+                        WHERE ct.nameDetail IN (
+                            SELECT nl.nameDetailId
+                            FROM namedetail nl
+                            WHERE nl.creator IN $creatorsList))
                     OR ss.seriesId IN (
                         SELECT ect.series
                         FROM excredit ect
-                        WHERE ect.nameDetail IN $creatorsList)
+                        WHERE ect.nameDetail IN (
+                            SELECT nl.nameDetailId
+                            FROM namedetail nl
+                            WHERE nl.creator IN $creatorsList))
                     """)
             }
 
@@ -134,7 +140,7 @@ abstract class SeriesDao : BaseDao<Series>("series") {
                     SortType.Companion.SortTypeOptions.SERIES.options[0].sortString
                 }
 
-                "ORDER BY ${sortString}"
+                "ORDER BY $sortString"
             } ?: ""
 
             return SimpleSQLiteQuery(

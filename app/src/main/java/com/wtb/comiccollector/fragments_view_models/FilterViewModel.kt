@@ -1,10 +1,7 @@
 package com.wtb.comiccollector.fragments_view_models
 
 import android.util.Log
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.asLiveData
+import androidx.lifecycle.*
 import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.SearchFilter
 import com.wtb.comiccollector.SortType
@@ -30,10 +27,7 @@ class FilterViewModel : ViewModel() {
     val filterType: LiveData<KClass<*>> = _filterType
 
     private val seriesOptions: Flow<List<FilterModel>> =
-        filter.flatMapLatest {
-            Log.d(TAG, "THISOWRORKES")
-            repository.getFilterOptionsSeries(it)
-        }
+        filter.flatMapLatest { repository.getFilterOptionsSeries(it) }
 
     private val publisherOptions =
         filter.flatMapLatest { repository.getFilterOptionsPublisher(it) }
@@ -61,34 +55,15 @@ class FilterViewModel : ViewModel() {
         res.sorted()
     }
 
-    lateinit var filterOptions: LiveData<List<FilterModel>>
-
-//    = filterType.switchMap {
-//        // THIS IS NOT HAPPENING
-//        Log.d(TAG, "FilterOption: $it")
-//        when (it) {
-//            Series.Companion::class     -> seriesOptions
-//            Publisher.Companion::class  -> publisherOptions
-//            Character.Companion::class  -> characterOptions
-//            NameDetail.Companion::class -> creatorOptions
-//            All.Companion::class        -> allOptions
-//            else                        -> throw IllegalStateException("filterOption can't be " +
-//                                                                               "${it.simpleName}")
-//        }.asLiveData()
-//    }.asFlow()
-
-    init {
-        filterType.observeForever {
-            Log.d(TAG, "Is this happneigna? FilterOption: $it")
-            filterOptions = when (it) {
-                Series.Companion::class     -> seriesOptions
-                Publisher.Companion::class  -> publisherOptions
-                Character.Companion::class  -> characterOptions
-                NameDetail.Companion::class -> creatorOptions
-                All.Companion::class        -> allOptions
-                else                        -> throw IllegalStateException("filterOption can't be $it")
-            }.asLiveData()
-        }
+    var filterOptions: LiveData<List<FilterModel>> = filterType.switchMap {
+        when (it) {
+            Series.Companion::class     -> seriesOptions
+            Publisher.Companion::class  -> publisherOptions
+            Character.Companion::class  -> characterOptions
+            NameDetail.Companion::class -> creatorOptions
+            All.Companion::class        -> allOptions
+            else                        -> throw IllegalStateException("filterOption can't be $it")
+        }.asLiveData()
     }
 
     fun setFilter(filter: SearchFilter) {
