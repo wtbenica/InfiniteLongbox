@@ -12,7 +12,7 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 abstract class CreditDao : BaseDao<Credit>("credit") {
 
-    @Query("SELECT * FROM credit WHERE storyId IN (:storyIds)")
+    @Query("SELECT * FROM credit WHERE story IN (:storyIds)")
     abstract fun getCreditsByStoryIds(storyIds: List<Int>): List<Credit>
 
     @Transaction
@@ -20,13 +20,11 @@ abstract class CreditDao : BaseDao<Credit>("credit") {
         """
             SELECT cr.*, st.sortCode
             FROM credit cr
-            JOIN story sr on cr.storyId = sr.storyId
-            JOIN storytype st on st.typeId = sr.storyType
-            JOIN role ON cr.roleId = role.roleId
-            JOIN namedetail nd ON nd.nameDetailId = cr.nameDetailId
-            JOIN creator c on c.creatorId = nd.creatorId
-            WHERE sr.issueId = :issueId
-            ORDER BY st.sortCode, sr.sequenceNumber, role.sortOrder
+            JOIN story sy on cr.story = sy.storyId
+            JOIN storytype st on st.storyTypeId = sy.storyType
+            JOIN role ON cr.role = role.roleId
+            WHERE sy.issue = :issueId
+            ORDER BY st.sortCode, sy.sequenceNumber, role.sortOrder
         """
     )
     abstract fun getIssueCredits(issueId: Int): Flow<List<FullCredit>>

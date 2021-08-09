@@ -5,20 +5,23 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 abstract class CreditX : DataModel() {
     abstract val creditId: Int
-    abstract var storyId: Int
-    abstract var nameDetailId: Int
-    abstract var roleId: Int
-    abstract var issue: Int?
-    abstract var series: Int?
+    abstract val story: Int
+    abstract val nameDetail: Int
+    abstract val role: Int
+    abstract val issue: Int?
+    abstract val series: Int?
+
+    override val id: Int
+        get() = creditId
 }
 
 @ExperimentalCoroutinesApi
 @Entity(
     indices = [
-        Index(value = ["storyId", "nameDetailId", "roleId"], unique = true),
-        Index(value = ["storyId"]),
-        Index(value = ["nameDetailId"]),
-        Index(value = ["roleId"]),
+        Index(value = ["story", "nameDetail", "role"], unique = true),
+        Index(value = ["story"]),
+        Index(value = ["nameDetail"]),
+        Index(value = ["role"]),
         Index(value = ["issue"]),
         Index(value = ["series"]),
     ],
@@ -26,19 +29,19 @@ abstract class CreditX : DataModel() {
         ForeignKey(
             entity = Story::class,
             parentColumns = arrayOf("storyId"),
-            childColumns = arrayOf("storyId"),
+            childColumns = arrayOf("story"),
             onDelete = ForeignKey.CASCADE
         ),
         ForeignKey(
             entity = NameDetail::class,
             parentColumns = arrayOf("nameDetailId"),
-            childColumns = arrayOf("nameDetailId"),
+            childColumns = arrayOf("nameDetail"),
             onDelete = ForeignKey.CASCADE
         ),
         ForeignKey(
             entity = Role::class,
             parentColumns = arrayOf("roleId"),
-            childColumns = arrayOf("roleId"),
+            childColumns = arrayOf("role"),
             onDelete = ForeignKey.CASCADE
         ),
         ForeignKey(
@@ -57,23 +60,20 @@ abstract class CreditX : DataModel() {
 )
 class Credit(
     @PrimaryKey(autoGenerate = true) override val creditId: Int = AUTO_ID,
-    override var storyId: Int,
-    override var nameDetailId: Int,
-    override var roleId: Int,
-    override var issue: Int?,
-    override var series: Int?,
-) : CreditX() {
-    override val id: Int
-        get() = creditId
-}
+    override val story: Int,
+    override val nameDetail: Int,
+    override val role: Int,
+    override val issue: Int?,
+    override val series: Int?,
+) : CreditX()
 
 @ExperimentalCoroutinesApi
 @Entity(
     indices = [
-        Index(value = ["storyId", "nameDetailId", "roleId"], unique = true),
-        Index(value = ["storyId"]),
-        Index(value = ["nameDetailId"]),
-        Index(value = ["roleId"]),
+        Index(value = ["story", "nameDetail", "role"], unique = true),
+        Index(value = ["story"]),
+        Index(value = ["nameDetail"]),
+        Index(value = ["role"]),
         Index(value = ["issue"]),
         Index(value = ["series"]),
     ],
@@ -81,19 +81,19 @@ class Credit(
         ForeignKey(
             entity = Story::class,
             parentColumns = arrayOf("storyId"),
-            childColumns = arrayOf("storyId"),
+            childColumns = arrayOf("story"),
             onDelete = ForeignKey.CASCADE
         ),
         ForeignKey(
             entity = NameDetail::class,
             parentColumns = arrayOf("nameDetailId"),
-            childColumns = arrayOf("nameDetailId"),
+            childColumns = arrayOf("nameDetail"),
             onDelete = ForeignKey.CASCADE
         ),
         ForeignKey(
             entity = Role::class,
             parentColumns = arrayOf("roleId"),
-            childColumns = arrayOf("roleId"),
+            childColumns = arrayOf("role"),
             onDelete = ForeignKey.CASCADE
         ),
         ForeignKey(
@@ -112,21 +112,18 @@ class Credit(
 )
 data class ExCredit(
     @PrimaryKey(autoGenerate = true) override val creditId: Int = AUTO_ID,
-    override var storyId: Int,
-    override var nameDetailId: Int,
-    override var roleId: Int,
-    override var issue: Int?,
-    override var series: Int?,
-) : CreditX() {
-    override val id: Int
-        get() = creditId
-}
+    override val story: Int,
+    override val nameDetail: Int,
+    override val role: Int,
+    override val issue: Int?,
+    override val series: Int?,
+) : CreditX() 
 
 @Entity(
     foreignKeys = [
         ForeignKey(
             entity = StoryType::class,
-            parentColumns = arrayOf("typeId"),
+            parentColumns = arrayOf("storyTypeId"),
             childColumns = arrayOf("storyType")
         )
     ],
@@ -136,14 +133,14 @@ data class ExCredit(
 )
 data class Story(
     @PrimaryKey(autoGenerate = true) val storyId: Int = AUTO_ID,
-    var storyType: Int,
-    var title: String? = null,
-    var feature: String? = null,
-    var characters: String? = null,
-    var synopsis: String? = null,
-    var notes: String? = null,
-    var sequenceNumber: Int = 0,
-    val issueId: Int,
+    val storyType: Int,
+    val title: String? = null,
+    val feature: String? = null,
+    val characters: String? = null,
+    val synopsis: String? = null,
+    val notes: String? = null,
+    val sequenceNumber: Int = 0,
+    val issue: Int,
 ) : DataModel() {
     override val id: Int
         get() = storyId
@@ -151,25 +148,26 @@ data class Story(
 
 @Entity
 data class StoryType(
-    @PrimaryKey(autoGenerate = true) val typeId: Int = AUTO_ID,
+    @PrimaryKey(autoGenerate = true) val storyTypeId: Int = AUTO_ID,
     val name: String,
     val sortCode: Int,
 ) : DataModel() {
     override val id: Int
-        get() = typeId
+        get() = storyTypeId
 }
 
 @Entity
 data class Role(
     @PrimaryKey(autoGenerate = true) val roleId: Int = AUTO_ID,
-    var roleName: String = "",
-    var sortOrder: Int,
+    val roleName: String = "",
+    val sortOrder: Int,
 ) : DataModel() {
     override val id: Int
         get() = roleId
 
     override fun toString(): String = roleName
 
+    // TODO: Marked for deletion 8/6/21
     companion object {
         enum class Name(val value: Int) {
             SCRIPT(1), PENCILS(2), INKS(3), COLORS(4), LETTERS(5), EDITING(6), PENCILS_INKS(7),
@@ -186,17 +184,23 @@ data class FullCredit(
     val credit: Credit,
 
     @Relation(
-        parentColumn = "nameDetailId",
+        parentColumn = "nameDetail",
         entityColumn = "nameDetailId",
         entity = NameDetail::class
     )
-    var nameDetail: NameDetailAndCreator,
+    val nameDetail: NameDetailAndCreator,
 
-    @Relation(parentColumn = "roleId", entityColumn = "roleId")
+    @Relation(parentColumn = "role", entityColumn = "roleId")
     val role: Role,
 
-    @Relation(parentColumn = "storyId", entityColumn = "storyId")
+    @Relation(parentColumn = "story", entityColumn = "storyId")
     val story: Story,
+
+    @Relation(parentColumn = "issue", entityColumn = "issueId")
+    val issue: Issue,
+
+    @Relation(parentColumn = "series", entityColumn = "seriesId")
+    val series: Series,
 
     val sortCode: Int,
 ) : Comparable<FullCredit> {
@@ -221,9 +225,9 @@ data class FullStory(
     @Embedded
     val story: Story,
 
-    @Relation(parentColumn = "storyType", entityColumn = "typeId")
-    var storyType: StoryType,
+    @Relation(parentColumn = "storyType", entityColumn = "storyTypeId")
+    val storyType: StoryType,
 
-    @Relation(parentColumn = "issueId", entityColumn = "issueId", entity = Issue::class)
+    @Relation(parentColumn = "issue", entityColumn = "issueId", entity = Issue::class)
     val issue: FullIssue,
 )

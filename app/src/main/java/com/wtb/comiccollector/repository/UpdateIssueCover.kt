@@ -67,12 +67,12 @@ class UpdateIssueCover(
                                             )
 
                                         val cover =
-                                            Cover(issueId = issueId, coverUri = savedUri)
+                                            Cover(issue = issueId, coverUri = savedUri)
                                         database.coverDao().upsertSus(listOf(cover))
                                     }
                                 }
                             } else if (noCover) {
-                                val cover = Cover(issueId = issueId, coverUri = null)
+                                val cover = Cover(issue = issueId, coverUri = null)
                                 database.coverDao().upsertSus(cover)
                             } else {
                                 Log.d(TAG, "COVER UPDATER No Cover Found")

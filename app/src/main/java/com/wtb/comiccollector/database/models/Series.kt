@@ -8,35 +8,37 @@ import java.io.Serializable
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
+// TODO: Add fk restraint back to firstIssueId. I don't want to do it right now, in case it 
+//  breaks things. Not time to deal with a new problem
 @ExperimentalCoroutinesApi
 @Entity(
     foreignKeys = [
         ForeignKey(
             entity = Publisher::class,
             parentColumns = arrayOf("publisherId"),
-            childColumns = arrayOf("publisherId"),
+            childColumns = arrayOf("publisher"),
             onDelete = ForeignKey.CASCADE
         ),
     ],
     indices = [
         Index(value = ["seriesName"]),
-        Index(value = ["publisherId"]),
+        Index(value = ["publisher"]),
     ]
 )
 data class Series(
-    @PrimaryKey(autoGenerate = true) var seriesId: Int = AUTO_ID,
+    @PrimaryKey(autoGenerate = true) val seriesId: Int = AUTO_ID,
     var seriesName: String = "New Series",
-    var sortName: String? = null,
+    val sortName: String? = null,
     var volume: Int = 1,
-    var publisherId: Int = AUTO_ID,
+    var publisher: Int = AUTO_ID,
     var startDate: LocalDate? = null,
     var endDate: LocalDate? = null,
-    var description: String? = null,
-    var publishingFormat: String? = null,
-    val firstIssueId: Int? = null,
+    val description: String? = null,
+    val publishingFormat: String? = null,
+    val firstIssue: Int? = null,
     val notes: String? = null,
     val issueCount: Int = 0,
-) : DataModel(), FilterAutoCompleteType, Serializable {
+) : DataModel(), FilterModel, Serializable {
     override val tagName: String
         get() = "Series"
 
@@ -60,8 +62,8 @@ data class Series(
             })"
         } ?: ""
 
-    companion object : FilterTypeSpinnerOption {
-        override val displayName: String = context!!.getString(R.string.filter_type_series)
+    companion object : FilterType {
+        override var displayName: String = context!!.getString(R.string.filter_type_series)
 
         override fun toString(): String = displayName
     }
@@ -76,12 +78,12 @@ data class Series(
 data class Publisher(
     @PrimaryKey(autoGenerate = true) val publisherId: Int = AUTO_ID,
     val publisher: String = "",
-    var yearBegan: LocalDate? = null,
-    var yearBeganUncertain: Boolean = true,
-    var yearEnded: LocalDate? = null,
-    var yearEndedUncertain: Boolean = true,
-    var url: String? = null,
-) : DataModel(), FilterAutoCompleteType {
+    val yearBegan: LocalDate? = null,
+    val yearBeganUncertain: Boolean = true,
+    val yearEnded: LocalDate? = null,
+    val yearEndedUncertain: Boolean = true,
+    val url: String? = null,
+) : DataModel(), FilterModel {
     override val tagName: String
         get() = "Publisher"
 
@@ -91,12 +93,10 @@ data class Publisher(
     override val id: Int
         get() = publisherId
 
-    override fun toString(): String {
-        return publisher
-    }
+    override fun toString(): String = publisher
 
-    companion object : FilterTypeSpinnerOption {
-        override val displayName: String = context!!.getString(R.string.filter_type_publisher)
+    companion object : FilterType {
+        override var displayName: String = context!!.getString(R.string.filter_type_publisher)
 
         override fun toString(): String = displayName
     }
@@ -106,8 +106,8 @@ data class Publisher(
 data class BondType(
     @PrimaryKey(autoGenerate = true) val bondTypeId: Int = AUTO_ID,
     val name: String,
-    var description: String,
-    var notes: String? = null,
+    val description: String,
+    val notes: String? = null,
 ) : DataModel() {
     override val id: Int
         get() = bondTypeId
@@ -119,49 +119,49 @@ data class BondType(
         ForeignKey(
             entity = Series::class,
             parentColumns = arrayOf("seriesId"),
-            childColumns = arrayOf("originId"),
+            childColumns = arrayOf("origin"),
             onDelete = ForeignKey.CASCADE
         ),
         ForeignKey(
             entity = Series::class,
             parentColumns = arrayOf("seriesId"),
-            childColumns = arrayOf("targetId"),
+            childColumns = arrayOf("target"),
             onDelete = ForeignKey.CASCADE
         ),
         ForeignKey(
             entity = Issue::class,
             parentColumns = arrayOf("issueId"),
-            childColumns = arrayOf("originIssueId"),
+            childColumns = arrayOf("originIssue"),
             onDelete = ForeignKey.CASCADE
         ),
         ForeignKey(
             entity = Issue::class,
             parentColumns = arrayOf("issueId"),
-            childColumns = arrayOf("targetIssueId"),
+            childColumns = arrayOf("targetIssue"),
             onDelete = ForeignKey.CASCADE
         ),
         ForeignKey(
             entity = BondType::class,
             parentColumns = arrayOf("bondTypeId"),
-            childColumns = arrayOf("bondTypeId"),
+            childColumns = arrayOf("bondType"),
             onDelete = ForeignKey.RESTRICT
         )
     ],
     indices = [
-        Index(value = ["originId"]),
-        Index(value = ["targetId"]),
-        Index(value = ["originIssueId"]),
-        Index(value = ["targetIssueId"]),
-        Index(value = ["bondTypeId"]),
+        Index(value = ["origin"]),
+        Index(value = ["target"]),
+        Index(value = ["originIssue"]),
+        Index(value = ["targetIssue"]),
+        Index(value = ["bondType"]),
     ]
 )
 data class SeriesBond(
-    @PrimaryKey(autoGenerate = true) var bondId: Int = AUTO_ID,
-    val originId: Int,
-    val targetId: Int,
-    val originIssueId: Int?,
-    val targetIssueId: Int?,
-    val bondTypeId: Int,
+    @PrimaryKey(autoGenerate = true) val bondId: Int = AUTO_ID,
+    val origin: Int,
+    val target: Int,
+    val originIssue: Int?,
+    val targetIssue: Int?,
+    val bondType: Int,
     val notes: String?,
 ) : DataModel() {
     override val id: Int
@@ -175,17 +175,17 @@ data class FullSeries(
     @Embedded
     val series: Series = Series(),
 
-    @Relation(parentColumn = "publisherId", entityColumn = "publisherId")
-    var publisher: Publisher = Publisher(),
+    @Relation(parentColumn = "publisher", entityColumn = "publisherId")
+    val publisher: Publisher = Publisher(),
 
-    @Relation(parentColumn = "firstIssueId", entityColumn = "issueId", entity = Issue::class)
-    var firstIssue: FullIssue? = null,
+    @Relation(parentColumn = "firstIssue", entityColumn = "issueId", entity = Issue::class)
+    val firstIssue: FullIssue? = null,
 
-    @Relation(parentColumn = "seriesId", entityColumn = "originId", entity = SeriesBond::class)
-    var seriesBondTo: Bond? = null,
+    @Relation(parentColumn = "seriesId", entityColumn = "origin", entity = SeriesBond::class)
+    val seriesBondTo: Bond? = null,
 
-    @Relation(parentColumn = "seriesId", entityColumn = "targetId", entity = SeriesBond::class)
-    var seriesBondFrom: Bond? = null,
+    @Relation(parentColumn = "seriesId", entityColumn = "target", entity = SeriesBond::class)
+    val seriesBondFrom: Bond? = null,
 ) : ListItem
 
 @ExperimentalCoroutinesApi
@@ -193,8 +193,8 @@ data class SeriesAndPublisher(
     @Embedded
     val series: Series,
 
-    @Relation(parentColumn = "publisherId", entityColumn = "publisherId")
-    var publisher: Publisher,
+    @Relation(parentColumn = "publisher", entityColumn = "publisherId")
+    val publisher: Publisher,
 )
 
 @ExperimentalCoroutinesApi
@@ -202,9 +202,9 @@ data class Bond(
     @Embedded
     val seriesBond: SeriesBond,
 
-    @Relation(parentColumn = "targetId", entityColumn = "seriesId")
-    var targetSeries: Series,
+    @Relation(parentColumn = "target", entityColumn = "seriesId")
+    val targetSeries: Series,
 
-    @Relation(parentColumn = "originId", entityColumn = "seriesId")
-    var originSeries: Series,
+    @Relation(parentColumn = "origin", entityColumn = "seriesId")
+    val originSeries: Series,
 )

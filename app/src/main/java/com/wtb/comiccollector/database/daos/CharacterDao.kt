@@ -1,6 +1,5 @@
 package com.wtb.comiccollector.database.daos
 
-import android.util.Log
 import androidx.paging.PagingSource
 import androidx.room.Dao
 import androidx.room.Query
@@ -8,9 +7,13 @@ import androidx.room.RawQuery
 import androidx.room.Transaction
 import androidx.sqlite.db.SimpleSQLiteQuery
 import androidx.sqlite.db.SupportSQLiteQuery
-import com.wtb.comiccollector.*
+import com.wtb.comiccollector.APP
+import com.wtb.comiccollector.SearchFilter
+import com.wtb.comiccollector.SortType
 import com.wtb.comiccollector.SortType.Companion.containsSortType
-import com.wtb.comiccollector.database.models.*
+import com.wtb.comiccollector.database.models.Character
+import com.wtb.comiccollector.database.models.FullCharacter
+import com.wtb.comiccollector.database.models.TextFilter
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import java.util.*
@@ -32,7 +35,7 @@ abstract class CharacterDao : BaseDao<Character>("character") {
 
     fun getCharacterFilterOptions(filter: SearchFilter): Flow<List<Character>> {
         val query = getCharacterQuery(filter)
-        Log.d(TAG, "creatorQuery filterOptions: ${query.sql}")
+
         return getCharacterByQuery(query)
     }
 
@@ -42,7 +45,7 @@ abstract class CharacterDao : BaseDao<Character>("character") {
 
     fun getCharactersByFilterPagingSource(filter: SearchFilter): PagingSource<Int, FullCharacter> {
         val query = getCharacterQuery(filter)
-        Log.d(TAG, "creatorQuery paged: ${query.sql}")
+
         return getCharactersByQueryPagingSource(query)
     }
 
@@ -59,8 +62,7 @@ abstract class CharacterDao : BaseDao<Character>("character") {
 
         if (filter.isNotEmpty()) {
             tableJoinString.append("""JOIN appearance ap ON ap.character = ch.characterId 
-                JOIN story sy ON ap.story = sy.storyId 
-                JOIN issue ie ON sy.issueId = ie.issueId 
+                JOIN issue ie ON ap.issue = ie.issueId 
                 """)
         }
         if (filter.mPublishers.isNotEmpty()) {
@@ -73,21 +75,23 @@ abstract class CharacterDao : BaseDao<Character>("character") {
         if (filter.mCreators.isNotEmpty()) {
             val creatorsList = modelsToSqlIdString(filter.mCreators)
 
-            conditionsString.append("""${connectword()} sy.storyId IN (
-                SELECT storyId
+            tableJoinString.append("""JOIN story sy ON sy.storyId = ap.story """)
+
+            conditionsString.append("""${connectword()} (sy.storyId IN (
+                SELECT story
                 FROM credit ct
-                JOIN namedetail nl on nl.nameDetailId = ct.nameDetailId
-                WHERE nl.creatorId IN $creatorsList)
+                JOIN namedetail nl on nl.nameDetailId = ct.nameDetail
+                WHERE nl.creator IN $creatorsList)
                 OR sy.storyId IN (
-                SELECT storyId
+                SELECT story
                 FROM excredit ect
-                JOIN namedetail nl on nl.nameDetailId = ect.nameDetailId
-                WHERE nl.creatorId IN $creatorsList) 
+                JOIN namedetail nl on nl.nameDetailId = ect.nameDetail
+                WHERE nl.creator IN $creatorsList))
             """)
         }
 
         filter.mSeries?.let {
-            conditionsString.append("""${connectword()} ie.seriesId = ? 
+            conditionsString.append("""${connectword()} ie.series = ? 
                 """)
 
             args.add(it.seriesId)
@@ -95,44 +99,22 @@ abstract class CharacterDao : BaseDao<Character>("character") {
 
         if (filter.mMyCollection) {
             conditionsString.append("""${connectword()} ie.issueId IN (
-                SELECT issueId
+                SELECT issue
                 FROM mycollection) 
                 """)
         }
 
         filter.mTextFilter?.let { textFilter ->
-            val lookup: Map<FilterTypeSpinnerOption, List<String?>> =
-                mapOf(Pair(Series,
-                           listOf(ComicCollectorApplication.context?.getString(R.string.table_col_series_name))),
-                      Pair(Publisher,
-                           listOf(ComicCollectorApplication.context?.getString(R.string.table_col_publisher))),
-                      Pair(NameDetail,
-                           listOf(ComicCollectorApplication.context?.getString(R.string.table_col_namedetail),
-                                  ComicCollectorApplication.context?.getString(R.string.table_col_namedetail2))),
-                      Pair(Character,
-                           listOf(ComicCollectorApplication.context?.getString(R.string.table_col_character_name),
-                                  ComicCollectorApplication.context?.getString(R.string.table_col_character_alterego))))
-
-            conditionsString.append("${connectword()} (")
-
-            when (textFilter.type) {
-                All.Companion::class -> {
-                    lookup.forEach {
-                        conditionsString.append(addTypeFilterElse(it.value, textFilter))
-                    }
-                }
-                else                 -> {
-                    conditionsString.append(addTypeFilterElse(lookup[textFilter.type], textFilter))
-                }
-            }
-
-            conditionsString.append(""") """)
+            val text = textFilterToString(textFilter.text)
+            conditionsString.append(
+                """${connectword()} ch.name LIKE '$text'
+                    OR ch.alterEgo LIKE '$text'
+                    """)
         }
 
         val sortClause: String = filter.mSortType?.let {
             val isValid =
                 SortType.Companion.SortTypeOptions.CHARACTER.options.containsSortType(it)
-//                it !in SortType.Companion.SortTypeOptions.CHARACTER.options
             val sortString: String =
                 if (isValid) {
                     it.sortString
@@ -184,4 +166,11 @@ abstract class CharacterDao : BaseDao<Character>("character") {
             return res
         }
     }
+
+//    fun getCharacterIdsByFilter(filter: SearchFilter) {
+//        val t = listOf(filter.mSeries, filter.mCreators, filter.mCharacter, filter.mTextFilter,
+//                       filter.mPublishers, Pair(filter.mStartDate, filter.mEndDate), filter.mMyCollection)
+//
+//        val issuesInMyCollection = CollectionDao().
+//    }
 }

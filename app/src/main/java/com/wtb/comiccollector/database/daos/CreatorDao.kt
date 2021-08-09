@@ -44,63 +44,64 @@ abstract class CreatorDao : BaseDao<Creator>("creator") {
     }
 
     companion object {
+        private const val TAG = "CreatorDao"
+
         private fun getCreatorQuery(filter: SearchFilter): SimpleSQLiteQuery {
             val tableJoinString = StringBuilder()
-            val tableJoinString2 = StringBuilder()
             val conditionsString = StringBuilder()
             val args: ArrayList<Any> = arrayListOf()
             fun connectword(): String = if (conditionsString.isEmpty()) "WHERE" else "AND"
-
             //language=RoomSql
             tableJoinString.append(
                 """SELECT DISTINCT cr.* 
                         FROM creator cr 
-                        JOIN nameDetail nd ON cr.creatorId = nd.creatorId 
-                        JOIN credit ct ON ct.nameDetailId = nd.nameDetailId 
-                        JOIN story sy ON ct.storyId = sy.storyId 
-                        JOIN issue ie ON ie.issueId = sy.issueId 
-                        JOIN series ss ON ie.seriesId = ss.seriesId 
+                        JOIN nameDetail nd ON cr.creatorId = nd.creator 
+                        LEFT JOIN credit ct ON ct.nameDetail = nd.nameDetailId 
+                        LEFT JOIN series ss ON ct.series = ss.seriesId 
                         """)
 
             //language=RoomSql
-            tableJoinString2.append(
-                """SELECT DISTINCT cr.* 
-                        FROM creator cr 
-                        JOIN nameDetail nd ON cr.creatorId = nd.creatorId 
-                        JOIN excredit ect ON ect.nameDetailId = nd.nameDetailId 
-                        JOIN story sy ON ect.storyId = sy.storyId 
-                        JOIN issue ie ON ie.issueId = sy.issueId 
-                        JOIN series ss ON ie.seriesId = ss.seriesId  
-                        """)
-
             filter.mSeries?.let {
-                conditionsString.append("""${connectword()} ss.seriesId = ${it.seriesId} 
-                """)
+                conditionsString.append(
+                    """${connectword()} ct.series = ${it.seriesId}
+                        """)
             }
 
             if (filter.hasPublisher()) {
                 val publisherList = modelsToSqlIdString(filter.mPublishers)
+                tableJoinString.append("""JOIN series ss on ct.series = ss.seriesId """)
 
-                conditionsString.append("""${connectword()} ss.publisherId IN $publisherList  
+                conditionsString.append("""${connectword()} ss.publisher IN $publisherList  
                 """)
             }
 
-            if (filter.hasDateFilter()) {
-                //language=RoomSql
-                conditionsString.append("""${connectword()} ie.releaseDate < ? 
+            if (filter.hasDateFilter() || filter.mMyCollection) {
+                tableJoinString.append("""JOIN issue ie on ct.issue = ie.issueId """)
+
+                if (filter.hasDateFilter()) {
+                    //language=RoomSql
+                    conditionsString.append("""${connectword()} ie.releaseDate < ? 
                     AND ie.releaseDate > ? 
                     """)
-                args.add(filter.mEndDate)
-                args.add(filter.mStartDate)
-                args.add(filter.mEndDate)
-                args.add(filter.mStartDate)
-            }
+                    args.add(filter.mEndDate)
+                    args.add(filter.mStartDate)
+                    args.add(filter.mEndDate)
+                    args.add(filter.mStartDate)
+                }
 
-            if (filter.mMyCollection) {
-                conditionsString.append("""${connectword()} ie.issueId IN (
+                if (filter.mMyCollection) {
+                    conditionsString.append("""${connectword()} ie.issueId IN (
                     SELECT issueId
                     FROM mycollection) 
                 """)
+                }
+            }
+
+            filter.mTextFilter?.let { textFilter ->
+                val text = textFilterToString(textFilter.text)
+                conditionsString.append("""${connectword()} nd.name LIKE '$text'
+                OR cr.name LIKE '$text'
+            """)
             }
 
             val allArgs: ArrayList<Any> = arrayListOf()
@@ -110,7 +111,6 @@ abstract class CreatorDao : BaseDao<Creator>("creator") {
             val sortClause: String = filter.mSortType?.let {
                 val isValid =
                     SortType.Companion.SortTypeOptions.CREATOR.options.containsSortType(it)
-//                it !in SortType.Companion.SortTypeOptions.CREATOR.options
                 val sortString: String =
                     if (isValid) {
                         it.sortString
@@ -120,7 +120,9 @@ abstract class CreatorDao : BaseDao<Creator>("creator") {
                 "ORDER BY ${sortString}"
             } ?: ""
 
-
+            val tableJoinString2 =
+                tableJoinString.replace(Regex("credit"), "excredit").replace(Regex(" ct"), " ect")
+            val conditionsString2 = conditionsString.replace(Regex(" ct"), " ect")
             return SimpleSQLiteQuery(
                 """
                     SELECT *
@@ -128,7 +130,7 @@ abstract class CreatorDao : BaseDao<Creator>("creator") {
                     ( 
                         $tableJoinString$conditionsString 
                         UNION 
-                        $tableJoinString2$conditionsString 
+                        $tableJoinString2$conditionsString2
                     ) 
                     $sortClause
                 """,

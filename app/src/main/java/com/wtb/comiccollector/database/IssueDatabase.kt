@@ -16,12 +16,11 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
         Publisher::class, Story::class, ExCredit::class, StoryType::class, NameDetail::class,
         Character::class, Appearance::class, MyCollection::class, Cover::class,
         SeriesBond::class, BondType::class, Brand::class],
-    version = 12,
+    version = 1,
 )
-
 @TypeConverters(IssueTypeConverters::class)
-
 abstract class IssueDatabase : RoomDatabase() {
+
     abstract fun issueDao(): IssueDao
     abstract fun seriesDao(): SeriesDao
     abstract fun creatorDao(): CreatorDao

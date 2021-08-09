@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "8c4dc231c7fe86fc734db5d233a20ad7",
+    "identityHash": "9df622bfb5d869b76e36a3af52016bb4",
     "entities": [
       {
         "tableName": "Issue",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`issueId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `seriesId` INTEGER NOT NULL, `issueNum` INTEGER NOT NULL, `releaseDate` TEXT, `upc` INTEGER, `variantName` TEXT NOT NULL, `variantOf` INTEGER, `sortCode` INTEGER NOT NULL, `coverDateLong` TEXT NOT NULL, `onSaleDateUncertain` INTEGER NOT NULL, `coverDate` TEXT, `notes` TEXT NOT NULL, `lastUpdated` TEXT NOT NULL, FOREIGN KEY(`seriesId`) REFERENCES `Series`(`seriesId`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`variantOf`) REFERENCES `Issue`(`issueId`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`issueId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `series` INTEGER NOT NULL, `issueNum` INTEGER NOT NULL, `releaseDate` TEXT, `upc` INTEGER, `variantName` TEXT NOT NULL, `variantOf` INTEGER, `sortCode` INTEGER NOT NULL, `coverDateLong` TEXT, `onSaleDateUncertain` INTEGER NOT NULL, `coverDate` TEXT, `notes` TEXT, `brandId` INTEGER, `issueNumRaw` TEXT, `lastUpdated` TEXT NOT NULL, FOREIGN KEY(`series`) REFERENCES `Series`(`seriesId`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`variantOf`) REFERENCES `Issue`(`issueId`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "issueId",
@@ -15,8 +15,8 @@
             "notNull": true
           },
           {
-            "fieldPath": "seriesId",
-            "columnName": "seriesId",
+            "fieldPath": "series",
+            "columnName": "series",
             "affinity": "INTEGER",
             "notNull": true
           },
@@ -60,7 +60,7 @@
             "fieldPath": "coverDateLong",
             "columnName": "coverDateLong",
             "affinity": "TEXT",
-            "notNull": true
+            "notNull": false
           },
           {
             "fieldPath": "onSaleDateUncertain",
@@ -78,7 +78,19 @@
             "fieldPath": "notes",
             "columnName": "notes",
             "affinity": "TEXT",
-            "notNull": true
+            "notNull": false
+          },
+          {
+            "fieldPath": "brandId",
+            "columnName": "brandId",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "issueNumRaw",
+            "columnName": "issueNumRaw",
+            "affinity": "TEXT",
+            "notNull": false
           },
           {
             "fieldPath": "lastUpdated",
@@ -95,13 +107,13 @@
         },
         "indices": [
           {
-            "name": "index_Issue_seriesId_issueNum",
+            "name": "index_Issue_series_issueNum",
             "unique": false,
             "columnNames": [
-              "seriesId",
+              "series",
               "issueNum"
             ],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_Issue_seriesId_issueNum` ON `${TABLE_NAME}` (`seriesId`, `issueNum`)"
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_Issue_series_issueNum` ON `${TABLE_NAME}` (`series`, `issueNum`)"
           },
           {
             "name": "index_Issue_variantOf",
@@ -118,7 +130,7 @@
             "onDelete": "CASCADE",
             "onUpdate": "NO ACTION",
             "columns": [
-              "seriesId"
+              "series"
             ],
             "referencedColumns": [
               "seriesId"
@@ -139,7 +151,7 @@
       },
       {
         "tableName": "Series",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`seriesId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `seriesName` TEXT NOT NULL, `sortName` TEXT, `volume` INTEGER NOT NULL, `publisherId` INTEGER NOT NULL, `startDate` TEXT, `endDate` TEXT, `description` TEXT, `publishingFormat` TEXT, `firstIssueId` INTEGER, `lastUpdated` TEXT NOT NULL, FOREIGN KEY(`publisherId`) REFERENCES `Publisher`(`publisherId`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`seriesId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `seriesName` TEXT NOT NULL, `sortName` TEXT, `volume` INTEGER NOT NULL, `publisher` INTEGER NOT NULL, `startDate` TEXT, `endDate` TEXT, `description` TEXT, `publishingFormat` TEXT, `firstIssue` INTEGER, `notes` TEXT, `issueCount` INTEGER NOT NULL, `lastUpdated` TEXT NOT NULL, FOREIGN KEY(`publisher`) REFERENCES `Publisher`(`publisherId`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "seriesId",
@@ -166,8 +178,8 @@
             "notNull": true
           },
           {
-            "fieldPath": "publisherId",
-            "columnName": "publisherId",
+            "fieldPath": "publisher",
+            "columnName": "publisher",
             "affinity": "INTEGER",
             "notNull": true
           },
@@ -196,10 +208,22 @@
             "notNull": false
           },
           {
-            "fieldPath": "firstIssueId",
-            "columnName": "firstIssueId",
+            "fieldPath": "firstIssue",
+            "columnName": "firstIssue",
             "affinity": "INTEGER",
             "notNull": false
+          },
+          {
+            "fieldPath": "notes",
+            "columnName": "notes",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "issueCount",
+            "columnName": "issueCount",
+            "affinity": "INTEGER",
+            "notNull": true
           },
           {
             "fieldPath": "lastUpdated",
@@ -224,12 +248,12 @@
             "createSql": "CREATE INDEX IF NOT EXISTS `index_Series_seriesName` ON `${TABLE_NAME}` (`seriesName`)"
           },
           {
-            "name": "index_Series_publisherId",
+            "name": "index_Series_publisher",
             "unique": false,
             "columnNames": [
-              "publisherId"
+              "publisher"
             ],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_Series_publisherId` ON `${TABLE_NAME}` (`publisherId`)"
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_Series_publisher` ON `${TABLE_NAME}` (`publisher`)"
           }
         ],
         "foreignKeys": [
@@ -238,7 +262,7 @@
             "onDelete": "CASCADE",
             "onUpdate": "NO ACTION",
             "columns": [
-              "publisherId"
+              "publisher"
             ],
             "referencedColumns": [
               "publisherId"
@@ -248,7 +272,7 @@
       },
       {
         "tableName": "Creator",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`creatorId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `sortName` TEXT NOT NULL, `lastUpdated` TEXT NOT NULL)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`creatorId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `sortName` TEXT NOT NULL, `bio` TEXT, `lastUpdated` TEXT NOT NULL)",
         "fields": [
           {
             "fieldPath": "creatorId",
@@ -269,6 +293,12 @@
             "notNull": true
           },
           {
+            "fieldPath": "bio",
+            "columnName": "bio",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
             "fieldPath": "lastUpdated",
             "columnName": "lastUpdated",
             "affinity": "TEXT",
@@ -281,7 +311,24 @@
           ],
           "autoGenerate": true
         },
-        "indices": [],
+        "indices": [
+          {
+            "name": "index_Creator_name",
+            "unique": false,
+            "columnNames": [
+              "name"
+            ],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_Creator_name` ON `${TABLE_NAME}` (`name`)"
+          },
+          {
+            "name": "index_Creator_sortName",
+            "unique": false,
+            "columnNames": [
+              "sortName"
+            ],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_Creator_sortName` ON `${TABLE_NAME}` (`sortName`)"
+          }
+        ],
         "foreignKeys": []
       },
       {
@@ -324,7 +371,7 @@
       },
       {
         "tableName": "Credit",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`creditId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `storyId` INTEGER NOT NULL, `nameDetailId` INTEGER NOT NULL, `roleId` INTEGER NOT NULL, `lastUpdated` TEXT NOT NULL, FOREIGN KEY(`storyId`) REFERENCES `Story`(`storyId`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`nameDetailId`) REFERENCES `NameDetail`(`nameDetailId`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`roleId`) REFERENCES `Role`(`roleId`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`creditId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `story` INTEGER NOT NULL, `nameDetail` INTEGER NOT NULL, `role` INTEGER NOT NULL, `issue` INTEGER, `series` INTEGER, `lastUpdated` TEXT NOT NULL, FOREIGN KEY(`story`) REFERENCES `Story`(`storyId`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`nameDetail`) REFERENCES `NameDetail`(`nameDetailId`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`role`) REFERENCES `Role`(`roleId`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`issue`) REFERENCES `Issue`(`issueId`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`series`) REFERENCES `Series`(`seriesId`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "creditId",
@@ -333,22 +380,34 @@
             "notNull": true
           },
           {
-            "fieldPath": "storyId",
-            "columnName": "storyId",
+            "fieldPath": "story",
+            "columnName": "story",
             "affinity": "INTEGER",
             "notNull": true
           },
           {
-            "fieldPath": "nameDetailId",
-            "columnName": "nameDetailId",
+            "fieldPath": "nameDetail",
+            "columnName": "nameDetail",
             "affinity": "INTEGER",
             "notNull": true
           },
           {
-            "fieldPath": "roleId",
-            "columnName": "roleId",
+            "fieldPath": "role",
+            "columnName": "role",
             "affinity": "INTEGER",
             "notNull": true
+          },
+          {
+            "fieldPath": "issue",
+            "columnName": "issue",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "series",
+            "columnName": "series",
+            "affinity": "INTEGER",
+            "notNull": false
           },
           {
             "fieldPath": "lastUpdated",
@@ -365,38 +424,54 @@
         },
         "indices": [
           {
-            "name": "index_Credit_storyId_nameDetailId_roleId",
+            "name": "index_Credit_story_nameDetail_role",
             "unique": true,
             "columnNames": [
-              "storyId",
-              "nameDetailId",
-              "roleId"
+              "story",
+              "nameDetail",
+              "role"
             ],
-            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_Credit_storyId_nameDetailId_roleId` ON `${TABLE_NAME}` (`storyId`, `nameDetailId`, `roleId`)"
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_Credit_story_nameDetail_role` ON `${TABLE_NAME}` (`story`, `nameDetail`, `role`)"
           },
           {
-            "name": "index_Credit_storyId",
+            "name": "index_Credit_story",
             "unique": false,
             "columnNames": [
-              "storyId"
+              "story"
             ],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_Credit_storyId` ON `${TABLE_NAME}` (`storyId`)"
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_Credit_story` ON `${TABLE_NAME}` (`story`)"
           },
           {
-            "name": "index_Credit_nameDetailId",
+            "name": "index_Credit_nameDetail",
             "unique": false,
             "columnNames": [
-              "nameDetailId"
+              "nameDetail"
             ],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_Credit_nameDetailId` ON `${TABLE_NAME}` (`nameDetailId`)"
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_Credit_nameDetail` ON `${TABLE_NAME}` (`nameDetail`)"
           },
           {
-            "name": "index_Credit_roleId",
+            "name": "index_Credit_role",
             "unique": false,
             "columnNames": [
-              "roleId"
+              "role"
             ],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_Credit_roleId` ON `${TABLE_NAME}` (`roleId`)"
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_Credit_role` ON `${TABLE_NAME}` (`role`)"
+          },
+          {
+            "name": "index_Credit_issue",
+            "unique": false,
+            "columnNames": [
+              "issue"
+            ],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_Credit_issue` ON `${TABLE_NAME}` (`issue`)"
+          },
+          {
+            "name": "index_Credit_series",
+            "unique": false,
+            "columnNames": [
+              "series"
+            ],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_Credit_series` ON `${TABLE_NAME}` (`series`)"
           }
         ],
         "foreignKeys": [
@@ -405,7 +480,7 @@
             "onDelete": "CASCADE",
             "onUpdate": "NO ACTION",
             "columns": [
-              "storyId"
+              "story"
             ],
             "referencedColumns": [
               "storyId"
@@ -416,7 +491,7 @@
             "onDelete": "CASCADE",
             "onUpdate": "NO ACTION",
             "columns": [
-              "nameDetailId"
+              "nameDetail"
             ],
             "referencedColumns": [
               "nameDetailId"
@@ -427,17 +502,39 @@
             "onDelete": "CASCADE",
             "onUpdate": "NO ACTION",
             "columns": [
-              "roleId"
+              "role"
             ],
             "referencedColumns": [
               "roleId"
+            ]
+          },
+          {
+            "table": "Issue",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "issue"
+            ],
+            "referencedColumns": [
+              "issueId"
+            ]
+          },
+          {
+            "table": "Series",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "series"
+            ],
+            "referencedColumns": [
+              "seriesId"
             ]
           }
         ]
       },
       {
         "tableName": "Publisher",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`publisherId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `publisher` TEXT NOT NULL, `lastUpdated` TEXT NOT NULL)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`publisherId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `publisher` TEXT NOT NULL, `yearBegan` TEXT, `yearBeganUncertain` INTEGER NOT NULL, `yearEnded` TEXT, `yearEndedUncertain` INTEGER NOT NULL, `url` TEXT, `lastUpdated` TEXT NOT NULL)",
         "fields": [
           {
             "fieldPath": "publisherId",
@@ -450,6 +547,36 @@
             "columnName": "publisher",
             "affinity": "TEXT",
             "notNull": true
+          },
+          {
+            "fieldPath": "yearBegan",
+            "columnName": "yearBegan",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "yearBeganUncertain",
+            "columnName": "yearBeganUncertain",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "yearEnded",
+            "columnName": "yearEnded",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "yearEndedUncertain",
+            "columnName": "yearEndedUncertain",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "url",
+            "columnName": "url",
+            "affinity": "TEXT",
+            "notNull": false
           },
           {
             "fieldPath": "lastUpdated",
@@ -478,7 +605,7 @@
       },
       {
         "tableName": "Story",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`storyId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `storyType` INTEGER NOT NULL, `title` TEXT, `feature` TEXT, `characters` TEXT, `synopsis` TEXT, `notes` TEXT, `sequenceNumber` INTEGER NOT NULL, `issueId` INTEGER NOT NULL, `lastUpdated` TEXT NOT NULL, FOREIGN KEY(`storyType`) REFERENCES `StoryType`(`typeId`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`storyId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `storyType` INTEGER NOT NULL, `title` TEXT, `feature` TEXT, `characters` TEXT, `synopsis` TEXT, `notes` TEXT, `sequenceNumber` INTEGER NOT NULL, `issue` INTEGER NOT NULL, `lastUpdated` TEXT NOT NULL, FOREIGN KEY(`storyType`) REFERENCES `StoryType`(`storyTypeId`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
         "fields": [
           {
             "fieldPath": "storyId",
@@ -529,8 +656,8 @@
             "notNull": true
           },
           {
-            "fieldPath": "issueId",
-            "columnName": "issueId",
+            "fieldPath": "issue",
+            "columnName": "issue",
             "affinity": "INTEGER",
             "notNull": true
           },
@@ -566,14 +693,14 @@
               "storyType"
             ],
             "referencedColumns": [
-              "typeId"
+              "storyTypeId"
             ]
           }
         ]
       },
       {
         "tableName": "ExCredit",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`creditId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `storyId` INTEGER NOT NULL, `nameDetailId` INTEGER NOT NULL, `roleId` INTEGER NOT NULL, `lastUpdated` TEXT NOT NULL, FOREIGN KEY(`storyId`) REFERENCES `Story`(`storyId`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`nameDetailId`) REFERENCES `NameDetail`(`nameDetailId`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`roleId`) REFERENCES `Role`(`roleId`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`creditId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `story` INTEGER NOT NULL, `nameDetail` INTEGER NOT NULL, `role` INTEGER NOT NULL, `issue` INTEGER, `series` INTEGER, `lastUpdated` TEXT NOT NULL, FOREIGN KEY(`story`) REFERENCES `Story`(`storyId`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`nameDetail`) REFERENCES `NameDetail`(`nameDetailId`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`role`) REFERENCES `Role`(`roleId`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`issue`) REFERENCES `Issue`(`issueId`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`series`) REFERENCES `Series`(`seriesId`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "creditId",
@@ -582,22 +709,34 @@
             "notNull": true
           },
           {
-            "fieldPath": "storyId",
-            "columnName": "storyId",
+            "fieldPath": "story",
+            "columnName": "story",
             "affinity": "INTEGER",
             "notNull": true
           },
           {
-            "fieldPath": "nameDetailId",
-            "columnName": "nameDetailId",
+            "fieldPath": "nameDetail",
+            "columnName": "nameDetail",
             "affinity": "INTEGER",
             "notNull": true
           },
           {
-            "fieldPath": "roleId",
-            "columnName": "roleId",
+            "fieldPath": "role",
+            "columnName": "role",
             "affinity": "INTEGER",
             "notNull": true
+          },
+          {
+            "fieldPath": "issue",
+            "columnName": "issue",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "series",
+            "columnName": "series",
+            "affinity": "INTEGER",
+            "notNull": false
           },
           {
             "fieldPath": "lastUpdated",
@@ -614,38 +753,54 @@
         },
         "indices": [
           {
-            "name": "index_ExCredit_storyId_nameDetailId_roleId",
+            "name": "index_ExCredit_story_nameDetail_role",
             "unique": true,
             "columnNames": [
-              "storyId",
-              "nameDetailId",
-              "roleId"
+              "story",
+              "nameDetail",
+              "role"
             ],
-            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_ExCredit_storyId_nameDetailId_roleId` ON `${TABLE_NAME}` (`storyId`, `nameDetailId`, `roleId`)"
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_ExCredit_story_nameDetail_role` ON `${TABLE_NAME}` (`story`, `nameDetail`, `role`)"
           },
           {
-            "name": "index_ExCredit_storyId",
+            "name": "index_ExCredit_story",
             "unique": false,
             "columnNames": [
-              "storyId"
+              "story"
             ],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_ExCredit_storyId` ON `${TABLE_NAME}` (`storyId`)"
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_ExCredit_story` ON `${TABLE_NAME}` (`story`)"
           },
           {
-            "name": "index_ExCredit_nameDetailId",
+            "name": "index_ExCredit_nameDetail",
             "unique": false,
             "columnNames": [
-              "nameDetailId"
+              "nameDetail"
             ],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_ExCredit_nameDetailId` ON `${TABLE_NAME}` (`nameDetailId`)"
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_ExCredit_nameDetail` ON `${TABLE_NAME}` (`nameDetail`)"
           },
           {
-            "name": "index_ExCredit_roleId",
+            "name": "index_ExCredit_role",
             "unique": false,
             "columnNames": [
-              "roleId"
+              "role"
             ],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_ExCredit_roleId` ON `${TABLE_NAME}` (`roleId`)"
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_ExCredit_role` ON `${TABLE_NAME}` (`role`)"
+          },
+          {
+            "name": "index_ExCredit_issue",
+            "unique": false,
+            "columnNames": [
+              "issue"
+            ],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_ExCredit_issue` ON `${TABLE_NAME}` (`issue`)"
+          },
+          {
+            "name": "index_ExCredit_series",
+            "unique": false,
+            "columnNames": [
+              "series"
+            ],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_ExCredit_series` ON `${TABLE_NAME}` (`series`)"
           }
         ],
         "foreignKeys": [
@@ -654,7 +809,7 @@
             "onDelete": "CASCADE",
             "onUpdate": "NO ACTION",
             "columns": [
-              "storyId"
+              "story"
             ],
             "referencedColumns": [
               "storyId"
@@ -665,7 +820,7 @@
             "onDelete": "CASCADE",
             "onUpdate": "NO ACTION",
             "columns": [
-              "nameDetailId"
+              "nameDetail"
             ],
             "referencedColumns": [
               "nameDetailId"
@@ -676,21 +831,43 @@
             "onDelete": "CASCADE",
             "onUpdate": "NO ACTION",
             "columns": [
-              "roleId"
+              "role"
             ],
             "referencedColumns": [
               "roleId"
+            ]
+          },
+          {
+            "table": "Issue",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "issue"
+            ],
+            "referencedColumns": [
+              "issueId"
+            ]
+          },
+          {
+            "table": "Series",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "series"
+            ],
+            "referencedColumns": [
+              "seriesId"
             ]
           }
         ]
       },
       {
         "tableName": "StoryType",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`typeId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `sortCode` INTEGER NOT NULL, `lastUpdated` TEXT NOT NULL)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`storyTypeId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `sortCode` INTEGER NOT NULL, `lastUpdated` TEXT NOT NULL)",
         "fields": [
           {
-            "fieldPath": "typeId",
-            "columnName": "typeId",
+            "fieldPath": "storyTypeId",
+            "columnName": "storyTypeId",
             "affinity": "INTEGER",
             "notNull": true
           },
@@ -715,7 +892,7 @@
         ],
         "primaryKey": {
           "columnNames": [
-            "typeId"
+            "storyTypeId"
           ],
           "autoGenerate": true
         },
@@ -724,7 +901,7 @@
       },
       {
         "tableName": "NameDetail",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`nameDetailId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `creatorId` INTEGER NOT NULL, `name` TEXT NOT NULL, `lastUpdated` TEXT NOT NULL, FOREIGN KEY(`creatorId`) REFERENCES `Creator`(`creatorId`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`nameDetailId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `creator` INTEGER NOT NULL, `name` TEXT NOT NULL, `sortName` TEXT, `lastUpdated` TEXT NOT NULL, FOREIGN KEY(`creator`) REFERENCES `Creator`(`creatorId`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "nameDetailId",
@@ -733,8 +910,8 @@
             "notNull": true
           },
           {
-            "fieldPath": "creatorId",
-            "columnName": "creatorId",
+            "fieldPath": "creator",
+            "columnName": "creator",
             "affinity": "INTEGER",
             "notNull": true
           },
@@ -743,6 +920,12 @@
             "columnName": "name",
             "affinity": "TEXT",
             "notNull": true
+          },
+          {
+            "fieldPath": "sortName",
+            "columnName": "sortName",
+            "affinity": "TEXT",
+            "notNull": false
           },
           {
             "fieldPath": "lastUpdated",
@@ -759,12 +942,28 @@
         },
         "indices": [
           {
-            "name": "index_NameDetail_creatorId",
+            "name": "index_NameDetail_creator",
             "unique": false,
             "columnNames": [
-              "creatorId"
+              "creator"
             ],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_NameDetail_creatorId` ON `${TABLE_NAME}` (`creatorId`)"
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_NameDetail_creator` ON `${TABLE_NAME}` (`creator`)"
+          },
+          {
+            "name": "index_NameDetail_name",
+            "unique": false,
+            "columnNames": [
+              "name"
+            ],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_NameDetail_name` ON `${TABLE_NAME}` (`name`)"
+          },
+          {
+            "name": "index_NameDetail_sortName",
+            "unique": false,
+            "columnNames": [
+              "sortName"
+            ],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_NameDetail_sortName` ON `${TABLE_NAME}` (`sortName`)"
           }
         ],
         "foreignKeys": [
@@ -773,7 +972,7 @@
             "onDelete": "CASCADE",
             "onUpdate": "NO ACTION",
             "columns": [
-              "creatorId"
+              "creator"
             ],
             "referencedColumns": [
               "creatorId"
@@ -783,7 +982,7 @@
       },
       {
         "tableName": "Character",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`characterId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `aka` TEXT, `lastUpdated` TEXT NOT NULL)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`characterId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `alterEgo` TEXT, `publisher` INTEGER NOT NULL, `lastUpdated` TEXT NOT NULL, FOREIGN KEY(`publisher`) REFERENCES `Publisher`(`publisherId`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "characterId",
@@ -798,10 +997,16 @@
             "notNull": true
           },
           {
-            "fieldPath": "aka",
-            "columnName": "aka",
+            "fieldPath": "alterEgo",
+            "columnName": "alterEgo",
             "affinity": "TEXT",
             "notNull": false
+          },
+          {
+            "fieldPath": "publisher",
+            "columnName": "publisher",
+            "affinity": "INTEGER",
+            "notNull": true
           },
           {
             "fieldPath": "lastUpdated",
@@ -816,12 +1021,49 @@
           ],
           "autoGenerate": true
         },
-        "indices": [],
-        "foreignKeys": []
+        "indices": [
+          {
+            "name": "index_Character_publisher",
+            "unique": false,
+            "columnNames": [
+              "publisher"
+            ],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_Character_publisher` ON `${TABLE_NAME}` (`publisher`)"
+          },
+          {
+            "name": "index_Character_name",
+            "unique": false,
+            "columnNames": [
+              "name"
+            ],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_Character_name` ON `${TABLE_NAME}` (`name`)"
+          },
+          {
+            "name": "index_Character_alterEgo",
+            "unique": false,
+            "columnNames": [
+              "alterEgo"
+            ],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_Character_alterEgo` ON `${TABLE_NAME}` (`alterEgo`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "Publisher",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "publisher"
+            ],
+            "referencedColumns": [
+              "publisherId"
+            ]
+          }
+        ]
       },
       {
         "tableName": "Appearance",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`appearanceId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `storyId` INTEGER NOT NULL, `characterId` INTEGER NOT NULL, `details` TEXT, `lastUpdated` TEXT NOT NULL, FOREIGN KEY(`characterId`) REFERENCES `Story`(`storyId`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`characterId`) REFERENCES `Character`(`characterId`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`appearanceId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `story` INTEGER NOT NULL, `character` INTEGER NOT NULL, `details` TEXT, `notes` TEXT, `membership` TEXT, `issue` INTEGER NOT NULL, `series` INTEGER NOT NULL, `lastUpdated` TEXT NOT NULL, FOREIGN KEY(`story`) REFERENCES `Story`(`storyId`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`character`) REFERENCES `Character`(`characterId`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`issue`) REFERENCES `Issue`(`issueId`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`series`) REFERENCES `Series`(`seriesId`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "appearanceId",
@@ -830,14 +1072,14 @@
             "notNull": true
           },
           {
-            "fieldPath": "storyId",
-            "columnName": "storyId",
+            "fieldPath": "story",
+            "columnName": "story",
             "affinity": "INTEGER",
             "notNull": true
           },
           {
-            "fieldPath": "characterId",
-            "columnName": "characterId",
+            "fieldPath": "character",
+            "columnName": "character",
             "affinity": "INTEGER",
             "notNull": true
           },
@@ -846,6 +1088,30 @@
             "columnName": "details",
             "affinity": "TEXT",
             "notNull": false
+          },
+          {
+            "fieldPath": "notes",
+            "columnName": "notes",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "membership",
+            "columnName": "membership",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "issue",
+            "columnName": "issue",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "series",
+            "columnName": "series",
+            "affinity": "INTEGER",
+            "notNull": true
           },
           {
             "fieldPath": "lastUpdated",
@@ -862,20 +1128,36 @@
         },
         "indices": [
           {
-            "name": "index_Appearance_storyId",
+            "name": "index_Appearance_story",
             "unique": false,
             "columnNames": [
-              "storyId"
+              "story"
             ],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_Appearance_storyId` ON `${TABLE_NAME}` (`storyId`)"
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_Appearance_story` ON `${TABLE_NAME}` (`story`)"
           },
           {
-            "name": "index_Appearance_characterId",
+            "name": "index_Appearance_character",
             "unique": false,
             "columnNames": [
-              "characterId"
+              "character"
             ],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_Appearance_characterId` ON `${TABLE_NAME}` (`characterId`)"
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_Appearance_character` ON `${TABLE_NAME}` (`character`)"
+          },
+          {
+            "name": "index_Appearance_issue",
+            "unique": false,
+            "columnNames": [
+              "issue"
+            ],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_Appearance_issue` ON `${TABLE_NAME}` (`issue`)"
+          },
+          {
+            "name": "index_Appearance_series",
+            "unique": false,
+            "columnNames": [
+              "series"
+            ],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_Appearance_series` ON `${TABLE_NAME}` (`series`)"
           }
         ],
         "foreignKeys": [
@@ -884,7 +1166,7 @@
             "onDelete": "CASCADE",
             "onUpdate": "NO ACTION",
             "columns": [
-              "characterId"
+              "story"
             ],
             "referencedColumns": [
               "storyId"
@@ -895,17 +1177,39 @@
             "onDelete": "CASCADE",
             "onUpdate": "NO ACTION",
             "columns": [
-              "characterId"
+              "character"
             ],
             "referencedColumns": [
               "characterId"
+            ]
+          },
+          {
+            "table": "Issue",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "issue"
+            ],
+            "referencedColumns": [
+              "issueId"
+            ]
+          },
+          {
+            "table": "Series",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "series"
+            ],
+            "referencedColumns": [
+              "seriesId"
             ]
           }
         ]
       },
       {
         "tableName": "MyCollection",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`collectionId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `issueId` INTEGER NOT NULL, `lastUpdated` TEXT NOT NULL, FOREIGN KEY(`issueId`) REFERENCES `Issue`(`issueId`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`collectionId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `issue` INTEGER NOT NULL, `series` INTEGER NOT NULL, `lastUpdated` TEXT NOT NULL, FOREIGN KEY(`issue`) REFERENCES `Issue`(`issueId`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`series`) REFERENCES `Series`(`seriesId`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "collectionId",
@@ -914,8 +1218,14 @@
             "notNull": true
           },
           {
-            "fieldPath": "issueId",
-            "columnName": "issueId",
+            "fieldPath": "issue",
+            "columnName": "issue",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "series",
+            "columnName": "series",
             "affinity": "INTEGER",
             "notNull": true
           },
@@ -934,12 +1244,20 @@
         },
         "indices": [
           {
-            "name": "index_MyCollection_issueId",
+            "name": "index_MyCollection_issue",
             "unique": true,
             "columnNames": [
-              "issueId"
+              "issue"
             ],
-            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_MyCollection_issueId` ON `${TABLE_NAME}` (`issueId`)"
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_MyCollection_issue` ON `${TABLE_NAME}` (`issue`)"
+          },
+          {
+            "name": "index_MyCollection_series",
+            "unique": true,
+            "columnNames": [
+              "series"
+            ],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_MyCollection_series` ON `${TABLE_NAME}` (`series`)"
           }
         ],
         "foreignKeys": [
@@ -948,17 +1266,28 @@
             "onDelete": "CASCADE",
             "onUpdate": "NO ACTION",
             "columns": [
-              "issueId"
+              "issue"
             ],
             "referencedColumns": [
               "issueId"
+            ]
+          },
+          {
+            "table": "Series",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "series"
+            ],
+            "referencedColumns": [
+              "seriesId"
             ]
           }
         ]
       },
       {
         "tableName": "Cover",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`coverId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `issueId` INTEGER NOT NULL, `coverUri` TEXT, `lastUpdated` TEXT NOT NULL, FOREIGN KEY(`issueId`) REFERENCES `Issue`(`issueId`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`coverId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `issue` INTEGER NOT NULL, `coverUri` TEXT, `lastUpdated` TEXT NOT NULL, FOREIGN KEY(`issue`) REFERENCES `Issue`(`issueId`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "coverId",
@@ -967,8 +1296,8 @@
             "notNull": true
           },
           {
-            "fieldPath": "issueId",
-            "columnName": "issueId",
+            "fieldPath": "issue",
+            "columnName": "issue",
             "affinity": "INTEGER",
             "notNull": true
           },
@@ -993,12 +1322,12 @@
         },
         "indices": [
           {
-            "name": "index_Cover_issueId",
+            "name": "index_Cover_issue",
             "unique": true,
             "columnNames": [
-              "issueId"
+              "issue"
             ],
-            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_Cover_issueId` ON `${TABLE_NAME}` (`issueId`)"
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_Cover_issue` ON `${TABLE_NAME}` (`issue`)"
           }
         ],
         "foreignKeys": [
@@ -1007,19 +1336,296 @@
             "onDelete": "CASCADE",
             "onUpdate": "NO ACTION",
             "columns": [
-              "issueId"
+              "issue"
             ],
             "referencedColumns": [
               "issueId"
             ]
           }
         ]
+      },
+      {
+        "tableName": "SeriesBond",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`bondId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `origin` INTEGER NOT NULL, `target` INTEGER NOT NULL, `originIssue` INTEGER, `targetIssue` INTEGER, `bondType` INTEGER NOT NULL, `notes` TEXT, `lastUpdated` TEXT NOT NULL, FOREIGN KEY(`origin`) REFERENCES `Series`(`seriesId`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`target`) REFERENCES `Series`(`seriesId`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`originIssue`) REFERENCES `Issue`(`issueId`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`targetIssue`) REFERENCES `Issue`(`issueId`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`bondType`) REFERENCES `BondType`(`bondTypeId`) ON UPDATE NO ACTION ON DELETE RESTRICT )",
+        "fields": [
+          {
+            "fieldPath": "bondId",
+            "columnName": "bondId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "origin",
+            "columnName": "origin",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "target",
+            "columnName": "target",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "originIssue",
+            "columnName": "originIssue",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "targetIssue",
+            "columnName": "targetIssue",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "bondType",
+            "columnName": "bondType",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "notes",
+            "columnName": "notes",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "lastUpdated",
+            "columnName": "lastUpdated",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "bondId"
+          ],
+          "autoGenerate": true
+        },
+        "indices": [
+          {
+            "name": "index_SeriesBond_origin",
+            "unique": false,
+            "columnNames": [
+              "origin"
+            ],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_SeriesBond_origin` ON `${TABLE_NAME}` (`origin`)"
+          },
+          {
+            "name": "index_SeriesBond_target",
+            "unique": false,
+            "columnNames": [
+              "target"
+            ],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_SeriesBond_target` ON `${TABLE_NAME}` (`target`)"
+          },
+          {
+            "name": "index_SeriesBond_originIssue",
+            "unique": false,
+            "columnNames": [
+              "originIssue"
+            ],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_SeriesBond_originIssue` ON `${TABLE_NAME}` (`originIssue`)"
+          },
+          {
+            "name": "index_SeriesBond_targetIssue",
+            "unique": false,
+            "columnNames": [
+              "targetIssue"
+            ],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_SeriesBond_targetIssue` ON `${TABLE_NAME}` (`targetIssue`)"
+          },
+          {
+            "name": "index_SeriesBond_bondType",
+            "unique": false,
+            "columnNames": [
+              "bondType"
+            ],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_SeriesBond_bondType` ON `${TABLE_NAME}` (`bondType`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "Series",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "origin"
+            ],
+            "referencedColumns": [
+              "seriesId"
+            ]
+          },
+          {
+            "table": "Series",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "target"
+            ],
+            "referencedColumns": [
+              "seriesId"
+            ]
+          },
+          {
+            "table": "Issue",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "originIssue"
+            ],
+            "referencedColumns": [
+              "issueId"
+            ]
+          },
+          {
+            "table": "Issue",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "targetIssue"
+            ],
+            "referencedColumns": [
+              "issueId"
+            ]
+          },
+          {
+            "table": "BondType",
+            "onDelete": "RESTRICT",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "bondType"
+            ],
+            "referencedColumns": [
+              "bondTypeId"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "BondType",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`bondTypeId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `description` TEXT NOT NULL, `notes` TEXT, `lastUpdated` TEXT NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "bondTypeId",
+            "columnName": "bondTypeId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "description",
+            "columnName": "description",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "notes",
+            "columnName": "notes",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "lastUpdated",
+            "columnName": "lastUpdated",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "bondTypeId"
+          ],
+          "autoGenerate": true
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "Brand",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`brandId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `yearBegan` TEXT, `yearEnded` TEXT, `notes` TEXT, `url` TEXT, `issueCount` INTEGER NOT NULL, `yearBeganUncertain` INTEGER NOT NULL, `yearEndedUncertain` INTEGER NOT NULL, `lastUpdated` TEXT NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "brandId",
+            "columnName": "brandId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "yearBegan",
+            "columnName": "yearBegan",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "yearEnded",
+            "columnName": "yearEnded",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "notes",
+            "columnName": "notes",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "url",
+            "columnName": "url",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "issueCount",
+            "columnName": "issueCount",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "yearBeganUncertain",
+            "columnName": "yearBeganUncertain",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "yearEndedUncertain",
+            "columnName": "yearEndedUncertain",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "lastUpdated",
+            "columnName": "lastUpdated",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "brandId"
+          ],
+          "autoGenerate": true
+        },
+        "indices": [],
+        "foreignKeys": []
       }
     ],
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '8c4dc231c7fe86fc734db5d233a20ad7')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '9df622bfb5d869b76e36a3af52016bb4')"
     ]
   }
 }

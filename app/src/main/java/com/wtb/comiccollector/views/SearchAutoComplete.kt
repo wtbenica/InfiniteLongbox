@@ -9,9 +9,8 @@ import android.view.inputmethod.EditorInfo
 import android.widget.AdapterView
 import com.google.android.material.textfield.MaterialAutoCompleteTextView
 import com.wtb.comiccollector.APP
-import com.wtb.comiccollector.database.models.All
-import com.wtb.comiccollector.database.models.FilterAutoCompleteType
-import com.wtb.comiccollector.database.models.FilterType
+import com.wtb.comiccollector.database.models.FilterItem
+import com.wtb.comiccollector.database.models.FilterModel
 import com.wtb.comiccollector.database.models.TextFilter
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
@@ -22,10 +21,10 @@ class SearchAutoComplete(context: Context, attributeSet: AttributeSet) :
     MaterialAutoCompleteTextView(context, attributeSet) {
 
     var callbacks: SearchTextViewCallback? = null
-    private var item: FilterAutoCompleteType? = null
+    private var item: FilterModel? = null
 
     interface SearchTextViewCallback {
-        fun addFilterItem(option: FilterType)
+        fun addFilterItem(option: FilterItem)
         fun hideKeyboard()
     }
 
@@ -38,7 +37,7 @@ class SearchAutoComplete(context: Context, attributeSet: AttributeSet) :
                 if (tempItem != null) {
                     callbacks?.addFilterItem(tempItem)
                 } else {
-                    callbacks?.addFilterItem(TextFilter(v.text.toString(), All))
+                    callbacks?.addFilterItem(TextFilter(v.text.toString()))
                 }
                 text.clear()
                 true
@@ -49,7 +48,7 @@ class SearchAutoComplete(context: Context, attributeSet: AttributeSet) :
 
         onItemClickListener = AdapterView.OnItemClickListener { parent, v, position, id ->
             Log.d(TAG, "filterTextView item clicked")
-            val item = parent?.adapter?.getItem(position) as FilterAutoCompleteType?
+            val item = parent?.adapter?.getItem(position) as FilterModel?
             this.item = item
             this.text.clear()
             callbacks?.hideKeyboard()

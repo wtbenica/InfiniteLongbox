@@ -89,7 +89,7 @@ class GcdSeries(
             seriesId = pk,
             seriesName = name,
             sortName = sortName,
-            publisherId = publisher ?: AUTO_ID,
+            publisher = publisher ?: AUTO_ID,
             startDate = LocalDate.of(
                 yearBegan ?: LocalDate.MIN.year,
                 1,
@@ -104,7 +104,7 @@ class GcdSeries(
             },
             publishingFormat = if (publishingFormat == "") null else publishingFormat,
             description = if (trackingNotes == "") null else trackingNotes,
-            firstIssueId = firstIssueId,
+            firstIssue = firstIssueId,
             notes = if (notes == "") null else notes,
             issueCount = issueCount
         )
@@ -229,7 +229,7 @@ class GcdIssue(
     override fun toRoomModel(pk: Int): Issue {
         return Issue(
             issueId = pk,
-            seriesId = seriesId,
+            series = seriesId,
             issueNum = number.toIntOrNull() ?: 1,
             releaseDate = Issue.formatDate(onSaleDate),
             upc = barcode.toLongOrNull(),
@@ -266,9 +266,9 @@ class GcdCredit(
     override fun toRoomModel(pk: Int): Credit {
         return Credit(
             creditId = pk,
-            storyId = storyId,
-            nameDetailId = nameDetailId,
-            roleId = roleId,
+            story = storyId,
+            nameDetail = nameDetailId,
+            role = roleId,
             issue = issue,
             series = series
         )
@@ -296,9 +296,9 @@ class GcdExCredit(
     override fun toRoomModel(pk: Int): ExCredit {
         return ExCredit(
             creditId = pk,
-            storyId = storyId,
-            nameDetailId = nameDetailId,
-            roleId = roleId,
+            story = storyId,
+            nameDetail = nameDetailId,
+            role = roleId,
             issue = issue,
             series = series
         )
@@ -389,7 +389,7 @@ class GcdStory(
             synopsis = synopsis,
             notes = notes,
             sequenceNumber = sequenceNumber,
-            issueId = issueId
+            issue = issueId
         )
     }
 }
@@ -404,7 +404,7 @@ class GcdStoryType(
 ) : GcdJson<StoryType> {
     override fun toRoomModel(pk: Int): StoryType {
         return StoryType(
-            typeId = pk,
+            storyTypeId = pk,
             name = name,
             sortCode = sortCode
         )
@@ -426,7 +426,7 @@ class GcdNameDetail(
     override fun toRoomModel(pk: Int): NameDetail {
         return NameDetail(
             nameDetailId = pk,
-            creatorId = creatorId,
+            creator = creatorId,
             name = name,
             sortName = if (sortName == "") null else sortName
         )
@@ -478,11 +478,11 @@ class GcdSeriesBond(
     override fun toRoomModel(pk: Int): SeriesBond {
         return SeriesBond(
             bondId = pk,
-            originId = origin,
-            targetId = target,
-            originIssueId = originIssue,
-            targetIssueId = targetIssue,
-            bondTypeId = bondType,
+            origin = origin,
+            target = target,
+            originIssue = originIssue,
+            targetIssue = targetIssue,
+            bondType = bondType,
             notes = notes
         )
     }

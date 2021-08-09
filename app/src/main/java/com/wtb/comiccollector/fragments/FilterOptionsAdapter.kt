@@ -10,25 +10,25 @@ import android.widget.Filter
 import android.widget.TextView
 import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.R
-import com.wtb.comiccollector.database.models.FilterAutoCompleteType
+import com.wtb.comiccollector.database.models.FilterModel
 import com.wtb.comiccollector.database.models.Series
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 @ExperimentalCoroutinesApi
-class FilterOptionsAdapter(ctx: Context, filters: List<FilterAutoCompleteType>) :
-    ArrayAdapter<FilterAutoCompleteType>(ctx, LAYOUT, filters) {
+class FilterOptionsAdapter(context: Context, filterOptions: List<FilterModel>) :
+    ArrayAdapter<FilterModel>(context, LAYOUT, filterOptions) {
 
     companion object {
         private const val LAYOUT = R.layout.list_item_filter_option_auto_complete
         private const val TAG = APP + "FilterOptionsAdapter"
     }
 
-    private var alls: List<FilterAutoCompleteType> = filters
-    private var mOptions: List<FilterAutoCompleteType> = filters
+    private var allOptions: List<FilterModel> = filterOptions
+    private var mOptions: List<FilterModel> = filterOptions
 
     override fun getCount(): Int = mOptions.size
 
-    override fun getItem(position: Int): FilterAutoCompleteType = mOptions[position]
+    override fun getItem(position: Int): FilterModel = mOptions[position]
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
 
@@ -43,7 +43,7 @@ class FilterOptionsAdapter(ctx: Context, filters: List<FilterAutoCompleteType>) 
         val optionTypeText: TextView = view.findViewById(R.id.filter_option_type_text)
         val itemFormatText: TextView = view.findViewById(R.id.format_text)
 
-        val filter: FilterAutoCompleteType = getItem(position)
+        val filter: FilterModel = getItem(position)
 
         itemText.text = filter.toString()
         optionTypeText.text = filter.tagName
@@ -64,9 +64,9 @@ class FilterOptionsAdapter(ctx: Context, filters: List<FilterAutoCompleteType>) 
 
                 val results = FilterResults()
                 results.values = if (query == null || query.isEmpty()) {
-                    alls
+                    allOptions
                 } else {
-                    alls.filter {
+                    allOptions.filter {
                         it.compareValue.lowercase().contains(query)
                     }
                 }
@@ -78,10 +78,10 @@ class FilterOptionsAdapter(ctx: Context, filters: List<FilterAutoCompleteType>) 
                 constraint: CharSequence?,
                 results: FilterResults?
             ) {
-                val optionsList: MutableList<FilterAutoCompleteType> = mutableListOf()
+                val optionsList: MutableList<FilterModel> = mutableListOf()
 
                 for (item in (results?.values as List<*>)) {
-                    if (item is FilterAutoCompleteType) {
+                    if (item is FilterModel) {
                         optionsList.add(item)
                     }
                 }

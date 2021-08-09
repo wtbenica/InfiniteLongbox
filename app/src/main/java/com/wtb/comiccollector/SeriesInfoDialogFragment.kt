@@ -187,7 +187,7 @@ class SeriesInfoDialogFragment private constructor() : DialogFragment(),
             ) {
                 parent?.let {
                     publisher = it.getItemAtPosition(position) as Publisher
-                    series.series.publisherId = publisher.publisherId
+                    series.series.publisher = publisher.publisherId
                 }
             }
 

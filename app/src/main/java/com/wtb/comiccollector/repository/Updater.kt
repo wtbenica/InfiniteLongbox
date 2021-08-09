@@ -9,6 +9,7 @@ import com.wtb.comiccollector.database.daos.BaseDao
 import com.wtb.comiccollector.database.models.*
 import kotlinx.coroutines.*
 import retrofit2.HttpException
+import java.lang.Integer.min
 import java.net.ConnectException
 import java.net.SocketTimeoutException
 import java.time.LocalDate
@@ -27,35 +28,67 @@ abstract class Updater(
     val prefs: SharedPreferences,
 ) {
 
+    internal suspend fun<T: DataModel> checkFKeys(
+        models: List<T>,
+        func: KSuspendFunction1<List<T>, Unit>,
+    ) {
+        var i = 0
+        val listSize = 500
+        do {
+            func(models.subList(i * listSize, min((i + 1) * listSize, models.size)))
+        } while (++i * listSize < models.size)
+    }
+
+    internal suspend fun checkFKeysStory(stories: List<Story>) {
+        checkFKeys(stories, this::checkStoryFkIssue)
+    }
+
     internal suspend fun checkFKeysSeries(series: List<Series>) {
-        checkSeriesFkPublisher(series)
+        checkFKeys(series, this::checkSeriesFkPublisher)
+    }
+
+    internal suspend fun checkFKeysNameDetail(nameDetails: List<NameDetail>) {
+        checkFKeys(nameDetails, this::checkNameDetailFkCreator)
+    }
+
+    internal suspend fun checkFKeysIssue(issues: List<Issue>) {
+        checkFKeys(issues, this::checkIssueFkSeries)
+        checkFKeys(issues, this::checkIssueFkVariantOf)
+    }
+
+    internal suspend fun checkFKeysSeriesBond(bonds: List<SeriesBond>) {
+        checkSeriesBondFkOriginIssue(bonds)
+        checkSeriesBondFkOriginSeries(bonds)
+        checkSeriesBondFkTargetIssue(bonds)
+        checkSeriesBondFkTargetSeries(bonds)
+    }
+
+    internal suspend fun checkFKeysAppearance(appearances: List<Appearance>) {
+        checkAppearanceFkCharacter(appearances)
+        checkAppearanceFkStory(appearances)
+    }
+
+    internal suspend fun <T : CreditX> checkFKeysCredit(credits: List<T>) {
+        checkFKeys(credits, this::checkCreditFkNameDetail)
+        checkFKeys(credits, this::checkCreditFkStory)
     }
 
     internal suspend fun checkSeriesFkPublisher(series: List<Series>) =
         checkForMissingForeignKeyModels(series,
-                                        Series::publisherId,
+                                        Series::publisher,
                                         database.publisherDao(),
                                         webservice::getPublishersByIds)
 
-    internal suspend fun checkFKeysNameDetail(nameDetails: List<NameDetail>) {
-        checkNameDetailFkCreator(nameDetails)
-    }
-
     internal suspend fun checkNameDetailFkCreator(nameDetails: List<NameDetail>) =
         checkForMissingForeignKeyModels(nameDetails,
-                                        NameDetail::creatorId,
+                                        NameDetail::creator,
                                         database.creatorDao(),
                                         webservice::getCreatorsByIds)
 
 
-    internal suspend fun checkFKeysIssue(issues: List<Issue>) {
-        checkIssueFkSeries(issues)
-        checkIssueFkVariantOf(issues)
-    }
-
     internal suspend fun checkIssueFkSeries(issues: List<Issue>) =
         checkForMissingForeignKeyModels(issues,
-                                        Issue::seriesId,
+                                        Issue::series,
                                         database.seriesDao(),
                                         webservice::getSeriesByIds,
                                         this@Updater::checkFKeysSeries)
@@ -69,56 +102,39 @@ abstract class Updater(
 
     internal suspend fun checkSeriesBondFkOriginIssue(seriesBonds: List<SeriesBond>) =
         checkForMissingForeignKeyModels(seriesBonds,
-                                        SeriesBond::originIssueId,
+                                        SeriesBond::originIssue,
                                         database.issueDao(),
                                         webservice::getIssuesByIds,
                                         this@Updater::checkFKeysIssue)
 
     internal suspend fun checkSeriesBondFkOriginSeries(seriesBonds: List<SeriesBond>) =
         checkForMissingForeignKeyModels(seriesBonds,
-                                        SeriesBond::originId,
+                                        SeriesBond::origin,
                                         database.seriesDao(),
                                         webservice::getSeriesByIds,
                                         this@Updater::checkFKeysSeries)
 
     internal suspend fun checkSeriesBondFkTargetSeries(seriesBonds: List<SeriesBond>) =
         checkForMissingForeignKeyModels(seriesBonds,
-                                        SeriesBond::targetId,
+                                        SeriesBond::target,
                                         database.seriesDao(),
                                         webservice::getSeriesByIds,
                                         this@Updater::checkFKeysSeries)
 
     internal suspend fun checkSeriesBondFkTargetIssue(seriesBonds: List<SeriesBond>) =
         checkForMissingForeignKeyModels(seriesBonds,
-                                        SeriesBond::targetIssueId,
+                                        SeriesBond::targetIssue,
                                         database.issueDao(),
                                         webservice::getIssuesByIds,
                                         this@Updater::checkFKeysIssue)
 
-
-    internal suspend fun checkFKeysSeriesBond(bonds: List<SeriesBond>) {
-        checkSeriesBondFkOriginIssue(bonds)
-        checkSeriesBondFkOriginSeries(bonds)
-        checkSeriesBondFkTargetIssue(bonds)
-        checkSeriesBondFkTargetSeries(bonds)
-    }
-
-    internal suspend fun checkFKeysStory(stories: List<Story>) {
-        checkStoryFkIssue(stories)
-    }
 
     internal suspend fun checkStoryFkIssue(stories: List<Story>) =
         checkForMissingForeignKeyModels(stories,
-                                        Story::issueId,
+                                        Story::issue,
                                         database.issueDao(),
                                         webservice::getIssuesByIds,
                                         this@Updater::checkFKeysIssue)
-
-    internal suspend fun checkFKeysAppearance(appearances: List<Appearance>) {
-        Log.d(Updater.TAG, "Shits")
-        checkAppearanceFkCharacter(appearances)
-        checkAppearanceFkStory(appearances)
-    }
 
     internal suspend fun checkAppearanceFkCharacter(appearances: List<Appearance>) =
         checkForMissingForeignKeyModels(appearances,
@@ -133,21 +149,16 @@ abstract class Updater(
                                         webservice::getStoriesByIds,
                                         this@Updater::checkFKeysStory)
 
-    internal suspend fun <T : CreditX> checkFKeysCredit(credits: List<T>) {
-        checkCreditFkNameDetail(credits)
-        checkCreditFkStory(credits)
-    }
-
     internal suspend fun <T : CreditX> checkCreditFkNameDetail(credits: List<T>) =
         checkForMissingForeignKeyModels(credits,
-                                        CreditX::nameDetailId,
+                                        CreditX::nameDetail,
                                         database.nameDetailDao(),
                                         webservice::getNameDetailsByIds,
                                         this@Updater::checkFKeysNameDetail)
 
     internal suspend fun <T : CreditX> checkCreditFkStory(credits: List<T>) =
         checkForMissingForeignKeyModels(credits,
-                                        CreditX::storyId,
+                                        CreditX::story,
                                         database.storyDao(),
                                         webservice::getStoriesByIds,
                                         this@Updater::checkFKeysStory)
@@ -159,11 +170,7 @@ abstract class Updater(
         /**
          * Run safely - runs queryFunction and awaits results. Logs SocketTimeout-, Connect-, and
          * Http- exceptions. Also avoids making remote calls with empty list.
-         * @param ResultType - Result type
-         * @param ArgType - Arg type
          * @param name Function name, shown  in exception log message
-         * @param arg
-         * @param queryFunction
          * @return null on one of the listed exceptions or if it was called with an empty arg list
          */
         suspend fun <ResultType : Any, ArgType : Any> runSafely(
@@ -171,7 +178,8 @@ abstract class Updater(
             arg: ArgType,
             queryFunction: (ArgType) -> Deferred<ResultType>,
         ): ResultType? {
-            val result: ResultType? = try {
+
+            return try {
                 if (arg !is List<*> || arg.isNotEmpty()) {
                     queryFunction(arg).await()
                 } else {
@@ -187,24 +195,22 @@ abstract class Updater(
                 Log.d(TAG, "$name $e")
                 null
             }
-
-            return result
         }
 
         /**
-         * Run safely - runs queryFunction and awaits results. Logs SocketTimeout-, Connect-, and
+         * Run safely
+         *
+         *  runs queryFunction and awaits results. Logs SocketTimeout-, Connect-, and
          * Http- exceptions. Also avoids making remote calls with empty list.
-         * @param ResultType - Result type
-         * @param ArgType - Arg type
          * @param name Function name, shown  in exception log message
-         * @param queryFunction
          * @return null on one of the listed exceptions or if it was called with an empty arg list
          */
         suspend fun <ResultType : Any> runSafely(
             name: String,
             queryFunction: () -> Deferred<ResultType>,
         ): ResultType? {
-            val result: ResultType? = try {
+
+            return try {
                 queryFunction().await()
             } catch (e: SocketTimeoutException) {
                 Log.d(TAG, "$name $e")
@@ -216,18 +222,12 @@ abstract class Updater(
                 Log.d(TAG, "$name $e")
                 null
             }
-
-            return result
         }
 
         /**
          * Check if stale
-         *
-         * @param prefsKey
-         * @param shelfLife
-         * @param prefs
-         * @return
-         */// TODO: This should probably get moved out of SharedPreferences and stored with each record.
+         */
+        // TODO: This should probably get moved out of SharedPreferences and stored with each record.
         //  The tradeoff: an extra local db query vs. having a larger prefs which will end up having
         //  a value for every item in the database.
         internal fun checkIfStale(
@@ -242,7 +242,6 @@ abstract class Updater(
 
         /**
          * Get items by argument
-         *
          * @return null on connection error
          */
         internal suspend fun <GcdType : GcdJson<ModelType>, ModelType : DataModel, ArgType : Any>
@@ -259,28 +258,27 @@ abstract class Updater(
         /**
          * Refresh all - gets items, performs followup, then saves using dao
          */
-        internal suspend fun <ModelType : DataModel> refreshById(
+        internal suspend fun <ModelType : DataModel> updateById(
             prefs: SharedPreferences,
-            saveTag: String,
+            saveTag: String?,
             getItems: suspend (Int) -> List<ModelType>?,
             followup: suspend (List<ModelType>) -> Unit = {},
             dao: BaseDao<ModelType>,
             id: Int,
-        ) {
-            Log.d(TAG, "refreshingById")
-            if (checkIfStale(saveTag, WEEKLY, prefs)) {
+        ): List<ModelType> {
+            return if (saveTag?.let { checkIfStale(it, WEEKLY, prefs) } != false) {
                 coroutineScope {
-                    Log.d(TAG, "refreshingById for sure")
                     val items: List<ModelType>? = getItems(id)
 
                     if (items != null && items.isNotEmpty()) {
-                        Log.d(TAG, "Got some items, followup now")
                         followup(items)
-                        Log.d(TAG, "NOW We aaaarE UPserting")
                         dao.upsertSus(items)
-                        Repository.saveTime(prefs, saveTag)
+                        saveTag?.let { Repository.saveTime(prefs, it) }
                     }
+                    return@coroutineScope items ?: emptyList()
                 }
+            } else {
+                emptyList()
             }
         }
 
@@ -368,18 +366,6 @@ abstract class Updater(
                 }
             }
         }
-
-        @ExperimentalCoroutinesApi
-        internal fun <ModelType : DataModel> saveTimeIfNotEmpty(
-            prefs: SharedPreferences,
-            items: List<ModelType>?,
-            saveTag: String,
-        ): List<ModelType>? =
-            items.also {
-                if (it != null && it.isNotEmpty()) {
-                    Repository.saveTime(prefs, saveTag)
-                }
-            }
 
         /**
          * Get missing foreign key models

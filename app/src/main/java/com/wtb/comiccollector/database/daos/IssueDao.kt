@@ -12,7 +12,8 @@ import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.SearchFilter
 import com.wtb.comiccollector.SortType
 import com.wtb.comiccollector.SortType.Companion.containsSortType
-import com.wtb.comiccollector.database.models.*
+import com.wtb.comiccollector.database.models.FullIssue
+import com.wtb.comiccollector.database.models.Issue
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 
@@ -28,8 +29,7 @@ abstract class IssueDao : BaseDao<Issue>("issue") {
 
     fun getIssuesByFilter(filter: SearchFilter): Flow<List<FullIssue>> {
         val query = createIssueQuery(filter)
-        Log.d(TAG, "getIssuesByFilter")
-        Log.d(TAG, "${query.sql} ${query.toString()}")
+
         return getFullIssuesByQuery(query)
     }
 
@@ -39,8 +39,7 @@ abstract class IssueDao : BaseDao<Issue>("issue") {
 
     fun getIssuesByFilterPagingSource(filter: SearchFilter): PagingSource<Int, FullIssue> {
         val query = createIssueQuery(filter)
-        Log.d(TAG, "getIssuesByFilterPagingSource")
-        Log.d(TAG, "${query.sql} ${query.toString()}")
+
         return getFullIssuesByQueryPagingSource(query)
     }
 
@@ -50,8 +49,7 @@ abstract class IssueDao : BaseDao<Issue>("issue") {
 
     suspend fun getIssuesByFilterSus(filter: SearchFilter): List<FullIssue> {
         val query = createIssueQuery(filter)
-        Log.d(TAG, "getIssuesByFilterSus")
-        Log.d(TAG, "${query.sql} ${query.toString()}")
+
         return getFullIssuesByQuerySus(query)
     }
 
@@ -94,54 +92,42 @@ abstract class IssueDao : BaseDao<Issue>("issue") {
 
             tableJoinString.append("""SELECT DISTINCT ie.* 
                         FROM issue ie 
-                        LEFT JOIN cover cr ON ie.issueId = cr.issueId 
-                        LEFT JOIN story sy on sy.issueId = ie.issueId 
+                        LEFT JOIN cover cr ON ie.issueId = cr.issue 
+                        LEFT JOIN story sy on sy.issue = ie.issueId 
                         """)
 
             filter.mSeries?.let {
-                conditionsString.append("""${connectword()} ie.seriesId = ? 
+                conditionsString.append("""${connectword()} ie.series = ? 
                 """)
                 args.add(it.seriesId)
             }
 
             if (filter.hasPublisher()) {
-                tableJoinString.append("""JOIN series ss ON ie.seriesId = ss.seriesId 
+                tableJoinString.append("""JOIN series ss ON ie.series = ss.seriesId 
                 """)
 
                 if (filter.mPublishers.isNotEmpty()) {
                     val publisherList = modelsToSqlIdString(filter.mPublishers)
 
-                    conditionsString.append("""${connectword()} ss.publisherId IN $publisherList 
+                    conditionsString.append("""${connectword()} ss.publisher IN $publisherList 
                     """)
                 }
-            }
-
-            if (filter.mTextFilter?.type in listOf(All, Publisher)) {
-                tableJoinString.append("""JOIN publisher pr ON ss.publisherId = pr.publisherId 
-                """)
             }
 
             if (filter.mCreators.isNotEmpty()) {
                 val creatorsList = modelsToSqlIdString(filter.mCreators)
 
                 conditionsString.append("""${connectword()} (sy.storyId IN (
-                SELECT storyId
+                SELECT story
                 FROM credit ct
-                JOIN namedetail nl on nl.nameDetailId = ct.nameDetailId
-                WHERE nl.creatorId IN $creatorsList)
+                JOIN namedetail nl on nl.nameDetailId = ct.nameDetail
+                WHERE nl.creator IN $creatorsList)
                 OR sy.storyId IN (
-                SELECT storyId
+                SELECT story
                 FROM excredit ect
-                JOIN namedetail nl on nl.nameDetailId = ect.nameDetailId
-                WHERE nl.creatorId IN $creatorsList)) 
+                JOIN namedetail nl on nl.nameDetailId = ect.nameDetail
+                WHERE nl.creator IN $creatorsList)) 
             """)
-            }
-
-            if (filter.mTextFilter?.type in listOf(All, NameDetail)) {
-                tableJoinString.append("""LEFT JOIN credit ct on ct.storyId = sy.storyId 
-                            LEFT JOIN namedetail nl on nl.nameDetailId = ct.nameDetailId 
-                            LEFT JOIN excredit ect on ect.storyId = sy.storyId
-                            LEFT JOIN namedetail nl2 on nl2.nameDetailId = ect.nameDetailId """)
             }
 
             if (filter.hasDateFilter()) {
@@ -153,7 +139,7 @@ abstract class IssueDao : BaseDao<Issue>("issue") {
 
             if (filter.mMyCollection) {
                 conditionsString.append("""${connectword()} ie.issueId IN (
-                    SELECT issueId
+                    SELECT issue
                     FROM mycollection) 
                 """)
             }
@@ -167,11 +153,6 @@ abstract class IssueDao : BaseDao<Issue>("issue") {
                     """)
                     args.add(it.characterId)
                 }
-
-                if (filter.mTextFilter?.type in listOf(All, Character)) {
-                    tableJoinString.append("""LEFT JOIN character ch ON ch.characterId = ap.character 
-                    """)
-                }
             }
 
             if (!filter.mShowVariants) {
@@ -179,10 +160,20 @@ abstract class IssueDao : BaseDao<Issue>("issue") {
                 )
             }
 
+            // TODO: what does a text filter mean in an issue list?
+            filter.mTextFilter?.let { textFilter ->
+                Log.d(TAG, "*************************************************************")
+                Log.d(TAG, "*************************************************************")
+                Log.d(TAG, "*************************************************************")
+                Log.d(TAG, "SERIOUS TODO, BUT STILL WANT IT TO RUN FOR THE MOMENT!")
+                Log.d(TAG, "*************************************************************")
+                Log.d(TAG, "*************************************************************")
+                Log.d(TAG, "*************************************************************")
+            }
+
             val sortClause: String = filter.mSortType?.let {
                 val isValid =
                     SortType.Companion.SortTypeOptions.ISSUE.options.containsSortType(it)
-//                it !in SortType.Companion.SortTypeOptions.ISSUE.options
                 val sortString: String =
                     if (isValid) {
                         it.sortString

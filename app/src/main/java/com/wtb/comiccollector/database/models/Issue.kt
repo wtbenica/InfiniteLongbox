@@ -8,8 +8,6 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
-import kotlin.reflect.KClass
-import kotlin.reflect.full.companionObject
 
 const val AUTO_ID = 0
 
@@ -19,7 +17,7 @@ const val AUTO_ID = 0
         ForeignKey(
             entity = Series::class,
             parentColumns = arrayOf("seriesId"),
-            childColumns = arrayOf("seriesId"),
+            childColumns = arrayOf("series"),
             onDelete = CASCADE
         ),
         ForeignKey(
@@ -30,25 +28,25 @@ const val AUTO_ID = 0
         )
     ],
     indices = [
-        Index(value = ["seriesId", "issueNum"]),
+        Index(value = ["series", "issueNum"]),
         Index(value = ["variantOf"]),
     ]
 )
 data class Issue(
     @PrimaryKey(autoGenerate = true) val issueId: Int = AUTO_ID,
-    var seriesId: Int = DUMMY_ID,
-    var issueNum: Int = 1,
-    var releaseDate: LocalDate? = null,
-    var upc: Long? = null,
-    var variantName: String = "",
+    val series: Int = DUMMY_ID,
+    val issueNum: Int = 1,
+    val releaseDate: LocalDate? = null,
+    val upc: Long? = null,
+    val variantName: String = "",
     val variantOf: Int? = null,
-    var sortCode: Int = 0,
-    var coverDateLong: String? = null,
-    var onSaleDateUncertain: Boolean = false,
-    var coverDate: LocalDate? = null,
-    var notes: String? = null,
-    var brandId: Int? = null,
-    var issueNumRaw: String?,
+    val sortCode: Int = 0,
+    val coverDateLong: String? = null,
+    val onSaleDateUncertain: Boolean = false,
+    val coverDate: LocalDate? = null,
+    val notes: String? = null,
+    val brandId: Int? = null,
+    val issueNumRaw: String?,
 ) : DataModel() {
 
     val coverFileName: String
@@ -66,10 +64,6 @@ data class Issue(
         } else {
             "$issueNum $variantName"
         }
-    }
-
-    fun dumpMe(): String {
-        return "Issue(num:$issueNum, ser:$seriesId, var:$variantOf"
     }
 
     companion object {
@@ -115,14 +109,14 @@ data class FullIssue @ExperimentalCoroutinesApi constructor(
     @Embedded
     val issue: Issue,
 
-    @Relation(parentColumn = "seriesId", entityColumn = "seriesId", entity = Series::class)
-    var seriesAndPublisher: SeriesAndPublisher,
+    @Relation(parentColumn = "series", entityColumn = "seriesId", entity = Series::class)
+    val seriesAndPublisher: SeriesAndPublisher,
 
-    @Relation(parentColumn = "issueId", entityColumn = "issueId")
-    var cover: Cover? = null,
+    @Relation(parentColumn = "issueId", entityColumn = "issue")
+    val cover: Cover? = null,
 
-    @Relation(parentColumn = "issueId", entityColumn = "issueId")
-    var myCollection: MyCollection? = null,
+    @Relation(parentColumn = "issueId", entityColumn = "issue")
+    val myCollection: MyCollection? = null,
 ) : ListItem {
     val series: Series
         get() = seriesAndPublisher.series
@@ -134,24 +128,26 @@ data class FullIssue @ExperimentalCoroutinesApi constructor(
         get() = cover?.coverUri
 }
 
+// TODO: This doesn't need a separate table... right? I forget why I did in the first place. it
+//  seems like it was done more out of necessity than purpose
 @ExperimentalCoroutinesApi
 @Entity(
     foreignKeys = [
         ForeignKey(
             entity = Issue::class,
             parentColumns = arrayOf("issueId"),
-            childColumns = arrayOf("issueId"),
+            childColumns = arrayOf("issue"),
             onDelete = CASCADE
         ),
     ],
     indices = [
-        Index(value = ["issueId"], unique = true),
+        Index(value = ["issue"], unique = true),
     ]
 )
 data class Cover(
     @PrimaryKey(autoGenerate = true) val coverId: Int = AUTO_ID,
-    var issueId: Int,
-    var coverUri: Uri? = null,
+    val issue: Int,
+    val coverUri: Uri? = null,
 ) : DataModel() {
     override val id: Int
         get() = coverId
@@ -160,14 +156,14 @@ data class Cover(
 @Entity
 data class Brand(
     @PrimaryKey(autoGenerate = true) val brandId: Int = AUTO_ID,
-    var name: String,
-    var yearBegan: LocalDate? = null,
-    var yearEnded: LocalDate? = null,
-    var notes: String? = null,
-    var url: String? = null,
-    var issueCount: Int,
-    var yearBeganUncertain: Boolean,
-    var yearEndedUncertain: Boolean,
+    val name: String,
+    val yearBegan: LocalDate? = null,
+    val yearEnded: LocalDate? = null,
+    val notes: String? = null,
+    val url: String? = null,
+    val issueCount: Int,
+    val yearBeganUncertain: Boolean,
+    val yearEndedUncertain: Boolean,
 ) : DataModel() {
     override val id: Int
         get() = brandId

@@ -26,7 +26,7 @@ data class Character(
     val name: String,
     val alterEgo: String? = null,
     val publisher: Int,
-) : DataModel(), FilterAutoCompleteType, FilterType, ListItem {
+) : DataModel(), FilterModel, ListItem {
 
     val sortName: String
         get() {
@@ -49,7 +49,7 @@ data class Character(
 
     override fun toString(): String = name
 
-    companion object : FilterTypeSpinnerOption {
+    companion object : FilterType {
         override val displayName: String =
             ComicCollectorApplication.context!!.getString(R.string.filter_type_character)
 
@@ -99,8 +99,8 @@ data class Appearance(
     val details: String?,
     val notes: String?,
     val membership: String?,
-    val issue: Int?,
-    val series: Int?,
+    val issue: Int,
+    val series: Int,
 ) : DataModel() {
     override val id: Int
         get() = appearanceId
@@ -113,7 +113,7 @@ data class FullCharacter(
     val character: Character,
 
     @Relation(parentColumn = "publisher", entityColumn = "publisherId")
-    var publisher: Publisher,
+    val publisher: Publisher,
 )
 
 @ExperimentalCoroutinesApi
@@ -122,7 +122,7 @@ data class FullAppearance(
     val appearance: Appearance,
 
     @Relation(parentColumn = "story", entityColumn = "storyId", entity = Story::class)
-    var story: FullStory,
+    val story: FullStory,
 
     @Relation(parentColumn = "character", entityColumn = "characterId")
     val character: Character,

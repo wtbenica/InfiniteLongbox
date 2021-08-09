@@ -85,7 +85,7 @@ abstract class BaseDao<T : DataModel>(private val tableName: String) {
                 }
             } catch (sqlEx: SQLiteConstraintException) {
                 val s = when (obj) {
-                    is Issue -> "Issue(issueId=${obj.issueId}, seriesId=${obj.seriesId}, variantOf=${obj.variantOf}"
+                    is Issue -> "Issue(issueId=${obj.issueId}, seriesId=${obj.series}, variantOf=${obj.variantOf}"
                     else     -> obj
                 }
                 Log.d(TAG, "UGH!: $objClass $s $sqlEx")
@@ -109,10 +109,7 @@ abstract class BaseDao<T : DataModel>(private val tableName: String) {
                     update(obj)
                 }
             } catch (sqlEx: SQLiteConstraintException) {
-                Log.d(TAG, "UGH SUS: $objClass $obj $sqlEx ${sqlEx.stackTrace} ${
-                    sqlEx
-                        .message
-                }")
+                Log.d(TAG, "UGH SUS: $objClass $obj $sqlEx ${sqlEx.stackTrace} ${sqlEx.message}")
             }
         }
     }
@@ -123,5 +120,7 @@ abstract class BaseDao<T : DataModel>(private val tableName: String) {
 
         internal fun idsToSqlIdString(ids: Collection<Int>) =
             ids.toString().replace("[", "(").replace("]", ")")
+
+        internal fun textFilterToString(text: String) = "%${text.replace(' ', '%')}%"
     }
 }

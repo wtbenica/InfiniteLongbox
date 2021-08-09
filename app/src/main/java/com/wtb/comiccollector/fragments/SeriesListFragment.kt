@@ -2,6 +2,7 @@ package com.wtb.comiccollector.fragments
 
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -20,6 +21,8 @@ import com.wtb.comiccollector.R
 import com.wtb.comiccollector.database.models.FullSeries
 import com.wtb.comiccollector.database.models.Series
 import com.wtb.comiccollector.fragments_view_models.SeriesListViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -42,6 +45,7 @@ class SeriesListFragment : ListFragment<Series>() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 filterViewModel.filter.collectLatest { filter ->
+                    Log.d(TAG, "WHOOHOO! NEW FILTER FROM FILTER VM GOING INTO SERIES LIST VM")
                     viewModel.setFilter(filter)
                 }
             }
@@ -56,16 +60,21 @@ class SeriesListFragment : ListFragment<Series>() {
         val adapter = SeriesAdapter()
         listRecyclerView.adapter = adapter
 
-        lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.seriesList.collectLatest {
-                    adapter.submitData(it)
-                }
+        viewModel.seriesList.observeForever {
+            CoroutineScope(Dispatchers.Default).launch {
+                adapter.submitData(it)
             }
         }
+//        lifecycleScope.launch {
+//            repeatOnLifecycle(Lifecycle.State.STARTED) {
+//                viewModel.seriesList.collectLatest {
+//                    adapter.submitData(it)
+//                }
+//            }
+//        }
     }
 
-//    private fun runLayoutAnimation(view: RecyclerView) {
+    //    private fun runLayoutAnimation(view: RecyclerView) {
 //        val context = view.context
 //        val controller: LayoutAnimationController =
 //            AnimationUtils.loadLayoutAnimation(context, R.anim.layout_animation_fall_down)
@@ -120,7 +129,7 @@ class SeriesListFragment : ListFragment<Series>() {
         }
     }
 
-    interface SeriesListCallback : ListFragmentCallback {
+    interface SeriesListCallback : ListFragment.ListFragmentCallback {
         fun onSeriesSelected(series: Series)
     }
 

@@ -89,12 +89,13 @@ class IssueDetailViewModel : ViewModel() {
     }
 
     fun addToCollection() {
-        val currentIssueId = if (variantId.value == AUTO_ID) {
-            issueId.value
+        val currentIssue: FullIssue? = if (variantId.value == AUTO_ID) {
+            issue.value
         } else {
-            variantId.value
+            variantLiveData.value
         }
-        repository.addToCollection(currentIssueId)
+
+        currentIssue?.let { repository.addToCollection(it) }
     }
 
 
@@ -104,6 +105,7 @@ class IssueDetailViewModel : ViewModel() {
         } else {
             variantId.value
         }
+
         repository.removeFromCollection(currentIssueId)
     }
 
