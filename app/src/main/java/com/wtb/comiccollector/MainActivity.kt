@@ -22,6 +22,9 @@ import androidx.fragment.app.FragmentContainerView
 import androidx.fragment.app.FragmentTransaction.TRANSIT_FRAGMENT_FADE
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.lifecycleScope
+import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.AdView
+import com.google.android.gms.ads.MobileAds
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.appbar.AppBarLayout.LayoutParams.SCROLL_FLAG_SCROLL
 import com.google.android.material.bottomsheet.BottomSheetBehavior
@@ -62,6 +65,8 @@ class MainActivity : AppCompatActivity(),
     private lateinit var bottomSheet: FragmentContainerView
     private lateinit var bottomSheetBehavior: BottomSheetBehavior<*>
 
+    private lateinit var mAdView: AdView
+
     private val resultFragmentManager by lazy {
         ResultFragmentManager()
     }
@@ -71,6 +76,12 @@ class MainActivity : AppCompatActivity(),
         WindowCompat.setDecorFitsSystemWindows(window, false)
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        MobileAds.initialize(this)
+
+        mAdView = findViewById(R.id.ad_view)
+        val adRequest = AdRequest.Builder().build()
+        mAdView.loadAd(adRequest)
 
         filterFragment =
             supportFragmentManager.findFragmentByTag(resources.getString(R.string.tag_filter_fragment)) as FilterFragment?
