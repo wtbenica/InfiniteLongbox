@@ -114,7 +114,7 @@ data class FullCharacter(
 
     @Relation(parentColumn = "publisher", entityColumn = "publisherId")
     val publisher: Publisher,
-)
+) : ListItem
 
 @ExperimentalCoroutinesApi
 data class FullAppearance(

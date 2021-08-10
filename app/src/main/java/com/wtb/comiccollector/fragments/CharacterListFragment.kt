@@ -1,15 +1,10 @@
 package com.wtb.comiccollector.fragments
 
-import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
 import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -18,54 +13,24 @@ import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.R
 import com.wtb.comiccollector.database.models.Character
 import com.wtb.comiccollector.database.models.FullCharacter
-import com.wtb.comiccollector.database.models.Series
 import com.wtb.comiccollector.fragments_view_models.CharacterListViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.launch
 
 private const val TAG = APP + "CharacterListFragment"
 
 @ExperimentalCoroutinesApi
-class CharacterListFragment : ListFragment<Series>() {
+class CharacterListFragment : ListFragment<FullCharacter, CharacterListFragment.CharacterHolder>() {
 
-    private val viewModel: CharacterListViewModel by viewModels()
+    override val viewModel: CharacterListViewModel by viewModels()
 
     override fun onResume() {
         super.onResume()
         callback?.setTitle()
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-        lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                filterViewModel.filter.collectLatest { filter ->
-                    Log.d(TAG, "Updating filter: ${filter.mSortType?.order}")
-                    viewModel.setFilter(filter)
-                }
-            }
-        }
-    }
-
     override fun getLayoutManager(): RecyclerView.LayoutManager = LinearLayoutManager(context)
+    override fun getAdapter(): CharacterAdapter = CharacterAdapter()
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
-        val adapter = CharacterAdapter()
-        listRecyclerView.adapter = adapter
-
-        lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.characterList.collectLatest {
-                    Log.d(TAG, "It's a new character list!")
-                    adapter.submitData(it)
-                }
-            }
-        }
-    }
 
     inner class CharacterAdapter :
         PagingDataAdapter<FullCharacter, CharacterHolder>(DIFF_CALLBACK) {
@@ -105,7 +70,7 @@ class CharacterListFragment : ListFragment<Series>() {
         }
     }
 
-    interface CharacterListCallback : ListFragmentCallback {
+    interface CharacterListCallback : ListFragment.ListFragmentCallback {
         fun onCharacterSelected(character: Character)
     }
 
@@ -125,4 +90,5 @@ class CharacterListFragment : ListFragment<Series>() {
                 oldItem == newItem
         }
     }
+
 }

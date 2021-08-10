@@ -42,9 +42,8 @@ class IssueDetailViewModel : ViewModel() {
     )
 
     val issueList: LiveData<List<FullIssue>> = issue.flatMapLatest { fullIssue ->
-        val seriesId = (fullIssue?.series?.seriesId
-            ?: AUTO_ID)
-        repository.getIssuesByFilter(SearchFilter(series = Series(seriesId = seriesId),
+        val seriesId = (fullIssue?.series?.seriesId ?: AUTO_ID)
+        repository.getIssuesByFilter(SearchFilter(series = FullSeries(Series(seriesId = seriesId)),
                                                   myCollection = false))
     }.asLiveData()
 

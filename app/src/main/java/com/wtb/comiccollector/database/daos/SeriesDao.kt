@@ -33,9 +33,9 @@ abstract class SeriesDao : BaseDao<Series>("series") {
 
     // FLOW FUNCTIONS
     @RawQuery(observedEntities = [Series::class])
-    abstract fun getSeriesByQuery(query: SupportSQLiteQuery): Flow<List<Series>>
+    abstract fun getSeriesByQuery(query: SupportSQLiteQuery): Flow<List<FullSeries>>
 
-    fun getSeriesByFilter(filter: SearchFilter): Flow<List<Series>> {
+    fun getSeriesByFilter(filter: SearchFilter): Flow<List<FullSeries>> {
         val query = getSeriesQuery(filter)
 
         return getSeriesByQuery(query)

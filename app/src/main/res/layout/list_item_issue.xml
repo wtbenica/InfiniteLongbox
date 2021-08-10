@@ -1,80 +1,83 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/wrapper"
-    style="@style/mCardView.ListItemIssue"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:animateLayoutChanges="true"
-    app:cardMaxElevation="8dp"
-    tools:layout_width="200dp">
+    android:layout_height="wrap_content">
 
-    <ProgressBar
-        android:id="@+id/progress_cover_download"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:alpha="1"
-        android:indeterminate="true"
-        android:indeterminateBehavior="cycle"
-        android:indeterminateTint="?attr/colorOnPrimary"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <ImageView
-        android:id="@+id/list_item_cover"
-        android:layout_width="0dp"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/wrapper"
+        style="@style/mCardView.ListItemIssue"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:adjustViewBounds="true"
-        android:alpha="0"
-        android:contentDescription="@string/description_issue_cover"
-        android:gravity="top|center_horizontal"
-        android:scaleType="fitXY"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:alpha="1"
-        tools:layout_height="309dp"
-        tools:layout_width="200dp"
-        tools:src="@tools:sample/backgrounds/scenic"
-        tools:visibility="visible" />
+        android:animateLayoutChanges="true"
+        app:cardMaxElevation="8dp"
+        tools:layout_width="200dp">
 
-    <LinearLayout
-        android:id="@+id/list_item_issue_box"
-        android:layout_width="0dp"
-        android:background="#EFFF"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="@dimen/margin_default"
-        android:layout_marginBottom="@dimen/margin_default"
-        android:orientation="vertical"
-        android:padding="@dimen/margin_default"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent">
+        <ProgressBar
+            android:id="@+id/progress_cover_download"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:alpha="1"
+            android:indeterminate="true"
+            android:indeterminateBehavior="cycle"
+            android:indeterminateTint="?attr/colorOnPrimary"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
-        <TextView
-            android:id="@+id/list_item_issue_number_text"
-            android:layout_width="match_parent"
+        <ImageView
+            android:id="@+id/list_item_cover"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:fontFamily="@font/archivo_black"
-            android:gravity="bottom|end"
-            android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle2"
-            android:textColor="?attr/colorOnPrimary"
-            android:textSize="16sp"
-            tools:text="8" />
+            android:adjustViewBounds="true"
+            android:alpha="0"
+            android:contentDescription="@string/description_issue_cover"
+            android:scaleType="fitStart"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:alpha="1"
+            tools:layout_height="309dp"
+            tools:layout_width="200dp"
+            tools:src="@tools:sample/backgrounds/scenic"
+            tools:visibility="visible" />
 
-        <TextView
-            android:id="@+id/list_item_character_name_text"
-            android:layout_width="match_parent"
+        <LinearLayout
+            android:id="@+id/list_item_issue_box"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:fontFamily="@font/archivo_black"
-            android:gravity="bottom|end"
-            android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle2"
-            android:textColor="?attr/colorOnPrimary"
-            android:textSize="12sp"
-            tools:text="Ed McGuinness Cover" />
-    </LinearLayout>
-</androidx.constraintlayout.widget.ConstraintLayout>
+            android:layout_marginEnd="@dimen/margin_default"
+            android:layout_marginBottom="@dimen/margin_default"
+            android:background="#EFFF"
+            android:orientation="vertical"
+            android:padding="@dimen/margin_default"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent">
+
+            <TextView
+                android:id="@+id/list_item_issue_number_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/archivo_black"
+                android:gravity="bottom|end"
+                android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle2"
+                android:textColor="?attr/colorOnPrimary"
+                android:textSize="16sp"
+                tools:text="8" />
+
+            <TextView
+                android:id="@+id/list_item_character_name_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/archivo_black"
+                android:gravity="bottom|end"
+                android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle2"
+                android:textColor="?attr/colorOnPrimary"
+                android:textSize="12sp"
+                tools:text="Ed McGuinness Cover" />
+        </LinearLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.cardview.widget.CardView>

@@ -5,38 +5,57 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <ImageView
-        android:id="@+id/issue_cover"
-        android:layout_width="150dp"
-        android:layout_height="0dp"
-        android:adjustViewBounds="true"
-        android:contentDescription="@string/description_issue_cover"
-        android:elevation="1dp"
-        android:scaleType="fitStart"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:scaleType="fitXY"
-        tools:src="@tools:sample/backgrounds/scenic" />
-
-    <com.wtb.comiccollector.views.IssueInfoBox
-        android:id="@+id/issue_info_box"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        app:layout_constraintBottom_toTopOf="@id/collectionButton"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@id/issue_cover"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <Button
-        android:id="@+id/collectionButton"
-        android:layout_width="0dp"
+    <LinearLayout
+        android:id="@+id/top_section"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginEnd="8dp"
-        android:text="@string/add_to_collection"
-        app:layout_constraintBottom_toBottomOf="@+id/issue_cover"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/issue_cover" />
+        android:orientation="horizontal"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <ImageView
+            android:id="@+id/issue_cover"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:adjustViewBounds="true"
+            android:contentDescription="@string/description_issue_cover"
+            android:elevation="1dp"
+            android:scaleType="fitStart"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:scaleType="fitXY"
+            tools:src="@tools:sample/backgrounds/scenic" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <com.wtb.comiccollector.views.IssueInfoBox
+                android:id="@+id/issue_info_box"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                app:layout_constraintBottom_toTopOf="@id/collectionButton"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/issue_cover"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <Button
+                android:id="@+id/collectionButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
+                android:text="@string/add_to_collection"
+                app:layout_constraintBottom_toBottomOf="@+id/issue_cover"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/issue_cover" />
+        </LinearLayout>
+    </LinearLayout>
 
     <LinearLayout
         android:id="@+id/variant_spinner_holder"
@@ -45,7 +64,7 @@
         android:orientation="vertical"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/issue_cover">
+        app:layout_constraintTop_toBottomOf="@id/top_section">
 
         <LinearLayout
             android:id="@+id/title_bar_variant_spinner"

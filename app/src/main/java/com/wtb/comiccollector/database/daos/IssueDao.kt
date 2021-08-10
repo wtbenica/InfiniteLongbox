@@ -99,7 +99,7 @@ abstract class IssueDao : BaseDao<Issue>("issue") {
             filter.mSeries?.let {
                 conditionsString.append("""${connectword()} ie.series = ? 
                 """)
-                args.add(it.seriesId)
+                args.add(it.series.seriesId)
             }
 
             if (filter.hasPublisher()) {

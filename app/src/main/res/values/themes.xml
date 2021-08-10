@@ -36,6 +36,8 @@
         <item name="floatingActionButtonStyle">@style/myFabStyle</item>
         <item name="styleCreatorLink">@style/CreatorLink</item>
         <item name="styleIssueInfoBox">@style/IssueInfoBox</item>
+        <item name="styleSeriesDetail">@style/SeriesDetailBackground</item>
+
         <item name="colorPrimaryMuted">@color/fantasia_muted</item>
         <item name="colorPrimaryDarkMuted">@color/fantasia_dark_muted</item>
         <item name="colorPrimaryLightMuted">@color/fantasia_light_muted</item>

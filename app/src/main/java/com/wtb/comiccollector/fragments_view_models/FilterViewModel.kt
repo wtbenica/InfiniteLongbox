@@ -71,7 +71,7 @@ class FilterViewModel : ViewModel() {
             repository.updateCharacter(it.characterId)
         }
         filter.mSeries?.let {
-            repository.updateSeries(it.seriesId)
+            repository.updateSeries(it.series.seriesId)
         }
         if (filter.mCreators.isNotEmpty()) {
             repository.updateCreators(filter.mCreators.ids)

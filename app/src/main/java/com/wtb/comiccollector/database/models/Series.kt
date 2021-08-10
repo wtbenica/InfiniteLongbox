@@ -38,13 +38,7 @@ data class Series(
     val firstIssue: Int? = null,
     val notes: String? = null,
     val issueCount: Int = 0,
-) : DataModel(), FilterModel, Serializable {
-    override val tagName: String
-        get() = "Series"
-
-    override val compareValue: String
-        get() = sortName ?: seriesName
-
+) : DataModel(), Serializable {
     override val id: Int
         get() = seriesId
 
@@ -186,7 +180,15 @@ data class FullSeries(
 
     @Relation(parentColumn = "seriesId", entityColumn = "target", entity = SeriesBond::class)
     val seriesBondFrom: Bond? = null,
-) : ListItem
+) : ListItem, FilterModel {
+    override val tagName: String
+        get() = "Series"
+
+    override val compareValue: String
+        get() = series.sortName ?: series.seriesName
+
+    override fun toString(): String = "${series.seriesName} ${series.dateRange}"
+}
 
 @ExperimentalCoroutinesApi
 data class SeriesAndPublisher(

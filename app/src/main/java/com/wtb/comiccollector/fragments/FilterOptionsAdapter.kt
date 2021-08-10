@@ -11,7 +11,7 @@ import android.widget.TextView
 import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.R
 import com.wtb.comiccollector.database.models.FilterModel
-import com.wtb.comiccollector.database.models.Series
+import com.wtb.comiccollector.database.models.FullSeries
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 @ExperimentalCoroutinesApi
@@ -48,9 +48,9 @@ class FilterOptionsAdapter(context: Context, filterOptions: List<FilterModel>) :
         itemText.text = filter.toString()
         optionTypeText.text = filter.tagName
         optionTypeText.setTextColor(filter.textColor)
-        if (filter is Series) {
+        if (filter is FullSeries) {
             itemFormatText.visibility = VISIBLE
-            itemFormatText.text = filter.publishingFormat
+            itemFormatText.text = filter.series.publishingFormat
         } else {
             itemFormatText.visibility = GONE
         }

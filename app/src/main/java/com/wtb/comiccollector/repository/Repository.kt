@@ -155,7 +155,7 @@ class Repository private constructor(val context: Context) {
     val allPublishers: Flow<List<Publisher>> = publisherDao.getAll()
 
     // FILTER OPTIONS
-    fun getFilterOptionsSeries(filter: SearchFilter): Flow<List<Series>> {
+    fun getFilterOptionsSeries(filter: SearchFilter): Flow<List<FullSeries>> {
         return if (filter.mSeries == null) {
             seriesDao.getSeriesByFilter(filter)
         } else {

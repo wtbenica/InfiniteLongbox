@@ -87,4 +87,4 @@ data class FullCreator(
 
     @Relation(parentColumn = "creatorId", entityColumn = "creator")
     val nameDetail: List<NameDetail>,
-)
+) : ListItem

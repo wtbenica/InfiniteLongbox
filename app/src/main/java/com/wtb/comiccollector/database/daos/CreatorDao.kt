@@ -63,7 +63,7 @@ abstract class CreatorDao : BaseDao<Creator>("creator") {
             //language=RoomSql
             filter.mSeries?.let {
                 conditionsString.append(
-                    """${connectword()} ct.series = ${it.seriesId}
+                    """${connectword()} ct.series = ${it.series.seriesId}
                         """)
             }
 

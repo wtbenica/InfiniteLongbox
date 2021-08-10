@@ -94,7 +94,7 @@ abstract class CharacterDao : BaseDao<Character>("character") {
             conditionsString.append("""${connectword()} ie.series = ? 
                 """)
 
-            args.add(it.seriesId)
+            args.add(it.series.seriesId)
         }
 
         if (filter.mMyCollection) {

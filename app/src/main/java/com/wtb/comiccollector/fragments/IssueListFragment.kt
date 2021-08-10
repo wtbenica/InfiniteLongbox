@@ -7,88 +7,68 @@ import android.view.*
 import android.view.View.GONE
 import android.view.View.VISIBLE
 import android.view.animation.AccelerateInterpolator
-import android.widget.GridLayout.VERTICAL
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.fragment.app.FragmentTransaction
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.R
 import com.wtb.comiccollector.database.models.FullIssue
+import com.wtb.comiccollector.database.models.FullSeries
 import com.wtb.comiccollector.database.models.Issue
 import com.wtb.comiccollector.fragments_view_models.IssueListViewModel
+import com.wtb.comiccollector.views.SeriesDetailBox
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 @ExperimentalCoroutinesApi
-class IssueListFragment : ListFragment<Issue>() {
+class IssueListFragment : ListFragment<FullIssue, IssueListFragment.IssueViewHolder>() {
 
-    private val viewModel: IssueListViewModel by viewModels()
+    override val viewModel: IssueListViewModel by viewModels()
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-        lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                filterViewModel.filter.collectLatest { filter ->
-                    Log.d(TAG, "Setting Filter: ${filter.mSortType}")
-                    updateSeriesDetailFragment(filter.mSeries?.seriesId)
-                    viewModel.setFilter(filter)
-                }
-            }
-        }
+    private fun updateSeriesDetailFragment(series: FullSeries) {
+        details.addView(SeriesDetailBox(requireContext(), series))
     }
 
-    private fun updateSeriesDetailFragment(seriesId: Int?) {
-        val fragment = SeriesDetailFragment.newInstance(seriesId)
-
-        childFragmentManager.beginTransaction()
-            .replace(R.id.details, fragment)
-            .addToBackStack(null)
-            .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
-            .commitAllowingStateLoss()
-    }
-
-    override fun getLayoutManager(): RecyclerView.LayoutManager =
-        StaggeredGridLayoutManager(2, VERTICAL).apply {
-            gapStrategy = StaggeredGridLayoutManager.GAP_HANDLING_MOVE_ITEMS_BETWEEN_SPANS
-        }
+    override fun getLayoutManager(): RecyclerView.LayoutManager = GridLayoutManager(context, 2)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         val itemDecoration =
-            ItemOffsetDecoration(resources.getDimension(R.dimen.card_elevation).toInt())
+            ItemOffsetDecoration(resources.getDimension(R.dimen.margin_narrow).toInt())
         listRecyclerView.addItemDecoration(itemDecoration)
 
-        val adapter = IssueAdapter()
+        val adapter = getAdapter()
         listRecyclerView.adapter = adapter
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.issueList.collectLatest { adapter.submitData(it) }
+                viewModel.itemList.collectLatest { adapter.submitData(it) }
             }
         }
 
         viewModel.seriesLiveData.observe(
             viewLifecycleOwner,
-            {
+            { fullSeries ->
                 Log.d(TAG, "BBB collecting series 3")
-                callback?.setTitle(it?.series?.seriesName)
+                fullSeries?.let { updateSeriesDetailFragment(it) }
+                callback?.setTitle(fullSeries?.series?.seriesName)
             }
         )
     }
+
+    override fun getAdapter() = IssueAdapter()
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
@@ -133,7 +113,7 @@ class IssueListFragment : ListFragment<Issue>() {
             itemView.findViewById(R.id.list_item_issue_number_text)
         private val issueVariantName: TextView =
             itemView.findViewById(R.id.list_item_character_name_text)
-        private val wrapper: ConstraintLayout = itemView.findViewById(R.id.wrapper)
+        internal val wrapper: ConstraintLayout = itemView.findViewById(R.id.wrapper)
 
         init {
             itemView.setOnClickListener(this)
@@ -199,7 +179,7 @@ class IssueListFragment : ListFragment<Issue>() {
 
     }
 
-    interface IssueListCallback : ListFragmentCallback {
+    interface IssueListCallback : ListFragment.ListFragmentCallback {
         fun onIssueSelected(issue: Issue)
         fun onNewIssue(issueId: Int)
     }

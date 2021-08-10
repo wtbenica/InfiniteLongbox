@@ -199,7 +199,7 @@ class MainActivity : AppCompatActivity(),
     }
 
     // SeriesListFragment.SeriesListCallbacks
-    override fun onSeriesSelected(series: Series) {
+    override fun onSeriesSelected(series: FullSeries) {
         filterFragment?.addFilterItem(series)
     }
 
