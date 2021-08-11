@@ -78,7 +78,7 @@ class SortChip(context: Context?) : Chip(context) {
 
     init {
         isCloseIconVisible = true
-        setOnClickListener { _ ->
+        setOnClickListener {
             Log.d(TAG, "Chip ${if (isChecked) "is" else "isn't"} checked")
             if (isChecked) {
                 sortType = sortType?.toggle()

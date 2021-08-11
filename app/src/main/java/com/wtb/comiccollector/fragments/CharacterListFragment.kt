@@ -70,7 +70,7 @@ class CharacterListFragment : ListFragment<FullCharacter, CharacterListFragment.
         }
     }
 
-    interface CharacterListCallback : ListFragment.ListFragmentCallback {
+    interface CharacterListCallback : ListFragmentCallback {
         fun onCharacterSelected(character: Character)
     }
 

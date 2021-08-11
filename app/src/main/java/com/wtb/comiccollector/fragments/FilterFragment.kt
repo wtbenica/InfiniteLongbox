@@ -49,7 +49,7 @@ class FilterFragment : Fragment(),
             field = onVisibleStateUpdated(value)
         }
 
-    private var prevFilter: SearchFilter? = null
+    private var prevFilter: SearchFilter = SearchFilter()
     private var currFilter: SearchFilter = SearchFilter()
         set(value) {
             field = onFilterUpdate(value)
@@ -170,7 +170,7 @@ class FilterFragment : Fragment(),
             filterTypeOptions
         ) {
             override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
-                val view = convertView ?: View.inflate(
+                val view = convertView ?: inflate(
                     context,
                     R.layout.list_item_search_type,
                     null
@@ -246,13 +246,13 @@ class FilterFragment : Fragment(),
     }
 
     private fun onFilterUpdate(value: SearchFilter): SearchFilter {
-        prevFilter = currFilter
-
-        // TODO: Don't want to add to back stack if it's just a sort order change
         if (prevFilter != value) {
+            prevFilter = currFilter
             undoQueue.add(
-                Undo(function = { viewModel.setFilter(it) }, item = prevFilter ?: SearchFilter())
+                Undo(function = { viewModel.setFilter(it) }, item = SearchFilter(prevFilter))
             )
+        } else {
+            undoQueue.removeLastOrNull()
         }
 
         updateFilterCard(value)

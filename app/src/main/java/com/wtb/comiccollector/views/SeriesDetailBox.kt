@@ -7,7 +7,6 @@ import android.widget.ImageButton
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.fragment.app.Fragment
 import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.R
 import com.wtb.comiccollector.SearchFilter
@@ -21,11 +20,6 @@ private const val TAG = APP + "SeriesDetailFragment"
 private const val RESULT_SERIES_INFO = 312
 private const val DIALOG_SERIES_INFO = "DIALOG_EDIT_SERIES"
 
-/**
- * A simple [Fragment] subclass.
- * Use the [SeriesDetailBox.newInstance] factory method to
- * create an instance of this fragment.
- */
 @ExperimentalCoroutinesApi
 class SeriesDetailBox(context: Context, attrs: AttributeSet?, defStyleAttr: Int) :
     ConstraintLayout(context, attrs, R.attr.styleSeriesDetail, R.style.SeriesDetailBackground), SeriesLinkCallback {

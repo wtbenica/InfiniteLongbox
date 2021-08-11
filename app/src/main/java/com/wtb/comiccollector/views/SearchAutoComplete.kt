@@ -30,8 +30,10 @@ class SearchAutoComplete(context: Context, attributeSet: AttributeSet) :
 
     init {
         isSingleLine = true
+        imeOptions = EditorInfo.IME_ACTION_DONE
 
         setOnEditorActionListener { v, actionId, event ->
+            Log.d(TAG, "ACTION ID: $actionId")
             if (actionId == EditorInfo.IME_ACTION_DONE) {
                 val tempItem = item
                 if (tempItem != null) {

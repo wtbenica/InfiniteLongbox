@@ -117,7 +117,7 @@ abstract class CreatorDao : BaseDao<Creator>("creator") {
                     } else {
                         SortType.Companion.SortTypeOptions.CREATOR.options[0].sortString
                     }
-                "ORDER BY ${sortString}"
+                "ORDER BY $sortString"
             } ?: ""
 
             val tableJoinString2 =

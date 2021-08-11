@@ -179,7 +179,7 @@ class IssueListFragment : ListFragment<FullIssue, IssueListFragment.IssueViewHol
 
     }
 
-    interface IssueListCallback : ListFragment.ListFragmentCallback {
+    interface IssueListCallback : ListFragmentCallback {
         fun onIssueSelected(issue: Issue)
         fun onNewIssue(issueId: Int)
     }

@@ -73,7 +73,7 @@ class CreatorListFragment : ListFragment<FullCreator, CreatorListFragment.Creato
         }
     }
 
-    interface CreatorListCallback : ListFragment.ListFragmentCallback {
+    interface CreatorListCallback : ListFragmentCallback {
         fun onCreatorSelected(creator: Creator)
     }
 

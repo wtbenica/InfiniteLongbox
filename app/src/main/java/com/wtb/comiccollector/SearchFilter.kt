@@ -86,7 +86,7 @@ class SearchFilter(
     }
 
     fun isEmpty() = mCreators.isEmpty() && mSeries == null && mCharacter == null &&
-            !hasDateFilter() && mPublishers.isEmpty() && mMyCollection == false
+            !hasDateFilter() && mPublishers.isEmpty() && !mMyCollection
 
     fun isNotEmpty() = !isEmpty()
 

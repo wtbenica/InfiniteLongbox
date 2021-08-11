@@ -180,7 +180,7 @@ abstract class IssueDao : BaseDao<Issue>("issue") {
                     } else {
                         SortType.Companion.SortTypeOptions.ISSUE.options[0].sortString
                     }
-                "ORDER BY ${sortString}"
+                "ORDER BY $sortString"
             } ?: ""
 
             return SimpleSQLiteQuery(

@@ -121,7 +121,7 @@ abstract class CharacterDao : BaseDao<Character>("character") {
                 } else {
                     SortType.Companion.SortTypeOptions.CHARACTER.options[0].sortString
                 }
-            "ORDER BY ${sortString}"
+            "ORDER BY $sortString"
         } ?: ""
 
         return SimpleSQLiteQuery(
