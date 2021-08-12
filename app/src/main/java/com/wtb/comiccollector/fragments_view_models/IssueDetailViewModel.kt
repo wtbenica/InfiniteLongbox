@@ -26,10 +26,10 @@ class IssueDetailViewModel : ViewModel() {
     private val repository: Repository = Repository.get()
 
     private val _issueId = MutableStateFlow(AUTO_ID)
-    private val issueId: StateFlow<Int>
+    val issueId: StateFlow<Int>
         get() = _issueId
     private val _variantId = MutableStateFlow(AUTO_ID)
-    private val variantId: StateFlow<Int>
+    val variantId: StateFlow<Int>
         get() = _variantId
 
 
@@ -76,8 +76,6 @@ class IssueDetailViewModel : ViewModel() {
     fun loadIssue(issueId: Int) {
         _issueId.value = issueId
     }
-
-    fun getIssueId() = issueId.value
 
     fun loadVariant(issueId: Int?) {
         _variantId.value = issueId ?: AUTO_ID

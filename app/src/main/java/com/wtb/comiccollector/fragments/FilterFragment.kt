@@ -15,7 +15,9 @@ import android.widget.*
 import androidx.core.view.*
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.*
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.chip.ChipGroup
 import com.wtb.comiccollector.APP
@@ -100,7 +102,7 @@ class FilterFragment : Fragment(),
 
         view.clipToOutline = false
 
-        viewModel.filterOptions.observeForever { filterOptions ->
+        viewModel.filterOptions.observe(viewLifecycleOwner) { filterOptions ->
             searchAutoComplete.setAdapter(
                 FilterOptionsAdapter(
                     context = requireContext(),
@@ -247,10 +249,10 @@ class FilterFragment : Fragment(),
 
     private fun onFilterUpdate(value: SearchFilter): SearchFilter {
         if (prevFilter != value) {
-            prevFilter = currFilter
             undoQueue.add(
                 Undo(function = { viewModel.setFilter(it) }, item = SearchFilter(prevFilter))
             )
+            prevFilter = currFilter
         } else {
             undoQueue.removeLastOrNull()
         }

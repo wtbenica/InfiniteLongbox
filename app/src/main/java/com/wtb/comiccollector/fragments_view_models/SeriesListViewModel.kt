@@ -19,8 +19,4 @@ class SeriesListViewModel : ListViewModel<FullSeries>() {
     override val itemList: Flow<PagingData<FullSeries>> = filter.switchMap {
         repository.getSeriesByFilterPaged(it).asLiveData()
     }.asFlow().cachedIn(viewModelScope)
-
-//    val seriesList: LiveData<PagingData<FullSeries>> = filter.switchMap {
-//        repository.getSeriesByFilterPaged(it).asLiveData()
-//    }
 }

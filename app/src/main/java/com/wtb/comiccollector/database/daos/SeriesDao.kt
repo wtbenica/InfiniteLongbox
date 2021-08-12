@@ -1,6 +1,5 @@
 package com.wtb.comiccollector.database.daos
 
-import android.util.Log
 import androidx.paging.PagingSource
 import androidx.room.Dao
 import androidx.room.Query
@@ -46,9 +45,8 @@ abstract class SeriesDao : BaseDao<Series>("series") {
     abstract fun getSeriesByQueryPagingSource(query: SupportSQLiteQuery): PagingSource<Int, FullSeries>
 
     fun getSeriesByFilterPagingSource(filter: SearchFilter): PagingSource<Int, FullSeries> {
-
         val query = getSeriesQuery(filter)
-        Log.d(TAG, "Paging: ${query.sql} $query")
+
         return getSeriesByQueryPagingSource(query)
     }
 

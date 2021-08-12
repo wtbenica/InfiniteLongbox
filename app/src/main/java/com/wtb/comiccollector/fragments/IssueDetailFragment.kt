@@ -398,8 +398,8 @@ class IssueDetailFragment : Fragment(), CreatorLinkCallback {
                         val selectedIssueId =
                             (it.getItemAtPosition(position) as Issue).issueId
 
-                        val selectionIsVariant = selectedIssueId != issueDetailViewModel
-                            .getIssueId()
+                        val selectionIsVariant =
+                            selectedIssueId != issueDetailViewModel.issueId.value
 
                         if (selectionIsVariant) {
                             issueDetailViewModel.loadVariant(selectedIssueId)

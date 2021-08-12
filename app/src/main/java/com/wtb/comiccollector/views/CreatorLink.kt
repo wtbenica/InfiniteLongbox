@@ -62,7 +62,7 @@ class SeriesLink(
     internal var series: FullSeries? = null
         set(value) {
             field = value
-            text = series?.series?.seriesName
+            text = series?.series?.fullDescription
         }
 
     init {

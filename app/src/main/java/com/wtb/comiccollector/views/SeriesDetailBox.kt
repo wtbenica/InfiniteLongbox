@@ -130,6 +130,9 @@ class SeriesDetailBox(context: Context, attrs: AttributeSet?, defStyleAttr: Int)
         } else {
             VISIBLE
         }
+
+        series?.seriesBondTo?.targetSeries?. let { continuesAs.series = FullSeries(series = it) }
+        series?.seriesBondFrom?.originSeries?. let { continuesFrom.series = FullSeries(series = it) }
     }
 
     override fun seriesClicked(series: FullSeries) {
