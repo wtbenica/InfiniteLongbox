@@ -63,7 +63,7 @@ abstract class CreatorDao : BaseDao<Creator>("creator") {
             //language=RoomSql
             filter.mSeries?.let {
                 conditionsString.append(
-                    """${connectword()} ct.series = ${it.seriesId}
+                    """${connectword()} ct.series = ${it.series.seriesId}
                         """)
             }
 
@@ -117,7 +117,7 @@ abstract class CreatorDao : BaseDao<Creator>("creator") {
                     } else {
                         SortType.Companion.SortTypeOptions.CREATOR.options[0].sortString
                     }
-                "ORDER BY ${sortString}"
+                "ORDER BY $sortString"
             } ?: ""
 
             val tableJoinString2 =

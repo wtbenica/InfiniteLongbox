@@ -2,10 +2,12 @@ package com.wtb.comiccollector.fragments_view_models
 
 import android.util.Log
 import androidx.lifecycle.*
+import androidx.recyclerview.widget.RecyclerView
 import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.SearchFilter
 import com.wtb.comiccollector.SortType
 import com.wtb.comiccollector.database.models.*
+import com.wtb.comiccollector.fragments.*
 import com.wtb.comiccollector.repository.Repository
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
@@ -71,7 +73,7 @@ class FilterViewModel : ViewModel() {
             repository.updateCharacter(it.characterId)
         }
         filter.mSeries?.let {
-            repository.updateSeries(it.seriesId)
+            repository.updateSeries(it.series.seriesId)
         }
         if (filter.mCreators.isNotEmpty()) {
             repository.updateCreators(filter.mCreators.ids)
@@ -134,5 +136,56 @@ class FilterViewModel : ViewModel() {
         val newVal = SearchFilter(_filter.value)
         newVal.nextOption()
         setFilter(newVal)
+    }
+
+    val fragment: Flow<ListFragment<out ListItem, out RecyclerView.ViewHolder>?> =
+        filter.mapLatest {
+            when (it.mViewOption) {
+                FullIssue::class            -> issueListFragment
+                Character::class            -> characterListFragment
+                FullSeries::class           -> seriesListFragment
+                NameDetailAndCreator::class -> creatorListFragment
+                else                        -> throw IllegalStateException("illegal viewOption: ${it.mViewOption}")
+            }
+        }
+
+    companion object {
+        private var _seriesListFragment: SeriesListFragment? = null
+        private var _issueListFragment: IssueListFragment? = null
+        private var _characterListFragment: CharacterListFragment? = null
+        private var _creatorListFragment: CreatorListFragment? = null
+
+        private val seriesListFragment: SeriesListFragment
+            get() {
+                val result = _seriesListFragment ?: SeriesListFragment.newInstance()
+                if (_seriesListFragment == null) {
+                    _seriesListFragment = result
+                }
+                return result
+            }
+        private val issueListFragment: IssueListFragment
+            get() {
+                val result = _issueListFragment ?: IssueListFragment.newInstance()
+                if (_issueListFragment == null) {
+                    _issueListFragment = result
+                }
+                return result
+            }
+        private val characterListFragment: CharacterListFragment
+            get() {
+                val result = _characterListFragment ?: CharacterListFragment.newInstance()
+                if (_characterListFragment == null) {
+                    _characterListFragment = result
+                }
+                return result
+            }
+        private val creatorListFragment: CreatorListFragment
+            get() {
+                val result = _creatorListFragment ?: CreatorListFragment.newInstance()
+                if (_creatorListFragment == null) {
+                    _creatorListFragment = result
+                }
+                return result
+            }
     }
 }

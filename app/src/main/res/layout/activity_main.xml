@@ -1,43 +1,62 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:ads="http://schemas.android.com/apk/res-auto"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main_activity"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:animateLayoutChanges="true"
-    android:fitsSystemWindows="false"
-    tools:context=".MainActivity">
+    android:fitsSystemWindows="true"
+    android:orientation="vertical">
 
-    <com.google.android.material.appbar.AppBarLayout
-        android:id="@+id/app_bar_layout"
-        style="@style/myAppBarLayout"
-        app:layout_behavior="com.google.android.material.appbar.AppBarLayout$Behavior"
-        app:layout_insetEdge="top">
-
-        <androidx.appcompat.widget.Toolbar
-            android:id="@+id/action_bar"
-            style="@style/myActionBarStyle"
-            tools:title="Doom Patrol #9" />
-    </com.google.android.material.appbar.AppBarLayout>
-
-
-    <androidx.fragment.app.FragmentContainerView
-        android:id="@+id/fragment_container"
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
+        android:id="@+id/main_activity"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:animateLayoutChanges="true"
         android:fitsSystemWindows="false"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior"
-        app:layout_dodgeInsetEdges="top"
-        tools:layout="@layout/fragment_item_list" />
+        tools:context=".MainActivity">
 
-    <androidx.fragment.app.FragmentContainerView
-        android:id="@+id/bottom_sheet"
-        android:name="com.wtb.comiccollector.fragments.FilterFragment"
+        <com.google.android.material.appbar.AppBarLayout
+            android:id="@+id/app_bar_layout"
+            style="@style/myAppBarLayout"
+            app:layout_behavior="com.google.android.material.appbar.AppBarLayout$Behavior"
+            app:layout_insetEdge="top">
+
+            <androidx.appcompat.widget.Toolbar
+                android:id="@+id/action_bar"
+                style="@style/myActionBarStyle"
+                tools:title="Doom Patrol #9" />
+        </com.google.android.material.appbar.AppBarLayout>
+
+
+        <androidx.fragment.app.FragmentContainerView
+            android:id="@+id/fragment_container"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:fitsSystemWindows="false"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior"
+            app:layout_dodgeInsetEdges="top"
+            tools:layout="@layout/fragment_item_list" />
+
+        <androidx.fragment.app.FragmentContainerView
+            android:id="@+id/bottom_sheet"
+            android:name="com.wtb.comiccollector.fragments.FilterFragment"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fitsSystemWindows="false"
+            android:tag="@string/tag_filter_fragment"
+            app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior"
+            tools:layout="@layout/fragment_filter" />
+
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+
+    <com.google.android.gms.ads.AdView
+        android:id="@+id/ad_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:fitsSystemWindows="false"
-        android:tag="@string/tag_filter_fragment"
-        app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior"
-        tools:layout="@layout/fragment_filter" />
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
+        android:layout_gravity="bottom"
+        android:fitsSystemWindows="true"
+        ads:adSize="BANNER"
+        ads:adUnitId="ca-app-pub-3940256099942544/6300978111" />
+</LinearLayout>

@@ -13,10 +13,9 @@ const val ARG_FILTER = "Filter"
 private const val TAG = APP + "Filter_SortChipGroup"
 
 @ExperimentalCoroutinesApi
-class SearchFilter
-    (
+class SearchFilter(
     creators: Set<Creator>? = null,
-    series: Series? = null,
+    series: FullSeries? = null,
     publishers: Set<Publisher>? = null,
     startDate: LocalDate? = null,
     endDate: LocalDate? = null,
@@ -48,7 +47,7 @@ class SearchFilter
 
     var mShowIssues: Boolean = false
     var mCreators: Set<Creator> = creators ?: setOf()
-    var mSeries: Series? = series
+    var mSeries: FullSeries? = series
         set(value) {
             val oldOptions = getSortOptions()
             field = value
@@ -87,7 +86,7 @@ class SearchFilter
     }
 
     fun isEmpty() = mCreators.isEmpty() && mSeries == null && mCharacter == null &&
-            !hasDateFilter() && mPublishers.isEmpty() && mMyCollection == false
+            !hasDateFilter() && mPublishers.isEmpty() && !mMyCollection
 
     fun isNotEmpty() = !isEmpty()
 
@@ -103,7 +102,7 @@ class SearchFilter
     fun addFilter(vararg items: FilterItem) {
         items.forEach { item ->
             when (item) {
-                is Series     -> addSeries(item)
+                is FullSeries     -> addSeries(item)
                 is Creator    -> addCreator(item)
                 is Publisher  -> addPublisher(item)
                 is TextFilter -> addTextFilter(item)
@@ -117,7 +116,7 @@ class SearchFilter
         }
     }
 
-    private fun addSeries(series: Series) {
+    private fun addSeries(series: FullSeries) {
         this.mSeries = series
     }
 
@@ -143,7 +142,7 @@ class SearchFilter
     fun removeFilter(vararg items: FilterItem) {
         items.forEach { item ->
             when (item) {
-                is Series     -> removeSeries()
+                is FullSeries     -> removeSeries()
                 is Creator    -> removeCreator(item)
                 is Publisher  -> removePublisher(item)
                 is TextFilter -> removeTextFilter(item)

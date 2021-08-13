@@ -3,16 +3,21 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="../../../../layout/custom_preview.xml" value="0.3972222222222222" />
+        <entry key="app/src/main/res/drawable/alboha_bg.xml" value="0.5" />
         <entry key="app/src/main/res/drawable/background_series_dates.xml" value="0.12863247863247862" />
         <entry key="app/src/main/res/drawable/background_series_title.xml" value="0.12863247863247862" />
         <entry key="app/src/main/res/drawable/primary_border.xml" value="0.1111111111111111" />
         <entry key="app/src/main/res/drawable/primary_dark_border.xml" value="0.1111111111111111" />
+        <entry key="app/src/main/res/layout/activity_main.xml" value="0.1" />
         <entry key="app/src/main/res/layout/fragment_display_issue.xml" value="0.5" />
-        <entry key="app/src/main/res/layout/fragment_filter.xml" value="0.2636752136752137" />
-        <entry key="app/src/main/res/layout/fragment_series_detail.xml" value="0.67" />
+        <entry key="app/src/main/res/layout/fragment_filter.xml" value="0.6104972375690608" />
+        <entry key="app/src/main/res/layout/fragment_item_list.xml" value="0.14035087719298245" />
+        <entry key="app/src/main/res/layout/fragment_series_detail.xml" value="0.3856332703213611" />
         <entry key="app/src/main/res/layout/issue_detail_info_row.xml" value="0.25" />
         <entry key="app/src/main/res/layout/issue_detail_info_row_vertical.xml" value="0.75" />
         <entry key="app/src/main/res/layout/issue_detail_issue_info_box.xml" value="0.11153846153846154" />
+        <entry key="app/src/main/res/layout/list_item_issue.xml" value="0.18888888888888888" />
         <entry key="app/src/main/res/layout/list_item_series.xml" value="0.33" />
         <entry key="app/src/main/res/layout/story_box.xml" value="0.1" />
       </map>

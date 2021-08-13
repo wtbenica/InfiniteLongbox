@@ -6,11 +6,11 @@
 
     <dimen name="radius_default">8dp</dimen>
 
-    <dimen name="card_elevation">1dp</dimen>
+    <dimen name="card_elevation">4dp</dimen>
 
-    <dimen name="radius_list_item_issue">0dp</dimen>
+    <dimen name="radius_list_item_issue">8dp</dimen>
 
-    <dimen name="radius_list_item_series">0dp</dimen>
+    <dimen name="radius_list_item_series">8dp</dimen>
 
     <dimen name="peek_height">48dp</dimen>
     <dimen name="chip_icon_size">20dp</dimen>

@@ -234,7 +234,8 @@ class IssueDetailFragment : Fragment(), CreatorLinkCallback {
         issueDetailViewModel.variantLiveData.observe(
             viewLifecycleOwner,
             {
-                it?.let { variant ->
+                it.let { variant ->
+                    Log.d(TAG, "variant changed: $variant")
                     fullVariant = variant
                     updateUI()
                 }
@@ -398,11 +399,15 @@ class IssueDetailFragment : Fragment(), CreatorLinkCallback {
                         val selectedIssueId =
                             (it.getItemAtPosition(position) as Issue).issueId
 
-                        val selectionIsVariant = selectedIssueId != issueDetailViewModel
-                            .getIssueId()
+                        val selectionIsVariant =
+                            selectedIssueId != issueDetailViewModel.issueId.value
 
                         if (selectionIsVariant) {
+                            Log.d(TAG, "VARIANT")
                             issueDetailViewModel.loadVariant(selectedIssueId)
+                        } else {
+                            Log.d(TAG, "NOT VARIANT")
+                            issueDetailViewModel.clearVariant()
                         }
 
                         updateCover()

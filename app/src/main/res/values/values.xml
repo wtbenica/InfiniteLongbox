@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <attr name="colorPrimaryMuted" format="reference"/>
-    <attr name="colorPrimaryDarkMuted" format="reference"/>
-    <attr name="colorPrimaryLightMuted" format="reference"/>
+    <attr name="colorPrimaryMuted" format="reference" />
+    <attr name="colorPrimaryDarkMuted" format="reference" />
+    <attr name="colorPrimaryLightMuted" format="reference" />
     <attr name="colorPrimaryLightLight" format="reference" />
     <attr name="colorSecondaryLightLight" format="reference" />
     <attr name="colorTransparentWhite" format="reference" />
@@ -11,4 +11,5 @@
     <attr name="colorStoryBoxSubtitle" format="reference" />
     <attr name="styleCreatorLink" format="reference" />
     <attr name="styleIssueInfoBox" format="reference" />
+    <attr name="styleSeriesDetail" format="reference" />
 </resources>

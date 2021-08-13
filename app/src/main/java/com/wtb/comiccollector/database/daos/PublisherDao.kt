@@ -44,7 +44,7 @@ abstract class PublisherDao : BaseDao<Publisher>("publisher") {
         conditionsString.append("""WHERE pr.publisherId != $DUMMY_ID """)
 
         if (mSeries != null) {
-            conditionsString.append("""AND ss.seriesId = ${mSeries.seriesId} """)
+            conditionsString.append("""AND ss.seriesId = ${mSeries.series.seriesId} """)
         }
 
         if (filter.hasCreator()) {

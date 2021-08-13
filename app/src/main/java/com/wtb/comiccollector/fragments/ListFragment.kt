@@ -2,6 +2,7 @@ package com.wtb.comiccollector.fragments
 
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -11,29 +12,49 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.appbar.AppBarLayout.LayoutParams.SCROLL_FLAG_ENTER_ALWAYS
 import com.google.android.material.appbar.AppBarLayout.LayoutParams.SCROLL_FLAG_SCROLL
 import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.R
 import com.wtb.comiccollector.SearchFilter
-import com.wtb.comiccollector.database.models.DataModel
+import com.wtb.comiccollector.database.models.ListItem
 import com.wtb.comiccollector.fragments_view_models.FilterViewModel
+import com.wtb.comiccollector.fragments_view_models.ListViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 
 @ExperimentalCoroutinesApi
-abstract class ListFragment<T : DataModel> : Fragment() {
+abstract class ListFragment<T : ListItem, VH : RecyclerView.ViewHolder> : Fragment() {
     private val PEEK_HEIGHT
         get() = resources.getDimension(R.dimen.peek_height).toInt()
-    protected val filterViewModel: FilterViewModel by viewModels({ requireActivity() })
-    protected lateinit var listRecyclerView: RecyclerView
-    protected var callback: ListFragmentCallback? = null
 
-    private lateinit var details: FrameLayout
+    protected val filterViewModel: FilterViewModel by viewModels({ requireActivity() })
+    protected abstract val viewModel: ListViewModel<T>
+    protected lateinit var listRecyclerView: RecyclerView
+    protected lateinit var details: FrameLayout
+    protected var callback: ListFragmentCallback? = null
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
         callback = context as ListFragmentCallback
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                filterViewModel.filter.collectLatest { filter ->
+                    viewModel.setFilter(filter)
+                }
+            }
+        }
     }
 
     override fun onResume() {
@@ -44,7 +65,7 @@ abstract class ListFragment<T : DataModel> : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View? {
         val view = inflater.inflate(R.layout.fragment_item_list, container, false)
 
@@ -63,7 +84,24 @@ abstract class ListFragment<T : DataModel> : Fragment() {
         return view
     }
 
-    abstract fun getLayoutManager(): RecyclerView.LayoutManager
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        val adapter = getAdapter()
+        listRecyclerView.adapter = adapter
+
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.itemList.collectLatest {
+                    Log.d(TAG, "It's a new character list!")
+                    adapter.submitData(it)
+                }
+            }
+        }
+    }
+
+    protected abstract fun getLayoutManager(): RecyclerView.LayoutManager
+    protected abstract fun getAdapter(): PagingDataAdapter<T, VH>
 
     override fun onDetach() {
         super.onDetach()

@@ -2,6 +2,7 @@
 
 package com.wtb.comiccollector.fragments_view_models
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
@@ -26,10 +27,10 @@ class IssueDetailViewModel : ViewModel() {
     private val repository: Repository = Repository.get()
 
     private val _issueId = MutableStateFlow(AUTO_ID)
-    private val issueId: StateFlow<Int>
+    val issueId: StateFlow<Int>
         get() = _issueId
     private val _variantId = MutableStateFlow(AUTO_ID)
-    private val variantId: StateFlow<Int>
+    val variantId: StateFlow<Int>
         get() = _variantId
 
 
@@ -42,9 +43,8 @@ class IssueDetailViewModel : ViewModel() {
     )
 
     val issueList: LiveData<List<FullIssue>> = issue.flatMapLatest { fullIssue ->
-        val seriesId = (fullIssue?.series?.seriesId
-            ?: AUTO_ID)
-        repository.getIssuesByFilter(SearchFilter(series = Series(seriesId = seriesId),
+        val seriesId = (fullIssue?.series?.seriesId ?: AUTO_ID)
+        repository.getIssuesByFilter(SearchFilter(series = FullSeries(Series(seriesId = seriesId)),
                                                   myCollection = false))
     }.asLiveData()
 
@@ -78,8 +78,6 @@ class IssueDetailViewModel : ViewModel() {
         _issueId.value = issueId
     }
 
-    fun getIssueId() = issueId.value
-
     fun loadVariant(issueId: Int?) {
         _variantId.value = issueId ?: AUTO_ID
     }
@@ -88,13 +86,18 @@ class IssueDetailViewModel : ViewModel() {
         _variantId.value = AUTO_ID
     }
 
-    fun addToCollection() {
-        val currentIssue: FullIssue? = if (variantId.value == AUTO_ID) {
-            issue.value
-        } else {
-            variantLiveData.value
+    val currentIssue: FullIssue?
+        get() {
+            Log.d(TAG, "${variantId.value == AUTO_ID}")
+
+            return if (variantId.value == AUTO_ID) {
+                issue.value
+            } else {
+                variantLiveData.value
+            }
         }
 
+    fun addToCollection() {
         currentIssue?.let { repository.addToCollection(it) }
     }
 
@@ -137,3 +140,4 @@ class IssueDetailViewModel : ViewModel() {
         }
     }
 }
+

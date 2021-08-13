@@ -34,7 +34,7 @@ TODO: This should include SERIES, PUBLISHER, CHARACTER, CREATOR. The issue is wi
 */
 /**
  * Filter item
- * A model that can be used in a filter (series, character, creator, publisher, namedetail) and
+ * A model that can be used in a filter (fullseries, character, creator, publisher, namedetail) and
  * can show up in the search autocomplete dropdown list
  */
 @ExperimentalCoroutinesApi
@@ -45,7 +45,7 @@ sealed interface FilterModel : FilterItem, Comparable<FilterModel>, Serializable
 
     val textColor: Int
         get() = when (this) {
-            is Series    -> context?.getColor(R.color.tag_series)
+            is FullSeries    -> context?.getColor(R.color.tag_series)
             is Creator,
             is NameDetail,
                          -> context?.getColor(R.color.tag_creator)

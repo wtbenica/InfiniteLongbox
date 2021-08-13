@@ -1,6 +1,8 @@
 package com.wtb.comiccollector.fragments
 
 import android.content.Context
+import android.graphics.Outline
+import android.graphics.Rect
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -8,11 +10,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.View.*
 import android.view.ViewGroup
+import android.view.ViewOutlineProvider
 import android.widget.*
 import androidx.core.view.*
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.*
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.chip.ChipGroup
 import com.wtb.comiccollector.APP
@@ -46,7 +51,7 @@ class FilterFragment : Fragment(),
             field = onVisibleStateUpdated(value)
         }
 
-    private var prevFilter: SearchFilter? = null
+    private var prevFilter: SearchFilter = SearchFilter()
     private var currFilter: SearchFilter = SearchFilter()
         set(value) {
             field = onFilterUpdate(value)
@@ -85,7 +90,19 @@ class FilterFragment : Fragment(),
         onCreateViewFindViews(view)
         onCreateViewInitViews()
 
-        viewModel.filterOptions.observeForever { filterOptions ->
+        view.outlineProvider = object : ViewOutlineProvider() {
+            override fun getOutline(view: View?, outline: Outline?) {
+                val rect = Rect()
+                view?.background?.copyBounds(rect)
+                rect.offset(0, -resources.getDimension(R.dimen.margin_default).toInt())
+
+                outline?.setRect(rect)
+            }
+        }
+
+        view.clipToOutline = false
+
+        viewModel.filterOptions.observe(viewLifecycleOwner) { filterOptions ->
             searchAutoComplete.setAdapter(
                 FilterOptionsAdapter(
                     context = requireContext(),
@@ -155,7 +172,7 @@ class FilterFragment : Fragment(),
             filterTypeOptions
         ) {
             override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
-                val view = convertView ?: View.inflate(
+                val view = convertView ?: inflate(
                     context,
                     R.layout.list_item_search_type,
                     null
@@ -231,13 +248,13 @@ class FilterFragment : Fragment(),
     }
 
     private fun onFilterUpdate(value: SearchFilter): SearchFilter {
-        prevFilter = currFilter
-
-        // TODO: Don't want to add to back stack if it's just a sort order change
         if (prevFilter != value) {
             undoQueue.add(
-                Undo(function = { viewModel.setFilter(it) }, item = prevFilter ?: SearchFilter())
+                Undo(function = { viewModel.setFilter(it) }, item = SearchFilter(prevFilter))
             )
+            prevFilter = currFilter
+        } else {
+            undoQueue.removeLastOrNull()
         }
 
         updateFilterCard(value)

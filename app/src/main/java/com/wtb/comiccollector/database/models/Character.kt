@@ -114,16 +114,5 @@ data class FullCharacter(
 
     @Relation(parentColumn = "publisher", entityColumn = "publisherId")
     val publisher: Publisher,
-)
+) : ListItem
 
-@ExperimentalCoroutinesApi
-data class FullAppearance(
-    @Embedded
-    val appearance: Appearance,
-
-    @Relation(parentColumn = "story", entityColumn = "storyId", entity = Story::class)
-    val story: FullStory,
-
-    @Relation(parentColumn = "character", entityColumn = "characterId")
-    val character: Character,
-)

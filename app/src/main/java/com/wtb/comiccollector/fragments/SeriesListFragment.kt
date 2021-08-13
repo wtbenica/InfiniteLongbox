@@ -2,16 +2,12 @@ package com.wtb.comiccollector.fragments
 
 import android.net.Uri
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
 import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -19,59 +15,33 @@ import androidx.recyclerview.widget.RecyclerView
 import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.R
 import com.wtb.comiccollector.database.models.FullSeries
-import com.wtb.comiccollector.database.models.Series
 import com.wtb.comiccollector.fragments_view_models.SeriesListViewModel
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.launch
 
 private const val TAG = APP + "SeriesListFragment"
 
 @ExperimentalCoroutinesApi
-class SeriesListFragment : ListFragment<Series>() {
+class SeriesListFragment : ListFragment<FullSeries, SeriesListFragment.SeriesHolder>() {
 
-    private val viewModel: SeriesListViewModel by viewModels()
+    override val viewModel: SeriesListViewModel by viewModels()
 
     override fun onResume() {
         super.onResume()
         callback?.setTitle()
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-        lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                filterViewModel.filter.collectLatest { filter ->
-                    Log.d(TAG, "WHOOHOO! NEW FILTER FROM FILTER VM GOING INTO SERIES LIST VM")
-                    viewModel.setFilter(filter)
-                }
-            }
-        }
-    }
-
     override fun getLayoutManager(): RecyclerView.LayoutManager = LinearLayoutManager(context)
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
-        val adapter = SeriesAdapter()
-        listRecyclerView.adapter = adapter
-
-        viewModel.seriesList.observeForever {
-            CoroutineScope(Dispatchers.Default).launch {
-                adapter.submitData(it)
-            }
-        }
-//        lifecycleScope.launch {
-//            repeatOnLifecycle(Lifecycle.State.STARTED) {
-//                viewModel.seriesList.collectLatest {
-//                    adapter.submitData(it)
-//                }
-//            }
-//        }
+    override fun getAdapter(): SeriesAdapter = SeriesAdapter()
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?,
+    ): View? {
+        val view = super.onCreateView(inflater, container, savedInstanceState)
+        listRecyclerView.addItemDecoration(
+            ItemOffsetDecoration(resources.getDimension(R.dimen.margin_default).toInt())
+        )
+        return view
     }
 
     //    private fun runLayoutAnimation(view: RecyclerView) {
@@ -125,12 +95,12 @@ class SeriesListFragment : ListFragment<Series>() {
         }
 
         override fun onClick(v: View?) {
-            (callback as SeriesListCallback?)?.onSeriesSelected(item.series)
+            (callback as SeriesListCallback?)?.onSeriesSelected(item)
         }
     }
 
-    interface SeriesListCallback : ListFragment.ListFragmentCallback {
-        fun onSeriesSelected(series: Series)
+    interface SeriesListCallback : ListFragmentCallback {
+        fun onSeriesSelected(series: FullSeries)
     }
 
     companion object {

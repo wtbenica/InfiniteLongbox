@@ -5,21 +5,25 @@ import android.view.View
 import androidx.recyclerview.widget.RecyclerView
 
 class ItemOffsetDecoration(itemOffset: Int) :
-    RecyclerView
-    .ItemDecoration() {
+    RecyclerView.ItemDecoration() {
     private var mItemOffset = itemOffset
-    private var spanCount = 2
 
     override fun getItemOffsets(
         outRect: Rect,
         view: View,
         parent: RecyclerView,
-        state: RecyclerView.State
+        state: RecyclerView.State,
     ) {
         super.getItemOffsets(outRect, view, parent, state)
 
-        outRect.top = mItemOffset
-        outRect.bottom = mItemOffset
+        val childAdapterPosition = parent.getChildAdapterPosition(view)
+        val itemCount = parent.adapter?.itemCount ?: 1
+
+        val topDivisor = if (childAdapterPosition == 0) 1 else 2
+        val bottomDivisor = if (childAdapterPosition == itemCount - 1) 1         else 2
+
+        outRect.top = mItemOffset / topDivisor
+        outRect.bottom = mItemOffset / bottomDivisor
         outRect.left = mItemOffset
         outRect.right = mItemOffset
     }

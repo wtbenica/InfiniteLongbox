@@ -6,7 +6,6 @@ import android.util.Log
 import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.ComicCollectorApplication.Companion.context
 import com.wtb.comiccollector.Webservice
-import com.wtb.comiccollector.database.IssueDatabase
 import com.wtb.comiccollector.database.models.*
 import kotlinx.coroutines.*
 import org.jsoup.Jsoup
@@ -23,10 +22,8 @@ import java.net.URL
 @ExperimentalCoroutinesApi
 class StaticUpdater(
     webservice: Webservice,
-    database: IssueDatabase,
     prefs: SharedPreferences,
-) : Updater(webservice, database, prefs) {
-
+) : Updater(webservice, prefs) {
     fun updateSeries(seriesId: Int) = CoroutineScope(Dispatchers.IO).launch {
         updateSeriesIssues(seriesId)
     }

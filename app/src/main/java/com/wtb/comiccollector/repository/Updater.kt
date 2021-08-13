@@ -3,6 +3,7 @@ package com.wtb.comiccollector.repository
 import android.content.SharedPreferences
 import android.util.Log
 import com.wtb.comiccollector.APP
+import com.wtb.comiccollector.ComicCollectorApplication.Companion.context
 import com.wtb.comiccollector.Webservice
 import com.wtb.comiccollector.database.IssueDatabase
 import com.wtb.comiccollector.database.daos.BaseDao
@@ -24,9 +25,9 @@ import kotlin.reflect.KSuspendFunction1
 @ExperimentalCoroutinesApi
 abstract class Updater(
     val webservice: Webservice,
-    val database: IssueDatabase,
     val prefs: SharedPreferences,
 ) {
+    val database = IssueDatabase.getInstance(context!!)
 
     internal suspend fun<T: DataModel> checkFKeys(
         models: List<T>,

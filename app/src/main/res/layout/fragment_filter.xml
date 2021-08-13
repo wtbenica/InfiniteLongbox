@@ -1,130 +1,44 @@
 <?xml version="1.0" encoding="utf-8"?>
-
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/layout_filter_fragment"
-    style="@style/FilterFrameLayout">
+    android:layout_height="wrap_content"
+    android:layout_width="match_parent"
+    app:cardElevation="@dimen/margin_default">
 
     <FrameLayout
-        android:id="@+id/layout_filter_fragment_handle"
-        style="@style/HandleFrameLayout"
-        tools:visibility="gone">
+        android:id="@+id/layout_filter_fragment"
+        style="@style/FilterFrameLayout">
 
-        <ImageView
-            style="@style/Handle"
-            android:contentDescription="@string/bottom_sheet_handle_description" />
-    </FrameLayout>
-
-    <LinearLayout
-        android:id="@+id/sections"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:alpha="0"
-        android:orientation="vertical"
-        android:padding="@dimen/margin_default"
-        tools:alpha="1"
-        tools:visibility="visible">
-
-        <LinearLayout
-            android:id="@+id/section_options"
-            style="@style/FilterSection">
+        <FrameLayout
+            android:id="@+id/layout_filter_fragment_handle"
+            style="@style/HandleFrameLayout"
+            tools:visibility="gone">
 
             <ImageView
-                style="@style/ImageLabel"
-                android:contentDescription="@string/sort_image_content_description"
-                android:labelFor="@id/chip_group_sort"
-                app:srcCompat="@drawable/toggle_24" />
-
-            <HorizontalScrollView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:background="?attr/colorOnSecondary"
-                android:scrollbars="none">
-
-                <com.wtb.comiccollector.views.OptionChipGroup
-                    android:id="@+id/chip_group_option"
-                    style="@style/FilterCardChipGroup">
-
-                    <com.google.android.material.chip.Chip
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="New Shoes" />
-                </com.wtb.comiccollector.views.OptionChipGroup>
-            </HorizontalScrollView>
-        </LinearLayout>
+                style="@style/Handle"
+                android:contentDescription="@string/bottom_sheet_handle_description" />
+        </FrameLayout>
 
         <LinearLayout
-            android:id="@+id/section_sort"
-            style="@style/FilterSection">
-
-            <ImageView
-                style="@style/ImageLabel"
-                android:contentDescription="@string/sort_image_content_description"
-                android:labelFor="@id/chip_group_sort"
-                app:srcCompat="@drawable/sort_24" />
-
-            <!--            <com.google.android.material.card.MaterialCardView-->
-            <!--                style="@style/filterContentCard"-->
-            <!--                android:layout_width="0dp"-->
-            <!--                android:layout_height="wrap_content"-->
-            <!--                android:layout_weight="1"-->
-            <!--                app:shapeAppearanceOverlay="@style/both_right">-->
-
-            <HorizontalScrollView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:background="?attr/colorOnSecondary"
-                android:scrollbars="none">
-
-                <com.wtb.comiccollector.views.SortChipGroup
-                    android:id="@+id/chip_group_sort"
-                    style="@style/FilterCardChipGroup"
-                    android:layout_width="wrap_content"
-                    android:layout_weight="1">
-
-                    <com.google.android.material.chip.Chip
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:checkable="true"
-                        android:checked="true"
-                        android:enabled="false"
-                        android:text="@string/sort_type_series_name"
-                        app:closeIcon="@drawable/arrow_up_24"
-                        app:closeIconEnabled="true" />
-
-                    <com.google.android.material.chip.Chip
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/sort_type_release_date"
-                        app:closeIcon="@drawable/arrow_up_24"
-                        app:closeIconEnabled="true" />
-
-                </com.wtb.comiccollector.views.SortChipGroup>
-            </HorizontalScrollView>            <!--            </com.google.android.material.card.MaterialCardView>-->
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/section_filter"
-            style="@style/FilterSection">
-
-            <ImageView
-                android:id="@+id/image_label_filter_items"
-                style="@style/ImageLabel"
-                android:contentDescription="@string/sort_image_content_description"
-                android:labelFor="@id/chip_group_sort"
-                app:srcCompat="@drawable/ic_filter" />
+            android:id="@+id/sections"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:alpha="0"
+            android:orientation="vertical"
+            android:padding="@dimen/margin_default"
+            tools:alpha="1"
+            tools:visibility="visible">
 
             <LinearLayout
-                android:id="@+id/content_holder_filter"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@id/image_label_filter_items">
+                android:id="@+id/section_options"
+                style="@style/FilterSection">
+
+                <ImageView
+                    style="@style/ImageLabel"
+                    android:contentDescription="@string/sort_image_content_description"
+                    android:labelFor="@id/chip_group_sort"
+                    app:srcCompat="@drawable/toggle_24" />
 
                 <HorizontalScrollView
                     android:layout_width="0dp"
@@ -133,51 +47,142 @@
                     android:background="?attr/colorOnSecondary"
                     android:scrollbars="none">
 
-                    <com.wtb.comiccollector.views.FilterChipGroup
-                        android:id="@+id/chip_group_filter"
+                    <com.wtb.comiccollector.views.OptionChipGroup
+                        android:id="@+id/chip_group_option"
                         style="@style/FilterCardChipGroup">
 
                         <com.google.android.material.chip.Chip
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="@string/dummy_text"
+                            android:text="New Shoes" />
+                    </com.wtb.comiccollector.views.OptionChipGroup>
+                </HorizontalScrollView>
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/section_sort"
+                style="@style/FilterSection">
+
+                <ImageView
+                    style="@style/ImageLabel"
+                    android:contentDescription="@string/sort_image_content_description"
+                    android:labelFor="@id/chip_group_sort"
+                    app:srcCompat="@drawable/sort_24" />
+
+                <!--            <com.google.android.material.card.MaterialCardView-->
+                <!--                style="@style/filterContentCard"-->
+                <!--                android:layout_width="0dp"-->
+                <!--                android:layout_height="wrap_content"-->
+                <!--                android:layout_weight="1"-->
+                <!--                app:shapeAppearanceOverlay="@style/both_right">-->
+
+                <HorizontalScrollView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:background="?attr/colorOnSecondary"
+                    android:scrollbars="none">
+
+                    <com.wtb.comiccollector.views.SortChipGroup
+                        android:id="@+id/chip_group_sort"
+                        style="@style/FilterCardChipGroup"
+                        android:layout_width="wrap_content"
+                        android:layout_weight="1">
+
+                        <com.google.android.material.chip.Chip
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:checkable="true"
+                            android:checked="true"
+                            android:enabled="false"
+                            android:text="@string/sort_type_series_name"
+                            app:closeIcon="@drawable/arrow_up_24"
                             app:closeIconEnabled="true" />
 
-                    </com.wtb.comiccollector.views.FilterChipGroup>
+                        <com.google.android.material.chip.Chip
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/sort_type_release_date"
+                            app:closeIcon="@drawable/arrow_up_24"
+                            app:closeIconEnabled="true" />
 
-                </HorizontalScrollView>
+                    </com.wtb.comiccollector.views.SortChipGroup>
+                </HorizontalScrollView>            <!--            </com.google.android.material.card.MaterialCardView>-->
+            </LinearLayout>
 
-                <ImageButton
-                    android:id="@+id/add_filter_button"
+            <LinearLayout
+                android:id="@+id/section_filter"
+                style="@style/FilterSection">
+
+                <ImageView
+                    android:id="@+id/image_label_filter_items"
                     style="@style/ImageLabel"
-                    android:background="?attr/colorPrimaryVariant"
-                    android:contentDescription="@string/content_description_add_filter_button"
-                    android:src="@drawable/ic_menu_add" />
+                    android:contentDescription="@string/sort_image_content_description"
+                    android:labelFor="@id/chip_group_sort"
+                    app:srcCompat="@drawable/ic_filter" />
+
+                <LinearLayout
+                    android:id="@+id/content_holder_filter"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@id/image_label_filter_items">
+
+                    <HorizontalScrollView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:background="?attr/colorOnSecondary"
+                        android:scrollbars="none">
+
+                        <com.wtb.comiccollector.views.FilterChipGroup
+                            android:id="@+id/chip_group_filter"
+                            style="@style/FilterCardChipGroup">
+
+                            <com.google.android.material.chip.Chip
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/dummy_text"
+                                app:closeIconEnabled="true" />
+
+                        </com.wtb.comiccollector.views.FilterChipGroup>
+
+                    </HorizontalScrollView>
+
+                    <ImageButton
+                        android:id="@+id/add_filter_button"
+                        style="@style/ImageLabel"
+                        android:background="?attr/colorPrimaryVariant"
+                        android:contentDescription="@string/content_description_add_filter_button"
+                        android:src="@drawable/ic_menu_add" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/section_search"
+                style="@style/FilterSection">
+
+                <ImageView
+                    android:id="@+id/image_label_filter_items2"
+                    style="@style/ImageLabel"
+                    android:contentDescription="@string/sort_image_content_description"
+                    android:labelFor="@id/chip_group_sort"
+                    app:srcCompat="@drawable/ic_search_24" />
+
+                <com.wtb.comiccollector.views.SearchAutoComplete
+                    android:id="@+id/search_auto"
+                    style="@style/SearchAutoCompleteStyle"
+                    tools:text="Potato Latke" />
+
+                <androidx.appcompat.widget.AppCompatSpinner
+                    android:id="@+id/search_bar_spinner"
+                    style="@style/SearchTypeSpinnerStyle"
+                    android:entries="@array/suffixes_array"
+                    tools:listitem="@layout/list_item_search_type" />
+
             </LinearLayout>
         </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/section_search"
-            style="@style/FilterSection">
-
-            <ImageView
-                android:id="@+id/image_label_filter_items2"
-                style="@style/ImageLabel"
-                android:contentDescription="@string/sort_image_content_description"
-                android:labelFor="@id/chip_group_sort"
-                app:srcCompat="@drawable/ic_search_24" />
-
-            <com.wtb.comiccollector.views.SearchAutoComplete
-                android:id="@+id/search_auto"
-                style="@style/SearchAutoCompleteStyle"
-                tools:text="Potato Latke" />
-
-            <androidx.appcompat.widget.AppCompatSpinner
-                android:id="@+id/search_bar_spinner"
-                style="@style/SearchTypeSpinnerStyle"
-                android:entries="@array/suffixes_array"
-                tools:listitem="@layout/list_item_search_type" />
-
-        </LinearLayout>
-    </LinearLayout>
-</FrameLayout>
+    </FrameLayout>
+</androidx.cardview.widget.CardView>

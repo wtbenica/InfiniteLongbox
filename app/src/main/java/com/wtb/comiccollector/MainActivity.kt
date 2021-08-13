@@ -17,11 +17,14 @@ import androidx.appcompat.widget.Toolbar
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.view.*
 import androidx.fragment.app.DialogFragment
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentContainerView
 import androidx.fragment.app.FragmentTransaction.TRANSIT_FRAGMENT_FADE
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.RecyclerView
+import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.AdView
+import com.google.android.gms.ads.MobileAds
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.appbar.AppBarLayout.LayoutParams.SCROLL_FLAG_SCROLL
 import com.google.android.material.bottomsheet.BottomSheetBehavior
@@ -31,9 +34,7 @@ import com.wtb.comiccollector.fragments.*
 import com.wtb.comiccollector.fragments_view_models.FilterViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.launch
 
 const val APP = "CC_"
@@ -62,15 +63,19 @@ class MainActivity : AppCompatActivity(),
     private lateinit var bottomSheet: FragmentContainerView
     private lateinit var bottomSheetBehavior: BottomSheetBehavior<*>
 
-    private val resultFragmentManager by lazy {
-        ResultFragmentManager()
-    }
+    private lateinit var mAdView: AdView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(R.style.Theme_ComicCollector)
         WindowCompat.setDecorFitsSystemWindows(window, false)
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        MobileAds.initialize(this)
+
+        mAdView = findViewById(R.id.ad_view)
+        val adRequest = AdRequest.Builder().build()
+        mAdView.loadAd(adRequest)
 
         filterFragment =
             supportFragmentManager.findFragmentByTag(resources.getString(R.string.tag_filter_fragment)) as FilterFragment?
@@ -86,27 +91,29 @@ class MainActivity : AppCompatActivity(),
         initNetwork()
 
         lifecycleScope.launch {
-            resultFragmentManager.fragment.collectLatest { frag ->
-                frag?.let { fragment ->
-                    supportFragmentManager.beginTransaction()
-                        .setTransition(TRANSIT_FRAGMENT_FADE)
-                        .replace(R.id.fragment_container, fragment)
-                        .addToBackStack(null)
-                        .commit()
-
-                    val tt = object : OnBackPressedCallback(true) {
-                        override fun handleOnBackPressed() {
-                            filterFragment?.onBackPressed()
-                        }
-                    }
-
-                    onBackPressedDispatcher.addCallback(fragment, tt)
-
-                    if (this@MainActivity.bottomSheetBehavior.state == STATE_HIDDEN) {
-                        this@MainActivity.bottomSheetBehavior.state = STATE_COLLAPSED
-                    }
-                }
+            filterViewModel.fragment.collectLatest { frag ->
+                frag?.let { setFragment(it) }
             }
+        }
+    }
+
+    private fun setFragment(fragment: ListFragment<out ListItem, out RecyclerView.ViewHolder>) {
+        supportFragmentManager.beginTransaction()
+            .setTransition(TRANSIT_FRAGMENT_FADE)
+            .replace(R.id.fragment_container, fragment)
+            .addToBackStack(null)
+            .commit()
+
+        val tt = object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                filterFragment?.onBackPressed()
+            }
+        }
+
+        onBackPressedDispatcher.addCallback(fragment, tt)
+
+        if (this@MainActivity.bottomSheetBehavior.state == STATE_HIDDEN) {
+            this@MainActivity.bottomSheetBehavior.state = STATE_COLLAPSED
         }
     }
 
@@ -188,7 +195,7 @@ class MainActivity : AppCompatActivity(),
     }
 
     // SeriesListFragment.SeriesListCallbacks
-    override fun onSeriesSelected(series: Series) {
+    override fun onSeriesSelected(series: FullSeries) {
         filterFragment?.addFilterItem(series)
     }
 
@@ -315,26 +322,26 @@ class MainActivity : AppCompatActivity(),
         }
     }
 
-    inner class ResultFragmentManager {
-        val fragment: Flow<Fragment?> = filterViewModel.filter.mapLatest {
-            when (it.mViewOption) {
-                FullIssue::class            -> issueListFragment
-                Character::class            -> characterListFragment
-                FullSeries::class           -> seriesListFragment
-                NameDetailAndCreator::class -> creatorListFragment
-                else                        -> throw IllegalStateException("illegal viewOption: ${it.mViewOption}")
-            }
-        }
-
-        private val seriesListFragment: SeriesListFragment
-            get() = SeriesListFragment.newInstance()
-        private val issueListFragment: IssueListFragment
-            get() = IssueListFragment.newInstance()
-        private val characterListFragment: CharacterListFragment
-            get() = CharacterListFragment.newInstance()
-        private val creatorListFragment: CreatorListFragment
-            get() = CreatorListFragment.newInstance()
-    }
+//    inner class ResultFragmentManager {
+//        val fragment: Flow<Fragment?> = filterViewModel.filter.mapLatest {
+//            when (it.mViewOption) {
+//                FullIssue::class            -> issueListFragment
+//                Character::class            -> characterListFragment
+//                FullSeries::class           -> seriesListFragment
+//                NameDetailAndCreator::class -> creatorListFragment
+//                else                        -> throw IllegalStateException("illegal viewOption: ${it.mViewOption}")
+//            }
+//        }
+//
+//        private val seriesListFragment: SeriesListFragment
+//            get() = SeriesListFragment.newInstance()
+//        private val issueListFragment: IssueListFragment
+//            get() = IssueListFragment.newInstance()
+//        private val characterListFragment: CharacterListFragment
+//            get() = CharacterListFragment.newInstance()
+//        private val creatorListFragment: CreatorListFragment
+//            get() = CreatorListFragment.newInstance()
+//    }
 
     override fun updateFilter(filter: SearchFilter) {
         filterViewModel.setFilter(filter)

@@ -99,7 +99,7 @@ abstract class IssueDao : BaseDao<Issue>("issue") {
             filter.mSeries?.let {
                 conditionsString.append("""${connectword()} ie.series = ? 
                 """)
-                args.add(it.seriesId)
+                args.add(it.series.seriesId)
             }
 
             if (filter.hasPublisher()) {
@@ -180,7 +180,7 @@ abstract class IssueDao : BaseDao<Issue>("issue") {
                     } else {
                         SortType.Companion.SortTypeOptions.ISSUE.options[0].sortString
                     }
-                "ORDER BY ${sortString}"
+                "ORDER BY $sortString"
             } ?: ""
 
             return SimpleSQLiteQuery(
