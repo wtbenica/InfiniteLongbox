@@ -2,6 +2,7 @@
 
 package com.wtb.comiccollector.fragments_view_models
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
@@ -85,13 +86,18 @@ class IssueDetailViewModel : ViewModel() {
         _variantId.value = AUTO_ID
     }
 
-    fun addToCollection() {
-        val currentIssue: FullIssue? = if (variantId.value == AUTO_ID) {
-            issue.value
-        } else {
-            variantLiveData.value
+    val currentIssue: FullIssue?
+        get() {
+            Log.d(TAG, "${variantId.value == AUTO_ID}")
+
+            return if (variantId.value == AUTO_ID) {
+                issue.value
+            } else {
+                variantLiveData.value
+            }
         }
 
+    fun addToCollection() {
         currentIssue?.let { repository.addToCollection(it) }
     }
 
@@ -134,3 +140,4 @@ class IssueDetailViewModel : ViewModel() {
         }
     }
 }
+
