@@ -9,7 +9,6 @@ import android.net.Uri
 import android.util.Log
 import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.Webservice
-import com.wtb.comiccollector.database.IssueDatabase
 import com.wtb.comiccollector.database.models.Cover
 import kotlinx.coroutines.*
 import org.jsoup.Jsoup
@@ -23,10 +22,9 @@ private const val TAG = APP + "UpdateIssueCover"
 @ExperimentalCoroutinesApi
 class UpdateIssueCover(
     webservice: Webservice,
-    database: IssueDatabase,
     prefs: SharedPreferences,
     val context: Context,
-) : Updater(webservice, database, prefs) {
+) : Updater(webservice, prefs) {
     internal fun update(issueId: Int) {
         if (Companion.checkIfStale(ISSUE_TAG(issueId), ISSUE_LIFETIME, prefs)) {
             CoroutineScope(Dispatchers.IO).launch {
