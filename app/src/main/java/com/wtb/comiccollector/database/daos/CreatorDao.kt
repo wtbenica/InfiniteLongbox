@@ -56,8 +56,7 @@ abstract class CreatorDao : BaseDao<Creator>("creator") {
                 """SELECT DISTINCT cr.* 
                         FROM creator cr 
                         JOIN nameDetail nd ON cr.creatorId = nd.creator 
-                        LEFT JOIN credit ct ON ct.nameDetail = nd.nameDetailId 
-                        LEFT JOIN series ss ON ct.series = ss.seriesId 
+                        JOIN credit ct ON ct.nameDetail = nd.nameDetailId 
                         """)
 
             //language=RoomSql

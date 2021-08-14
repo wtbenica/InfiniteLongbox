@@ -45,18 +45,6 @@ abstract class ListFragment<T : ListItem, VH : RecyclerView.ViewHolder> : Fragme
         callback = context as ListFragmentCallback
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-        lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                filterViewModel.filter.collectLatest { filter ->
-                    viewModel.setFilter(filter)
-                }
-            }
-        }
-    }
-
     override fun onResume() {
         super.onResume()
         callback?.setToolbarScrollFlags(SCROLL_FLAG_SCROLL or SCROLL_FLAG_ENTER_ALWAYS)
@@ -98,6 +86,14 @@ abstract class ListFragment<T : ListItem, VH : RecyclerView.ViewHolder> : Fragme
                 }
             }
         }
+
+        filterViewModel.filter.observe(
+            viewLifecycleOwner,
+            { filter ->
+                Log.d(TAG, "Updating listviewmodel filter")
+                viewModel.setFilter(filter)
+            }
+        )
     }
 
     protected abstract fun getLayoutManager(): RecyclerView.LayoutManager

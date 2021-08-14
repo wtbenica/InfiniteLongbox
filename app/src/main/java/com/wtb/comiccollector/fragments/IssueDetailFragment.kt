@@ -82,8 +82,10 @@ class IssueDetailFragment : Fragment(), CreatorLinkCallback {
     private var currentPos: Int = 0
     private lateinit var issueCredits: List<FullCredit>
     private lateinit var issueStories: List<Story>
+    private lateinit var issueCharacters: List<Character>
     private lateinit var variantCredits: List<FullCredit>
     private lateinit var variantStories: List<Story>
+    private var variantCharacters: List<Character> = emptyList()
     private lateinit var issueVariants: List<Issue>
 
     private lateinit var coverImageView: ImageView
@@ -138,6 +140,7 @@ class IssueDetailFragment : Fragment(), CreatorLinkCallback {
             FullIssue(Issue(issueNumRaw = null), SeriesAndPublisher(Series(), Publisher()), null)
         issueCredits = emptyList()
         issueStories = emptyList()
+        issueCharacters = emptyList()
         variantCredits = emptyList()
         variantStories = emptyList()
 
@@ -148,6 +151,7 @@ class IssueDetailFragment : Fragment(), CreatorLinkCallback {
             issueDetailViewModel.loadVariant(null)
             issueDetailViewModel.loadIssue(issueId)
         } else {
+            Log.d(TAG, "ISSUE SELECTED IS A VARIANT!")
             issueDetailViewModel.loadVariant(issueId)
             issueDetailViewModel.loadIssue(variantOf)
         }
@@ -204,17 +208,16 @@ class IssueDetailFragment : Fragment(), CreatorLinkCallback {
             viewLifecycleOwner,
             { issues ->
                 Log.d(TAG, "issueList observation ${issues.size}")
-                this@IssueDetailFragment.issuesInSeries = issues.map { it.issue.issueId }
+                issuesInSeries = issues.map { it.issue.issueId }
                 updateNavBar()
             }
         )
-
 
         issueDetailViewModel.issueCreditsLiveData.observe(
             viewLifecycleOwner,
             { credits: List<FullCredit>? ->
                 credits?.let {
-                    this.issueCredits = it
+                    issueCredits = it
                     updateUI()
                 }
             }
@@ -224,8 +227,17 @@ class IssueDetailFragment : Fragment(), CreatorLinkCallback {
             viewLifecycleOwner,
             { stories: List<Story>? ->
                 stories?.let {
+                    issueStories = it
+                    updateUI()
+                }
+            }
+        )
 
-                    this.issueStories = it
+        issueDetailViewModel.issueCharactersLiveData.observe(
+            viewLifecycleOwner,
+            { characters: List<Character>? ->
+                characters?.let {
+                    this@IssueDetailFragment.issueCharacters = it
                     updateUI()
                 }
             }
@@ -257,6 +269,16 @@ class IssueDetailFragment : Fragment(), CreatorLinkCallback {
             { stories: List<Story> ->
                 stories.let {
                     this.variantStories = it
+                    updateUI()
+                }
+            }
+        )
+
+        issueDetailViewModel.variantCharactersLiveData.observe(
+            viewLifecycleOwner,
+            { characters: List<Character>? ->
+                characters?.let {
+                    this.variantCharacters = it
                     updateUI()
                 }
             }
@@ -442,11 +464,15 @@ class IssueDetailFragment : Fragment(), CreatorLinkCallback {
         if (issue.issueId != AUTO_ID) {
             numUpdates += 1
 
+            listFragmentCallback?.setTitle("${currentIssue.series.seriesName} #${currentIssue.issue.issueNum}")
+
             infoBox.update(issue.releaseDate, issue.coverDate, issue.notes)
             creditsBox.displayCredit()
 
             fullVariant?.issue?.let {
+                Log.d(TAG, "SETtting SPINNNEER TO  A V DSLKRIANT")
                 val indexOf = issueVariants.indexOf(it)
+                Log.d(TAG, "AND THE INDEX IS: $indexOf")
                 variantSpinner.setSelection(indexOf)
             }
 
@@ -526,7 +552,8 @@ class IssueDetailFragment : Fragment(), CreatorLinkCallback {
             }.sortedBy { it.storyType }
     }
 
-    inner class StoryRow(context: Context, val story: Story) : LinearLayout(context) {
+    inner class StoryRow(context: Context, val story: Story) :
+        LinearLayout(context) {
         init {
             var hasAddedInfo = false
 

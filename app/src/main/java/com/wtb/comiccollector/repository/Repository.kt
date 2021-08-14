@@ -93,7 +93,8 @@ class Repository private constructor(val context: Context) {
         context.getSharedPreferences(SHARED_PREFS, Context.MODE_PRIVATE)
 
     private val executor = Executors.newSingleThreadExecutor()
-    private val database: IssueDatabase = IssueDatabase.getInstance(context)
+    private val database: IssueDatabase
+        get() = IssueDatabase.getInstance(context)
     private var hasConnection: Boolean = false
     private var hasUnmeteredConnection: Boolean = true
     private var isIdle = true
@@ -221,6 +222,9 @@ class Repository private constructor(val context: Context) {
         ).flow
     }
 
+    fun getCharactersByIssue(issueId: Int): Flow<List<Character>> =
+        characterDao.getCharacterByIssue(issueId)
+
     // CREATOR METHODS
     fun getCreatorsByFilterPaged(filter: SearchFilter): Flow<PagingData<FullCreator>> {
         val newFilter = SearchFilter(filter)
@@ -261,10 +265,7 @@ class Repository private constructor(val context: Context) {
     fun getVariants(issueId: Int): Flow<List<Issue>> = issueDao.getVariants(issueId)
 
     // STORY METHODS
-    fun getStoriesByIssue(issueId: Int): Flow<List<Story>> {
-
-        return storyDao.getStoriesFlow(issueId)
-    }
+    fun getStoriesByIssue(issueId: Int): Flow<List<Story>> = storyDao.getStoriesFlow(issueId)
 
     // CREDIT METHODS``
     fun getCreditsByIssue(issueId: Int): Flow<List<FullCredit>> = combine(

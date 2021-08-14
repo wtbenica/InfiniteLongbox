@@ -1,5 +1,6 @@
 package com.wtb.comiccollector.fragments_view_models
 
+import android.util.Log
 import androidx.lifecycle.asFlow
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.switchMap
@@ -11,12 +12,15 @@ import com.wtb.comiccollector.database.models.FullSeries
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 
-private const val TAG = APP + "SeriesListViewModel"
-
 @ExperimentalCoroutinesApi
 class SeriesListViewModel : ListViewModel<FullSeries>() {
 
     override val itemList: Flow<PagingData<FullSeries>> = filter.switchMap {
+        Log.d(TAG, "GOING TO GET SOME MORE SERIES FOR THIS NEW FILTER: $it")
         repository.getSeriesByFilterPaged(it).asLiveData()
     }.asFlow().cachedIn(viewModelScope)
+
+    companion object {
+        private const val TAG = APP + "SeriesListViewModel"
+    }
 }

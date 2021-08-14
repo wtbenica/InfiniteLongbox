@@ -13,11 +13,8 @@ import com.wtb.comiccollector.database.daos.Count
 import com.wtb.comiccollector.database.models.*
 import com.wtb.comiccollector.repository.Repository
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.flow.SharingStarted.Companion.WhileSubscribed
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.stateIn
 
 private const val TAG = APP + "IssueDetailViewModel"
 
@@ -29,12 +26,13 @@ class IssueDetailViewModel : ViewModel() {
     private val _issueId = MutableStateFlow(AUTO_ID)
     val issueId: StateFlow<Int>
         get() = _issueId
+
     private val _variantId = MutableStateFlow(AUTO_ID)
-    val variantId: StateFlow<Int>
+    private val variantId: StateFlow<Int>
         get() = _variantId
 
-
-    val issue: StateFlow<FullIssue?> = issueId.flatMapLatest { id ->
+    internal val issue: StateFlow<FullIssue?> = issueId.flatMapLatest { id ->
+        Log.d(TAG, "issueId changed: $id")
         repository.getIssue(id)
     }.stateIn(
         scope = viewModelScope,
@@ -43,9 +41,9 @@ class IssueDetailViewModel : ViewModel() {
     )
 
     val issueList: LiveData<List<FullIssue>> = issue.flatMapLatest { fullIssue ->
-        val seriesId = (fullIssue?.series?.seriesId ?: AUTO_ID)
-        repository.getIssuesByFilter(SearchFilter(series = FullSeries(Series(seriesId = seriesId)),
-                                                  myCollection = false))
+        fullIssue?.let {
+            repository.getIssuesByFilter(SearchFilter(series = FullSeries(it.series), myCollection = false))
+        } ?: emptyFlow()
     }.asLiveData()
 
     val issueStoriesLiveData: LiveData<List<Story>> =
@@ -54,8 +52,14 @@ class IssueDetailViewModel : ViewModel() {
     val issueCreditsLiveData: LiveData<List<FullCredit>> =
         issueId.flatMapLatest { issueId -> repository.getCreditsByIssue(issueId) }.asLiveData()
 
+    val issueCharactersLiveData =
+        issueId.flatMapLatest { repository.getCharactersByIssue(it) }.asLiveData()
+
+    // Other parts rely on this possibly being null, which is why it's LiveData, instead of
+    // StateFlow like 'issue'
     val variantLiveData: LiveData<FullIssue?> =
         variantId.flatMapLatest { id ->
+            Log.d(TAG, "variantId changed, updating variantLiveData $id")
             repository.getIssue(id)
         }.asLiveData()
 
@@ -64,6 +68,9 @@ class IssueDetailViewModel : ViewModel() {
 
     val variantCreditsLiveData: LiveData<List<FullCredit>> =
         variantId.flatMapLatest { issueId -> repository.getCreditsByIssue(issueId) }.asLiveData()
+
+    val variantCharactersLiveData: LiveData<List<Character>> =
+        variantId.flatMapLatest { issueId -> repository.getCharactersByIssue(issueId) }.asLiveData()
 
     val variantsLiveData: LiveData<List<Issue>> =
         issueId.flatMapLatest { id -> repository.getVariants(id) }.asLiveData()
@@ -86,10 +93,8 @@ class IssueDetailViewModel : ViewModel() {
         _variantId.value = AUTO_ID
     }
 
-    val currentIssue: FullIssue?
+    private val currentIssue: FullIssue?
         get() {
-            Log.d(TAG, "${variantId.value == AUTO_ID}")
-
             return if (variantId.value == AUTO_ID) {
                 issue.value
             } else {
@@ -103,13 +108,7 @@ class IssueDetailViewModel : ViewModel() {
 
 
     fun removeFromCollection() {
-        val currentIssueId = if (variantId.value == AUTO_ID) {
-            issueId.value
-        } else {
-            variantId.value
-        }
-
-        repository.removeFromCollection(currentIssueId)
+        currentIssue?.let { repository.removeFromCollection(it.issue.issueId) }
     }
 
 

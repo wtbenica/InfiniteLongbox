@@ -47,6 +47,7 @@ abstract class IssueDatabase : RoomDatabase() {
     abstract fun seriesBondDao(): SeriesBondDao
 
     companion object {
+        @Volatile
         private var INSTANCE: IssueDatabase? = null
 
         fun getInstance(context: Context): IssueDatabase {
@@ -82,7 +83,9 @@ abstract class IssueDatabase : RoomDatabase() {
                 ).addMigrations(
                     // migration_1_2
                 )
-                    .build()
+                    .build().also {
+                        INSTANCE = it
+                    }
             }
         }
 

@@ -13,6 +13,7 @@ private const val TAG = "IssueDetailViewModel"
 class SeriesInfoViewModel : ViewModel() {
 
     private val repository: Repository = Repository.get()
+
     private val seriesIdLiveData = MutableLiveData<Int>()
 
     var seriesLiveData: LiveData<FullSeries?> = seriesIdLiveData.switchMap { seriesId ->
