@@ -348,7 +348,7 @@ class FilterFragment : Fragment(),
     }
 
     override fun onClickViewChip() {
-        viewModel.nextView()
+        viewModel.nextViewOption()
     }
 
     // SortChipGroupCallback

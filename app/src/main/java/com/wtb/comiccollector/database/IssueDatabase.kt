@@ -12,6 +12,7 @@ import com.wtb.comiccollector.database.models.*
 import com.wtb.comiccollector.database.models.Issue
 import com.wtb.comiccollector.repository.DUMMY_ID
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import org.intellij.lang.annotations.Language
 import java.time.LocalDate
 import java.util.concurrent.Executors
 
@@ -23,7 +24,7 @@ private const val DATABASE_NAME = "issue-database"
         Publisher::class, Story::class, ExCredit::class, StoryType::class, NameDetail::class,
         Character::class, Appearance::class, MyCollection::class, Cover::class,
         SeriesBond::class, BondType::class, Brand::class],
-    version = 1,
+    version = 2,
 )
 @TypeConverters(IssueTypeConverters::class)
 abstract class IssueDatabase : RoomDatabase() {
@@ -81,7 +82,7 @@ abstract class IssueDatabase : RoomDatabase() {
                         }
                     }
                 ).addMigrations(
-                    // migration_1_2
+                    migration_1_2
                 )
                     .build().also {
                         INSTANCE = it
@@ -92,7 +93,12 @@ abstract class IssueDatabase : RoomDatabase() {
         /*
         I'm leaving these here as templates
          */
-        //        @Language("RoomSql")
+        @Language("RoomSql")
+        val migration_1_2 = SimpleMigration(
+            1, 2,
+            """DROP INDEX index_MyCollection_series""",
+            """CREATE INDEX IF NOT EXISTS index_MyCollection_series ON mycollection(series)""",
+        )
         //        val migration_1_2 = SimpleMigration(
         //            1,
         //            2,
