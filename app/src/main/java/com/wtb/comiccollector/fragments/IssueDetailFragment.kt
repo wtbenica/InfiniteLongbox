@@ -10,9 +10,6 @@ import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.*
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
 import com.google.android.material.appbar.AppBarLayout
 import com.wtb.comiccollector.*
 import com.wtb.comiccollector.database.daos.Count
@@ -20,8 +17,6 @@ import com.wtb.comiccollector.database.models.*
 import com.wtb.comiccollector.fragments_view_models.IssueDetailViewModel
 import com.wtb.comiccollector.views.IssueInfoBox
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.launch
 import java.io.File
 import java.util.*
 
@@ -153,18 +148,18 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback {
             issueDetailViewModel.loadIssue(variantOf)
         }
 
-        lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                issueDetailViewModel.issue.collectLatest {
-                    it?.let { issue ->
-                        this@IssueDetailFragment.fullIssue = issue
-                        listFragmentCallback?.setTitle("${issue.series.seriesName} #${issue.issue.issueNum}")
-                        this@IssueDetailFragment.updateUI()
-                    }
-                }
-
-            }
-        }
+//        lifecycleScope.launch {
+//            repeatOnLifecycle(Lifecycle.State.STARTED) {
+//                issueDetailViewModel.mIssue.collectLatest {
+//                    it?.let { issue ->
+//                        this@IssueDetailFragment.fullIssue = issue
+//                        listFragmentCallback?.setTitle("${issue.series.seriesName} #${issue.issue.issueNum}")
+//                        this@IssueDetailFragment.updateUI()
+//                    }
+//                }
+//
+//            }
+//        }
     }
 
     override fun onCreateView(
@@ -205,6 +200,17 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback {
                 Log.d(TAG, "issueList observation ${issues.size}")
                 issuesInSeries = issues.map { it.issue.issueId }
                 updateNavBar()
+            }
+        )
+
+        issueDetailViewModel.issue.observe(
+            viewLifecycleOwner,
+            {
+                it?.let { issue ->
+                    Log.d(TAG, "issue changed: $issue")
+                    fullIssue = issue
+                    updateUI()
+                }
             }
         )
 
