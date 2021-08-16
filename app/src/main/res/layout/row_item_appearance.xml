@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="@dimen/margin_narrow">
+
+    <com.wtb.comiccollector.views.CharacterLink
+        android:id="@+id/appearance_row_character"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="X-Men" />
+
+    <TextView
+        android:id="@+id/appearance_row_notes"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/margin_narrow"
+        android:visibility="gone"
+        android:fontFamily="@font/heebo_medium"
+        app:layout_constraintBottom_toBottomOf="@id/appearance_row_character"
+        app:layout_constraintStart_toEndOf="@id/appearance_row_character"
+        app:layout_constraintTop_toTopOf="@id/appearance_row_character"
+        tools:text="villains" />
+
+    <View
+        android:id="@+id/appearance_row_divider"
+        android:layout_width="1dp"
+        android:layout_height="0dp"
+        android:visibility="gone"
+        android:layout_marginStart="@dimen/margin_narrow"
+        android:layout_marginEnd="@dimen/margin_narrow"
+        android:background="?attr/colorPrimary"
+        app:layout_constraintBottom_toBottomOf="@id/appearance_row_character"
+        app:layout_constraintEnd_toStartOf="@id/appearance_row_details"
+        app:layout_constraintStart_toEndOf="@id/appearance_row_notes"
+        app:layout_constraintTop_toTopOf="@id/appearance_row_character" />
+
+    <TextView
+        android:id="@+id/appearance_row_details"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/margin_narrow"
+        android:fontFamily="@font/heebo_medium"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@id/appearance_row_divider"
+        app:layout_constraintStart_toEndOf="@id/appearance_row_divider"
+        app:layout_constraintTop_toTopOf="@id/appearance_row_divider"
+        tools:text="first appearance" />
+
+    <TextView
+        android:id="@+id/appearance_row_membership"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/heebo_medium"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/appearance_row_character"
+        tools:text="Cyclops [Scott Summers]; Jean Grey; Iceman [Bobby Drake]; Beast [Hank McKoy]; Angel [Warren Worthington III];" />
+</androidx.constraintlayout.widget.ConstraintLayout>

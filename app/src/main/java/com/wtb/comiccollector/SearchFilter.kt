@@ -45,6 +45,8 @@ class SearchFilter(
         return other is SearchFilter && hashCode() == other.hashCode()
     }
 
+    val needsStoryTable: Boolean
+    get() = hasCreator() || hasCharacter()
     var mShowIssues: Boolean = false
     var mCreators: Set<Creator> = creators ?: setOf()
     var mSeries: FullSeries? = series

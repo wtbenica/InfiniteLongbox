@@ -129,14 +129,6 @@ abstract class CharacterDao : BaseDao<Character>("character") {
         )
     }
 
-    @Query(
-        """SELECT ch.* 
-            FROM character ch
-            JOIN appearance ap ON ap.character = ch.characterId
-            JOIN story sy ON ap.story = sy.storyId
-            WHERE sy.issue = :issueId""")
-    abstract fun getCharacterByIssue(issueId: Int): Flow<List<Character>>
-
     companion object {
         private const val TAG = APP + "CharacterDao"
 

@@ -6,6 +6,7 @@ import android.util.Log
 import android.view.View
 import androidx.appcompat.widget.AppCompatTextView
 import com.wtb.comiccollector.R
+import com.wtb.comiccollector.database.models.FullCharacter
 import com.wtb.comiccollector.database.models.FullSeries
 import com.wtb.comiccollector.database.models.NameDetailAndCreator
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -14,7 +15,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 class CreatorLink(
     context: Context,
     attrs: AttributeSet? = null,
-    defStyleAttr: Int = R.attr.styleCreatorLink
+    defStyleAttr: Int = R.attr.styleCreatorLink,
 ) : AppCompatTextView(context, attrs, defStyleAttr), View.OnClickListener {
 
     internal var callback: CreatorLinkCallback? = null
@@ -49,6 +50,48 @@ class CreatorLink(
 @ExperimentalCoroutinesApi
 interface CreatorLinkCallback {
     fun creatorClicked(creator: NameDetailAndCreator)
+}
+
+@ExperimentalCoroutinesApi
+class CharacterLink @JvmOverloads constructor(
+    context: Context,
+    attrs: AttributeSet? = null,
+    defStyleAttr: Int = R.attr.styleCreatorLink,
+) : AppCompatTextView(context, attrs, defStyleAttr), View.OnClickListener {
+
+    internal var callback: CharacterLinkCallback? = null
+
+    internal var character: FullCharacter? = null
+        set(value) {
+            field = value
+            val name = character?.character?.name
+            val alterEgo = character?.character?.alterEgo
+            val creditName = if (alterEgo != null) {
+                "$name ($alterEgo)"
+            } else {
+                name
+            }
+            text = creditName
+        }
+
+    init {
+        setTextAppearance(R.style.RoleNameText)
+        setOnClickListener(this)
+    }
+
+    override fun onClick(v: View?) {
+        Log.d(TAG, "Creator Clicked!!!!!")
+        character?.let { callback?.characterClicked(it) }
+    }
+
+    companion object {
+        private const val TAG = "CreatorLink"
+    }
+}
+
+@ExperimentalCoroutinesApi
+interface CharacterLinkCallback {
+    fun characterClicked(character: FullCharacter)
 }
 
 @ExperimentalCoroutinesApi

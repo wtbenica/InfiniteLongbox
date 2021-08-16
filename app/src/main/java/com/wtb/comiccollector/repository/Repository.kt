@@ -222,8 +222,8 @@ class Repository private constructor(val context: Context) {
         ).flow
     }
 
-    fun getCharactersByIssue(issueId: Int): Flow<List<Character>> =
-        characterDao.getCharacterByIssue(issueId)
+    fun getAppearancesByIssue(issueId: Int): Flow<List<FullAppearance>> =
+        appearanceDao.getAppearancesByIssueId(issueId)
 
     // CREATOR METHODS
     fun getCreatorsByFilterPaged(filter: SearchFilter): Flow<PagingData<FullCreator>> {

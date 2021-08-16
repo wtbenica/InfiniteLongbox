@@ -52,8 +52,8 @@ class IssueDetailViewModel : ViewModel() {
     val issueCreditsLiveData: LiveData<List<FullCredit>> =
         issueId.flatMapLatest { issueId -> repository.getCreditsByIssue(issueId) }.asLiveData()
 
-    val issueCharactersLiveData =
-        issueId.flatMapLatest { repository.getCharactersByIssue(it) }.asLiveData()
+    val issueAppearancesLiveData =
+        issueId.flatMapLatest { repository.getAppearancesByIssue(it) }.asLiveData()
 
     // Other parts rely on this possibly being null, which is why it's LiveData, instead of
     // StateFlow like 'issue'
@@ -69,8 +69,8 @@ class IssueDetailViewModel : ViewModel() {
     val variantCreditsLiveData: LiveData<List<FullCredit>> =
         variantId.flatMapLatest { issueId -> repository.getCreditsByIssue(issueId) }.asLiveData()
 
-    val variantCharactersLiveData: LiveData<List<Character>> =
-        variantId.flatMapLatest { issueId -> repository.getCharactersByIssue(issueId) }.asLiveData()
+    val variantAppearancesLiveData: LiveData<List<FullAppearance>> =
+        variantId.flatMapLatest { issueId -> repository.getAppearancesByIssue(issueId) }.asLiveData()
 
     val variantsLiveData: LiveData<List<Issue>> =
         issueId.flatMapLatest { id -> repository.getVariants(id) }.asLiveData()
