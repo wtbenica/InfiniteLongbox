@@ -27,7 +27,8 @@ abstract class Updater(
     val webservice: Webservice,
     val prefs: SharedPreferences,
 ) {
-    val database = IssueDatabase.getInstance(context!!)
+    protected val database: IssueDatabase
+        get() = IssueDatabase.getInstance(context!!)
 
     internal suspend fun<T: DataModel> checkFKeys(
         models: List<T>,

@@ -92,8 +92,6 @@ abstract class IssueDao : BaseDao<Issue>("issue") {
 
             tableJoinString.append("""SELECT DISTINCT ie.* 
                         FROM issue ie 
-                        LEFT JOIN cover cr ON ie.issueId = cr.issue 
-                        LEFT JOIN story sy on sy.issue = ie.issueId 
                         """)
 
             filter.mSeries?.let {
@@ -114,6 +112,11 @@ abstract class IssueDao : BaseDao<Issue>("issue") {
                 }
             }
 
+            if (filter.needsStoryTable) {
+                tableJoinString.append("""JOIN story sy on sy.issue = ie.issueId
+                """)
+            }
+
             if (filter.mCreators.isNotEmpty()) {
                 val creatorsList = modelsToSqlIdString(filter.mCreators)
 
@@ -130,6 +133,17 @@ abstract class IssueDao : BaseDao<Issue>("issue") {
             """)
             }
 
+            if (filter.hasCharacter()) {
+                tableJoinString.append("""LEFT JOIN appearance ap ON ap.story = sy.storyId 
+                """)
+
+                filter.mCharacter?.let {
+                    conditionsString.append("""${connectword()} ap.character = ? 
+                    """)
+                    args.add(it.characterId)
+                }
+            }
+
             if (filter.hasDateFilter()) {
                 conditionsString.append("""${connectword()} ss.startDate < ? 
                     ${connectword()} ss.endDate > ? """)
@@ -142,17 +156,6 @@ abstract class IssueDao : BaseDao<Issue>("issue") {
                     SELECT issue
                     FROM mycollection) 
                 """)
-            }
-
-            if (filter.hasCharacter()) {
-                tableJoinString.append("""LEFT JOIN appearance ap ON ap.story = sy.storyId 
-                """)
-
-                filter.mCharacter?.let {
-                    conditionsString.append("""${connectword()} ap.character = ? 
-                    """)
-                    args.add(it.characterId)
-                }
             }
 
             if (!filter.mShowVariants) {

@@ -19,7 +19,8 @@
         <entry key="app/src/main/res/layout/issue_detail_issue_info_box.xml" value="0.11153846153846154" />
         <entry key="app/src/main/res/layout/list_item_issue.xml" value="0.18888888888888888" />
         <entry key="app/src/main/res/layout/list_item_series.xml" value="0.33" />
-        <entry key="app/src/main/res/layout/story_box.xml" value="0.1" />
+        <entry key="app/src/main/res/layout/row_item_appearance.xml" value="0.1" />
+        <entry key="app/src/main/res/layout/story_box.xml" value="0.67" />
       </map>
     </option>
   </component>

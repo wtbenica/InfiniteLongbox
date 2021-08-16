@@ -20,7 +20,6 @@ import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentContainerView
 import androidx.fragment.app.FragmentTransaction.TRANSIT_FRAGMENT_FADE
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.AdView
@@ -34,8 +33,6 @@ import com.wtb.comiccollector.fragments.*
 import com.wtb.comiccollector.fragments_view_models.FilterViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.launch
 
 const val APP = "CC_"
 private const val TAG = APP + "MainActivity"
@@ -90,12 +87,14 @@ class MainActivity : AppCompatActivity(),
         initBottomSheet()
         initNetwork()
 
-        lifecycleScope.launch {
-            filterViewModel.fragment.collectLatest { frag ->
+        filterViewModel.fragment.observe(
+            this,
+            { frag ->
                 frag?.let { setFragment(it) }
             }
-        }
+        )
     }
+
 
     private fun setFragment(fragment: ListFragment<out ListItem, out RecyclerView.ViewHolder>) {
         supportFragmentManager.beginTransaction()

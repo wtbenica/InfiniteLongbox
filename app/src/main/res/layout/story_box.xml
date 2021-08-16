@@ -76,9 +76,10 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <TextView
+        <TableLayout
             android:id="@+id/characters"
             style="@style/ContentBox"
+            android:stretchColumns="*"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="@dimen/margin_default"

@@ -3,6 +3,7 @@ package com.wtb.comiccollector.database.daos
 import androidx.room.Dao
 import androidx.room.Transaction
 import com.wtb.comiccollector.APP
+import com.wtb.comiccollector.ComicCollectorApplication.Companion.context
 import com.wtb.comiccollector.database.IssueDatabase
 import com.wtb.comiccollector.database.models.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -11,7 +12,10 @@ private const val TAG = APP + "TransactionDao"
 
 @ExperimentalCoroutinesApi
 @Dao
-abstract class TransactionDao(private val database: IssueDatabase) {
+abstract class TransactionDao() {
+
+    private val database: IssueDatabase
+        get() = IssueDatabase.getInstance(context!!)
 
     @Transaction
     open suspend fun upsertStatic(

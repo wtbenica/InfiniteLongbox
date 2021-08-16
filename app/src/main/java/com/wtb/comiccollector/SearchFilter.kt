@@ -45,6 +45,8 @@ class SearchFilter(
         return other is SearchFilter && hashCode() == other.hashCode()
     }
 
+    val needsStoryTable: Boolean
+    get() = hasCreator() || hasCharacter()
     var mShowIssues: Boolean = false
     var mCreators: Set<Creator> = creators ?: setOf()
     var mSeries: FullSeries? = series
@@ -102,7 +104,7 @@ class SearchFilter(
     fun addFilter(vararg items: FilterItem) {
         items.forEach { item ->
             when (item) {
-                is FullSeries     -> addSeries(item)
+                is FullSeries -> addSeries(item)
                 is Creator    -> addCreator(item)
                 is Publisher  -> addPublisher(item)
                 is TextFilter -> addTextFilter(item)
@@ -142,7 +144,7 @@ class SearchFilter(
     fun removeFilter(vararg items: FilterItem) {
         items.forEach { item ->
             when (item) {
-                is FullSeries     -> removeSeries()
+                is FullSeries -> removeSeries()
                 is Creator    -> removeCreator(item)
                 is Publisher  -> removePublisher(item)
                 is TextFilter -> removeTextFilter(item)
@@ -256,11 +258,8 @@ class SortType(
     override fun hashCode(): Int {
         var result = tag.hashCode()
         result = 31 * result + sortColumn.hashCode()
-        result = 31 * result + when (order) {
-            SortOrder.ASC  -> true.hashCode()
-            SortOrder.DESC -> false.hashCode()
-        }
-        result = 31 * result + table.hashCode()
+        result = 31 * result + (table?.hashCode() ?: 0)
+        result = 31 * result + (order == SortOrder.ASC).hashCode()
         result = 31 * result + sortString.hashCode()
         return result
     }

@@ -6,7 +6,6 @@ import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.*
-import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.*
 import androidx.fragment.app.Fragment
@@ -19,8 +18,6 @@ import com.wtb.comiccollector.*
 import com.wtb.comiccollector.database.daos.Count
 import com.wtb.comiccollector.database.models.*
 import com.wtb.comiccollector.fragments_view_models.IssueDetailViewModel
-import com.wtb.comiccollector.views.CreatorLink
-import com.wtb.comiccollector.views.CreatorLinkCallback
 import com.wtb.comiccollector.views.IssueInfoBox
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collectLatest
@@ -47,14 +44,14 @@ private const val DIALOG_NEW_CREATOR = "DialogNewCreator"
 private const val DIALOG_DATE = "DialogDate"
 
 private const val ADD_SERIES_ID = -2
-private const val STORY_TYPE_COVER = 6
 
-fun View.toggleVisibility() {
+fun View.toggleVisibility(): Int {
     this.visibility = if (this.visibility == View.GONE) {
         View.VISIBLE
     } else {
         View.GONE
     }
+    return this.visibility
 }
 
 fun ImageButton.toggleIcon(view: View) =
@@ -71,7 +68,7 @@ fun ImageButton.toggleIcon(view: View) =
  */
 // TODO: Do I need a separate fragment for editing vs viewing or can I do it all in this one?
 @ExperimentalCoroutinesApi
-class IssueDetailFragment : Fragment(), CreatorLinkCallback {
+class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback {
 
     private var numUpdates = 0
     private var listFragmentCallback: ListFragment.ListFragmentCallback? = null
@@ -82,8 +79,10 @@ class IssueDetailFragment : Fragment(), CreatorLinkCallback {
     private var currentPos: Int = 0
     private lateinit var issueCredits: List<FullCredit>
     private lateinit var issueStories: List<Story>
+    private lateinit var issueAppearances: List<FullAppearance>
     private lateinit var variantCredits: List<FullCredit>
     private lateinit var variantStories: List<Story>
+    private var variantAppearances: List<FullAppearance> = emptyList()
     private lateinit var issueVariants: List<Issue>
 
     private lateinit var coverImageView: ImageView
@@ -138,6 +137,7 @@ class IssueDetailFragment : Fragment(), CreatorLinkCallback {
             FullIssue(Issue(issueNumRaw = null), SeriesAndPublisher(Series(), Publisher()), null)
         issueCredits = emptyList()
         issueStories = emptyList()
+        issueAppearances = emptyList()
         variantCredits = emptyList()
         variantStories = emptyList()
 
@@ -148,6 +148,7 @@ class IssueDetailFragment : Fragment(), CreatorLinkCallback {
             issueDetailViewModel.loadVariant(null)
             issueDetailViewModel.loadIssue(issueId)
         } else {
+            Log.d(TAG, "ISSUE SELECTED IS A VARIANT!")
             issueDetailViewModel.loadVariant(issueId)
             issueDetailViewModel.loadIssue(variantOf)
         }
@@ -182,7 +183,7 @@ class IssueDetailFragment : Fragment(), CreatorLinkCallback {
         variantSpinnerHolder = view.findViewById(R.id.variant_spinner_holder)
         variantSpinner = view.findViewById(R.id.variant_spinner) as Spinner
 //        issueCreditsLabel = view.findViewById(R.id.issue_credits_box_label) as TextView
-        creditsBox = CreditsBox(requireContext())
+        creditsBox = CreditsBox(requireContext()).apply { mCallback = this@IssueDetailFragment }
         issueCreditsFrame.addView(creditsBox)
 
         gotoStartButton = view.findViewById(R.id.goto_start_button) as Button
@@ -191,8 +192,6 @@ class IssueDetailFragment : Fragment(), CreatorLinkCallback {
         gotoNextButton = view.findViewById(R.id.goto_next_button) as Button
         gotoSkipForwardButton = view.findViewById(R.id.goto_skip_forward_button) as Button
         gotoEndButton = view.findViewById(R.id.goto_end_button) as Button
-
-
 
         return view
     }
@@ -204,17 +203,16 @@ class IssueDetailFragment : Fragment(), CreatorLinkCallback {
             viewLifecycleOwner,
             { issues ->
                 Log.d(TAG, "issueList observation ${issues.size}")
-                this@IssueDetailFragment.issuesInSeries = issues.map { it.issue.issueId }
+                issuesInSeries = issues.map { it.issue.issueId }
                 updateNavBar()
             }
         )
-
 
         issueDetailViewModel.issueCreditsLiveData.observe(
             viewLifecycleOwner,
             { credits: List<FullCredit>? ->
                 credits?.let {
-                    this.issueCredits = it
+                    issueCredits = it
                     updateUI()
                 }
             }
@@ -224,8 +222,17 @@ class IssueDetailFragment : Fragment(), CreatorLinkCallback {
             viewLifecycleOwner,
             { stories: List<Story>? ->
                 stories?.let {
+                    issueStories = it
+                    updateUI()
+                }
+            }
+        )
 
-                    this.issueStories = it
+        issueDetailViewModel.issueAppearancesLiveData.observe(
+            viewLifecycleOwner,
+            { appearances: List<FullAppearance>? ->
+                appearances?.let {
+                    this@IssueDetailFragment.issueAppearances = it
                     updateUI()
                 }
             }
@@ -257,6 +264,16 @@ class IssueDetailFragment : Fragment(), CreatorLinkCallback {
             { stories: List<Story> ->
                 stories.let {
                     this.variantStories = it
+                    updateUI()
+                }
+            }
+        )
+
+        issueDetailViewModel.variantAppearancesLiveData.observe(
+            viewLifecycleOwner,
+            { appearances: List<FullAppearance>? ->
+                appearances?.let {
+                    this.variantAppearances = it
                     updateUI()
                 }
             }
@@ -442,11 +459,16 @@ class IssueDetailFragment : Fragment(), CreatorLinkCallback {
         if (issue.issueId != AUTO_ID) {
             numUpdates += 1
 
+            listFragmentCallback?.setTitle("${currentIssue.series.seriesName} #${currentIssue.issue.issueNum}")
+
             infoBox.update(issue.releaseDate, issue.coverDate, issue.notes)
-            creditsBox.displayCredit()
+            creditsBox.update(issueStories, variantStories, issueCredits, variantCredits,
+                              issueAppearances, variantAppearances)
 
             fullVariant?.issue?.let {
+                Log.d(TAG, "SETtting SPINNNEER TO  A V DSLKRIANT")
                 val indexOf = issueVariants.indexOf(it)
+                Log.d(TAG, "AND THE INDEX IS: $indexOf")
                 variantSpinner.setSelection(indexOf)
             }
 
@@ -460,6 +482,11 @@ class IssueDetailFragment : Fragment(), CreatorLinkCallback {
         } else {
             coverImageView.setImageResource(R.drawable.cover_missing)
         }
+    }
+
+    override fun characterClicked(character: FullCharacter) {
+        val filter = SearchFilter(character = character.character, myCollection = false)
+        listFragmentCallback?.updateFilter(filter)
     }
 
     override fun creatorClicked(creator: NameDetailAndCreator) {
@@ -485,125 +512,6 @@ class IssueDetailFragment : Fragment(), CreatorLinkCallback {
         private const val TAG = APP + "IssueDetailFragment"
     }
 
-    inner class CreditsBox(context: Context) : TableLayout(context) {
-        init {
-            orientation = VERTICAL
-            layoutParams = LayoutParams(WRAP_CONTENT, WRAP_CONTENT)
-            isStretchAllColumns = true
-        }
-
-        fun displayCredit() {
-            this.removeAllViews()
-            val stories = getCompleteVariantStories(issueStories, variantStories)
-            stories.forEach { story ->
-                this.addView(StoryRow(context, story))
-                val credits = issueCredits + variantCredits
-                credits.forEach { credit ->
-                    if (credit.story.storyId == story.storyId) {
-                        this.addView(CreditsRow(context, credit))
-                    }
-                }
-            }
-        }
-
-        /**
-         * Get complete variant stories - returns the full story list for the variant issues
-         */
-        private fun getCompleteVariantStories(
-            original: List<Story>,
-            variant: List<Story>,
-        ): List<Story> =
-            if (STORY_TYPE_COVER in variant.map { it.storyType }) {
-                original.mapNotNull {
-                    if (it.storyType != STORY_TYPE_COVER) {
-                        it
-                    } else {
-                        null
-                    }
-                } + variant
-            } else {
-                original + variant
-            }.sortedBy { it.storyType }
-    }
-
-    inner class StoryRow(context: Context, val story: Story) : LinearLayout(context) {
-        init {
-            var hasAddedInfo = false
-
-            orientation = VERTICAL
-            layoutParams = LayoutParams(MATCH_PARENT, WRAP_CONTENT)
-
-            layoutInflater.inflate(R.layout.story_box, this, true)
-
-            val storyDetailButton: ImageButton = findViewById(R.id.story_dropdown_button)
-            val storyDetailBox: LinearLayout = findViewById(R.id.story_details_box)
-            storyDetailButton.setOnClickListener {
-                storyDetailBox.toggleVisibility()
-                (it as ImageButton).toggleIcon(storyDetailBox)
-            }
-
-            if (story.synopsis != null && story.synopsis != "") {
-                hasAddedInfo = true
-                val synopsis: TextView = findViewById(R.id.synopsis)
-                synopsis.text = story.synopsis
-            } else {
-                val synopsisBox: TextView = findViewById(R.id.label_synopsis)
-                val synopsis: TextView = findViewById(R.id.synopsis)
-                synopsisBox.visibility = GONE
-                synopsis.visibility = GONE
-            }
-
-            if (story.characters != null && story.characters != "") {
-                hasAddedInfo = true
-                val characters: TextView = findViewById(R.id.characters)
-                characters.text = story.characters
-            } else {
-                val synopsisBox: TextView = findViewById(R.id.label_characters)
-                val characters: TextView = findViewById(R.id.characters)
-                synopsisBox.visibility = GONE
-                characters.visibility = GONE
-            }
-
-            val storyTitle = findViewById<TextView>(R.id.story_title)
-            storyTitle.text = if (story.storyType == STORY_TYPE_COVER) {
-                "Cover ${
-                    story.title.let {
-                        if (it != "") {
-                            " - ${story.title}"
-                        } else {
-                            ""
-                        }
-                    }
-                }"
-            } else {
-                story.title.let {
-                    if (it == "") {
-                        "Untitled Story"
-                    } else {
-                        it
-                    }
-                }
-            }
-
-            if (!hasAddedInfo) {
-                storyDetailButton.visibility = GONE
-            } else {
-                storyDetailButton.visibility = VISIBLE
-            }
-        }
-    }
-
-    inner class CreditsRow(context: Context, private val fullCredit: FullCredit) :
-        TableRow(context) {
-
-        init {
-            this.addView(RoleNameTextView(context, fullCredit.role.roleName))
-            this.addView(CreatorLink(context).apply {
-                this.creator = fullCredit.nameDetail
-                this.callback = this@IssueDetailFragment
-            })
-        }
-    }
 }
 
 class RoleNameTextView(context: Context) :

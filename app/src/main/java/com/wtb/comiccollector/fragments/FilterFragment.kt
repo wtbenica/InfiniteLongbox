@@ -15,9 +15,6 @@ import android.widget.*
 import androidx.core.view.*
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.chip.ChipGroup
 import com.wtb.comiccollector.APP
@@ -28,8 +25,6 @@ import com.wtb.comiccollector.database.models.*
 import com.wtb.comiccollector.fragments_view_models.FilterViewModel
 import com.wtb.comiccollector.views.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.launch
 import kotlin.reflect.KClass
 
 private const val TAG = APP + "FilterFragment"
@@ -115,17 +110,20 @@ class FilterFragment : Fragment(),
             }
         }
 
-        lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.filter.collectLatest { filter ->
-                    this@FilterFragment.currFilter = filter
-                    sortChipGroup.update(filter)
-                    optionsChipGroup.update(filter)
-                }
-            }
-        }
-
         return view
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        viewModel.filter.observe(
+            viewLifecycleOwner,
+            { filter ->
+                currFilter = filter
+                sortChipGroup.update(filter)
+                optionsChipGroup.update(filter)
+            }
+        )
     }
 
     private fun onCreateViewInitViews() {

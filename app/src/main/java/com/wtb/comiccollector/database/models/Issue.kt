@@ -66,6 +66,54 @@ data class Issue(
         }
     }
 
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as Issue
+
+        if (issueId != other.issueId) return false
+        if (series != other.series) return false
+        if (issueNum != other.issueNum) return false
+        if (releaseDate != other.releaseDate) return false
+        if (upc != other.upc) return false
+        if (variantName != other.variantName) return false
+        if (variantOf != other.variantOf) return false
+        if (sortCode != other.sortCode) return false
+        if (coverDateLong != other.coverDateLong) return false
+        if (onSaleDateUncertain != other.onSaleDateUncertain) return false
+        if (coverDate != other.coverDate) return false
+        if (notes != other.notes) return false
+        if (brandId != other.brandId) return false
+        if (issueNumRaw != other.issueNumRaw) return false
+        if (coverFileName != other.coverFileName) return false
+        if (url != other.url) return false
+        if (id != other.id) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = issueId
+        result = 31 * result + series
+        result = 31 * result + issueNum
+        result = 31 * result + (releaseDate?.hashCode() ?: 0)
+        result = 31 * result + (upc?.hashCode() ?: 0)
+        result = 31 * result + variantName.hashCode()
+        result = 31 * result + (variantOf ?: 0)
+        result = 31 * result + sortCode
+        result = 31 * result + (coverDateLong?.hashCode() ?: 0)
+        result = 31 * result + onSaleDateUncertain.hashCode()
+        result = 31 * result + (coverDate?.hashCode() ?: 0)
+        result = 31 * result + (notes?.hashCode() ?: 0)
+        result = 31 * result + (brandId ?: 0)
+        result = 31 * result + (issueNumRaw?.hashCode() ?: 0)
+        result = 31 * result + coverFileName.hashCode()
+        result = 31 * result + url.hashCode()
+        result = 31 * result + id
+        return result
+    }
+
     companion object {
         fun formatDate(date: String): LocalDate? {
             val res: LocalDate?
@@ -126,6 +174,35 @@ data class FullIssue @ExperimentalCoroutinesApi constructor(
 
     val coverUri: Uri?
         get() = cover?.coverUri
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as FullIssue
+
+        if (issue != other.issue) return false
+        if (seriesAndPublisher != other.seriesAndPublisher) return false
+        if (cover != other.cover) return false
+        if (myCollection != other.myCollection) return false
+        if (series != other.series) return false
+        if (publisher != other.publisher) return false
+        if (coverUri != other.coverUri) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = issue.hashCode()
+        result = 31 * result + seriesAndPublisher.hashCode()
+        result = 31 * result + (cover?.hashCode() ?: 0)
+        result = 31 * result + (myCollection?.hashCode() ?: 0)
+        result = 31 * result + series.hashCode()
+        result = 31 * result + publisher.hashCode()
+        result = 31 * result + (coverUri?.hashCode() ?: 0)
+        return result
+    }
+
 }
 
 // TODO: This doesn't need a separate table... right? I forget why I did in the first place. it
@@ -151,6 +228,28 @@ data class Cover(
 ) : DataModel() {
     override val id: Int
         get() = coverId
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as Cover
+
+        if (coverId != other.coverId) return false
+        if (issue != other.issue) return false
+        if (coverUri != other.coverUri) return false
+        if (id != other.id) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = coverId
+        result = 31 * result + issue
+        result = 31 * result + (coverUri?.hashCode() ?: 0)
+        result = 31 * result + id
+        return result
+    }
 }
 
 @Entity

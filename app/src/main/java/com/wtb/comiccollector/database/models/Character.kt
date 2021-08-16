@@ -106,6 +106,14 @@ data class Appearance(
         get() = appearanceId
 }
 
+@ExperimentalCoroutinesApi
+data class FullAppearance(
+    @Embedded
+    val appearance: Appearance,
+
+    @Relation(parentColumn = "character", entityColumn = "characterId", entity = Character::class)
+    val character: FullCharacter
+)
 
 @ExperimentalCoroutinesApi
 data class FullCharacter(
