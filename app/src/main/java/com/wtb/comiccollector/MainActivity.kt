@@ -51,7 +51,6 @@ class MainActivity : AppCompatActivity(),
         get() = resources.getDimension(R.dimen.peek_height).toInt()
 
     private val filterViewModel: FilterViewModel by viewModels()
-
     private var filterFragment: FilterFragment? = null
     private lateinit var mainLayout: CoordinatorLayout
     private lateinit var appBarLayout: AppBarLayout
@@ -59,8 +58,27 @@ class MainActivity : AppCompatActivity(),
     private lateinit var resultFragmentContainer: FragmentContainerView
     private lateinit var bottomSheet: FragmentContainerView
     private lateinit var bottomSheetBehavior: BottomSheetBehavior<*>
-
     private lateinit var mAdView: AdView
+
+    private fun setFragment(fragment: ListFragment<out ListItem, out RecyclerView.ViewHolder>) {
+        supportFragmentManager.beginTransaction()
+            .setTransition(TRANSIT_FRAGMENT_FADE)
+            .replace(R.id.fragment_container, fragment)
+            .addToBackStack(null)
+            .commit()
+
+        val tt = object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                filterFragment?.onBackPressed()
+            }
+        }
+
+        onBackPressedDispatcher.addCallback(fragment, tt)
+
+        if (this@MainActivity.bottomSheetBehavior.state == STATE_HIDDEN) {
+            this@MainActivity.bottomSheetBehavior.state = STATE_COLLAPSED
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(R.style.Theme_ComicCollector)
@@ -93,27 +111,6 @@ class MainActivity : AppCompatActivity(),
                 frag?.let { setFragment(it) }
             }
         )
-    }
-
-
-    private fun setFragment(fragment: ListFragment<out ListItem, out RecyclerView.ViewHolder>) {
-        supportFragmentManager.beginTransaction()
-            .setTransition(TRANSIT_FRAGMENT_FADE)
-            .replace(R.id.fragment_container, fragment)
-            .addToBackStack(null)
-            .commit()
-
-        val tt = object : OnBackPressedCallback(true) {
-            override fun handleOnBackPressed() {
-                filterFragment?.onBackPressed()
-            }
-        }
-
-        onBackPressedDispatcher.addCallback(fragment, tt)
-
-        if (this@MainActivity.bottomSheetBehavior.state == STATE_HIDDEN) {
-            this@MainActivity.bottomSheetBehavior.state = STATE_COLLAPSED
-        }
     }
 
     private fun initBottomSheet() {
@@ -200,11 +197,13 @@ class MainActivity : AppCompatActivity(),
 
     // CharacterListFragment.CharacterListCallbacks
     override fun onCharacterSelected(character: Character) {
-        updateFilter(SearchFilter(character = character, myCollection = false))
+        filterViewModel.addFilterItem(character)
+//        updateFilter(SearchFilter(character = character, myCollection = false))
     }
 
     override fun onCreatorSelected(creator: Creator) {
-        updateFilter(SearchFilter(creators = setOf(creator), myCollection = false))
+        filterViewModel.addFilterItem(creator)
+//        updateFilter(SearchFilter(creators = setOf(creator), myCollection = false))
     }
 
     // FilterFragmentCallback
@@ -274,10 +273,7 @@ class MainActivity : AppCompatActivity(),
     }
 
     // SeriesInfoDialogCallback
-    override fun onSaveSeriesClick(
-        dialog: DialogFragment,
-        series: Series,
-    ) {
+    override fun onSaveSeriesClick(dialog: DialogFragment, series: Series) {
         // TODO: MainActivity onSaveSeriesClick
         dialog.dismiss()
     }
@@ -288,10 +284,7 @@ class MainActivity : AppCompatActivity(),
     }
 
     // NewCreatorDialogCallback
-    override fun onSaveCreatorClick(
-        dialog: DialogFragment,
-        creator: Creator,
-    ) {
+    override fun onSaveCreatorClick(dialog: DialogFragment, creator: Creator) {
         // TODO: Not yet implemented
         dialog.dismiss()
     }
@@ -320,27 +313,6 @@ class MainActivity : AppCompatActivity(),
             }
         }
     }
-
-//    inner class ResultFragmentManager {
-//        val fragment: Flow<Fragment?> = filterViewModel.filter.mapLatest {
-//            when (it.mViewOption) {
-//                FullIssue::class            -> issueListFragment
-//                Character::class            -> characterListFragment
-//                FullSeries::class           -> seriesListFragment
-//                NameDetailAndCreator::class -> creatorListFragment
-//                else                        -> throw IllegalStateException("illegal viewOption: ${it.mViewOption}")
-//            }
-//        }
-//
-//        private val seriesListFragment: SeriesListFragment
-//            get() = SeriesListFragment.newInstance()
-//        private val issueListFragment: IssueListFragment
-//            get() = IssueListFragment.newInstance()
-//        private val characterListFragment: CharacterListFragment
-//            get() = CharacterListFragment.newInstance()
-//        private val creatorListFragment: CreatorListFragment
-//            get() = CreatorListFragment.newInstance()
-//    }
 
     override fun updateFilter(filter: SearchFilter) {
         filterViewModel.setFilter(filter)

@@ -31,7 +31,7 @@ class IssueDetailViewModel : ViewModel() {
     private val variantId: StateFlow<Int>
         get() = _variantId
 
-    internal val issue: StateFlow<FullIssue?> = issueId.flatMapLatest { id ->
+    internal val mIssue: StateFlow<FullIssue?> = issueId.flatMapLatest { id ->
         Log.d(TAG, "issueId changed: $id")
         repository.getIssue(id)
     }.stateIn(
@@ -40,11 +40,7 @@ class IssueDetailViewModel : ViewModel() {
         initialValue = null
     )
 
-    val issueList: LiveData<List<FullIssue>> = issue.flatMapLatest { fullIssue ->
-        fullIssue?.let {
-            repository.getIssuesByFilter(SearchFilter(series = FullSeries(it.series), myCollection = false))
-        } ?: emptyFlow()
-    }.asLiveData()
+    val issue: LiveData<FullIssue?> = mIssue.asLiveData()
 
     val issueStoriesLiveData: LiveData<List<Story>> =
         issueId.flatMapLatest { issueId -> repository.getStoriesByIssue(issueId) }.asLiveData()
@@ -81,6 +77,12 @@ class IssueDetailViewModel : ViewModel() {
     val variantInCollectionLiveData: LiveData<Count> =
         variantId.flatMapLatest { repository.inCollection(it) }.asLiveData()
 
+    val issueList: LiveData<List<FullIssue>> = mIssue.flatMapLatest { fullIssue ->
+        fullIssue?.let {
+            repository.getIssuesByFilter(SearchFilter(series = FullSeries(it.series), myCollection = false))
+        } ?: emptyFlow()
+    }.asLiveData()
+
     fun loadIssue(issueId: Int) {
         _issueId.value = issueId
     }
@@ -96,7 +98,7 @@ class IssueDetailViewModel : ViewModel() {
     private val currentIssue: FullIssue?
         get() {
             return if (variantId.value == AUTO_ID) {
-                issue.value
+                mIssue.value
             } else {
                 variantLiveData.value
             }

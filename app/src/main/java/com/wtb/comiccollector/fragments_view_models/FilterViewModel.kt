@@ -138,9 +138,9 @@ class FilterViewModel : ViewModel() {
         setFilter(newVal)
     }
 
-    fun nextView() {
+    fun nextViewOption() {
         val newVal = _filter.value?.let { SearchFilter(it) } ?: SearchFilter()
-        newVal.nextOption()
+        newVal.nextViewOption()
         setFilter(newVal)
     }
 

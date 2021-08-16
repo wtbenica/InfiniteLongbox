@@ -24,7 +24,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
     ],
     indices = [
         Index("issue", unique = true),
-        Index("series", unique = true)
+        Index("series"),
     ]
 )
 data class MyCollection(

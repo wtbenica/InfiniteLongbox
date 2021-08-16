@@ -2,6 +2,7 @@ package com.wtb.comiccollector
 
 import android.annotation.SuppressLint
 import android.util.Log
+import com.wtb.comiccollector.ComicCollectorApplication.Companion.context
 import com.wtb.comiccollector.database.models.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import java.io.Serializable
@@ -83,7 +84,7 @@ class SearchFilter(
     val mViewOption: KClass<out ListItem>
         get() = mViewOptions[mViewOptionsIndex]
 
-    fun nextOption() {
+    fun nextViewOption() {
         mViewOptionsIndex++
     }
 
@@ -273,7 +274,6 @@ class SortType(
     @ExperimentalCoroutinesApi
     companion object {
         @SuppressLint("StaticFieldLeak")
-        val context = ComicCollectorApplication.context
 
         fun List<SortType>.containsSortType(elem: SortType): Boolean {
             return this.contains(elem) or this.contains(SortType(elem).toggle())
@@ -284,13 +284,13 @@ class SortType(
                 listOf(
                     SortType(
                         context!!.getString(R.string.sort_type_series_name),
-                        context.getString(R.string.column_sort_name),
+                        context!!.getString(R.string.column_sort_name),
                         "ss",
                         SortOrder.ASC
                     ),
                     SortType(
-                        context.getString(R.string.sort_type_start_date),
-                        context.getString(R.string.column_start_date),
+                        context!!.getString(R.string.sort_type_start_date),
+                        context!!.getString(R.string.column_start_date),
                         "ss",
                         SortOrder.DESC
                     )
@@ -301,13 +301,13 @@ class SortType(
                 listOf(
                     SortType(
                         context!!.getString(R.string.sort_type_issue_number),
-                        context.getString(R.string.column_issue_num),
+                        context!!.getString(R.string.column_issue_num),
                         "ie",
                         SortOrder.ASC
                     ),
                     SortType(
-                        context.getString(R.string.sort_type_release_date),
-                        context.getString(R.string.column_release_date),
+                        context!!.getString(R.string.sort_type_release_date),
+                        context!!.getString(R.string.column_release_date),
                         "ie",
                         SortOrder.DESC
                     )

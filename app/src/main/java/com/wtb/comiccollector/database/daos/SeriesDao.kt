@@ -79,23 +79,62 @@ abstract class SeriesDao : BaseDao<Series>("series") {
             }
 
             if (filter.hasCreator()) {
-                val creatorsList = modelsToSqlIdString(filter.mCreators)
-                conditions.append(
-                    """${connectword()} ss.seriesId IN (
-                        SELECT ct.series
-                        FROM credit ct
-                        WHERE ct.nameDetail IN (
-                            SELECT nl.nameDetailId
-                            FROM namedetail nl
-                            WHERE nl.creator IN $creatorsList))
-                    OR ss.seriesId IN (
-                        SELECT ect.series
-                        FROM excredit ect
-                        WHERE ect.nameDetail IN (
-                            SELECT nl.nameDetailId
-                            FROM namedetail nl
-                            WHERE nl.creator IN $creatorsList))
+                if (filter.mCreators.size > 1) {
+                    table.append(
+                        """JOIN issue ie ON ie.series = ss.seriesId
+                        JOIN story sy ON sy.issue = ie.issueId
                     """)
+
+                    for (creatorId in filter.mCreators.ids) {
+                        conditions.append(
+                            """${connectword()} (
+                            sy.storyId IN (
+                                SELECT ct.story
+                                FROM credit ct
+                                WHERE ct.nameDetail IN (
+                                    SELECT nl.nameDetailId
+                                    FROM namedetail nl
+                                    WHERE nl.creator = $creatorId
+                                )
+                            )
+                        OR sy.storyId IN (
+                            SELECT ect.story
+                            FROM excredit ect
+                            WHERE ect.nameDetail IN (
+                                SELECT nl.nameDetailId
+                                FROM namedetail nl
+                                WHERE nl.creator = $creatorId
+                            )
+                        )
+                    )
+                    """)
+                    }
+                }
+                else {
+                    val creatorId = filter.mCreators.ids[0]
+                    conditions.append(
+                        """${connectword()} (
+                            ss.seriesId IN (
+                                SELECT ct.series
+                                FROM credit ct
+                                WHERE ct.nameDetail IN (
+                                    SELECT nl.nameDetailId
+                                    FROM namedetail nl
+                                    WHERE nl.creator = $creatorId
+                                )
+                            )
+                        OR ss.seriesId IN (
+                            SELECT ect.series
+                            FROM excredit ect
+                            WHERE ect.nameDetail IN (
+                                SELECT nl.nameDetailId
+                                FROM namedetail nl
+                                WHERE nl.creator = $creatorId
+                            )
+                        )
+                    )
+                    """)
+                }
             }
 
             if (filter.hasDateFilter()) {
