@@ -47,7 +47,7 @@ class SearchFilter(
     }
 
     val needsStoryTable: Boolean
-    get() = hasCreator() || hasCharacter()
+        get() = hasCreator() || hasCharacter()
     var mShowIssues: Boolean = false
     var mCreators: Set<Creator> = creators ?: setOf()
     var mSeries: FullSeries? = series
@@ -115,6 +115,7 @@ class SearchFilter(
                     // describe what sets them apart
                 }
                 is Character  -> addCharacter(item)
+                is DateFilter -> addDateFilter(item)
             }
         }
     }
@@ -141,6 +142,13 @@ class SearchFilter(
         mCharacter = character
     }
 
+    private fun addDateFilter(dateFilter: DateFilter) {
+        when (dateFilter.isStart) {
+            true  -> mStartDate = dateFilter.date
+            false -> mEndDate = dateFilter.date
+        }
+    }
+
     // TODO: CvND
     fun removeFilter(vararg items: FilterItem) {
         items.forEach { item ->
@@ -152,6 +160,7 @@ class SearchFilter(
                 is NameDetail -> {
                 }
                 is Character  -> removeCharacter()
+                is DateFilter -> Unit
             }
         }
     }

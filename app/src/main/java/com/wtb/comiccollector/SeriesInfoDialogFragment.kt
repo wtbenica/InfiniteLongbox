@@ -35,8 +35,7 @@ private const val DIALOG_END_DATE = "DialogEndDate"
 const val ARG_SERIES_ID = "seriesId"
 
 @ExperimentalCoroutinesApi
-class SeriesInfoDialogFragment private constructor() : DialogFragment(),
-    DatePickerFragment.Callbacks {
+class SeriesInfoDialogFragment private constructor() : DialogFragment() {
 
     private val seriesInfoViewModel: SeriesInfoViewModel by viewModels()
 
@@ -228,10 +227,6 @@ class SeriesInfoDialogFragment private constructor() : DialogFragment(),
 
         window?.setLayout((size.x * .9).toInt(), WRAP_CONTENT)
         window?.setGravity(Gravity.CENTER)
-    }
-
-    override fun onDateSelected(date: LocalDate) {
-
     }
 
     private fun updateUI() {

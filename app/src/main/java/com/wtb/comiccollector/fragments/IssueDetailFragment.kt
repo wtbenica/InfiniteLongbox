@@ -27,7 +27,8 @@ private const val ARG_VARIANT_OF = "variant_of"
 
 // onActivityResult Request Codes
 private const val PICK_COVER_IMAGE = 0
-private const val RESULT_DATE_PICKER = 107
+internal const val RESULT_DATE_PICKER_END = "result_date_picker_start"
+internal const val RESULT_DATE_PICKER_START = "result_date_picker_end"
 private const val RESULT_SERIES_DETAIL = 108
 private const val RESULT_NEW_WRITER = 109
 private const val RESULT_NEW_PENCILLER = 110
@@ -36,7 +37,7 @@ private const val RESULT_NEW_INKER = 111
 // Fragment Tags
 private const val DIALOG_SERIES_DETAIL = "DialogNewSeries"
 private const val DIALOG_NEW_CREATOR = "DialogNewCreator"
-private const val DIALOG_DATE = "DialogDate"
+internal const val DIALOG_DATE = "DialogDate"
 
 private const val ADD_SERIES_ID = -2
 
@@ -291,7 +292,7 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback {
                 issues?.let {
                     val adapter = ArrayAdapter(
                         requireContext(),
-                        R.layout.list_item_variant,
+                        R.layout.spinner_item_variant,
                         R.id.variant_name_text,
                         it
                     )

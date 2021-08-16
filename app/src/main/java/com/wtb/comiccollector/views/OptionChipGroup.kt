@@ -80,7 +80,7 @@ class ViewChip @JvmOverloads constructor(
             FullIssue::class -> "Issues"
             Character::class -> "Characters"
             NameDetailAndCreator::class -> "Creators"
-            else -> "CACADOOTY"
+            else -> "That's unusual..."
         }
         this.setOnClickListener {
             caller?.onClickViewChip()

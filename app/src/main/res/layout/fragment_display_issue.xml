@@ -98,7 +98,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@id/label_variants"
             app:layout_constraintTop_toBottomOf="@id/title_bar_variant_spinner"
-            tools:listitem="@layout/list_item_variant"
+            tools:listitem="@layout/spinner_item_variant"
             tools:visibility="visible" />
     </LinearLayout>
 

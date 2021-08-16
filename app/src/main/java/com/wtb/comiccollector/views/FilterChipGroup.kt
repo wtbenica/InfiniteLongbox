@@ -14,12 +14,12 @@ class FilterChipGroup(context: Context?, attributeSet: AttributeSet) :
 class FilterChip(context: Context?) : Chip(context) {
 
     lateinit var item: FilterItem
-    private var caller: FilterChipCallbacks? = null
+    private var caller: FilterChipCallback? = null
 
     constructor(
         context: Context?,
         item: FilterItem,
-        caller: FilterChipCallbacks
+        caller: FilterChipCallback
     ) : this(context) {
         this.item = item
         this.caller = caller
@@ -40,7 +40,7 @@ class FilterChip(context: Context?) : Chip(context) {
         private const val TAG = APP + "FilterChip"
     }
 
-    interface FilterChipCallbacks {
+    interface FilterChipCallback {
         fun filterChipClosed(chip: FilterChip)
         fun filterChipCheckChanged(buttonView: FilterChip, checked: Boolean)
     }

@@ -44,7 +44,7 @@ class CharacterListFragment : ListFragment<FullCharacter, CharacterListFragment.
     }
 
     inner class CharacterHolder(parent: ViewGroup) : RecyclerView.ViewHolder(
-        LayoutInflater.from(parent.context).inflate(R.layout.list_item_character, parent, false)
+        LayoutInflater.from(parent.context).inflate(R.layout.list_item_simple, parent, false)
     ), View.OnClickListener {
 
         private lateinit var item: FullCharacter
