@@ -75,10 +75,13 @@ abstract class SeriesDao : BaseDao<Series>("series") {
 
             conditions.append("${connectWord()} ss.seriesId != $DUMMY_ID ")
 
-            if (filter.hasCreator() || filter.hasCharacter()) {
+            if (filter.hasCreator() || filter.hasCharacter() || filter.mMyCollection) {
                 table.append("""JOIN issue ie ON ie.series = ss.seriesId
-                    JOIN story sy ON sy.issue = ie.issueId
-                            """)
+                    """)
+
+                if (filter.hasCreator() || filter.hasCharacter())
+                    table.append("""JOIN story sy ON sy.issue = ie.issueId
+                       """)
             }
 
 
@@ -160,8 +163,9 @@ abstract class SeriesDao : BaseDao<Series>("series") {
             val sortClause: String = filter.mSortType?.let {
                 val isValid =
                     if (filter.isComplex)
-                        SortType.Companion.SortTypeOptions.SERIES_COMPLEX.options.containsSortType(it)
-                else
+                        SortType.Companion.SortTypeOptions.SERIES_COMPLEX.options.containsSortType(
+                            it)
+                    else
                         SortType.Companion.SortTypeOptions.SERIES.options.containsSortType(it)
 
                 val sortString: String = if (isValid) {

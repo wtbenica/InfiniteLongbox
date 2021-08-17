@@ -148,52 +148,23 @@ class FilterViewModel : ViewModel() {
         filter.switchMap {
             liveData {
                 emit(when (it.mViewOption) {
-                    FullIssue::class            -> issueListFragment
-                    Character::class            -> characterListFragment
-                    FullSeries::class           -> seriesListFragment
-                    NameDetailAndCreator::class -> creatorListFragment
-                    else                        -> throw IllegalStateException("illegal viewOption: ${it.mViewOption}")
-                })
+                         FullIssue::class            -> issueListFragment
+                         Character::class            -> characterListFragment
+                         FullSeries::class           -> seriesListFragment
+                         NameDetailAndCreator::class -> creatorListFragment
+                         else                        -> throw IllegalStateException("illegal viewOption: ${it.mViewOption}")
+                     })
             }
         }
 
     companion object {
-        private var _seriesListFragment: SeriesListFragment? = null
-        private var _issueListFragment: IssueListFragment? = null
-        private var _characterListFragment: CharacterListFragment? = null
-        private var _creatorListFragment: CreatorListFragment? = null
-
-        private val seriesListFragment: SeriesListFragment
-            get() {
-                val result = _seriesListFragment ?: SeriesListFragment.newInstance()
-                if (_seriesListFragment == null) {
-                    _seriesListFragment = result
-                }
-                return result
-            }
-        private val issueListFragment: IssueListFragment
-            get() {
-                val result = _issueListFragment ?: IssueListFragment.newInstance()
-                if (_issueListFragment == null) {
-                    _issueListFragment = result
-                }
-                return result
-            }
-        private val characterListFragment: CharacterListFragment
-            get() {
-                val result = _characterListFragment ?: CharacterListFragment.newInstance()
-                if (_characterListFragment == null) {
-                    _characterListFragment = result
-                }
-                return result
-            }
-        private val creatorListFragment: CreatorListFragment
-            get() {
-                val result = _creatorListFragment ?: CreatorListFragment.newInstance()
-                if (_creatorListFragment == null) {
-                    _creatorListFragment = result
-                }
-                return result
-            }
+        val seriesListFragment: SeriesListFragment
+            get() = SeriesListFragment.newInstance()
+        val issueListFragment: IssueListFragment
+            get() = IssueListFragment.newInstance()
+        val characterListFragment: CharacterListFragment
+            get() = CharacterListFragment.newInstance()
+        val creatorListFragment: CreatorListFragment
+            get() = CreatorListFragment.newInstance()
     }
 }

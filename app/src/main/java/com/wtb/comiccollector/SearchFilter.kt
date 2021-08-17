@@ -270,27 +270,49 @@ class SortType(
     val sortColumn: String,
     val table: String?,
     var order: SortOrder,
+    val sortColumn2: String? = null,
+    val table2: String? = null,
+    var order2: SortOrder? = null,
 ) : Serializable {
 
     constructor(other: SortType) : this(
         other.tag,
         other.sortColumn,
         other.table,
-        other.order
+        other.order,
+        other.sortColumn2,
+        other.table2,
+        other.order2
     )
 
     val sortString: String
-        get() = "${table?.let { "${it}." } ?: ""}$sortColumn ${order.option}"
+        get() {
+            val o2 = order2
+            val primarySort =
+                """${if (table != null) "$table." else ""}$sortColumn ${order.option}"""
+
+            val secondarySort: String =
+                if (sortColumn2 != null && table2 != null && o2 != null)
+                    ", $table2.$sortColumn2 ${o2.option}"
+                else
+                    ""
+
+            return """$primarySort$secondarySort
+            """
+        }
 
     override fun toString(): String = tag
 
     fun toggle(): SortType {
-        order = when (order) {
-            SortOrder.ASC  -> SortOrder.DESC
-            SortOrder.DESC -> SortOrder.ASC
-        }
+        order = flipSortOrder(order)
+        order2 = order2?.let { flipSortOrder(it) }
 
         return this
+    }
+
+    private fun flipSortOrder(sortOrder: SortOrder) = when (sortOrder) {
+        SortOrder.ASC  -> SortOrder.DESC
+        SortOrder.DESC -> SortOrder.ASC
     }
 
     override fun equals(other: Any?): Boolean {
@@ -305,9 +327,10 @@ class SortType(
     override fun hashCode(): Int {
         var result = tag.hashCode()
         result = 31 * result + sortColumn.hashCode()
-        result = 31 * result + (table?.hashCode() ?: 0)
-        result = 31 * result + (order == SortOrder.ASC).hashCode()
-        result = 31 * result + sortString.hashCode()
+        result = 31 * result + table.hashCode()
+        result = 31 * result + order.hashCode()
+        result = 31 * result + (table2?.hashCode() ?: 0)
+        result = 31 * result + (order2?.hashCode() ?: 0)
         return result
     }
 
@@ -349,8 +372,11 @@ class SortType(
                     sortTypeSeriesName,
                     SortType(
                         "Date",
-                        "releaseDate",
+                        "coverDate",
                         "ie",
+                        SortOrder.DESC,
+                        "startDate",
+                        "ss",
                         SortOrder.DESC
                     )
                 )
@@ -393,9 +419,4 @@ class SortType(
             )
         }
     }
-}
-
-fun getIntFromString(s: String): Int {
-    val s1 = s.split(Regex("[\\s(\\[{]"))
-    return s1[0].toIntOrNull() ?: 1
 }

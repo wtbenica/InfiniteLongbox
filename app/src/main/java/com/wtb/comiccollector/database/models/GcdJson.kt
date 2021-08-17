@@ -2,7 +2,6 @@ package com.wtb.comiccollector.database.models
 
 import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
-import com.wtb.comiccollector.getIntFromString
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import java.time.LocalDate
 
@@ -79,7 +78,7 @@ class GcdSeries(
     val notes: String,
     @SerializedName("issue_count")
     @Expose
-    val issueCount: Int
+    val issueCount: Int,
 ) : GcdJson<Series> {
     override fun toString(): String {
         return "$name ($yearBegan - $yearEnded)"
@@ -131,7 +130,7 @@ class GcdPublisher(
     val yearEndedUncertain: Int,
     @SerializedName("url")
     @Expose
-    var url: String
+    var url: String,
 ) : GcdJson<Publisher> {
     override fun toRoomModel(pk: Int): Publisher {
         return Publisher(
@@ -174,7 +173,7 @@ class GcdRole(
     val name: String,
     @SerializedName("sort_code")
     @Expose
-    val sortCode: Int
+    val sortCode: Int,
 ) : GcdJson<Role> {
     override fun toRoomModel(pk: Int): Role {
         return Role(
@@ -244,6 +243,12 @@ class GcdIssue(
             issueNumRaw = number
         )
     }
+
+
+    private fun getIntFromString(s: String): Int {
+        val s1 = s.split(Regex("[\\s(\\[{]"))
+        return s1[0].toIntOrNull() ?: 1
+    }
 }
 
 @ExperimentalCoroutinesApi
@@ -263,7 +268,7 @@ class GcdCredit(
     @SerializedName("series")
     @Expose
     val series: Int,
-    ) : GcdJson<Credit> {
+) : GcdJson<Credit> {
     override fun toRoomModel(pk: Int): Credit {
         return Credit(
             creditId = pk,
@@ -378,7 +383,7 @@ class GcdStory(
     val notes: String,
     @SerializedName("type")
     @Expose
-    val typeId: Int
+    val typeId: Int,
 ) : GcdJson<Story> {
     override fun toRoomModel(pk: Int): Story {
         return Story(
@@ -401,7 +406,7 @@ class GcdStoryType(
     val name: String,
     @SerializedName("sort_code")
     @Expose
-    val sortCode: Int
+    val sortCode: Int,
 ) : GcdJson<StoryType> {
     override fun toRoomModel(pk: Int): StoryType {
         return StoryType(
@@ -422,7 +427,7 @@ class GcdNameDetail(
     val name: String,
     @SerializedName("sort_name")
     @Expose
-    val sortName: String
+    val sortName: String,
 ) : GcdJson<NameDetail> {
     override fun toRoomModel(pk: Int): NameDetail {
         return NameDetail(
@@ -443,7 +448,7 @@ class GcdBondType(
     val description: String,
     @SerializedName("notes")
     @Expose
-    val notes: String
+    val notes: String,
 ) : GcdJson<BondType> {
     override fun toRoomModel(pk: Int): BondType {
         return BondType(
@@ -474,7 +479,7 @@ class GcdSeriesBond(
     val bondType: Int,
     @SerializedName("notes")
     @Expose
-    val notes: String
+    val notes: String,
 ) : GcdJson<SeriesBond> {
     override fun toRoomModel(pk: Int): SeriesBond {
         return SeriesBond(
@@ -499,7 +504,7 @@ class GcdCharacter(
     val alterEgo: String?,
     @SerializedName("publisher")
     @Expose
-    val publisherId: Int
+    val publisherId: Int,
 ) : GcdJson<Character> {
     override fun toRoomModel(pk: Int): Character {
         return Character(
