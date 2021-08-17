@@ -31,6 +31,7 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior.*
 import com.wtb.comiccollector.database.models.*
 import com.wtb.comiccollector.fragments.*
 import com.wtb.comiccollector.fragments_view_models.FilterViewModel
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 
@@ -158,7 +159,7 @@ class MainActivity : AppCompatActivity(),
                 super.onAvailable(network)
                 hasConnection.postValue(true)
                 activeJob?.let { job ->
-                    if (job.isCancelled) {
+                    if (job.isCompleted) {
                         job.start()
                     }
                 }
@@ -167,12 +168,12 @@ class MainActivity : AppCompatActivity(),
             override fun onLost(network: Network) {
                 super.onLost(network)
                 hasConnection.postValue(false)
-                activeJob?.cancel()
+                activeJob?.cancel(CancellationException("Network Lost"))
             }
 
             override fun onUnavailable() {
                 super.onUnavailable()
-                hasConnection.postValue(true)
+                hasConnection.postValue(false)
             }
 
             override fun onCapabilitiesChanged(

@@ -63,32 +63,35 @@ abstract class SeriesDao : BaseDao<Series>("series") {
 
     companion object {
         private fun getSeriesQuery(filter: SearchFilter): SimpleSQLiteQuery {
+
             val table = StringBuilder()
             val conditions = StringBuilder()
             val args: ArrayList<Any> = arrayListOf()
-            fun connectword(): String = if (conditions.isEmpty()) "WHERE" else "AND"
+            fun connectWord(): String = if (conditions.isEmpty()) "WHERE" else "AND"
 
             table.append("""SELECT DISTINCT ss.* 
-                FROM series ss """)
+                        FROM series ss 
+                        """)
 
-            conditions.append("${connectword()} ss.seriesId != $DUMMY_ID ")
+            conditions.append("${connectWord()} ss.seriesId != $DUMMY_ID ")
+
+            if (filter.hasCreator() || filter.hasCharacter()) {
+                table.append("""JOIN issue ie ON ie.series = ss.seriesId
+                    JOIN story sy ON sy.issue = ie.issueId
+                            """)
+            }
+
 
             if (filter.mPublishers.isNotEmpty()) {
                 val publisherList = modelsToSqlIdString(filter.mPublishers)
 
-                conditions.append("""${connectword()} ss.publisher IN $publisherList """)
+                conditions.append("""${connectWord()} ss.publisher IN $publisherList """)
             }
 
             if (filter.hasCreator()) {
-                if (filter.mCreators.size > 1) {
-                    table.append(
-                        """JOIN issue ie ON ie.series = ss.seriesId
-                        JOIN story sy ON sy.issue = ie.issueId
-                    """)
-
-                    for (creatorId in filter.mCreators.ids) {
-                        conditions.append(
-                            """${connectword()} (
+                for (creatorId in filter.mCreators.ids) {
+                    conditions.append(
+                        """${connectWord()} (
                             sy.storyId IN (
                                 SELECT ct.story
                                 FROM credit ct
@@ -98,77 +101,68 @@ abstract class SeriesDao : BaseDao<Series>("series") {
                                     WHERE nl.creator = $creatorId
                                 )
                             )
-                        OR sy.storyId IN (
-                            SELECT ect.story
-                            FROM excredit ect
-                            WHERE ect.nameDetail IN (
-                                SELECT nl.nameDetailId
-                                FROM namedetail nl
-                                WHERE nl.creator = $creatorId
-                            )
-                        )
-                    )
-                    """)
-                    }
-                }
-                else {
-                    val creatorId = filter.mCreators.ids[0]
-                    conditions.append(
-                        """${connectword()} (
-                            ss.seriesId IN (
-                                SELECT ct.series
-                                FROM credit ct
-                                WHERE ct.nameDetail IN (
+                            OR sy.storyId IN (
+                                SELECT ect.story
+                                FROM excredit ect
+                                WHERE ect.nameDetail IN (
                                     SELECT nl.nameDetailId
                                     FROM namedetail nl
                                     WHERE nl.creator = $creatorId
                                 )
                             )
-                        OR ss.seriesId IN (
-                            SELECT ect.series
-                            FROM excredit ect
-                            WHERE ect.nameDetail IN (
-                                SELECT nl.nameDetailId
-                                FROM namedetail nl
-                                WHERE nl.creator = $creatorId
-                            )
                         )
-                    )
                     """)
                 }
             }
 
             if (filter.hasDateFilter()) {
-                conditions.append("""${connectword()} ss.startDate <= '${filter.mEndDate}' 
-                    ${connectword()} ss.endDate >= '${filter.mStartDate}'
+                if (filter.hasCreator() || filter.hasCharacter() || filter.mMyCollection) {
+                    conditions.append("""${connectWord()} ie.releaseDate <= '${filter.mEndDate}' 
+                        ${connectWord()} ie.releaseDate >= '${filter.mStartDate}'
+                        """)
+                } else {
+                    conditions.append("""${connectWord()} ss.startDate <= '${filter.mEndDate}' 
+                    ${connectWord()} ss.endDate >= '${filter.mStartDate}'
                     """)
+                }
             }
 
             filter.mCharacter?.characterId?.let {
                 conditions.append(
-                    """${connectword()} ss.seriesId IN (
-                        SELECT ap.series
+                    """${connectWord()} sy.storyId IN (
+                        SELECT ap.story
                         FROM appearance ap
                         WHERE ap.character = $it)
                          """)
             }
 
             if (filter.mMyCollection) {
-                conditions.append("""${connectword()} ss.seriesId IN (
+                if (filter.hasCharacter() || filter.hasCreator()) {
+                    conditions.append("""${connectWord()} ie.issueId IN (
+                    SELECT issue
+                    FROM mycollection)
+                    """)
+                } else {
+                    conditions.append("""${connectWord()} ss.seriesId IN (
                     SELECT series
                     FROM mycollection) 
                 """)
+                }
             }
 
             filter.mTextFilter?.let { textFilter ->
                 val text = textFilterToString(textFilter.text)
 
-                conditions.append("""${connectword()} ss.seriesName like '$text' 
+                conditions.append("""${connectWord()} ss.seriesName like '$text' 
                 """)
             }
 
             val sortClause: String = filter.mSortType?.let {
-                val isValid = SortType.Companion.SortTypeOptions.SERIES.options.containsSortType(it)
+                val isValid =
+                    if (filter.isComplex)
+                        SortType.Companion.SortTypeOptions.SERIES_COMPLEX.options.containsSortType(it)
+                else
+                        SortType.Companion.SortTypeOptions.SERIES.options.containsSortType(it)
 
                 val sortString: String = if (isValid) {
                     it.sortString

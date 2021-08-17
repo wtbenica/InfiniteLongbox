@@ -135,7 +135,16 @@ class SearchFilter(
     }
 
     private fun addCreator(vararg creator: Creator) {
+        val oldOptions = getSortOptions()
         val newCreators = mCreators + creator.toSet()
+        val newOptions = getSortOptions()
+        if (oldOptions != newOptions) {
+            Log.d(TAG, "SETTING mSortType to ${newOptions[0]}")
+            mSortType = newOptions[0]
+        } else {
+            Log.d(TAG, "NOT!!!! SETTING mSortType to ${newOptions[0]}")
+        }
+
         mCreators = newCreators
     }
 
@@ -149,7 +158,15 @@ class SearchFilter(
     }
 
     private fun addCharacter(character: Character) {
+        val oldOptions = getSortOptions()
         mCharacter = character
+        val newOptions = getSortOptions()
+        if (oldOptions != newOptions) {
+            Log.d(TAG, "SETTING mSortType to ${newOptions[0]}")
+            mSortType = newOptions[0]
+        } else {
+            Log.d(TAG, "NOT!!!! SETTING mSortType to ${newOptions[0]}")
+        }
     }
 
     private fun addDateFilter(dateFilter: DateFilter) {
@@ -198,11 +215,16 @@ class SearchFilter(
         this.mCharacter = null
     }
 
+    val isComplex = hasCreator() || hasCharacter() || mMyCollection
+
     fun getSortOptions(): List<SortType> {
         return when (mViewOption) {
             Character::class            -> SortType.Companion.SortTypeOptions.CHARACTER.options
             FullIssue::class            -> SortType.Companion.SortTypeOptions.ISSUE.options
-            FullSeries::class           -> SortType.Companion.SortTypeOptions.SERIES.options
+            FullSeries::class           -> when (isComplex) {
+                true  -> SortType.Companion.SortTypeOptions.SERIES_COMPLEX.options
+                false -> SortType.Companion.SortTypeOptions.SERIES.options
+            }
             NameDetailAndCreator::class -> SortType.Companion.SortTypeOptions.CREATOR.options
             else                        -> throw IllegalStateException("illegal view type: ${mViewOption.simpleName}")
         }
@@ -303,15 +325,17 @@ class SortType(
             return this.contains(elem) or this.contains(SortType(elem).toggle())
         }
 
+        val sortTypeSeriesName = SortType(
+            context!!.getString(R.string.sort_type_series_name),
+            context!!.getString(R.string.column_sort_name),
+            "ss",
+            SortOrder.ASC
+        )
+
         enum class SortTypeOptions(val options: List<SortType>) {
             SERIES(
                 listOf(
-                    SortType(
-                        context!!.getString(R.string.sort_type_series_name),
-                        context!!.getString(R.string.column_sort_name),
-                        "ss",
-                        SortOrder.ASC
-                    ),
+                    sortTypeSeriesName,
                     SortType(
                         context!!.getString(R.string.sort_type_start_date),
                         context!!.getString(R.string.column_start_date),
@@ -320,7 +344,17 @@ class SortType(
                     )
                 )
             ),
-
+            SERIES_COMPLEX(
+                listOf(
+                    sortTypeSeriesName,
+                    SortType(
+                        "Date",
+                        "releaseDate",
+                        "ie",
+                        SortOrder.DESC
+                    )
+                )
+            ),
             ISSUE(
                 listOf(
                     SortType(
@@ -361,7 +395,7 @@ class SortType(
     }
 }
 
-fun getIntFromString(s:String): Int {
+fun getIntFromString(s: String): Int {
     val s1 = s.split(Regex("[\\s(\\[{]"))
     return s1[0].toIntOrNull() ?: 1
 }
