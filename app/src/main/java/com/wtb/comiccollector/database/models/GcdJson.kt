@@ -2,6 +2,7 @@ package com.wtb.comiccollector.database.models
 
 import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
+import com.wtb.comiccollector.getIntFromString
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import java.time.LocalDate
 
@@ -230,7 +231,7 @@ class GcdIssue(
         return Issue(
             issueId = pk,
             series = seriesId,
-            issueNum = number.toIntOrNull() ?: 1,
+            issueNum = getIntFromString(number),
             releaseDate = Issue.formatDate(onSaleDate),
             upc = barcode.toLongOrNull(),
             variantName = variantName,

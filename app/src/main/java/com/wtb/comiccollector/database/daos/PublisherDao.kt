@@ -62,11 +62,9 @@ abstract class PublisherDao : BaseDao<Publisher>("publisher") {
         if (filter.hasDateFilter()) {
             tableJoinString.append("""JOIN issue ie ON ie.series = ss.seriesId 
             """)
-            conditionsString.append("""AND ie.releaseDate < ? 
-                AND ie.releaseDate > ? 
+            conditionsString.append("""AND ie.releaseDate <= '${filter.mEndDate}'
+                AND ie.releaseDate > '${filter.mStartDate}'
             """)
-            args.add(filter.mEndDate)
-            args.add(filter.mStartDate)
         }
 
         if (filter.mMyCollection) {

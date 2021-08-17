@@ -64,7 +64,17 @@ class SearchFilter(
         }
     var mPublishers: Set<Publisher> = publishers ?: setOf()
     var mStartDate: LocalDate = startDate ?: LocalDate.MIN
+        get() = when (field) {
+            LocalDate.MIN -> MIN_DATE
+            LocalDate.MAX -> MAX_DATE
+            else          -> field
+        }
     var mEndDate: LocalDate = endDate ?: LocalDate.MAX
+        get() = when (field) {
+            LocalDate.MIN -> MIN_DATE
+            LocalDate.MAX -> MAX_DATE
+            else          -> field
+        }
     var mMyCollection: Boolean = myCollection
     var mSortType: SortType? = sortType ?: getSortOptions()[0]
     var mTextFilter: TextFilter? = textFilter
@@ -97,7 +107,7 @@ class SearchFilter(
 
     fun hasPublisher() = mPublishers.isNotEmpty()
 
-    fun hasDateFilter() = mStartDate != LocalDate.MIN || mEndDate != LocalDate.MAX
+    fun hasDateFilter() = mStartDate != MIN_DATE || mEndDate != MAX_DATE
     fun hasCharacter() = mCharacter != null
 
     fun hasSeries(): Boolean = mSeries != null
@@ -207,7 +217,7 @@ class SearchFilter(
 
     override fun toString(): String =
         "Series: $mSeries Creators: ${mCreators.size} Pubs: " +
-                "${mPublishers.size} MyCol: $mMyCollection T: ${mTextFilter?.text} ${mCharacter?.name}"
+                "${mPublishers.size} MyCol: $mMyCollection T: ${mTextFilter?.text} ${mCharacter?.name} ${mStartDate} ${mEndDate}"
 
     override fun hashCode(): Int {
         var result = mShowIssues.hashCode()
@@ -225,6 +235,11 @@ class SearchFilter(
         result = 31 * result + mViewOptions.hashCode()
         result = 31 * result + mViewOption.hashCode()
         return result
+    }
+
+    companion object {
+        val MIN_DATE = LocalDate.of(1900, 1, 1)
+        val MAX_DATE = LocalDate.now()
     }
 }
 
@@ -344,4 +359,9 @@ class SortType(
             )
         }
     }
+}
+
+fun getIntFromString(s:String): Int {
+    val s1 = s.split(Regex("[\\s(\\[{]"))
+    return s1[0].toIntOrNull() ?: 1
 }

@@ -60,9 +60,9 @@ data class Issue(
 
     override fun toString(): String {
         return if (variantOf == null) {
-            "$issueNum"
+            "$issueNumRaw"
         } else {
-            "$issueNum $variantName"
+            "$issueNumRaw $variantName"
         }
     }
 

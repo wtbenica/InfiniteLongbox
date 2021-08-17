@@ -3,7 +3,6 @@ package com.wtb.comiccollector.views
 import android.content.Context
 import android.util.AttributeSet
 import android.util.Log
-import android.widget.Toast
 import com.google.android.material.chip.Chip
 import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.SearchFilter
@@ -46,19 +45,26 @@ class DateChipGroup(context: Context?, attributeSet: AttributeSet) :
     }
 
     override fun getDate(chip: DateChip, currentDate: LocalDate) {
-        callback?.getDate(currentDate, chip.mIsStart)
+        val date = when (currentDate) {
+            LocalDate.MIN -> LocalDate.of(1900, 1, 1)
+            LocalDate.MAX -> LocalDate.now()
+            else          -> currentDate
+        }
+        callback?.getDate(date, chip.mIsStart)
     }
 
     fun setStartDate(it: LocalDate) {
         startDateChip.mDate = it
+        callback?.setDate(it, true)
     }
 
     fun setEndDate(it: LocalDate) {
         endDateChip.mDate = it
+        callback?.setDate(it, false)
     }
 
     interface DateChipGroupCallback {
-        fun getDate(currentDate: LocalDate, isStart: Boolean)
+        fun getDate(currentSelection: LocalDate, isStart: Boolean)
         fun setDate(date: LocalDate, isStart: Boolean)
     }
 }
@@ -73,8 +79,8 @@ class DateChip(context: Context?, attrs: AttributeSet? = null) : Chip(context, a
         set(value) {
             field = value
             val dateString = when (field) {
-                LocalDate.MIN -> "Start Date"
-                LocalDate.MAX -> "End Date"
+                LocalDate.of(1900, 1, 1) -> "Start Date"
+                LocalDate.now() -> "End Date"
                 else          -> field.toString()
             }
             Log.d(TAG, "SETTING TEXT ON DATE CHIP TO: $dateString")
@@ -86,7 +92,6 @@ class DateChip(context: Context?, attrs: AttributeSet? = null) : Chip(context, a
         isCheckable = false
 
         setOnClickListener {
-            Toast.makeText(context, "Date Chip Clicked", Toast.LENGTH_SHORT).show()
             mCaller?.getDate(this, this.mDate!!)
         }
 
@@ -101,6 +106,7 @@ class DateChip(context: Context?, attrs: AttributeSet? = null) : Chip(context, a
         caller: DateChipCallback,
         isStart: Boolean,
     ) : this(context) {
+        mInitDate = date
         mDate = date
         this.mCaller = caller
         this.mIsStart = isStart

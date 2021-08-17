@@ -41,7 +41,6 @@ private const val TAG = APP + "MainActivity"
 class MainActivity : AppCompatActivity(),
     SeriesListFragment.SeriesListCallback,
     IssueListFragment.IssueListCallback,
-    SeriesInfoDialogFragment.SeriesInfoDialogCallback,
     CharacterListFragment.CharacterListCallback,
     CreatorListFragment.CreatorListCallback,
     NewCreatorDialogFragment.NewCreatorDialogCallback,
@@ -228,7 +227,7 @@ class MainActivity : AppCompatActivity(),
 
     // IssueListFragment.IssueListCallback
     override fun onIssueSelected(issue: Issue) {
-        val fragment = IssueDetailFragment.newInstance(issue.issueId, false, issue.variantOf)
+        val fragment = IssueDetailFragment.newInstance(issue.issueId, issue.variantOf)
         val prevState = bottomSheetBehavior.state
         supportFragmentManager
             .beginTransaction()
@@ -272,20 +271,20 @@ class MainActivity : AppCompatActivity(),
             .commit()
     }
 
-    // SeriesInfoDialogCallback
-    override fun onSaveSeriesClick(dialog: DialogFragment, series: Series) {
-        // TODO: MainActivity onSaveSeriesClick
+//    // SeriesInfoDialogCallback
+//    override fun onSaveSeriesClick(dialog: DialogFragment, series: Series) {
+//        // TODO: MainActivity onSaveSeriesClick
+//        dialog.dismiss()
+//    }
+//
+    // NewCreatorDialogCallback
+    override fun onSaveCreatorClick(dialog: DialogFragment, creator: Creator) {
+        // TODO: Not yet implemented
         dialog.dismiss()
     }
 
     override fun onCancelClick(dialog: DialogFragment) {
         // TODO: MainActivity onCancelClick
-        dialog.dismiss()
-    }
-
-    // NewCreatorDialogCallback
-    override fun onSaveCreatorClick(dialog: DialogFragment, creator: Creator) {
-        // TODO: Not yet implemented
         dialog.dismiss()
     }
 

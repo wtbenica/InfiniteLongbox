@@ -379,9 +379,7 @@ class FilterFragment : Fragment(),
         }
     }
 
-    override fun getDate(currentDate: LocalDate, isStart: Boolean) {
-        Toast.makeText(context, "Filter Fragment Received Date Chip Click", Toast.LENGTH_SHORT)
-            .show()
+    override fun getDate(currentSelection: LocalDate, isStart: Boolean) {
         val reqKey = if (isStart) RESULT_DATE_PICKER_START else RESULT_DATE_PICKER_END
         parentFragmentManager.setFragmentResultListener(
             reqKey,
@@ -391,17 +389,21 @@ class FilterFragment : Fragment(),
                 when (reqKey) {
                     RESULT_DATE_PICKER_START -> resultDate?.let { dateChipGroup.setStartDate(it) }
                     RESULT_DATE_PICKER_END   -> resultDate?.let { dateChipGroup.setEndDate(it) }
-                    else                     -> {
-                    }
+                    else                     -> Unit
                 }
             })
 
-        DatePickerFragment.newInstance(currentDate).apply {
-            arguments = Bundle().apply {
-                putCharSequence("request_key", reqKey)
-                putSerializable(ARG_DATE, currentDate)
-            }
+        val minDate = when (isStart) {
+            true -> LocalDate.of(1900, 1, 1)
+            false -> this@FilterFragment.currFilter.mStartDate
+        }
 
+        val maxDate = when (isStart) {
+            true -> this@FilterFragment.currFilter.mEndDate
+            false -> LocalDate.now()
+        }
+
+        DatePickerFragment.newInstance(currentSelection, minDate, maxDate, reqKey).apply {
             show(this@FilterFragment.parentFragmentManager, DIALOG_DATE)
         }
     }

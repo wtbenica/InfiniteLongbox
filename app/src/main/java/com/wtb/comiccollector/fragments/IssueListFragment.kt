@@ -160,7 +160,7 @@ class IssueListFragment : ListFragment<FullIssue, IssueListFragment.IssueViewHol
                 }
             }
 
-            issueNumTextView.text = this.fullIssue?.issue?.issueNum.toString()
+            issueNumTextView.text = this.fullIssue?.issue?.issueNumRaw
 
             val variantName = this.fullIssue?.issue?.variantName
             val isVariant = this.fullIssue?.issue?.variantOf == null
