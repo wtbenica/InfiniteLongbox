@@ -203,6 +203,9 @@ data class FullIssue @ExperimentalCoroutinesApi constructor(
         return result
     }
 
+    companion object {
+        internal fun getEmptyFullIssue(): FullIssue = FullIssue(Issue(issueNumRaw = null), SeriesAndPublisher(Series(), Publisher()))
+    }
 }
 
 // TODO: This doesn't need a separate table... right? I forget why I did in the first place. it

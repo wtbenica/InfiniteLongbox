@@ -2,12 +2,12 @@ package com.wtb.comiccollector.views
 
 import android.content.Context
 import android.util.AttributeSet
-import android.util.Log
 import com.google.android.material.chip.Chip
 import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.SearchFilter
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 @ExperimentalCoroutinesApi
 class DateChipGroup(context: Context?, attributeSet: AttributeSet) :
@@ -78,12 +78,13 @@ class DateChip(context: Context?, attrs: AttributeSet? = null) : Chip(context, a
     internal var mDate: LocalDate? = null
         set(value) {
             field = value
+            val formatter = DateTimeFormatter.ofPattern("d MMM yyyy")
             val dateString = when (field) {
                 LocalDate.of(1900, 1, 1) -> "Start Date"
                 LocalDate.now() -> "End Date"
-                else          -> field.toString()
+                else          -> field?.format(formatter)?.uppercase()
+
             }
-            Log.d(TAG, "SETTING TEXT ON DATE CHIP TO: $dateString")
             this.text = dateString
         }
 

@@ -54,7 +54,9 @@ class IssueListFragment : ListFragment<FullIssue, IssueListFragment.IssueViewHol
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.itemList.collectLatest { adapter.submitData(it) }
+                viewModel.itemList.collectLatest { pagingData ->
+                    adapter.submitData(pagingData)
+                }
             }
         }
 
@@ -121,6 +123,7 @@ class IssueListFragment : ListFragment<FullIssue, IssueListFragment.IssueViewHol
 
         fun bind(issue: FullIssue?) {
             this.fullIssue = issue
+
             this.fullIssue?.let { viewModel.updateIssueCover(it.issue.issueId) }
             val coverUri = this.fullIssue?.coverUri
 

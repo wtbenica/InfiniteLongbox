@@ -142,8 +142,12 @@ abstract class IssueDao : BaseDao<Issue>("issue") {
             }
 
             if (filter.hasDateFilter()) {
-                conditionsString.append("""${connectword()} ie.releaseDate <= '${filter.mEndDate}' 
+                conditionsString.append("""${connectword()} ((ie.releaseDate <= '${filter.mEndDate}' 
                     AND ie.releaseDate >= '${filter.mStartDate}'
+                    AND ie.releaseDate IS NOT NULL)
+                    OR (ie.coverDate <= '${filter.mEndDate}'
+                    AND ie.coverDate >= '${filter.mStartDate}'
+                    AND ie.releaseDate IS NULL))
                     """)
             }
 

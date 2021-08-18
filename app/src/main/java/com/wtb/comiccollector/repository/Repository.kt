@@ -80,11 +80,10 @@ internal const val WEEKLY: Long = 7
 
 internal fun UPDATED_TAG(id: Int, type: String): String = "$type${id}_UPDATED"
 
-internal fun SERIES_TAG(id: Int): String = UPDATED_TAG(id, "SERIES_")
-internal fun ISSUE_TAG(id: Int) = UPDATED_TAG(id, "ISSUE_")
-internal fun PUBLISHER_TAG(id: Int): String = UPDATED_TAG(id, "PUBLISHER_")
-internal fun CREATOR_TAG(id: Int): String = UPDATED_TAG(id, "CREATOR_")
-internal fun CHARACTER_TAG(id: Int): String = UPDATED_TAG(id, "CHARACTER_")
+internal fun seriesTag(id: Int): String = UPDATED_TAG(id, "SERIES_")
+internal fun issueTag(id: Int) = UPDATED_TAG(id, "ISSUE_")
+internal fun creatorTag(id: Int): String = UPDATED_TAG(id, "CREATOR_")
+internal fun characterTag(id: Int): String = UPDATED_TAG(id, "CHARACTER_")
 
 @ExperimentalCoroutinesApi
 class Repository private constructor(val context: Context) {
@@ -242,7 +241,7 @@ class Repository private constructor(val context: Context) {
     fun getIssue(issueId: Int): Flow<FullIssue?> {
         if (issueId != AUTO_ID) {
             updateIssueCover(issueId)
-            updater.updateIssue(issueId)
+//            updater.updateIssue(issueId)
         }
 
         return issueDao.getFullIssue(issueId = issueId)

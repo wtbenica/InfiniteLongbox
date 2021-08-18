@@ -69,17 +69,17 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback {
     private var numUpdates = 0
     private var listFragmentCallback: ListFragment.ListFragmentCallback? = null
 
-    private lateinit var fullIssue: FullIssue
+    private var fullIssue: FullIssue = FullIssue.getEmptyFullIssue()
     private var fullVariant: FullIssue? = null
     private var issuesInSeries: List<Int> = emptyList()
     private var currentPos: Int = 0
-    private lateinit var issueCredits: List<FullCredit>
-    private lateinit var issueStories: List<Story>
-    private lateinit var issueAppearances: List<FullAppearance>
-    private lateinit var variantCredits: List<FullCredit>
-    private lateinit var variantStories: List<Story>
+    private var issueCredits: List<FullCredit> = emptyList()
+    private var issueStories: List<Story> = emptyList()
+    private var issueAppearances: List<FullAppearance> = emptyList()
+    private var variantCredits: List<FullCredit> = emptyList()
+    private var variantStories: List<Story> = emptyList()
     private var variantAppearances: List<FullAppearance> = emptyList()
-    private lateinit var issueVariants: List<Issue>
+    private var issueVariants: List<Issue> = emptyList()
 
     private lateinit var coverImageView: ImageView
     private lateinit var collectionButton: Button
@@ -185,8 +185,11 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback {
             viewLifecycleOwner,
             { issues ->
                 Log.d(TAG, "issueList observation ${issues.size}")
-                issuesInSeries = issues.map { it.issue.issueId }
-                updateNavBar()
+                val issueIds = issues.map { it.issue.issueId }
+                if (issuesInSeries != issueIds) {
+                    issuesInSeries = issueIds
+                    updateNavBar()
+                }
             }
         )
 
@@ -195,8 +198,10 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback {
             {
                 it?.let { issue ->
                     Log.d(TAG, "issue changed: $issue")
-                    fullIssue = issue
-                    updateUI()
+                    if (fullIssue != issue) {
+                        fullIssue = issue
+                        updateUI()
+                    }
                 }
             }
         )
@@ -205,8 +210,10 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback {
             viewLifecycleOwner,
             { credits: List<FullCredit>? ->
                 credits?.let {
-                    issueCredits = it
-                    updateUI()
+                    if (issueCredits != it) {
+                        issueCredits = it
+                        updateUI()
+                    }
                 }
             }
         )
@@ -215,8 +222,10 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback {
             viewLifecycleOwner,
             { stories: List<Story>? ->
                 stories?.let {
-                    issueStories = it
-                    updateUI()
+                    if (issueStories != it) {
+                        issueStories = it
+                        updateUI()
+                    }
                 }
             }
         )
@@ -225,8 +234,10 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback {
             viewLifecycleOwner,
             { appearances: List<FullAppearance>? ->
                 appearances?.let {
-                    this@IssueDetailFragment.issueAppearances = it
-                    updateUI()
+                    if (issueAppearances != it) {
+                        issueAppearances = it
+                        updateUI()
+                    }
                 }
             }
         )
@@ -235,10 +246,12 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback {
             viewLifecycleOwner,
             {
                 it.let { variant ->
-                    Log.d(TAG, "variant changed: $variant")
-                    fullVariant = variant
-                    isVariant = fullVariant?.issue?.issueId != AUTO_ID
-                    updateUI()
+                    if (fullVariant != variant) {
+                        Log.d(TAG, "variant changed: $variant")
+                        fullVariant = variant
+                        isVariant = fullVariant?.issue?.issueId != AUTO_ID
+                        updateUI()
+                    }
                 }
             }
         )
@@ -247,8 +260,10 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback {
             viewLifecycleOwner,
             { credits: List<FullCredit>? ->
                 credits?.let {
-                    this.variantCredits = it
-                    updateUI()
+                    if (variantCredits != it) {
+                        this.variantCredits = it
+                        updateUI()
+                    }
                 }
             }
         )
@@ -257,8 +272,10 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback {
             viewLifecycleOwner,
             { stories: List<Story> ->
                 stories.let {
-                    this.variantStories = it
-                    updateUI()
+                    if (variantStories != it) {
+                        this.variantStories = it
+                        updateUI()
+                    }
                 }
             }
         )
@@ -267,8 +284,10 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback {
             viewLifecycleOwner,
             { appearances: List<FullAppearance>? ->
                 appearances?.let {
-                    this.variantAppearances = it
-                    updateUI()
+                    if (variantAppearances != it) {
+                        this.variantAppearances = it
+                        updateUI()
+                    }
                 }
             }
         )
@@ -277,20 +296,22 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback {
             viewLifecycleOwner,
             { issues: List<Issue>? ->
                 issues?.let {
-                    val adapter = ArrayAdapter(
-                        requireContext(),
-                        R.layout.spinner_item_variant,
-                        R.id.variant_name_text,
-                        it
-                    )
-                    this.issueVariants = it
-                    variantSpinner.adapter = adapter
-                    variantSpinnerHolder.visibility = if (it.size <= 1) {
-                        View.GONE
-                    } else {
-                        View.VISIBLE
+                    if (issueVariants != it) {
+                        val adapter = ArrayAdapter(
+                            requireContext(),
+                            R.layout.spinner_item_variant,
+                            R.id.variant_name_text,
+                            it
+                        )
+                        this.issueVariants = it
+                        variantSpinner.adapter = adapter
+                        variantSpinnerHolder.visibility = if (it.size <= 1) {
+                            View.GONE
+                        } else {
+                            View.VISIBLE
+                        }
+                        updateUI()
                     }
-                    updateUI()
                 }
             }
         )
@@ -448,12 +469,17 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback {
         }
     }
 
+    private var i = 0
+
     private fun updateUI() {
+        Log.d(TAG, "updated ${++i} times")
         val issue = currentIssue.issue
         if (issue.issueId != AUTO_ID) {
 
-            listFragmentCallback?.setTitle("${currentIssue.series.seriesName} #${currentIssue
-                .issue.issueNumRaw}")
+            listFragmentCallback?.setTitle("${currentIssue.series.seriesName} #${
+                currentIssue
+                    .issue.issueNumRaw
+            }")
 
             infoBox.update(issue.releaseDate, issue.coverDate, issue.notes)
             creditsBox.update(issueStories, variantStories, issueCredits, variantCredits,

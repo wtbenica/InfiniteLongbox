@@ -14,6 +14,7 @@ import java.lang.Integer.min
 import java.net.ConnectException
 import java.net.SocketTimeoutException
 import java.time.LocalDate
+import java.util.concurrent.Executors
 import kotlin.reflect.KSuspendFunction0
 import kotlin.reflect.KSuspendFunction1
 
@@ -29,6 +30,8 @@ abstract class Updater(
 ) {
     protected val database: IssueDatabase
         get() = IssueDatabase.getInstance(context!!)
+
+    val threadPool: ExecutorCoroutineDispatcher = Executors.newCachedThreadPool().asCoroutineDispatcher()
 
     internal suspend fun<T: DataModel> checkFKeys(
         models: List<T>,
@@ -227,7 +230,7 @@ abstract class Updater(
         }
 
         /**
-         * Check if stale
+         * @return true if item needs to be updated or if DEBUG is true
          */
         // TODO: This should probably get moved out of SharedPreferences and stored with each record.
         //  The tradeoff: an extra local db query vs. having a larger prefs which will end up having
@@ -258,24 +261,25 @@ abstract class Updater(
             }
 
         /**
-         * Refresh all - gets items, performs followup, then saves using dao
+         * Gets items, performs followup, then saves using dao
+         * usually: [getItems] for [id], checks foreign keys for [followup], saves items to [dao]
+         * then saves update time to [saveTag] in [prefs]
          */
         internal suspend fun <ModelType : DataModel> updateById(
             prefs: SharedPreferences,
-            saveTag: String?,
+            saveTag: ((Int) -> String)?,
             getItems: suspend (Int) -> List<ModelType>?,
+            id: Int,
             followup: suspend (List<ModelType>) -> Unit = {},
             dao: BaseDao<ModelType>,
-            id: Int,
         ): List<ModelType> {
-            return if (saveTag?.let { checkIfStale(it, WEEKLY, prefs) } != false) {
+            return if (saveTag?.let { checkIfStale(it(id), WEEKLY, prefs) } != false) {
                 coroutineScope {
                     val items: List<ModelType>? = getItems(id)
 
                     if (items != null && items.isNotEmpty()) {
                         followup(items)
                         dao.upsertSus(items)
-                        saveTag?.let { Repository.saveTime(prefs, it) }
                     }
                     return@coroutineScope items ?: emptyList()
                 }

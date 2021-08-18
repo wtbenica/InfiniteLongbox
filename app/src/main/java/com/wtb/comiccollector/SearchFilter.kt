@@ -144,6 +144,9 @@ class SearchFilter(
         } else {
             Log.d(TAG, "NOT!!!! SETTING mSortType to ${newOptions[0]}")
         }
+        if (this.mViewOption == NameDetailAndCreator::class) {
+            this.mViewOptionsIndex = 0
+        }
 
         mCreators = newCreators
     }
@@ -166,6 +169,9 @@ class SearchFilter(
             mSortType = newOptions[0]
         } else {
             Log.d(TAG, "NOT!!!! SETTING mSortType to ${newOptions[0]}")
+        }
+        if (this.mViewOption == Character::class) {
+            this.mViewOptionsIndex = 0
         }
     }
 

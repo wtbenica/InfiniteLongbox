@@ -76,13 +76,13 @@ class FilterViewModel : ViewModel() {
     fun setFilter(filter: SearchFilter) {
         viewModelScope.launch {
             async {
-                filter.mCharacter?.let {
-                    repository.updateCharacter(it.characterId)
+                filter.mSeries?.let {
+                    repository.updateSeries(it.series.seriesId)
                 }
             }.await().let {
                 async {
-                    filter.mSeries?.let {
-                        repository.updateSeries(it.series.seriesId)
+                    filter.mCharacter?.let {
+                        repository.updateCharacter(it.characterId)
                     }
                 }.await().let {
                     if (filter.mCreators.isNotEmpty()) {
@@ -104,6 +104,10 @@ class FilterViewModel : ViewModel() {
         Log.d(TAG, "ADDING ITEM: $item")
         val newVal = _filter.value?.let { SearchFilter(it) } ?: SearchFilter()
         newVal.addFilter(item)
+        when (item) {
+            is Creator,
+            is Character -> newVal.mShowVariants = true
+        }
         setFilter(newVal)
     }
 
@@ -123,6 +127,7 @@ class FilterViewModel : ViewModel() {
     fun myCollection(isChecked: Boolean) {
         val newVal = _filter.value?.let { SearchFilter(it) } ?: SearchFilter()
         newVal.mMyCollection = isChecked
+        newVal.mShowVariants = isChecked
         setFilter(newVal)
     }
 

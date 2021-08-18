@@ -71,19 +71,14 @@ abstract class SeriesDao : BaseDao<Series>("series") {
 
             table.append("""SELECT DISTINCT ss.* 
                         FROM series ss 
-                        """)
+                        JOIN issue ie ON ie.series = ss.seriesId
+                    """)
 
             conditions.append("${connectWord()} ss.seriesId != $DUMMY_ID ")
 
-            if (filter.hasCreator() || filter.hasCharacter() || filter.mMyCollection) {
-                table.append("""JOIN issue ie ON ie.series = ss.seriesId
-                    """)
-
-                if (filter.hasCreator() || filter.hasCharacter())
-                    table.append("""JOIN story sy ON sy.issue = ie.issueId
+            if (filter.hasCreator() || filter.hasCharacter())
+                table.append("""JOIN story sy ON sy.issue = ie.issueId
                        """)
-            }
-
 
             if (filter.mPublishers.isNotEmpty()) {
                 val publisherList = modelsToSqlIdString(filter.mPublishers)
@@ -119,15 +114,13 @@ abstract class SeriesDao : BaseDao<Series>("series") {
             }
 
             if (filter.hasDateFilter()) {
-                if (filter.hasCreator() || filter.hasCharacter() || filter.mMyCollection) {
-                    conditions.append("""${connectWord()} ie.releaseDate <= '${filter.mEndDate}' 
-                        ${connectWord()} ie.releaseDate >= '${filter.mStartDate}'
+                conditions.append("""${connectWord()} ((ie.releaseDate <= '${filter.mEndDate}' 
+                        AND ie.releaseDate >= '${filter.mStartDate}'
+                        AND ie.releaseDate IS NOT NULL)
+                        OR (ie.coverDate <= '${filter.mEndDate}'
+                        AND ie.coverDate >= '${filter.mStartDate}'
+                        AND ie.releaseDate IS NULL))
                         """)
-                } else {
-                    conditions.append("""${connectWord()} ss.startDate <= '${filter.mEndDate}' 
-                    ${connectWord()} ss.endDate >= '${filter.mStartDate}'
-                    """)
-                }
             }
 
             filter.mCharacter?.characterId?.let {
