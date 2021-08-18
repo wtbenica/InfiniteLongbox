@@ -11,6 +11,7 @@ import com.wtb.comiccollector.Webservice
 import com.wtb.comiccollector.database.models.*
 import com.wtb.comiccollector.repository.StaticUpdater.PriorityDispatcher.Companion.highPriorityDispatcher
 import com.wtb.comiccollector.repository.StaticUpdater.PriorityDispatcher.Companion.lowPriorityDispatcher
+import com.wtb.comiccollector.repository.Updater.Companion.Collector
 import kotlinx.coroutines.*
 import kotlinx.coroutines.android.asCoroutineDispatcher
 import org.jsoup.Jsoup
@@ -147,13 +148,26 @@ class StaticUpdater(
         stories.ids.map { updateStoryAppearances(it) }
     }
 
+    inner class AppearanceCollector: Collector<Appearance>(database.appearanceDao())
+    inner class CreditCollector: Collector<Credit>(database.creditDao())
+    inner class ExCreditCollector: Collector<ExCredit>(database.exCreditDao())
+    inner class StoryCollector: Collector<Story>(database.storyDao())
+    inner class IssueCollector: Collector<Issue>(database.issueDao())
+
+    private val appearanceCollector = AppearanceCollector()
+    private val creditCollector = CreditCollector()
+    private val exCreditCollector = ExCreditCollector()
+    private val storyCollector = StoryCollector()
+    private val issueCollector = IssueCollector()
+    
+    
     private suspend fun updateStoryAppearances(storyId: Int): List<Appearance> =
         updateById<Appearance>(prefs,
                                null,
                                ::getAppearancesByStoryId,
                                storyId,
                                ::checkFKeysAppearance,
-                               database.appearanceDao())
+                               appearanceCollector)
 
     private suspend fun updateStoryCredits(storyId: Int): List<CreditX> =
         updateById<Credit>(prefs,
@@ -161,13 +175,13 @@ class StaticUpdater(
                            ::getCreditsByStoryId,
                            storyId,
                            ::checkFKeysCredit,
-                           database.creditDao()) +
+                           creditCollector) +
                 updateById<ExCredit>(prefs,
                                      null,
                                      ::getExCreditsByStoryId,
                                      storyId,
                                      ::checkFKeysCredit,
-                                     database.exCreditDao())
+                                     exCreditCollector)
 
     private suspend fun updateIssueStories(issueId: Int): List<Story> =
         updateById<Story>(prefs,
@@ -175,7 +189,7 @@ class StaticUpdater(
                           ::getStoriesByIssueId,
                           issueId,
                           ::checkFKeysStory,
-                          database.storyDao())
+                          storyCollector)
 
     private suspend fun updateSeriesIssues(seriesId: Int) =
         updateById<Issue>(prefs,
@@ -183,7 +197,7 @@ class StaticUpdater(
                           ::getIssuesBySeriesId,
                           seriesId,
                           ::checkFKeysIssue,
-                          database.issueDao())
+                          issueCollector)
 
     private suspend fun updateCharacterAppearances(characterId: Int) =
         updateById<Appearance>(prefs,
@@ -191,7 +205,7 @@ class StaticUpdater(
                                ::getAppearancesByCharacterId,
                                characterId,
                                ::checkFKeysAppearance,
-                               database.appearanceDao())
+                               appearanceCollector)
 
     private suspend fun updateNameDetailCredits(nameDetailId: Int) =
         updateById<Credit>(
@@ -200,7 +214,7 @@ class StaticUpdater(
             ::getCreditsByNameDetailId,
             nameDetailId,
             ::checkFKeysCredit,
-            database.creditDao())
+            creditCollector)
 
     private suspend fun updateNameDetailExCredits(nameDetailId: Int) =
         updateById<ExCredit>(
@@ -209,7 +223,7 @@ class StaticUpdater(
             ::getExCreditsByNameDetailId,
             nameDetailId,
             ::checkFKeysCredit,
-            database.exCreditDao())
+            exCreditCollector)
 
     private suspend fun getAppearancesByStoryId(storyId: Int): List<Appearance>? =
         getItemsByArgument(storyId, webservice::getAppearancesByStoryId)

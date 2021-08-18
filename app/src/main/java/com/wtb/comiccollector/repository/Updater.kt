@@ -31,9 +31,10 @@ abstract class Updater(
     protected val database: IssueDatabase
         get() = IssueDatabase.getInstance(context!!)
 
-    val threadPool: ExecutorCoroutineDispatcher = Executors.newCachedThreadPool().asCoroutineDispatcher()
+    val threadPool: ExecutorCoroutineDispatcher =
+        Executors.newCachedThreadPool().asCoroutineDispatcher()
 
-    internal suspend fun<T: DataModel> checkFKeys(
+    internal suspend fun <T : DataModel> checkFKeys(
         models: List<T>,
         func: KSuspendFunction1<List<T>, Unit>,
     ) {
@@ -262,7 +263,7 @@ abstract class Updater(
 
         /**
          * Gets items, performs followup, then saves using dao
-         * usually: [getItems] for [id], checks foreign keys for [followup], saves items to [dao]
+         * usually: [getItems] for [id], checks foreign keys for [followup], saves items to [col]
          * then saves update time to [saveTag] in [prefs]
          */
         internal suspend fun <ModelType : DataModel> updateById(
@@ -271,7 +272,7 @@ abstract class Updater(
             getItems: suspend (Int) -> List<ModelType>?,
             id: Int,
             followup: suspend (List<ModelType>) -> Unit = {},
-            dao: BaseDao<ModelType>,
+            collector: Collector<ModelType>,
         ): List<ModelType> {
             return if (saveTag?.let { checkIfStale(it(id), WEEKLY, prefs) } != false) {
                 coroutineScope {
@@ -279,7 +280,7 @@ abstract class Updater(
 
                     if (items != null && items.isNotEmpty()) {
                         followup(items)
-                        dao.upsertSus(items)
+                        collector.collect(items)
                     }
                     return@coroutineScope items ?: emptyList()
                 }
@@ -288,114 +289,132 @@ abstract class Updater(
             }
         }
 
-        /**
-         * Get items - checks if stale and retrieves items
-         * @return null on connection error
-         */
-        internal suspend fun <GcdType : GcdJson<ModelType>, ModelType : DataModel> getItems(
-            prefs: SharedPreferences,
-            apiCall: KSuspendFunction0<List<Item<GcdType, ModelType>>>,
-            saveTag: String,
-        ): List<ModelType>? =
-            supervisorScope {
-                if (checkIfStale(saveTag, WEEKLY, prefs)) {
-                    runSafely("getItems: ${apiCall.name}") {
-                        async { apiCall() }
-                    }?.models
-                } else {
-                    emptyList()
+        abstract class Collector<ModelType : DataModel>(private val dao: BaseDao<ModelType>) {
+            private var count: Int = 0
+
+            private var itemList = mutableListOf<ModelType>()
+
+            @Synchronized
+            fun collect(result: List<ModelType>?) {
+                    result?.let { itemList.addAll(it) }
+
+                if (++count == 1000) {
+                    dao.upsert(itemList)
+                    itemList.clear()
+                    count = 0
                 }
             }
+        }
+    }
 
-        /**
-         * Get all paged - calls getItemsByPage , performs verifyForeignKeys on each page, then
-         * saves each page to dao
-         */
-        internal suspend fun <ModelType : DataModel> refreshAllPaged(
-            prefs: SharedPreferences,
-            savePageTag: String,
-            saveTag: String,
-            getItemsByPage: suspend (Int) -> List<ModelType>?,
-            verifyForeignKeys: suspend (List<ModelType>) -> Unit = {},
-            dao: BaseDao<ModelType>,
-        ) {
+    /**
+     * Get items - checks if stale and retrieves items
+     * @return null on connection error
+     */
+    internal suspend fun <GcdType : GcdJson<ModelType>, ModelType : DataModel> getItems(
+        prefs: SharedPreferences,
+        apiCall: KSuspendFunction0<List<Item<GcdType, ModelType>>>,
+        saveTag: String,
+    ): List<ModelType>? =
+        supervisorScope {
             if (checkIfStale(saveTag, WEEKLY, prefs)) {
-                var page = prefs.getInt(savePageTag, 0)
-                var stop = false
-                var success = true
+                runSafely("getItems: ${apiCall.name}") {
+                    async { apiCall() }
+                }?.models
+            } else {
+                emptyList()
+            }
+        }
 
-                do {
-                    coroutineScope {
-                        val itemPage: List<ModelType>? = getItemsByPage(page)
+    /**
+     * Get all paged - calls getItemsByPage , performs verifyForeignKeys on each page, then
+     * saves each page to dao
+     */
+    internal suspend fun <ModelType : DataModel> refreshAllPaged(
+        prefs: SharedPreferences,
+        savePageTag: String,
+        saveTag: String,
+        getItemsByPage: suspend (Int) -> List<ModelType>?,
+        verifyForeignKeys: suspend (List<ModelType>) -> Unit = {},
+        dao: BaseDao<ModelType>,
+    ) {
+        if (checkIfStale(saveTag, WEEKLY, prefs)) {
+            var page = prefs.getInt(savePageTag, 0)
+            var stop = false
+            var success = true
 
-                        if (itemPage != null && itemPage.isNotEmpty()) {
-                            verifyForeignKeys(itemPage)
-                            dao.upsertSus(itemPage)
-                            Repository.savePrefValue(prefs, savePageTag, page)
-                        } else if (itemPage != null) {
-                            stop = true
-                        } else {
-                            stop = true
-                            success = false
-                        }
+            do {
+                coroutineScope {
+                    val itemPage: List<ModelType>? = getItemsByPage(page)
+
+                    if (itemPage != null && itemPage.isNotEmpty()) {
+                        verifyForeignKeys(itemPage)
+                        dao.upsertSus(itemPage)
+                        Repository.savePrefValue(prefs, savePageTag, page)
+                    } else if (itemPage != null) {
+                        stop = true
+                    } else {
+                        stop = true
+                        success = false
                     }
+                }
 
-                    page += 1
-                } while (!stop)
+                page += 1
+            } while (!stop)
 
-                if (success) {
-                    Repository.savePrefValue(prefs, savePageTag, 0)
+            if (success) {
+                Repository.savePrefValue(prefs, savePageTag, 0)
+                Repository.saveTime(prefs, saveTag)
+            }
+        }
+    }
+
+    /**
+     * Refresh all - gets items, performs followup, then saves using dao
+     */
+    internal suspend fun <ModelType : DataModel> refreshAll(
+        prefs: SharedPreferences,
+        saveTag: String,
+        getItems: suspend () -> List<ModelType>?,
+        followup: suspend (List<ModelType>) -> Unit = {},
+        dao: BaseDao<ModelType>,
+    ) {
+        if (checkIfStale(saveTag, WEEKLY, prefs)) {
+            coroutineScope {
+                val items: List<ModelType>? = getItems()
+
+                if (items != null && items.isNotEmpty()) {
+                    followup(items)
+                    dao.upsertSus(items)
                     Repository.saveTime(prefs, saveTag)
                 }
             }
         }
+    }
 
-        /**
-         * Refresh all - gets items, performs followup, then saves using dao
-         */
-        internal suspend fun <ModelType : DataModel> refreshAll(
-            prefs: SharedPreferences,
-            saveTag: String,
-            getItems: suspend () -> List<ModelType>?,
-            followup: suspend (List<ModelType>) -> Unit = {},
-            dao: BaseDao<ModelType>,
-        ) {
-            if (checkIfStale(saveTag, WEEKLY, prefs)) {
-                coroutineScope {
-                    val items: List<ModelType>? = getItems()
-
-                    if (items != null && items.isNotEmpty()) {
-                        followup(items)
-                        dao.upsertSus(items)
-                        Repository.saveTime(prefs, saveTag)
-                    }
-                }
-            }
+    /**
+     * Get missing foreign key models
+     */
+    internal suspend fun <M : DataModel, FG : GcdJson<FM>, FM : DataModel>
+            checkForMissingForeignKeyModels(
+        itemsToCheck: List<M>,
+        getForeignKey: (M) -> Int?,
+        foreignKeyDao: BaseDao<FM>,
+        getFkItems: KSuspendFunction1<List<Int>, List<Item<FG, FM>>>,
+        fkFollowup: (suspend (List<FM>) -> Unit)? = null,
+    ) {
+        val fkIds: List<Int> = itemsToCheck.mapNotNull { getForeignKey(it) }
+        val missingIds: List<Int> = fkIds.mapNotNull {
+            if (foreignKeyDao.get(it) == null) it else null
         }
 
-        /**
-         * Get missing foreign key models
-         */
-        internal suspend fun <M : DataModel, FG : GcdJson<FM>, FM : DataModel>
-                checkForMissingForeignKeyModels(
-            itemsToCheck: List<M>,
-            getForeignKey: (M) -> Int?,
-            foreignKeyDao: BaseDao<FM>,
-            getFkItems: KSuspendFunction1<List<Int>, List<Item<FG, FM>>>,
-            fkFollowup: (suspend (List<FM>) -> Unit)? = null,
-        ) {
-            val fkIds: List<Int> = itemsToCheck.mapNotNull { getForeignKey(it) }
-            val missingIds: List<Int> = fkIds.mapNotNull {
-                if (foreignKeyDao.get(it) == null) it else null
-            }
+        val missingItems = getItemsByArgument(missingIds, getFkItems)
 
-            val missingItems = getItemsByArgument(missingIds, getFkItems)
-
-            if (missingItems != null && missingItems.isNotEmpty()) {
-                fkFollowup?.let { it(missingItems) }
-                foreignKeyDao.upsert(missingItems)
-            }
+        if (missingItems != null && missingItems.isNotEmpty()) {
+            fkFollowup?.let { it(missingItems) }
+            foreignKeyDao.upsert(missingItems)
         }
     }
 }
+
 
