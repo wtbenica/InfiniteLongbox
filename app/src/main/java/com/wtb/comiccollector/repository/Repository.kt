@@ -38,7 +38,7 @@ import java.util.concurrent.Executors
 const val DUMMY_ID = Int.MAX_VALUE
 
 private const val TAG = APP + "Repository"
-const val DEBUG = false
+const val DEBUG = true
 
 internal const val SHARED_PREFS = "CCPrefs"
 
@@ -241,7 +241,7 @@ class Repository private constructor(val context: Context) {
     fun getIssue(issueId: Int): Flow<FullIssue?> {
         if (issueId != AUTO_ID) {
             updateIssueCover(issueId)
-//            updater.updateIssue(issueId)
+            updater.updateIssue(issueId, true)
         }
 
         return issueDao.getFullIssue(issueId = issueId)
@@ -330,6 +330,9 @@ class Repository private constructor(val context: Context) {
                 is Boolean -> editor.putBoolean(key, value)
                 is Float   -> editor.putFloat(key, value)
                 is Long    -> editor.putLong(key, value)
+                else -> throw IllegalArgumentException(
+                    "savePrefValue: Yeah, it says Any, but it really wants String, Int, Boolean, " +
+                            "Float, or Long")
             }
             editor.apply()
         }

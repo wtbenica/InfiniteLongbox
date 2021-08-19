@@ -188,6 +188,7 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback {
                 val issueIds = issues.map { it.issue.issueId }
                 if (issuesInSeries != issueIds) {
                     issuesInSeries = issueIds
+                    this.currentPos = this.issuesInSeries.indexOf(this.fullIssue.issue.issueId)
                     updateNavBar()
                 }
             }
@@ -342,8 +343,7 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback {
     }
 
     private fun updateNavBar() {
-        this.currentPos = this.issuesInSeries.indexOf(this.fullIssue.issue.issueId)
-        val found = currentPos >= 0
+        val found = currentPos >= 0 && issuesInSeries.isNotEmpty()
 
         this.gotoStartButton.isEnabled = (currentPos > 0) && found
         this.gotoSkipBackButton.isEnabled = (currentPos >= 10) && found
@@ -369,7 +369,9 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback {
     }
 
     private fun jumpToIssue(skipNum: Int) {
-        issueDetailViewModel.loadIssue(this.issuesInSeries[currentPos + skipNum])
+        currentPos += skipNum
+        issueDetailViewModel.loadIssue(this.issuesInSeries[currentPos])
+        updateNavBar()
     }
 
     override fun onStart() {

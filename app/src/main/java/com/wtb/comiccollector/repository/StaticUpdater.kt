@@ -2,20 +2,19 @@ package com.wtb.comiccollector.repository
 
 import android.content.SharedPreferences
 import android.net.Uri
-import android.os.Handler
-import android.os.HandlerThread
 import android.util.Log
 import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.ComicCollectorApplication.Companion.context
 import com.wtb.comiccollector.Webservice
 import com.wtb.comiccollector.database.models.*
-import com.wtb.comiccollector.repository.StaticUpdater.PriorityDispatcher.Companion.highPriorityDispatcher
-import com.wtb.comiccollector.repository.StaticUpdater.PriorityDispatcher.Companion.lowPriorityDispatcher
 import com.wtb.comiccollector.repository.Updater.Companion.Collector
+import com.wtb.comiccollector.repository.Updater.PriorityDispatcher.Companion.highPriorityDispatcher
+import com.wtb.comiccollector.repository.Updater.PriorityDispatcher.Companion.lowPriorityDispatcher
+import com.wtb.comiccollector.repository.Updater.PriorityDispatcher.Companion.nowDispatcher
 import kotlinx.coroutines.*
-import kotlinx.coroutines.android.asCoroutineDispatcher
 import org.jsoup.Jsoup
 import java.net.URL
+import java.time.Instant
 
 /**
  * Static updater
@@ -33,6 +32,27 @@ class StaticUpdater(
     /**
      * Updates issues, stories, appearances, and creators
      */
+    /**
+     *  UpdateAsync - Updates publisher, series, role, and storytype tables
+     */
+    @ExperimentalCoroutinesApi
+    internal suspend fun updateAsync() {
+        database.transactionDao().upsertStatic(
+            publishers = getPublishers(),
+            roles = getRoles(),
+            storyTypes = getStoryTypes(),
+            bondTypes = getBondTypes(),
+        )
+
+        if (!DEBUG) {
+            getAllSeries()
+            getAllCreators()
+            getAllNameDetails()
+            getAllCharacters()
+            getAllSeriesBonds()
+        }
+    }
+
     fun updateSeries(seriesId: Int) = CoroutineScope(highPriorityDispatcher).launch {
         async {
             if (checkIfStale(seriesTag(seriesId), 1L, prefs)) {
@@ -60,55 +80,31 @@ class StaticUpdater(
         }
     }
 
-
-    class PriorityDispatcher {
-        companion object {
-            private var HP_INSTANCE: CoroutineDispatcher? = null
-            private var LP_INSTANCE: CoroutineDispatcher? = null
-
-            val highPriorityDispatcher: CoroutineDispatcher
-                get() {
-                    val thread = HandlerThread("highPriorityThread",
-                                               android.os.Process.THREAD_PRIORITY_FOREGROUND).also {
-                        it.start()
-                    }
-                    val res = HP_INSTANCE
-                        ?: Handler(thread.looper).asCoroutineDispatcher("highPriorityDisptcher")
-                    if (HP_INSTANCE == null) {
-                        HP_INSTANCE = res
-                    }
-                    return HP_INSTANCE!!
-                }
-
-            val lowPriorityDispatcher: CoroutineDispatcher
-                get() {
-                    val thread = HandlerThread("lowPriorityThread",
-                                               android.os.Process.THREAD_PRIORITY_BACKGROUND).also {
-                        it.start()
-                    }
-                    val res = LP_INSTANCE
-                        ?: Handler(thread.looper).asCoroutineDispatcher("lowPriorityDisptcher")
-                    if (LP_INSTANCE == null) {
-                        LP_INSTANCE = res
-                    }
-                    return LP_INSTANCE!!
-                }
-        }
-    }
-
-
     /**
      * Update issue - updates stories, credits, appearances, and cover
      */
-    private fun updateIssue(issueId: Int) = CoroutineScope(highPriorityDispatcher).launch {
-        async {
-            if (checkIfStale(issueTag(issueId), 1L, prefs)) {
-                Log.d(TAG, "Updating issue: $issueId")
-                updateIssueStoryDetails(issueId)
-                updateIssueCover(issueId)
+    internal fun updateIssue(issueId: Int, highPriority: Boolean = false) {
+        val dispatcher = if (highPriority)
+            nowDispatcher
+        else
+            highPriorityDispatcher
+        CoroutineScope(dispatcher).launch {
+            async {
+                if (checkIfStale(issueTag(issueId), 1L, prefs)) {
+                    Repository.savePrefValue(prefs, "${issueTag(issueId)}_STARTED", true)
+                    Repository.savePrefValue(prefs,
+                                             "${issueTag(issueId)}_STARTED_TIME",
+                                             Instant.now().epochSecond)
+                    updateIssueStoryDetails(issueId)
+                    updateIssueCover(issueId)
+                }
+            }.await().let {
+                Repository.saveTime(prefs, issueTag(issueId))
+                Repository.savePrefValue(prefs, "${issueTag(issueId)}_STARTED", false)
+                Repository.savePrefValue(prefs,
+                                         "${issueTag(issueId)}_STARTED_TIME",
+                                         "${Instant.MIN.epochSecond}")
             }
-        }.await().let {
-            Repository.saveTime(prefs, issueTag(issueId))
         }
     }
 
@@ -128,7 +124,7 @@ class StaticUpdater(
                             updateNameDetailExCredits(nameDetail.id)
                 }
                 checkFKeysCredit(credits)
-                for (credit in credits) {
+                credits.forEach { credit ->
                     updateStoryCredits(credit.story)
                     updateStoryAppearances(credit.story)
                 }
@@ -148,19 +144,13 @@ class StaticUpdater(
         stories.ids.map { updateStoryAppearances(it) }
     }
 
-    inner class AppearanceCollector: Collector<Appearance>(database.appearanceDao())
-    inner class CreditCollector: Collector<Credit>(database.creditDao())
-    inner class ExCreditCollector: Collector<ExCredit>(database.exCreditDao())
-    inner class StoryCollector: Collector<Story>(database.storyDao())
-    inner class IssueCollector: Collector<Issue>(database.issueDao())
-
     private val appearanceCollector = AppearanceCollector()
     private val creditCollector = CreditCollector()
     private val exCreditCollector = ExCreditCollector()
     private val storyCollector = StoryCollector()
     private val issueCollector = IssueCollector()
-    
-    
+
+
     private suspend fun updateStoryAppearances(storyId: Int): List<Appearance> =
         updateById<Appearance>(prefs,
                                null,
@@ -169,6 +159,9 @@ class StaticUpdater(
                                ::checkFKeysAppearance,
                                appearanceCollector)
 
+    /**
+     * Gets creator credits for a story, adds missing foreign key models
+     */
     private suspend fun updateStoryCredits(storyId: Int): List<CreditX> =
         updateById<Credit>(prefs,
                            null,
@@ -183,6 +176,9 @@ class StaticUpdater(
                                      ::checkFKeysCredit,
                                      exCreditCollector)
 
+    /**
+     * Gets issue stories, adds missing foreign key models
+     */
     private suspend fun updateIssueStories(issueId: Int): List<Story> =
         updateById<Story>(prefs,
                           null,
@@ -191,6 +187,9 @@ class StaticUpdater(
                           ::checkFKeysStory,
                           storyCollector)
 
+    /**
+     * Gets series issues, adds missing foreign key models
+     */
     private suspend fun updateSeriesIssues(seriesId: Int) =
         updateById<Issue>(prefs,
                           ::seriesTag,
@@ -199,6 +198,9 @@ class StaticUpdater(
                           ::checkFKeysIssue,
                           issueCollector)
 
+    /**
+     * Gets character appearances, adds missing foreign key models
+     */
     private suspend fun updateCharacterAppearances(characterId: Int) =
         updateById<Appearance>(prefs,
                                ::characterTag,
@@ -207,6 +209,9 @@ class StaticUpdater(
                                ::checkFKeysAppearance,
                                appearanceCollector)
 
+    /**
+     * Gets name detail credits, adds missing foreign key models
+     */
     private suspend fun updateNameDetailCredits(nameDetailId: Int) =
         updateById<Credit>(
             prefs,
@@ -216,6 +221,9 @@ class StaticUpdater(
             ::checkFKeysCredit,
             creditCollector)
 
+    /**
+     * Gets name detail ex credits, adds missing foreign key models
+     */
     private suspend fun updateNameDetailExCredits(nameDetailId: Int) =
         updateById<ExCredit>(
             prefs,
@@ -248,25 +256,6 @@ class StaticUpdater(
 
     private suspend fun getExCreditsByNameDetailId(nameDetailId: Int): List<ExCredit>? =
         getItemsByArgument(listOf(nameDetailId), webservice::getExCreditsByNameDetail)
-
-    /**
-     *  UpdateAsync - Updates publisher, series, role, and storytype tables
-     */
-    @ExperimentalCoroutinesApi
-    internal suspend fun updateAsync() {
-        database.transactionDao().upsertStatic(
-            publishers = getPublishers(),
-            roles = getRoles(),
-            storyTypes = getStoryTypes(),
-            bondTypes = getBondTypes(),
-        )
-
-        getAllSeries()
-        getAllCreators()
-        getAllNameDetails()
-        getAllCharacters()
-        getAllSeriesBonds()
-    }
 
     private suspend fun getAllSeriesBonds() {
         refreshAll<SeriesBond>(
@@ -399,6 +388,12 @@ class StaticUpdater(
             }
         }
     }
+
+    inner class AppearanceCollector : Collector<Appearance>(database.appearanceDao())
+    inner class CreditCollector : Collector<Credit>(database.creditDao())
+    inner class ExCreditCollector : Collector<ExCredit>(database.exCreditDao())
+    inner class StoryCollector : Collector<Story>(database.storyDao())
+    inner class IssueCollector : Collector<Issue>(database.issueDao())
 
     companion object {
         internal const val TAG = APP + "UpdateStatic"

@@ -1,6 +1,9 @@
 package com.wtb.comiccollector.repository
 
 import android.content.SharedPreferences
+import android.os.Handler
+import android.os.HandlerThread
+import android.os.Process
 import android.util.Log
 import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.ComicCollectorApplication.Companion.context
@@ -8,13 +11,15 @@ import com.wtb.comiccollector.Webservice
 import com.wtb.comiccollector.database.IssueDatabase
 import com.wtb.comiccollector.database.daos.BaseDao
 import com.wtb.comiccollector.database.models.*
+import com.wtb.comiccollector.repository.Updater.PriorityDispatcher.Companion.lowPriorityDispatcher
 import kotlinx.coroutines.*
+import kotlinx.coroutines.android.asCoroutineDispatcher
 import retrofit2.HttpException
 import java.lang.Integer.min
 import java.net.ConnectException
 import java.net.SocketTimeoutException
+import java.time.Instant
 import java.time.LocalDate
-import java.util.concurrent.Executors
 import kotlin.reflect.KSuspendFunction0
 import kotlin.reflect.KSuspendFunction1
 
@@ -30,9 +35,6 @@ abstract class Updater(
 ) {
     protected val database: IssueDatabase
         get() = IssueDatabase.getInstance(context!!)
-
-    val threadPool: ExecutorCoroutineDispatcher =
-        Executors.newCachedThreadPool().asCoroutineDispatcher()
 
     internal suspend fun <T : DataModel> checkFKeys(
         models: List<T>,
@@ -97,42 +99,42 @@ abstract class Updater(
                                         Issue::series,
                                         database.seriesDao(),
                                         webservice::getSeriesByIds,
-                                        this@Updater::checkFKeysSeries)
+                                        ::checkFKeysSeries)
 
     internal suspend fun checkIssueFkVariantOf(issues: List<Issue>) =
         checkForMissingForeignKeyModels(issues,
                                         Issue::variantOf,
                                         database.issueDao(),
                                         webservice::getIssuesByIds,
-                                        this@Updater::checkFKeysIssue)
+                                        ::checkFKeysIssue)
 
     internal suspend fun checkSeriesBondFkOriginIssue(seriesBonds: List<SeriesBond>) =
         checkForMissingForeignKeyModels(seriesBonds,
                                         SeriesBond::originIssue,
                                         database.issueDao(),
                                         webservice::getIssuesByIds,
-                                        this@Updater::checkFKeysIssue)
+                                        ::checkFKeysIssue)
 
     internal suspend fun checkSeriesBondFkOriginSeries(seriesBonds: List<SeriesBond>) =
         checkForMissingForeignKeyModels(seriesBonds,
                                         SeriesBond::origin,
                                         database.seriesDao(),
                                         webservice::getSeriesByIds,
-                                        this@Updater::checkFKeysSeries)
+                                        ::checkFKeysSeries)
 
     internal suspend fun checkSeriesBondFkTargetSeries(seriesBonds: List<SeriesBond>) =
         checkForMissingForeignKeyModels(seriesBonds,
                                         SeriesBond::target,
                                         database.seriesDao(),
                                         webservice::getSeriesByIds,
-                                        this@Updater::checkFKeysSeries)
+                                        ::checkFKeysSeries)
 
     internal suspend fun checkSeriesBondFkTargetIssue(seriesBonds: List<SeriesBond>) =
         checkForMissingForeignKeyModels(seriesBonds,
                                         SeriesBond::targetIssue,
                                         database.issueDao(),
                                         webservice::getIssuesByIds,
-                                        this@Updater::checkFKeysIssue)
+                                        ::checkFKeysIssue)
 
 
     internal suspend fun checkStoryFkIssue(stories: List<Story>) =
@@ -140,7 +142,7 @@ abstract class Updater(
                                         Story::issue,
                                         database.issueDao(),
                                         webservice::getIssuesByIds,
-                                        this@Updater::checkFKeysIssue)
+                                        ::checkFKeysIssue)
 
     internal suspend fun checkAppearanceFkCharacter(appearances: List<Appearance>) =
         checkForMissingForeignKeyModels(appearances,
@@ -153,21 +155,21 @@ abstract class Updater(
                                         Appearance::story,
                                         database.storyDao(),
                                         webservice::getStoriesByIds,
-                                        this@Updater::checkFKeysStory)
+                                        ::checkFKeysStory)
 
     internal suspend fun <T : CreditX> checkCreditFkNameDetail(credits: List<T>) =
         checkForMissingForeignKeyModels(credits,
                                         CreditX::nameDetail,
                                         database.nameDetailDao(),
                                         webservice::getNameDetailsByIds,
-                                        this@Updater::checkFKeysNameDetail)
+                                        ::checkFKeysNameDetail)
 
     internal suspend fun <T : CreditX> checkCreditFkStory(credits: List<T>) =
         checkForMissingForeignKeyModels(credits,
                                         CreditX::story,
                                         database.storyDao(),
                                         webservice::getStoriesByIds,
-                                        this@Updater::checkFKeysStory)
+                                        ::checkFKeysStory)
 
     @ExperimentalCoroutinesApi
     companion object {
@@ -231,7 +233,8 @@ abstract class Updater(
         }
 
         /**
-         * @return true if item needs to be updated or if DEBUG is true
+         * @return true if DEBUG is true or if item needs to be updated and it hasn't already
+         * been started or it's been
          */
         // TODO: This should probably get moved out of SharedPreferences and stored with each record.
         //  The tradeoff: an extra local db query vs. having a larger prefs which will end up having
@@ -243,7 +246,14 @@ abstract class Updater(
         ): Boolean {
             val lastUpdated = LocalDate.parse(prefs.getString(prefsKey, "${LocalDate.MIN}"))
             val isStale = LocalDate.now() > lastUpdated.plusDays(shelfLife)
-            return DEBUG || isStale
+            val isStarted = prefs.getBoolean("${prefsKey}_STARTED", false)
+            var timeStarted: Long
+            try {
+                timeStarted = prefs.getLong("${prefsKey}_STARTED_TIME", Instant.MIN.epochSecond)
+            } catch (e: ClassCastException) {
+                timeStarted = Instant.MIN.epochSecond
+            }
+            return DEBUG || (isStale && (!isStarted || timeStarted + 3 < Instant.now().epochSecond))
         }
 
         /**
@@ -274,35 +284,52 @@ abstract class Updater(
             followup: suspend (List<ModelType>) -> Unit = {},
             collector: Collector<ModelType>,
         ): List<ModelType> {
-            return if (saveTag?.let { checkIfStale(it(id), WEEKLY, prefs) } != false) {
-                coroutineScope {
-                    val items: List<ModelType>? = getItems(id)
+            return coroutineScope {
+                val items: List<ModelType>? = getItems(id)
 
-                    if (items != null && items.isNotEmpty()) {
-                        followup(items)
-                        collector.collect(items)
-                    }
-                    return@coroutineScope items ?: emptyList()
+                if (items != null && items.isNotEmpty()) {
+                    followup(items)
+                    collector.collect(items)
                 }
-            } else {
-                emptyList()
+                return@coroutineScope items ?: emptyList()
             }
         }
 
+        private const val BUFFER_SIZE = 5000
+        private const val UPSERT_WAIT: Long = 2
+
         abstract class Collector<ModelType : DataModel>(private val dao: BaseDao<ModelType>) {
             private var count: Int = 0
-
+            private var startTime: Instant? = null
             private var itemList = mutableListOf<ModelType>()
 
             @Synchronized
             fun collect(result: List<ModelType>?) {
-                    result?.let { itemList.addAll(it) }
-
-                if (++count == 1000) {
-                    dao.upsert(itemList)
-                    itemList.clear()
-                    count = 0
+                if (startTime == null) {
+                    startTime = Instant.now()
                 }
+                result?.let { itemList.addAll(it) }
+
+                val currentTime = Instant.now()
+
+                if (++count == BUFFER_SIZE) {
+                    saveList()
+                }
+
+                CoroutineScope(lowPriorityDispatcher).launch {
+                    delay(3000)
+                    if (currentTime > (startTime?.plusSeconds(UPSERT_WAIT) ?: Instant.MIN) &&
+                        itemList.isNotEmpty()) {
+                        saveList()
+                    }
+                }
+            }
+
+            @Synchronized
+            private fun saveList() {
+                dao.upsert(itemList)
+                itemList.clear()
+                count = 0
             }
         }
     }
@@ -394,6 +421,15 @@ abstract class Updater(
 
     /**
      * Get missing foreign key models
+     *
+     * @param M The [DataModel] of the objects to be checked
+     * @param FG The [GcdJson] retrieved by [getFkItems]
+     * @param FM The [DataModel] of the foreign keys
+     * @param itemsToCheck The list of [M] whose foreign keys will be checked
+     * @param getForeignKey A lambda to access the foreign key id on a model
+     * @param foreignKeyDao The dao of the foreign key objects' [GcdJson]
+     * @param getFkItems The function to retrieve the foreign key objects remotely
+     * @param fkFollowup A function that to check a foreign key of the foreign key models
      */
     internal suspend fun <M : DataModel, FG : GcdJson<FM>, FM : DataModel>
             checkForMissingForeignKeyModels(
@@ -408,11 +444,61 @@ abstract class Updater(
             if (foreignKeyDao.get(it) == null) it else null
         }
 
-        val missingItems = getItemsByArgument(missingIds, getFkItems)
+        val missingItems = getItemsByArgument(missingIds.toSet().toList(), getFkItems)
 
         if (missingItems != null && missingItems.isNotEmpty()) {
             fkFollowup?.let { it(missingItems) }
             foreignKeyDao.upsert(missingItems)
+        }
+    }
+
+    class PriorityDispatcher {
+        companion object {
+            private var NOW_INSTANCE: CoroutineDispatcher? = null
+            private var HP_INSTANCE: CoroutineDispatcher? = null
+            private var LP_INSTANCE: CoroutineDispatcher? = null
+
+            val nowDispatcher: CoroutineDispatcher
+                get() {
+                    val thread = HandlerThread("nowThread",
+                                               Process.THREAD_PRIORITY_DISPLAY).also {
+                        it.start()
+                    }
+                    val res = NOW_INSTANCE
+                        ?: Handler(thread.looper).asCoroutineDispatcher("nowDispatcher")
+                    if (NOW_INSTANCE == null) {
+                        NOW_INSTANCE = res
+                    }
+                    return NOW_INSTANCE!!
+                }
+
+            val highPriorityDispatcher: CoroutineDispatcher
+                get() {
+                    val thread = HandlerThread("highPriorityThread",
+                                               Process.THREAD_PRIORITY_MORE_FAVORABLE).also {
+                        it.start()
+                    }
+                    val res = HP_INSTANCE
+                        ?: Handler(thread.looper).asCoroutineDispatcher("highPriorityDisptcher")
+                    if (HP_INSTANCE == null) {
+                        HP_INSTANCE = res
+                    }
+                    return HP_INSTANCE!!
+                }
+
+            val lowPriorityDispatcher: CoroutineDispatcher
+                get() {
+                    val thread = HandlerThread("lowPriorityThread",
+                                               Process.THREAD_PRIORITY_BACKGROUND).also {
+                        it.start()
+                    }
+                    val res = LP_INSTANCE
+                        ?: Handler(thread.looper).asCoroutineDispatcher("lowPriorityDisptcher")
+                    if (LP_INSTANCE == null) {
+                        LP_INSTANCE = res
+                    }
+                    return LP_INSTANCE!!
+                }
         }
     }
 }

@@ -133,7 +133,7 @@ abstract class SeriesDao : BaseDao<Series>("series") {
             }
 
             if (filter.mMyCollection) {
-                if (filter.hasCharacter() || filter.hasCreator()) {
+                if (filter.hasCharacter() || filter.hasCreator() || filter.hasDateFilter()) {
                     conditions.append("""${connectWord()} ie.issueId IN (
                     SELECT issue
                     FROM mycollection)

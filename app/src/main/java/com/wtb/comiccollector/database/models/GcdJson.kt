@@ -34,6 +34,11 @@ val <G : GcdJson<M>, M : DataModel> List<Item<G, M>>.models: List<M>
 val <M : DataModel> Collection<M>.ids: List<Int>
     get() = this.map { it.id }
 
+/**
+ * Class model for json object that can convert it to a [DataModel]
+ *
+ * @param M The resulting [DataModel]
+ */
 interface GcdJson<M : DataModel> {
     fun toRoomModel(pk: Int): M
 }
