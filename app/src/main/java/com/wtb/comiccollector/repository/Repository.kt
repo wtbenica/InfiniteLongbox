@@ -241,7 +241,7 @@ class Repository private constructor(val context: Context) {
     fun getIssue(issueId: Int): Flow<FullIssue?> {
         if (issueId != AUTO_ID) {
             updateIssueCover(issueId)
-            updater.updateIssue(issueId, true)
+            updater.updateIssue(issueId)
         }
 
         return issueDao.getFullIssue(issueId = issueId)
