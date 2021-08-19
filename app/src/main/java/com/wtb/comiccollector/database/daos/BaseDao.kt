@@ -67,6 +67,7 @@ abstract class BaseDao<T : DataModel>(private val tableName: String) {
         }
     }
 
+    @Synchronized
     @Transaction
     open fun upsert(objList: List<T>) {
 

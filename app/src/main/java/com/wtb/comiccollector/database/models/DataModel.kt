@@ -27,6 +27,7 @@ sealed interface FilterType {
  */
 sealed interface FilterItem
 
+
 /*
 TODO: This should include SERIES, PUBLISHER, CHARACTER, CREATOR. The issue is with CREATOR:
  whether to use CREATOR or NAME_DETAIL or both. Should look for "name_string" in NAME_DETAIL,
@@ -79,4 +80,18 @@ data class TextFilter(
     val text: String,
 ) : FilterItem {
     override fun toString(): String = "\"$text\""
+}
+
+@ExperimentalCoroutinesApi
+data class DateFilter(
+    val date: LocalDate,
+    val isStart: Boolean
+) : FilterItem {
+    override fun toString(): String {
+        return when (date) {
+            LocalDate.MIN -> "Start Date"
+            LocalDate.MAX -> "End Date"
+            else -> date.toString()
+        }
+    }
 }

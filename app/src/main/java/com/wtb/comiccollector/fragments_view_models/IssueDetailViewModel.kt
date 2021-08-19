@@ -23,15 +23,15 @@ class IssueDetailViewModel : ViewModel() {
 
     private val repository: Repository = Repository.get()
 
-    private val _issueId = MutableStateFlow(AUTO_ID)
-    val issueId: StateFlow<Int>
-        get() = _issueId
+    private val _primaryId = MutableStateFlow(AUTO_ID)
+    val primaryId: StateFlow<Int>
+        get() = _primaryId
 
     private val _variantId = MutableStateFlow(AUTO_ID)
     private val variantId: StateFlow<Int>
         get() = _variantId
 
-    internal val mIssue: StateFlow<FullIssue?> = issueId.flatMapLatest { id ->
+    private val mIssue: StateFlow<FullIssue?> = primaryId.flatMapLatest { id ->
         Log.d(TAG, "issueId changed: $id")
         repository.getIssue(id)
     }.stateIn(
@@ -40,51 +40,53 @@ class IssueDetailViewModel : ViewModel() {
         initialValue = null
     )
 
-    val issue: LiveData<FullIssue?> = mIssue.asLiveData()
+    internal val primaryIssue: LiveData<FullIssue?> = mIssue.asLiveData()
 
-    val issueStoriesLiveData: LiveData<List<Story>> =
-        issueId.flatMapLatest { issueId -> repository.getStoriesByIssue(issueId) }.asLiveData()
+    internal val primaryStoriesLiveData: LiveData<List<Story>> =
+        primaryId.flatMapLatest { issueId -> repository.getStoriesByIssue(issueId) }.asLiveData()
 
-    val issueCreditsLiveData: LiveData<List<FullCredit>> =
-        issueId.flatMapLatest { issueId -> repository.getCreditsByIssue(issueId) }.asLiveData()
+    internal val primaryCreditsLiveData: LiveData<List<FullCredit>> =
+        primaryId.flatMapLatest { issueId -> repository.getCreditsByIssue(issueId) }.asLiveData()
 
-    val issueAppearancesLiveData =
-        issueId.flatMapLatest { repository.getAppearancesByIssue(it) }.asLiveData()
+    internal val primaryAppearancesLiveData =
+        primaryId.flatMapLatest { repository.getAppearancesByIssue(it) }.asLiveData()
+
+    internal val inCollectionLiveData: LiveData<Count> =
+        primaryId.flatMapLatest { repository.inCollection(it) }.asLiveData()
 
     // Other parts rely on this possibly being null, which is why it's LiveData, instead of
     // StateFlow like 'issue'
-    val variantLiveData: LiveData<FullIssue?> =
+    internal val variantLiveData: LiveData<FullIssue?> =
         variantId.flatMapLatest { id ->
             Log.d(TAG, "variantId changed, updating variantLiveData $id")
             repository.getIssue(id)
         }.asLiveData()
 
-    val variantStoriesLiveData: LiveData<List<Story>> =
+    internal val variantStoriesLiveData: LiveData<List<Story>> =
         variantId.flatMapLatest { issueId -> repository.getStoriesByIssue(issueId) }.asLiveData()
 
-    val variantCreditsLiveData: LiveData<List<FullCredit>> =
+    internal val variantCreditsLiveData: LiveData<List<FullCredit>> =
         variantId.flatMapLatest { issueId -> repository.getCreditsByIssue(issueId) }.asLiveData()
 
-    val variantAppearancesLiveData: LiveData<List<FullAppearance>> =
-        variantId.flatMapLatest { issueId -> repository.getAppearancesByIssue(issueId) }.asLiveData()
+    internal val variantAppearancesLiveData: LiveData<List<FullAppearance>> =
+        variantId.flatMapLatest { issueId -> repository.getAppearancesByIssue(issueId) }
+            .asLiveData()
 
-    val variantsLiveData: LiveData<List<Issue>> =
-        issueId.flatMapLatest { id -> repository.getVariants(id) }.asLiveData()
-
-    val inCollectionLiveData: LiveData<Count> =
-        issueId.flatMapLatest { repository.inCollection(it) }.asLiveData()
-
-    val variantInCollectionLiveData: LiveData<Count> =
+    internal val variantInCollectionLiveData: LiveData<Count> =
         variantId.flatMapLatest { repository.inCollection(it) }.asLiveData()
 
-    val issueList: LiveData<List<FullIssue>> = mIssue.flatMapLatest { fullIssue ->
+    internal val variantsLiveData: LiveData<List<Issue>> =
+        primaryId.flatMapLatest { id -> repository.getVariants(id) }.asLiveData()
+
+    internal val issueList: LiveData<List<FullIssue>> = mIssue.flatMapLatest { fullIssue ->
         fullIssue?.let {
-            repository.getIssuesByFilter(SearchFilter(series = FullSeries(it.series), myCollection = false))
+            repository.getIssuesByFilter(SearchFilter(series = FullSeries(it.series),
+                                                      myCollection = false))
         } ?: emptyFlow()
     }.asLiveData()
 
     fun loadIssue(issueId: Int) {
-        _issueId.value = issueId
+        _primaryId.value = issueId
     }
 
     fun loadVariant(issueId: Int?) {
@@ -96,13 +98,14 @@ class IssueDetailViewModel : ViewModel() {
     }
 
     private val currentIssue: FullIssue?
-        get() {
-            return if (variantId.value == AUTO_ID) {
-                mIssue.value
-            } else {
-                variantLiveData.value
-            }
+        get() = if (variantId.value == AUTO_ID) {
+            Log.d(TAG, "Getting Current Issue - Primary")
+            mIssue.value
+        } else {
+            Log.d(TAG, "Getting Current Issue - Variant")
+            variantLiveData.value
         }
+
 
     fun addToCollection() {
         currentIssue?.let { repository.addToCollection(it) }
@@ -132,12 +135,14 @@ class IssueDetailViewModel : ViewModel() {
             is Credit  -> repository.saveCredit(dataModel)
             is Issue   -> repository.saveIssue(dataModel)
             is Role    -> repository.saveRole(dataModel)
+            else       -> Unit
         }
     }
 
     fun delete(dataModel: DataModel) {
         when (dataModel) {
             is Issue -> repository.deleteIssue(dataModel)
+            else     -> Unit
         }
     }
 }

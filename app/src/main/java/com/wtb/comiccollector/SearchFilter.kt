@@ -47,7 +47,7 @@ class SearchFilter(
     }
 
     val needsStoryTable: Boolean
-    get() = hasCreator() || hasCharacter()
+        get() = hasCreator() || hasCharacter()
     var mShowIssues: Boolean = false
     var mCreators: Set<Creator> = creators ?: setOf()
     var mSeries: FullSeries? = series
@@ -64,7 +64,17 @@ class SearchFilter(
         }
     var mPublishers: Set<Publisher> = publishers ?: setOf()
     var mStartDate: LocalDate = startDate ?: LocalDate.MIN
+        get() = when (field) {
+            LocalDate.MIN -> MIN_DATE
+            LocalDate.MAX -> MAX_DATE
+            else          -> field
+        }
     var mEndDate: LocalDate = endDate ?: LocalDate.MAX
+        get() = when (field) {
+            LocalDate.MIN -> MIN_DATE
+            LocalDate.MAX -> MAX_DATE
+            else          -> field
+        }
     var mMyCollection: Boolean = myCollection
     var mSortType: SortType? = sortType ?: getSortOptions()[0]
     var mTextFilter: TextFilter? = textFilter
@@ -97,7 +107,7 @@ class SearchFilter(
 
     fun hasPublisher() = mPublishers.isNotEmpty()
 
-    fun hasDateFilter() = mStartDate != LocalDate.MIN || mEndDate != LocalDate.MAX
+    fun hasDateFilter() = mStartDate != MIN_DATE || mEndDate != MAX_DATE
     fun hasCharacter() = mCharacter != null
 
     fun hasSeries(): Boolean = mSeries != null
@@ -115,6 +125,7 @@ class SearchFilter(
                     // describe what sets them apart
                 }
                 is Character  -> addCharacter(item)
+                is DateFilter -> addDateFilter(item)
             }
         }
     }
@@ -124,7 +135,19 @@ class SearchFilter(
     }
 
     private fun addCreator(vararg creator: Creator) {
+        val oldOptions = getSortOptions()
         val newCreators = mCreators + creator.toSet()
+        val newOptions = getSortOptions()
+        if (oldOptions != newOptions) {
+            Log.d(TAG, "SETTING mSortType to ${newOptions[0]}")
+            mSortType = newOptions[0]
+        } else {
+            Log.d(TAG, "NOT!!!! SETTING mSortType to ${newOptions[0]}")
+        }
+        if (this.mViewOption == NameDetailAndCreator::class) {
+            this.mViewOptionsIndex = 0
+        }
+
         mCreators = newCreators
     }
 
@@ -138,7 +161,25 @@ class SearchFilter(
     }
 
     private fun addCharacter(character: Character) {
+        val oldOptions = getSortOptions()
         mCharacter = character
+        val newOptions = getSortOptions()
+        if (oldOptions != newOptions) {
+            Log.d(TAG, "SETTING mSortType to ${newOptions[0]}")
+            mSortType = newOptions[0]
+        } else {
+            Log.d(TAG, "NOT!!!! SETTING mSortType to ${newOptions[0]}")
+        }
+        if (this.mViewOption == Character::class) {
+            this.mViewOptionsIndex = 0
+        }
+    }
+
+    private fun addDateFilter(dateFilter: DateFilter) {
+        when (dateFilter.isStart) {
+            true  -> mStartDate = dateFilter.date
+            false -> mEndDate = dateFilter.date
+        }
     }
 
     // TODO: CvND
@@ -152,6 +193,7 @@ class SearchFilter(
                 is NameDetail -> {
                 }
                 is Character  -> removeCharacter()
+                is DateFilter -> Unit
             }
         }
     }
@@ -179,11 +221,16 @@ class SearchFilter(
         this.mCharacter = null
     }
 
+    val isComplex = hasCreator() || hasCharacter() || mMyCollection
+
     fun getSortOptions(): List<SortType> {
         return when (mViewOption) {
             Character::class            -> SortType.Companion.SortTypeOptions.CHARACTER.options
             FullIssue::class            -> SortType.Companion.SortTypeOptions.ISSUE.options
-            FullSeries::class           -> SortType.Companion.SortTypeOptions.SERIES.options
+            FullSeries::class           -> when (isComplex) {
+                true  -> SortType.Companion.SortTypeOptions.SERIES_COMPLEX.options
+                false -> SortType.Companion.SortTypeOptions.SERIES.options
+            }
             NameDetailAndCreator::class -> SortType.Companion.SortTypeOptions.CREATOR.options
             else                        -> throw IllegalStateException("illegal view type: ${mViewOption.simpleName}")
         }
@@ -198,7 +245,7 @@ class SearchFilter(
 
     override fun toString(): String =
         "Series: $mSeries Creators: ${mCreators.size} Pubs: " +
-                "${mPublishers.size} MyCol: $mMyCollection T: ${mTextFilter?.text} ${mCharacter?.name}"
+                "${mPublishers.size} MyCol: $mMyCollection T: ${mTextFilter?.text} ${mCharacter?.name} ${mStartDate} ${mEndDate}"
 
     override fun hashCode(): Int {
         var result = mShowIssues.hashCode()
@@ -217,6 +264,11 @@ class SearchFilter(
         result = 31 * result + mViewOption.hashCode()
         return result
     }
+
+    companion object {
+        val MIN_DATE = LocalDate.of(1900, 1, 1)
+        val MAX_DATE = LocalDate.now()
+    }
 }
 
 class SortType(
@@ -224,27 +276,49 @@ class SortType(
     val sortColumn: String,
     val table: String?,
     var order: SortOrder,
+    val sortColumn2: String? = null,
+    val table2: String? = null,
+    var order2: SortOrder? = null,
 ) : Serializable {
 
     constructor(other: SortType) : this(
         other.tag,
         other.sortColumn,
         other.table,
-        other.order
+        other.order,
+        other.sortColumn2,
+        other.table2,
+        other.order2
     )
 
     val sortString: String
-        get() = "${table?.let { "${it}." } ?: ""}$sortColumn ${order.option}"
+        get() {
+            val o2 = order2
+            val primarySort =
+                """${if (table != null) "$table." else ""}$sortColumn ${order.option}"""
+
+            val secondarySort: String =
+                if (sortColumn2 != null && table2 != null && o2 != null)
+                    ", $table2.$sortColumn2 ${o2.option}"
+                else
+                    ""
+
+            return """$primarySort$secondarySort
+            """
+        }
 
     override fun toString(): String = tag
 
     fun toggle(): SortType {
-        order = when (order) {
-            SortOrder.ASC  -> SortOrder.DESC
-            SortOrder.DESC -> SortOrder.ASC
-        }
+        order = flipSortOrder(order)
+        order2 = order2?.let { flipSortOrder(it) }
 
         return this
+    }
+
+    private fun flipSortOrder(sortOrder: SortOrder) = when (sortOrder) {
+        SortOrder.ASC  -> SortOrder.DESC
+        SortOrder.DESC -> SortOrder.ASC
     }
 
     override fun equals(other: Any?): Boolean {
@@ -259,9 +333,10 @@ class SortType(
     override fun hashCode(): Int {
         var result = tag.hashCode()
         result = 31 * result + sortColumn.hashCode()
-        result = 31 * result + (table?.hashCode() ?: 0)
-        result = 31 * result + (order == SortOrder.ASC).hashCode()
-        result = 31 * result + sortString.hashCode()
+        result = 31 * result + table.hashCode()
+        result = 31 * result + order.hashCode()
+        result = 31 * result + (table2?.hashCode() ?: 0)
+        result = 31 * result + (order2?.hashCode() ?: 0)
         return result
     }
 
@@ -279,15 +354,17 @@ class SortType(
             return this.contains(elem) or this.contains(SortType(elem).toggle())
         }
 
+        val sortTypeSeriesName = SortType(
+            context!!.getString(R.string.sort_type_series_name),
+            context!!.getString(R.string.column_sort_name),
+            "ss",
+            SortOrder.ASC
+        )
+
         enum class SortTypeOptions(val options: List<SortType>) {
             SERIES(
                 listOf(
-                    SortType(
-                        context!!.getString(R.string.sort_type_series_name),
-                        context!!.getString(R.string.column_sort_name),
-                        "ss",
-                        SortOrder.ASC
-                    ),
+                    sortTypeSeriesName,
                     SortType(
                         context!!.getString(R.string.sort_type_start_date),
                         context!!.getString(R.string.column_start_date),
@@ -296,7 +373,20 @@ class SortType(
                     )
                 )
             ),
-
+            SERIES_COMPLEX(
+                listOf(
+                    sortTypeSeriesName,
+                    SortType(
+                        "Date",
+                        "coverDate",
+                        "ie",
+                        SortOrder.DESC,
+                        "startDate",
+                        "ss",
+                        SortOrder.DESC
+                    )
+                )
+            ),
             ISSUE(
                 listOf(
                     SortType(

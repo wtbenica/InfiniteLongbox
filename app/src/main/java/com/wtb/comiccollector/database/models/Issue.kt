@@ -60,9 +60,9 @@ data class Issue(
 
     override fun toString(): String {
         return if (variantOf == null) {
-            "$issueNum"
+            "$issueNumRaw"
         } else {
-            "$issueNum $variantName"
+            "$issueNumRaw $variantName"
         }
     }
 
@@ -203,6 +203,9 @@ data class FullIssue @ExperimentalCoroutinesApi constructor(
         return result
     }
 
+    companion object {
+        internal fun getEmptyFullIssue(): FullIssue = FullIssue(Issue(issueNumRaw = null), SeriesAndPublisher(Series(), Publisher()))
+    }
 }
 
 // TODO: This doesn't need a separate table... right? I forget why I did in the first place. it

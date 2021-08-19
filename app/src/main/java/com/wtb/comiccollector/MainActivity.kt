@@ -31,6 +31,7 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior.*
 import com.wtb.comiccollector.database.models.*
 import com.wtb.comiccollector.fragments.*
 import com.wtb.comiccollector.fragments_view_models.FilterViewModel
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 
@@ -41,7 +42,6 @@ private const val TAG = APP + "MainActivity"
 class MainActivity : AppCompatActivity(),
     SeriesListFragment.SeriesListCallback,
     IssueListFragment.IssueListCallback,
-    SeriesInfoDialogFragment.SeriesInfoDialogCallback,
     CharacterListFragment.CharacterListCallback,
     CreatorListFragment.CreatorListCallback,
     NewCreatorDialogFragment.NewCreatorDialogCallback,
@@ -159,7 +159,7 @@ class MainActivity : AppCompatActivity(),
                 super.onAvailable(network)
                 hasConnection.postValue(true)
                 activeJob?.let { job ->
-                    if (job.isCancelled) {
+                    if (job.isCompleted) {
                         job.start()
                     }
                 }
@@ -168,12 +168,12 @@ class MainActivity : AppCompatActivity(),
             override fun onLost(network: Network) {
                 super.onLost(network)
                 hasConnection.postValue(false)
-                activeJob?.cancel()
+                activeJob?.cancel(CancellationException("Network Lost"))
             }
 
             override fun onUnavailable() {
                 super.onUnavailable()
-                hasConnection.postValue(true)
+                hasConnection.postValue(false)
             }
 
             override fun onCapabilitiesChanged(
@@ -228,7 +228,7 @@ class MainActivity : AppCompatActivity(),
 
     // IssueListFragment.IssueListCallback
     override fun onIssueSelected(issue: Issue) {
-        val fragment = IssueDetailFragment.newInstance(issue.issueId, false, issue.variantOf)
+        val fragment = IssueDetailFragment.newInstance(issue.issueId, issue.variantOf)
         val prevState = bottomSheetBehavior.state
         supportFragmentManager
             .beginTransaction()
@@ -272,20 +272,20 @@ class MainActivity : AppCompatActivity(),
             .commit()
     }
 
-    // SeriesInfoDialogCallback
-    override fun onSaveSeriesClick(dialog: DialogFragment, series: Series) {
-        // TODO: MainActivity onSaveSeriesClick
+    //    // SeriesInfoDialogCallback
+//    override fun onSaveSeriesClick(dialog: DialogFragment, series: Series) {
+//        // TODO: MainActivity onSaveSeriesClick
+//        dialog.dismiss()
+//    }
+//
+    // NewCreatorDialogCallback
+    override fun onSaveCreatorClick(dialog: DialogFragment, creator: Creator) {
+        // TODO: Not yet implemented
         dialog.dismiss()
     }
 
     override fun onCancelClick(dialog: DialogFragment) {
         // TODO: MainActivity onCancelClick
-        dialog.dismiss()
-    }
-
-    // NewCreatorDialogCallback
-    override fun onSaveCreatorClick(dialog: DialogFragment, creator: Creator) {
-        // TODO: Not yet implemented
         dialog.dismiss()
     }
 

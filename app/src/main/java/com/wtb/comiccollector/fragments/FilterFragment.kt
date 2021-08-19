@@ -17,14 +17,12 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.chip.ChipGroup
-import com.wtb.comiccollector.APP
-import com.wtb.comiccollector.R
-import com.wtb.comiccollector.SearchFilter
-import com.wtb.comiccollector.SortType
+import com.wtb.comiccollector.*
 import com.wtb.comiccollector.database.models.*
 import com.wtb.comiccollector.fragments_view_models.FilterViewModel
 import com.wtb.comiccollector.views.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import java.time.LocalDate
 import kotlin.reflect.KClass
 
 private const val TAG = APP + "FilterFragment"
@@ -32,8 +30,8 @@ private const val TAG = APP + "FilterFragment"
 @ExperimentalCoroutinesApi
 class FilterFragment : Fragment(),
     SearchAutoComplete.SearchTextViewCallback,
-    FilterChip.FilterChipCallbacks, OptionChipGroup.OptionChipGroupCallback,
-    SortChipGroup.SortChipGroupCallback {
+    FilterChip.FilterChipCallback, OptionChipGroup.OptionChipGroupCallback,
+    SortChipGroup.SortChipGroupCallback, DateChipGroup.DateChipGroupCallback {
 
     private lateinit var sections: LinearLayout
     private val viewModel: FilterViewModel by viewModels({ requireActivity() })
@@ -55,6 +53,9 @@ class FilterFragment : Fragment(),
     // Views
     private lateinit var filterView: FrameLayout
     private lateinit var handleBox: FrameLayout
+
+    private lateinit var dateFilterSection: LinearLayout
+    private lateinit var dateChipGroup: DateChipGroup
 
     private lateinit var optionsSection: LinearLayout
     private lateinit var optionsChipGroup: OptionChipGroup
@@ -122,6 +123,7 @@ class FilterFragment : Fragment(),
                 currFilter = filter
                 sortChipGroup.update(filter)
                 optionsChipGroup.update(filter)
+                dateChipGroup.update(filter)
             }
         )
     }
@@ -165,14 +167,14 @@ class FilterFragment : Fragment(),
 
         searchBoxSpinner.adapter = object : ArrayAdapter<KClass<*>?>(
             requireContext(),
-            R.layout.list_item_search_type,
+            R.layout.spinner_item_filter_type,
             R.id.text_filter_option,
             filterTypeOptions
         ) {
             override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
                 val view = convertView ?: inflate(
                     context,
-                    R.layout.list_item_search_type,
+                    R.layout.spinner_item_filter_type,
                     null
                 )
                 val sortText: TextView = view.findViewById(R.id.text_filter_option)
@@ -221,6 +223,10 @@ class FilterFragment : Fragment(),
         handleBox = view.findViewById(R.id.layout_filter_fragment_handle)
 
         sections = view.findViewById(R.id.sections)
+        dateFilterSection = view.findViewById(R.id.section_date_filters)
+        dateChipGroup = view.findViewById(R.id.chip_group_dates)
+        dateChipGroup.callback = this
+
         optionsSection = view.findViewById(R.id.section_options)
         optionsChipGroup = view.findViewById(R.id.chip_group_option)
         optionsChipGroup.callback = this
@@ -371,6 +377,39 @@ class FilterFragment : Fragment(),
         init {
             Log.d(TAG, "FTO: ${filterTypeOptions.size} $filterTypeOptions")
         }
+    }
+
+    override fun getDate(currentSelection: LocalDate, isStart: Boolean) {
+        val reqKey = if (isStart) RESULT_DATE_PICKER_START else RESULT_DATE_PICKER_END
+        parentFragmentManager.setFragmentResultListener(
+            reqKey,
+            viewLifecycleOwner,
+            { requestKey, result ->
+                val resultDate: LocalDate? = result.getSerializable(ARG_DATE) as LocalDate?
+                when (reqKey) {
+                    RESULT_DATE_PICKER_START -> resultDate?.let { dateChipGroup.setStartDate(it) }
+                    RESULT_DATE_PICKER_END   -> resultDate?.let { dateChipGroup.setEndDate(it) }
+                    else                     -> Unit
+                }
+            })
+
+        val minDate = when (isStart) {
+            true -> LocalDate.of(1900, 1, 1)
+            false -> this@FilterFragment.currFilter.mStartDate
+        }
+
+        val maxDate = when (isStart) {
+            true -> this@FilterFragment.currFilter.mEndDate
+            false -> LocalDate.now()
+        }
+
+        DatePickerFragment.newInstance(currentSelection, minDate, maxDate, reqKey).apply {
+            show(this@FilterFragment.parentFragmentManager, DIALOG_DATE)
+        }
+    }
+
+    override fun setDate(date: LocalDate, isStart: Boolean) {
+        viewModel.addFilterItem(DateFilter(date, isStart))
     }
 }
 

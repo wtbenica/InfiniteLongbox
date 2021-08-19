@@ -79,13 +79,9 @@ abstract class CreatorDao : BaseDao<Creator>("creator") {
 
                 if (filter.hasDateFilter()) {
                     //language=RoomSql
-                    conditionsString.append("""${connectword()} ie.releaseDate < ? 
-                    AND ie.releaseDate > ? 
+                    conditionsString.append("""${connectword()} ie.releaseDate <= '${filter.mEndDate}'
+                    AND ie.releaseDate > '${filter.mStartDate}'
                     """)
-                    args.add(filter.mEndDate)
-                    args.add(filter.mStartDate)
-                    args.add(filter.mEndDate)
-                    args.add(filter.mStartDate)
                 }
 
                 if (filter.mMyCollection) {

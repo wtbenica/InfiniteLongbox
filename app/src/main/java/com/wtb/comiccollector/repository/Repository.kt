@@ -38,7 +38,7 @@ import java.util.concurrent.Executors
 const val DUMMY_ID = Int.MAX_VALUE
 
 private const val TAG = APP + "Repository"
-const val DEBUG = false
+const val DEBUG = true
 
 internal const val SHARED_PREFS = "CCPrefs"
 
@@ -80,11 +80,10 @@ internal const val WEEKLY: Long = 7
 
 internal fun UPDATED_TAG(id: Int, type: String): String = "$type${id}_UPDATED"
 
-internal fun SERIES_TAG(id: Int): String = UPDATED_TAG(id, "SERIES_")
-internal fun ISSUE_TAG(id: Int) = UPDATED_TAG(id, "ISSUE_")
-internal fun PUBLISHER_TAG(id: Int): String = UPDATED_TAG(id, "PUBLISHER_")
-internal fun CREATOR_TAG(id: Int): String = UPDATED_TAG(id, "CREATOR_")
-internal fun CHARACTER_TAG(id: Int): String = UPDATED_TAG(id, "CHARACTER_")
+internal fun seriesTag(id: Int): String = UPDATED_TAG(id, "SERIES_")
+internal fun issueTag(id: Int) = UPDATED_TAG(id, "ISSUE_")
+internal fun creatorTag(id: Int): String = UPDATED_TAG(id, "CREATOR_")
+internal fun characterTag(id: Int): String = UPDATED_TAG(id, "CHARACTER_")
 
 @ExperimentalCoroutinesApi
 class Repository private constructor(val context: Context) {
@@ -242,7 +241,7 @@ class Repository private constructor(val context: Context) {
     fun getIssue(issueId: Int): Flow<FullIssue?> {
         if (issueId != AUTO_ID) {
             updateIssueCover(issueId)
-            updater.updateIssue(issueId)
+            updater.updateIssue(issueId, true)
         }
 
         return issueDao.getFullIssue(issueId = issueId)
@@ -331,6 +330,9 @@ class Repository private constructor(val context: Context) {
                 is Boolean -> editor.putBoolean(key, value)
                 is Float   -> editor.putFloat(key, value)
                 is Long    -> editor.putLong(key, value)
+                else -> throw IllegalArgumentException(
+                    "savePrefValue: Yeah, it says Any, but it really wants String, Int, Boolean, " +
+                            "Float, or Long")
             }
             editor.apply()
         }

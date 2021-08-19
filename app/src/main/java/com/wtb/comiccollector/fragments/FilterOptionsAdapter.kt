@@ -19,7 +19,7 @@ class FilterOptionsAdapter(context: Context, filterOptions: List<FilterModel>) :
     ArrayAdapter<FilterModel>(context, LAYOUT, filterOptions) {
 
     companion object {
-        private const val LAYOUT = R.layout.list_item_filter_option_auto_complete
+        private const val LAYOUT = R.layout.auto_complete_filter_item
         private const val TAG = APP + "FilterOptionsAdapter"
     }
 
@@ -35,7 +35,7 @@ class FilterOptionsAdapter(context: Context, filterOptions: List<FilterModel>) :
         val view =
             convertView ?: View.inflate(
                 context,
-                R.layout.list_item_filter_option_auto_complete,
+                R.layout.auto_complete_filter_item,
                 null
             )
 

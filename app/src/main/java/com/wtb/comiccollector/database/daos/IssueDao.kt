@@ -39,7 +39,7 @@ abstract class IssueDao : BaseDao<Issue>("issue") {
 
     fun getIssuesByFilterPagingSource(filter: SearchFilter): PagingSource<Int, FullIssue> {
         val query = createIssueQuery(filter)
-
+        Log.d(TAG, "sql: ${query.sql}")
         return getFullIssuesByQueryPagingSource(query)
     }
 
@@ -59,9 +59,6 @@ abstract class IssueDao : BaseDao<Issue>("issue") {
             JOIN issue ie2 ON ie2.issueId = ie.issueId
             WHERE ie.issueId=:issueId 
             OR ie.variantOf=:issueId 
-            OR (ie.issueId=:issueId
-            AND (ie2.issueId = ie.variantOf
-            OR ie2.variantOf = ie.variantOf ))
             ORDER BY sortCode
             """
     )
@@ -134,7 +131,7 @@ abstract class IssueDao : BaseDao<Issue>("issue") {
             }
 
             if (filter.hasCharacter()) {
-                tableJoinString.append("""LEFT JOIN appearance ap ON ap.story = sy.storyId 
+                tableJoinString.append("""JOIN appearance ap ON ap.story = sy.storyId 
                 """)
 
                 filter.mCharacter?.let {
@@ -145,10 +142,13 @@ abstract class IssueDao : BaseDao<Issue>("issue") {
             }
 
             if (filter.hasDateFilter()) {
-                conditionsString.append("""${connectword()} ss.startDate < ? 
-                    ${connectword()} ss.endDate > ? """)
-                args.add(filter.mEndDate)
-                args.add(filter.mStartDate)
+                conditionsString.append("""${connectword()} ((ie.releaseDate <= '${filter.mEndDate}' 
+                    AND ie.releaseDate >= '${filter.mStartDate}'
+                    AND ie.releaseDate IS NOT NULL)
+                    OR (ie.coverDate <= '${filter.mEndDate}'
+                    AND ie.coverDate >= '${filter.mStartDate}'
+                    AND ie.releaseDate IS NULL))
+                    """)
             }
 
             if (filter.mMyCollection) {
