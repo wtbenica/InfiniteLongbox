@@ -57,7 +57,7 @@ class StaticUpdater(
         async {
             if (checkIfStale(seriesTag(seriesId), 1L, prefs)) {
                 val issues: List<Issue> = updateSeriesIssues(seriesId)
-                issues.ids.forEach { updateIssue(it) }
+                updateIssues(issues.ids)
             }
         }.await().let {
             Repository.saveTime(prefs, seriesTag(seriesId))
@@ -84,30 +84,42 @@ class StaticUpdater(
      * Update issue - updates stories, credits, appearances, and cover
      */
     internal fun updateIssue(issueId: Int, highPriority: Boolean = false) {
-        val dispatcher = if (highPriority)
+        val dispatcher = if (highPriority) {
             nowDispatcher
-        else
+        } else {
             highPriorityDispatcher
+        }
+
         CoroutineScope(dispatcher).launch {
             async {
                 if (checkIfStale(issueTag(issueId), 1L, prefs)) {
-                    Repository.savePrefValue(prefs, "${issueTag(issueId)}_STARTED", true)
-                    Repository.savePrefValue(prefs,
-                                             "${issueTag(issueId)}_STARTED_TIME",
-                                             Instant.now().epochSecond)
+                    Repository.savePrefValue(prefs = prefs,
+                                             key = "${issueTag(issueId)}_STARTED",
+                                             value = true)
+                    Repository.savePrefValue(prefs = prefs,
+                                             key = "${issueTag(issueId)}_STARTED_TIME",
+                                             value = Instant.now().epochSecond)
                     updateIssueStoryDetails(issueId)
                     updateIssueCover(issueId)
                 }
             }.await().let {
                 Repository.saveTime(prefs, issueTag(issueId))
-                Repository.savePrefValue(prefs, "${issueTag(issueId)}_STARTED", false)
-                Repository.savePrefValue(prefs,
-                                         "${issueTag(issueId)}_STARTED_TIME",
-                                         "${Instant.MIN.epochSecond}")
+                Repository.savePrefValue(prefs = prefs,
+                                         key = "${issueTag(issueId)}_STARTED",
+                                         value = false)
+                Repository.savePrefValue(prefs = prefs,
+                                         key = "${issueTag(issueId)}_STARTED_TIME",
+                                         value = "${Instant.MIN.epochSecond}")
             }
         }
     }
 
+    internal fun updateIssues(issueIds: List<Int>) {
+        CoroutineScope(highPriorityDispatcher).launch {
+            updateIssuesStoryDetails(issueIds)
+            issueIds.forEach { updateIssueCover(it) }
+        }
+    }
 
     fun updateCreators(creatorIds: List<Int>) = creatorIds.forEach(this::updateCreator)
 
@@ -144,6 +156,12 @@ class StaticUpdater(
         stories.ids.map { updateStoryAppearances(it) }
     }
 
+    private suspend fun updateIssuesStoryDetails(issueIds: List<Int>) {
+        val stories: List<Story> = updateIssuesStories(issueIds)
+        updateStoriesCredits(stories.ids)
+        updateStoriesAppearances(stories.ids)
+    }
+
     private val appearanceCollector = AppearanceCollector()
     private val creditCollector = CreditCollector()
     private val exCreditCollector = ExCreditCollector()
@@ -152,69 +170,98 @@ class StaticUpdater(
 
 
     private suspend fun updateStoryAppearances(storyId: Int): List<Appearance> =
-        updateById<Appearance>(prefs,
-                               null,
-                               ::getAppearancesByStoryId,
-                               storyId,
-                               ::checkFKeysAppearance,
-                               appearanceCollector)
+        updateById(prefs,
+                   null,
+                   ::getAppearancesByStoryId,
+                   storyId,
+                   ::checkFKeysAppearance,
+                   appearanceCollector)
+
+    private suspend fun updateStoriesAppearances(storyIds: List<Int>): List<Appearance> =
+        updateById(prefs,
+                   null,
+                   ::getAppearancesByStoryIds,
+                   storyIds,
+                   ::checkFKeysAppearance,
+                   appearanceCollector)
 
     /**
      * Gets creator credits for a story, adds missing foreign key models
      */
     private suspend fun updateStoryCredits(storyId: Int): List<CreditX> =
-        updateById<Credit>(prefs,
+        updateById(prefs,
+                   null,
+                   ::getCreditsByStoryId,
+                   storyId,
+                   ::checkFKeysCredit,
+                   creditCollector) +
+                updateById(prefs,
                            null,
-                           ::getCreditsByStoryId,
+                           ::getExCreditsByStoryId,
                            storyId,
                            ::checkFKeysCredit,
-                           creditCollector) +
-                updateById<ExCredit>(prefs,
-                                     null,
-                                     ::getExCreditsByStoryId,
-                                     storyId,
-                                     ::checkFKeysCredit,
-                                     exCreditCollector)
+                           exCreditCollector)
+
+    private suspend fun updateStoriesCredits(storyIds: List<Int>): List<CreditX> =
+        updateById(prefs,
+                   null,
+                   ::getCreditsByStoryIds,
+                   storyIds,
+                   ::checkFKeysCredit,
+                   creditCollector) +
+                updateById(prefs,
+                           null,
+                           ::getExCreditsByStoryIds,
+                           storyIds,
+                           ::checkFKeysCredit,
+                           exCreditCollector)
 
     /**
      * Gets issue stories, adds missing foreign key models
      */
     private suspend fun updateIssueStories(issueId: Int): List<Story> =
-        updateById<Story>(prefs,
-                          null,
-                          ::getStoriesByIssueId,
-                          issueId,
-                          ::checkFKeysStory,
-                          storyCollector)
+        updateById(prefs,
+                   null,
+                   ::getStoriesByIssueId,
+                   issueId,
+                   ::checkFKeysStory,
+                   storyCollector)
+
+    private suspend fun updateIssuesStories(issueIds: List<Int>): List<Story> =
+        updateById(prefs,
+                   null,
+                   ::getStoriesByIssueIds,
+                   issueIds,
+                   ::checkFKeysStory,
+                   storyCollector)
 
     /**
      * Gets series issues, adds missing foreign key models
      */
     private suspend fun updateSeriesIssues(seriesId: Int) =
-        updateById<Issue>(prefs,
-                          ::seriesTag,
-                          ::getIssuesBySeriesId,
-                          seriesId,
-                          ::checkFKeysIssue,
-                          issueCollector)
+        updateById(prefs,
+                   ::seriesTag,
+                   ::getIssuesBySeriesId,
+                   seriesId,
+                   ::checkFKeysIssue,
+                   issueCollector)
 
     /**
      * Gets character appearances, adds missing foreign key models
      */
     private suspend fun updateCharacterAppearances(characterId: Int) =
-        updateById<Appearance>(prefs,
-                               ::characterTag,
-                               ::getAppearancesByCharacterId,
-                               characterId,
-                               ::checkFKeysAppearance,
-                               appearanceCollector)
+        updateById(prefs,
+                   ::characterTag,
+                   ::getAppearancesByCharacterId,
+                   characterId,
+                   ::checkFKeysAppearance,
+                   appearanceCollector)
 
     /**
      * Gets name detail credits, adds missing foreign key models
      */
     private suspend fun updateNameDetailCredits(nameDetailId: Int) =
-        updateById<Credit>(
-            prefs,
+        updateById(prefs,
             null,
             ::getCreditsByNameDetailId,
             nameDetailId,
@@ -225,8 +272,7 @@ class StaticUpdater(
      * Gets name detail ex credits, adds missing foreign key models
      */
     private suspend fun updateNameDetailExCredits(nameDetailId: Int) =
-        updateById<ExCredit>(
-            prefs,
+        updateById(prefs,
             null,
             ::getExCreditsByNameDetailId,
             nameDetailId,
@@ -236,14 +282,26 @@ class StaticUpdater(
     private suspend fun getAppearancesByStoryId(storyId: Int): List<Appearance>? =
         getItemsByArgument(storyId, webservice::getAppearancesByStoryId)
 
+    private suspend fun getAppearancesByStoryIds(storyIds: List<Int>): List<Appearance>? =
+        getItemsByArgument(storyIds, webservice::getAppearancesByStoryIds)
+
     private suspend fun getCreditsByStoryId(storyId: Int): List<Credit>? =
         getItemsByArgument(storyId, webservice::getCreditsByStoryId)
 
     private suspend fun getExCreditsByStoryId(storyId: Int): List<ExCredit>? =
         getItemsByArgument(storyId, webservice::getExCreditsByStoryId)
 
+    private suspend fun getCreditsByStoryIds(storyIds: List<Int>): List<Credit>? =
+        getItemsByArgument(storyIds, webservice::getCreditsByStoryIds)
+
+    private suspend fun getExCreditsByStoryIds(storyIds: List<Int>): List<ExCredit>? =
+        getItemsByArgument(storyIds, webservice::getExCreditsByStoryIds)
+
     private suspend fun getStoriesByIssueId(issueId: Int): List<Story>? =
         getItemsByArgument(issueId, webservice::getStoriesByIssue)
+
+    private suspend fun getStoriesByIssueIds(issueIds: List<Int>): List<Story>? =
+        getItemsByArgument(issueIds, webservice::getStoriesByIssues)
 
     private suspend fun getIssuesBySeriesId(seriesId: Int): List<Issue>? =
         getItemsByArgument(seriesId, webservice::getIssuesBySeries)
