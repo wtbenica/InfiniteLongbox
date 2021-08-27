@@ -99,7 +99,7 @@ class SearchFilter(
     }
 
     fun isEmpty() = mCreators.isEmpty() && mSeries == null && mCharacter == null &&
-            !hasDateFilter() && mPublishers.isEmpty() && !mMyCollection
+            !hasDateFilter() && mPublishers.isEmpty() && !mMyCollection && mTextFilter == null
 
     fun isNotEmpty() = !isEmpty()
 

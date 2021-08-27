@@ -12,6 +12,7 @@ import com.wtb.comiccollector.SortType.Companion.containsSortType
 import com.wtb.comiccollector.database.models.Character
 import com.wtb.comiccollector.database.models.Creator
 import com.wtb.comiccollector.database.models.FullCreator
+import com.wtb.comiccollector.database.models.ids
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 
@@ -47,22 +48,29 @@ abstract class CreatorDao : BaseDao<Creator>("creator") {
         private const val TAG = "CreatorDao"
 
         private fun getCreatorQuery(filter: SearchFilter): SimpleSQLiteQuery {
+
             val tableJoinString = StringBuilder()
             val conditionsString = StringBuilder()
             val args: ArrayList<Any> = arrayListOf()
-            fun connectword(): String = if (conditionsString.isEmpty()) "WHERE" else "AND"
+            fun connectWord(): String = if (conditionsString.isEmpty()) "WHERE" else "AND"
+
             //language=RoomSql
             tableJoinString.append(
                 """SELECT DISTINCT cr.* 
                         FROM creator cr 
-                        JOIN nameDetail nd ON cr.creatorId = nd.creator 
+                """)
+
+            if (filter.isNotEmpty()) {
+                tableJoinString.append(
+                    """JOIN nameDetail nd ON cr.creatorId = nd.creator 
                         JOIN credit ct ON ct.nameDetail = nd.nameDetailId 
                         """)
+            }
 
             //language=RoomSql
             filter.mSeries?.let {
                 conditionsString.append(
-                    """${connectword()} ct.series = ${it.series.seriesId}
+                    """${connectWord()} ct.series = ${it.series.seriesId}
                         """)
             }
 
@@ -70,8 +78,38 @@ abstract class CreatorDao : BaseDao<Creator>("creator") {
                 val publisherList = modelsToSqlIdString(filter.mPublishers)
                 tableJoinString.append("""JOIN series ss on ct.series = ss.seriesId """)
 
-                conditionsString.append("""${connectword()} ss.publisher IN $publisherList  
+                conditionsString.append("""${connectWord()} ss.publisher IN $publisherList  
                 """)
+            }
+
+            if (filter.hasCreator()) {
+                tableJoinString.append(
+                    """JOIN story sy ON sy.storyId = ct.story
+                        """
+                )
+
+                for (creatorId in filter.mCreators.ids) {
+                    conditionsString.append(
+                        """${connectWord()} (
+                            sy.storyId IN (
+                                SELECT ct.story
+                                FROM credit ct
+                                WHERE ct.nameDetail IN (
+                                    SELECT nl.nameDetailId
+                                    FROM namedetail nl
+                                    WHERE nl.creator = $creatorId)
+                            )
+                            OR sy.storyId IN (
+                                SELECT ect.story
+                                FROM excredit ect
+                                WHERE ect.nameDetail IN (
+                                    SELECT nl.nameDetailId
+                                    FROM namedetail nl
+                                    WHERE nl.creator = $creatorId)
+                            )
+                        )
+                    """)
+                }
             }
 
             if (filter.hasDateFilter() || filter.mMyCollection) {
@@ -79,22 +117,24 @@ abstract class CreatorDao : BaseDao<Creator>("creator") {
 
                 if (filter.hasDateFilter()) {
                     //language=RoomSql
-                    conditionsString.append("""${connectword()} ie.releaseDate <= '${filter.mEndDate}'
-                    AND ie.releaseDate > '${filter.mStartDate}'
-                    """)
+                    conditionsString.append(
+                        """${connectWord()} ie.releaseDate <= '${filter.mEndDate}'
+                            AND ie.releaseDate > '${filter.mStartDate}'
+                        """)
                 }
 
                 if (filter.mMyCollection) {
-                    conditionsString.append("""${connectword()} ie.issueId IN (
-                    SELECT issueId
-                    FROM mycollection) 
-                """)
+                    conditionsString.append(
+                        """${connectWord()} ie.issueId IN (
+                            SELECT issueId
+                            FROM mycollection) 
+                        """)
                 }
             }
 
             filter.mTextFilter?.let { textFilter ->
                 val text = textFilterToString(textFilter.text)
-                conditionsString.append("""${connectword()} nd.name LIKE '$text'
+                conditionsString.append("""${connectWord()} nd.name LIKE '$text'
                 OR cr.name LIKE '$text'
             """)
             }
@@ -116,7 +156,8 @@ abstract class CreatorDao : BaseDao<Creator>("creator") {
             } ?: ""
 
             val tableJoinString2 =
-                tableJoinString.replace(Regex("credit"), "excredit").replace(Regex(" ct"), " ect")
+                tableJoinString.replace(Regex("credit"), "excredit")
+                    .replace(Regex(" ct"), " ect")
             val conditionsString2 = conditionsString.replace(Regex(" ct"), " ect")
             return SimpleSQLiteQuery(
                 """

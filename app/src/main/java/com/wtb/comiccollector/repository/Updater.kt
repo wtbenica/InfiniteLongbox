@@ -276,11 +276,11 @@ abstract class Updater(
          * usually: [getItems] for [id], checks foreign keys for [followup], saves items to [col]
          * then saves update time to [saveTag] in [prefs]
          */
-        internal suspend fun <ModelType : DataModel> updateById(
+        internal suspend fun <ModelType : DataModel, T: Any> updateById(
             prefs: SharedPreferences,
             saveTag: ((Int) -> String)?,
-            getItems: suspend (Int) -> List<ModelType>?,
-            id: Int,
+            getItems: suspend (T) -> List<ModelType>?,
+            id: T,
             followup: suspend (List<ModelType>) -> Unit = {},
             collector: Collector<ModelType>,
         ): List<ModelType> {
