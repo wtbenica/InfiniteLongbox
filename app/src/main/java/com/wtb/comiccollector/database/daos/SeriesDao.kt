@@ -47,7 +47,7 @@ abstract class SeriesDao : BaseDao<Series>("series") {
 
     fun getSeriesByFilterPagingSource(filter: SearchFilter): PagingSource<Int, FullSeries> {
         val query = getSeriesQuery(filter)
-
+        Log.d(TAG, "query: ${query.sql}")
         return getSeriesByQueryPagingSource(query)
     }
 
@@ -71,10 +71,15 @@ abstract class SeriesDao : BaseDao<Series>("series") {
 
             table.append("""SELECT DISTINCT ss.* 
                         FROM series ss 
-                        JOIN issue ie ON ie.series = ss.seriesId
-                    """)
+                        """)
 
             conditions.append("${connectWord()} ss.seriesId != $DUMMY_ID ")
+
+            if (filter.hasCreator() || filter.hasCharacter() || filter.hasDateFilter() || filter
+                    .mMyCollection) {
+                table.append("""JOIN issue ie ON ie.series = ss.seriesId
+                    """)
+            }
 
             if (filter.hasCreator() || filter.hasCharacter())
                 table.append("""JOIN story sy ON sy.issue = ie.issueId

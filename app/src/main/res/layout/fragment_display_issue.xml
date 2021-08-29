@@ -3,22 +3,23 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:background="@android:color/white"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@android:color/white">
 
     <LinearLayout
         android:id="@+id/top_section"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        app:layout_constraintTop_toTopOf="parent">
 
         <ImageView
             android:id="@+id/issue_cover"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_margin="@dimen/margin_narrow"
             android:layout_weight="1"
             android:adjustViewBounds="true"
             android:contentDescription="@string/description_issue_cover"
@@ -39,11 +40,16 @@
                 android:id="@+id/issue_info_box"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
-                android:layout_weight="1"
-                app:layout_constraintBottom_toTopOf="@id/collectionButton"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@id/issue_cover"
-                app:layout_constraintTop_toTopOf="parent" />
+                android:layout_margin="@dimen/margin_narrow"
+                android:layout_weight="1" />
+
+            <Button
+                android:id="@+id/ebayButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
+                android:text="@string/find_on_ebay" />
 
             <Button
                 android:id="@+id/collectionButton"
@@ -51,10 +57,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
                 android:layout_marginEnd="8dp"
-                android:text="@string/add_to_collection"
-                app:layout_constraintBottom_toBottomOf="@+id/issue_cover"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/issue_cover" />
+                android:text="@string/add_to_collection" />
         </LinearLayout>
     </LinearLayout>
 

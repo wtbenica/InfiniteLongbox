@@ -16,7 +16,7 @@ import com.wtb.comiccollector.fragments.toggleIcon
 import com.wtb.comiccollector.fragments.toggleVisibility
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
-private const val TAG = APP + "SeriesDetailFragment"
+private const val TAG = APP + "SeriesDetailBox"
 private const val RESULT_SERIES_INFO = 312
 private const val DIALOG_SERIES_INFO = "DIALOG_EDIT_SERIES"
 

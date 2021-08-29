@@ -82,6 +82,7 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback {
     private var issueVariants: List<Issue> = emptyList()
 
     private lateinit var coverImageView: ImageView
+    private lateinit var ebayButton: Button
     private lateinit var collectionButton: Button
     private lateinit var variantSpinnerHolder: LinearLayout
     private lateinit var variantSpinner: Spinner
@@ -162,6 +163,7 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback {
         issueCreditsFrame = view.findViewById(R.id.issue_credits_table) as ScrollView
         infoBox = view.findViewById(R.id.issue_info_box)
         gcdLinkButton = view.findViewById(R.id.gcd_link) as Button
+        ebayButton = view.findViewById(R.id.ebayButton) as Button
         collectionButton = view.findViewById(R.id.collectionButton) as Button
         variantSpinnerHolder = view.findViewById(R.id.variant_spinner_holder)
         variantSpinner = view.findViewById(R.id.variant_spinner) as Spinner
@@ -378,6 +380,18 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback {
         super.onStart()
         gcdLinkButton.setOnClickListener {
             val url = "https://www.comics.org/issue/${fullIssue.issue.issueId}"
+            val intent = Intent().apply {
+                action = Intent.ACTION_VIEW
+                data = Uri.parse(url)
+            }
+            startActivity(intent)
+        }
+
+        ebayButton.setOnClickListener {
+            val category = 259104
+            val url = "https://www.ebay.com/sch/?_sacat=$category&_nkw=${
+                fullIssue.series.seriesName.replace(' ', '+')
+            }+${currentIssue.issue.issueNumRaw}"
             val intent = Intent().apply {
                 action = Intent.ACTION_VIEW
                 data = Uri.parse(url)
