@@ -90,6 +90,7 @@ class IssueDetailViewModel : ViewModel() {
     }
 
     fun loadVariant(issueId: Int?) {
+        Log.d(TAG, "Loading variant: $issueId")
         _variantId.value = issueId ?: AUTO_ID
     }
 

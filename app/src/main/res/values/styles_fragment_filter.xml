@@ -75,12 +75,12 @@
     <style name="FilterCardChipGroup" parent="Widget.MaterialComponents.ChipGroup">
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_width">wrap_content</item>
-        <item name="android:minHeight">?attr/dropdownListPreferredItemHeight</item>
         <item name="singleLine">true</item>
         <item name="android:background">?attr/colorOnSecondary</item>
-        <item name="chipSpacingVertical">@dimen/margin_default</item>
-        <item name="chipSpacingHorizontal">@dimen/margin_default</item>
-        <item name="android:padding">@dimen/margin_default</item>
+        <item name="chipSpacingVertical">@dimen/margin_narrow</item>
+        <item name="chipSpacingHorizontal">@dimen/margin_narrow</item>
+        <item name="android:paddingStart">@dimen/margin_narrow</item>
+        <item name="android:paddingEnd">@dimen/margin_narrow</item>
     </style>
 
     <style name="SearchTypeSpinnerStyle" parent="Widget.AppCompat.Spinner">

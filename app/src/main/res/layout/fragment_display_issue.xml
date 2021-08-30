@@ -40,14 +40,16 @@
                 android:id="@+id/issue_info_box"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
-                android:layout_margin="@dimen/margin_narrow"
+                android:layout_marginTop="@dimen/margin_narrow"
+                android:layout_marginEnd="@dimen/margin_narrow"
+                android:layout_marginBottom="@dimen/margin_narrow"
                 android:layout_weight="1" />
 
             <Button
                 android:id="@+id/ebayButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
+                android:layout_marginStart="4dp"
                 android:layout_marginEnd="8dp"
                 android:text="@string/find_on_ebay" />
 
@@ -55,8 +57,9 @@
                 android:id="@+id/collectionButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
+                android:layout_marginStart="4dp"
                 android:layout_marginEnd="8dp"
+                android:layout_marginBottom="@dimen/margin_narrow"
                 android:text="@string/add_to_collection" />
         </LinearLayout>
     </LinearLayout>
@@ -75,6 +78,8 @@
             style="@style/StoryBoxTitleBar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_narrow"
+            android:layout_marginEnd="@dimen/margin_narrow"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">

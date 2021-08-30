@@ -39,7 +39,7 @@ class SeriesListFragment : ListFragment<FullSeries, SeriesListFragment.SeriesHol
     ): View? {
         val view = super.onCreateView(inflater, container, savedInstanceState)
         listRecyclerView.addItemDecoration(
-            ItemOffsetDecoration(resources.getDimension(R.dimen.margin_default).toInt())
+            ItemOffsetDecoration(resources.getDimension(R.dimen.margin_narrow).toInt())
         )
         return view
     }

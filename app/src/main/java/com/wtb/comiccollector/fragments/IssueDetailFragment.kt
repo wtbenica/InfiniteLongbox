@@ -142,6 +142,7 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback {
         val variantOf = arguments?.getSerializable(ARG_VARIANT_OF) as Int?
 
         if (variantOf == null) {
+            Log.d(TAG, "ISSUE SELECTED IS NOT A VARIANT!")
             issueDetailViewModel.loadIssue(issueId)
             issueDetailViewModel.loadVariant(null)
         } else {
@@ -249,10 +250,11 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback {
             viewLifecycleOwner,
             {
                 it.let { variant ->
+                    Log.d(TAG, "FV: $fullVariant, V: $variant")
                     if (fullVariant != variant) {
                         Log.d(TAG, "variant changed: $variant")
-                        fullVariant = variant
                         isVariant = fullVariant?.issue?.issueId != AUTO_ID
+                        fullVariant = variant
                         updateUI()
                     }
                 }
@@ -391,7 +393,9 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback {
             val category = 259104
             val url = "https://www.ebay.com/sch/?_sacat=$category&_nkw=${
                 fullIssue.series.seriesName.replace(' ', '+')
-            }+${currentIssue.issue.issueNumRaw}"
+            }+${currentIssue.issue.issueNumRaw}+${currentIssue.issue.variantName}+${
+                currentIssue.series.startDate?.year ?: ""
+            }"
             val intent = Intent().apply {
                 action = Intent.ACTION_VIEW
                 data = Uri.parse(url)
@@ -435,37 +439,53 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback {
 //            }
 //        }
 //
-        variantSpinner.onItemSelectedListener =
-            object : AdapterView.OnItemSelectedListener {
+
+        val touchSelectListener =
+            object : AdapterView.OnItemSelectedListener, View.OnTouchListener {
+
+                private var userSelect = false
+
                 override fun onItemSelected(
                     parent: AdapterView<*>?,
                     view: View?,
                     position: Int,
                     id: Long,
                 ) {
-                    parent?.let {
-                        val selectedIssueId =
-                            (it.getItemAtPosition(position) as Issue).issueId
+                    Log.d(TAG, "variantSpinner item selected")
+                    if (userSelect) {
+                        parent?.let {
+                            val selectedIssueId =
+                                (it.getItemAtPosition(position) as Issue).issueId
 
-                        val selectionIsVariant =
-                            selectedIssueId != issueDetailViewModel.primaryId.value
+                            val selectionIsVariant =
+                                selectedIssueId != issueDetailViewModel.primaryId.value
 
-                        if (selectionIsVariant) {
-                            Log.d(TAG, "VARIANT")
-                            issueDetailViewModel.loadVariant(selectedIssueId)
-                        } else {
-                            Log.d(TAG, "NOT VARIANT")
-                            issueDetailViewModel.clearVariant()
+                            if (selectionIsVariant) {
+                                Log.d(TAG, "VARIANT")
+                                issueDetailViewModel.loadVariant(selectedIssueId)
+                            } else {
+                                Log.d(TAG, "NOT VARIANT")
+                                issueDetailViewModel.clearVariant()
+                            }
+
+                            updateCover()
                         }
 
-                        updateCover()
+                        userSelect = false
                     }
                 }
 
                 override fun onNothingSelected(parent: AdapterView<*>?) {
 
                 }
+
+                override fun onTouch(v: View?, event: MotionEvent?): Boolean {
+                    userSelect = true
+                    return false
+                }
             }
+        variantSpinner.onItemSelectedListener = touchSelectListener
+        variantSpinner.setOnTouchListener(touchSelectListener)
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -489,7 +509,7 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback {
 
     private fun updateUI() {
         Log.d(TAG, "updated ${++i} times")
-        val issue = currentIssue.issue
+        val issue: Issue = currentIssue.issue
         if (issue.issueId != AUTO_ID) {
 
             listFragmentCallback?.setTitle("${currentIssue.series.seriesName} #${
@@ -501,7 +521,7 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback {
             creditsBox.update(issueStories, variantStories, issueCredits, variantCredits,
                               issueAppearances, variantAppearances)
 
-            fullVariant?.issue?.let {
+            issue.let {
                 Log.d(TAG, "SETtting SPINNNEER TO  A V DSLKRIANT")
                 val indexOf = issueVariants.indexOf(it)
                 Log.d(TAG, "AND THE INDEX IS: $indexOf")
@@ -533,12 +553,12 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback {
     companion object {
         @JvmStatic
         fun newInstance(
-            issueId: Int? = null,
+            issueSelectedId: Int? = null,
             variantOf: Int? = null,
         ): IssueDetailFragment =
             IssueDetailFragment().apply {
                 arguments = Bundle().apply {
-                    putSerializable(ARG_ISSUE_ID, issueId)
+                    putSerializable(ARG_ISSUE_ID, issueSelectedId)
                     putSerializable(ARG_VARIANT_OF, variantOf)
                 }
             }

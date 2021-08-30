@@ -79,12 +79,14 @@ class DateChip(context: Context?, attrs: AttributeSet? = null) : Chip(context, a
         set(value) {
             field = value
             val formatter = DateTimeFormatter.ofPattern("d MMM yyyy")
+            val DATE_START = LocalDate.of(1900, 1, 1)
             val dateString = when (field) {
-                LocalDate.of(1900, 1, 1) -> "Start Date"
+                DATE_START      -> "Start Date"
                 LocalDate.now() -> "End Date"
-                else          -> field?.format(formatter)?.uppercase()
+                else            -> field?.format(formatter)?.uppercase()
 
             }
+            this.isCloseIconVisible = field != DATE_START && field != LocalDate.now()
             this.text = dateString
         }
 
