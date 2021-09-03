@@ -10,7 +10,7 @@
 
     <dimen name="radius_list_item_issue">8dp</dimen>
 
-    <dimen name="radius_list_item_series">8dp</dimen>
+    <dimen name="radius_list_item_series">16dp</dimen>
 
     <dimen name="peek_height">48dp</dimen>
     <dimen name="chip_icon_size">20dp</dimen>

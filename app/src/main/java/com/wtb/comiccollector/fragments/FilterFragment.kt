@@ -96,7 +96,7 @@ class FilterFragment : Fragment(),
             }
         }
 
-        view.clipToOutline = false
+        view.clipToOutline = true
 
         viewModel.filterOptions.observe(viewLifecycleOwner) { filterOptions ->
             searchAutoComplete.setAdapter(
@@ -249,6 +249,18 @@ class FilterFragment : Fragment(),
         val inverseOffset = 1 - slideOffset
         handleBox.alpha = inverseOffset
         sections.alpha = slideOffset
+        enableViewGroup(sections, slideOffset != 0F)
+    }
+
+    private fun enableViewGroup(vg: ViewGroup, isEnabled: Boolean = true) {
+        vg.isEnabled = isEnabled
+        for (child in vg.children) {
+            if (child is ViewGroup) {
+                enableViewGroup(child, isEnabled)
+            } else {
+                child.isEnabled = isEnabled
+            }
+        }
     }
 
     private fun onFilterUpdate(value: SearchFilter): SearchFilter {

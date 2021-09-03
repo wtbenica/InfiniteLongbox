@@ -9,6 +9,7 @@ import com.wtb.comiccollector.R
 import com.wtb.comiccollector.database.models.FullAppearance
 import com.wtb.comiccollector.database.models.FullCredit
 import com.wtb.comiccollector.database.models.Story
+import com.wtb.comiccollector.database.models.ids
 import com.wtb.comiccollector.views.CharacterLink
 import com.wtb.comiccollector.views.CharacterLinkCallback
 import com.wtb.comiccollector.views.CreatorLink
@@ -29,6 +30,11 @@ class CreditsBox(context: Context) : TableLayout(context) {
     private var mVariantCredits: List<FullCredit> = emptyList()
     private var mIssueAppearances: List<FullAppearance> = emptyList()
     private var mVariantAppearances: List<FullAppearance> = emptyList()
+    private val completeVariantStories
+        get() = getCompleteVariantStories(mIssueStories, mVariantStories)
+
+    private val mStoryIds: List<Int>
+        get() = completeVariantStories.ids
 
     fun update(
         issueStories: List<Story>? = null,
@@ -56,8 +62,7 @@ class CreditsBox(context: Context) : TableLayout(context) {
 
     private fun displayCredit() {
         this.removeAllViews()
-        val stories = getCompleteVariantStories(mIssueStories, mVariantStories)
-        stories.forEach { story ->
+        completeVariantStories.forEach { story ->
             this.addView(StoryRow(context, story))
             val credits = mIssueCredits + mVariantCredits
             credits.forEach { credit ->
@@ -88,25 +93,35 @@ class CreditsBox(context: Context) : TableLayout(context) {
         }.sortedBy { it.storyType }
 
 
-    inner class StoryRow(context: Context, mStory: Story) : LinearLayout(context) {
-        init {
-            val storyTitle1 = getStoryTitle(mStory)
-            var hasAddedInfo = false
+    inner class StoryRow(context: Context, val mStory: Story) : LinearLayout(context) {
+        private val storyDetailButton: ImageButton
+        private val storyDetailBox: LinearLayout
+        private val storyTitle: TextView
 
+        init {
             orientation = VERTICAL
             layoutParams = LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                                         ViewGroup.LayoutParams.WRAP_CONTENT)
 
             inflate(context, R.layout.story_box, this)
 
-            val storyDetailButton: ImageButton = findViewById(R.id.story_dropdown_button)
-            val storyDetailBox: LinearLayout = findViewById(R.id.story_details_box)
+            storyDetailButton = findViewById(R.id.story_dropdown_button)
+            storyDetailBox = findViewById(R.id.story_details_box)
             storyDetailButton.setOnClickListener {
                 storyDetailBox.toggleVisibility()
                 (it as ImageButton).toggleIcon(storyDetailBox)
             }
 
-            val storyTitle = findViewById<TextView>(R.id.story_title)
+            storyTitle = findViewById(R.id.story_title)
+
+
+            update()
+        }
+
+        fun update() {
+            val storyTitle1 = getStoryTitle(mStory)
+            var hasAddedInfo = false
+
             storyTitle.text = storyTitle1
 
             if (mStory.synopsis != null && mStory.synopsis != "") {

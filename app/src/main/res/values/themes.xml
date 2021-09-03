@@ -21,8 +21,8 @@
         <item name="colorTransparentWhite">@color/transparent_white</item>
         <item name="colorPrimaryTransparent">@color/fantasia_transparent</item>
         <!-- Status bar color. -->
-        <item name="android:statusBarColor">?attr/colorSecondaryLightLight</item>
-        <item name="android:navigationBarColor">?attr/colorSecondaryLightLight</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
         <item name="android:windowLightStatusBar">true</item>
         <!-- Customize your theme here. -->
         <item name="android:textColorPrimary">?attr/colorOnPrimary</item>

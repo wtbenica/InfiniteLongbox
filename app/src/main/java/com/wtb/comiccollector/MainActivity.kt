@@ -228,7 +228,8 @@ class MainActivity : AppCompatActivity(),
 
     // IssueListFragment.IssueListCallback
     override fun onIssueSelected(issue: Issue) {
-        val fragment = IssueDetailFragment.newInstance(issue.issueId, issue.variantOf)
+        val fragment = IssueDetailFragment.newInstance(issueSelectedId = issue.issueId,
+                                                       variantOf = issue.variantOf)
         val prevState = bottomSheetBehavior.state
         supportFragmentManager
             .beginTransaction()
