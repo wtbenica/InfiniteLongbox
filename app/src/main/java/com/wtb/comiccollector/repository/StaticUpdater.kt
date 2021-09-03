@@ -234,17 +234,17 @@ class StaticUpdater(
                    ::checkFKeysCredit,
                    exCreditCollector)
 
-    private suspend fun getAppearancesByStoryIds(storyIds: List<Int>): List<Appearance>? =
-        getItemsByArgument(storyIds, webservice::getAppearancesByStoryIds)
+    private suspend fun getAppearancesByStoryIds(storyIds: List<Int>): List<Appearance> =
+        getItemsByList(storyIds, webservice::getAppearancesByStoryIds)
 
-    private suspend fun getCreditsByStoryIds(storyIds: List<Int>): List<Credit>? =
-        getItemsByArgument(storyIds, webservice::getCreditsByStoryIds)
+    private suspend fun getCreditsByStoryIds(storyIds: List<Int>): List<Credit> =
+        getItemsByList(storyIds, webservice::getCreditsByStoryIds)
 
-    private suspend fun getExCreditsByStoryIds(storyIds: List<Int>): List<ExCredit>? =
-        getItemsByArgument(storyIds, webservice::getExCreditsByStoryIds)
+    private suspend fun getExCreditsByStoryIds(storyIds: List<Int>): List<ExCredit> =
+        getItemsByList(storyIds, webservice::getExCreditsByStoryIds)
 
-    private suspend fun getStoriesByIssueIds(issueIds: List<Int>): List<Story>? =
-        getItemsByArgument(issueIds, webservice::getStoriesByIssues)
+    private suspend fun getStoriesByIssueIds(issueIds: List<Int>): List<Story> =
+        getItemsByList(issueIds, webservice::getStoriesByIssues)
 
     private suspend fun getIssuesBySeriesId(seriesId: Int): List<Issue>? =
         getItemsByArgument(seriesId, webservice::getIssuesBySeries)
@@ -255,11 +255,11 @@ class StaticUpdater(
     private suspend fun getCreditsByNameDetailId(nameDetailId: Int): List<Credit>? =
         getItemsByArgument(listOf(nameDetailId), webservice::getCreditsByNameDetail)
 
-    private suspend fun getCreditsByNameDetailIds(nameDetailIds: List<Int>): List<Credit>? =
-        getItemsByArgument(nameDetailIds, webservice::getCreditsByNameDetail)
+    private suspend fun getCreditsByNameDetailIds(nameDetailIds: List<Int>): List<Credit> =
+        getItemsByList(nameDetailIds, webservice::getCreditsByNameDetail)
 
-    private suspend fun getExCreditsByNameDetailIds(nameDetailIds: List<Int>): List<ExCredit>? =
-        getItemsByArgument(nameDetailIds, webservice::getExCreditsByNameDetail)
+    private suspend fun getExCreditsByNameDetailIds(nameDetailIds: List<Int>): List<ExCredit> =
+        getItemsByList(nameDetailIds, webservice::getExCreditsByNameDetail)
 
     private suspend fun getAllSeriesBonds() {
         refreshAll<SeriesBond>(

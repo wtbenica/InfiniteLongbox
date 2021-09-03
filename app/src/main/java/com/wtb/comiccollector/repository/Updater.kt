@@ -271,12 +271,25 @@ abstract class Updater(
                 }?.models
             }
 
+        internal suspend fun <GcdType : GcdJson<ModelType>, ModelType : DataModel, ArgType : Any>
+                getItemsByList(
+            arg: List<ArgType>,
+            apiCall: KSuspendFunction1<List<ArgType>, List<Item<GcdType, ModelType>>>,
+        ): List<ModelType> {
+            val lists = arg.chunked(20)
+            val res = mutableListOf<ModelType>()
+            for (elem in lists) {
+                getItemsByArgument(elem, apiCall)?.let { res.addAll(it) }
+            }
+            return res
+        }
+
         /**
          * Gets items, performs followup, then saves using dao
          * usually: [getItems] for [id], checks foreign keys for [followup], saves items to [col]
          * then saves update time to [saveTag] in [prefs]
          */
-        internal suspend fun <ModelType : DataModel, T: Any> updateById(
+        internal suspend fun <ModelType : DataModel, T : Any> updateById(
             prefs: SharedPreferences,
             saveTag: ((Int) -> String)?,
             getItems: suspend (T) -> List<ModelType>?,
