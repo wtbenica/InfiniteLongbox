@@ -16,7 +16,8 @@ import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.R
 import com.wtb.comiccollector.database.models.FullSeries
 import com.wtb.comiccollector.fragments_view_models.SeriesListViewModel
-import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.collectLatest
 
 private const val TAG = APP + "SeriesListFragment"
 
@@ -85,7 +86,17 @@ class SeriesListFragment : ListFragment<FullSeries, SeriesListFragment.SeriesHol
         fun bind(item: FullSeries) {
             this.item = item
             seriesTextView.text = this.item.series.seriesName
-            this.item.series.firstIssue?.let { viewModel.getIssue(it) }
+            val firstIssue = this.item.series.firstIssue
+            if (firstIssue != null) {
+                viewModel.getIssue(firstIssue)
+            } else if (this.item.series.issueCount == 1) {
+                CoroutineScope(Dispatchers.Default).launch {
+                    viewModel.getIssueBySeries(this@SeriesHolder.item).collectLatest { issues ->
+                        issues.forEach { viewModel.getIssue(it.issue.issueId) }
+                    }
+                }
+            }
+
             val uri: Uri? = this.item.firstIssue?.coverUri
 
             uri.let { seriesImageView.setImageURI(it) }
