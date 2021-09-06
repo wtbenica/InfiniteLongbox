@@ -6,6 +6,7 @@ import android.content.pm.PackageManager
 import android.net.ConnectivityManager
 import android.net.Network
 import android.net.NetworkCapabilities
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -43,6 +44,7 @@ const val APP = "CC_"
 private const val TAG = APP + "MainActivity"
 
 private const val READ_EXTERNAL_STORAGE_REQUEST = 1
+private const val CAMERA_REQUEST = 8
 
 @ExperimentalCoroutinesApi
 class MainActivity : AppCompatActivity(),
@@ -86,23 +88,65 @@ class MainActivity : AppCompatActivity(),
         }
     }
 
-    private fun haveStoragePermssion() =
+    private fun havePermission(permission: String) =
         ContextCompat.checkSelfPermission(
-            this,
-            Manifest.permission.READ_EXTERNAL_STORAGE
+            ComicCollectorApplication.context!!,
+            permission
         ) == PackageManager.PERMISSION_GRANTED
 
-    private fun requestPermission() {
-        if (!haveStoragePermssion()) {
-            val permissions = arrayOf(
-                Manifest.permission.READ_EXTERNAL_STORAGE,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE
-            )
+    private fun haveStoragePermission() = havePermission(Manifest.permission.READ_EXTERNAL_STORAGE)
+    private fun haveCameraPermission() = havePermission(Manifest.permission.CAMERA)
+
+
+    private fun requestPermission(perms: MutableList<String>, requestCode: Int) {
+        if (!haveStoragePermission()) {
             ActivityCompat.requestPermissions(
                 this,
-                permissions,
-                READ_EXTERNAL_STORAGE_REQUEST
+                perms.toTypedArray(),
+                requestCode
             )
+        }
+    }
+
+    private fun requestStoragePermission() =
+        requestPermission(
+            mutableListOf(Manifest.permission.READ_EXTERNAL_STORAGE, ).also {
+                if (Build.VERSION.SDK_INT <= 28) {
+                    it.add(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                }
+            },
+            READ_EXTERNAL_STORAGE_REQUEST)
+
+
+    private fun requestCameraPermission() =
+        requestPermission(mutableListOf(Manifest.permission.CAMERA), CAMERA_REQUEST)
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray,
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        when (requestCode) {
+            READ_EXTERNAL_STORAGE_REQUEST -> {
+                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager
+                        .PERMISSION_GRANTED) {
+                    //  continue as necessary
+                } else {
+                    //  tell the user they are going to regret their mistake forever
+                }
+                return
+            }
+            CAMERA_REQUEST                -> {
+                if (grantResults.isNotEmpty() &&
+                    grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    //  continue as necessary
+                } else {
+                    //  tell the user they are going to regret their mistake forever
+                }
+                return
+            }
+            else                          -> Unit
         }
     }
 
@@ -118,8 +162,8 @@ class MainActivity : AppCompatActivity(),
         val adRequest = AdRequest.Builder().build()
         mAdView.loadAd(adRequest)
 
-        if (!haveStoragePermssion()) {
-            requestPermission()
+        if (!haveStoragePermission()) {
+            requestStoragePermission()
         }
 
         filterFragment =
@@ -309,7 +353,7 @@ class MainActivity : AppCompatActivity(),
 //        dialog.dismiss()
 //    }
 //
-    // NewCreatorDialogCallback
+// NewCreatorDialogCallback
     override fun onSaveCreatorClick(dialog: DialogFragment, creator: Creator) {
         // TODO: Not yet implemented
         dialog.dismiss()
