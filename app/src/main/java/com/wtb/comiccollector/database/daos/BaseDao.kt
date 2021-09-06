@@ -122,6 +122,7 @@ abstract class BaseDao<T : DataModel>(private val tableName: String) {
         internal fun idsToSqlIdString(ids: Collection<Int>) =
             ids.toString().replace("[", "(").replace("]", ")")
 
-        internal fun textFilterToString(text: String) = "%${text.replace(' ', '%')}%"
+        internal fun textFilterToString(text: String) =
+            "%${text.replace(' ', '%').replace("'", "'m,,,,,,,,,,,,,,,,k.'")}%"
     }
 }

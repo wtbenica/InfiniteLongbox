@@ -38,7 +38,7 @@ import java.util.concurrent.Executors
 const val DUMMY_ID = Int.MAX_VALUE
 
 private const val TAG = APP + "Repository"
-const val DEBUG = true
+const val DEBUG = false
 
 internal const val SHARED_PREFS = "CCPrefs"
 
@@ -134,9 +134,8 @@ class Repository private constructor(val context: Context) {
         retrofit.create(Webservice::class.java)
     }
 
-    private val updater: StaticUpdater by lazy {
-        StaticUpdater(webservice, prefs)
-    }
+    private val updater: StaticUpdater
+        get() = StaticUpdater.get()
 
     init {
         MainActivity.hasConnection.observeForever {
@@ -289,7 +288,7 @@ class Repository private constructor(val context: Context) {
 
     fun updateIssueCover(issueId: Int) {
         if (hasConnection) {
-            UpdateIssueCover(webservice, prefs, context).update(issueId)
+            UpdateIssueCover.get().update(issueId)
         }
     }
 

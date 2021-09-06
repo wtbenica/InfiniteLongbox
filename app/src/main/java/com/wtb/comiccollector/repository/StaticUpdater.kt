@@ -1,10 +1,7 @@
 package com.wtb.comiccollector.repository
 
 import android.content.SharedPreferences
-import android.net.Uri
-import android.util.Log
 import com.wtb.comiccollector.APP
-import com.wtb.comiccollector.ComicCollectorApplication.Companion.context
 import com.wtb.comiccollector.Webservice
 import com.wtb.comiccollector.database.models.*
 import com.wtb.comiccollector.repository.Updater.Companion.Collector
@@ -12,8 +9,6 @@ import com.wtb.comiccollector.repository.Updater.PriorityDispatcher.Companion.hi
 import com.wtb.comiccollector.repository.Updater.PriorityDispatcher.Companion.lowPriorityDispatcher
 import com.wtb.comiccollector.repository.Updater.PriorityDispatcher.Companion.nowDispatcher
 import kotlinx.coroutines.*
-import org.jsoup.Jsoup
-import java.net.URL
 import java.time.Instant
 
 /**
@@ -25,13 +20,10 @@ import java.time.Instant
  * @constructor Create empty Static updater
  */
 @ExperimentalCoroutinesApi
-class StaticUpdater(
+class StaticUpdater private constructor(
     webservice: Webservice,
     prefs: SharedPreferences,
 ) : Updater(webservice, prefs) {
-    /**
-     * Updates issues, stories, appearances, and creators
-     */
     /**
      *  UpdateAsync - Updates publisher, series, role, and storytype tables
      */
@@ -54,18 +46,18 @@ class StaticUpdater(
     }
 
     fun updateSeries(seriesId: Int) = CoroutineScope(highPriorityDispatcher).launch {
-        async {
+        withContext(Dispatchers.Default) {
             if (checkIfStale(seriesTag(seriesId), 1L, prefs)) {
                 val issues: List<Issue> = updateSeriesIssues(seriesId)
                 updateIssues(issues.ids)
             }
-        }.await().let {
+        }.let {
             Repository.saveTime(prefs, seriesTag(seriesId))
         }
     }
 
     fun updateCharacter(characterId: Int) = CoroutineScope(lowPriorityDispatcher).launch {
-        async {
+        withContext(Dispatchers.Default) {
             if (checkIfStale(characterTag(characterId), 1L, prefs)) {
                 val appearances: List<Appearance> = updateCharacterAppearances(characterId)
                 checkFKeysAppearance(appearances)
@@ -73,7 +65,7 @@ class StaticUpdater(
                 updateStoriesCredits(storyIds)
                 updateStoriesAppearances(storyIds)
             }
-        }.await().let {
+        }.let {
             Repository.saveTime(prefs, characterTag(characterId))
         }
     }
@@ -83,7 +75,7 @@ class StaticUpdater(
      */
     internal fun updateIssue(issueId: Int) =
         CoroutineScope(nowDispatcher).launch {
-            async {
+            withContext(Dispatchers.Default) {
                 if (checkIfStale(issueTag(issueId), 1L, prefs)) {
                     Repository.savePrefValue(prefs = prefs,
                                              key = "${issueTag(issueId)}_STARTED",
@@ -92,9 +84,8 @@ class StaticUpdater(
                                              key = "${issueTag(issueId)}_STARTED_TIME",
                                              value = Instant.now().epochSecond)
                     updateIssueStoryDetails(issueId)
-                    updateIssueCover(issueId)
                 }
-            }.await().let {
+            }.let {
                 Repository.saveTime(prefs, issueTag(issueId))
                 Repository.savePrefValue(prefs = prefs,
                                          key = "${issueTag(issueId)}_STARTED",
@@ -106,10 +97,10 @@ class StaticUpdater(
         }
 
 
-    internal fun updateIssues(issueIds: List<Int>) {
+    private fun updateIssues(issueIds: List<Int>) {
         CoroutineScope(highPriorityDispatcher).launch {
             updateIssuesStoryDetails(issueIds)
-            issueIds.forEach { updateIssueCover(it) }
+            issueIds.forEach { UpdateIssueCover.get().update(it) }
         }
     }
 
@@ -119,7 +110,7 @@ class StaticUpdater(
      * Gets nameDetails and credits for each creator
      */
     private fun updateCreator(creatorId: Int) = CoroutineScope(lowPriorityDispatcher).launch {
-        async {
+        withContext(Dispatchers.Default) {
             if (checkIfStale(creatorTag(creatorId), 1L, prefs)) {
                 val nameDetails: List<NameDetail> =
                     database.nameDetailDao().getNameDetailsByCreatorId(creatorId)
@@ -130,7 +121,7 @@ class StaticUpdater(
                 updateStoriesCredits(storyIds)
                 updateStoriesAppearances(storyIds)
             }
-        }.await().let {
+        }.let {
             Repository.saveTime(prefs, creatorTag(creatorId))
         }
     }
@@ -340,59 +331,6 @@ class StaticUpdater(
     private suspend fun getNameDetailsByPage(page: Int): List<NameDetail>? =
         getItemsByArgument(page, webservice::getNameDetailsByPage)
 
-    private suspend fun updateIssueCover(issueId: Int) {
-        database.issueDao().getIssueSus(issueId)?.let { issue ->
-            if (issue.coverUri == null) {
-                kotlin.runCatching {
-                    val doc = Jsoup.connect(issue.issue.url).get()
-
-                    val noCover = doc.getElementsByClass("no_cover").size == 1
-
-                    val coverImgElements = doc.getElementsByClass("cover_img")
-                    val wraparoundElements =
-                        doc.getElementsByClass("wraparound_cover_img")
-
-                    val elements = when {
-                        coverImgElements.size > 0   -> coverImgElements
-                        wraparoundElements.size > 0 -> wraparoundElements
-                        else                        -> null
-                    }
-
-                    val src = elements?.get(0)?.attr("src")
-
-                    val url = src?.let { URL(it) }
-
-                    if (!noCover && url != null) {
-                        val image = CoroutineScope(Dispatchers.IO).async {
-                            url.toBitmap()
-                        }
-
-                        CoroutineScope(Dispatchers.Default).launch {
-                            val bitmap = image.await()
-
-                            bitmap?.let {
-                                val savedUri: Uri? =
-                                    it.saveToInternalStorage(
-                                        context!!,
-                                        issue.issue.coverFileName
-                                    )
-
-                                val cover =
-                                    Cover(issue = issueId, coverUri = savedUri)
-                                database.coverDao().upsertSus(listOf(cover))
-                            }
-                        }
-                    } else if (noCover) {
-                        val cover = Cover(issue = issueId, coverUri = null)
-                        database.coverDao().upsertSus(cover)
-                    } else {
-                        Log.d(TAG, "COVER UPDATER No Cover Found")
-                    }
-                }
-            }
-        }
-    }
-
     inner class AppearanceCollector : Collector<Appearance>(database.appearanceDao())
     inner class CreditCollector : Collector<Credit>(database.creditDao())
     inner class ExCreditCollector : Collector<ExCredit>(database.exCreditDao())
@@ -401,6 +339,22 @@ class StaticUpdater(
 
     companion object {
         internal const val TAG = APP + "UpdateStatic"
+
+        private var INSTANCE: StaticUpdater? = null
+
+        fun get(): StaticUpdater {
+            return INSTANCE
+                ?: throw IllegalStateException("StaticUpdater must be initialized")
+        }
+
+        fun initialize(
+            webservice: Webservice,
+            prefs: SharedPreferences,
+        ) {
+            if (INSTANCE == null) {
+                INSTANCE = StaticUpdater(webservice, prefs)
+            }
+        }
     }
 }
 

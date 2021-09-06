@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import com.wtb.comiccollector.APP
+import com.wtb.comiccollector.SearchFilter
 import com.wtb.comiccollector.database.models.FullSeries
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -19,6 +20,10 @@ class SeriesListViewModel : ListViewModel<FullSeries>() {
         Log.d(TAG, "GOING TO GET SOME MORE SERIES FOR THIS NEW FILTER: $it")
         repository.getSeriesByFilterPaged(it).asLiveData()
     }.asFlow().cachedIn(viewModelScope)
+
+    fun getIssue(issueId: Int) = repository.getIssue(issueId)
+    fun getIssueBySeries(series: FullSeries) =
+        repository.getIssuesByFilter(SearchFilter(series = series))
 
     companion object {
         private const val TAG = APP + "SeriesListViewModel"
