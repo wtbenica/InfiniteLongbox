@@ -1,6 +1,8 @@
 package com.wtb.comiccollector
 
+import android.Manifest
 import android.app.Activity
+import android.content.pm.PackageManager
 import android.net.ConnectivityManager
 import android.net.Network
 import android.net.NetworkCapabilities
@@ -15,6 +17,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.ContentFrameLayout
 import androidx.appcompat.widget.Toolbar
 import androidx.coordinatorlayout.widget.CoordinatorLayout
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.core.view.*
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentContainerView
@@ -37,6 +41,8 @@ import kotlinx.coroutines.Job
 
 const val APP = "CC_"
 private const val TAG = APP + "MainActivity"
+
+private const val READ_EXTERNAL_STORAGE_REQUEST = 1
 
 @ExperimentalCoroutinesApi
 class MainActivity : AppCompatActivity(),
@@ -80,6 +86,26 @@ class MainActivity : AppCompatActivity(),
         }
     }
 
+    private fun haveStoragePermssion() =
+        ContextCompat.checkSelfPermission(
+            this,
+            Manifest.permission.READ_EXTERNAL_STORAGE
+        ) == PackageManager.PERMISSION_GRANTED
+
+    private fun requestPermission() {
+        if (!haveStoragePermssion()) {
+            val permissions = arrayOf(
+                Manifest.permission.READ_EXTERNAL_STORAGE,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE
+            )
+            ActivityCompat.requestPermissions(
+                this,
+                permissions,
+                READ_EXTERNAL_STORAGE_REQUEST
+            )
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(R.style.Theme_ComicCollector)
         WindowCompat.setDecorFitsSystemWindows(window, false)
@@ -91,6 +117,10 @@ class MainActivity : AppCompatActivity(),
         mAdView = findViewById(R.id.ad_view)
         val adRequest = AdRequest.Builder().build()
         mAdView.loadAd(adRequest)
+
+        if (!haveStoragePermssion()) {
+            requestPermission()
+        }
 
         filterFragment =
             supportFragmentManager.findFragmentByTag(resources.getString(R.string.tag_filter_fragment)) as FilterFragment?
