@@ -20,6 +20,8 @@ class SeriesListViewModel : ListViewModel<FullSeries>() {
         repository.getSeriesByFilterPaged(it).asLiveData()
     }.asFlow().cachedIn(viewModelScope)
 
+    fun getIssue(issueId: Int) = repository.getIssue(issueId)
+
     companion object {
         private const val TAG = APP + "SeriesListViewModel"
     }

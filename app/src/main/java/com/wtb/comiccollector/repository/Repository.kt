@@ -134,9 +134,8 @@ class Repository private constructor(val context: Context) {
         retrofit.create(Webservice::class.java)
     }
 
-    private val updater: StaticUpdater by lazy {
-        StaticUpdater(webservice, prefs)
-    }
+    private val updater: StaticUpdater
+        get() = StaticUpdater.get()
 
     init {
         MainActivity.hasConnection.observeForever {
@@ -289,7 +288,7 @@ class Repository private constructor(val context: Context) {
 
     fun updateIssueCover(issueId: Int) {
         if (hasConnection) {
-            UpdateIssueCover(webservice, prefs, context).update(issueId)
+            UpdateIssueCover.get().update(issueId)
         }
     }
 

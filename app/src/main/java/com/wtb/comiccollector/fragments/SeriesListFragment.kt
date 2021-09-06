@@ -85,7 +85,7 @@ class SeriesListFragment : ListFragment<FullSeries, SeriesListFragment.SeriesHol
         fun bind(item: FullSeries) {
             this.item = item
             seriesTextView.text = this.item.series.seriesName
-
+            this.item.series.firstIssue?.let { viewModel.getIssue(it) }
             val uri: Uri? = this.item.firstIssue?.coverUri
 
             uri.let { seriesImageView.setImageURI(it) }

@@ -1,11 +1,14 @@
 package com.wtb.comiccollector.repository
 
+import android.content.ContentValues
 import android.content.Context
-import android.content.ContextWrapper
 import android.content.SharedPreferences
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
+import android.os.Build
+import android.os.Environment
+import android.provider.MediaStore
 import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.Webservice
 import com.wtb.comiccollector.database.models.Cover
@@ -13,6 +16,7 @@ import kotlinx.coroutines.*
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
+import java.io.OutputStream
 import java.net.HttpURLConnection
 import java.net.URL
 
@@ -20,7 +24,7 @@ import java.net.URL
 private const val TAG = APP + "UpdateIssueCover"
 
 @ExperimentalCoroutinesApi
-class UpdateIssueCover(
+class UpdateIssueCover private constructor(
     webservice: Webservice,
     prefs: SharedPreferences,
     val context: Context,
@@ -58,6 +62,25 @@ class UpdateIssueCover(
             }
         }
     }
+
+    companion object {
+        private var INSTANCE: UpdateIssueCover? = null
+
+        fun get(): UpdateIssueCover {
+            return INSTANCE
+                ?: throw IllegalStateException("UpdateIssueCover must be initialized")
+        }
+
+        fun initialize(
+            webservice: Webservice,
+            prefs: SharedPreferences,
+            context: Context,
+        ) {
+            if (INSTANCE == null) {
+                INSTANCE = UpdateIssueCover(webservice, prefs, context)
+            }
+        }
+    }
 }
 
 fun URL.toBitmap(): Bitmap? {
@@ -74,25 +97,33 @@ fun URL.toBitmap(): Bitmap? {
     }
 }
 
-fun Bitmap.saveToInternalStorage(context: Context, uri: String): Uri? {
-    val wrapper = ContextWrapper(context)
+@Suppress("DEPRECATION")
+fun Bitmap.saveToInternalStorage(context: Context, filename: String): Uri? {
+    val mimeType = "images/jpeg"
+    val directory = Environment.DIRECTORY_PICTURES
+    val mediaUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+    val imageOutputStream: OutputStream?
+    val uri: Uri?
 
-    var file: File = wrapper.getDir("images", Context.MODE_PRIVATE)
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        val values = ContentValues().apply {
+            put(MediaStore.Images.Media.DISPLAY_NAME, filename)
+            put(MediaStore.Images.Media.MIME_TYPE, mimeType)
+            put(MediaStore.Images.Media.RELATIVE_PATH, directory)
+        }
 
-    file = File(file, uri)
-
-    return try {
-        val stream = FileOutputStream(file)
-
-        compress(Bitmap.CompressFormat.JPEG, 100, stream)
-
-        stream.flush()
-
-        stream.close()
-
-        Uri.parse(file.absolutePath)
-    } catch (e: IOException) {
-        e.printStackTrace()
-        null
+        context.contentResolver.run {
+            uri = context.contentResolver.insert(mediaUri, values)
+            imageOutputStream = uri?.let { openOutputStream(it) }
+        }
+    } else {
+        val imagePath = Environment.getExternalStoragePublicDirectory(directory).absolutePath
+        val image = File(imagePath, filename)
+        imageOutputStream = FileOutputStream(image)
+        uri = Uri.parse(image.absolutePath)
     }
+
+    imageOutputStream.use { compress(Bitmap.CompressFormat.JPEG, 100, it) }
+
+    return uri
 }
