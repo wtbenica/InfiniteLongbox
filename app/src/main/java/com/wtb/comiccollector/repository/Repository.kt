@@ -49,7 +49,7 @@ internal const val CREATOR_LIFETIME: Long = 7
 const val EXTERNAL = "http://24.176.172.169/"
 const val NIGHTWING = "http://192.168.0.141:8000/"
 const val ALFRED = "http://192.168.0.138:8000/"
-const val LONGBOX = "https://longbox.wl.r.appspot.com/"
+const val LONGBOX = "https://infinite-longbox.uc.r.appspot.com/"
 const val BASE_URL = LONGBOX
 
 internal const val UPDATED_ROLES = "updated_roles"
@@ -61,6 +61,7 @@ internal const val UPDATED_CREATORS = "updated_creators"
 internal const val UPDATED_CREATORS_PAGE = "updated_creators_page"
 internal const val UPDATED_SERIES = "updated_series"
 internal const val UPDATED_SERIES_PAGE = "updated_series_page"
+internal const val UPDATED_PUBLISHERS_PAGE = "updated_publishers_page"
 internal const val UPDATED_CHARACTERS = "update_characters"
 internal const val UPDATED_CHARACTERS_PAGE = "update_characters_page"
 internal const val UPDATED_ISSUES = "updated_issues"
@@ -137,27 +138,29 @@ class Repository private constructor(val context: Context) {
     private val updater: StaticUpdater
         get() = StaticUpdater.get()
 
+    private fun checkConnectionStatus() =
+        this.hasConnection && this.hasUnmeteredConnection && this.isIdle
+
     init {
         MainActivity.hasConnection.observeForever {
-            hasConnection = it
+            this.hasConnection = it
             if (checkConnectionStatus()) {
-                isIdle = false
+                this.isIdle = false
 
                 // TODO: A lint inspection pointed out that update returns a Deferred, which
                 //  means that this is async async await. Look into
                 MainActivity.activeJob = CoroutineScope(Dispatchers.IO).launch {
                     withContext(Dispatchers.IO) {
+                        Log.d(TAG, "STARTING UPDATE")
                         updater.updateAsync()
                     }.let {
                         Log.d(TAG, "Static update done")
-                        isIdle = true
+                        this@Repository.isIdle = true
                     }
                 }
             }
         }
     }
-
-    private fun checkConnectionStatus() = hasConnection && hasUnmeteredConnection && isIdle
 
     // Static Items
     val allPublishers: Flow<List<Publisher>> = publisherDao.getAll()
@@ -171,31 +174,27 @@ class Repository private constructor(val context: Context) {
         }
     }
 
-    fun getFilterOptionsCharacter(filter: SearchFilter): Flow<List<Character>> {
-        Log.d(TAG, "getCharactersByFilter")
-
-        return if (!filter.hasCharacter()) {
+    fun getFilterOptionsCharacter(filter: SearchFilter): Flow<List<Character>> =
+        if (!filter.hasCharacter()) {
             characterDao.getCharacterFilterOptions(filter)
         } else {
             emptyFlow()
         }
-    }
 
-    fun getFilterOptionsCreator(filter: SearchFilter): Flow<List<Creator>> {
-        Log.d(TAG, "getCreatorsByFilter")
-        return if (filter.mCreators.isEmpty()) {
+
+    fun getFilterOptionsCreator(filter: SearchFilter): Flow<List<Creator>> =
+        if (filter.mCreators
+            .isEmpty()) {
             creatorDao.getCreatorsByFilter(filter)
         } else {
             emptyFlow()
         }
-    }
 
     // SERIES METHODS
     fun getSeries(seriesId: Int): Flow<FullSeries?> = seriesDao.getSeries(seriesId)
 
     fun getSeriesByFilterPaged(filter: SearchFilter): Flow<PagingData<FullSeries>> {
         val newFilter = SearchFilter(filter)
-        Log.d(TAG, "getSeriesByFilterPaged")
 
         return Pager(
             config = PagingConfig(
@@ -277,14 +276,12 @@ class Repository private constructor(val context: Context) {
     }
 
     // PUBLISHER METHODS
-    fun getFilterOptionsPublisher(filter: SearchFilter): Flow<List<Publisher>> {
-        Log.d(TAG, "getPublishersByFilter")
-        return if (filter.mPublishers.isEmpty()) {
+    fun getFilterOptionsPublisher(filter: SearchFilter): Flow<List<Publisher>> =
+        if (filter.mPublishers.isEmpty()) {
             publisherDao.getPublishersByFilter(filter)
         } else {
             flow { emit(emptyList<Publisher>()) }
         }
-    }
 
     fun updateIssueCover(issueId: Int) {
         if (hasConnection) {
@@ -330,7 +327,7 @@ class Repository private constructor(val context: Context) {
                 is Boolean -> editor.putBoolean(key, value)
                 is Float   -> editor.putFloat(key, value)
                 is Long    -> editor.putLong(key, value)
-                else -> throw IllegalArgumentException(
+                else       -> throw IllegalArgumentException(
                     "savePrefValue: Yeah, it says Any, but it really wants String, Int, Boolean, " +
                             "Float, or Long")
             }

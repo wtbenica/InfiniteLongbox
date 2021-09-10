@@ -1,8 +1,6 @@
 package com.wtb.comiccollector.fragments
 
 import android.content.Context
-import android.graphics.Outline
-import android.graphics.Rect
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -10,7 +8,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.View.*
 import android.view.ViewGroup
-import android.view.ViewOutlineProvider
 import android.widget.*
 import androidx.core.view.*
 import androidx.fragment.app.Fragment
@@ -85,16 +82,6 @@ class FilterFragment : Fragment(),
         val view = inflater.inflate(R.layout.fragment_filter, container, false)
         onCreateViewFindViews(view)
         onCreateViewInitViews()
-
-        view.outlineProvider = object : ViewOutlineProvider() {
-            override fun getOutline(view: View?, outline: Outline?) {
-                val rect = Rect()
-                view?.background?.copyBounds(rect)
-                rect.offset(0, -resources.getDimension(R.dimen.margin_default).toInt())
-
-                outline?.setRect(rect)
-            }
-        }
 
         view.clipToOutline = true
 
@@ -336,7 +323,6 @@ class FilterFragment : Fragment(),
 
     // SearchTextViewCallback
     override fun addFilterItem(option: FilterItem) {
-        Log.d(TAG, "setting filter: add item $option")
         viewModel.addFilterItem(option)
     }
 

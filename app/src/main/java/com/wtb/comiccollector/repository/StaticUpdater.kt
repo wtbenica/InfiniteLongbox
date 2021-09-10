@@ -3,6 +3,7 @@ package com.wtb.comiccollector.repository
 import android.content.SharedPreferences
 import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.Webservice
+import com.wtb.comiccollector.database.daos.Count
 import com.wtb.comiccollector.database.models.*
 import com.wtb.comiccollector.repository.Updater.Companion.Collector
 import com.wtb.comiccollector.repository.Updater.PriorityDispatcher.Companion.highPriorityDispatcher
@@ -29,8 +30,8 @@ class StaticUpdater private constructor(
      */
     @ExperimentalCoroutinesApi
     internal suspend fun updateAsync() {
+        getAllPublishers()
         database.transactionDao().upsertStatic(
-            publishers = getPublishers(),
             roles = getRoles(),
             storyTypes = getStoryTypes(),
             bondTypes = getBondTypes(),
@@ -235,13 +236,13 @@ class StaticUpdater private constructor(
         getItemsByList(storyIds, webservice::getExCreditsByStoryIds)
 
     private suspend fun getStoriesByIssueIds(issueIds: List<Int>): List<Story> =
-        getItemsByList(issueIds, webservice::getStoriesByIssues)
+        getItemsByList(issueIds, webservice::getStoriesByIssueIds)
 
     private suspend fun getIssuesBySeriesId(seriesId: Int): List<Issue>? =
         getItemsByArgument(seriesId, webservice::getIssuesBySeries)
 
     private suspend fun getAppearancesByCharacterId(characterId: Int): List<Appearance>? =
-        getItemsByArgument(characterId, webservice::getAppearances)
+        getItemsByArgument(characterId, webservice::getAppearancesByCharacterIds)
 
     private suspend fun getCreditsByNameDetailId(nameDetailId: Int): List<Credit>? =
         getItemsByArgument(listOf(nameDetailId), webservice::getCreditsByNameDetail)
@@ -262,13 +263,20 @@ class StaticUpdater private constructor(
         )
     }
 
+    private suspend fun getNumCreatorPages(): Count = webservice.getNumCreatorPages()
+    private suspend fun getNumNameDetailPages(): Count = webservice.getNumNameDetailPages()
+    private suspend fun getNumSeriesPages(): Count = webservice.getNumSeriesPages()
+    private suspend fun getNumCharacterPages(): Count = webservice.getNumCharacterPages()
+    private suspend fun getNumPublisherPages(): Count = webservice.getNumPublisherPages()
+
     private suspend fun getAllCharacters() {
         refreshAllPaged<Character>(
             prefs = prefs,
             savePageTag = UPDATED_CHARACTERS_PAGE,
             saveTag = UPDATED_CHARACTERS,
-            getItemsByPage = this::getCharactersByPage,
-            dao = database.characterDao()
+            getItemsByPage = ::getCharactersByPage,
+            dao = database.characterDao(),
+            getNumPages = ::getNumCharacterPages
         )
     }
 
@@ -277,9 +285,10 @@ class StaticUpdater private constructor(
             prefs = prefs,
             savePageTag = UPDATED_NAME_DETAILS_PAGE,
             saveTag = UPDATED_NAME_DETAILS,
-            getItemsByPage = this::getNameDetailsByPage,
-            verifyForeignKeys = this::checkFKeysNameDetail,
-            dao = database.nameDetailDao()
+            getItemsByPage = ::getNameDetailsByPage,
+            verifyForeignKeys = ::checkFKeysNameDetail,
+            dao = database.nameDetailDao(),
+            getNumPages = ::getNumNameDetailPages
         )
     }
 
@@ -288,8 +297,9 @@ class StaticUpdater private constructor(
             prefs = prefs,
             savePageTag = UPDATED_CREATORS_PAGE,
             saveTag = UPDATED_CREATORS,
-            getItemsByPage = this::getCreatorsByPage,
-            dao = database.creatorDao()
+            getItemsByPage = ::getCreatorsByPage,
+            dao = database.creatorDao(),
+            getNumPages = ::getNumCreatorPages
         )
     }
 
@@ -300,12 +310,21 @@ class StaticUpdater private constructor(
             saveTag = UPDATED_SERIES,
             getItemsByPage = this::getSeriesByPage,
             verifyForeignKeys = this::checkFKeysSeries,
-            dao = database.seriesDao()
+            dao = database.seriesDao(),
+            getNumPages = ::getNumSeriesPages
         )
     }
 
-    private suspend fun getPublishers(): List<Publisher>? =
-        getItems(prefs, webservice::getPublishers, UPDATED_PUBLISHERS)
+    private suspend fun getAllPublishers() {
+        refreshAllPaged<Publisher>(
+            prefs = prefs,
+            savePageTag = UPDATED_PUBLISHERS_PAGE,
+            saveTag = UPDATED_PUBLISHERS,
+            getItemsByPage = this::getPublishersByPage,
+            dao = database.publisherDao(),
+            getNumPages = ::getNumPublisherPages
+        )
+    }
 
     private suspend fun getRoles(): List<Role>? =
         getItems(prefs, webservice::getRoles, UPDATED_ROLES)
@@ -324,6 +343,9 @@ class StaticUpdater private constructor(
 
     private suspend fun getSeriesByPage(page: Int): List<Series>? =
         getItemsByArgument(page, webservice::getSeriesByPage)
+
+    private suspend fun getPublishersByPage(page: Int): List<Publisher>? =
+        getItemsByArgument(page, webservice::getPublisherByPage)
 
     private suspend fun getCreatorsByPage(page: Int): List<Creator>? =
         getItemsByArgument(page, webservice::getCreatorsByPage)

@@ -48,7 +48,6 @@ class SortChipGroup(context: Context, attributeSet: AttributeSet) :
         }.toList()
 
         toAddList.forEach { sortTypeIn ->
-            Log.d(TAG, "Adding View")
             val chip = SortChip(context)
             chip.callback = this@SortChipGroup
             chip.isChecked = filter.mSortType == sortTypeIn
@@ -79,7 +78,6 @@ class SortChip(context: Context?) : Chip(context) {
     init {
         isCloseIconVisible = true
         setOnClickListener {
-            Log.d(TAG, "Chip ${if (isChecked) "is" else "isn't"} checked")
             if (isChecked) {
                 sortType = sortType?.toggle()
             } else {

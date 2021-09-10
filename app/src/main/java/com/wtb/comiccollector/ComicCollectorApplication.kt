@@ -6,6 +6,7 @@ import android.annotation.SuppressLint
 import android.app.Application
 import android.content.Context
 import android.content.SharedPreferences
+import android.util.Log
 import com.wtb.comiccollector.network.RetrofitAPIClient
 import com.wtb.comiccollector.repository.Repository
 import com.wtb.comiccollector.repository.SHARED_PREFS
@@ -17,6 +18,8 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 class ComicCollectorApplication: Application() {
 
     companion object {
+        private const val TAG = APP + "ComicCollector"
+
         @SuppressLint("StaticFieldLeak")
         var context: Context? = null
     }
@@ -31,5 +34,6 @@ class ComicCollectorApplication: Application() {
         Repository.initialize(this)
         UpdateIssueCover.initialize(webservice, prefs, this)
         StaticUpdater.initialize(webservice, prefs)
+        Log.d(TAG, "DONE INITIALIZING")
     }
 }

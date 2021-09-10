@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.fragment.app.viewModels
 import androidx.paging.PagingDataAdapter
@@ -14,10 +15,10 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.R
+import com.wtb.comiccollector.database.models.FullIssue
 import com.wtb.comiccollector.database.models.FullSeries
 import com.wtb.comiccollector.fragments_view_models.SeriesListViewModel
 import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.collectLatest
 
 private const val TAG = APP + "SeriesListFragment"
 
@@ -78,6 +79,7 @@ class SeriesListFragment : ListFragment<FullSeries, SeriesListFragment.SeriesHol
         private val seriesDateRangeTextView: TextView =
             itemView.findViewById(R.id.list_item_pub_dates)
         private val formatTextView: TextView = itemView.findViewById(R.id.list_item_series_format)
+        private val coverProgressBar: ProgressBar = itemView.findViewById(R.id.cover_progress_bar)
 
         init {
             itemView.setOnClickListener(this)
@@ -86,20 +88,25 @@ class SeriesListFragment : ListFragment<FullSeries, SeriesListFragment.SeriesHol
         fun bind(item: FullSeries) {
             this.item = item
             seriesTextView.text = this.item.series.seriesName
-            val firstIssue = this.item.series.firstIssue
-            if (firstIssue != null) {
-                viewModel.getIssue(firstIssue)
-            } else if (this.item.series.issueCount == 1) {
-                CoroutineScope(Dispatchers.Default).launch {
-                    viewModel.getIssueBySeries(this@SeriesHolder.item).collectLatest { issues ->
-                        issues.forEach { viewModel.getIssue(it.issue.issueId) }
-                    }
-                }
+            val firstIssueId = this.item.series.firstIssue
+            if (firstIssueId != null) {
+                viewModel.getIssue(firstIssueId)
+            } else if (this.item.series.issueCount < 10) {
+                viewModel.updateIssuesBySeries(this@SeriesHolder.item)
             }
 
-            val uri: Uri? = this.item.firstIssue?.coverUri
+            val firstIssue: FullIssue? = this.item.firstIssue
 
-            uri.let { seriesImageView.setImageURI(it) }
+            val uri: Uri? = firstIssue?.coverUri
+
+            coverProgressBar.visibility =
+                if (firstIssue != null || item.series.issueCount == 1) {
+                    View.GONE
+                } else {
+                    View.VISIBLE
+                }
+
+            seriesImageView.setImageURI(uri)
 
             seriesDateRangeTextView.text = this.item.series.dateRange
             formatTextView.text = this.item.series.publishingFormat?.lowercase()

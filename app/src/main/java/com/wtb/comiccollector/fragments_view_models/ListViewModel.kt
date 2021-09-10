@@ -1,6 +1,5 @@
 package com.wtb.comiccollector.fragments_view_models
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -22,7 +21,6 @@ abstract class ListViewModel<T : ListItem> : ViewModel() {
         get() = _filter
 
     open fun setFilter(filter: SearchFilter) {
-        Log.d(TAG, "Updating listviewmodel filter")
         _filter.value = filter
     }
 

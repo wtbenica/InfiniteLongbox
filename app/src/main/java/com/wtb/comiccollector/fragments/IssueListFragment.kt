@@ -2,7 +2,6 @@ package com.wtb.comiccollector.fragments
 
 import android.animation.ValueAnimator
 import android.os.Bundle
-import android.util.Log
 import android.view.*
 import android.view.View.GONE
 import android.view.View.VISIBLE
@@ -63,7 +62,6 @@ class IssueListFragment : ListFragment<FullIssue, IssueListFragment.IssueViewHol
         viewModel.seriesLiveData.observe(
             viewLifecycleOwner,
             { fullSeries ->
-                Log.d(TAG, "BBB collecting series 3")
                 fullSeries?.let { updateSeriesDetailFragment(it) }
                 callback?.setTitle(fullSeries?.series?.seriesName)
             }

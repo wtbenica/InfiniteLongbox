@@ -48,11 +48,11 @@
             android:tag="@string/tag_filter_fragment"
             app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior"
             tools:layout="@layout/fragment_filter" />
-
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
     <com.google.android.gms.ads.AdView
         android:id="@+id/ad_view"
+        android:paddingTop="@dimen/margin_default"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"

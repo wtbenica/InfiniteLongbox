@@ -10,6 +10,7 @@ import com.wtb.comiccollector.ComicCollectorApplication.Companion.context
 import com.wtb.comiccollector.Webservice
 import com.wtb.comiccollector.database.IssueDatabase
 import com.wtb.comiccollector.database.daos.BaseDao
+import com.wtb.comiccollector.database.daos.Count
 import com.wtb.comiccollector.database.models.*
 import com.wtb.comiccollector.repository.Updater.PriorityDispatcher.Companion.lowPriorityDispatcher
 import kotlinx.coroutines.*
@@ -22,6 +23,9 @@ import java.time.Instant
 import java.time.LocalDate
 import kotlin.reflect.KSuspendFunction0
 import kotlin.reflect.KSuspendFunction1
+
+val BooleanArray.allTrue
+    get() = this.all { it == true }
 
 /**
  * Updater
@@ -185,6 +189,7 @@ abstract class Updater(
             name: String,
             arg: ArgType,
             queryFunction: (ArgType) -> Deferred<ResultType>,
+            doRetry: Boolean = false,
         ): ResultType? {
 
             return try {
@@ -195,13 +200,31 @@ abstract class Updater(
                 }
             } catch (e: SocketTimeoutException) {
                 Log.d(TAG, "$name $e")
+                if (doRetry)
+                    retrySafely(name, arg, queryFunction)
                 null
             } catch (e: ConnectException) {
+                if (doRetry)
+                    retrySafely(name, arg, queryFunction)
                 Log.d(TAG, "$name $e")
                 null
             } catch (e: HttpException) {
+                // do i need to check for others?
                 Log.d(TAG, "$name $e")
                 null
+            }
+        }
+
+        private suspend fun <ArgType : Any, ResultType : Any> retrySafely(
+            name: String,
+            arg: ArgType,
+            queryFunction: (ArgType) -> Deferred<ResultType>,
+        ) {
+            withContext(Dispatchers.IO) {
+                launch {
+                    delay(5000)
+                    runSafely(name, arg, queryFunction, true)
+                }
             }
         }
 
@@ -234,7 +257,7 @@ abstract class Updater(
 
         /**
          * @return true if DEBUG is true or if item needs to be updated and it hasn't already
-         * been started or it's been
+         * been started or it's been more than 3 secs
          */
         // TODO: This should probably get moved out of SharedPreferences and stored with each record.
         //  The tradeoff: an extra local db query vs. having a larger prefs which will end up having
@@ -266,9 +289,9 @@ abstract class Updater(
             apiCall: KSuspendFunction1<ArgType, List<Item<GcdType, ModelType>>>,
         ): List<ModelType>? =
             supervisorScope {
-                runSafely("getItemsByArgument: ${apiCall.name}", arg) {
+                runSafely("getItemsByArgument: ${apiCall.name}", arg, {
                     async { apiCall(it) }
-                }?.models
+                })?.models
             }
 
         internal suspend fun <GcdType : GcdJson<ModelType>, ModelType : DataModel, ArgType : Any>
@@ -357,7 +380,9 @@ abstract class Updater(
         saveTag: String,
     ): List<ModelType>? =
         supervisorScope {
+            Log.d(TAG, "UPDATING $saveTag")
             if (checkIfStale(saveTag, WEEKLY, prefs)) {
+                Log.d(TAG, "NOT STALE $saveTag")
                 runSafely("getItems: ${apiCall.name}") {
                     async { apiCall() }
                 }?.models
@@ -377,37 +402,62 @@ abstract class Updater(
         getItemsByPage: suspend (Int) -> List<ModelType>?,
         verifyForeignKeys: suspend (List<ModelType>) -> Unit = {},
         dao: BaseDao<ModelType>,
+        getNumPages: suspend () -> Count,
     ) {
+        // If it's been a week, mark all pages as stale
         if (checkIfStale(saveTag, WEEKLY, prefs)) {
-            var page = prefs.getInt(savePageTag, 0)
-            var stop = false
-            var success = true
+            Repository.savePrefValue(prefs, savePageTag, "")
+        }
 
-            do {
-                coroutineScope {
-                    val itemPage: List<ModelType>? = getItemsByPage(page)
+        // make an array for whether each page has been updated
+        val numPages: Int = getNumPages().count
+        val pagesComplete = BooleanArray(numPages)
 
-                    if (itemPage != null && itemPage.isNotEmpty()) {
-                        verifyForeignKeys(itemPage)
-                        dao.upsertSus(itemPage)
-                        Repository.savePrefValue(prefs, savePageTag, page)
-                    } else if (itemPage != null) {
-                        stop = true
-                    } else {
-                        stop = true
-                        success = false
-                    }
-                }
+        // savePageTag's value is a string of whether each page has been updated, e.g. "tfffttttftt"
+        val pagesCompleteSaved: String = prefs.getString(savePageTag, "") ?: ""
 
-                page += 1
-            } while (!stop)
-
-            if (success) {
-                Repository.savePrefValue(prefs, savePageTag, 0)
-                Repository.saveTime(prefs, saveTag)
+        // if the number of pages match, then it's the same data, so use PCS to update PC,
+        // otherwise, this has the effect of marking all pages as unupdated
+        if (numPages == pagesCompleteSaved.length) {
+            pagesCompleteSaved.forEachIndexed { index, c ->
+                pagesComplete[index] = (c == 't')
             }
         }
+
+        // for each page in PC, if not complete, then try to update again
+        CoroutineScope(Dispatchers.IO).async {
+            pagesComplete.forEachIndexed { currPage, isComplete ->
+                if (!isComplete) {
+                    launch {
+                        Log.d(TAG, "WORKING ON $saveTag PAGE $currPage")
+                        val itemPage: List<ModelType>? = getItemsByPage(currPage)
+
+                        // if request is successful, save and mark as updated
+                        if (itemPage != null && itemPage.isNotEmpty()) {
+                            verifyForeignKeys(itemPage)
+                            dao.upsertSus(itemPage)
+                            pagesComplete[currPage] = true
+                        }
+                    }
+                }
+            }
+        }.await().let {
+
+            // if every page has been updated, change saveTag time
+            if (pagesComplete.allTrue) {
+                Repository.saveTime(prefs, saveTag)
+            }
+
+            // write new savePageTag
+            val sb = StringBuilder()
+            pagesComplete.forEach {
+                sb.append(if (it) "t" else "f")
+            }
+            Log.d(TAG, "SPT: $sb")
+            Repository.savePrefValue(prefs, savePageTag, sb.toString())
+        }
     }
+
 
     /**
      * Refresh all - gets items, performs followup, then saves using dao

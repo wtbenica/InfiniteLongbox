@@ -11,7 +11,7 @@
         <entry key="app/src/main/res/drawable/background_story_box_title_bar.xml" value="0.27692307692307694" />
         <entry key="app/src/main/res/drawable/primary_border.xml" value="0.1111111111111111" />
         <entry key="app/src/main/res/drawable/primary_dark_border.xml" value="0.1111111111111111" />
-        <entry key="app/src/main/res/layout/activity_main.xml" value="0.1" />
+        <entry key="app/src/main/res/layout/activity_main.xml" value="0.33" />
         <entry key="app/src/main/res/layout/fragment_display_issue.xml" value="0.2809611829944547" />
         <entry key="app/src/main/res/layout/fragment_filter.xml" value="0.33" />
         <entry key="app/src/main/res/layout/fragment_item_list.xml" value="0.14035087719298245" />
@@ -23,7 +23,7 @@
         <entry key="app/src/main/res/layout/list_item_filter_option_auto_complete.xml" value="0.26033755274261605" />
         <entry key="app/src/main/res/layout/list_item_issue.xml" value="0.18888888888888888" />
         <entry key="app/src/main/res/layout/list_item_search_type.xml" value="0.2636752136752137" />
-        <entry key="app/src/main/res/layout/list_item_series.xml" value="0.33" />
+        <entry key="app/src/main/res/layout/list_item_series.xml" value="0.1" />
         <entry key="app/src/main/res/layout/list_item_variant.xml" value="0.2636752136752137" />
         <entry key="app/src/main/res/layout/row_item_appearance.xml" value="0.1" />
         <entry key="app/src/main/res/layout/spinner_item_variant.xml" value="0.5" />

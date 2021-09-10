@@ -2,7 +2,6 @@ package com.wtb.comiccollector.fragments
 
 import android.content.Context
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -81,7 +80,6 @@ abstract class ListFragment<T : ListItem, VH : RecyclerView.ViewHolder> : Fragme
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.itemList.collectLatest {
-                    Log.d(TAG, "It's a new character list!")
                     adapter.submitData(it)
                 }
             }
@@ -90,7 +88,6 @@ abstract class ListFragment<T : ListItem, VH : RecyclerView.ViewHolder> : Fragme
         filterViewModel.filter.observe(
             viewLifecycleOwner,
             { filter ->
-                Log.d(TAG, "Updating listviewmodel filter")
                 viewModel.setFilter(filter)
             }
         )

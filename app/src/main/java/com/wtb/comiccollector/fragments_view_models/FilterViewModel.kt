@@ -1,6 +1,5 @@
 package com.wtb.comiccollector.fragments_view_models
 
-import android.util.Log
 import androidx.lifecycle.*
 import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.SearchFilter
@@ -58,7 +57,6 @@ class FilterViewModel : ViewModel() {
             characters: List<FilterModel>,
         ->
         val res: List<FilterModel> = series + creators + publishers + characters
-        Log.d(TAG, "filterOptions: ${res.size}")
         res.sorted()
     }.asLiveData()
 
@@ -91,17 +89,14 @@ class FilterViewModel : ViewModel() {
                 }
             }
         }
-        Log.d(TAG, "Setting new filter: $filter")
         _filter.value = SearchFilter(filter)
     }
 
     fun setFilterType(filterType: KClass<*>) {
-        Log.d(TAG, "FiltER TYpe IS : %$#$#@$${filterType.simpleName}")
         this._filterType.value = filterType
     }
 
     fun addFilterItem(item: FilterItem) {
-        Log.d(TAG, "ADDING ITEM: $item")
         val newVal = _filter.value?.let { SearchFilter(it) } ?: SearchFilter()
         newVal.addFilter(item)
         when (item) {
@@ -118,7 +113,6 @@ class FilterViewModel : ViewModel() {
     }
 
     fun setSortOption(sortType: SortType) {
-        Log.d(TAG, "setSortOption: ${sortType.sortString} ${sortType.order}")
         val newVal = _filter.value?.let { SearchFilter(it) } ?: SearchFilter()
         newVal.mSortType = sortType
         setFilter(newVal)

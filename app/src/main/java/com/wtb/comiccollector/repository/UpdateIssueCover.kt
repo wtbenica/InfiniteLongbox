@@ -2,6 +2,7 @@ package com.wtb.comiccollector.repository
 
 import android.content.ContentValues
 import android.content.Context
+import android.content.ContextWrapper
 import android.content.SharedPreferences
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -9,19 +10,26 @@ import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
+import android.util.Log
 import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.Webservice
 import com.wtb.comiccollector.database.models.Cover
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
 import java.io.OutputStream
 import java.net.HttpURLConnection
 import java.net.URL
+import java.time.LocalDate
 
 
 private const val TAG = APP + "UpdateIssueCover"
+
+fun coverFileName(issueId: Int): String = "COVER_$issueId.jpg"
 
 @ExperimentalCoroutinesApi
 class UpdateIssueCover private constructor(
@@ -32,23 +40,16 @@ class UpdateIssueCover private constructor(
     internal fun update(issueId: Int) {
         CoroutineScope(Dispatchers.IO).launch {
             database.issueDao().getIssueSus(issueId)?.let { issue ->
-                if (issue.coverUri == null || DEBUG) {
-                    kotlin.runCatching {
-                        val url = URL(issue.issue.url)
-
-                        val image = CoroutineScope(Dispatchers.IO).async {
-                            url.toBitmap()
-                        }
-
-                        CoroutineScope(Dispatchers.Default).launch {
-                            val bitmap = image.await()
-
-                            if (bitmap != null) {
-                                val savedUri: Uri? =
-                                    bitmap.saveToInternalStorage(
-                                        context,
-                                        issue.issue.coverFileName
-                                    )
+                val file = getFileHandle(context, coverFileName(issueId))
+                if (!file.exists() || (issue.coverUri == null &&
+                            issue.cover?.lastUpdated?.plusDays(7) ?:
+                            LocalDate.MIN < LocalDate.now()) || DEBUG) {
+                    if (!file.exists()) {
+                        kotlin.runCatching {
+                            val url = URL(issue.issue.url)
+                            val image = url.toBitmap()
+                            if (image != null) {
+                                val savedUri: Uri? = image.saveToInternalStorage(file)
 
                                 val cover = Cover(issue = issueId, coverUri = savedUri)
                                 database.coverDao().upsertSus(listOf(cover))
@@ -57,6 +58,9 @@ class UpdateIssueCover private constructor(
                                 database.coverDao().upsertSus(cover)
                             }
                         }
+                    } else {
+                        val cover = Cover(issue = issueId, coverUri = Uri.parse(file.absolutePath))
+                        database.coverDao().upsertSus(listOf(cover))
                     }
                 }
             }
@@ -81,6 +85,9 @@ class UpdateIssueCover private constructor(
             }
         }
     }
+
+    private fun checkForExistingCover(file: File): Boolean =
+        file.exists()
 }
 
 fun URL.toBitmap(): Bitmap? {
@@ -97,8 +104,34 @@ fun URL.toBitmap(): Bitmap? {
     }
 }
 
+fun Bitmap.saveToInternalStorage(file: File): Uri? {
+    return try {
+        val stream = FileOutputStream(file)
+
+        compress(Bitmap.CompressFormat.JPEG, 100, stream)
+
+        stream.flush()
+
+        stream.close()
+
+        Uri.parse(file.absolutePath)
+    } catch (e: IOException) {
+        e.printStackTrace()
+        null
+    }
+}
+
+private fun getFileHandle(context: Context, uri: String): File {
+    val wrapper = ContextWrapper(context)
+
+    var file: File = wrapper.getDir("images", Context.MODE_PRIVATE)
+
+    file = File(file, uri)
+    return file
+}
+
 @Suppress("DEPRECATION")
-fun Bitmap.saveToInternalStorage(context: Context, filename: String): Uri? {
+fun Bitmap.saveToInternalStorage2(context: Context, filename: String): Uri? {
     val mimeType = "images/jpeg"
     val directory = Environment.DIRECTORY_PICTURES
     val mediaUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
@@ -124,6 +157,6 @@ fun Bitmap.saveToInternalStorage(context: Context, filename: String): Uri? {
     }
 
     imageOutputStream.use { compress(Bitmap.CompressFormat.JPEG, 100, it) }
-
+    Log.d(TAG, "SAVED URI: $uri")
     return uri
 }

@@ -3,7 +3,6 @@
     <style name="FilterFrameLayout">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:background">?attr/colorSecondaryLightLight</item>
         <item name="android:clickable">true</item>
         <item name="android:focusable">true</item>
     </style>
@@ -34,8 +33,6 @@
         <item name="android:layout_width">?attr/dropdownListPreferredItemHeight</item>
         <item name="android:layout_height">?attr/dropdownListPreferredItemHeight</item>
         <item name="android:background">?attr/colorPrimary</item>
-        <item name="android:layout_marginStart">@dimen/margin_default</item>
-        <item name="android:layout_marginEnd">@dimen/margin_default</item>
         <item name="tint">?attr/colorOnSecondary</item>
         <item name="android:layout_weight">0</item>
         <item name="android:layout_gravity">center</item>

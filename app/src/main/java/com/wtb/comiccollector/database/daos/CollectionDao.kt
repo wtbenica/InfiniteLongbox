@@ -2,6 +2,8 @@ package com.wtb.comiccollector.database.daos
 
 import androidx.room.Dao
 import androidx.room.Query
+import com.google.gson.annotations.Expose
+import com.google.gson.annotations.SerializedName
 import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.database.models.MyCollection
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -32,5 +34,7 @@ abstract class CollectionDao : BaseDao<MyCollection>("collection") {
 }
 
 data class Count(
+    @SerializedName("count")
+    @Expose
     val count: Int
 )

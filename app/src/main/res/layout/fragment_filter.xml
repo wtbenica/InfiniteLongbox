@@ -4,7 +4,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    app:cardElevation="@dimen/margin_default">
+    app:cardElevation="@dimen/margin_default"
+    app:cardBackgroundColor="?attr/colorSecondaryLightLight"
+    app:cardPreventCornerOverlap="false">
 
     <FrameLayout
         android:id="@+id/layout_filter_fragment"
@@ -202,7 +204,6 @@
                     style="@style/SearchTypeSpinnerStyle"
                     android:entries="@array/suffixes_array"
                     tools:listitem="@layout/spinner_item_filter_type" />
-
             </LinearLayout>
         </LinearLayout>
     </FrameLayout>

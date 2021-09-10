@@ -50,10 +50,10 @@ data class Issue(
 ) : DataModel() {
 
     val coverFileName: String
-        get() = "IMG_$issueId.jpg"
+        get() = "COVER_$issueId.jpg"
 
     val url: String
-        get() = "https://longbox.wl.r.appspot.com/db_query/issue/$id/cover"
+        get() = "https://infinite-longbox.uc.r.appspot.com/db_query/issue/$id/cover"
 
     override val id: Int
         get() = issueId
