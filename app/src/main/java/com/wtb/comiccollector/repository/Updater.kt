@@ -276,7 +276,9 @@ abstract class Updater(
             } catch (e: ClassCastException) {
                 timeStarted = Instant.MIN.epochSecond
             }
-            return DEBUG || (isStale && (!isStarted || timeStarted + 3 < Instant.now().epochSecond))
+            val isExpired = timeStarted + 3 < Instant.now().epochSecond
+            Log.d(TAG, "$prefsKey LU: $lastUpdated STALE: $isStale STARTED: $isStarted EXP: $isExpired")
+            return DEBUG || (isStale && (!isStarted || isExpired))
         }
 
         /**

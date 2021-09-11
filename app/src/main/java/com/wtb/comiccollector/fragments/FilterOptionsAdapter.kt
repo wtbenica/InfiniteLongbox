@@ -66,8 +66,10 @@ class FilterOptionsAdapter(context: Context, filterOptions: List<FilterModel>) :
                 results.values = if (query == null || query.isEmpty()) {
                     allOptions
                 } else {
-                    allOptions.filter {
-                        it.compareValue.lowercase().contains(query)
+                    allOptions.filter { fm ->
+                        val newQs = query.split(' ')
+                        newQs.map { fm.compareValue.lowercase().contains(it) }
+                            .reduce { acc, b -> acc && b }
                     }
                 }
 
@@ -76,7 +78,7 @@ class FilterOptionsAdapter(context: Context, filterOptions: List<FilterModel>) :
 
             override fun publishResults(
                 constraint: CharSequence?,
-                results: FilterResults?
+                results: FilterResults?,
             ) {
                 val optionsList: MutableList<FilterModel> = mutableListOf()
 

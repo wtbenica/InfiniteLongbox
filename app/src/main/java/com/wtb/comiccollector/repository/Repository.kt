@@ -170,10 +170,9 @@ class Repository private constructor(val context: Context) {
             emptyFlow()
         }
 
-
+    // TODO: This looks incorrect. it should filter to creators who have shared credits
     fun getFilterOptionsCreator(filter: SearchFilter): Flow<List<Creator>> =
-        if (filter.mCreators
-                .isEmpty()) {
+        if (filter.mCreators.isEmpty()) {
             creatorDao.getCreatorsByFilter(filter)
         } else {
             emptyFlow()
@@ -227,6 +226,7 @@ class Repository private constructor(val context: Context) {
 
     // ISSUE METHODS
     fun getIssue(issueId: Int): Flow<FullIssue?> {
+        Log.d(TAG, "Getting issue $issueId")
         if (issueId != AUTO_ID) {
             CoroutineScope(Dispatchers.Default).launch {
                 updater.updateIssue(issueId)

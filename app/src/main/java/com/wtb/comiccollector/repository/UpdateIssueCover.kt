@@ -38,6 +38,7 @@ class UpdateIssueCover private constructor(
     val context: Context,
 ) : Updater(webservice, prefs) {
     internal fun update(issueId: Int) {
+        Log.d(TAG, "Starting cover update $issueId")
         CoroutineScope(Dispatchers.IO).launch {
             val file = getFileHandle(context, coverFileName(issueId))
             val fileDNE = !file.exists()

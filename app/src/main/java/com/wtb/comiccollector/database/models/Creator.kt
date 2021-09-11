@@ -26,7 +26,7 @@ data class Creator(
         get() = "Creator"
 
     override val compareValue: String
-        get() = sortName
+        get() = name
 
     override fun toString(): String {
         return name

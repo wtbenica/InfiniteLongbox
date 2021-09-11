@@ -75,8 +75,10 @@ abstract class PublisherDao : BaseDao<Publisher>("publisher") {
         filter.mTextFilter?.let { textFilter -> 
             val text = textFilterToString(textFilter.text)
             
-            conditionsString.append("""AND pr.publisher like '$text' 
+            conditionsString.append("""AND pr.publisher like ? 
             """)
+
+            args.add(text)
         }
 
         val query = SimpleSQLiteQuery(

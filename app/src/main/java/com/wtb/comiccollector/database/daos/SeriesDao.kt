@@ -153,8 +153,10 @@ abstract class SeriesDao : BaseDao<Series>("series") {
             filter.mTextFilter?.let { textFilter ->
                 val text = textFilterToString(textFilter.text)
 
-                conditions.append("""${connectWord()} ss.seriesName like '$text' 
+                conditions.append("""${connectWord()} ss.seriesName like ? 
                 """)
+
+                args.add(text)
             }
 
             val sortClause: String = filter.mSortType?.let {
