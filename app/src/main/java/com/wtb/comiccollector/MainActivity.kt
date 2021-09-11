@@ -1,12 +1,9 @@
 package com.wtb.comiccollector
 
-import android.Manifest
 import android.app.Activity
-import android.content.pm.PackageManager
 import android.net.ConnectivityManager
 import android.net.Network
 import android.net.NetworkCapabilities
-import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -18,8 +15,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.ContentFrameLayout
 import androidx.appcompat.widget.Toolbar
 import androidx.coordinatorlayout.widget.CoordinatorLayout
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import androidx.core.view.*
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentContainerView
@@ -88,53 +83,6 @@ class MainActivity : AppCompatActivity(),
         }
     }
 
-    private fun havePermission(permission: String) =
-        ContextCompat.checkSelfPermission(
-            ComicCollectorApplication.context!!,
-            permission
-        ) == PackageManager.PERMISSION_GRANTED
-
-    private fun haveStoragePermission() = havePermission(Manifest.permission.READ_EXTERNAL_STORAGE)
-
-    private fun requestPermission(perms: MutableList<String>, requestCode: Int) {
-        if (!haveStoragePermission()) {
-            ActivityCompat.requestPermissions(
-                this,
-                perms.toTypedArray(),
-                requestCode
-            )
-        }
-    }
-
-    private fun requestStoragePermission() =
-        requestPermission(
-            mutableListOf(Manifest.permission.READ_EXTERNAL_STORAGE, ).also {
-                if (Build.VERSION.SDK_INT <= 28) {
-                    it.add(Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                }
-            },
-            READ_EXTERNAL_STORAGE_REQUEST)
-
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray,
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        when (requestCode) {
-            READ_EXTERNAL_STORAGE_REQUEST -> {
-                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager
-                        .PERMISSION_GRANTED) {
-                    //  continue as necessary
-                } else {
-                    //  tell the user they are going to regret their mistake forever
-                }
-                return
-            }
-            else                          -> Unit
-        }
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(R.style.Theme_ComicCollector)
         WindowCompat.setDecorFitsSystemWindows(window, false)
@@ -148,10 +96,6 @@ class MainActivity : AppCompatActivity(),
             val adRequest = AdRequest.Builder().build()
             mAdView.loadAd(adRequest)
             mAdView.visibility = View.VISIBLE
-        }
-
-        if (!haveStoragePermission()) {
-            requestStoragePermission()
         }
 
         filterFragment =
@@ -201,14 +145,6 @@ class MainActivity : AppCompatActivity(),
 
             insets
         }
-
-//        ViewCompat.setOnApplyWindowInsetsListener(resultFragmentContainer) { view, insets ->
-//            val posBottom = insets.getInsets(WindowInsetsCompat.Type.systemBars()).bottom
-//
-//            view.updatePadding(bottom = posBottom)
-//
-//            insets
-//        }
     }
 
     private fun initNetwork() {
