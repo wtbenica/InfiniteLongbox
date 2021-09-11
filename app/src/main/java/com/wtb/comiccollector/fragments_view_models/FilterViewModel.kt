@@ -100,7 +100,7 @@ class FilterViewModel : ViewModel() {
         val newVal = _filter.value?.let { SearchFilter(it) } ?: SearchFilter()
         newVal.addFilter(item)
         when (item) {
-            is Creator,
+            is Creator -> newVal.mShowVariants = true
             is Character -> newVal.mShowVariants = true
         }
         setFilter(newVal)
