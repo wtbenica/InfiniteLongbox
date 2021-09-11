@@ -8,6 +8,7 @@ import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.SearchFilter
+import com.wtb.comiccollector.database.models.FullIssue
 import com.wtb.comiccollector.database.models.FullSeries
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -23,7 +24,8 @@ class SeriesListViewModel : ListViewModel<FullSeries>() {
         repository.getSeriesByFilterPaged(it).asLiveData()
     }.asFlow().cachedIn(viewModelScope)
 
-    fun getIssue(issueId: Int) = repository.getIssue(issueId)
+    fun getIssue(issueId: Int): Flow<FullIssue?> = repository.getIssue(issueId)
+
     fun getIssueBySeries(series: FullSeries) =
         repository.getIssuesByFilter(SearchFilter(series = series))
 

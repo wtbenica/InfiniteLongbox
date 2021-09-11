@@ -15,10 +15,12 @@
         <FrameLayout
             android:id="@+id/layout_filter_fragment_handle"
             style="@style/HandleFrameLayout"
-            tools:visibility="gone">
+            android:elevation="1dp">
 
             <ImageView
+                android:id="@+id/handle_handle"
                 style="@style/Handle"
+                android:layout_width="match_parent"
                 android:contentDescription="@string/bottom_sheet_handle_description" />
         </FrameLayout>
 

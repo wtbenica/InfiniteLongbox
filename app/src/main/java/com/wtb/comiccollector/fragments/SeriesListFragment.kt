@@ -1,6 +1,5 @@
 package com.wtb.comiccollector.fragments
 
-import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -87,7 +86,9 @@ class SeriesListFragment : ListFragment<FullSeries, SeriesListFragment.SeriesHol
 
         fun bind(item: FullSeries) {
             this.item = item
+
             seriesTextView.text = this.item.series.seriesName
+
             val firstIssueId = this.item.series.firstIssue
             if (firstIssueId != null) {
                 viewModel.getIssue(firstIssueId)
@@ -97,19 +98,17 @@ class SeriesListFragment : ListFragment<FullSeries, SeriesListFragment.SeriesHol
 
             val firstIssue: FullIssue? = this.item.firstIssue
 
-            val uri: Uri? = firstIssue?.coverUri
+            seriesImageView.setImageURI(firstIssue?.coverUri)
+
+            seriesDateRangeTextView.text = this.item.series.dateRange
+            formatTextView.text = this.item.series.publishingFormat?.lowercase()
 
             coverProgressBar.visibility =
-                if (firstIssue != null || item.series.issueCount == 1) {
+                if (firstIssue == null || firstIssue.coverUri != null || firstIssue.cover != null) {
                     View.GONE
                 } else {
                     View.VISIBLE
                 }
-
-            seriesImageView.setImageURI(uri)
-
-            seriesDateRangeTextView.text = this.item.series.dateRange
-            formatTextView.text = this.item.series.publishingFormat?.lowercase()
         }
 
         override fun onClick(v: View?) {

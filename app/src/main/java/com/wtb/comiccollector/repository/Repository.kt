@@ -19,7 +19,6 @@ import androidx.paging.PagingData
 import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.MainActivity
 import com.wtb.comiccollector.SearchFilter
-import com.wtb.comiccollector.Webservice
 import com.wtb.comiccollector.database.IssueDatabase
 import com.wtb.comiccollector.database.daos.Count
 import com.wtb.comiccollector.database.daos.REQUEST_LIMIT
@@ -98,7 +97,6 @@ class Repository private constructor(val context: Context) {
         get() = IssueDatabase.getInstance(context)
     private var hasConnection: Boolean = false
     private var hasUnmeteredConnection: Boolean = true
-    private var isIdle = true
 
     private val seriesDao
         get() = database.seriesDao()
@@ -127,26 +125,18 @@ class Repository private constructor(val context: Context) {
     private val collectionDao
         get() = database.collectionDao()
 
-    private val filesDir = context.applicationContext.filesDir
-
     private val retrofit = RetrofitAPIClient.getRetrofitClient()
-
-    private val webservice: Webservice by lazy {
-        retrofit.create(Webservice::class.java)
-    }
 
     private val updater: StaticUpdater
         get() = StaticUpdater.get()
 
     private fun checkConnectionStatus() =
-        this.hasConnection && this.hasUnmeteredConnection && this.isIdle
+        this.hasConnection && this.hasUnmeteredConnection
 
     init {
         MainActivity.hasConnection.observeForever {
             this.hasConnection = it
             if (checkConnectionStatus()) {
-                this.isIdle = false
-
                 // TODO: A lint inspection pointed out that update returns a Deferred, which
                 //  means that this is async async await. Look into
                 MainActivity.activeJob = CoroutineScope(Dispatchers.IO).launch {
@@ -155,7 +145,6 @@ class Repository private constructor(val context: Context) {
                         updater.updateAsync()
                     }.let {
                         Log.d(TAG, "Static update done")
-                        this@Repository.isIdle = true
                     }
                 }
             }
@@ -184,7 +173,7 @@ class Repository private constructor(val context: Context) {
 
     fun getFilterOptionsCreator(filter: SearchFilter): Flow<List<Creator>> =
         if (filter.mCreators
-            .isEmpty()) {
+                .isEmpty()) {
             creatorDao.getCreatorsByFilter(filter)
         } else {
             emptyFlow()
@@ -239,11 +228,12 @@ class Repository private constructor(val context: Context) {
     // ISSUE METHODS
     fun getIssue(issueId: Int): Flow<FullIssue?> {
         if (issueId != AUTO_ID) {
-            updateIssueCover(issueId)
-            updater.updateIssue(issueId)
+            CoroutineScope(Dispatchers.Default).launch {
+                updater.updateIssue(issueId)
+            }
         }
 
-        return issueDao.getFullIssue(issueId = issueId)
+        return issueDao.getFullIssue(issueId)
     }
 
     fun getIssuesByFilter(filter: SearchFilter): Flow<List<FullIssue>> {

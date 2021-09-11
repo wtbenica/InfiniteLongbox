@@ -96,7 +96,6 @@ class MainActivity : AppCompatActivity(),
 
     private fun haveStoragePermission() = havePermission(Manifest.permission.READ_EXTERNAL_STORAGE)
 
-
     private fun requestPermission(perms: MutableList<String>, requestCode: Int) {
         if (!haveStoragePermission()) {
             ActivityCompat.requestPermissions(
@@ -141,12 +140,15 @@ class MainActivity : AppCompatActivity(),
         WindowCompat.setDecorFitsSystemWindows(window, false)
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        Log.d(TAG, "Flavor: ${com.wtb.comiccollector.BuildConfig.FLAVOR}")
+        if (com.wtb.comiccollector.BuildConfig.FLAVOR == "free") {
+            MobileAds.initialize(this)
 
-        MobileAds.initialize(this)
-
-        mAdView = findViewById(R.id.ad_view)
-        val adRequest = AdRequest.Builder().build()
-        mAdView.loadAd(adRequest)
+            mAdView = findViewById(R.id.ad_view)
+            val adRequest = AdRequest.Builder().build()
+            mAdView.loadAd(adRequest)
+            mAdView.visibility = View.VISIBLE
+        }
 
         if (!haveStoragePermission()) {
             requestStoragePermission()

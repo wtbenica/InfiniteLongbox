@@ -40,7 +40,7 @@ abstract class Updater(
     protected val database: IssueDatabase
         get() = IssueDatabase.getInstance(context!!)
 
-    internal suspend fun <T : DataModel> checkFKeys(
+    private suspend fun <T : DataModel> checkFKeys(
         models: List<T>,
         func: KSuspendFunction1<List<T>, Unit>,
     ) {
@@ -309,7 +309,8 @@ abstract class Updater(
 
         /**
          * Gets items, performs followup, then saves using dao
-         * usually: [getItems] for [id], checks foreign keys for [followup], saves items to [col]
+         * usually: [getItems] for [id], checks foreign keys for [followup], saves items to
+         * [collector]
          * then saves update time to [saveTag] in [prefs]
          */
         internal suspend fun <ModelType : DataModel, T : Any> updateById(
@@ -435,8 +436,9 @@ abstract class Updater(
                         // if request is successful, save and mark as updated
                         if (itemPage != null && itemPage.isNotEmpty()) {
                             verifyForeignKeys(itemPage)
-                            dao.upsertSus(itemPage)
-                            pagesComplete[currPage] = true
+                            if (dao.upsertSus(itemPage)) {
+                                pagesComplete[currPage] = true
+                            }
                         }
                     }
                 }
@@ -475,8 +477,9 @@ abstract class Updater(
 
                 if (items != null && items.isNotEmpty()) {
                     followup(items)
-                    dao.upsertSus(items)
-                    Repository.saveTime(prefs, saveTag)
+                    if (dao.upsertSus(items)) {
+                        Repository.saveTime(prefs, saveTag)
+                    }
                 }
             }
         }
@@ -507,9 +510,15 @@ abstract class Updater(
             if (foreignKeyDao.get(it) == null) it else null
         }
 
-        val missingItems = getItemsByArgument(missingIds.toSet().toList(), getFkItems)
+        val missingItems: MutableList<FM> = mutableListOf()
+//            getItemsByArgument(missingIds.toSet().toList(), getFkItems)
+        missingIds.chunked(20).forEach { ids ->
+            getItemsByArgument(ids.toSet().toList(), getFkItems)?.let { items ->
+                missingItems.addAll(items)
+            }
+        }
 
-        if (missingItems != null && missingItems.isNotEmpty()) {
+        if (missingItems.isNotEmpty()) {
             fkFollowup?.let { it(missingItems) }
             foreignKeyDao.upsert(missingItems)
         }

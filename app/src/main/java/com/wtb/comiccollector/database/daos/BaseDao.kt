@@ -95,8 +95,8 @@ abstract class BaseDao<T : DataModel>(private val tableName: String) {
     }
 
     @Transaction
-    open suspend fun upsertSus(objList: List<T>) {
-
+    open suspend fun upsertSus(objList: List<T>): Boolean {
+        var success = true
         val objClass = if (objList.isNotEmpty()) {
             objList[0]::class.simpleName
         } else {
@@ -111,8 +111,11 @@ abstract class BaseDao<T : DataModel>(private val tableName: String) {
                 }
             } catch (sqlEx: SQLiteConstraintException) {
                 Log.d(TAG, "UGH SUS: $objClass $obj $sqlEx ${sqlEx.stackTrace} ${sqlEx.message}")
+                success = false
             }
         }
+
+        return success
     }
 
     companion object {

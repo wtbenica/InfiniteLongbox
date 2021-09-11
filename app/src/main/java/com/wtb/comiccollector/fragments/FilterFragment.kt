@@ -1,5 +1,6 @@
 package com.wtb.comiccollector.fragments
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Build
 import android.os.Bundle
@@ -50,6 +51,7 @@ class FilterFragment : Fragment(),
     // Views
     private lateinit var filterView: FrameLayout
     private lateinit var handleBox: FrameLayout
+    private lateinit var handleImage: ImageView
 
     private lateinit var dateFilterSection: LinearLayout
     private lateinit var dateChipGroup: DateChipGroup
@@ -115,6 +117,7 @@ class FilterFragment : Fragment(),
         )
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     private fun onCreateViewInitViews() {
         ViewCompat.setOnApplyWindowInsetsListener(filterView) { view, insets ->
             val posBottom = insets.getInsets(WindowInsetsCompat.Type.systemBars()).bottom
@@ -127,7 +130,7 @@ class FilterFragment : Fragment(),
             insets
         }
 
-        handleBox.setOnClickListener {
+        handleImage.setOnClickListener {
             callback?.onHandleClick()
         }
 
@@ -208,6 +211,7 @@ class FilterFragment : Fragment(),
     private fun onCreateViewFindViews(view: View) {
         filterView = view.findViewById(R.id.layout_filter_fragment)
         handleBox = view.findViewById(R.id.layout_filter_fragment_handle)
+        handleImage = view.findViewById(R.id.handle_handle)
 
         sections = view.findViewById(R.id.sections)
         dateFilterSection = view.findViewById(R.id.section_date_filters)
@@ -392,12 +396,12 @@ class FilterFragment : Fragment(),
             })
 
         val minDate = when (isStart) {
-            true -> LocalDate.of(1900, 1, 1)
+            true  -> LocalDate.of(1900, 1, 1)
             false -> this@FilterFragment.currFilter.mStartDate
         }
 
         val maxDate = when (isStart) {
-            true -> this@FilterFragment.currFilter.mEndDate
+            true  -> this@FilterFragment.currFilter.mEndDate
             false -> LocalDate.now()
         }
 

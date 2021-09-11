@@ -10,7 +10,6 @@
     <style name="HandleFrameLayout">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">@dimen/peek_height</item>
-        <item name="android:visibility">visible</item>
     </style>
 
     <style name="Handle">

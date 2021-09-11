@@ -39,12 +39,16 @@ class UpdateIssueCover private constructor(
 ) : Updater(webservice, prefs) {
     internal fun update(issueId: Int) {
         CoroutineScope(Dispatchers.IO).launch {
+            val file = getFileHandle(context, coverFileName(issueId))
+            val fileDNE = !file.exists()
+            Log.d(TAG, "UPDATING COVER $issueId -- FILE_DNE: $fileDNE")
             database.issueDao().getIssueSus(issueId)?.let { issue ->
-                val file = getFileHandle(context, coverFileName(issueId))
-                if (!file.exists() || (issue.coverUri == null &&
-                            issue.cover?.lastUpdated?.plusDays(7) ?:
-                            LocalDate.MIN < LocalDate.now()) || DEBUG) {
-                    if (!file.exists()) {
+                val uriDNE = issue.coverUri == null &&
+                        issue.cover?.lastUpdated?.plusDays(7) ?: LocalDate.MIN < LocalDate.now()
+                Log.d(TAG,
+                      "$issueId ${issue.series.seriesName} ${issue.issue.issueNumRaw} FILE: $fileDNE URI: $uriDNE")
+                if (fileDNE || uriDNE || DEBUG) {
+                    if (fileDNE) {
                         kotlin.runCatching {
                             val url = URL(issue.issue.url)
                             val image = url.toBitmap()
@@ -59,7 +63,8 @@ class UpdateIssueCover private constructor(
                             }
                         }
                     } else {
-                        val cover = Cover(issue = issueId, coverUri = Uri.parse(file.absolutePath))
+                        val cover =
+                            Cover(issue = issueId, coverUri = Uri.parse(file.absolutePath))
                         database.coverDao().upsertSus(listOf(cover))
                     }
                 }

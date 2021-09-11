@@ -10,7 +10,6 @@ import com.wtb.comiccollector.repository.Updater.PriorityDispatcher.Companion.hi
 import com.wtb.comiccollector.repository.Updater.PriorityDispatcher.Companion.lowPriorityDispatcher
 import com.wtb.comiccollector.repository.Updater.PriorityDispatcher.Companion.nowDispatcher
 import kotlinx.coroutines.*
-import java.time.Instant
 
 /**
  * Static updater
@@ -72,36 +71,28 @@ class StaticUpdater private constructor(
     }
 
     /**
-     * Update issue - updates stories, credits, appearances, and cover
+     * Updates issue model, then stories, credits, appearances, and cover
      */
     internal fun updateIssue(issueId: Int) =
         CoroutineScope(nowDispatcher).launch {
-            withContext(Dispatchers.Default) {
-                if (checkIfStale(issueTag(issueId), 1L, prefs)) {
-                    Repository.savePrefValue(prefs = prefs,
-                                             key = "${issueTag(issueId)}_STARTED",
-                                             value = true)
-                    Repository.savePrefValue(prefs = prefs,
-                                             key = "${issueTag(issueId)}_STARTED_TIME",
-                                             value = Instant.now().epochSecond)
-                    updateIssueStoryDetails(issueId)
-                }
-            }.let {
-                Repository.saveTime(prefs, issueTag(issueId))
-                Repository.savePrefValue(prefs = prefs,
-                                         key = "${issueTag(issueId)}_STARTED",
-                                         value = false)
-                Repository.savePrefValue(prefs = prefs,
-                                         key = "${issueTag(issueId)}_STARTED_TIME",
-                                         value = "${Instant.MIN.epochSecond}")
+            async {
+                updateIssueFromGcd(issueId)
+            }.await().let {
+                updateIssueStoryDetails(issueId)
+                UpdateIssueCover.get().update(issueId)
             }
+        }.let {
+            Repository.saveTime(prefs, issueTag(issueId))
         }
 
-
+    /**
+     * Updates issue story details and covers
+     *
+     * @param issueIds
+     */
     private fun updateIssues(issueIds: List<Int>) {
         CoroutineScope(highPriorityDispatcher).launch {
-            updateIssuesStoryDetails(issueIds)
-            issueIds.forEach { UpdateIssueCover.get().update(it) }
+            issueIds.forEach { updateIssue(it) }
         }
     }
 
@@ -129,7 +120,7 @@ class StaticUpdater private constructor(
 
 
     /**
-     * Update issue story details - updates stories, credits, and appearances for this issue
+     * Updates stories, credits, and appearances for this issue
      */
     private suspend fun updateIssueStoryDetails(issueId: Int) =
         updateIssuesStoryDetails(listOf(issueId))
@@ -337,6 +328,11 @@ class StaticUpdater private constructor(
 
     private suspend fun getSeriesBonds(): List<SeriesBond>? =
         getItems(prefs, webservice::getSeriesBonds, UPDATED_BONDS)
+
+    internal suspend fun updateIssueFromGcd(issueId: Int) {
+        if (checkIfStale(issueTag(issueId), WEEKLY, prefs))
+            getItemsByArgument(listOf(issueId), webservice::getIssuesByIds)
+    }
 
     private suspend fun getCharactersByPage(page: Int): List<Character>? =
         getItemsByArgument(page, webservice::getCharactersByPage)
