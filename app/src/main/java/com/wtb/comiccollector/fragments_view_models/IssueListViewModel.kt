@@ -1,5 +1,6 @@
 package com.wtb.comiccollector.fragments_view_models
 
+import android.os.Parcelable
 import androidx.lifecycle.*
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
@@ -40,4 +41,10 @@ class IssueListViewModel : ListViewModel<FullIssue>() {
     fun updateIssueCover(issueId: Int) = repository.updateIssueCover(issueId)
 
     fun cleanUpImages() = repository.cleanUpImages(seriesId.value)
+
+    fun saveIssueListState(instanceState: Parcelable?) {
+        repository.saveIssueListState = instanceState
+    }
+
+    fun getIssueListState() = repository.saveIssueListState
 }

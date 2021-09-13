@@ -10,6 +10,7 @@ import android.content.DialogInterface
 import android.content.SharedPreferences
 import android.database.sqlite.SQLiteConstraintException
 import android.os.Bundle
+import android.os.Parcelable
 import android.util.Log
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
@@ -87,6 +88,24 @@ internal fun characterTag(id: Int): String = UPDATED_TAG(id, "CHARACTER_")
 
 @ExperimentalCoroutinesApi
 class Repository private constructor(val context: Context) {
+
+    var saveIssueListState: Parcelable? = null
+        get() {
+            val res = field
+            Log.d(TAG, "Issue FIELD BEFORE = $field")
+            field = null
+            Log.d(TAG, "Issue FIELD AFTER = $field")
+            return res
+        }
+
+    var saveSeriesListState: Parcelable? = null
+        get() {
+            val res = field
+            Log.d(TAG, "SERIES FIELD BEFORE = $field")
+            field = null
+            Log.d(TAG, "SERIES FIELD AFTER = $field")
+            return res
+        }
 
     private val executor = Executors.newSingleThreadExecutor()
     private val database: IssueDatabase

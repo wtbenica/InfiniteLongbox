@@ -8,6 +8,9 @@ import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -18,6 +21,7 @@ import com.wtb.comiccollector.database.models.FullIssue
 import com.wtb.comiccollector.database.models.FullSeries
 import com.wtb.comiccollector.fragments_view_models.SeriesListViewModel
 import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.collectLatest
 
 private const val TAG = APP + "SeriesListFragment"
 
@@ -32,7 +36,9 @@ class SeriesListFragment : ListFragment<FullSeries, SeriesListFragment.SeriesHol
     }
 
     override fun getLayoutManager(): RecyclerView.LayoutManager = LinearLayoutManager(context)
+
     override fun getAdapter(): SeriesAdapter = SeriesAdapter()
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -43,6 +49,38 @@ class SeriesListFragment : ListFragment<FullSeries, SeriesListFragment.SeriesHol
             ItemOffsetDecoration(resources.getDimension(R.dimen.margin_narrow).toInt())
         )
         return view
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        updateBottomPadding()
+
+        val adapter = getAdapter()
+        listRecyclerView.adapter = adapter
+
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.itemList.collectLatest {
+                    adapter.submitData(it)
+                    viewModel.getSeriesListState()?.let {
+                        listRecyclerView.layoutManager?.onRestoreInstanceState(it)
+                    }
+                }
+            }
+        }
+
+        filterViewModel.filter.observe(
+            viewLifecycleOwner,
+            { filter ->
+                viewModel.setFilter(filter)
+            }
+        )
+    }
+
+    override fun onDestroyView() {
+        viewModel.saveSeriesListState(listRecyclerView.layoutManager?.onSaveInstanceState())
+        super.onDestroyView()
     }
 
     //    private fun runLayoutAnimation(view: RecyclerView) {

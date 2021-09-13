@@ -59,6 +59,7 @@ abstract class ListFragment<T : ListItem, VH : RecyclerView.ViewHolder> : Fragme
 
         listRecyclerView = view.findViewById(R.id.results_frame) as RecyclerView
         listRecyclerView.layoutManager = getLayoutManager()
+
         appBar = view.findViewById(R.id.app_bar)
         details = view.findViewById(R.id.details)
         details.viewTreeObserver.addOnGlobalLayoutListener(

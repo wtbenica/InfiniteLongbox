@@ -1,5 +1,6 @@
 package com.wtb.comiccollector.fragments_view_models
 
+import android.os.Parcelable
 import androidx.lifecycle.asFlow
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.switchMap
@@ -37,6 +38,12 @@ class SeriesListViewModel : ListViewModel<FullSeries>() {
             }
         }
     }
+
+    fun saveSeriesListState(instanceState: Parcelable?) {
+        repository.saveSeriesListState = instanceState
+    }
+
+    fun getSeriesListState() = repository.saveSeriesListState
 
     companion object {
         private const val TAG = APP + "SeriesListViewModel"

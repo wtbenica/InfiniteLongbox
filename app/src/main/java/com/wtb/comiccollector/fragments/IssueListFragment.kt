@@ -57,6 +57,9 @@ class IssueListFragment : ListFragment<FullIssue, IssueListFragment.IssueViewHol
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.itemList.collectLatest { pagingData ->
                     adapter.submitData(pagingData)
+                    viewModel.getIssueListState()?.let {
+                        listRecyclerView.layoutManager?.onRestoreInstanceState(it)
+                    }
                 }
             }
         }
@@ -75,6 +78,11 @@ class IssueListFragment : ListFragment<FullIssue, IssueListFragment.IssueViewHol
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
         inflater.inflate(R.menu.fragment_issue_list, menu)
+    }
+
+    override fun onDestroyView() {
+        viewModel.saveIssueListState(listRecyclerView.layoutManager?.onSaveInstanceState())
+        super.onDestroyView()
     }
 
     override fun onDestroy() {
