@@ -110,11 +110,13 @@ class IssueDetailViewModel : ViewModel() {
 
     fun addToCollection() {
         currentIssue?.let { repository.addToCollection(it) }
+        currentIssue?.let { it.cover?.id?.let { cid -> repository.markCoverSave(cid)}}
     }
 
 
     fun removeFromCollection() {
         currentIssue?.let { repository.removeFromCollection(it.issue.issueId) }
+        currentIssue?.let { it.cover?.id?.let { cid -> repository.markCoverDelete(cid)}}
     }
 
 

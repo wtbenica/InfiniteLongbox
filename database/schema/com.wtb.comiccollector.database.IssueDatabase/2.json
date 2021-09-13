@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 2,
-    "identityHash": "d4b095fec7b4272f87247446d737c871",
+    "identityHash": "39a1f697dfb79c02246f870de67526d2",
     "entities": [
       {
         "tableName": "Issue",
@@ -1287,7 +1287,7 @@
       },
       {
         "tableName": "Cover",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`coverId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `issue` INTEGER NOT NULL, `coverUri` TEXT, `lastUpdated` TEXT NOT NULL, FOREIGN KEY(`issue`) REFERENCES `Issue`(`issueId`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`coverId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `issue` INTEGER NOT NULL, `coverUri` TEXT, `markedDelete` INTEGER NOT NULL, `lastUpdated` TEXT NOT NULL, FOREIGN KEY(`issue`) REFERENCES `Issue`(`issueId`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "coverId",
@@ -1306,6 +1306,12 @@
             "columnName": "coverUri",
             "affinity": "TEXT",
             "notNull": false
+          },
+          {
+            "fieldPath": "markedDelete",
+            "columnName": "markedDelete",
+            "affinity": "INTEGER",
+            "notNull": true
           },
           {
             "fieldPath": "lastUpdated",
@@ -1625,7 +1631,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'd4b095fec7b4272f87247446d737c871')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '39a1f697dfb79c02246f870de67526d2')"
     ]
   }
 }

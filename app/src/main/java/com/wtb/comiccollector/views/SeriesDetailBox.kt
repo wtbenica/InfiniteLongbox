@@ -22,7 +22,8 @@ private const val DIALOG_SERIES_INFO = "DIALOG_EDIT_SERIES"
 
 @ExperimentalCoroutinesApi
 class SeriesDetailBox(context: Context, attrs: AttributeSet?, defStyleAttr: Int) :
-    ConstraintLayout(context, attrs, R.attr.styleSeriesDetail, R.style.SeriesDetailBackground), SeriesLinkCallback {
+    ConstraintLayout(context, attrs, R.attr.styleSeriesDetail, R.style.SeriesDetailBackground),
+    SeriesLinkCallback {
 
     constructor(context: Context, series: FullSeries) : this(context, null, 0) {
         setSeries(series)
@@ -131,8 +132,8 @@ class SeriesDetailBox(context: Context, attrs: AttributeSet?, defStyleAttr: Int)
             VISIBLE
         }
 
-        series?.seriesBondTo?.targetSeries?. let { continuesAs.series = FullSeries(series = it) }
-        series?.seriesBondFrom?.originSeries?. let { continuesFrom.series = FullSeries(series = it) }
+        series?.seriesBondTo?.targetSeries?.let { continuesAs.series = FullSeries(series = it) }
+        series?.seriesBondFrom?.originSeries?.let { continuesFrom.series = FullSeries(series = it) }
     }
 
     override fun seriesClicked(series: FullSeries) {

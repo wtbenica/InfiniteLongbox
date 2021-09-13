@@ -74,14 +74,14 @@ class StaticUpdater private constructor(
     /**
      * Updates issue model, then stories, credits, appearances, and cover
      */
-    internal fun updateIssue(issueId: Int) =
+    internal fun updateIssue(issueId: Int, markedDelete: Boolean = true) =
         CoroutineScope(nowDispatcher).launch {
             Log.d(TAG, "Update issue $issueId")
             async {
                 updateIssueFromGcd(issueId)
             }.await().let {
                 updateIssueStoryDetails(issueId)
-                UpdateIssueCover.get().update(issueId)
+                UpdateIssueCover.get().update(issueId, markedDelete)
             }
         }.let {
             Repository.saveTime(prefs, issueTag(issueId))

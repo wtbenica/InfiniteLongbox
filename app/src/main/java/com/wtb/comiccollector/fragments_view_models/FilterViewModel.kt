@@ -1,5 +1,6 @@
 package com.wtb.comiccollector.fragments_view_models
 
+import android.util.Log
 import androidx.lifecycle.*
 import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.SearchFilter
@@ -99,8 +100,10 @@ class FilterViewModel : ViewModel() {
     fun addFilterItem(item: FilterItem) {
         val newVal = _filter.value?.let { SearchFilter(it) } ?: SearchFilter()
         newVal.addFilter(item)
+        Log.d(TAG, "Item type is: ${item::class} ${item}")
         when (item) {
             is Creator -> newVal.mShowVariants = true
+            is NameDetail -> newVal.mShowVariants
             is Character -> newVal.mShowVariants = true
         }
         setFilter(newVal)

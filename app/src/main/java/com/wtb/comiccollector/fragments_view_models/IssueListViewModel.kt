@@ -38,4 +38,6 @@ class IssueListViewModel : ListViewModel<FullIssue>() {
     }.asFlow().cachedIn(viewModelScope)
 
     fun updateIssueCover(issueId: Int) = repository.updateIssueCover(issueId)
+
+    fun cleanUpImages() = repository.cleanUpImages(seriesId.value)
 }

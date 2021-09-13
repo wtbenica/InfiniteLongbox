@@ -23,7 +23,6 @@ import com.wtb.comiccollector.database.IssueDatabase
 import com.wtb.comiccollector.database.daos.Count
 import com.wtb.comiccollector.database.daos.REQUEST_LIMIT
 import com.wtb.comiccollector.database.models.*
-import com.wtb.comiccollector.network.RetrofitAPIClient
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
@@ -89,9 +88,6 @@ internal fun characterTag(id: Int): String = UPDATED_TAG(id, "CHARACTER_")
 @ExperimentalCoroutinesApi
 class Repository private constructor(val context: Context) {
 
-    private val prefs: SharedPreferences =
-        context.getSharedPreferences(SHARED_PREFS, Context.MODE_PRIVATE)
-
     private val executor = Executors.newSingleThreadExecutor()
     private val database: IssueDatabase
         get() = IssueDatabase.getInstance(context)
@@ -124,8 +120,8 @@ class Repository private constructor(val context: Context) {
         get() = database.appearanceDao()
     private val collectionDao
         get() = database.collectionDao()
-
-    private val retrofit = RetrofitAPIClient.getRetrofitClient()
+    private val coverDao
+        get() = database.coverDao()
 
     private val updater: StaticUpdater
         get() = StaticUpdater.get()
@@ -147,6 +143,7 @@ class Repository private constructor(val context: Context) {
                         Log.d(TAG, "Static update done")
                     }
                 }
+                cleanUpImages()
             }
         }
     }
@@ -225,11 +222,11 @@ class Repository private constructor(val context: Context) {
     }
 
     // ISSUE METHODS
-    fun getIssue(issueId: Int): Flow<FullIssue?> {
+    fun getIssue(issueId: Int, markedDelete: Boolean = true): Flow<FullIssue?> {
         Log.d(TAG, "Getting issue $issueId")
         if (issueId != AUTO_ID) {
             CoroutineScope(Dispatchers.Default).launch {
-                updater.updateIssue(issueId)
+                updater.updateIssue(issueId, markedDelete)
             }
         }
 
@@ -410,6 +407,49 @@ class Repository private constructor(val context: Context) {
     fun updateCharacter(characterId: Int) = updater.updateCharacter(characterId)
     fun updateSeries(seriesId: Int) = updater.updateSeries(seriesId)
     fun updateCreators(creatorIds: List<Int>) = updater.updateCreators(creatorIds)
+
+    fun cleanUpImages(seriesId: Int? = null) {
+        CoroutineScope(Dispatchers.Default).launch {
+            val covers: List<Cover> = if (seriesId != null) {
+                issueDao.getIssuesByFilterSus(SearchFilter(series = FullSeries((Series(seriesId))
+                ))).mapNotNull { it.cover }
+            } else {
+                coverDao.getAll()
+            }
+
+            covers.forEach { cover ->
+                if (cover.markedDelete) {
+                    Log.d("${APP}CLEANUP", "STARTING")
+                    val f = getFileHandle(context, coverFileName(cover.issue))
+                    if (f.exists()) {
+                        Log.d("${APP}CLEANUP", "Deleting")
+                        f.delete()
+                    }
+                    coverDao.delete(cover)
+                } else {
+                    Log.d("${APP}CLEANUP", "Saving")
+                }
+            }
+        }
+    }
+
+    fun markCoverSave(cid: Int) {
+        markCover_(cid, false)
+    }
+
+    fun markCoverDelete(cid: Int) {
+        markCover_(cid, true)
+    }
+
+    private fun markCover_(cid: Int, isMarked: Boolean) =
+        CoroutineScope(Dispatchers.Default).launch {
+            val oc = coverDao.get(cid)
+            if (oc != null) {
+                val newCover = Cover(oc.coverId, oc.issue, oc.coverUri, isMarked)
+                coverDao.upsert(newCover)
+            }
+        }
+
 
     class DuplicateFragment : DialogFragment() {
         override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {

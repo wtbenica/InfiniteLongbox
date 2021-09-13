@@ -37,17 +37,15 @@ class UpdateIssueCover private constructor(
     prefs: SharedPreferences,
     val context: Context,
 ) : Updater(webservice, prefs) {
-    internal fun update(issueId: Int) {
+    internal fun update(issueId: Int, markedDelete: Boolean = true) {
         Log.d(TAG, "Starting cover update $issueId")
         CoroutineScope(Dispatchers.IO).launch {
             val file = getFileHandle(context, coverFileName(issueId))
             val fileDNE = !file.exists()
-            Log.d(TAG, "UPDATING COVER $issueId -- FILE_DNE: $fileDNE")
+
             database.issueDao().getIssueSus(issueId)?.let { issue ->
                 val uriDNE = issue.coverUri == null &&
                         issue.cover?.lastUpdated?.plusDays(7) ?: LocalDate.MIN < LocalDate.now()
-                Log.d(TAG,
-                      "$issueId ${issue.series.seriesName} ${issue.issue.issueNumRaw} FILE: $fileDNE URI: $uriDNE")
                 if (fileDNE || uriDNE || DEBUG) {
                     if (fileDNE) {
                         kotlin.runCatching {
@@ -56,7 +54,8 @@ class UpdateIssueCover private constructor(
                             if (image != null) {
                                 val savedUri: Uri? = image.saveToInternalStorage(file)
 
-                                val cover = Cover(issue = issueId, coverUri = savedUri)
+                                val cover = Cover(issue = issueId, coverUri = savedUri,
+                                                  markedDelete = markedDelete)
                                 database.coverDao().upsertSus(listOf(cover))
                             } else {
                                 val cover = Cover(issue = issueId, coverUri = null)
@@ -127,7 +126,7 @@ fun Bitmap.saveToInternalStorage(file: File): Uri? {
     }
 }
 
-private fun getFileHandle(context: Context, uri: String): File {
+fun getFileHandle(context: Context, uri: String): File {
     val wrapper = ContextWrapper(context)
 
     var file: File = wrapper.getDir("images", Context.MODE_PRIVATE)

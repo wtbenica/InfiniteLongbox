@@ -36,7 +36,9 @@ class IssueListFragment : ListFragment<FullIssue, IssueListFragment.IssueViewHol
     override val viewModel: IssueListViewModel by viewModels()
 
     private fun updateSeriesDetailFragment(series: FullSeries) {
-        details.addView(SeriesDetailBox(requireContext(), series))
+        val seriesDetailBox = SeriesDetailBox(requireContext(), series)
+        details.addView(seriesDetailBox)
+        updateBottomPadding()
     }
 
     override fun getLayoutManager(): RecyclerView.LayoutManager = GridLayoutManager(context, 2)
@@ -73,6 +75,11 @@ class IssueListFragment : ListFragment<FullIssue, IssueListFragment.IssueViewHol
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
         inflater.inflate(R.menu.fragment_issue_list, menu)
+    }
+
+    override fun onDestroy() {
+        viewModel.cleanUpImages()
+        super.onDestroy()
     }
 
     //    override fun onOptionsItemSelected(item: MenuItem): Boolean {

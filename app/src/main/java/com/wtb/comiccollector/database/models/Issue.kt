@@ -228,6 +228,7 @@ data class Cover(
     @PrimaryKey(autoGenerate = true) val coverId: Int = AUTO_ID,
     val issue: Int,
     val coverUri: Uri? = null,
+    val markedDelete: Boolean = true
 ) : DataModel() {
     override val id: Int
         get() = coverId

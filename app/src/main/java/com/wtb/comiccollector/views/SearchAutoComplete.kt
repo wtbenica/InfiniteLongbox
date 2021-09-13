@@ -37,6 +37,7 @@ class SearchAutoComplete(context: Context, attributeSet: AttributeSet) :
             if (actionId == EditorInfo.IME_ACTION_DONE) {
                 val tempItem = item
                 if (tempItem != null) {
+                    Log.d(TAG, "ADDING: $tempItem")
                     callbacks?.addFilterItem(tempItem)
                 } else {
                     callbacks?.addFilterItem(TextFilter(v.text.toString()))

@@ -541,12 +541,14 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback {
     }
 
     override fun characterClicked(character: FullCharacter) {
-        val filter = SearchFilter(character = character.character, myCollection = false)
+        val filter = SearchFilter(character = character.character, myCollection = false,
+                                  showVariants = true)
         listFragmentCallback?.updateFilter(filter)
     }
 
     override fun creatorClicked(creator: NameDetailAndCreator) {
-        val filter = SearchFilter(creators = setOf(creator.creator), myCollection = false)
+        val filter = SearchFilter(creators = setOf(creator.creator), myCollection = false,
+                                  showVariants = true)
         listFragmentCallback?.updateFilter(filter)
     }
 
