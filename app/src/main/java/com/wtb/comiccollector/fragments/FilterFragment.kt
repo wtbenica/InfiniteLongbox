@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.View.*
@@ -374,10 +373,6 @@ class FilterFragment : Fragment(),
 
         val filterTypeOptions: List<KClass<*>> = FilterType::class.sealedSubclasses
             .sortedBy { it.objectInstance.toString() }
-
-        init {
-            Log.d(TAG, "FTO: ${filterTypeOptions.size} $filterTypeOptions")
-        }
     }
 
     override fun getDate(currentSelection: LocalDate, isStart: Boolean) {

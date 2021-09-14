@@ -98,15 +98,6 @@ class Repository private constructor(val context: Context) {
             return res
         }
 
-    var saveSeriesListState: Parcelable? = null
-        get() {
-            val res = field
-            Log.d(TAG, "SERIES FIELD BEFORE = $field")
-            field = null
-            Log.d(TAG, "SERIES FIELD AFTER = $field")
-            return res
-        }
-
     private val executor = Executors.newSingleThreadExecutor()
     private val database: IssueDatabase
         get() = IssueDatabase.getInstance(context)
@@ -242,7 +233,6 @@ class Repository private constructor(val context: Context) {
 
     // ISSUE METHODS
     fun getIssue(issueId: Int, markedDelete: Boolean = true): Flow<FullIssue?> {
-        Log.d(TAG, "Getting issue $issueId")
         if (issueId != AUTO_ID) {
             CoroutineScope(Dispatchers.Default).launch {
                 updater.updateIssue(issueId, markedDelete)
@@ -258,7 +248,9 @@ class Repository private constructor(val context: Context) {
 
     fun getIssuesByFilterPaged(filter: SearchFilter): Flow<PagingData<FullIssue>> {
         return Pager(
-            config = PagingConfig(pageSize = REQUEST_LIMIT, enablePlaceholders = true),
+            config = PagingConfig(
+                pageSize = REQUEST_LIMIT,
+                enablePlaceholders = true),
             pagingSourceFactory = {
                 issueDao.getIssuesByFilterPagingSource(filter = filter)
             }
@@ -431,11 +423,11 @@ class Repository private constructor(val context: Context) {
         CoroutineScope(Dispatchers.Default).launch {
             val covers: List<Cover> = if (seriesId != null) {
                 issueDao.getIssuesByFilterSus(SearchFilter(series = FullSeries((Series(seriesId))
-                ))).mapNotNull { it.cover }
+                ))).mapNotNull { if (it.cover?.markedDelete == true) it.cover else null }
             } else {
-                coverDao.getAll()
+                coverDao.getAll().mapNotNull { if (it.markedDelete) it else null }
             }
-
+            Log.d(TAG, "There are ${covers.size} covers to cleanup")
             covers.forEach { cover ->
                 if (cover.markedDelete) {
                     Log.d("${APP}CLEANUP", "STARTING")

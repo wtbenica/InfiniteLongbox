@@ -10,7 +10,6 @@ import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
-import android.util.Log
 import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.Webservice
 import com.wtb.comiccollector.database.models.Cover
@@ -37,8 +36,7 @@ class UpdateIssueCover private constructor(
     prefs: SharedPreferences,
     val context: Context,
 ) : Updater(webservice, prefs) {
-    internal fun update(issueId: Int, markedDelete: Boolean = true) {
-        Log.d(TAG, "Starting cover update $issueId")
+    internal fun update(issueId: Int, markedDelete: Boolean = true) =
         CoroutineScope(Dispatchers.IO).launch {
             val file = getFileHandle(context, coverFileName(issueId))
             val fileDNE = !file.exists()
@@ -70,7 +68,6 @@ class UpdateIssueCover private constructor(
                 }
             }
         }
-    }
 
     companion object {
         private var INSTANCE: UpdateIssueCover? = null
@@ -162,6 +159,6 @@ fun Bitmap.saveToInternalStorage2(context: Context, filename: String): Uri? {
     }
 
     imageOutputStream.use { compress(Bitmap.CompressFormat.JPEG, 100, it) }
-    Log.d(TAG, "SAVED URI: $uri")
+
     return uri
 }

@@ -277,7 +277,7 @@ abstract class Updater(
                 timeStarted = Instant.MIN.epochSecond
             }
             val isExpired = timeStarted + 3 < Instant.now().epochSecond
-            Log.d(TAG, "$prefsKey LU: $lastUpdated STALE: $isStale STARTED: $isStarted EXP: $isExpired")
+
             return DEBUG || (isStale && (!isStarted || isExpired))
         }
 
@@ -383,9 +383,7 @@ abstract class Updater(
         saveTag: String,
     ): List<ModelType>? =
         supervisorScope {
-            Log.d(TAG, "UPDATING $saveTag")
             if (checkIfStale(saveTag, WEEKLY, prefs)) {
-                Log.d(TAG, "NOT STALE $saveTag")
                 runSafely("getItems: ${apiCall.name}") {
                     async { apiCall() }
                 }?.models
@@ -457,7 +455,7 @@ abstract class Updater(
             pagesComplete.forEach {
                 sb.append(if (it) "t" else "f")
             }
-            Log.d(TAG, "SPT: $sb")
+
             Repository.savePrefValue(prefs, savePageTag, sb.toString())
         }
     }

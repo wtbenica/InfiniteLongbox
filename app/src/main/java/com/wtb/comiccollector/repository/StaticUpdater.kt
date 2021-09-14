@@ -1,7 +1,6 @@
 package com.wtb.comiccollector.repository
 
 import android.content.SharedPreferences
-import android.util.Log
 import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.Webservice
 import com.wtb.comiccollector.database.daos.Count
@@ -76,7 +75,6 @@ class StaticUpdater private constructor(
      */
     internal fun updateIssue(issueId: Int, markedDelete: Boolean = true) =
         CoroutineScope(nowDispatcher).launch {
-            Log.d(TAG, "Update issue $issueId")
             async {
                 updateIssueFromGcd(issueId)
             }.await().let {
@@ -128,7 +126,6 @@ class StaticUpdater private constructor(
         updateIssuesStoryDetails(listOf(issueId))
 
     private suspend fun updateIssuesStoryDetails(issueIds: List<Int>) {
-        Log.d(TAG, "updateIssuesStoryDetails: $issueIds")
         val stories: List<Story> = updateIssuesStories(issueIds)
         updateStoriesCredits(stories.ids)
         updateStoriesAppearances(stories.ids)
@@ -333,12 +330,8 @@ class StaticUpdater private constructor(
         getItems(prefs, webservice::getSeriesBonds, UPDATED_BONDS)
 
     internal suspend fun updateIssueFromGcd(issueId: Int) {
-        Log.d(TAG, "updateIssueFromGcd $issueId")
         if (checkIfStale(issueTag(issueId), WEEKLY, prefs)) {
             getItemsByArgument(listOf(issueId), webservice::getIssuesByIds)
-            Log.d(TAG, "updateIssueFromGcd $issueId Success")
-        } else {
-            Log.d(TAG, "NOT STALE: $issueId")
         }
     }
 
@@ -364,7 +357,7 @@ class StaticUpdater private constructor(
     inner class IssueCollector : Collector<Issue>(database.issueDao())
 
     companion object {
-        internal const val TAG = APP + "UpdateStatic"
+        internal const val TAG = APP + "StaticUpdater"
 
         private var INSTANCE: StaticUpdater? = null
 

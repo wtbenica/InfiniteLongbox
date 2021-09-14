@@ -28,6 +28,8 @@ private const val TAG = APP + "SeriesListFragment"
 @ExperimentalCoroutinesApi
 class SeriesListFragment : ListFragment<FullSeries, SeriesListFragment.SeriesHolder>() {
 
+    private var listState: Bundle? = null
+
     override val viewModel: SeriesListViewModel by viewModels()
 
     override fun onResume() {
@@ -46,8 +48,7 @@ class SeriesListFragment : ListFragment<FullSeries, SeriesListFragment.SeriesHol
     ): View? {
         val view = super.onCreateView(inflater, container, savedInstanceState)
         listRecyclerView.addItemDecoration(
-            ItemOffsetDecoration(resources.getDimension(R.dimen.margin_narrow).toInt())
-        )
+            ItemOffsetDecoration(resources.getDimension(R.dimen.margin_narrow).toInt()))
         return view
     }
 
@@ -57,14 +58,14 @@ class SeriesListFragment : ListFragment<FullSeries, SeriesListFragment.SeriesHol
         updateBottomPadding()
 
         val adapter = getAdapter()
+
         listRecyclerView.adapter = adapter
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.itemList.collectLatest {
-                    adapter.submitData(it)
-                    viewModel.getSeriesListState()?.let {
-                        listRecyclerView.layoutManager?.onRestoreInstanceState(it)
+                    adapter.apply {
+                        submitData(it)
                     }
                 }
             }
@@ -78,10 +79,6 @@ class SeriesListFragment : ListFragment<FullSeries, SeriesListFragment.SeriesHol
         )
     }
 
-    override fun onDestroyView() {
-        viewModel.saveSeriesListState(listRecyclerView.layoutManager?.onSaveInstanceState())
-        super.onDestroyView()
-    }
 
     //    private fun runLayoutAnimation(view: RecyclerView) {
 //        val context = view.context
@@ -115,8 +112,10 @@ class SeriesListFragment : ListFragment<FullSeries, SeriesListFragment.SeriesHol
         private val seriesImageView: ImageView = itemView.findViewById(R.id.series_imageview)
         private val seriesDateRangeTextView: TextView =
             itemView.findViewById(R.id.list_item_pub_dates)
-        private val formatTextView: TextView = itemView.findViewById(R.id.list_item_series_format)
-        private val coverProgressBar: ProgressBar = itemView.findViewById(R.id.cover_progress_bar)
+        private val formatTextView: TextView =
+            itemView.findViewById(R.id.list_item_series_format)
+        private val coverProgressBar: ProgressBar =
+            itemView.findViewById(R.id.cover_progress_bar)
 
         init {
             itemView.setOnClickListener(this)
@@ -154,7 +153,7 @@ class SeriesListFragment : ListFragment<FullSeries, SeriesListFragment.SeriesHol
         }
     }
 
-    interface SeriesListCallback : ListFragmentCallback {
+    interface SeriesListCallback : ListFragment.ListFragmentCallback {
         fun onSeriesSelected(series: FullSeries)
     }
 

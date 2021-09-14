@@ -32,7 +32,7 @@ abstract class CreatorDao : BaseDao<Creator>("creator") {
     fun getCreatorsByFilter(filter: SearchFilter): Flow<List<Creator>> {
 
         val query = getCreatorQuery(filter)
-        Log.d(TAG, "Creator Query: ${query.sql}")
+
         return getCreatorsByQuery(query)
     }
 
@@ -42,7 +42,7 @@ abstract class CreatorDao : BaseDao<Creator>("creator") {
 
     fun getCreatorsByFilterPagingSource(filter: SearchFilter): PagingSource<Int, FullCreator> {
         val query = getCreatorQuery(filter)
-        Log.d(TAG, "Creator Query PS: ${query.sql}")
+
         return getCreatorsByQueryPagingSource(query)
     }
 

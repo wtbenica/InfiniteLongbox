@@ -1,6 +1,5 @@
 package com.wtb.comiccollector.fragments_view_models
 
-import android.os.Parcelable
 import androidx.lifecycle.asFlow
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.switchMap
@@ -25,25 +24,19 @@ class SeriesListViewModel : ListViewModel<FullSeries>() {
         repository.getSeriesByFilterPaged(it).asLiveData()
     }.asFlow().cachedIn(viewModelScope)
 
-    fun getIssue(issueId: Int, markedDelete: Boolean = true): Flow<FullIssue?> = repository
+    internal fun getIssue(issueId: Int, markedDelete: Boolean = true): Flow<FullIssue?> = repository
         .getIssue(issueId, markedDelete)
 
-    fun getIssueBySeries(series: FullSeries) =
+    private fun getIssueBySeries(series: FullSeries) =
         repository.getIssuesByFilter(SearchFilter(series = series))
 
-    fun updateIssuesBySeries(series: FullSeries) {
+    internal fun updateIssuesBySeries(series: FullSeries) {
         CoroutineScope(Dispatchers.Default).launch {
             getIssueBySeries(series).collectLatest { issues ->
                 issues.forEach { getIssue(it.issue.issueId) }
             }
         }
     }
-
-    fun saveSeriesListState(instanceState: Parcelable?) {
-        repository.saveSeriesListState = instanceState
-    }
-
-    fun getSeriesListState() = repository.saveSeriesListState
 
     companion object {
         private const val TAG = APP + "SeriesListViewModel"

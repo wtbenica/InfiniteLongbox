@@ -2,7 +2,6 @@ package com.wtb.comiccollector.views
 
 import android.content.Context
 import android.util.AttributeSet
-import android.util.Log
 import android.widget.ImageButton
 import android.widget.LinearLayout
 import android.widget.TextView
@@ -93,7 +92,6 @@ class SeriesDetailBox(context: Context, attrs: AttributeSet?, defStyleAttr: Int)
 
 
     private fun updateUI() {
-        Log.d(TAG, "UPDATING SERIES DETAIL!!!!!!!!")
         volumeNumTextView.text = series?.series?.volume.toString()
         publisherTextView.text = series?.publisher?.publisher
         dateRangeTextview.text = series?.series?.dateRange

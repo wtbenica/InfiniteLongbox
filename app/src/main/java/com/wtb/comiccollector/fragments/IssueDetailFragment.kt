@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.util.Log
 import android.view.*
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.*
@@ -142,11 +141,9 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback {
         val variantOf = arguments?.getSerializable(ARG_VARIANT_OF) as Int?
 
         if (variantOf == null) {
-            Log.d(TAG, "ISSUE SELECTED IS NOT A VARIANT!")
             issueDetailViewModel.loadIssue(issueId)
             issueDetailViewModel.loadVariant(null)
         } else {
-            Log.d(TAG, "ISSUE SELECTED IS A VARIANT!")
             issueDetailViewModel.loadVariant(issueId)
             issueDetailViewModel.loadIssue(variantOf)
         }
@@ -187,7 +184,6 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback {
         issueDetailViewModel.issueList.observe(
             viewLifecycleOwner,
             { issues ->
-                Log.d(TAG, "issueList observation ${issues.size}")
                 val issueIds = issues.map { it.issue.issueId }
                 if (issuesInSeries != issueIds) {
                     issuesInSeries = issueIds
@@ -201,7 +197,6 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback {
             viewLifecycleOwner,
             {
                 it?.let { issue ->
-                    Log.d(TAG, "issue changed: $issue")
                     if (fullIssue != issue) {
                         fullIssue = issue
                         updateUI()
@@ -250,9 +245,7 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback {
             viewLifecycleOwner,
             {
                 it.let { variant ->
-                    Log.d(TAG, "FV: $fullVariant, V: $variant")
                     if (fullVariant != variant) {
-                        Log.d(TAG, "variant changed: $variant")
                         isVariant = fullVariant?.issue?.issueId != AUTO_ID
                         fullVariant = variant
                         updateUI()
@@ -451,7 +444,6 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback {
                     position: Int,
                     id: Long,
                 ) {
-                    Log.d(TAG, "variantSpinner item selected")
                     if (userSelect) {
                         parent?.let {
                             val selectedIssueId =
@@ -461,10 +453,8 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback {
                                 selectedIssueId != issueDetailViewModel.primaryId.value
 
                             if (selectionIsVariant) {
-                                Log.d(TAG, "VARIANT")
                                 issueDetailViewModel.loadVariant(selectedIssueId)
                             } else {
-                                Log.d(TAG, "NOT VARIANT")
                                 issueDetailViewModel.clearVariant()
                             }
 
@@ -508,7 +498,6 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback {
     private var i = 0
 
     private fun updateUI() {
-        Log.d(TAG, "updated ${++i} times")
         val issue: Issue = currentIssue.issue
         if (issue.issueId != AUTO_ID) {
 
@@ -522,9 +511,7 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback {
                               issueAppearances, variantAppearances)
 
             issue.let {
-                Log.d(TAG, "SETtting SPINNNEER TO  A V DSLKRIANT")
                 val indexOf = issueVariants.indexOf(it)
-                Log.d(TAG, "AND THE INDEX IS: $indexOf")
                 variantSpinner.setSelection(indexOf)
             }
 
