@@ -67,7 +67,6 @@
         <item name="singleLine">true</item>
         <item name="android:dropDownWidth">match_parent</item>
         <item name="android:popupBackground">?attr/colorSecondaryLightLight</item>
-        <item name="android:imeOptions">actionDone</item>
         <item name="android:completionThreshold">1</item>
     </style>
 

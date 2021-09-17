@@ -6,6 +6,7 @@ import android.text.TextWatcher
 import android.util.AttributeSet
 import android.util.Log
 import android.view.inputmethod.EditorInfo
+import android.view.inputmethod.EditorInfo.IME_ACTION_DONE
 import android.widget.AdapterView
 import com.google.android.material.chip.Chip
 import com.google.android.material.textfield.MaterialAutoCompleteTextView
@@ -27,6 +28,7 @@ class SearchAutoComplete(context: Context, attributeSet: AttributeSet) :
     private var item: FilterModel? = null
 
     init {
+        imeOptions = IME_ACTION_DONE
         // show dropdown and show filter type chipgroup
         setOnFocusChangeListener { v, hasFocus ->
             if (hasFocus) {

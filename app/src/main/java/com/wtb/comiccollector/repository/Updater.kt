@@ -392,6 +392,12 @@ abstract class Updater(
             }
         }
 
+    interface UpdateByPageCallback {
+        fun setTotal(total: Int)
+        fun setNumComplete(numComplete: Int)
+        fun setProgress()
+    }
+
     /**
      * Get all paged - calls getItemsByPage , performs verifyForeignKeys on each page, then
      * saves each page to dao
@@ -404,10 +410,14 @@ abstract class Updater(
         verifyForeignKeys: suspend (List<ModelType>) -> Unit = {},
         dao: BaseDao<ModelType>,
         getNumPages: suspend () -> Count,
+        updateProgress: ((Int) -> Unit)? = null
     ) {
         // If it's been a week, mark all pages as stale
         if (checkIfStale(saveTag, WEEKLY, prefs)) {
+            Log.d(TAG, "Pages are stale, updating")
             Repository.savePrefValue(prefs, savePageTag, "")
+        } else {
+            updateProgress?.invoke(100)
         }
 
         // make an array for whether each page has been updated
@@ -425,6 +435,18 @@ abstract class Updater(
             }
         }
 
+        var numComplete = pagesComplete.count { it }
+        var progress: Int
+
+        fun pageFinished() {
+            synchronized(this) {
+                numComplete++
+                progress = ((numComplete.toFloat()) / numPages * 100).toInt()
+                Log.d(TAG, "Page Complete $progress")
+                updateProgress?.invoke(progress)
+            }
+        }
+
         // for each page in PC, if not complete, then try to update again
         CoroutineScope(Dispatchers.IO).async {
             pagesComplete.forEachIndexed { currPage, isComplete ->
@@ -438,6 +460,7 @@ abstract class Updater(
                             verifyForeignKeys(itemPage)
                             if (dao.upsertSus(itemPage)) {
                                 pagesComplete[currPage] = true
+                                pageFinished()
                             }
                         }
                     }

@@ -1,4 +1,4 @@
-package com.wtb.comiccollector.fragments
+package com.wtb.comiccollector.views
 
 import android.content.Context
 import android.view.View
@@ -10,10 +10,9 @@ import com.wtb.comiccollector.database.models.FullAppearance
 import com.wtb.comiccollector.database.models.FullCredit
 import com.wtb.comiccollector.database.models.Story
 import com.wtb.comiccollector.database.models.ids
-import com.wtb.comiccollector.views.CharacterLink
-import com.wtb.comiccollector.views.CharacterLinkCallback
-import com.wtb.comiccollector.views.CreatorLink
-import com.wtb.comiccollector.views.CreatorLinkCallback
+import com.wtb.comiccollector.fragments.RoleNameTextView
+import com.wtb.comiccollector.fragments.toggleIcon
+import com.wtb.comiccollector.fragments.toggleVisibility
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 private const val STORY_TYPE_COVER = 6

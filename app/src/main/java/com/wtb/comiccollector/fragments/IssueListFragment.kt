@@ -85,11 +85,6 @@ class IssueListFragment : ListFragment<FullIssue, IssueListFragment.IssueViewHol
         super.onDestroyView()
     }
 
-    override fun onDestroy() {
-        viewModel.cleanUpImages()
-        super.onDestroy()
-    }
-
     //    override fun onOptionsItemSelected(item: MenuItem): Boolean {
 //        return when (item.itemId) {
 //            R.id.new_issue -> {

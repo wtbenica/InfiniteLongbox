@@ -40,8 +40,6 @@ class IssueListViewModel : ListViewModel<FullIssue>() {
 
     fun updateIssueCover(issueId: Int) = repository.updateIssueCover(issueId)
 
-    fun cleanUpImages() = repository.cleanUpImages(seriesId.value)
-
     fun saveIssueListState(instanceState: Parcelable?) {
         repository.saveIssueListState = instanceState
     }

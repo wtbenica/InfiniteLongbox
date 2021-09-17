@@ -32,6 +32,7 @@ import com.wtb.comiccollector.database.models.*
 import com.wtb.comiccollector.fragments.*
 import com.wtb.comiccollector.fragments_view_models.FilterViewModel
 import com.wtb.comiccollector.repository.Repository
+import com.wtb.comiccollector.views.ProgressUpdateCard
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
@@ -63,6 +64,7 @@ class MainActivity : AppCompatActivity(),
     private lateinit var bottomSheet: FragmentContainerView
     private lateinit var bottomSheetBehavior: BottomSheetBehavior<*>
     private lateinit var mAdView: AdView
+    private lateinit var progressUpdate: ProgressUpdateCard
 
     private fun setFragment(fragment: ListFragment<out ListItem, out RecyclerView.ViewHolder>) {
         supportFragmentManager.beginTransaction()
@@ -107,10 +109,13 @@ class MainActivity : AppCompatActivity(),
         setSupportActionBar(toolbar)
         resultFragmentContainer = findViewById(R.id.fragment_container)
         bottomSheet = findViewById(R.id.bottom_sheet)
+        progressUpdate = findViewById(R.id.progress_update_card)
 
         initWindowInsets()
         initBottomSheet()
         initNetwork()
+
+        Repository.get().beginStaticUpdate(progressUpdate, this)
 
         filterViewModel.fragment.observe(
             this,

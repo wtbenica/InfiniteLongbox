@@ -9,6 +9,7 @@ import com.wtb.comiccollector.repository.Updater.Companion.Collector
 import com.wtb.comiccollector.repository.Updater.PriorityDispatcher.Companion.highPriorityDispatcher
 import com.wtb.comiccollector.repository.Updater.PriorityDispatcher.Companion.lowPriorityDispatcher
 import com.wtb.comiccollector.repository.Updater.PriorityDispatcher.Companion.nowDispatcher
+import com.wtb.comiccollector.views.ProgressUpdateCard
 import kotlinx.coroutines.*
 
 /**
@@ -28,8 +29,8 @@ class StaticUpdater private constructor(
      *  UpdateAsync - Updates publisher, series, role, and storytype tables
      */
     @ExperimentalCoroutinesApi
-    internal suspend fun updateAsync() {
-        getAllPublishers()
+    internal suspend fun updateAsync(progressUpdate: ProgressUpdateCard) {
+        getAllPublishers(progressUpdate::updatePublisherProgress)
         database.transactionDao().upsertStatic(
             roles = getRoles(),
             storyTypes = getStoryTypes(),
@@ -37,10 +38,9 @@ class StaticUpdater private constructor(
         )
 
         if (!DEBUG) {
-            getAllSeries()
-            getAllCreators()
-            getAllNameDetails()
-            getAllCharacters()
+            getAllSeries(progressUpdate::updateSeriesProgress)
+            getAllNameDetails(progressUpdate::updateCreatorProgress)
+            getAllCharacters(progressUpdate::updateCharacterProgress)
             getAllSeriesBonds()
         }
     }
@@ -254,47 +254,24 @@ class StaticUpdater private constructor(
         )
     }
 
-    private suspend fun getNumCreatorPages(): Count = webservice.getNumCreatorPages()
     private suspend fun getNumNameDetailPages(): Count = webservice.getNumNameDetailPages()
     private suspend fun getNumSeriesPages(): Count = webservice.getNumSeriesPages()
     private suspend fun getNumCharacterPages(): Count = webservice.getNumCharacterPages()
     private suspend fun getNumPublisherPages(): Count = webservice.getNumPublisherPages()
 
-    private suspend fun getAllCharacters() {
-        refreshAllPaged<Character>(
+    private suspend fun getAllPublishers(updateProgress: (Int) -> Unit) {
+        refreshAllPaged<Publisher>(
             prefs = prefs,
-            savePageTag = UPDATED_CHARACTERS_PAGE,
-            saveTag = UPDATED_CHARACTERS,
-            getItemsByPage = ::getCharactersByPage,
-            dao = database.characterDao(),
-            getNumPages = ::getNumCharacterPages
+            savePageTag = UPDATED_PUBLISHERS_PAGE,
+            saveTag = UPDATED_PUBLISHERS,
+            getItemsByPage = this::getPublishersByPage,
+            dao = database.publisherDao(),
+            getNumPages = ::getNumPublisherPages,
+            updateProgress = updateProgress
         )
     }
 
-    private suspend fun getAllNameDetails() {
-        refreshAllPaged<NameDetail>(
-            prefs = prefs,
-            savePageTag = UPDATED_NAME_DETAILS_PAGE,
-            saveTag = UPDATED_NAME_DETAILS,
-            getItemsByPage = ::getNameDetailsByPage,
-            verifyForeignKeys = ::checkFKeysNameDetail,
-            dao = database.nameDetailDao(),
-            getNumPages = ::getNumNameDetailPages
-        )
-    }
-
-    private suspend fun getAllCreators() {
-        refreshAllPaged<Creator>(
-            prefs = prefs,
-            savePageTag = UPDATED_CREATORS_PAGE,
-            saveTag = UPDATED_CREATORS,
-            getItemsByPage = ::getCreatorsByPage,
-            dao = database.creatorDao(),
-            getNumPages = ::getNumCreatorPages
-        )
-    }
-
-    private suspend fun getAllSeries() {
+    private suspend fun getAllSeries(updateProgress: (Int) -> Unit) {
         refreshAllPaged<Series>(
             prefs = prefs,
             savePageTag = UPDATED_SERIES_PAGE,
@@ -302,18 +279,33 @@ class StaticUpdater private constructor(
             getItemsByPage = this::getSeriesByPage,
             verifyForeignKeys = this::checkFKeysSeries,
             dao = database.seriesDao(),
-            getNumPages = ::getNumSeriesPages
+            getNumPages = ::getNumSeriesPages,
+            updateProgress = updateProgress
         )
     }
 
-    private suspend fun getAllPublishers() {
-        refreshAllPaged<Publisher>(
+    private suspend fun getAllNameDetails(updateProgress: (Int) -> Unit) {
+        refreshAllPaged<NameDetail>(
             prefs = prefs,
-            savePageTag = UPDATED_PUBLISHERS_PAGE,
-            saveTag = UPDATED_PUBLISHERS,
-            getItemsByPage = this::getPublishersByPage,
-            dao = database.publisherDao(),
-            getNumPages = ::getNumPublisherPages
+            savePageTag = UPDATED_NAME_DETAILS_PAGE,
+            saveTag = UPDATED_NAME_DETAILS,
+            getItemsByPage = ::getNameDetailsByPage,
+            verifyForeignKeys = ::checkFKeysNameDetail,
+            dao = database.nameDetailDao(),
+            getNumPages = ::getNumNameDetailPages,
+            updateProgress = updateProgress
+        )
+    }
+
+    private suspend fun getAllCharacters(updateProgress: (Int) -> Unit) {
+        refreshAllPaged<Character>(
+            prefs = prefs,
+            savePageTag = UPDATED_CHARACTERS_PAGE,
+            saveTag = UPDATED_CHARACTERS,
+            getItemsByPage = ::getCharactersByPage,
+            dao = database.characterDao(),
+            getNumPages = ::getNumCharacterPages,
+            updateProgress = updateProgress
         )
     }
 

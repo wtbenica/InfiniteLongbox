@@ -12,6 +12,7 @@ import android.database.sqlite.SQLiteConstraintException
 import android.os.Bundle
 import android.os.Parcelable
 import android.util.Log
+import android.view.View
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
 import androidx.paging.Pager
@@ -24,6 +25,7 @@ import com.wtb.comiccollector.database.IssueDatabase
 import com.wtb.comiccollector.database.daos.Count
 import com.wtb.comiccollector.database.daos.REQUEST_LIMIT
 import com.wtb.comiccollector.database.models.*
+import com.wtb.comiccollector.views.ProgressUpdateCard
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
@@ -139,18 +141,21 @@ class Repository private constructor(val context: Context) {
     private fun checkConnectionStatus() =
         this.hasConnection && this.hasUnmeteredConnection
 
-    init {
+    internal fun beginStaticUpdate(progressUpdate: ProgressUpdateCard, mainActivity: MainActivity) {
         MainActivity.hasConnection.observeForever {
             this.hasConnection = it
             if (checkConnectionStatus()) {
                 // TODO: A lint inspection pointed out that update returns a Deferred, which
                 //  means that this is async async await. Look into
-                MainActivity.activeJob = CoroutineScope(Dispatchers.IO).launch {
+                MainActivity.activeJob = CoroutineScope(Dispatchers.IO).async {
                     withContext(Dispatchers.IO) {
                         Log.d(TAG, "STARTING UPDATE")
-                        updater.updateAsync()
+                        updater.updateAsync(progressUpdate)
                     }.let {
                         Log.d(TAG, "Static update done")
+                        mainActivity.runOnUiThread {
+                            progressUpdate.visibility = View.GONE
+                        }
                     }
                 }
             }
@@ -439,14 +444,14 @@ class Repository private constructor(val context: Context) {
     }
 
     fun markCoverSave(cid: Int) {
-        markCover_(cid, false)
+        markCover(cid, false)
     }
 
     fun markCoverDelete(cid: Int) {
-        markCover_(cid, true)
+        markCover(cid, true)
     }
 
-    private fun markCover_(cid: Int, isMarked: Boolean) =
+    private fun markCover(cid: Int, isMarked: Boolean) =
         CoroutineScope(Dispatchers.Default).launch {
             val oc = coverDao.get(cid)
             if (oc != null) {
