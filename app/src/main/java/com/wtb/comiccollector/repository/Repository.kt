@@ -12,7 +12,6 @@ import android.database.sqlite.SQLiteConstraintException
 import android.os.Bundle
 import android.os.Parcelable
 import android.util.Log
-import android.view.View
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
 import androidx.paging.Pager
@@ -154,7 +153,7 @@ class Repository private constructor(val context: Context) {
                     }.let {
                         Log.d(TAG, "Static update done")
                         mainActivity.runOnUiThread {
-                            progressUpdate.visibility = View.GONE
+                            progressUpdate.hide()
                         }
                     }
                 }

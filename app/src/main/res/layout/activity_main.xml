@@ -6,6 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
+    android:animateLayoutChanges="true"
     android:orientation="vertical">
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
@@ -21,7 +22,8 @@
             android:id="@+id/app_bar_layout"
             style="@style/myAppBarLayout"
             app:layout_behavior="com.google.android.material.appbar.AppBarLayout$Behavior"
-            app:layout_insetEdge="top">
+            app:layout_insetEdge="top"
+            android:animateLayoutChanges="true">
 
             <androidx.appcompat.widget.Toolbar
                 android:id="@+id/action_bar"

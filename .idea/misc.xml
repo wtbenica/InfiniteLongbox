@@ -17,7 +17,7 @@
         <entry key="app/src/main/res/drawable/primary_dark_border.xml" value="0.1111111111111111" />
         <entry key="app/src/main/res/drawable/status_in_progress.xml" value="0.27341772151898736" />
         <entry key="app/src/main/res/drawable/waiting.xml" value="0.27692307692307694" />
-        <entry key="app/src/main/res/layout/activity_main.xml" value="0.33" />
+        <entry key="app/src/main/res/layout/activity_main.xml" value="0.1" />
         <entry key="app/src/main/res/layout/fragment_display_issue.xml" value="0.2809611829944547" />
         <entry key="app/src/main/res/layout/fragment_filter.xml" value="0.67" />
         <entry key="app/src/main/res/layout/fragment_item_list.xml" value="0.14035087719298245" />
