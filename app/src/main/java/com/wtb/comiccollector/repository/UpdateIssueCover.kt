@@ -53,7 +53,7 @@ class UpdateIssueCover private constructor(
                                 val savedUri: Uri? = image.saveToInternalStorage(file)
 
                                 val cover = Cover(issue = issueId, coverUri = savedUri,
-                                                  markedDelete = markedDelete)
+                                                  markedDelete = markedDelete && issue.myCollection == null)
                                 database.coverDao().upsertSus(listOf(cover))
                             } else {
                                 val cover = Cover(issue = issueId, coverUri = null)

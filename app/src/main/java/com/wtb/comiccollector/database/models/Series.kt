@@ -162,8 +162,6 @@ data class SeriesBond(
         get() = bondId
 }
 
-// it might be tempting to remove the second class and just use the first, but the second one is
-// used in an Issue POJO where the first one can't be: firstIssue can create a circular reference
 @ExperimentalCoroutinesApi
 data class FullSeries(
     @Embedded
@@ -193,6 +191,8 @@ data class FullSeries(
     override fun toString(): String = "${series.seriesName} ${series.dateRange}"
 }
 
+// it might be tempting to remove SeriesAndPublisher and just use FullSeries, but S&P is
+// used in an Issue POJO where the FullSeries can't be: firstIssue can create a circular reference
 @ExperimentalCoroutinesApi
 data class SeriesAndPublisher(
     @Embedded

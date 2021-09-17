@@ -153,7 +153,6 @@ class Repository private constructor(val context: Context) {
                         Log.d(TAG, "Static update done")
                     }
                 }
-                cleanUpImages()
             }
         }
     }
@@ -421,12 +420,7 @@ class Repository private constructor(val context: Context) {
 
     fun cleanUpImages(seriesId: Int? = null) {
         CoroutineScope(Dispatchers.Default).launch {
-            val covers: List<Cover> = if (seriesId != null) {
-                issueDao.getIssuesByFilterSus(SearchFilter(series = FullSeries((Series(seriesId))
-                ))).mapNotNull { if (it.cover?.markedDelete == true) it.cover else null }
-            } else {
-                coverDao.getAll().mapNotNull { if (it.markedDelete) it else null }
-            }
+            val covers: List<Cover> = coverDao.getAll()
             Log.d(TAG, "There are ${covers.size} covers to cleanup")
             covers.forEach { cover ->
                 if (cover.markedDelete) {

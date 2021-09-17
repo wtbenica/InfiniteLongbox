@@ -7,31 +7,37 @@ import android.util.AttributeSet
 import android.util.Log
 import android.view.inputmethod.EditorInfo
 import android.widget.AdapterView
+import com.google.android.material.chip.Chip
 import com.google.android.material.textfield.MaterialAutoCompleteTextView
 import com.wtb.comiccollector.APP
+import com.wtb.comiccollector.R
 import com.wtb.comiccollector.database.models.FilterItem
 import com.wtb.comiccollector.database.models.FilterModel
 import com.wtb.comiccollector.database.models.TextFilter
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlin.reflect.KClass
 
 private const val TAG = APP + "SearchAutoCompleteTextView"
 
 @ExperimentalCoroutinesApi
 class SearchAutoComplete(context: Context, attributeSet: AttributeSet) :
-    MaterialAutoCompleteTextView(context, attributeSet) {
+    MaterialAutoCompleteTextView(context, attributeSet, R.style.SearchAutoCompleteStyle) {
 
     var callbacks: SearchTextViewCallback? = null
     private var item: FilterModel? = null
 
-    interface SearchTextViewCallback {
-        fun addFilterItem(option: FilterItem)
-        fun hideKeyboard()
-    }
-
     init {
-        isSingleLine = true
-        imeOptions = EditorInfo.IME_ACTION_DONE
+        // show dropdown and show filter type chipgroup
+        setOnFocusChangeListener { v, hasFocus ->
+            if (hasFocus) {
+                this.showDropDown()
+                callbacks?.setFilterTypesVisibility(true)
+            } else {
+                callbacks?.setFilterTypesVisibility(false)
+            }
+        }
 
+        // on enter
         setOnEditorActionListener { v, actionId, event ->
             Log.d(TAG, "ACTION ID: $actionId")
             if (actionId == EditorInfo.IME_ACTION_DONE) {
@@ -74,5 +80,24 @@ class SearchAutoComplete(context: Context, attributeSet: AttributeSet) :
                 // Do Nothing
             }
         })
+    }
+
+    interface SearchTextViewCallback {
+        fun addFilterItem(option: FilterItem)
+        fun hideKeyboard()
+        fun setFilterTypesVisibility(isVisible: Boolean)
+    }
+}
+
+@ExperimentalCoroutinesApi
+class FilterTypeChip @JvmOverloads constructor(
+    context: Context?,
+    attributeSet:
+    AttributeSet? = null,
+) : Chip(context, attributeSet) {
+    var type: KClass<*>? = null
+
+    constructor(context: Context, type: KClass<*>) : this(context) {
+        this.type = type
     }
 }

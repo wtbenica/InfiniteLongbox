@@ -9,6 +9,7 @@ import android.view.View
 import android.view.View.*
 import android.view.ViewGroup
 import android.widget.*
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.*
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -67,9 +68,16 @@ class FilterFragment : Fragment(),
     private lateinit var filterChipGroup: ChipGroup
     private lateinit var filterAddButton: ImageButton
 
-    private lateinit var searchSection: LinearLayout
-    private lateinit var searchAutoComplete: SearchAutoComplete
-    private lateinit var searchBoxSpinner: Spinner
+    private lateinit var searchSection: ConstraintLayout
+    private lateinit var searchBar: SearchAutoComplete
+
+    private lateinit var filterTypeChipGroup: ChipGroup
+    private lateinit var filterChipSeries: FilterTypeChip
+    private lateinit var filterChipCreator: FilterTypeChip
+    private lateinit var filterChipCharacter: FilterTypeChip
+    private lateinit var filterChipPublisher: FilterTypeChip
+
+//    private lateinit var searchBoxSpinner: Spinner
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -87,7 +95,7 @@ class FilterFragment : Fragment(),
         view.clipToOutline = true
 
         viewModel.filterOptions.observe(viewLifecycleOwner) { filterOptions ->
-            searchAutoComplete.setAdapter(
+            searchBar.setAdapter(
                 FilterOptionsAdapter(
                     context = requireContext(),
                     filterOptions = filterOptions
@@ -95,7 +103,7 @@ class FilterFragment : Fragment(),
             )
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                searchAutoComplete.refreshAutoCompleteResults()
+                searchBar.refreshAutoCompleteResults()
             }
         }
 
@@ -152,57 +160,67 @@ class FilterFragment : Fragment(),
             filterAddButton.visibility = GONE
         }
 
-        searchAutoComplete.callbacks = this
+        searchBar.callbacks = this
 
-        searchBoxSpinner.adapter = object : ArrayAdapter<KClass<*>?>(
-            requireContext(),
-            R.layout.spinner_item_filter_type,
-            R.id.text_filter_option,
-            filterTypeOptions
-        ) {
-            override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
-                val view = convertView ?: inflate(
-                    context,
-                    R.layout.spinner_item_filter_type,
-                    null
-                )
-                val sortText: TextView = view.findViewById(R.id.text_filter_option)
-                val item = getItem(position)
-                sortText.text = item?.objectInstance.toString()
-                return view
-            }
+//        searchBoxSpinner.adapter = object : ArrayAdapter<KClass<*>?>(
+//            requireContext(),
+//            R.layout.spinner_item_filter_type,
+//            R.id.text_filter_option,
+//            filterTypeOptions
+//        ) {
+//            override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
+//                val view = convertView ?: inflate(
+//                    context,
+//                    R.layout.spinner_item_filter_type,
+//                    null
+//                )
+//                val sortText: TextView = view.findViewById(R.id.text_filter_option)
+//                val item = getItem(position)
+//                sortText.text = item?.objectInstance.toString()
+//                return view
+//            }
+//
+//            override fun getDropDownView(
+//                position: Int,
+//                convertView: View?,
+//                parent: ViewGroup,
+//            ): View {
+//                return getView(position, convertView, parent)
+//            }
+//        }
+//
+//        searchBoxSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+//            override fun onItemSelected(
+//                parent: AdapterView<*>?,
+//                view: View?,
+//                position: Int,
+//                id: Long,
+//            ) {
+//                parent?.let {
+//                    val selectedFilterOption = it.getItemAtPosition(position) as KClass<*>
+//                    viewModel.setFilterType(selectedFilterOption)
+//
+//                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+//                        searchBar.refreshAutoCompleteResults()
+//                    }
+//
+//                }
+//            }
+//
+//            override fun onNothingSelected(parent: AdapterView<*>?) {
+//                // Do nothing
+//            }
+//        }
 
-            override fun getDropDownView(
-                position: Int,
-                convertView: View?,
-                parent: ViewGroup,
-            ): View {
-                return getView(position, convertView, parent)
-            }
-        }
-
-        searchBoxSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(
-                parent: AdapterView<*>?,
-                view: View?,
-                position: Int,
-                id: Long,
-            ) {
-                parent?.let {
-                    val selectedFilterOption = it.getItemAtPosition(position) as KClass<*>
-                    viewModel.setFilterType(selectedFilterOption)
-
-                    searchAutoComplete.showDropDown()
-
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                        searchAutoComplete.refreshAutoCompleteResults()
-                    }
-
+        filterTypeChipGroup.setOnCheckedChangeListener { _, checkedId ->
+            if (checkedId >= 0) {
+                view?.findViewById<FilterTypeChip>(checkedId)?.let { it: FilterTypeChip ->
+                    it.type?.let { it1 -> viewModel.setFilterType(it1) }
                 }
-            }
 
-            override fun onNothingSelected(parent: AdapterView<*>?) {
-                // Do nothing
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    searchBar.refreshAutoCompleteResults()
+                }
             }
         }
     }
@@ -231,8 +249,23 @@ class FilterFragment : Fragment(),
         filterAddButton = view.findViewById(R.id.add_filter_button)
 
         searchSection = view.findViewById(R.id.section_search)
-        searchAutoComplete = view.findViewById(R.id.search_auto)
-        searchBoxSpinner = view.findViewById(R.id.search_bar_spinner)
+        searchBar = view.findViewById(R.id.search_bar)
+        searchBar.dropDownAnchor = R.id.filter_type_chip_group
+
+        initFilterTypeChipGroup(view)
+
+        //        searchBoxSpinner = view.findViewById(R.id.search_bar_spinner)
+    }
+
+    private fun initFilterTypeChipGroup(view: View) {
+        filterTypeChipGroup = view.findViewById(R.id.filter_type_chip_group)
+        filterTypeOptions.forEach {
+            filterTypeChipGroup.addView(FilterTypeChip(requireContext(), it).apply {
+                if (it == All.Companion::class) {
+                    this.isChecked = true
+                }
+            })
+        }
     }
 
     internal fun onSlide(slideOffset: Float) {
@@ -332,6 +365,10 @@ class FilterFragment : Fragment(),
         callback?.hideKeyboard()
     }
 
+    override fun setFilterTypesVisibility(isVisible: Boolean) {
+        filterTypeChipGroup.visibility = if (isVisible) VISIBLE else GONE
+    }
+
     // ChippyCallback
     override fun filterChipClosed(chip: FilterChip) {
         viewModel.removeFilterItem(chip.item)
@@ -408,6 +445,7 @@ class FilterFragment : Fragment(),
         viewModel.addFilterItem(DateFilter(date, isStart))
     }
 }
+
 
 data class Undo<T>(private val function: (T) -> Unit, private val item: T) {
     fun evaluate() = function(item)

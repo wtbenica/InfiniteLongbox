@@ -113,7 +113,10 @@ class SearchFilter(
     fun hasSeries(): Boolean = mSeries != null
 
     fun addFilter(vararg items: FilterItem) {
-        items.forEach { item ->
+        items.forEach { item: FilterItem ->
+            if (item is FilterModel) {
+                mTextFilter = null
+            }
             when (item) {
                 is FullSeries -> addSeries(item)
                 is Creator    -> addCreator(item)

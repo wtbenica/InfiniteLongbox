@@ -128,7 +128,8 @@ class SeriesListFragment : ListFragment<FullSeries, SeriesListFragment.SeriesHol
 
             val firstIssueId = this.item.series.firstIssue
             if (firstIssueId != null) {
-                viewModel.getIssue(firstIssueId, false)
+                viewModel.getIssue(firstIssueId,
+                                   viewModel.filter.value?.mMyCollection?.let { !it } ?: true)
             } else if (this.item.series.issueCount < 10) {
                 viewModel.updateIssuesBySeries(this@SeriesHolder.item)
             }

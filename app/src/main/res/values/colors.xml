@@ -28,10 +28,14 @@
     <color name="fantasia_light_muted">#E3F6B0</color>
     <color name="fantasia_dark_muted">#BAFE00</color>
 
-    <color name="tag_series">#14D1D1</color>
-    <color name="tag_creator">#E317E3</color>
-    <color name="tag_publisher">#FFE925</color>
-    <color name="tag_character">#0000FF</color>
+    <color name="tag_series">#00FFFF</color>
+    <color name="text_series">#00CCCC</color>
+    <color name="tag_creator">#FF00FF</color>
+    <color name="text_creator">#CC00CC</color>
+    <color name="tag_character">#FFFF00</color>
+    <color name="text_character">#CCCC00</color>
+    <color name="tag_publisher">#000</color>
+    <color name="text_publisher">#555</color>
 
     <color name="transparent_white">#DFFF</color>
 </resources>

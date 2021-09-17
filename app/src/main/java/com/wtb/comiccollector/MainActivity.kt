@@ -31,6 +31,7 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior.*
 import com.wtb.comiccollector.database.models.*
 import com.wtb.comiccollector.fragments.*
 import com.wtb.comiccollector.fragments_view_models.FilterViewModel
+import com.wtb.comiccollector.repository.Repository
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
@@ -117,6 +118,11 @@ class MainActivity : AppCompatActivity(),
                 frag?.let { setFragment(it) }
             }
         )
+    }
+
+    override fun onStop() {
+        Repository.get().cleanUpImages()
+        super.onStop()
     }
 
     private fun initBottomSheet() {

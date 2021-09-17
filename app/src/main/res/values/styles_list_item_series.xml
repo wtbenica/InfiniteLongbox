@@ -16,21 +16,21 @@
         <item name="android:textStyle">bold</item>
         <item name="android:textSize">18sp</item>
         <item name="android:padding">@dimen/margin_default</item>
-        <item name="android:background">@drawable/background_series_title</item>
+        <item name="android:background">@drawable/bg_series_title</item>
         <item name="android:textColor">?attr/colorOnPrimary</item>
         <item name="fontFamily">@font/archivo_black</item>
     </style>
 
     <style name="ListItemTitleText.Series">
-        <item name="android:background">@drawable/background_series_title</item>
+        <item name="android:background">@drawable/bg_series_title</item>
     </style>
 
     <style name="ListItemTitleText.Character">
-        <item name="android:background">@drawable/background_character_name</item>
+        <item name="android:background">@drawable/bg_character_name</item>
     </style>
 
     <style name="ListItemMetaBox">
-        <item name="android:background">@drawable/background_series_dates</item>
+        <item name="android:background">@drawable/bg_series_dates</item>
     </style>
 
     <style name="ListItemSeriesSubtitle" parent="TextAppearance.AppCompat.Light.SearchResult.Subtitle">

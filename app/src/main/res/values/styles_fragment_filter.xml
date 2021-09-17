@@ -59,6 +59,7 @@
         <item name="android:hint">@string/search</item>
         <item name="android:paddingStart">@dimen/margin_default</item>
         <item name="android:textColorHint">?attr/colorSecondary</item>
+        <item name="android:popupElevation">0dp</item>
         <item name="android:textColor">?attr/colorOnPrimary</item>
         <item name="android:textSize">18sp</item>
         <item name="fontFamily">@font/archivo_black</item>
@@ -66,6 +67,8 @@
         <item name="singleLine">true</item>
         <item name="android:dropDownWidth">match_parent</item>
         <item name="android:popupBackground">?attr/colorSecondaryLightLight</item>
+        <item name="android:imeOptions">actionDone</item>
+        <item name="android:completionThreshold">1</item>
     </style>
 
     <style name="FilterCardChipGroup" parent="Widget.MaterialComponents.ChipGroup">
@@ -99,10 +102,10 @@
 
     <style name="myNewChip" parent="Widget.MaterialComponents.Chip.Entry">
         <item name="chipStrokeColor">@color/filter_chip_stroke</item>
-        <item name="chipStrokeWidth">2dp</item>
+        <item name="chipStrokeWidth">0dp</item>
         <item name="chipBackgroundColor">@color/filter_chip</item>
         <item name="chipMinHeight">@dimen/chip_height</item>
-        <item name="chipCornerRadius">@dimen/margin_default</item>
+        <item name="chipCornerRadius">@dimen/margin_wide</item>
         <item name="checkedIconSize">@dimen/chip_icon_size</item>
         <item name="checkedIconVisible">false</item>
         <item name="checkedIcon">@drawable/ic_check_circle</item>
@@ -120,5 +123,16 @@
         <item name="fontFamily">@font/archivo_black</item>
         <item name="android:textAllCaps">false</item>
         <item name="android:textSize">14sp</item>
+    </style>
+
+    <style name="SearchFilterChip" parent="myNewChip">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="chipStartPadding">@dimen/margin_narrow</item>
+        <item name="chipEndPadding">@dimen/margin_narrow</item>
+        <item name="android:textAllCaps">true</item>
+        <item name="chipStrokeWidth">@dimen/margin_narrow</item>
+        <item name="closeIconEnabled">false</item>
+        <item name="android:textSize">@dimen/text_small</item>
     </style>
 </resources>
