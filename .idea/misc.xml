@@ -5,6 +5,7 @@
       <map>
         <entry key="../../../../layout/custom_preview.xml" value="0.3972222222222222" />
         <entry key="app/src/main/res/drawable/alboha_bg.xml" value="0.5" />
+        <entry key="app/src/main/res/drawable/arrow_up_24.xml" value="0.27692307692307694" />
         <entry key="app/src/main/res/drawable/background_series_dates.xml" value="0.12863247863247862" />
         <entry key="app/src/main/res/drawable/background_series_title.xml" value="0.12863247863247862" />
         <entry key="app/src/main/res/drawable/background_story_box_subtitle_bar.xml" value="0.27692307692307694" />
@@ -17,7 +18,7 @@
         <entry key="app/src/main/res/drawable/primary_dark_border.xml" value="0.1111111111111111" />
         <entry key="app/src/main/res/drawable/status_in_progress.xml" value="0.27341772151898736" />
         <entry key="app/src/main/res/drawable/waiting.xml" value="0.27692307692307694" />
-        <entry key="app/src/main/res/layout/activity_main.xml" value="0.1" />
+        <entry key="app/src/main/res/layout/activity_main.xml" value="0.5" />
         <entry key="app/src/main/res/layout/fragment_display_issue.xml" value="0.2809611829944547" />
         <entry key="app/src/main/res/layout/fragment_filter.xml" value="0.67" />
         <entry key="app/src/main/res/layout/fragment_item_list.xml" value="0.14035087719298245" />

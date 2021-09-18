@@ -52,8 +52,9 @@ class MainActivity : AppCompatActivity(),
     NewCreatorDialogFragment.NewCreatorDialogCallback,
     FilterFragment.FilterFragmentCallback {
 
-    private val PEEK_HEIGHT
+    internal val PEEK_HEIGHT
         get() = resources.getDimension(R.dimen.peek_height).toInt()
+
 
     private val filterViewModel: FilterViewModel by viewModels()
     private var filterFragment: FilterFragment? = null

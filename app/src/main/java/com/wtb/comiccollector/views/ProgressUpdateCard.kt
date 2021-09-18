@@ -1,12 +1,7 @@
 package com.wtb.comiccollector.views
 
-import android.animation.Animator
-import android.animation.AnimatorListenerAdapter
-import android.animation.AnimatorSet
-import android.animation.ObjectAnimator
 import android.content.Context
 import android.util.AttributeSet
-import android.view.View
 import android.widget.ImageView
 import android.widget.ProgressBar
 import androidx.cardview.widget.CardView
@@ -56,22 +51,5 @@ class ProgressUpdateCard(context: Context, attributeSet: AttributeSet) :
             nextItemStatus?.setImageResource(R.drawable.status_in_progress)
         }
         currItemProgressBar.progress = progressPct
-    }
-
-    fun hide() {
-        val shrinkAnimation = ObjectAnimator.ofFloat(this, "scaleY", 1f, 0f)
-
-        val fadeAnimation = ObjectAnimator.ofFloat(this, "alpha", 1f, 0f).apply {
-            addListener(object : AnimatorListenerAdapter() {
-                override fun onAnimationEnd(animation: Animator?) {
-                    this@ProgressUpdateCard.visibility = View.GONE
-                }
-            })
-        }
-
-        AnimatorSet().apply {
-            play(fadeAnimation).with(shrinkAnimation)
-            start()
-        }
     }
 }

@@ -26,7 +26,7 @@
             app:layout_constraintTop_toTopOf="parent"
             tools:text="Cover" />
 
-        <ImageButton
+        <com.wtb.comiccollector.fragments.ExpandButton
             android:id="@+id/story_dropdown_button"
             style="@style/StoryBoxDropdownButton.Title"
             android:layout_width="wrap_content"

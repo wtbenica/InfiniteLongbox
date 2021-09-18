@@ -10,9 +10,8 @@ import com.wtb.comiccollector.database.models.FullAppearance
 import com.wtb.comiccollector.database.models.FullCredit
 import com.wtb.comiccollector.database.models.Story
 import com.wtb.comiccollector.database.models.ids
+import com.wtb.comiccollector.fragments.ExpandButton
 import com.wtb.comiccollector.fragments.RoleNameTextView
-import com.wtb.comiccollector.fragments.toggleIcon
-import com.wtb.comiccollector.fragments.toggleVisibility
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 private const val STORY_TYPE_COVER = 6
@@ -93,7 +92,7 @@ class CreditsBox(context: Context) : TableLayout(context) {
 
 
     inner class StoryRow(context: Context, val mStory: Story) : LinearLayout(context) {
-        private val storyDetailButton: ImageButton
+        private val storyDetailButton: ExpandButton
         private val storyDetailBox: LinearLayout
         private val storyTitle: TextView
 
@@ -108,7 +107,7 @@ class CreditsBox(context: Context) : TableLayout(context) {
             storyDetailBox = findViewById(R.id.story_details_box)
             storyDetailButton.setOnClickListener {
                 storyDetailBox.toggleVisibility()
-                (it as ImageButton).toggleIcon(storyDetailBox)
+                (it as ExpandButton).toggleExpand()
             }
 
             storyTitle = findViewById(R.id.story_title)

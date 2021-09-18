@@ -2,7 +2,6 @@ package com.wtb.comiccollector.views
 
 import android.content.Context
 import android.util.AttributeSet
-import android.widget.ImageButton
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -10,9 +9,8 @@ import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.R
 import com.wtb.comiccollector.SearchFilter
 import com.wtb.comiccollector.database.models.FullSeries
+import com.wtb.comiccollector.fragments.ExpandButton
 import com.wtb.comiccollector.fragments.ListFragment
-import com.wtb.comiccollector.fragments.toggleIcon
-import com.wtb.comiccollector.fragments.toggleVisibility
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 private const val TAG = APP + "SeriesDetailBox"
@@ -41,15 +39,17 @@ class SeriesDetailBox(context: Context, attrs: AttributeSet?, defStyleAttr: Int)
     private var dateRangeTextview: TextView
     private var trackingNotesHeader: LinearLayout
     private var trackingNotesTextView: TextView
-    private var trackingDropdownButton: ImageButton
+    private var trackingDropdownButton: ExpandButton
     private var notesLabelHeader: LinearLayout
     private var notesTextView: TextView
-    private var notesDropdownButton: ImageButton
+    private var notesDropdownButton: ExpandButton
     private var notesBox: LinearLayout
 
     fun setSeries(series: FullSeries) {
-        this.series = series
-        updateUI()
+        if (this.series != series) {
+            this.series = series
+            updateUI()
+        }
     }
 
 
@@ -79,12 +79,12 @@ class SeriesDetailBox(context: Context, attrs: AttributeSet?, defStyleAttr: Int)
 
         trackingDropdownButton.setOnClickListener {
             trackingNotesTextView.toggleVisibility()
-            (it as ImageButton).toggleIcon(trackingNotesTextView)
+            (it as ExpandButton).toggleExpand()
         }
 
         notesDropdownButton.setOnClickListener {
             notesBox.toggleVisibility()
-            (it as ImageButton).toggleIcon(notesBox)
+            (it as ExpandButton).toggleExpand()
         }
 
         listFragmentCallback = context as ListFragment.ListFragmentCallback?

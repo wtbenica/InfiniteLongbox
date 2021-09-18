@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:animateLayoutChanges="true"
     tools:parentTag="androidx.constraintlayout.widget.ConstraintLayout">
 
         <TextView
@@ -136,7 +137,7 @@
                 android:layout_weight="1"
                 android:text="@string/series_detail_tracking_notes" />
 
-            <ImageButton
+            <com.wtb.comiccollector.fragments.ExpandButton
                 android:id="@+id/tracking_dropdown_button"
                 style="@style/StoryBoxDropdownButton.Title"
                 android:layout_width="wrap_content"
@@ -182,7 +183,7 @@
                 android:text="@string/series_detail_notes"
                 tools:visibility="visible" />
 
-            <ImageButton
+            <com.wtb.comiccollector.fragments.ExpandButton
                 android:id="@+id/notes_dropdown_button"
                 style="@style/StoryBoxDropdownButton.Title"
                 android:layout_width="wrap_content"
