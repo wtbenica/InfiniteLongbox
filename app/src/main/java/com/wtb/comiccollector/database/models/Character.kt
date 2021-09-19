@@ -112,7 +112,7 @@ data class FullAppearance(
     val appearance: Appearance,
 
     @Relation(parentColumn = "character", entityColumn = "characterId", entity = Character::class)
-    val character: FullCharacter
+    val character: FullCharacter,
 )
 
 @ExperimentalCoroutinesApi

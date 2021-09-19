@@ -10,21 +10,21 @@ import androidx.core.view.marginTop
 import androidx.core.view.updateMargins
 import com.wtb.comiccollector.R
 
+private const val DURATION = 200L
+
 internal fun View.hide() {
     val shrinkYAnimation = ObjectAnimator.ofFloat(this, "scaleY", 1f, 0f)
     val shrinkXAnimation = ObjectAnimator.ofFloat(this, "scaleX", 1f, 0f)
-    val fadeoutAnimation = ObjectAnimator.ofFloat(this, "alpha", 1f, 0f).apply {
-        addListener(object : AnimatorListenerAdapter() {
-            override fun onAnimationStart(animation: Animator?, isReverse: Boolean) {
-                val duration = 500L
-                animateHeight(height, 0, duration)
-                animateMargins(this@hide.marginTop, 0, duration)
-            }
-        })
-    }
+    val fadeoutAnimation = ObjectAnimator.ofFloat(this, "alpha", 1f, 0f)
 
     AnimatorSet().apply {
-        duration = 500L
+        duration = DURATION
+        addListener(object : AnimatorListenerAdapter() {
+            override fun onAnimationStart(animation: Animator?, isReverse: Boolean) {
+                animateHeight(height, 0, DURATION)
+                animateMargins(this@hide.marginTop, 0, DURATION)
+            }
+        })
         play(fadeoutAnimation).with(shrinkYAnimation).with(shrinkXAnimation).apply {
             interpolator = DecelerateInterpolator()
         }
@@ -49,18 +49,15 @@ internal fun View.show() {
     val fadeAnimation = ObjectAnimator.ofFloat(this, "alpha", 0f, 1f)
 
     AnimatorSet().apply {
-        duration = 500L
-        play(fadeAnimation).with(growYAnimation).with(growXAnimation).apply {
-            interpolator = DecelerateInterpolator()
-            addListener(object : AnimatorListenerAdapter() {
-                override fun onAnimationStart(animation: Animator?) {
-                    val duration = 500L
-                    animateMargins(0, MARGIN_DEFAULT, duration)
-                    animateHeight(0, hh, duration)
-                }
-            })
-
-        }
+        duration = DURATION
+        interpolator = DecelerateInterpolator()
+        addListener(object : AnimatorListenerAdapter() {
+            override fun onAnimationStart(animation: Animator?) {
+                animateMargins(0, MARGIN_DEFAULT, DURATION)
+                animateHeight(0, hh, DURATION)
+            }
+        })
+        play(fadeAnimation).with(growYAnimation).with(growXAnimation)
         start()
     }
 }

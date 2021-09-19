@@ -5,7 +5,6 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.util.AttributeSet
 import android.util.Log
-import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.EditorInfo.IME_ACTION_DONE
 import android.widget.AdapterView
 import com.google.android.material.chip.Chip
@@ -100,7 +99,9 @@ class FilterTypeChip @JvmOverloads constructor(
 ) : Chip(context, attributeSet) {
     var type: KClass<*>? = null
 
-    constructor(context: Context, type: KClass<*>) : this(context) {
+    constructor(context: Context, type: KClass<*>, bgColor: Int, strokeColor: Int) : this(context) {
         this.type = type
+        setChipBackgroundColorResource(bgColor)
+        setChipStrokeColorResource(strokeColor)
     }
 }

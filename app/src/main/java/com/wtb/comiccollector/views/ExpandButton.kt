@@ -15,8 +15,9 @@ class ExpandButton(context: Context, attributeSet: AttributeSet) :
 
     fun toggleExpand() {
         val currRotation = rotation
+        val destRotation = if (isExpanded) 0f else 180f
         val rotateAnimation =
-            ObjectAnimator.ofFloat(this, "rotation", currRotation, currRotation + 180f)
+            ObjectAnimator.ofFloat(this, "rotation", currRotation, destRotation)
                 .apply {
                     interpolator = DecelerateInterpolator()
                 }
@@ -26,15 +27,6 @@ class ExpandButton(context: Context, attributeSet: AttributeSet) :
             start()
         }
 
-
-//        this.setImageResource(if (isExpanded) {
-//            Log.d(TAG, "The arrow is up, so setting arrow down.")
-//            R.drawable.arrow_down_24
-//        } else {
-//            Log.d(TAG, "The arrow is down, so setting arrow up.")
-//            R.drawable.arrow_up_24
-//        }
-//        )
         isExpanded = !isExpanded
         Log.d(TAG, "The box is expanded: $isExpanded")
     }

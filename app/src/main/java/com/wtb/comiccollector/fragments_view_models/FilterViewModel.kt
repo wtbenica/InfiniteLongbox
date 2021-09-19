@@ -1,5 +1,6 @@
 package com.wtb.comiccollector.fragments_view_models
 
+import android.util.Log
 import androidx.lifecycle.*
 import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.SearchFilter
@@ -10,8 +11,11 @@ import com.wtb.comiccollector.fragments.CreatorListFragment
 import com.wtb.comiccollector.fragments.IssueListFragment
 import com.wtb.comiccollector.fragments.SeriesListFragment
 import com.wtb.comiccollector.repository.Repository
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlin.reflect.KClass
 
 private const val TAG = APP + "FilterViewModel"
@@ -59,6 +63,7 @@ class FilterViewModel : ViewModel() {
     }.asLiveData()
 
     var filterOptions: LiveData<List<FilterModel>> = filterType.switchMap {
+        Log.d(TAG, "Switching filters to: ${it}")
         when (it) {
             Series.Companion::class     -> seriesOptions
             Publisher.Companion::class  -> publisherOptions

@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.View.*
@@ -72,6 +73,7 @@ class FilterFragment : Fragment(),
     private lateinit var searchBar: SearchAutoComplete
 
     private lateinit var filterTypeChipGroup: ChipGroup
+    private lateinit var filterChipAll: FilterTypeChip
     private lateinit var filterChipSeries: FilterTypeChip
     private lateinit var filterChipCreator: FilterTypeChip
     private lateinit var filterChipCharacter: FilterTypeChip
@@ -215,6 +217,7 @@ class FilterFragment : Fragment(),
         filterTypeChipGroup.setOnCheckedChangeListener { _, checkedId ->
             if (checkedId >= 0) {
                 view?.findViewById<FilterTypeChip>(checkedId)?.let { it: FilterTypeChip ->
+                    Log.d(TAG, "Setting filter type: $it ${it.type}")
                     it.type?.let { it1 -> viewModel.setFilterType(it1) }
                 }
 
@@ -259,12 +262,20 @@ class FilterFragment : Fragment(),
 
     private fun initFilterTypeChipGroup(view: View) {
         filterTypeChipGroup = view.findViewById(R.id.filter_type_chip_group)
-        filterTypeOptions.forEach {
-            filterTypeChipGroup.addView(FilterTypeChip(requireContext(), it).apply {
-                if (it == All.Companion::class) {
-                    this.isChecked = true
-                }
-            })
+        filterChipAll = view.findViewById<FilterTypeChip>(R.id.filter_chip_all).apply {
+            type = All.Companion::class
+        }
+        filterChipSeries = view.findViewById<FilterTypeChip>(R.id.filter_chip_series).apply {
+            type = Series.Companion::class
+        }
+        filterChipCreator = view.findViewById<FilterTypeChip>(R.id.filter_chip_creator).apply {
+            type = NameDetail.Companion::class
+        }
+        filterChipCharacter = view.findViewById<FilterTypeChip>(R.id.filter_chip_character).apply {
+            type = Character.Companion::class
+        }
+        filterChipPublisher = view.findViewById<FilterTypeChip>(R.id.filter_chip_publisher).apply {
+            type = Publisher.Companion::class
         }
     }
 
