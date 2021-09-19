@@ -92,8 +92,8 @@ class MainActivity : AppCompatActivity(),
         WindowCompat.setDecorFitsSystemWindows(window, false)
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        Log.d(TAG, "Flavor: ${com.wtb.comiccollector.BuildConfig.FLAVOR}")
-        if (com.wtb.comiccollector.BuildConfig.FLAVOR == "free") {
+        Log.d(TAG, "Flavor: ${BuildConfig.FLAVOR}")
+        if (BuildConfig.FLAVOR == "free") {
             MobileAds.initialize(this)
 
             mAdView = findViewById(R.id.ad_view)

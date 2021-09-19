@@ -46,7 +46,7 @@ class SeriesDetailBox(context: Context, attrs: AttributeSet?, defStyleAttr: Int)
     private var notesDropdownButton: ExpandButton
     private var notesBox: LinearLayout
 
-    fun setSeries(series: FullSeries) {
+    private fun setSeries(series: FullSeries) {
         if (this.series != series) {
             this.series = series
             updateUI()

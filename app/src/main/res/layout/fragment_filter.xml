@@ -263,7 +263,7 @@
                     android:contentDescription="@string/search_image_content_description"
                     android:labelFor="@id/search_bar"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/filter_type_chip_group"
+                    app:layout_constraintTop_toBottomOf="@id/chip_group_scrollview"
                     app:srcCompat="@drawable/ic_search_24" />
 
                 <com.wtb.comiccollector.views.SearchAutoComplete
@@ -271,7 +271,7 @@
                     style="@style/SearchAutoCompleteStyle"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toEndOf="@id/img_lbl_search_bar"
-                    app:layout_constraintTop_toBottomOf="@id/filter_type_chip_group" />
+                    app:layout_constraintTop_toBottomOf="@id/chip_group_scrollview" />
 
                 <!--                <androidx.appcompat.widget.AppCompatSpinner-->
                 <!--                    android:id="@+id/search_bar_spinner"-->

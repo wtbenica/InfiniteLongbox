@@ -25,7 +25,7 @@ import kotlin.reflect.KSuspendFunction0
 import kotlin.reflect.KSuspendFunction1
 
 val BooleanArray.allTrue
-    get() = this.all { it == true }
+    get() = this.all { it }
 
 /**
  * Updater
@@ -85,55 +85,55 @@ abstract class Updater(
         checkFKeys(credits, this::checkCreditFkStory)
     }
 
-    internal suspend fun checkSeriesFkPublisher(series: List<Series>) =
+    private suspend fun checkSeriesFkPublisher(series: List<Series>) =
         checkForMissingForeignKeyModels(series,
                                         Series::publisher,
                                         database.publisherDao(),
                                         webservice::getPublishersByIds)
 
-    internal suspend fun checkNameDetailFkCreator(nameDetails: List<NameDetail>) =
+    private suspend fun checkNameDetailFkCreator(nameDetails: List<NameDetail>) =
         checkForMissingForeignKeyModels(nameDetails,
                                         NameDetail::creator,
                                         database.creatorDao(),
                                         webservice::getCreatorsByIds)
 
 
-    internal suspend fun checkIssueFkSeries(issues: List<Issue>) =
+    private suspend fun checkIssueFkSeries(issues: List<Issue>) =
         checkForMissingForeignKeyModels(issues,
                                         Issue::series,
                                         database.seriesDao(),
                                         webservice::getSeriesByIds,
                                         ::checkFKeysSeries)
 
-    internal suspend fun checkIssueFkVariantOf(issues: List<Issue>) =
+    private suspend fun checkIssueFkVariantOf(issues: List<Issue>) =
         checkForMissingForeignKeyModels(issues,
                                         Issue::variantOf,
                                         database.issueDao(),
                                         webservice::getIssuesByIds,
                                         ::checkFKeysIssue)
 
-    internal suspend fun checkSeriesBondFkOriginIssue(seriesBonds: List<SeriesBond>) =
+    private suspend fun checkSeriesBondFkOriginIssue(seriesBonds: List<SeriesBond>) =
         checkForMissingForeignKeyModels(seriesBonds,
                                         SeriesBond::originIssue,
                                         database.issueDao(),
                                         webservice::getIssuesByIds,
                                         ::checkFKeysIssue)
 
-    internal suspend fun checkSeriesBondFkOriginSeries(seriesBonds: List<SeriesBond>) =
+    private suspend fun checkSeriesBondFkOriginSeries(seriesBonds: List<SeriesBond>) =
         checkForMissingForeignKeyModels(seriesBonds,
                                         SeriesBond::origin,
                                         database.seriesDao(),
                                         webservice::getSeriesByIds,
                                         ::checkFKeysSeries)
 
-    internal suspend fun checkSeriesBondFkTargetSeries(seriesBonds: List<SeriesBond>) =
+    private suspend fun checkSeriesBondFkTargetSeries(seriesBonds: List<SeriesBond>) =
         checkForMissingForeignKeyModels(seriesBonds,
                                         SeriesBond::target,
                                         database.seriesDao(),
                                         webservice::getSeriesByIds,
                                         ::checkFKeysSeries)
 
-    internal suspend fun checkSeriesBondFkTargetIssue(seriesBonds: List<SeriesBond>) =
+    private suspend fun checkSeriesBondFkTargetIssue(seriesBonds: List<SeriesBond>) =
         checkForMissingForeignKeyModels(seriesBonds,
                                         SeriesBond::targetIssue,
                                         database.issueDao(),
@@ -141,34 +141,34 @@ abstract class Updater(
                                         ::checkFKeysIssue)
 
 
-    internal suspend fun checkStoryFkIssue(stories: List<Story>) =
+    private suspend fun checkStoryFkIssue(stories: List<Story>) =
         checkForMissingForeignKeyModels(stories,
                                         Story::issue,
                                         database.issueDao(),
                                         webservice::getIssuesByIds,
                                         ::checkFKeysIssue)
 
-    internal suspend fun checkAppearanceFkCharacter(appearances: List<Appearance>) =
+    private suspend fun checkAppearanceFkCharacter(appearances: List<Appearance>) =
         checkForMissingForeignKeyModels(appearances,
                                         Appearance::character,
                                         database.characterDao(),
                                         webservice::getCharactersByIds)
 
-    internal suspend fun checkAppearanceFkStory(appearances: List<Appearance>) =
+    private suspend fun checkAppearanceFkStory(appearances: List<Appearance>) =
         checkForMissingForeignKeyModels(appearances,
                                         Appearance::story,
                                         database.storyDao(),
                                         webservice::getStoriesByIds,
                                         ::checkFKeysStory)
 
-    internal suspend fun <T : CreditX> checkCreditFkNameDetail(credits: List<T>) =
+    private suspend fun <T : CreditX> checkCreditFkNameDetail(credits: List<T>) =
         checkForMissingForeignKeyModels(credits,
                                         CreditX::nameDetail,
                                         database.nameDetailDao(),
                                         webservice::getNameDetailsByIds,
                                         ::checkFKeysNameDetail)
 
-    internal suspend fun <T : CreditX> checkCreditFkStory(credits: List<T>) =
+    private suspend fun <T : CreditX> checkCreditFkStory(credits: List<T>) =
         checkForMissingForeignKeyModels(credits,
                                         CreditX::story,
                                         database.storyDao(),
@@ -185,7 +185,7 @@ abstract class Updater(
          * @param name Function name, shown  in exception log message
          * @return null on one of the listed exceptions or if it was called with an empty arg list
          */
-        suspend fun <ResultType : Any, ArgType : Any> runSafely(
+        private suspend fun <ResultType : Any, ArgType : Any> runSafely(
             name: String,
             arg: ArgType,
             queryFunction: (ArgType) -> Deferred<ResultType>,
@@ -271,10 +271,10 @@ abstract class Updater(
             val isStale = LocalDate.now() > lastUpdated.plusDays(shelfLife)
             val isStarted = prefs.getBoolean("${prefsKey}_STARTED", false)
             var timeStarted: Long
-            try {
-                timeStarted = prefs.getLong("${prefsKey}_STARTED_TIME", Instant.MIN.epochSecond)
+            timeStarted = try {
+                prefs.getLong("${prefsKey}_STARTED_TIME", Instant.MIN.epochSecond)
             } catch (e: ClassCastException) {
-                timeStarted = Instant.MIN.epochSecond
+                Instant.MIN.epochSecond
             }
             val isExpired = timeStarted + 3 < Instant.now().epochSecond
 
@@ -448,7 +448,8 @@ abstract class Updater(
         }
 
         // for each page in PC, if not complete, then try to update again
-        CoroutineScope(Dispatchers.IO).async {
+        // if request is successful, save and mark as updated
+        withContext(CoroutineScope(Dispatchers.IO).coroutineContext) {
             pagesComplete.forEachIndexed { currPage, isComplete ->
                 if (!isComplete) {
                     launch {
@@ -466,7 +467,7 @@ abstract class Updater(
                     }
                 }
             }
-        }.await().let {
+        }.let {
 
             // if every page has been updated, change saveTag time
             if (pagesComplete.allTrue) {
@@ -520,7 +521,7 @@ abstract class Updater(
      * @param getFkItems The function to retrieve the foreign key objects remotely
      * @param fkFollowup A function that to check a foreign key of the foreign key models
      */
-    internal suspend fun <M : DataModel, FG : GcdJson<FM>, FM : DataModel>
+    private suspend fun <M : DataModel, FG : GcdJson<FM>, FM : DataModel>
             checkForMissingForeignKeyModels(
         itemsToCheck: List<M>,
         getForeignKey: (M) -> Int?,

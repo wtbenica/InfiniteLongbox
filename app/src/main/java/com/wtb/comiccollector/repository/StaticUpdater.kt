@@ -75,9 +75,9 @@ class StaticUpdater private constructor(
      */
     internal fun updateIssue(issueId: Int, markedDelete: Boolean = true) =
         CoroutineScope(nowDispatcher).launch {
-            async {
+            withContext(Dispatchers.Default) {
                 updateIssueFromGcd(issueId)
-            }.await().let {
+            }.let {
                 updateIssueStoryDetails(issueId)
                 UpdateIssueCover.get().update(issueId, markedDelete)
             }
@@ -321,7 +321,7 @@ class StaticUpdater private constructor(
     private suspend fun getSeriesBonds(): List<SeriesBond>? =
         getItems(prefs, webservice::getSeriesBonds, UPDATED_BONDS)
 
-    internal suspend fun updateIssueFromGcd(issueId: Int) {
+    private suspend fun updateIssueFromGcd(issueId: Int) {
         if (checkIfStale(issueTag(issueId), WEEKLY, prefs)) {
             getItemsByArgument(listOf(issueId), webservice::getIssuesByIds)
         }

@@ -37,6 +37,6 @@ class AddCollectionButton(context: Context, attributeSet: AttributeSet) :
     }
 
     companion object {
-        val TAG = APP + "ImageButton"
+        const val TAG = APP + "ImageButton"
     }
 }

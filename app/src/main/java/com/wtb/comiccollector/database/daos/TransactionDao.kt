@@ -15,7 +15,7 @@ private const val TAG = APP + "TransactionDao"
 
 @ExperimentalCoroutinesApi
 @Dao
-abstract class TransactionDao() {
+abstract class TransactionDao {
 
     private val database: IssueDatabase
         get() = IssueDatabase.getInstance(context!!)

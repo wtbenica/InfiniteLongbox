@@ -39,7 +39,7 @@ abstract class ListFragment<T : ListItem, VH : RecyclerView.ViewHolder> : Fragme
     protected abstract val viewModel: ListViewModel<T>
     protected lateinit var outerScrollView: NestedScrollView
     protected lateinit var listRecyclerView: RecyclerView
-    protected lateinit var appBar: AppBarLayout
+    private lateinit var appBar: AppBarLayout
     protected lateinit var details: FrameLayout
     protected var callback: ListFragmentCallback? = null
 

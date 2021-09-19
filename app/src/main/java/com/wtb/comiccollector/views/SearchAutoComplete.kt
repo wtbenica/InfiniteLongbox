@@ -43,7 +43,7 @@ class SearchAutoComplete(context: Context, attributeSet: AttributeSet) :
         // on enter
         setOnEditorActionListener { v, actionId, event ->
             Log.d(TAG, "ACTION ID: $actionId")
-            if (actionId == EditorInfo.IME_ACTION_DONE) {
+            if (actionId == IME_ACTION_DONE) {
                 val tempItem = item
                 if (tempItem != null) {
                     Log.d(TAG, "ADDING: $tempItem")
