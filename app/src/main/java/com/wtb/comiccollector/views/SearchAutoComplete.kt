@@ -29,6 +29,7 @@ class SearchAutoComplete(context: Context, attributeSet: AttributeSet) :
 
     init {
         imeOptions = IME_ACTION_DONE
+        isSingleLine = true
         // show dropdown and show filter type chipgroup
         setOnFocusChangeListener { v, hasFocus ->
             if (hasFocus) {

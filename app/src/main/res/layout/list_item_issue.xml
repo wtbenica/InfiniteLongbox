@@ -16,21 +16,37 @@
         tools:layout_width="200dp">
 
         <ImageView
+            android:id="@+id/no_cover"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:adjustViewBounds="true"
+            android:alpha="0"
+            android:contentDescription="@string/description_issue_cover"
+            android:scaleType="fitStart"
+            android:src="@drawable/cover_missing"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:alpha="1"
+            tools:layout_height="309dp"
+            tools:layout_width="200dp"
+            tools:visibility="visible" />
+
+        <ImageView
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:src="@drawable/alboha_bg"
             android:scaleType="center"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
+            android:src="@drawable/alboha_bg"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"/>
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <ImageView
             android:id="@+id/list_item_cover"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:adjustViewBounds="true"
-            android:alpha="0"
             android:contentDescription="@string/description_issue_cover"
             android:scaleType="fitStart"
             app:layout_constraintEnd_toEndOf="parent"
@@ -38,30 +54,28 @@
             app:layout_constraintTop_toTopOf="parent"
             tools:alpha="1"
             tools:layout_height="309dp"
-            tools:layout_width="200dp"
-            tools:src="@tools:sample/backgrounds/scenic"
-            tools:visibility="visible" />
+            tools:layout_width="200dp" />
 
-        <LinearLayout
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/list_item_issue_box"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginEnd="@dimen/margin_default"
             android:layout_marginBottom="@dimen/margin_default"
-            android:background="#EFFF"
-            android:orientation="vertical"
+            android:background="@color/transparent_white"
             android:padding="@dimen/margin_default"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent">
 
             <FrameLayout
-                android:layout_width="match_parent"
+                android:id="@+id/progress_bar_box"
+                android:layout_width="0dp"
                 android:layout_height="4dp"
                 android:layout_marginTop="-1dp"
+                app:layout_constraintBottom_toTopOf="@id/btn_issue_list_add_collection"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/metadata_box">
+                app:layout_constraintStart_toStartOf="parent">
 
                 <FrameLayout
                     android:layout_width="match_parent"
@@ -78,27 +92,54 @@
                 </FrameLayout>
             </FrameLayout>
 
+            <ImageButton
+                android:id="@+id/btn_issue_list_add_collection"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@android:color/transparent"
+                android:src="@drawable/add_collection"
+                app:layout_constraintBottom_toTopOf="@id/btn_issue_list_add_wish_list"
+                app:layout_constraintStart_toStartOf="parent" />
+
+            <ImageButton
+                android:id="@+id/btn_issue_list_add_wish_list"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@android:color/transparent"
+                android:src="@drawable/add_wish_list"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent" />
+
             <TextView
                 android:id="@+id/list_item_issue_number_text"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_weight="1"
                 android:fontFamily="@font/archivo_black"
                 android:gravity="bottom|end"
                 android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle2"
                 android:textColor="?attr/colorOnPrimary"
                 android:textSize="16sp"
+                app:layout_constraintBottom_toBottomOf="@id/btn_issue_list_add_collection"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/btn_issue_list_add_collection"
+                app:layout_constraintTop_toTopOf="@id/btn_issue_list_add_collection"
                 tools:text="8" />
 
             <TextView
                 android:id="@+id/list_item_character_name_text"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
                 android:fontFamily="@font/archivo_black"
                 android:gravity="bottom|end"
                 android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle2"
                 android:textColor="?attr/colorOnPrimary"
                 android:textSize="12sp"
+                app:layout_constraintBottom_toBottomOf="@id/btn_issue_list_add_wish_list"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/btn_issue_list_add_wish_list"
+                app:layout_constraintTop_toTopOf="@id/btn_issue_list_add_wish_list"
                 tools:text="Ed McGuinness Cover" />
-        </LinearLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.cardview.widget.CardView>

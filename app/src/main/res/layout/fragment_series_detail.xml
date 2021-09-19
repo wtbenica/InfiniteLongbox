@@ -137,7 +137,7 @@
                 android:layout_weight="1"
                 android:text="@string/series_detail_tracking_notes" />
 
-            <com.wtb.comiccollector.fragments.ExpandButton
+            <com.wtb.comiccollector.views.ExpandButton
                 android:id="@+id/tracking_dropdown_button"
                 style="@style/StoryBoxDropdownButton.Title"
                 android:layout_width="wrap_content"
@@ -183,7 +183,7 @@
                 android:text="@string/series_detail_notes"
                 tools:visibility="visible" />
 
-            <com.wtb.comiccollector.fragments.ExpandButton
+            <com.wtb.comiccollector.views.ExpandButton
                 android:id="@+id/notes_dropdown_button"
                 style="@style/StoryBoxDropdownButton.Title"
                 android:layout_width="wrap_content"

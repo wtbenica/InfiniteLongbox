@@ -6,8 +6,8 @@ import android.view.*
 import android.view.View.GONE
 import android.view.View.VISIBLE
 import android.view.animation.AccelerateInterpolator
+import android.widget.ImageButton
 import android.widget.ImageView
-import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -57,9 +57,6 @@ class IssueListFragment : ListFragment<FullIssue, IssueListFragment.IssueViewHol
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.itemList.collectLatest { pagingData ->
                     adapter.submitData(pagingData)
-                    viewModel.getIssueListState()?.let {
-                        listRecyclerView.layoutManager?.onRestoreInstanceState(it)
-                    }
                 }
             }
         }
@@ -118,15 +115,21 @@ class IssueListFragment : ListFragment<FullIssue, IssueListFragment.IssueViewHol
 
         private val progressCover: ProgressBar = itemView.findViewById(R.id.progress_cover_download)
         private val coverImageView: ImageView = itemView.findViewById(R.id.list_item_cover)
-        private val issueNameBox: LinearLayout = itemView.findViewById(R.id.list_item_issue_box)
+        private val issueNameBox: ConstraintLayout = itemView.findViewById(R.id.list_item_issue_box)
         private val issueNumTextView: TextView =
             itemView.findViewById(R.id.list_item_issue_number_text)
         private val issueVariantName: TextView =
             itemView.findViewById(R.id.list_item_character_name_text)
         internal val wrapper: ConstraintLayout = itemView.findViewById(R.id.wrapper)
+        private val addCollectionButton: ImageButton =
+            itemView.findViewById(R.id.btn_issue_list_add_collection)
 
         init {
             itemView.setOnClickListener(this)
+
+            addCollectionButton.setOnClickListener {
+                fullIssue?.let { issue -> callback?.addToCollection(issue) }
+            }
         }
 
         fun bind(issue: FullIssue?) {
@@ -134,6 +137,12 @@ class IssueListFragment : ListFragment<FullIssue, IssueListFragment.IssueViewHol
 
             this.fullIssue?.let { viewModel.updateIssueCover(it.issue.issueId) }
             val coverUri = this.fullIssue?.coverUri
+
+            if (coverUri != null) {
+                coverImageView.setImageURI(coverUri)
+            } else {
+                coverImageView.setImageURI(null)
+            }
 
             if (fullIssue?.cover != null) {
                 val animation = ValueAnimator.ofFloat(0F, 1F)
@@ -155,19 +164,15 @@ class IssueListFragment : ListFragment<FullIssue, IssueListFragment.IssueViewHol
                 animation.start()
             }
 
-            if (coverUri != null) {
-                this.coverImageView.setImageURI(coverUri)
-            } else {
-                coverImageView.setImageResource(R.drawable.cover_missing)
-            }
-
             if (fullIssue?.myCollection?.collectionId != null) {
                 context?.getColor(R.color.fantasia_transparent)?.let {
                     issueNameBox.setBackgroundColor(it)
+                    addCollectionButton.setImageResource(R.drawable.remove_collection)
                 }
             } else {
                 context?.getColor(R.color.transparent_white)?.let {
                     issueNameBox.setBackgroundColor(it)
+                    addCollectionButton.setImageResource(R.drawable.add_collection)
                 }
             }
 

@@ -2,6 +2,8 @@ package com.wtb.comiccollector.views
 
 import android.content.Context
 import android.util.AttributeSet
+import android.view.ViewGroup.LayoutParams.MATCH_PARENT
+import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -9,7 +11,6 @@ import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.R
 import com.wtb.comiccollector.SearchFilter
 import com.wtb.comiccollector.database.models.FullSeries
-import com.wtb.comiccollector.fragments.ExpandButton
 import com.wtb.comiccollector.fragments.ListFragment
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
@@ -77,13 +78,15 @@ class SeriesDetailBox(context: Context, attrs: AttributeSet?, defStyleAttr: Int)
         notesDropdownButton = findViewById(R.id.notes_dropdown_button)
         notesBox = findViewById(R.id.notes_box)
 
+        trackingDropdownButton.setOnClickListener(null)
         trackingDropdownButton.setOnClickListener {
-            trackingNotesTextView.toggleVisibility()
+            trackingNotesTextView.toggleVisibility(MATCH_PARENT, WRAP_CONTENT)
             (it as ExpandButton).toggleExpand()
         }
 
+        notesDropdownButton.setOnClickListener(null)
         notesDropdownButton.setOnClickListener {
-            notesBox.toggleVisibility()
+            notesBox.toggleVisibility(MATCH_PARENT, MATCH_PARENT)
             (it as ExpandButton).toggleExpand()
         }
 

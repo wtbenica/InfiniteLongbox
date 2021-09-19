@@ -4,8 +4,6 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.util.AttributeSet
-import android.util.Log
 import android.view.*
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.*
@@ -42,38 +40,6 @@ private const val DIALOG_NEW_CREATOR = "DialogNewCreator"
 internal const val DIALOG_DATE = "DialogDate"
 
 private const val ADD_SERIES_ID = -2
-
-class ExpandButton(context: Context, attributeSet: AttributeSet) :
-    androidx.appcompat.widget.AppCompatImageButton(context, attributeSet) {
-
-    private var isExpanded = false
-
-    fun toggleExpand() {
-//        val rotateAnimation = ObjectAnimator.ofFloat(this, "rotation", 0f, 180f).apply {
-//            interpolator = DecelerateInterpolator()
-//        }
-//
-//        AnimatorSet().apply {
-//            play(rotateAnimation)
-//            start()
-//        }
-
-
-        this.setImageResource(if (isExpanded) {
-            Log.d(TAG, "The arrow is up, so setting arrow down.")
-            R.drawable.arrow_down_24
-        } else {
-            Log.d(TAG, "The arrow is down, so setting arrow up.")
-            R.drawable.arrow_up_24
-        })
-        isExpanded = !isExpanded
-        Log.d(TAG, "The box is expanded: $isExpanded")
-    }
-
-    companion object {
-        val TAG = APP + "ImageButton"
-    }
-}
 
 /**
  * A simple [Fragment] subclass.

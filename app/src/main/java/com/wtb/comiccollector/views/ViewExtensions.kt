@@ -2,8 +2,8 @@ package com.wtb.comiccollector.views
 
 import android.animation.*
 import android.view.View
+import android.view.View.MeasureSpec.*
 import android.view.ViewGroup
-import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.view.animation.DecelerateInterpolator
 import androidx.core.view.marginTop
@@ -11,16 +11,13 @@ import androidx.core.view.updateMargins
 import com.wtb.comiccollector.R
 
 internal fun View.hide() {
-    this.measure(WRAP_CONTENT, MATCH_PARENT)
-
     val shrinkYAnimation = ObjectAnimator.ofFloat(this, "scaleY", 1f, 0f)
     val shrinkXAnimation = ObjectAnimator.ofFloat(this, "scaleX", 1f, 0f)
     val fadeoutAnimation = ObjectAnimator.ofFloat(this, "alpha", 1f, 0f).apply {
         addListener(object : AnimatorListenerAdapter() {
-            override fun onAnimationEnd(animation: Animator?, isReverse: Boolean) {
-                val duration = 100L
-                animateHeight(measuredHeight, 0, duration)
-                animateWidth(measuredWidth, 0, duration)
+            override fun onAnimationStart(animation: Animator?, isReverse: Boolean) {
+                val duration = 500L
+                animateHeight(height, 0, duration)
                 animateMargins(this@hide.marginTop, 0, duration)
             }
         })
@@ -36,28 +33,81 @@ internal fun View.hide() {
 }
 
 internal fun View.show() {
-    this.measure(WRAP_CONTENT, WRAP_CONTENT)
-
+    this@show.visibility = View.VISIBLE
+    scaleY = 1f
+    val lp = layoutParams
+    lp.height = WRAP_CONTENT
+    layoutParams = lp
+    measure(0, 0)
+    val hh = measuredHeight
+    this@show.scaleY = 0f
+    val lp2 = layoutParams
+    lp2.height = 0
+    layoutParams = lp2
     val growYAnimation = ObjectAnimator.ofFloat(this, "scaleY", 0f, 1f)
     val growXAnimation = ObjectAnimator.ofFloat(this, "scaleX", 0f, 1f)
     val fadeAnimation = ObjectAnimator.ofFloat(this, "alpha", 0f, 1f)
 
     AnimatorSet().apply {
+        duration = 500L
         play(fadeAnimation).with(growYAnimation).with(growXAnimation).apply {
             interpolator = DecelerateInterpolator()
-            addListener(object: AnimatorListenerAdapter() {
+            addListener(object : AnimatorListenerAdapter() {
                 override fun onAnimationStart(animation: Animator?) {
-                    this@show.visibility = View.VISIBLE
-                    val duration = 100L
+                    val duration = 500L
                     animateMargins(0, MARGIN_DEFAULT, duration)
-                    animateHeight(0, measuredHeight, duration)
-                    animateWidth(0, measuredWidth, duration)
+                    animateHeight(0, hh, duration)
                 }
             })
+
         }
         start()
     }
 }
+//internal fun View.hide() {
+//    val shrinkYAnimation = ObjectAnimator.ofFloat(this, "scaleY", 1f, 0f)
+//    val shrinkXAnimation = ObjectAnimator.ofFloat(this, "scaleX", 1f, 0f)
+//    val fadeoutAnimation = ObjectAnimator.ofFloat(this, "alpha", 1f, 0f).apply {
+//        addListener(object : AnimatorListenerAdapter() {
+//            override fun onAnimationEnd(animation: Animator?, isReverse: Boolean) {
+//                val duration = 100L
+//                animateHeight(height, 0, duration)
+//                animateWidth(width, 0, duration)
+//                animateMargins(this@hide.marginTop, 0, duration)
+//            }
+//        })
+//    }
+//
+//    AnimatorSet().apply {
+//        duration = 500L
+//        play(fadeoutAnimation).with(shrinkYAnimation).with(shrinkXAnimation).apply {
+//            interpolator = DecelerateInterpolator()
+//        }
+//        start()
+//    }
+//}
+//
+//internal fun View.show() {
+//    val growYAnimation = ObjectAnimator.ofFloat(this, "scaleY", 0f, 1f)
+//    val growXAnimation = ObjectAnimator.ofFloat(this, "scaleX", 0f, 1f)
+//    val fadeAnimation = ObjectAnimator.ofFloat(this, "alpha", 0f, 1f)
+//
+//    AnimatorSet().apply {
+//        play(fadeAnimation).with(growYAnimation).with(growXAnimation).apply {
+//            interpolator = DecelerateInterpolator()
+//            addListener(object : AnimatorListenerAdapter() {
+//                override fun onAnimationStart(animation: Animator?) {
+//                    this@show.visibility = View.VISIBLE
+//                    val duration = 100L
+//                    animateMargins(0, MARGIN_DEFAULT, duration)
+//                    animateHeight(0, measuredHeight, duration)
+//                    animateWidth(0, measuredWidth, duration)
+//                }
+//            })
+//        }
+//        start()
+//    }
+//}
 
 val View.MARGIN_DEFAULT
     get() = resources.getDimension(R.dimen.margin_default).toInt()
@@ -78,6 +128,7 @@ private fun View.animateMargins(startValue: Int, endValue: Int, duration: Long) 
 
 private fun View.animateWidth(startValue: Int, endValue: Int, duration: Long) {
     val layoutWidthAnimator = ValueAnimator.ofInt(startValue, endValue)
+
     layoutWidthAnimator.addUpdateListener {
         val value: Int = it.animatedValue as Int
         val layoutParams = this.layoutParams
@@ -100,7 +151,7 @@ private fun View.animateHeight(startValue: Int, endValue: Int, duration: Long) {
     }
 
     if (endValue == 0) {
-        layoutHeightAnimator.addListener(object: AnimatorListenerAdapter() {
+        layoutHeightAnimator.addListener(object : AnimatorListenerAdapter() {
             override fun onAnimationEnd(animation: Animator?) {
                 this@animateHeight.visibility = View.GONE
             }
@@ -112,8 +163,7 @@ private fun View.animateHeight(startValue: Int, endValue: Int, duration: Long) {
     layoutHeightAnimator.start()
 }
 
-internal fun View.toggleVisibility(): Int {
-    this.measure(WRAP_CONTENT, WRAP_CONTENT)
+internal fun View.toggleVisibility(layout_width: Int, layout_height: Int): Int {
     val isExpanded = this.visibility == View.VISIBLE
     if (isExpanded) {
         this.hide()

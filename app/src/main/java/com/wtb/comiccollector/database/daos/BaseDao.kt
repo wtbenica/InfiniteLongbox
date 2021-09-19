@@ -11,7 +11,7 @@ import com.wtb.comiccollector.database.models.Issue
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 private const val TAG = APP + "BaseDao"
-const val REQUEST_LIMIT = 20
+const val REQUEST_LIMIT = 30
 
 @ExperimentalCoroutinesApi
 @Dao

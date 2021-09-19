@@ -327,4 +327,8 @@ class MainActivity : AppCompatActivity(),
     override fun updateFilter(filter: SearchFilter) {
         filterViewModel.setFilter(filter)
     }
+
+    override fun addToCollection(issue: FullIssue) {
+        Repository.get().addToCollection(issue)
+    }
 }

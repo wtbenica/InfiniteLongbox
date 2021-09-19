@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import android.view.ViewTreeObserver
 import android.widget.FrameLayout
 import androidx.core.view.updatePadding
+import androidx.core.widget.NestedScrollView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
@@ -21,6 +22,7 @@ import com.google.android.material.appbar.AppBarLayout.LayoutParams.SCROLL_FLAG_
 import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.R
 import com.wtb.comiccollector.SearchFilter
+import com.wtb.comiccollector.database.models.FullIssue
 import com.wtb.comiccollector.database.models.ListItem
 import com.wtb.comiccollector.fragments_view_models.FilterViewModel
 import com.wtb.comiccollector.fragments_view_models.ListViewModel
@@ -35,6 +37,7 @@ abstract class ListFragment<T : ListItem, VH : RecyclerView.ViewHolder> : Fragme
 
     protected val filterViewModel: FilterViewModel by viewModels({ requireActivity() })
     protected abstract val viewModel: ListViewModel<T>
+    protected lateinit var outerScrollView: NestedScrollView
     protected lateinit var listRecyclerView: RecyclerView
     protected lateinit var appBar: AppBarLayout
     protected lateinit var details: FrameLayout
@@ -57,7 +60,7 @@ abstract class ListFragment<T : ListItem, VH : RecyclerView.ViewHolder> : Fragme
     ): View? {
         val view = inflater.inflate(R.layout.fragment_item_list, container, false)
 
-        listRecyclerView = view.findViewById(R.id.results_frame) as RecyclerView
+        listRecyclerView = view.findViewById(R.id.results_frame)
         listRecyclerView.layoutManager = getLayoutManager()
 
         appBar = view.findViewById(R.id.app_bar)
@@ -120,6 +123,7 @@ abstract class ListFragment<T : ListItem, VH : RecyclerView.ViewHolder> : Fragme
         fun setTitle(title: String? = null)
         fun setToolbarScrollFlags(flags: Int)
         fun updateFilter(filter: SearchFilter)
+        fun addToCollection(issue: FullIssue)
     }
 
     companion object {

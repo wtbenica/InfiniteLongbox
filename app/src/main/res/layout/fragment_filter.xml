@@ -191,64 +191,70 @@
                 android:id="@+id/section_search"
                 style="@style/FilterSection">
 
-                <com.google.android.material.chip.ChipGroup
-                    android:id="@+id/filter_type_chip_group"
-                    android:layout_width="match_parent"
+                <HorizontalScrollView
+                    android:id="@+id/chip_group_scrollview"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:visibility="gone"
-                    app:checkedChip="@+id/filter_chip_all"
-                    app:chipSpacingHorizontal="@dimen/margin_narrow"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:singleLine="true"
-                    app:singleSelection="true"
-                    tools:visibility="visible">
+                    app:layout_constraintTop_toTopOf="parent">
 
-                    <com.wtb.comiccollector.views.FilterTypeChip
-                        android:id="@+id/filter_chip_all"
-                        style="@style/SearchFilterChip"
-                        android:text="All"
-                        android:textColor="#777"
-                        app:chipBackgroundColor="#F7F7F7"
-                        app:chipStrokeColor="@color/filter_type_chip_all"
-                        app:closeIconEnabled="false" />
+                    <com.google.android.material.chip.ChipGroup
+                        android:id="@+id/filter_type_chip_group"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:visibility="gone"
+                        app:checkedChip="@+id/filter_chip_all"
+                        app:chipSpacingHorizontal="@dimen/margin_narrow"
+                        app:singleLine="true"
+                        app:singleSelection="true"
+                        tools:visibility="visible">
 
-                    <com.wtb.comiccollector.views.FilterTypeChip
-                        android:id="@+id/filter_chip_series"
-                        style="@style/SearchFilterChip"
-                        android:text="Series"
-                        android:textColor="@color/text_series"
-                        app:chipBackgroundColor="@color/tag_series"
-                        app:chipStrokeColor="@color/filter_type_chip_series"
-                        app:closeIconEnabled="false" />
+                        <com.wtb.comiccollector.views.FilterTypeChip
+                            android:id="@+id/filter_chip_all"
+                            style="@style/SearchFilterChip"
+                            android:text="All"
+                            android:textColor="#777"
+                            app:chipBackgroundColor="#F7F7F7"
+                            app:chipStrokeColor="@color/filter_type_chip_all"
+                            app:closeIconEnabled="false" />
 
-                    <com.wtb.comiccollector.views.FilterTypeChip
-                        android:id="@+id/filter_chip_creator"
-                        style="@style/SearchFilterChip"
-                        android:text="Creator"
-                        android:textColor="@color/text_creator"
-                        app:chipBackgroundColor="@color/tag_creator"
-                        app:chipStrokeColor="@color/filter_type_chip_creator"
-                        app:closeIconEnabled="false" />
+                        <com.wtb.comiccollector.views.FilterTypeChip
+                            android:id="@+id/filter_chip_series"
+                            style="@style/SearchFilterChip"
+                            android:text="Series"
+                            android:textColor="@color/text_series"
+                            app:chipBackgroundColor="@color/tag_series"
+                            app:chipStrokeColor="@color/filter_type_chip_series"
+                            app:closeIconEnabled="false" />
 
-                    <com.wtb.comiccollector.views.FilterTypeChip
-                        android:id="@+id/filter_chip_character"
-                        style="@style/SearchFilterChip"
-                        android:text="Character"
-                        android:textColor="@color/text_character"
-                        app:chipBackgroundColor="@color/tag_character"
-                        app:chipStrokeColor="@color/filter_type_chip_character"
-                        app:closeIconEnabled="false" />
+                        <com.wtb.comiccollector.views.FilterTypeChip
+                            android:id="@+id/filter_chip_creator"
+                            style="@style/SearchFilterChip"
+                            android:text="Creator"
+                            android:textColor="@color/text_creator"
+                            app:chipBackgroundColor="@color/tag_creator"
+                            app:chipStrokeColor="@color/filter_type_chip_creator"
+                            app:closeIconEnabled="false" />
 
-                    <com.wtb.comiccollector.views.FilterTypeChip
-                        android:id="@+id/filter_chip_publisher"
-                        style="@style/SearchFilterChip"
-                        android:text="Publisher"
-                        android:textColor="@color/text_publisher"
-                        app:chipBackgroundColor="@color/tag_publisher"
-                        app:chipStrokeColor="@color/filter_type_chip_publisher"
-                        app:closeIconEnabled="false" />
-                </com.google.android.material.chip.ChipGroup>
+                        <com.wtb.comiccollector.views.FilterTypeChip
+                            android:id="@+id/filter_chip_character"
+                            style="@style/SearchFilterChip"
+                            android:text="Character"
+                            android:textColor="@color/text_character"
+                            app:chipBackgroundColor="@color/tag_character"
+                            app:chipStrokeColor="@color/filter_type_chip_character"
+                            app:closeIconEnabled="false" />
+
+                        <com.wtb.comiccollector.views.FilterTypeChip
+                            android:id="@+id/filter_chip_publisher"
+                            style="@style/SearchFilterChip"
+                            android:text="Publisher"
+                            android:textColor="@color/text_publisher"
+                            app:chipBackgroundColor="@color/tag_publisher"
+                            app:chipStrokeColor="@color/filter_type_chip_publisher"
+                            app:closeIconEnabled="false" />
+                    </com.google.android.material.chip.ChipGroup>
+                </HorizontalScrollView>
 
                 <ImageView
                     android:id="@+id/img_lbl_search_bar"
