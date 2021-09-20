@@ -59,14 +59,13 @@
         <item name="android:hint">@string/search</item>
         <item name="android:paddingStart">@dimen/margin_default</item>
         <item name="android:textColorHint">?attr/colorSecondary</item>
-        <item name="android:popupElevation">0dp</item>
+        <item name="android:popupElevation">4dp</item>
         <item name="android:textColor">?attr/colorOnPrimary</item>
         <item name="android:textSize">18sp</item>
         <item name="fontFamily">@font/archivo_black</item>
         <item name="android:background">?attr/colorOnSecondary</item>
         <item name="singleLine">true</item>
-        <item name="android:dropDownWidth">match_parent</item>
-        <item name="android:popupBackground">?attr/colorSecondaryLightLight</item>
+        <item name="android:popupBackground">@color/fantasia_transparent</item>
         <item name="android:completionThreshold">1</item>
     </style>
 

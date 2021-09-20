@@ -115,6 +115,7 @@ class IssueDetailViewModel : ViewModel() {
 
 
     fun removeFromCollection() {
+        Log.d(TAG, "REMOVING FROM COLLECTION $currentIssue")
         currentIssue?.let { repository.removeFromCollection(it.issue.issueId) }
         currentIssue?.let { it.cover?.id?.let { cid -> repository.markCoverDelete(cid)}}
     }

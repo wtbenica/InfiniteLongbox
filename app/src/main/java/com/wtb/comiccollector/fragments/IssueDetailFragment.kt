@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.view.*
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.*
@@ -14,6 +15,7 @@ import com.wtb.comiccollector.*
 import com.wtb.comiccollector.database.daos.Count
 import com.wtb.comiccollector.database.models.*
 import com.wtb.comiccollector.fragments_view_models.IssueDetailViewModel
+import com.wtb.comiccollector.views.AddCollectionButton
 import com.wtb.comiccollector.views.CreditsBox
 import com.wtb.comiccollector.views.IssueInfoBox
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -48,7 +50,8 @@ private const val ADD_SERIES_ID = -2
  */
 // TODO: Do I need a separate fragment for editing vs viewing or can I do it all in this one?
 @ExperimentalCoroutinesApi
-class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback {
+class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback,
+    AddCollectionButton.AddCollectionCallback {
 
     private var numUpdates = 0
     private var listFragmentCallback: ListFragment.ListFragmentCallback? = null
@@ -67,7 +70,7 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback {
 
     private lateinit var coverImageView: ImageView
     private lateinit var ebayButton: Button
-    private lateinit var collectionButton: Button
+    private lateinit var collectionButton: AddCollectionButton
     private lateinit var variantSpinnerHolder: LinearLayout
     private lateinit var variantSpinner: Spinner
     private var isVariant: Boolean = false
@@ -147,7 +150,9 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback {
         infoBox = view.findViewById(R.id.issue_info_box)
         gcdLinkButton = view.findViewById(R.id.gcd_link) as Button
         ebayButton = view.findViewById(R.id.ebayButton) as Button
-        collectionButton = view.findViewById(R.id.collectionButton) as Button
+        collectionButton = (view.findViewById(R.id.collectionButton) as AddCollectionButton).apply {
+            callback = this@IssueDetailFragment
+        }
         variantSpinnerHolder = view.findViewById(R.id.variant_spinner_holder)
         variantSpinner = view.findViewById(R.id.variant_spinner) as Spinner
         creditsBox = CreditsBox(requireContext()).apply { mCallback = this@IssueDetailFragment }
@@ -299,23 +304,23 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback {
             }
         )
 
-        issueDetailViewModel.inCollectionLiveData.observe(
-            viewLifecycleOwner,
-            { count ->
-                if (!isVariant) {
-                    setCollectionButton(count)
-                }
-            }
-        )
-
-        issueDetailViewModel.variantInCollectionLiveData.observe(
-            viewLifecycleOwner,
-            { count ->
-                if (isVariant) {
-                    setCollectionButton(count)
-                }
-            }
-        )
+//        issueDetailViewModel.inCollectionLiveData.observe(
+//            viewLifecycleOwner,
+//            { count ->
+//                if (!isVariant) {
+//                    setCollectionButton(count)
+//                }
+//            }
+//        )
+//
+//        issueDetailViewModel.variantInCollectionLiveData.observe(
+//            viewLifecycleOwner,
+//            { count ->
+//                if (isVariant) {
+//                    setCollectionButton(count)
+//                }
+//            }
+//        )
     }
 
     override fun onDetach() {
@@ -337,17 +342,7 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback {
     }
 
     private fun setCollectionButton(count: Count) {
-        if (count.count > 0) {
-            this.collectionButton.text = getString(R.string.remove_from_collection)
-            this.collectionButton.setOnClickListener {
-                issueDetailViewModel.removeFromCollection()
-            }
-        } else {
-            this.collectionButton.text = getString(R.string.add_to_collection)
-            this.collectionButton.setOnClickListener {
-                issueDetailViewModel.addToCollection()
-            }
-        }
+        collectionButton.inCollection = count.count > 0
     }
 
     private fun jumpToIssue(skipNum: Int) {
@@ -403,10 +398,6 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback {
 
         gotoEndButton.setOnClickListener {
             jumpToIssue(issuesInSeries.size - currentPos - 1)
-        }
-
-        collectionButton.setOnClickListener {
-            issueDetailViewModel.addToCollection()
         }
 
 //         TODO: This is for editing. n/a anymore?
@@ -485,13 +476,13 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback {
     private fun updateUI() {
         val issue: Issue = currentIssue.issue
         if (issue.issueId != AUTO_ID) {
-
             listFragmentCallback?.setTitle("${currentIssue.series.seriesName} #${
                 currentIssue
                     .issue.issueNumRaw
             }")
 
             infoBox.update(issue.releaseDate, issue.coverDate, issue.notes)
+            collectionButton.inCollection = currentIssue.myCollection != null
             creditsBox.update(issueStories, variantStories, issueCredits, variantCredits,
                               issueAppearances, variantAppearances)
 
@@ -538,6 +529,13 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback {
             }
 
         private const val TAG = APP + "IssueDetailFragment"
+    }
+
+    override fun addToCollection() = issueDetailViewModel.addToCollection()
+
+    override fun removeFromCollection() {
+        Log.d(TAG, "REMOVING FROM COLLECTION $fullIssue $fullVariant")
+        issueDetailViewModel.removeFromCollection()
     }
 
 }

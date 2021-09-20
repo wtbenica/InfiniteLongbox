@@ -44,12 +44,12 @@ sealed interface FilterModel : FilterItem, Comparable<FilterModel>, Serializable
 
     val textColor: Int
         get() = when (this) {
-            is FullSeries    -> context?.getColor(R.color.tag_series)
+            is FullSeries    -> context?.getColor(R.color.text_series)
             is Creator,
             is NameDetail,
-                         -> context?.getColor(R.color.tag_creator)
-            is Publisher -> context?.getColor(R.color.tag_publisher)
-            is Character -> context?.getColor(R.color.tag_character)
+                         -> context?.getColor(R.color.text_creator)
+            is Publisher -> context?.getColor(R.color.text_publisher)
+            is Character -> context?.getColor(R.color.text_character)
             else         -> throw IllegalStateException("Invalid type: $this")
         } ?: 0xFF000000.toInt()
 

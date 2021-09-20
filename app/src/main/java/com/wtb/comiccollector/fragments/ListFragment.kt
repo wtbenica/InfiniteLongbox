@@ -22,7 +22,6 @@ import com.google.android.material.appbar.AppBarLayout.LayoutParams.SCROLL_FLAG_
 import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.R
 import com.wtb.comiccollector.SearchFilter
-import com.wtb.comiccollector.database.models.FullIssue
 import com.wtb.comiccollector.database.models.ListItem
 import com.wtb.comiccollector.fragments_view_models.FilterViewModel
 import com.wtb.comiccollector.fragments_view_models.ListViewModel
@@ -123,7 +122,6 @@ abstract class ListFragment<T : ListItem, VH : RecyclerView.ViewHolder> : Fragme
         fun setTitle(title: String? = null)
         fun setToolbarScrollFlags(flags: Int)
         fun updateFilter(filter: SearchFilter)
-        fun addToCollection(issue: FullIssue)
     }
 
     companion object {

@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     app:cardBackgroundColor="?attr/colorSecondaryLightLight"
     app:cardElevation="@dimen/margin_default"
-    app:cardPreventCornerOverlap="false">
+    app:cardPreventCornerOverlap="false"
+    app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay_bottom_sheet">
 
     <FrameLayout
         android:id="@+id/layout_filter_fragment"
@@ -30,7 +31,7 @@
             android:layout_height="wrap_content"
             android:alpha="0"
             android:orientation="vertical"
-            android:padding="@dimen/margin_default"
+            android:padding="@dimen/margin_wide"
             tools:alpha="1"
             tools:visibility="visible">
 
@@ -196,7 +197,8 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent">
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent">
 
                     <com.google.android.material.chip.ChipGroup
                         android:id="@+id/filter_type_chip_group"
@@ -205,17 +207,17 @@
                         android:visibility="gone"
                         app:checkedChip="@+id/filter_chip_all"
                         app:chipSpacingHorizontal="@dimen/margin_narrow"
+                        app:selectionRequired="true"
                         app:singleLine="true"
                         app:singleSelection="true"
-                        app:selectionRequired="true"
                         tools:visibility="visible">
 
                         <com.wtb.comiccollector.views.FilterTypeChip
                             android:id="@+id/filter_chip_all"
                             style="@style/SearchFilterChip"
                             android:text="All"
-                            android:textColor="#777"
-                            app:chipBackgroundColor="#F7F7F7"
+                            android:textColor="@color/text_all"
+                            app:chipBackgroundColor="?attr/colorSecondary"
                             app:chipStrokeColor="@color/filter_type_chip_all"
                             app:closeIconEnabled="false" />
 
@@ -224,7 +226,7 @@
                             style="@style/SearchFilterChip"
                             android:text="Series"
                             android:textColor="@color/text_series"
-                            app:chipBackgroundColor="@color/tag_series"
+                            app:chipBackgroundColor="?attr/colorSecondary"
                             app:chipStrokeColor="@color/filter_type_chip_series"
                             app:closeIconEnabled="false" />
 
@@ -233,7 +235,7 @@
                             style="@style/SearchFilterChip"
                             android:text="Creator"
                             android:textColor="@color/text_creator"
-                            app:chipBackgroundColor="@color/tag_creator"
+                            app:chipBackgroundColor="?attr/colorSecondary"
                             app:chipStrokeColor="@color/filter_type_chip_creator"
                             app:closeIconEnabled="false" />
 
@@ -242,7 +244,7 @@
                             style="@style/SearchFilterChip"
                             android:text="Character"
                             android:textColor="@color/text_character"
-                            app:chipBackgroundColor="@color/tag_character"
+                            app:chipBackgroundColor="?attr/colorSecondary"
                             app:chipStrokeColor="@color/filter_type_chip_character"
                             app:closeIconEnabled="false" />
 
@@ -251,7 +253,7 @@
                             style="@style/SearchFilterChip"
                             android:text="Publisher"
                             android:textColor="@color/text_publisher"
-                            app:chipBackgroundColor="@color/tag_publisher"
+                            app:chipBackgroundColor="?attr/colorSecondary"
                             app:chipStrokeColor="@color/filter_type_chip_publisher"
                             app:closeIconEnabled="false" />
                     </com.google.android.material.chip.ChipGroup>
@@ -263,16 +265,17 @@
                     android:layout_gravity="bottom"
                     android:contentDescription="@string/search_image_content_description"
                     android:labelFor="@id/search_bar"
+                    android:layout_marginTop="@dimen/margin_default"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/chip_group_scrollview"
                     app:srcCompat="@drawable/ic_search_24" />
 
-                <com.wtb.comiccollector.views.SearchAutoComplete
+                <com.wtb.comiccollector.views.SearchBar
                     android:id="@+id/search_bar"
                     style="@style/SearchAutoCompleteStyle"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toEndOf="@id/img_lbl_search_bar"
-                    app:layout_constraintTop_toBottomOf="@id/chip_group_scrollview" />
+                    app:layout_constraintTop_toTopOf="@id/img_lbl_search_bar" />
 
                 <!--                <androidx.appcompat.widget.AppCompatSpinner-->
                 <!--                    android:id="@+id/search_bar_spinner"-->
@@ -282,4 +285,4 @@
             </androidx.constraintlayout.widget.ConstraintLayout>
         </LinearLayout>
     </FrameLayout>
-</androidx.cardview.widget.CardView>
+</com.google.android.material.card.MaterialCardView>

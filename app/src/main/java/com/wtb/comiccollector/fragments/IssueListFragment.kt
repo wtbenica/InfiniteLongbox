@@ -6,7 +6,6 @@ import android.view.*
 import android.view.View.GONE
 import android.view.View.VISIBLE
 import android.view.animation.AccelerateInterpolator
-import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
@@ -25,6 +24,7 @@ import com.wtb.comiccollector.database.models.FullIssue
 import com.wtb.comiccollector.database.models.FullSeries
 import com.wtb.comiccollector.database.models.Issue
 import com.wtb.comiccollector.fragments_view_models.IssueListViewModel
+import com.wtb.comiccollector.views.AddCollectionButton
 import com.wtb.comiccollector.views.SeriesDetailBox
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collectLatest
@@ -109,7 +109,7 @@ class IssueListFragment : ListFragment<FullIssue, IssueListFragment.IssueViewHol
 
     inner class IssueViewHolder(val parent: ViewGroup) : RecyclerView.ViewHolder(
         LayoutInflater.from(parent.context).inflate(R.layout.list_item_issue, parent, false)
-    ), View.OnClickListener {
+    ), View.OnClickListener, AddCollectionButton.AddCollectionCallback {
 
         private var fullIssue: FullIssue? = null
 
@@ -121,15 +121,12 @@ class IssueListFragment : ListFragment<FullIssue, IssueListFragment.IssueViewHol
         private val issueVariantName: TextView =
             itemView.findViewById(R.id.list_item_character_name_text)
         internal val wrapper: ConstraintLayout = itemView.findViewById(R.id.wrapper)
-        private val addCollectionButton: ImageButton =
+        private val addCollectionButton: AddCollectionButton =
             itemView.findViewById(R.id.btn_issue_list_add_collection)
 
         init {
             itemView.setOnClickListener(this)
-
-            addCollectionButton.setOnClickListener {
-                fullIssue?.let { issue -> callback?.addToCollection(issue) }
-            }
+            addCollectionButton.callback = this
         }
 
         fun bind(issue: FullIssue?) {
@@ -164,17 +161,14 @@ class IssueListFragment : ListFragment<FullIssue, IssueListFragment.IssueViewHol
                 animation.start()
             }
 
-            if (fullIssue?.myCollection?.collectionId != null) {
-                context?.getColor(R.color.fantasia_transparent)?.let {
-                    issueNameBox.setBackgroundColor(it)
-                    addCollectionButton.setImageResource(R.drawable.remove_collection)
-                }
+            val inColleciton = fullIssue?.myCollection?.collectionId != null
+            addCollectionButton.inCollection = inColleciton
+            val bgColor = if (inColleciton) {
+                context?.getColor(R.color.fantasia_transparent)
             } else {
-                context?.getColor(R.color.transparent_white)?.let {
-                    issueNameBox.setBackgroundColor(it)
-                    addCollectionButton.setImageResource(R.drawable.add_collection)
-                }
+                context?.getColor(R.color.transparent_white)
             }
+            bgColor?.let { issueNameBox.setBackgroundColor(it) }
 
             issueNumTextView.text = this.fullIssue?.issue?.issueNumRaw
 
@@ -193,11 +187,21 @@ class IssueListFragment : ListFragment<FullIssue, IssueListFragment.IssueViewHol
             issue?.let { (callback as IssueListCallback?)?.onIssueSelected(it) }
         }
 
+        override fun addToCollection() {
+            this.fullIssue?.let { (callback as IssueListCallback?)?.addToCollection(it) }
+        }
+
+        override fun removeFromCollection() {
+            this.fullIssue?.let { (callback as IssueListCallback?)?.removeFromCollection(it) }
+        }
+
     }
 
-    interface IssueListCallback : ListFragmentCallback {
+    interface IssueListCallback : ListFragment.ListFragmentCallback {
         fun onIssueSelected(issue: Issue)
         fun onNewIssue(issueId: Int)
+        fun addToCollection(issue: FullIssue)
+        fun removeFromCollection(issue: FullIssue)
     }
 
     companion object {

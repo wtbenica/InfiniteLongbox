@@ -47,7 +47,7 @@ data class Character(
     override val compareValue: String
         get() = name
 
-    override fun toString(): String = name
+    override fun toString(): String = "$name${alterEgo?.let { " ($it)" } ?: ""}"
 
     companion object : FilterType {
         override val displayName: String =

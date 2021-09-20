@@ -415,6 +415,7 @@ abstract class Updater(
         // If it's been a week, mark all pages as stale
         if (checkIfStale(saveTag, WEEKLY, prefs)) {
             Log.d(TAG, "Pages are stale, updating")
+            updateProgress?.invoke(0)
             Repository.savePrefValue(prefs, savePageTag, "")
         } else {
             updateProgress?.invoke(100)

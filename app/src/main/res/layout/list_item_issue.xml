@@ -92,7 +92,7 @@
                 </FrameLayout>
             </FrameLayout>
 
-            <ImageButton
+            <com.wtb.comiccollector.views.AddCollectionButton
                 android:id="@+id/btn_issue_list_add_collection"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -129,13 +129,12 @@
             <TextView
                 android:id="@+id/list_item_character_name_text"
                 android:layout_width="0dp"
-                android:layout_height="0dp"
+                android:layout_height="wrap_content"
                 android:fontFamily="@font/archivo_black"
                 android:gravity="bottom|end"
                 android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle2"
                 android:textColor="?attr/colorOnPrimary"
                 android:textSize="12sp"
-                app:layout_constraintBottom_toBottomOf="@id/btn_issue_list_add_wish_list"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@id/btn_issue_list_add_wish_list"
                 app:layout_constraintTop_toTopOf="@id/btn_issue_list_add_wish_list"

@@ -53,14 +53,15 @@
                 android:layout_marginEnd="8dp"
                 android:text="@string/find_on_ebay" />
 
-            <Button
+            <com.wtb.comiccollector.views.AddCollectionButton
                 android:id="@+id/collectionButton"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="4dp"
-                android:layout_marginEnd="8dp"
-                android:layout_marginBottom="@dimen/margin_narrow"
-                android:text="@string/add_to_collection" />
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:layout_margin="@dimen/margin_default"
+                android:background="@android:color/transparent"
+                android:scaleType="fitCenter"
+                android:tint="?attr/colorPrimaryDark"
+                tools:src="@drawable/add_collection" />
         </LinearLayout>
     </LinearLayout>
 

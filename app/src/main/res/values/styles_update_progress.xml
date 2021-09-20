@@ -6,9 +6,9 @@
         <item name="android:layout_width">0dp</item>
         <item name="android:layout_height">match_parent</item>
         <item name="android:layout_weight">1</item>
-        <item name="android:progressBackgroundTint">?attr/colorPrimaryVariant</item>
-        <item name="android:progressTint">?attr/colorPrimary</item>
+        <item name="android:layout_margin">1dp</item>
+        <item name="android:progressDrawable">@drawable/progress_bar_big0</item>
         <item name="android:progress">0</item>
-        <item name="android:background">?attr/colorSecondaryLightLight</item>
+        <item name="android:paddingStart">@dimen/margin_narrow</item>
     </style>
 </resources>

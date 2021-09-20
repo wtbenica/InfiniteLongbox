@@ -1,42 +1,46 @@
 package com.wtb.comiccollector.views
 
-import android.animation.AnimatorSet
-import android.animation.ObjectAnimator
 import android.content.Context
 import android.util.AttributeSet
 import android.util.Log
-import android.view.animation.DecelerateInterpolator
 import com.wtb.comiccollector.APP
+import com.wtb.comiccollector.R
 
 class AddCollectionButton(context: Context, attributeSet: AttributeSet) :
     androidx.appcompat.widget.AppCompatImageButton(context, attributeSet) {
 
-    private var isExpanded = false
-
-    fun toggleExpand() {
-        val rotateAnimation = ObjectAnimator.ofFloat(this, "rotation", 0f, 180f).apply {
-            interpolator = DecelerateInterpolator()
+    var callback: AddCollectionCallback? = null
+    var inCollection = false
+        set(value) {
+            field = value
+            this.setImageResource(
+                if (field) {
+                    Log.d(TAG, "In collection, so setting to remove collection image.")
+                    R.drawable.remove_collection
+                } else {
+                    Log.d(TAG, "Not in collection, so setting to add collection image.")
+                    R.drawable.add_collection
+                }
+            )
         }
 
-        AnimatorSet().apply {
-            play(rotateAnimation)
-            start()
+    init {
+        setOnClickListener {
+            if (inCollection) {
+                callback?.removeFromCollection()
+            } else {
+                callback?.addToCollection()
+            }
         }
-
-
-//        this.setImageResource(if (isExpanded) {
-//            Log.d(TAG, "The arrow is up, so setting arrow down.")
-//            R.drawable.arrow_down_24
-//        } else {
-//            Log.d(TAG, "The arrow is down, so setting arrow up.")
-//            R.drawable.arrow_up_24
-//        }
-//        )
-        isExpanded = !isExpanded
-        Log.d(TAG, "The box is expanded: $isExpanded")
     }
 
+    interface AddCollectionCallback {
+        fun addToCollection()
+        fun removeFromCollection()
+    }
+
+
     companion object {
-        const val TAG = APP + "ImageButton"
+        const val TAG = APP + "AddCollectionButton"
     }
 }

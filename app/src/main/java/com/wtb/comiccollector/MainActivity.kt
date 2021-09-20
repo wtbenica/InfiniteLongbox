@@ -331,4 +331,8 @@ class MainActivity : AppCompatActivity(),
     override fun addToCollection(issue: FullIssue) {
         Repository.get().addToCollection(issue)
     }
+
+    override fun removeFromCollection(issue: FullIssue) {
+        Repository.get().removeFromCollection(issue.issue.issueId)
+    }
 }

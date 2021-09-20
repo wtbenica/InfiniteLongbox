@@ -22,13 +22,12 @@ import com.wtb.comiccollector.fragments_view_models.FilterViewModel
 import com.wtb.comiccollector.views.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import java.time.LocalDate
-import kotlin.reflect.KClass
 
 private const val TAG = APP + "FilterFragment"
 
 @ExperimentalCoroutinesApi
 class FilterFragment : Fragment(),
-    SearchAutoComplete.SearchTextViewCallback,
+    SearchBar.SearchTextViewCallback,
     FilterChip.FilterChipCallback, OptionChipGroup.OptionChipGroupCallback,
     SortChipGroup.SortChipGroupCallback, DateChipGroup.DateChipGroupCallback {
 
@@ -70,7 +69,7 @@ class FilterFragment : Fragment(),
     private lateinit var filterAddButton: ImageButton
 
     private lateinit var searchSection: ConstraintLayout
-    private lateinit var searchBar: SearchAutoComplete
+    private lateinit var searchBar: SearchBar
 
     private lateinit var filterTypeChipGroup: ChipGroup
     private lateinit var filterChipAll: FilterTypeChip
@@ -78,8 +77,6 @@ class FilterFragment : Fragment(),
     private lateinit var filterChipCreator: FilterTypeChip
     private lateinit var filterChipCharacter: FilterTypeChip
     private lateinit var filterChipPublisher: FilterTypeChip
-
-//    private lateinit var searchBoxSpinner: Spinner
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -164,56 +161,6 @@ class FilterFragment : Fragment(),
 
         searchBar.callbacks = this
 
-//        searchBoxSpinner.adapter = object : ArrayAdapter<KClass<*>?>(
-//            requireContext(),
-//            R.layout.spinner_item_filter_type,
-//            R.id.text_filter_option,
-//            filterTypeOptions
-//        ) {
-//            override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
-//                val view = convertView ?: inflate(
-//                    context,
-//                    R.layout.spinner_item_filter_type,
-//                    null
-//                )
-//                val sortText: TextView = view.findViewById(R.id.text_filter_option)
-//                val item = getItem(position)
-//                sortText.text = item?.objectInstance.toString()
-//                return view
-//            }
-//
-//            override fun getDropDownView(
-//                position: Int,
-//                convertView: View?,
-//                parent: ViewGroup,
-//            ): View {
-//                return getView(position, convertView, parent)
-//            }
-//        }
-//
-//        searchBoxSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-//            override fun onItemSelected(
-//                parent: AdapterView<*>?,
-//                view: View?,
-//                position: Int,
-//                id: Long,
-//            ) {
-//                parent?.let {
-//                    val selectedFilterOption = it.getItemAtPosition(position) as KClass<*>
-//                    viewModel.setFilterType(selectedFilterOption)
-//
-//                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-//                        searchBar.refreshAutoCompleteResults()
-//                    }
-//
-//                }
-//            }
-//
-//            override fun onNothingSelected(parent: AdapterView<*>?) {
-//                // Do nothing
-//            }
-//        }
-
         filterTypeChipGroup.setOnCheckedChangeListener { _, checkedId ->
             if (checkedId >= 0) {
                 view?.findViewById<FilterTypeChip>(checkedId)?.let { it: FilterTypeChip ->
@@ -256,8 +203,6 @@ class FilterFragment : Fragment(),
         searchBar.dropDownAnchor = R.id.filter_type_chip_group
 
         initFilterTypeChipGroup(view)
-
-        //        searchBoxSpinner = view.findViewById(R.id.search_bar_spinner)
     }
 
     private fun initFilterTypeChipGroup(view: View) {
@@ -419,8 +364,13 @@ class FilterFragment : Fragment(),
     companion object {
         fun newInstance() = FilterFragment()
 
+/*
+        This is a better way to do the Filter-Type Chips, rather than hard-coding them, it was
+        just faster in the short run.
+
         val filterTypeOptions: List<KClass<*>> = FilterType::class.sealedSubclasses
             .sortedBy { it.objectInstance.toString() }
+ */
     }
 
     override fun getDate(currentSelection: LocalDate, isStart: Boolean) {

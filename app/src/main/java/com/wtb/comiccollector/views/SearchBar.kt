@@ -5,6 +5,8 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.util.AttributeSet
 import android.util.Log
+import android.view.MotionEvent
+import android.view.View
 import android.view.inputmethod.EditorInfo.IME_ACTION_DONE
 import android.widget.AdapterView
 import com.google.android.material.chip.Chip
@@ -20,7 +22,7 @@ import kotlin.reflect.KClass
 private const val TAG = APP + "SearchAutoCompleteTextView"
 
 @ExperimentalCoroutinesApi
-class SearchAutoComplete(context: Context, attributeSet: AttributeSet) :
+class SearchBar(context: Context, attributeSet: AttributeSet) :
     MaterialAutoCompleteTextView(context, attributeSet, R.style.SearchAutoCompleteStyle) {
 
     var callbacks: SearchTextViewCallback? = null
@@ -65,6 +67,18 @@ class SearchAutoComplete(context: Context, attributeSet: AttributeSet) :
             callbacks?.hideKeyboard()
             item?.let { callbacks?.addFilterItem(it) }
         }
+
+        setOnTouchListener(object: OnTouchListener {
+            override fun onTouch(v: View?, event: MotionEvent?): Boolean {
+                if (event?.action == MotionEvent.ACTION_DOWN) {
+                    showDropDown()
+                    v?.performClick()
+                    return false
+                }
+                return false
+            }
+
+        })
 
         addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
