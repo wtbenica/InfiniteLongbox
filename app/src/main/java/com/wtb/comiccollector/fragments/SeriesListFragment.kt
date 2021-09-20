@@ -8,9 +8,6 @@ import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
 import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -21,14 +18,11 @@ import com.wtb.comiccollector.database.models.FullIssue
 import com.wtb.comiccollector.database.models.FullSeries
 import com.wtb.comiccollector.fragments_view_models.SeriesListViewModel
 import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.collectLatest
 
 private const val TAG = APP + "SeriesListFragment"
 
 @ExperimentalCoroutinesApi
 class SeriesListFragment : ListFragment<FullSeries, SeriesListFragment.SeriesHolder>() {
-
-    private var listState: Bundle? = null
 
     override val viewModel: SeriesListViewModel by viewModels()
 
@@ -48,38 +42,38 @@ class SeriesListFragment : ListFragment<FullSeries, SeriesListFragment.SeriesHol
     ): View? {
         val view = super.onCreateView(inflater, container, savedInstanceState)
         listRecyclerView.addItemDecoration(
-            ItemOffsetDecoration(resources.getDimension(R.dimen.margin_default).toInt()))
+            ItemOffsetDecoration(resources.getDimension(R.dimen.margin_default).toInt())
+        )
         return view
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
-        updateBottomPadding()
-
-        val adapter = getAdapter()
-
-        listRecyclerView.adapter = adapter
-
-        lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.itemList.collectLatest {
-                    adapter.apply {
-                        submitData(it)
-                    }
-                }
-            }
-        }
-
-        filterViewModel.filter.observe(
-            viewLifecycleOwner,
-            { filter ->
-                viewModel.setFilter(filter)
-            }
-        )
-    }
-
-
+    //    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+//        super.onViewCreated(view, savedInstanceState)
+//
+//        updateBottomPadding()
+//
+//        val adapter = getAdapter()
+//
+//        listRecyclerView.adapter = adapter
+//
+//        lifecycleScope.launch {
+//            repeatOnLifecycle(Lifecycle.State.STARTED) {
+//                viewModel.itemList.collectLatest {
+//                    adapter.submitData(it)
+//                    progressBar.hide()
+//                }
+//            }
+//        }
+//
+//        filterViewModel.filter.observe(
+//            viewLifecycleOwner,
+//            { filter ->
+//                viewModel.setFilter(filter)
+//            }
+//        )
+//    }
+//
+//
     //    private fun runLayoutAnimation(view: RecyclerView) {
 //        val context = view.context
 //        val controller: LayoutAnimationController =
@@ -129,7 +123,7 @@ class SeriesListFragment : ListFragment<FullSeries, SeriesListFragment.SeriesHol
             val firstIssueId = this.item.series.firstIssue
             if (firstIssueId != null) {
                 viewModel.getIssue(firstIssueId,
-                                   viewModel.filter.value?.mMyCollection?.let { !it } ?: true)
+                    viewModel.filter.value?.mMyCollection?.let { !it } ?: true)
             } else if (this.item.series.issueCount < 10) {
                 viewModel.updateIssuesBySeries(this@SeriesHolder.item)
             }

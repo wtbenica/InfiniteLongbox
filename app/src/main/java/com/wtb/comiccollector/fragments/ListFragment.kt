@@ -36,10 +36,12 @@ abstract class ListFragment<T : ListItem, VH : RecyclerView.ViewHolder> : Fragme
 
     protected val filterViewModel: FilterViewModel by viewModels({ requireActivity() })
     protected abstract val viewModel: ListViewModel<T>
+
     protected lateinit var outerScrollView: NestedScrollView
     protected lateinit var listRecyclerView: RecyclerView
     private lateinit var appBar: AppBarLayout
     protected lateinit var details: FrameLayout
+
     protected var callback: ListFragmentCallback? = null
 
     override fun onAttach(context: Context) {
@@ -63,9 +65,10 @@ abstract class ListFragment<T : ListItem, VH : RecyclerView.ViewHolder> : Fragme
         listRecyclerView.layoutManager = getLayoutManager()
 
         appBar = view.findViewById(R.id.app_bar)
+
         details = view.findViewById(R.id.details)
         details.viewTreeObserver.addOnGlobalLayoutListener(
-            object: ViewTreeObserver.OnGlobalLayoutListener {
+            object : ViewTreeObserver.OnGlobalLayoutListener {
                 var max = 0
                 override fun onGlobalLayout() {
                     val height = details.height
@@ -77,6 +80,7 @@ abstract class ListFragment<T : ListItem, VH : RecyclerView.ViewHolder> : Fragme
                 }
             }
         )
+
         return view
     }
 
@@ -92,6 +96,7 @@ abstract class ListFragment<T : ListItem, VH : RecyclerView.ViewHolder> : Fragme
         updateBottomPadding()
 
         val adapter = getAdapter()
+
         listRecyclerView.adapter = adapter
 
         lifecycleScope.launch {

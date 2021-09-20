@@ -50,6 +50,7 @@ class FilterOptionsAdapter(context: Context, filterOptions: List<FilterModel>) :
                 itemFormatText.text = modelItem.series.publishingFormat
             }
             is Character -> {
+                itemFormatText.visibility = GONE
                 // TODO: Once this is switched to FullCharacter, put publisher in itemFormatText.
                 //  Maybe add a dedicated textbox for publisher, as it's used in series also
             }

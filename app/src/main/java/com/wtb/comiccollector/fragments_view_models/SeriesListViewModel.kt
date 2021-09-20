@@ -24,8 +24,7 @@ class SeriesListViewModel : ListViewModel<FullSeries>() {
         repository.getSeriesByFilterPaged(it).asLiveData()
     }.asFlow().cachedIn(viewModelScope)
 
-    internal fun getIssue(issueId: Int, markedDelete: Boolean = true): Flow<FullIssue?> = repository
-        .getIssue(issueId, markedDelete)
+    internal fun getIssue(issueId: Int, markedDelete: Boolean = true): Flow<FullIssue?> = repository.getIssue(issueId, markedDelete)
 
     private fun getIssueBySeries(series: FullSeries) =
         repository.getIssuesByFilter(SearchFilter(series = series))
