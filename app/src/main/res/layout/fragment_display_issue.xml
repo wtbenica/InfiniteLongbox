@@ -15,15 +15,17 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <ImageView
+        <ImageButton
             android:id="@+id/issue_cover"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/margin_narrow"
             android:layout_weight="1"
             android:adjustViewBounds="true"
+            android:background="@android:color/transparent"
             android:contentDescription="@string/description_issue_cover"
             android:elevation="1dp"
+            android:padding="0dp"
             android:scaleType="fitStart"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"

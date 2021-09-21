@@ -19,7 +19,6 @@ import com.wtb.comiccollector.views.AddCollectionButton
 import com.wtb.comiccollector.views.CreditsBox
 import com.wtb.comiccollector.views.IssueInfoBox
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import java.io.File
 import java.util.*
 
 // Bundle Argument Tags
@@ -68,14 +67,13 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback,
     private var variantAppearances: List<FullAppearance> = emptyList()
     private var issueVariants: List<Issue> = emptyList()
 
-    private lateinit var coverImageView: ImageView
+    private lateinit var coverImageView: ImageButton
     private lateinit var ebayButton: Button
     private lateinit var collectionButton: AddCollectionButton
     private lateinit var variantSpinnerHolder: LinearLayout
     private lateinit var variantSpinner: Spinner
     private var isVariant: Boolean = false
 
-    //    private lateinit var issueCreditsLabel: TextView
     private lateinit var issueCreditsFrame: ScrollView
     private lateinit var creditsBox: CreditsBox
 
@@ -89,8 +87,6 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback,
     private lateinit var gotoEndButton: Button
 
     private lateinit var gcdLinkButton: Button
-    private lateinit var coverFile: File
-    private var inCollection: Boolean = false
 
     private val currentIssue: FullIssue
         get() = fullVariant ?: fullIssue
@@ -99,7 +95,6 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback,
         get() = currentIssue.coverUri
 
     private var saveIssue = true
-    private var isEditable: Boolean = true
 
     private val issueDetailViewModel: IssueDetailViewModel by viewModels()
 
@@ -145,7 +140,11 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback,
 
         val view = inflater.inflate(R.layout.fragment_display_issue, container, false)
 
-        coverImageView = view.findViewById(R.id.issue_cover) as ImageView
+        coverImageView = view.findViewById<ImageButton>(R.id.issue_cover).apply {
+            setOnClickListener {
+                CoverDialogFragment(this.drawable).show(childFragmentManager, "cover_dialog")
+            }
+        }
         issueCreditsFrame = view.findViewById(R.id.issue_credits_table) as ScrollView
         infoBox = view.findViewById(R.id.issue_info_box)
         gcdLinkButton = view.findViewById(R.id.gcd_link) as Button
@@ -476,10 +475,17 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback,
     private fun updateUI() {
         val issue: Issue = currentIssue.issue
         if (issue.issueId != AUTO_ID) {
-            listFragmentCallback?.setTitle("${currentIssue.series.seriesName} #${
-                currentIssue
-                    .issue.issueNumRaw
-            }")
+            listFragmentCallback?.setTitle(
+                "${currentIssue.series.seriesName} #${currentIssue.issue.issueNumRaw}"
+            )
+
+            if ((!isVariant &&
+                        (issueStories.isEmpty() || issueCredits.isEmpty() || issueAppearances.isEmpty())) ||
+                (isVariant &&
+                        (variantStories.isEmpty() || variantCredits.isEmpty() || variantAppearances.isEmpty()))
+            ) {
+
+            }
 
             infoBox.update(issue.releaseDate, issue.coverDate, issue.notes)
             collectionButton.inCollection = currentIssue.myCollection != null
@@ -499,7 +505,10 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback,
         if (coverUri != null) {
             coverImageView.setImageURI(coverUri)
         } else {
-            coverImageView.setImageResource(R.drawable.cover_missing)
+            coverImageView.apply {
+                setImageResource(R.drawable.cover_missing)
+                isClickable = false
+            }
         }
     }
 
