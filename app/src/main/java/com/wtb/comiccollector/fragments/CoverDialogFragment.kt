@@ -1,5 +1,6 @@
 package com.wtb.comiccollector.fragments
 
+import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
 import android.os.Bundle
@@ -18,12 +19,16 @@ class CoverDialogFragment(val draw: Drawable) : DialogFragment(R.layout.dialog_f
 
     override fun onResume() {
         super.onResume()
+        updateLayoutParams(MATCH_PARENT, WRAP_CONTENT)
+    }
+
+    private fun updateLayoutParams(w: Int, h: Int) {
         val dw = dialog?.window
         dw?.let { window ->
             val layoutParams = window.attributes
-            layoutParams.width = MATCH_PARENT
-            layoutParams.height = WRAP_CONTENT
-            window.setBackgroundDrawable(ColorDrawable(android.graphics.Color.TRANSPARENT))
+            layoutParams.width = w
+            layoutParams.height = h
+            window.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
         }
     }
 

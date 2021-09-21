@@ -2,7 +2,6 @@ package com.wtb.comiccollector.fragments
 
 import android.animation.ValueAnimator
 import android.os.Bundle
-import android.util.Log
 import android.view.*
 import android.view.animation.AccelerateInterpolator
 import android.widget.ImageView
@@ -98,8 +97,11 @@ class IssueListFragment : ListFragment<FullIssue, IssueListFragment.IssueViewHol
     inner class IssueAdapter :
         PagingDataAdapter<FullIssue, IssueViewHolder>(DIFF_CALLBACK) {
 
+        private val CODE_IS_PRIMARY = 0
+        private val CODE_IS_VARIANT = 1
+
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): IssueViewHolder =
-            if (viewType == 0)
+            if (viewType == CODE_IS_PRIMARY)
                 PrimaryViewHolder(parent)
             else
                 VariantViewHolder(parent)
@@ -111,15 +113,12 @@ class IssueListFragment : ListFragment<FullIssue, IssueListFragment.IssueViewHol
 
         override fun getItemViewType(position: Int): Int {
             val fullIssue = getItem(position) as FullIssue
-            val variantName = fullIssue.issue.variantName
-            Log.d(
-                TAG,
-                "Variant name ${fullIssue.series.seriesName} ${fullIssue.issue.issueNumRaw} is $variantName"
-            )
-            return if (variantName.isBlank()) {
-                0
+            val isBlank = fullIssue.issue.variantName.isBlank()
+            val isPrimary = fullIssue.issue.variantOf == null
+            return if (isBlank || isPrimary) {
+                CODE_IS_PRIMARY
             } else {
-                1
+                CODE_IS_VARIANT
             }
         }
     }
