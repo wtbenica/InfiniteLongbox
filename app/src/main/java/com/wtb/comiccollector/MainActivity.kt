@@ -9,6 +9,7 @@ import android.util.Log
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
+import android.widget.ProgressBar
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -66,6 +67,7 @@ class MainActivity : AppCompatActivity(),
     private lateinit var bottomSheetBehavior: BottomSheetBehavior<*>
     private lateinit var mAdView: AdView
     private lateinit var progressUpdate: ProgressUpdateCard
+    private lateinit var progressBar: ProgressBar
 
     private fun setFragment(fragment: ListFragment<out ListItem, out RecyclerView.ViewHolder>) {
         supportFragmentManager.beginTransaction()
@@ -111,6 +113,7 @@ class MainActivity : AppCompatActivity(),
         resultFragmentContainer = findViewById(R.id.fragment_container)
         bottomSheet = findViewById(R.id.bottom_sheet)
         progressUpdate = findViewById(R.id.progress_update_card)
+        progressBar = findViewById(R.id.progress_bar_item_list_update)
 
         initWindowInsets()
         initBottomSheet()
@@ -233,6 +236,12 @@ class MainActivity : AppCompatActivity(),
         val inputMethodManager =
             getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
         inputMethodManager.showSoftInput(focus, 0)
+    }
+
+    override fun setProgressBar(isHidden: Boolean) {
+        runOnUiThread {
+            progressBar.visibility = if (isHidden) View.GONE else View.VISIBLE
+        }
     }
 
     // IssueListFragment.IssueListCallback

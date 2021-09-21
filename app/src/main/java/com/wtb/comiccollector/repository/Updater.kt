@@ -86,94 +86,120 @@ abstract class Updater(
     }
 
     private suspend fun checkSeriesFkPublisher(series: List<Series>) =
-        checkForMissingForeignKeyModels(series,
-                                        Series::publisher,
-                                        database.publisherDao(),
-                                        webservice::getPublishersByIds)
+        checkForMissingForeignKeyModels(
+            series,
+            Series::publisher,
+            database.publisherDao(),
+            webservice::getPublishersByIds
+        )
 
     private suspend fun checkNameDetailFkCreator(nameDetails: List<NameDetail>) =
-        checkForMissingForeignKeyModels(nameDetails,
-                                        NameDetail::creator,
-                                        database.creatorDao(),
-                                        webservice::getCreatorsByIds)
+        checkForMissingForeignKeyModels(
+            nameDetails,
+            NameDetail::creator,
+            database.creatorDao(),
+            webservice::getCreatorsByIds
+        )
 
 
     private suspend fun checkIssueFkSeries(issues: List<Issue>) =
-        checkForMissingForeignKeyModels(issues,
-                                        Issue::series,
-                                        database.seriesDao(),
-                                        webservice::getSeriesByIds,
-                                        ::checkFKeysSeries)
+        checkForMissingForeignKeyModels(
+            issues,
+            Issue::series,
+            database.seriesDao(),
+            webservice::getSeriesByIds,
+            ::checkFKeysSeries
+        )
 
     private suspend fun checkIssueFkVariantOf(issues: List<Issue>) =
-        checkForMissingForeignKeyModels(issues,
-                                        Issue::variantOf,
-                                        database.issueDao(),
-                                        webservice::getIssuesByIds,
-                                        ::checkFKeysIssue)
+        checkForMissingForeignKeyModels(
+            issues,
+            Issue::variantOf,
+            database.issueDao(),
+            webservice::getIssuesByIds,
+            ::checkFKeysIssue
+        )
 
     private suspend fun checkSeriesBondFkOriginIssue(seriesBonds: List<SeriesBond>) =
-        checkForMissingForeignKeyModels(seriesBonds,
-                                        SeriesBond::originIssue,
-                                        database.issueDao(),
-                                        webservice::getIssuesByIds,
-                                        ::checkFKeysIssue)
+        checkForMissingForeignKeyModels(
+            seriesBonds,
+            SeriesBond::originIssue,
+            database.issueDao(),
+            webservice::getIssuesByIds,
+            ::checkFKeysIssue
+        )
 
     private suspend fun checkSeriesBondFkOriginSeries(seriesBonds: List<SeriesBond>) =
-        checkForMissingForeignKeyModels(seriesBonds,
-                                        SeriesBond::origin,
-                                        database.seriesDao(),
-                                        webservice::getSeriesByIds,
-                                        ::checkFKeysSeries)
+        checkForMissingForeignKeyModels(
+            seriesBonds,
+            SeriesBond::origin,
+            database.seriesDao(),
+            webservice::getSeriesByIds,
+            ::checkFKeysSeries
+        )
 
     private suspend fun checkSeriesBondFkTargetSeries(seriesBonds: List<SeriesBond>) =
-        checkForMissingForeignKeyModels(seriesBonds,
-                                        SeriesBond::target,
-                                        database.seriesDao(),
-                                        webservice::getSeriesByIds,
-                                        ::checkFKeysSeries)
+        checkForMissingForeignKeyModels(
+            seriesBonds,
+            SeriesBond::target,
+            database.seriesDao(),
+            webservice::getSeriesByIds,
+            ::checkFKeysSeries
+        )
 
     private suspend fun checkSeriesBondFkTargetIssue(seriesBonds: List<SeriesBond>) =
-        checkForMissingForeignKeyModels(seriesBonds,
-                                        SeriesBond::targetIssue,
-                                        database.issueDao(),
-                                        webservice::getIssuesByIds,
-                                        ::checkFKeysIssue)
+        checkForMissingForeignKeyModels(
+            seriesBonds,
+            SeriesBond::targetIssue,
+            database.issueDao(),
+            webservice::getIssuesByIds,
+            ::checkFKeysIssue
+        )
 
 
     private suspend fun checkStoryFkIssue(stories: List<Story>) =
-        checkForMissingForeignKeyModels(stories,
-                                        Story::issue,
-                                        database.issueDao(),
-                                        webservice::getIssuesByIds,
-                                        ::checkFKeysIssue)
+        checkForMissingForeignKeyModels(
+            stories,
+            Story::issue,
+            database.issueDao(),
+            webservice::getIssuesByIds,
+            ::checkFKeysIssue
+        )
 
     private suspend fun checkAppearanceFkCharacter(appearances: List<Appearance>) =
-        checkForMissingForeignKeyModels(appearances,
-                                        Appearance::character,
-                                        database.characterDao(),
-                                        webservice::getCharactersByIds)
+        checkForMissingForeignKeyModels(
+            appearances,
+            Appearance::character,
+            database.characterDao(),
+            webservice::getCharactersByIds
+        )
 
     private suspend fun checkAppearanceFkStory(appearances: List<Appearance>) =
-        checkForMissingForeignKeyModels(appearances,
-                                        Appearance::story,
-                                        database.storyDao(),
-                                        webservice::getStoriesByIds,
-                                        ::checkFKeysStory)
+        checkForMissingForeignKeyModels(
+            appearances,
+            Appearance::story,
+            database.storyDao(),
+            webservice::getStoriesByIds,
+            ::checkFKeysStory
+        )
 
     private suspend fun <T : CreditX> checkCreditFkNameDetail(credits: List<T>) =
-        checkForMissingForeignKeyModels(credits,
-                                        CreditX::nameDetail,
-                                        database.nameDetailDao(),
-                                        webservice::getNameDetailsByIds,
-                                        ::checkFKeysNameDetail)
+        checkForMissingForeignKeyModels(
+            credits,
+            CreditX::nameDetail,
+            database.nameDetailDao(),
+            webservice::getNameDetailsByIds,
+            ::checkFKeysNameDetail
+        )
 
     private suspend fun <T : CreditX> checkCreditFkStory(credits: List<T>) =
-        checkForMissingForeignKeyModels(credits,
-                                        CreditX::story,
-                                        database.storyDao(),
-                                        webservice::getStoriesByIds,
-                                        ::checkFKeysStory)
+        checkForMissingForeignKeyModels(
+            credits,
+            CreditX::story,
+            database.storyDao(),
+            webservice::getStoriesByIds,
+            ::checkFKeysStory
+        )
 
     @ExperimentalCoroutinesApi
     companion object {
@@ -358,7 +384,12 @@ abstract class Updater(
                 CoroutineScope(lowPriorityDispatcher).launch {
                     delay(3000)
                     if (currentTime > (startTime?.plusSeconds(UPSERT_WAIT) ?: Instant.MIN) &&
-                        itemList.isNotEmpty()) {
+                        itemList.isNotEmpty()
+                    ) {
+                        Log.d(
+                            TAG,
+                            "Time's up. Saving the list. ${itemList.size} ${itemList[0]::class}"
+                        )
                         saveList()
                     }
                 }
@@ -557,8 +588,10 @@ abstract class Updater(
 
             val nowDispatcher: CoroutineDispatcher
                 get() {
-                    val thread = HandlerThread("nowThread",
-                                               Process.THREAD_PRIORITY_DISPLAY).also {
+                    val thread = HandlerThread(
+                        "nowThread",
+                        Process.THREAD_PRIORITY_DISPLAY
+                    ).also {
                         it.start()
                     }
                     val res = NOW_INSTANCE
@@ -571,8 +604,10 @@ abstract class Updater(
 
             val highPriorityDispatcher: CoroutineDispatcher
                 get() {
-                    val thread = HandlerThread("highPriorityThread",
-                                               Process.THREAD_PRIORITY_MORE_FAVORABLE).also {
+                    val thread = HandlerThread(
+                        "highPriorityThread",
+                        Process.THREAD_PRIORITY_MORE_FAVORABLE
+                    ).also {
                         it.start()
                     }
                     val res = HP_INSTANCE
@@ -585,8 +620,10 @@ abstract class Updater(
 
             val lowPriorityDispatcher: CoroutineDispatcher
                 get() {
-                    val thread = HandlerThread("lowPriorityThread",
-                                               Process.THREAD_PRIORITY_BACKGROUND).also {
+                    val thread = HandlerThread(
+                        "lowPriorityThread",
+                        Process.THREAD_PRIORITY_BACKGROUND
+                    ).also {
                         it.start()
                     }
                     val res = LP_INSTANCE

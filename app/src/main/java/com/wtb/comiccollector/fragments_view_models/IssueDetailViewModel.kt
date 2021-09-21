@@ -51,9 +51,6 @@ class IssueDetailViewModel : ViewModel() {
     internal val primaryAppearancesLiveData =
         primaryId.flatMapLatest { repository.getAppearancesByIssue(it) }.asLiveData()
 
-    internal val inCollectionLiveData: LiveData<Count> =
-        primaryId.flatMapLatest { repository.inCollection(it) }.asLiveData()
-
     // Other parts rely on this possibly being null, which is why it's LiveData, instead of
     // StateFlow like 'issue'
     internal val variantLiveData: LiveData<FullIssue?> =

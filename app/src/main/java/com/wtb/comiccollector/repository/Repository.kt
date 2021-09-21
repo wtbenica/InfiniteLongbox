@@ -419,9 +419,9 @@ class Repository private constructor(val context: Context) {
         }
     }
 
-    fun updateCharacter(characterId: Int) = updater.updateCharacter(characterId)
-    fun updateSeries(seriesId: Int) = updater.updateSeries(seriesId)
-    fun updateCreators(creatorIds: List<Int>) = updater.updateCreators(creatorIds)
+    fun updateCharacterAsync(characterId: Int): Deferred<Unit> = updater.updateCharacterAsync(characterId)
+    fun updateSeriesAsync(seriesId: Int): Deferred<Unit> = updater.updateSeriesAsync(seriesId)
+    fun updateCreatorsAsync(creatorIds: List<Int>): Deferred<Unit> = updater.updateCreatorsAsync(creatorIds)
 
     fun cleanUpImages(seriesId: Int? = null) {
         CoroutineScope(Dispatchers.Default).launch {

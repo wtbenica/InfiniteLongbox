@@ -1,6 +1,7 @@
 package com.wtb.comiccollector.repository
 
 import android.content.SharedPreferences
+import android.util.Log
 import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.Webservice
 import com.wtb.comiccollector.database.daos.Count
@@ -45,7 +46,7 @@ class StaticUpdater private constructor(
         }
     }
 
-    fun updateSeries(seriesId: Int) = CoroutineScope(highPriorityDispatcher).launch {
+    fun updateSeriesAsync(seriesId: Int) = CoroutineScope(highPriorityDispatcher).async {
         withContext(Dispatchers.Default) {
             if (checkIfStale(seriesTag(seriesId), 1L, prefs)) {
                 val issues: List<Issue> = updateSeriesIssues(seriesId)
@@ -56,19 +57,20 @@ class StaticUpdater private constructor(
         }
     }
 
-    fun updateCharacter(characterId: Int) = CoroutineScope(lowPriorityDispatcher).launch {
-        withContext(Dispatchers.Default) {
-            if (checkIfStale(characterTag(characterId), 1L, prefs)) {
-                val appearances: List<Appearance> = updateCharacterAppearances(characterId)
-                checkFKeysAppearance(appearances)
-                val storyIds = appearances.map { it.story }
-                updateStoriesCredits(storyIds)
-                updateStoriesAppearances(storyIds)
+    fun updateCharacterAsync(characterId: Int) =
+        CoroutineScope(lowPriorityDispatcher).async {
+            withContext(Dispatchers.Default) {
+                if (checkIfStale(characterTag(characterId), 1L, prefs)) {
+                    val appearances: List<Appearance> = updateCharacterAppearances(characterId)
+                    checkFKeysAppearance(appearances)
+                    val storyIds = appearances.map { it.story }
+                    updateStoriesCredits(storyIds)
+                    updateStoriesAppearances(storyIds)
+                }
+            }.let {
+                Repository.saveTime(prefs, characterTag(characterId))
             }
-        }.let {
-            Repository.saveTime(prefs, characterTag(characterId))
         }
-    }
 
     /**
      * Updates issue model, then stories, credits, appearances, and cover
@@ -96,27 +98,33 @@ class StaticUpdater private constructor(
         }
     }
 
-    fun updateCreators(creatorIds: List<Int>) = creatorIds.forEach(this::updateCreator)
+    fun updateCreatorsAsync(creatorIds: List<Int>) =
+        CoroutineScope(highPriorityDispatcher).async {
+            creatorIds.forEach { this@StaticUpdater.updateCreatorAsync(it).await() }
+        }
 
     /**
      * Gets nameDetails and credits for each creator
      */
-    private fun updateCreator(creatorId: Int) = CoroutineScope(lowPriorityDispatcher).launch {
-        withContext(Dispatchers.Default) {
-            if (checkIfStale(creatorTag(creatorId), 1L, prefs)) {
-                val nameDetails: List<NameDetail> =
-                    database.nameDetailDao().getNameDetailsByCreatorId(creatorId)
-                val credits: List<CreditX> = updateNameDetailsCredits(nameDetails.ids) +
-                        updateNameDetailsExCredits(nameDetails.ids)
-                checkFKeysCredit(credits)
-                val storyIds = credits.map { it.story }
-                updateStoriesCredits(storyIds)
-                updateStoriesAppearances(storyIds)
+    private fun updateCreatorAsync(creatorId: Int): Deferred<Int> =
+        CoroutineScope(lowPriorityDispatcher).async {
+            withContext(lowPriorityDispatcher) {
+                if (checkIfStale(creatorTag(creatorId), 1L, prefs)) {
+                    val nameDetails: List<NameDetail> =
+                        database.nameDetailDao().getNameDetailsByCreatorId(creatorId)
+                    val credits: List<CreditX> = updateNameDetailsCredits(nameDetails.ids) +
+                            updateNameDetailsExCredits(nameDetails.ids)
+                    CoroutineScope(lowPriorityDispatcher).launch {
+                        val storyIds = credits.map { it.story }
+                        updateStoriesCredits(storyIds)
+                        updateStoriesAppearances(storyIds)
+                    }
+                }
+            }.let {
+                Repository.saveTime(prefs, creatorTag(creatorId))
+                Log.d(TAG, "FINISHED CREATOR $creatorId")
             }
-        }.let {
-            Repository.saveTime(prefs, creatorTag(creatorId))
         }
-    }
 
 
     /**
@@ -139,83 +147,101 @@ class StaticUpdater private constructor(
 
 
     private suspend fun updateStoriesAppearances(storyIds: List<Int>): List<Appearance> =
-        updateById(prefs,
-                   null,
-                   ::getAppearancesByStoryIds,
-                   storyIds,
-                   ::checkFKeysAppearance,
-                   appearanceCollector)
+        updateById(
+            prefs,
+            null,
+            ::getAppearancesByStoryIds,
+            storyIds,
+            ::checkFKeysAppearance,
+            appearanceCollector
+        )
 
     private suspend fun updateStoriesCredits(storyIds: List<Int>): List<CreditX> =
-        updateById(prefs,
-                   null,
-                   ::getCreditsByStoryIds,
-                   storyIds,
-                   ::checkFKeysCredit,
-                   creditCollector) +
-                updateById(prefs,
-                           null,
-                           ::getExCreditsByStoryIds,
-                           storyIds,
-                           ::checkFKeysCredit,
-                           exCreditCollector)
+        updateById(
+            prefs,
+            null,
+            ::getCreditsByStoryIds,
+            storyIds,
+            ::checkFKeysCredit,
+            creditCollector
+        ) +
+                updateById(
+                    prefs,
+                    null,
+                    ::getExCreditsByStoryIds,
+                    storyIds,
+                    ::checkFKeysCredit,
+                    exCreditCollector
+                )
 
     private suspend fun updateIssuesStories(issueIds: List<Int>): List<Story> =
-        updateById(prefs,
-                   null,
-                   ::getStoriesByIssueIds,
-                   issueIds,
-                   ::checkFKeysStory,
-                   storyCollector)
+        updateById(
+            prefs,
+            null,
+            ::getStoriesByIssueIds,
+            issueIds,
+            ::checkFKeysStory,
+            storyCollector
+        )
 
     /**
      * Gets series issues, adds missing foreign key models
      */
     private suspend fun updateSeriesIssues(seriesId: Int) =
-        updateById(prefs,
-                   ::seriesTag,
-                   ::getIssuesBySeriesId,
-                   seriesId,
-                   ::checkFKeysIssue,
-                   issueCollector)
+        updateById(
+            prefs,
+            ::seriesTag,
+            ::getIssuesBySeriesId,
+            seriesId,
+            ::checkFKeysIssue,
+            issueCollector
+        )
 
     /**
      * Gets character appearances, adds missing foreign key models
      */
     private suspend fun updateCharacterAppearances(characterId: Int) =
-        updateById(prefs,
-                   ::characterTag,
-                   ::getAppearancesByCharacterId,
-                   characterId,
-                   ::checkFKeysAppearance,
-                   appearanceCollector)
+        updateById(
+            prefs,
+            ::characterTag,
+            ::getAppearancesByCharacterId,
+            characterId,
+            ::checkFKeysAppearance,
+            appearanceCollector
+        )
 
     /**
      * Gets name detail credits, adds missing foreign key models
      */
     private suspend fun updateNameDetailCredits(nameDetailId: Int) =
-        updateById(prefs,
-                   null,
-                   ::getCreditsByNameDetailId,
-                   nameDetailId,
-                   ::checkFKeysCredit,
-                   creditCollector)
+        updateById(
+            prefs,
+            null,
+            ::getCreditsByNameDetailId,
+            nameDetailId,
+            ::checkFKeysCredit,
+            creditCollector
+        )
 
     private suspend fun updateNameDetailsCredits(nameDetailIds: List<Int>) =
-        updateById(prefs,
-                   null,
-                   ::getCreditsByNameDetailIds,
-                   nameDetailIds,
-                   ::checkFKeysCredit,
-                   creditCollector)
+        updateById(
+            prefs,
+            null,
+            ::getCreditsByNameDetailIds,
+            nameDetailIds,
+            ::checkFKeysCredit,
+            creditCollector
+        )
 
     private suspend fun updateNameDetailsExCredits(nameDetailIds: List<Int>) =
-        updateById(prefs,
-                   null,
-                   ::getExCreditsByNameDetailIds,
-                   nameDetailIds,
-                   ::checkFKeysCredit,
-                   exCreditCollector)
+        updateById(
+            prefs,
+            null,
+            ::getExCreditsByNameDetailIds,
+            nameDetailIds,
+            ::checkFKeysCredit,
+            exCreditCollector
+        )
 
     private suspend fun getAppearancesByStoryIds(storyIds: List<Int>): List<Appearance> =
         getItemsByList(storyIds, webservice::getAppearancesByStoryIds)

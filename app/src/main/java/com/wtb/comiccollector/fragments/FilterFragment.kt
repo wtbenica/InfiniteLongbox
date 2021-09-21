@@ -121,6 +121,11 @@ class FilterFragment : Fragment(),
                 dateChipGroup.update(filter)
             }
         )
+
+        viewModel.updateComplete.observe(viewLifecycleOwner) {
+            Log.d(TAG, "UPDATE COMPLETE? $it")
+            callback?.setProgressBar(it)
+        }
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -359,6 +364,7 @@ class FilterFragment : Fragment(),
         fun onHandleClick()
         fun hideKeyboard()
         fun showKeyboard(focus: EditText)
+        fun setProgressBar(isHidden: Boolean)
     }
 
     companion object {
@@ -378,22 +384,22 @@ class FilterFragment : Fragment(),
         parentFragmentManager.setFragmentResultListener(
             reqKey,
             viewLifecycleOwner,
-            { requestKey, result ->
+            { _, result ->
                 val resultDate: LocalDate? = result.getSerializable(ARG_DATE) as LocalDate?
                 when (reqKey) {
                     RESULT_DATE_PICKER_START -> resultDate?.let { dateChipGroup.setStartDate(it) }
-                    RESULT_DATE_PICKER_END   -> resultDate?.let { dateChipGroup.setEndDate(it) }
-                    else                     -> Unit
+                    RESULT_DATE_PICKER_END -> resultDate?.let { dateChipGroup.setEndDate(it) }
+                    else -> Unit
                 }
             })
 
         val minDate = when (isStart) {
-            true  -> LocalDate.of(1900, 1, 1)
+            true -> LocalDate.of(1900, 1, 1)
             false -> this@FilterFragment.currFilter.mStartDate
         }
 
         val maxDate = when (isStart) {
-            true  -> this@FilterFragment.currFilter.mEndDate
+            true -> this@FilterFragment.currFilter.mEndDate
             false -> LocalDate.now()
         }
 
