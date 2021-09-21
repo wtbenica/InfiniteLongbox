@@ -49,7 +49,7 @@ class CharacterListFragment : ListFragment<FullCharacter, CharacterListFragment.
 
         private lateinit var item: FullCharacter
         private val nameTextView: TextView =
-            itemView.findViewById(R.id.list_item_character_name_text)
+            itemView.findViewById(R.id.list_item_issue_variant_name)
         private val alterEgoTextView: TextView = itemView.findViewById(R.id.list_item_alter_ego)
         private val publisherTextView: TextView =
             itemView.findViewById(R.id.list_item_char_publisher)

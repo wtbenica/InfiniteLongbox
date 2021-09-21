@@ -7,7 +7,11 @@ import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.R
 
 class AddCollectionButton(context: Context, attributeSet: AttributeSet) :
-    androidx.appcompat.widget.AppCompatImageButton(context, attributeSet) {
+    androidx.appcompat.widget.AppCompatImageButton(
+        context,
+        attributeSet,
+        R.attr.styleAddCollectionButton
+    ) {
 
     var callback: AddCollectionCallback? = null
     var inCollection = false

@@ -2,9 +2,8 @@ package com.wtb.comiccollector.fragments
 
 import android.animation.ValueAnimator
 import android.os.Bundle
+import android.util.Log
 import android.view.*
-import android.view.View.GONE
-import android.view.View.VISIBLE
 import android.view.animation.AccelerateInterpolator
 import android.widget.ImageView
 import android.widget.ProgressBar
@@ -70,7 +69,7 @@ class IssueListFragment : ListFragment<FullIssue, IssueListFragment.IssueViewHol
         )
     }
 
-    override fun getAdapter() = IssueAdapter()
+    override fun getAdapter(): IssueAdapter = IssueAdapter()
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
@@ -100,28 +99,43 @@ class IssueListFragment : ListFragment<FullIssue, IssueListFragment.IssueViewHol
         PagingDataAdapter<FullIssue, IssueViewHolder>(DIFF_CALLBACK) {
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): IssueViewHolder =
-            IssueViewHolder(parent)
+            if (viewType == 0)
+                PrimaryViewHolder(parent)
+            else
+                VariantViewHolder(parent)
+
 
         override fun onBindViewHolder(holder: IssueViewHolder, position: Int) {
             holder.bind(getItem(position))
         }
+
+        override fun getItemViewType(position: Int): Int {
+            val fullIssue = getItem(position) as FullIssue
+            val variantName = fullIssue.issue.variantName
+            Log.d(
+                TAG,
+                "Variant name ${fullIssue.series.seriesName} ${fullIssue.issue.issueNumRaw} is $variantName"
+            )
+            return if (variantName.isBlank()) {
+                0
+            } else {
+                1
+            }
+        }
     }
 
-    inner class IssueViewHolder(val parent: ViewGroup) : RecyclerView.ViewHolder(
-        LayoutInflater.from(parent.context).inflate(R.layout.list_item_issue, parent, false)
-    ), View.OnClickListener, AddCollectionButton.AddCollectionCallback {
-
-        private var fullIssue: FullIssue? = null
-
-        private val progressCover: ProgressBar = itemView.findViewById(R.id.progress_cover_download)
-        private val coverImageView: ImageView = itemView.findViewById(R.id.list_item_cover)
-        private val issueNameBox: ConstraintLayout = itemView.findViewById(R.id.list_item_issue_box)
-        private val issueNumTextView: TextView =
+    abstract inner class IssueViewHolder(val parent: ViewGroup, val view: View) :
+        RecyclerView.ViewHolder(view), View.OnClickListener,
+        AddCollectionButton.AddCollectionCallback {
+        protected var fullIssue: FullIssue? = null
+        protected val progressCover: ProgressBar =
+            itemView.findViewById(R.id.progress_cover_download)
+        protected val coverImageView: ImageView = itemView.findViewById(R.id.list_item_cover)
+        protected val issueNameBox: ConstraintLayout =
+            itemView.findViewById(R.id.list_item_issue_box)
+        protected val issueNumTextView: TextView =
             itemView.findViewById(R.id.list_item_issue_number_text)
-        private val issueVariantName: TextView =
-            itemView.findViewById(R.id.list_item_character_name_text)
-        internal val wrapper: ConstraintLayout = itemView.findViewById(R.id.wrapper)
-        private val addCollectionButton: AddCollectionButton =
+        protected val addCollectionButton: AddCollectionButton =
             itemView.findViewById(R.id.btn_issue_list_add_collection)
 
         init {
@@ -129,7 +143,27 @@ class IssueListFragment : ListFragment<FullIssue, IssueListFragment.IssueViewHol
             addCollectionButton.callback = this
         }
 
-        fun bind(issue: FullIssue?) {
+        abstract fun bind(issue: FullIssue?)
+
+        override fun onClick(v: View?) {
+            val issue = fullIssue?.issue
+            issue?.let { (callback as IssueListCallback?)?.onIssueSelected(it) }
+        }
+
+        override fun addToCollection() {
+            this.fullIssue?.let { (callback as IssueListCallback?)?.addToCollection(it) }
+        }
+
+        override fun removeFromCollection() {
+            this.fullIssue?.let { (callback as IssueListCallback?)?.removeFromCollection(it) }
+        }
+    }
+
+    inner class PrimaryViewHolder(parent: ViewGroup) : IssueViewHolder(
+        parent,
+        LayoutInflater.from(parent.context).inflate(R.layout.list_item_issue, parent, false)
+    ) {
+        override fun bind(issue: FullIssue?) {
             this.fullIssue = issue
 
             this.fullIssue?.let { viewModel.updateIssueCover(it.issue.issueId) }
@@ -161,9 +195,61 @@ class IssueListFragment : ListFragment<FullIssue, IssueListFragment.IssueViewHol
                 animation.start()
             }
 
-            val inColleciton = fullIssue?.myCollection?.collectionId != null
-            addCollectionButton.inCollection = inColleciton
-            val bgColor = if (inColleciton) {
+            val inCollection = fullIssue?.myCollection?.collectionId != null
+            addCollectionButton.inCollection = inCollection
+            val bgColor = if (inCollection) {
+                context?.getColor(R.color.fantasia_transparent)
+            } else {
+                context?.getColor(R.color.transparent_white)
+            }
+            bgColor?.let { issueNameBox.setBackgroundColor(it) }
+
+            issueNumTextView.text = this.fullIssue?.issue?.issueNumRaw
+        }
+    }
+
+    inner class VariantViewHolder(parent: ViewGroup) : IssueViewHolder(
+        parent,
+        LayoutInflater.from(parent.context).inflate(R.layout.list_item_issue_variant, parent, false)
+    ) {
+        private val issueVariantName: TextView =
+            itemView.findViewById(R.id.list_item_issue_variant_name)
+
+        override fun bind(issue: FullIssue?) {
+            this.fullIssue = issue
+
+            this.fullIssue?.let { viewModel.updateIssueCover(it.issue.issueId) }
+            val coverUri = this.fullIssue?.coverUri
+
+            if (coverUri != null) {
+                coverImageView.setImageURI(coverUri)
+            } else {
+                coverImageView.setImageURI(null)
+            }
+
+            if (fullIssue?.cover != null) {
+                val animation = ValueAnimator.ofFloat(0F, 1F)
+                animation.addUpdateListener {
+                    val value = it.animatedValue as Float
+                    progressCover.alpha = 1 - value
+                    coverImageView.alpha = value
+                }
+                animation.interpolator = AccelerateInterpolator()
+                animation.start()
+            } else {
+                val animation = ValueAnimator.ofFloat(0F, 1F)
+                animation.addUpdateListener {
+                    val value = it.animatedValue as Float
+                    progressCover.alpha = value
+                    coverImageView.alpha = 1 - value
+                }
+                animation.interpolator = AccelerateInterpolator()
+                animation.start()
+            }
+
+            val inCollection = fullIssue?.myCollection?.collectionId != null
+            addCollectionButton.inCollection = inCollection
+            val bgColor = if (inCollection) {
                 context?.getColor(R.color.fantasia_transparent)
             } else {
                 context?.getColor(R.color.transparent_white)
@@ -173,13 +259,7 @@ class IssueListFragment : ListFragment<FullIssue, IssueListFragment.IssueViewHol
             issueNumTextView.text = this.fullIssue?.issue?.issueNumRaw
 
             val variantName = this.fullIssue?.issue?.variantName
-            val isVariant = this.fullIssue?.issue?.variantOf == null
-            if (isVariant || variantName == "" || variantName == null) {
-                issueVariantName.visibility = GONE
-            } else {
-                issueVariantName.text = variantName
-                issueVariantName.visibility = VISIBLE
-            }
+            issueVariantName.text = variantName
         }
 
         override fun onClick(v: View?) {
@@ -194,7 +274,6 @@ class IssueListFragment : ListFragment<FullIssue, IssueListFragment.IssueViewHol
         override fun removeFromCollection() {
             this.fullIssue?.let { (callback as IssueListCallback?)?.removeFromCollection(it) }
         }
-
     }
 
     interface IssueListCallback : ListFragment.ListFragmentCallback {
