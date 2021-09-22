@@ -21,11 +21,6 @@
         <item name="android:minWidth">36dp</item>
     </style>
 
-    <style name="StoryBoxDropdownButton.Subtitle">
-        <item name="android:background">@android:color/transparent</item>
-        <item name="srcCompat">@drawable/arrow_up_24</item>
-    </style>
-
     <style name="StoryBoxDropdownButton.Title">
         <item name="android:background">@android:color/transparent</item>
         <item name="srcCompat">@drawable/arrow_down_24</item>

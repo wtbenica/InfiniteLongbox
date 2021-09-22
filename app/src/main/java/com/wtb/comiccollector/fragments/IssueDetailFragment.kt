@@ -142,7 +142,10 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback,
 
         coverImageView = view.findViewById<ImageButton>(R.id.issue_cover).apply {
             setOnClickListener {
-                CoverDialogFragment(this.drawable).show(childFragmentManager, "cover_dialog")
+                CoverDialogFragment(this.drawable, this@IssueDetailFragment.currentIssue).show(
+                    childFragmentManager,
+                    "cover_dialog"
+                )
             }
         }
         issueCreditsFrame = view.findViewById(R.id.issue_credits_table) as ScrollView
@@ -466,7 +469,7 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback,
                 requireActivity().onBackPressed()
                 true
             }
-            else              -> super.onOptionsItemSelected(item)
+            else -> super.onOptionsItemSelected(item)
         }
     }
 
@@ -475,9 +478,7 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback,
     private fun updateUI() {
         val issue: Issue = currentIssue.issue
         if (issue.issueId != AUTO_ID) {
-            listFragmentCallback?.setTitle(
-                "${currentIssue.series.seriesName} #${currentIssue.issue.issueNumRaw}"
-            )
+            listFragmentCallback?.setTitle("$currentIssue")
 
             if ((!isVariant &&
                         (issueStories.isEmpty() || issueCredits.isEmpty() || issueAppearances.isEmpty())) ||
@@ -489,8 +490,10 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback,
 
             infoBox.update(issue.releaseDate, issue.coverDate, issue.notes)
             collectionButton.inCollection = currentIssue.myCollection != null
-            creditsBox.update(issueStories, variantStories, issueCredits, variantCredits,
-                              issueAppearances, variantAppearances)
+            creditsBox.update(
+                issueStories, variantStories, issueCredits, variantCredits,
+                issueAppearances, variantAppearances
+            )
 
             issue.let {
                 val indexOf = issueVariants.indexOf(it)
@@ -513,14 +516,18 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback,
     }
 
     override fun characterClicked(character: FullCharacter) {
-        val filter = SearchFilter(character = character.character, myCollection = false,
-                                  showVariants = true)
+        val filter = SearchFilter(
+            character = character.character, myCollection = false,
+            showVariants = true
+        )
         listFragmentCallback?.updateFilter(filter)
     }
 
     override fun creatorClicked(creator: NameDetailAndCreator) {
-        val filter = SearchFilter(creators = setOf(creator.creator), myCollection = false,
-                                  showVariants = true)
+        val filter = SearchFilter(
+            creators = setOf(creator.creator), myCollection = false,
+            showVariants = true
+        )
         listFragmentCallback?.updateFilter(filter)
     }
 

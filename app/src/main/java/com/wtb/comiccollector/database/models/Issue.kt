@@ -175,6 +175,9 @@ data class FullIssue @ExperimentalCoroutinesApi constructor(
     val coverUri: Uri?
         get() = cover?.coverUri
 
+    override fun toString(): String = "${series.seriesName} #${issue.issueNumRaw}"
+
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false

@@ -254,7 +254,8 @@ class Repository private constructor(val context: Context) {
         return Pager(
             config = PagingConfig(
                 pageSize = REQUEST_LIMIT,
-                enablePlaceholders = true),
+                enablePlaceholders = true
+            ),
             pagingSourceFactory = {
                 issueDao.getIssuesByFilterPagingSource(filter = filter)
             }
@@ -293,8 +294,12 @@ class Repository private constructor(val context: Context) {
 
     fun addToCollection(issue: FullIssue) {
         executor.execute {
-            collectionDao.insert(MyCollection(issue = issue.issue.issueId,
-                                              series = issue.series.seriesId))
+            collectionDao.insert(
+                MyCollection(
+                    issue = issue.issue.issueId,
+                    series = issue.series.seriesId
+                )
+            )
         }
     }
 
@@ -324,14 +329,14 @@ class Repository private constructor(val context: Context) {
         fun savePrefValue(prefs: SharedPreferences, key: String, value: Any) {
             val editor = prefs.edit()
             when (value) {
-                is String  -> editor.putString(key, value)
-                is Int     -> editor.putInt(key, value)
+                is String -> editor.putString(key, value)
+                is Int -> editor.putInt(key, value)
                 is Boolean -> editor.putBoolean(key, value)
-                is Float   -> editor.putFloat(key, value)
-                is Long    -> editor.putLong(key, value)
-                else       -> throw IllegalArgumentException(
-                    "savePrefValue: Yeah, it says Any, but it really wants String, Int, Boolean, " +
-                            "Float, or Long")
+                is Float -> editor.putFloat(key, value)
+                is Long -> editor.putLong(key, value)
+                else -> throw IllegalArgumentException(
+                    "savePrefValue: Yeah, it says Any, but it really wants String, Int, Boolean, Float, or Long"
+                )
             }
             editor.apply()
         }
@@ -419,9 +424,12 @@ class Repository private constructor(val context: Context) {
         }
     }
 
-    fun updateCharacterAsync(characterId: Int): Deferred<Unit> = updater.updateCharacterAsync(characterId)
+    fun updateCharacterAsync(characterId: Int): Deferred<Unit> =
+        updater.updateCharacterAsync(characterId)
+
     fun updateSeriesAsync(seriesId: Int): Deferred<Unit> = updater.updateSeriesAsync(seriesId)
-    fun updateCreatorsAsync(creatorIds: List<Int>): Deferred<Unit> = updater.updateCreatorsAsync(creatorIds)
+    fun updateCreatorsAsync(creatorIds: List<Int>): Deferred<Unit> =
+        updater.updateCreatorsAsync(creatorIds)
 
     fun cleanUpImages(seriesId: Int? = null) {
         CoroutineScope(Dispatchers.Default).launch {

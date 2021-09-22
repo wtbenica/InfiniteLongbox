@@ -10,12 +10,19 @@ import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.ImageView
+import android.widget.TextView
 import androidx.fragment.app.DialogFragment
 import com.wtb.comiccollector.R
+import com.wtb.comiccollector.database.models.FullIssue
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 
-class CoverDialogFragment(val draw: Drawable) : DialogFragment(R.layout.dialog_fragment_cover) {
+@ExperimentalCoroutinesApi
+class CoverDialogFragment(val draw: Drawable, val currentIssue: FullIssue) : DialogFragment(R.layout
+    .dialog_fragment_cover) {
 
     var coverView: ImageView? = null
+    var coverTextView: TextView? = null
+    var variantNameTextView: TextView? = null
 
     override fun onResume() {
         super.onResume()
@@ -45,6 +52,20 @@ class CoverDialogFragment(val draw: Drawable) : DialogFragment(R.layout.dialog_f
 
         coverView = view?.findViewById<ImageView>(R.id.cover_view).apply {
             this?.setImageDrawable(draw)
+        }
+
+        coverTextView = view?.findViewById<TextView>(R.id.tv_issue).apply {
+            this?.text = currentIssue.toString()
+        }
+
+        variantNameTextView = view?.findViewById<TextView>(R.id.tv_variant_name).apply {
+            val variantName = currentIssue.issue.variantName
+            if (variantName.isBlank()) {
+                this?.visibility = View.GONE
+            } else {
+                this?.visibility = View.VISIBLE
+                this?.text = variantName
+            }
         }
 
         return view
