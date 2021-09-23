@@ -80,5 +80,5 @@
     <string name="table_col_character_name">ch.name</string>
     <string name="table_col_character_alterego">ch.alterEgo</string>
     <string name="table_col_namedetail2">nl2.name</string>
-    <string name="find_on_ebay">Search eBay</string>
+    <string name="find_on_ebay">eBay</string>
 </resources>

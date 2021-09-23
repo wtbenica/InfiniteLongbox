@@ -68,13 +68,13 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback,
     private var issueVariants: List<Issue> = emptyList()
 
     private lateinit var coverImageView: ImageButton
-    private lateinit var ebayButton: Button
+    private lateinit var ebayButton: ImageButton
     private lateinit var collectionButton: AddCollectionButton
     private lateinit var variantSpinnerHolder: LinearLayout
     private lateinit var variantSpinner: Spinner
     private var isVariant: Boolean = false
 
-    private lateinit var issueCreditsFrame: ScrollView
+    private lateinit var issueCreditsFrame: FrameLayout
     private lateinit var creditsBox: CreditsBox
 
     private lateinit var infoBox: IssueInfoBox
@@ -148,10 +148,10 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback,
                 )
             }
         }
-        issueCreditsFrame = view.findViewById(R.id.issue_credits_table) as ScrollView
+        issueCreditsFrame = view.findViewById(R.id.issue_credits_table) as FrameLayout
         infoBox = view.findViewById(R.id.issue_info_box)
         gcdLinkButton = view.findViewById(R.id.gcd_link) as Button
-        ebayButton = view.findViewById(R.id.ebayButton) as Button
+        ebayButton = view.findViewById(R.id.ebayButton)
         collectionButton = (view.findViewById(R.id.collectionButton) as AddCollectionButton).apply {
             callback = this@IssueDetailFragment
         }

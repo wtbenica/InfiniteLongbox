@@ -7,6 +7,7 @@
         <entry key="../../Android/Sdk/platforms/android-30/data/res/drawable/progress_horizontal_material.xml" value="0.67" />
         <entry key="../../Android/Sdk/platforms/android-30/data/res/drawable/progress_indeterminate_horizontal_material.xml" value="0.10598290598290598" />
         <entry key="app/src/main/res/drawable/add_collection.xml" value="0.27341772151898736" />
+        <entry key="app/src/main/res/drawable/add_wish_list.xml" value="0.1" />
         <entry key="app/src/main/res/drawable/alboha_bg.xml" value="0.5" />
         <entry key="app/src/main/res/drawable/arrow_up_24.xml" value="0.27692307692307694" />
         <entry key="app/src/main/res/drawable/background_series_dates.xml" value="0.12863247863247862" />
@@ -19,6 +20,7 @@
         <entry key="app/src/main/res/drawable/bg_series_dates.xml" value="0.27341772151898736" />
         <entry key="app/src/main/res/drawable/done.xml" value="0.27341772151898736" />
         <entry key="app/src/main/res/drawable/fofof.xml" value="0.27692307692307694" />
+        <entry key="app/src/main/res/drawable/ic_search_24.xml" value="0.27692307692307694" />
         <entry key="app/src/main/res/drawable/primary_border.xml" value="0.1111111111111111" />
         <entry key="app/src/main/res/drawable/primary_dark_border.xml" value="0.1111111111111111" />
         <entry key="app/src/main/res/drawable/progress_bar_big.xml" value="0.1" />
@@ -33,13 +35,14 @@
         <entry key="app/src/main/res/drawable/progress_bar_big4.xml" value="0.1527777777777778" />
         <entry key="app/src/main/res/drawable/progress_bar_big45.xml" value="0.27341772151898736" />
         <entry key="app/src/main/res/drawable/progress_bar_big5.xml" value="0.1527777777777778" />
+        <entry key="app/src/main/res/drawable/remove_wish_list.xml" value="0.1111111111111111" />
         <entry key="app/src/main/res/drawable/shape_bg_bottom_sheet.xml" value="0.2675925925925926" />
         <entry key="app/src/main/res/drawable/status_in_progress.xml" value="0.27341772151898736" />
         <entry key="app/src/main/res/drawable/waiting.xml" value="0.27692307692307694" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.1" />
         <entry key="app/src/main/res/layout/auto_complete_filter_item.xml" value="0.67" />
         <entry key="app/src/main/res/layout/dialog_fragment_cover.xml" value="0.75" />
-        <entry key="app/src/main/res/layout/fragment_display_issue.xml" value="0.3844236760124611" />
+        <entry key="app/src/main/res/layout/fragment_display_issue.xml" value="0.33" />
         <entry key="app/src/main/res/layout/fragment_filter.xml" value="0.14878048780487804" />
         <entry key="app/src/main/res/layout/fragment_item_list.xml" value="0.75" />
         <entry key="app/src/main/res/layout/fragment_series_detail.xml" value="0.3856332703213611" />
