@@ -58,7 +58,7 @@ class DatePickerFragment : DialogFragment() {
             date.dayOfMonth
         ).apply {
             datePicker.maxDate = when (maxDate) {
-                LocalDate.MAX -> Date().getTime()
+                LocalDate.MAX -> Date().time
                 else          -> Calendar.getInstance().apply {
                     set(maxDate.year, maxDate.monthValue - 1, maxDate.dayOfMonth)
                 }.timeInMillis

@@ -10,6 +10,7 @@ import android.widget.Filter
 import android.widget.TextView
 import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.R
+import com.wtb.comiccollector.database.models.Character
 import com.wtb.comiccollector.database.models.FilterModel
 import com.wtb.comiccollector.database.models.FullSeries
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -31,29 +32,31 @@ class FilterOptionsAdapter(context: Context, filterOptions: List<FilterModel>) :
     override fun getItem(position: Int): FilterModel = mOptions[position]
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
-
         val view =
-            convertView ?: View.inflate(
-                context,
-                R.layout.auto_complete_filter_item,
-                null
-            )
+            convertView ?: View.inflate(context, R.layout.auto_complete_filter_item, null)
 
         val itemText: TextView = view.findViewById(R.id.item_text)
         val optionTypeText: TextView = view.findViewById(R.id.filter_option_type_text)
         val itemFormatText: TextView = view.findViewById(R.id.format_text)
 
-        val filter: FilterModel = getItem(position)
+        val modelItem: FilterModel = getItem(position)
 
-        itemText.text = filter.toString()
-        optionTypeText.text = filter.tagName
-        optionTypeText.setTextColor(filter.textColor)
-        if (filter is FullSeries) {
-            itemFormatText.visibility = VISIBLE
-            itemFormatText.text = filter.series.publishingFormat
-        } else {
-            itemFormatText.visibility = GONE
+        itemText.text = modelItem.toString()
+        optionTypeText.text = modelItem.tagName
+        optionTypeText.setTextColor(modelItem.textColor)
+        when (modelItem) {
+            is FullSeries -> {
+                itemFormatText.visibility = VISIBLE
+                itemFormatText.text = modelItem.series.publishingFormat
+            }
+            is Character -> {
+                itemFormatText.visibility = GONE
+                // TODO: Once this is switched to FullCharacter, put publisher in itemFormatText.
+                //  Maybe add a dedicated textbox for publisher, as it's used in series also
+            }
+            else -> itemFormatText.visibility = GONE
         }
+
         return view
     }
 
@@ -66,8 +69,10 @@ class FilterOptionsAdapter(context: Context, filterOptions: List<FilterModel>) :
                 results.values = if (query == null || query.isEmpty()) {
                     allOptions
                 } else {
-                    allOptions.filter {
-                        it.compareValue.lowercase().contains(query)
+                    allOptions.filter { fm ->
+                        val newQs = query.split(' ')
+                        newQs.map { fm.compareValue.lowercase().contains(it) }
+                            .reduce { acc, b -> acc && b }
                     }
                 }
 
@@ -76,7 +81,7 @@ class FilterOptionsAdapter(context: Context, filterOptions: List<FilterModel>) :
 
             override fun publishResults(
                 constraint: CharSequence?,
-                results: FilterResults?
+                results: FilterResults?,
             ) {
                 val optionsList: MutableList<FilterModel> = mutableListOf()
 

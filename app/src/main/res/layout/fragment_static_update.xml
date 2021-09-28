@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge>
+
+    <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        style="@style/mCardView"
+        android:animateLayoutChanges="true"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:cardBackgroundColor="?attr/colorSecondaryLightLight">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:padding="@dimen/margin_default">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/margin_default"
+                android:fontFamily="@font/archivo_black"
+                android:text="Downloading database" />
+
+            <TableLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TableRow>
+
+                    <ImageView
+                        android:id="@+id/status_publisher"
+                        android:layout_width="@dimen/margin_default"
+                        android:layout_height="@dimen/margin_default"
+                        android:layout_gravity="center"
+                        android:layout_marginEnd="@dimen/margin_narrow"
+                        android:src="@drawable/status_waiting"
+                        tools:src="@drawable/status_done" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/heebo_medium"
+                        android:text="Publishers" />
+
+                    <ProgressBar
+                        android:id="@+id/progress_bar_publishers"
+                        style="@style/UpdateProgressBar"
+                        tools:progress="100" />
+                </TableRow>
+
+                <TableRow>
+
+                    <ImageView
+                        android:id="@+id/status_series"
+                        android:layout_width="@dimen/margin_default"
+                        android:layout_height="@dimen/margin_default"
+                        android:layout_gravity="center"
+                        android:layout_marginEnd="@dimen/margin_narrow"
+                        android:src="@drawable/status_waiting"
+                        tools:src="@drawable/status_in_progress" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/heebo_medium"
+                        android:text="Series"
+                        tools:textStyle="bold" />
+
+                    <ProgressBar
+                        android:id="@+id/progress_bar_series"
+                        style="@style/UpdateProgressBar"
+                        tools:progress="43" />
+                </TableRow>
+
+                <TableRow>
+
+                    <ImageView
+                        android:id="@+id/status_creators"
+                        android:layout_width="@dimen/margin_default"
+                        android:layout_height="@dimen/margin_default"
+                        android:layout_gravity="center"
+                        android:layout_marginEnd="@dimen/margin_narrow"
+                        android:src="@drawable/status_waiting" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/heebo_medium"
+                        android:text="Creators" />
+
+                    <ProgressBar
+                        android:id="@+id/progress_bar_creators"
+                        style="@style/UpdateProgressBar" />
+                </TableRow>
+
+                <TableRow>
+
+                    <ImageView
+                        android:id="@+id/status_characters"
+                        android:layout_width="@dimen/margin_default"
+                        android:layout_height="@dimen/margin_default"
+                        android:layout_gravity="center"
+                        android:layout_marginEnd="@dimen/margin_narrow"
+                        android:src="@drawable/status_waiting" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/heebo_medium"
+                        android:text="Characters" />
+
+                    <ProgressBar
+                        android:id="@+id/progress_bar_characters"
+                        style="@style/UpdateProgressBar" />
+                </TableRow>
+            </TableLayout>
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+</merge>

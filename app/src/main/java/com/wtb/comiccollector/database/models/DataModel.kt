@@ -21,7 +21,6 @@ sealed interface FilterType {
 }
 
 /**
- * Filter item
  * Filter models (series, character, creator, publisher, namedetail) + Text Filter: items that
  * can appear in the search autocomplete box.
  */
@@ -34,7 +33,6 @@ TODO: This should include SERIES, PUBLISHER, CHARACTER, CREATOR. The issue is wi
  then getting results by CREATOR. This is a big TODO that could become very complicated very quickly
 */
 /**
- * Filter item
  * A model that can be used in a filter (fullseries, character, creator, publisher, namedetail) and
  * can show up in the search autocomplete dropdown list
  */
@@ -46,12 +44,12 @@ sealed interface FilterModel : FilterItem, Comparable<FilterModel>, Serializable
 
     val textColor: Int
         get() = when (this) {
-            is FullSeries    -> context?.getColor(R.color.tag_series)
+            is FullSeries    -> context?.getColor(R.color.text_series)
             is Creator,
             is NameDetail,
-                         -> context?.getColor(R.color.tag_creator)
-            is Publisher -> context?.getColor(R.color.tag_publisher)
-            is Character -> context?.getColor(R.color.tag_character)
+                         -> context?.getColor(R.color.text_creator)
+            is Publisher -> context?.getColor(R.color.text_publisher)
+            is Character -> context?.getColor(R.color.text_character)
             else         -> throw IllegalStateException("Invalid type: $this")
         } ?: 0xFF000000.toInt()
 
@@ -63,6 +61,9 @@ sealed interface FilterModel : FilterItem, Comparable<FilterModel>, Serializable
     }
 }
 
+/**
+ * A model type that appears as a list item
+ */
 sealed interface ListItem
 
 @ExperimentalCoroutinesApi

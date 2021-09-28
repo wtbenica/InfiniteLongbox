@@ -2,7 +2,6 @@ package com.wtb.comiccollector.views
 
 import android.content.Context
 import android.util.AttributeSet
-import android.util.Log
 import android.view.View
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.children
@@ -48,7 +47,6 @@ class SortChipGroup(context: Context, attributeSet: AttributeSet) :
         }.toList()
 
         toAddList.forEach { sortTypeIn ->
-            Log.d(TAG, "Adding View")
             val chip = SortChip(context)
             chip.callback = this@SortChipGroup
             chip.isChecked = filter.mSortType == sortTypeIn
@@ -63,10 +61,8 @@ class SortChipGroup(context: Context, attributeSet: AttributeSet) :
         sortTypes = sortColumnsIn
     }
 
-    override fun sortOrderChanged(sortType: SortType) {
-        Log.d(TAG, "sortOrderChanged: ${sortType.order}")
-        callback?.sortOrderChanged(sortType)
-    }
+    override fun sortOrderChanged(sortType: SortType) = callback?.sortOrderChanged(sortType) ?: Unit
+
 
     interface SortChipGroupCallback {
         fun sortOrderChanged(sortType: SortType)
@@ -79,7 +75,6 @@ class SortChip(context: Context?) : Chip(context) {
     init {
         isCloseIconVisible = true
         setOnClickListener {
-            Log.d(TAG, "Chip ${if (isChecked) "is" else "isn't"} checked")
             if (isChecked) {
                 sortType = sortType?.toggle()
             } else {

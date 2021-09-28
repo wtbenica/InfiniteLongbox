@@ -1,12 +1,14 @@
 package com.wtb.comiccollector.fragments
 
-import android.net.Uri
+import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import android.widget.ProgressBar
 import android.widget.TextView
+import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.viewModels
 import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
@@ -14,10 +16,10 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.R
+import com.wtb.comiccollector.database.models.FullIssue
 import com.wtb.comiccollector.database.models.FullSeries
 import com.wtb.comiccollector.fragments_view_models.SeriesListViewModel
 import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.collectLatest
 
 private const val TAG = APP + "SeriesListFragment"
 
@@ -32,7 +34,9 @@ class SeriesListFragment : ListFragment<FullSeries, SeriesListFragment.SeriesHol
     }
 
     override fun getLayoutManager(): RecyclerView.LayoutManager = LinearLayoutManager(context)
+
     override fun getAdapter(): SeriesAdapter = SeriesAdapter()
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -40,11 +44,38 @@ class SeriesListFragment : ListFragment<FullSeries, SeriesListFragment.SeriesHol
     ): View? {
         val view = super.onCreateView(inflater, container, savedInstanceState)
         listRecyclerView.addItemDecoration(
-            ItemOffsetDecoration(resources.getDimension(R.dimen.margin_narrow).toInt())
+            ItemOffsetDecoration(resources.getDimension(R.dimen.margin_default).toInt())
         )
         return view
     }
 
+    //    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+//        super.onViewCreated(view, savedInstanceState)
+//
+//        updateBottomPadding()
+//
+//        val adapter = getAdapter()
+//
+//        listRecyclerView.adapter = adapter
+//
+//        lifecycleScope.launch {
+//            repeatOnLifecycle(Lifecycle.State.STARTED) {
+//                viewModel.itemList.collectLatest {
+//                    adapter.submitData(it)
+//                    progressBar.hide()
+//                }
+//            }
+//        }
+//
+//        filterViewModel.filter.observe(
+//            viewLifecycleOwner,
+//            { filter ->
+//                viewModel.setFilter(filter)
+//            }
+//        )
+//    }
+//
+//
     //    private fun runLayoutAnimation(view: RecyclerView) {
 //        val context = view.context
 //        val controller: LayoutAnimationController =
@@ -77,7 +108,10 @@ class SeriesListFragment : ListFragment<FullSeries, SeriesListFragment.SeriesHol
         private val seriesImageView: ImageView = itemView.findViewById(R.id.series_imageview)
         private val seriesDateRangeTextView: TextView =
             itemView.findViewById(R.id.list_item_pub_dates)
-        private val formatTextView: TextView = itemView.findViewById(R.id.list_item_series_format)
+        private val formatTextView: TextView =
+            itemView.findViewById(R.id.list_item_series_format)
+        private val coverProgressBar: ProgressBar =
+            itemView.findViewById(R.id.cover_progress_bar)
 
         init {
             itemView.setOnClickListener(this)
@@ -85,24 +119,37 @@ class SeriesListFragment : ListFragment<FullSeries, SeriesListFragment.SeriesHol
 
         fun bind(item: FullSeries) {
             this.item = item
+
             seriesTextView.text = this.item.series.seriesName
-            val firstIssue = this.item.series.firstIssue
-            if (firstIssue != null) {
-                viewModel.getIssue(firstIssue)
-            } else if (this.item.series.issueCount == 1) {
-                CoroutineScope(Dispatchers.Default).launch {
-                    viewModel.getIssueBySeries(this@SeriesHolder.item).collectLatest { issues ->
-                        issues.forEach { viewModel.getIssue(it.issue.issueId) }
-                    }
-                }
+
+            val firstIssueId = this.item.series.firstIssue
+            if (firstIssueId != null) {
+                viewModel.getIssue(firstIssueId,
+                    viewModel.filter.value?.mMyCollection?.let { !it } ?: true)
+            } else if (this.item.series.issueCount < 10) {
+                viewModel.updateIssuesBySeries(this@SeriesHolder.item)
             }
 
-            val uri: Uri? = this.item.firstIssue?.coverUri
+            val firstIssue: FullIssue? = this.item.firstIssue
 
-            uri.let { seriesImageView.setImageURI(it) }
+            val drawable: Drawable? = ResourcesCompat.getDrawable(resources, R.drawable
+                .bg_cyan, null)
+
+            if (firstIssue?.coverUri != null) {
+                seriesImageView.setImageURI(firstIssue.coverUri)
+            } else {
+                seriesImageView.setImageDrawable(drawable)
+            }
 
             seriesDateRangeTextView.text = this.item.series.dateRange
             formatTextView.text = this.item.series.publishingFormat?.lowercase()
+
+            coverProgressBar.visibility =
+                if (firstIssue == null || firstIssue.coverUri != null || firstIssue.cover != null) {
+                    View.GONE
+                } else {
+                    View.VISIBLE
+                }
         }
 
         override fun onClick(v: View?) {

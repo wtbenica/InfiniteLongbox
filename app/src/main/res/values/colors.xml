@@ -9,29 +9,27 @@
     <color name="fantasia_dark">#00DDDD</color>
     <color name="fantasia_text">#D222</color>
 
-<!--    <color name="fantasia">#ABED92</color>-->
-<!--    <color name="fantasia_transparent">#DDABED92</color>-->
-<!--    <color name="fantasia_light">#D3FAC5</color>-->
-<!--    <color name="fantasia_light_light">#ECF8E7</color>-->
-<!--    <color name="fantasia_dark_dark">#2CA34E</color>-->
-<!--    <color name="fantasia_dark">#6AC947</color>-->
-<!--    <color name="fantasia_text">#D222</color>-->
-
-    <color name="amnesia">#BACACA</color>
-    <color name="amnesia_light">#CADADA</color>
-    <color name="amnesia_light_light">#E3E3E7</color>
+    <color name="amnesia">#E3E3E7</color>
+    <color name="amnesia_light">#F0F0F4</color>
+    <color name="amnesia_light_light">#F7F7FF</color>
     <color name="amnesia_light_transparent">#BBF3F3F3</color>
-    <color name="amnesia_dark">#889999</color>
+    <color name="amnesia_dark">#CADADA</color>
     <color name="amnesia_text">#DFFF</color>
 
     <color name="fantasia_muted">#E8FDAD</color>
     <color name="fantasia_light_muted">#E3F6B0</color>
     <color name="fantasia_dark_muted">#BAFE00</color>
 
-    <color name="tag_series">#14D1D1</color>
-    <color name="tag_creator">#E317E3</color>
-    <color name="tag_publisher">#FFE925</color>
-    <color name="tag_character">#0000FF</color>
+    <color name="tag_all">#2DDD</color>
+    <color name="text_all">#FFF</color>
+    <color name="tag_series">#2200FFFF</color>
+    <color name="text_series">#00FFFF</color>
+    <color name="tag_creator">#22FF00FF</color>
+    <color name="text_creator">#FF00FF</color>
+    <color name="tag_character">#22FFFF00</color>
+    <color name="text_character">#FFFF00</color>
+    <color name="tag_publisher">#2000</color>
+    <color name="text_publisher">#555</color>
 
     <color name="transparent_white">#DFFF</color>
 </resources>

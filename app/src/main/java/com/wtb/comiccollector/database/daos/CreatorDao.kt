@@ -1,11 +1,13 @@
 package com.wtb.comiccollector.database.daos
 
+import android.util.Log
 import androidx.paging.PagingSource
 import androidx.room.Dao
 import androidx.room.Query
 import androidx.room.RawQuery
 import androidx.sqlite.db.SimpleSQLiteQuery
 import androidx.sqlite.db.SupportSQLiteQuery
+import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.SearchFilter
 import com.wtb.comiccollector.SortType
 import com.wtb.comiccollector.SortType.Companion.containsSortType
@@ -45,7 +47,7 @@ abstract class CreatorDao : BaseDao<Creator>("creator") {
     }
 
     companion object {
-        private const val TAG = "CreatorDao"
+        private const val TAG = APP + "CreatorDao"
 
         private fun getCreatorQuery(filter: SearchFilter): SimpleSQLiteQuery {
 
@@ -134,9 +136,11 @@ abstract class CreatorDao : BaseDao<Creator>("creator") {
 
             filter.mTextFilter?.let { textFilter ->
                 val text = textFilterToString(textFilter.text)
-                conditionsString.append("""${connectWord()} nd.name LIKE '$text'
-                OR cr.name LIKE '$text'
+                conditionsString.append("""${connectWord()} nd.name LIKE ?
+                OR cr.name LIKE ?
             """)
+                Log.d(TAG, text)
+                args.addAll(listOf(text, text))
             }
 
             val allArgs: ArrayList<Any> = arrayListOf()

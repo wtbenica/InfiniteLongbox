@@ -6,7 +6,9 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
-    android:orientation="vertical">
+    android:animateLayoutChanges="true"
+    android:orientation="vertical"
+    android:background="?attr/colorSecondary">
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:id="@+id/main_activity"
@@ -21,12 +23,39 @@
             android:id="@+id/app_bar_layout"
             style="@style/myAppBarLayout"
             app:layout_behavior="com.google.android.material.appbar.AppBarLayout$Behavior"
-            app:layout_insetEdge="top">
+            app:layout_insetEdge="top"
+            android:animateLayoutChanges="true">
 
             <androidx.appcompat.widget.Toolbar
                 android:id="@+id/action_bar"
                 style="@style/myActionBarStyle"
                 tools:title="Doom Patrol #9" />
+
+            <com.wtb.comiccollector.views.ProgressUpdateCard
+                android:layout_margin="@dimen/margin_default"
+                android:id="@+id/progress_update_card"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="4dp"
+                android:layout_marginTop="-1dp">
+
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="16dp"
+                    android:layout_gravity="center_vertical">
+
+                    <ProgressBar
+                        android:id="@+id/progress_bar_item_list_update"
+                        style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:indeterminateOnly="true"
+                        android:indeterminateTint="@color/text_creator"/>
+                </FrameLayout>
+            </FrameLayout>
         </com.google.android.material.appbar.AppBarLayout>
 
 
@@ -48,7 +77,6 @@
             android:tag="@string/tag_filter_fragment"
             app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior"
             tools:layout="@layout/fragment_filter" />
-
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
     <com.google.android.gms.ads.AdView
@@ -57,6 +85,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
         android:fitsSystemWindows="true"
+        android:visibility="gone"
         ads:adSize="BANNER"
         ads:adUnitId="ca-app-pub-3940256099942544/6300978111" />
 </LinearLayout>

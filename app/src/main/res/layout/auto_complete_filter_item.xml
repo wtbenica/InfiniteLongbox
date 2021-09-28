@@ -1,54 +1,62 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:background="?attr/colorOnPrimary"
     android:layout_height="wrap_content"
-    android:animateLayoutChanges="true"
-    android:orientation="vertical"
-    android:padding="@dimen/margin_default">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    app:cardElevation="@dimen/margin_narrow"
+    app:cardUseCompatPadding="true">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:animateLayoutChanges="true"
+        android:background="?attr/colorOnPrimary"
+        android:orientation="vertical"
+        android:padding="@dimen/margin_default">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/filter_option_type_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:animateLayoutChanges="true"
+                android:background="?attr/colorSecondary"
+                android:fontFamily="@font/archivo_black"
+                android:padding="@dimen/margin_narrow"
+                android:singleLine="true"
+                android:textAllCaps="true"
+                android:textSize="12sp"
+                tools:text="Series"
+                tools:textColor="@color/text_series" />
+
+            <TextView
+                android:id="@+id/format_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="?attr/colorSecondaryLightLight"
+                android:fontFamily="@font/archivo_black"
+                android:padding="@dimen/margin_narrow"
+                android:text="@string/cancel"
+                android:textAllCaps="true"
+                android:textSize="12sp"
+                tools:text="Graphic Novel" />
+        </LinearLayout>
 
         <TextView
-            android:id="@+id/filter_option_type_text"
-            android:layout_width="wrap_content"
+            android:id="@+id/item_text"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:animateLayoutChanges="true"
-            android:background="?attr/colorSecondaryLightLight"
+            android:background="?attr/colorOnSecondary"
+            android:ellipsize="marquee"
             android:fontFamily="@font/archivo_black"
             android:padding="@dimen/margin_narrow"
             android:singleLine="true"
-            android:textAllCaps="true"
-            android:textSize="12sp"
-            tools:text="Series"
-            tools:textColor="@color/tag_series" />
-
-        <TextView
-            android:id="@+id/format_text"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="?attr/colorSecondaryLightLight"
-            android:fontFamily="@font/archivo_black"
-            android:padding="@dimen/margin_narrow"
-            android:text="@string/cancel"
-            android:textAllCaps="true"
-            android:textSize="12sp"
-            tools:text="Graphic Novel" />
+            android:textAppearance="?android:attr/textAppearanceSmallPopupMenu"
+            tools:text="This is a really long title how will it ellipsize?" />
     </LinearLayout>
-
-    <TextView
-        android:id="@+id/item_text"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="?attr/colorOnSecondary"
-        android:ellipsize="marquee"
-        android:fontFamily="@font/archivo_black"
-        android:padding="@dimen/margin_narrow"
-        android:singleLine="true"
-        android:textAppearance="?android:attr/textAppearanceSmallPopupMenu"
-        tools:text="This is a really long title how will it ellipsize?" />
-</LinearLayout>
+</androidx.cardview.widget.CardView>

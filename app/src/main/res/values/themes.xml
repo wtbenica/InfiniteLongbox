@@ -39,6 +39,7 @@
         <item name="styleCreatorLink">@style/CreatorLink</item>
         <item name="styleIssueInfoBox">@style/IssueInfoBox</item>
         <item name="styleSeriesDetail">@style/SeriesDetailBackground</item>
+        <item name="styleAddCollectionButton">@style/AddCollectionButtonStyle</item>
 
         <item name="colorPrimaryMuted">@color/fantasia_muted</item>
         <item name="colorPrimaryDarkMuted">@color/fantasia_dark_muted</item>

@@ -1,8 +1,9 @@
-package com.wtb.comiccollector.fragments
+package com.wtb.comiccollector.views
 
 import android.content.Context
 import android.view.View
-import android.view.ViewGroup
+import android.view.ViewGroup.LayoutParams.MATCH_PARENT
+import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.*
 import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.R
@@ -10,10 +11,7 @@ import com.wtb.comiccollector.database.models.FullAppearance
 import com.wtb.comiccollector.database.models.FullCredit
 import com.wtb.comiccollector.database.models.Story
 import com.wtb.comiccollector.database.models.ids
-import com.wtb.comiccollector.views.CharacterLink
-import com.wtb.comiccollector.views.CharacterLinkCallback
-import com.wtb.comiccollector.views.CreatorLink
-import com.wtb.comiccollector.views.CreatorLinkCallback
+import com.wtb.comiccollector.fragments.RoleNameTextView
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 private const val STORY_TYPE_COVER = 6
@@ -22,6 +20,7 @@ private const val STORY_TYPE_COVER = 6
 class CreditsBox(context: Context) : TableLayout(context) {
 
     interface CreditsBoxCallback : CharacterLinkCallback, CreatorLinkCallback
+
 
     var mCallback: CreditsBoxCallback? = null
     private var mIssueStories: List<Story> = emptyList()
@@ -56,7 +55,7 @@ class CreditsBox(context: Context) : TableLayout(context) {
     init {
         orientation = VERTICAL
         layoutParams =
-            LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+            LayoutParams(MATCH_PARENT, WRAP_CONTENT)
         isStretchAllColumns = true
     }
 
@@ -93,23 +92,22 @@ class CreditsBox(context: Context) : TableLayout(context) {
         }.sortedBy { it.storyType }
 
 
-    inner class StoryRow(context: Context, val mStory: Story) : LinearLayout(context) {
-        private val storyDetailButton: ImageButton
+    inner class StoryRow(context: Context, private val mStory: Story) : LinearLayout(context) {
+        private val storyDetailButton: ExpandButton
         private val storyDetailBox: LinearLayout
         private val storyTitle: TextView
 
         init {
             orientation = VERTICAL
-            layoutParams = LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                                        ViewGroup.LayoutParams.WRAP_CONTENT)
+            layoutParams = LayoutParams(MATCH_PARENT, WRAP_CONTENT)
 
             inflate(context, R.layout.story_box, this)
 
             storyDetailButton = findViewById(R.id.story_dropdown_button)
             storyDetailBox = findViewById(R.id.story_details_box)
             storyDetailButton.setOnClickListener {
-                storyDetailBox.toggleVisibility()
-                (it as ImageButton).toggleIcon(storyDetailBox)
+                storyDetailBox.toggleVisibility(MATCH_PARENT, WRAP_CONTENT)
+                (it as ExpandButton).toggleExpand()
             }
 
             storyTitle = findViewById(R.id.story_title)

@@ -7,13 +7,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.widget.LinearLayout
 import android.widget.LinearLayout.VERTICAL
-import android.widget.ScrollView
 import android.widget.TextView
+import androidx.core.widget.NestedScrollView
 import com.wtb.comiccollector.R
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
-class IssueInfoBox(context: Context, attrs: AttributeSet? = null) : ScrollView(context, attrs) {
+class IssueInfoBox(context: Context, attrs: AttributeSet? = null) : NestedScrollView(context, attrs) {
 
     private var releaseDate: LocalDate? = null
     private var coverDate: LocalDate? = null
@@ -91,6 +91,8 @@ class IssueInfoRow(
         val view = LayoutInflater.from(context).inflate(infoRowLayout, this)
         labelView = view.findViewById(R.id.info_row_label)
         infoTextView = view.findViewById(R.id.info_row_text)
+        if (direction == HORIZONTAL)
+            infoTextView?.isSingleLine = true
         this.labelView?.text = label
         this.infoTextView?.text = infoText
     }

@@ -1,8 +1,7 @@
 package com.wtb.comiccollector.fragments
 
+import android.annotation.SuppressLint
 import android.content.Context
-import android.graphics.Outline
-import android.graphics.Rect
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -10,8 +9,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.View.*
 import android.view.ViewGroup
-import android.view.ViewOutlineProvider
 import android.widget.*
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.*
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -23,13 +22,12 @@ import com.wtb.comiccollector.fragments_view_models.FilterViewModel
 import com.wtb.comiccollector.views.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import java.time.LocalDate
-import kotlin.reflect.KClass
 
 private const val TAG = APP + "FilterFragment"
 
 @ExperimentalCoroutinesApi
 class FilterFragment : Fragment(),
-    SearchAutoComplete.SearchTextViewCallback,
+    SearchBar.SearchTextViewCallback,
     FilterChip.FilterChipCallback, OptionChipGroup.OptionChipGroupCallback,
     SortChipGroup.SortChipGroupCallback, DateChipGroup.DateChipGroupCallback {
 
@@ -53,6 +51,7 @@ class FilterFragment : Fragment(),
     // Views
     private lateinit var filterView: FrameLayout
     private lateinit var handleBox: FrameLayout
+    private lateinit var handleImage: ImageView
 
     private lateinit var dateFilterSection: LinearLayout
     private lateinit var dateChipGroup: DateChipGroup
@@ -69,9 +68,15 @@ class FilterFragment : Fragment(),
     private lateinit var filterChipGroup: ChipGroup
     private lateinit var filterAddButton: ImageButton
 
-    private lateinit var searchSection: LinearLayout
-    private lateinit var searchAutoComplete: SearchAutoComplete
-    private lateinit var searchBoxSpinner: Spinner
+    private lateinit var searchSection: ConstraintLayout
+    private lateinit var searchBar: SearchBar
+
+    private lateinit var filterTypeChipGroup: ChipGroup
+    private lateinit var filterChipAll: FilterTypeChip<All.Companion>
+    private lateinit var filterChipSeries: FilterTypeChip<Series.Companion>
+    private lateinit var filterChipCreator: FilterTypeChip<NameDetail.Companion>
+    private lateinit var filterChipCharacter: FilterTypeChip<Character.Companion>
+    private lateinit var filterChipPublisher: FilterTypeChip<Publisher.Companion>
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -86,20 +91,10 @@ class FilterFragment : Fragment(),
         onCreateViewFindViews(view)
         onCreateViewInitViews()
 
-        view.outlineProvider = object : ViewOutlineProvider() {
-            override fun getOutline(view: View?, outline: Outline?) {
-                val rect = Rect()
-                view?.background?.copyBounds(rect)
-                rect.offset(0, -resources.getDimension(R.dimen.margin_default).toInt())
-
-                outline?.setRect(rect)
-            }
-        }
-
         view.clipToOutline = true
 
         viewModel.filterOptions.observe(viewLifecycleOwner) { filterOptions ->
-            searchAutoComplete.setAdapter(
+            searchBar.setAdapter(
                 FilterOptionsAdapter(
                     context = requireContext(),
                     filterOptions = filterOptions
@@ -107,7 +102,7 @@ class FilterFragment : Fragment(),
             )
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                searchAutoComplete.refreshAutoCompleteResults()
+                searchBar.refreshAutoCompleteResults()
             }
         }
 
@@ -126,8 +121,14 @@ class FilterFragment : Fragment(),
                 dateChipGroup.update(filter)
             }
         )
+
+        viewModel.updateComplete.observe(viewLifecycleOwner) {
+            Log.d(TAG, "UPDATE COMPLETE? $it")
+            callback?.setProgressBar(it)
+        }
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     private fun onCreateViewInitViews() {
         ViewCompat.setOnApplyWindowInsetsListener(filterView) { view, insets ->
             val posBottom = insets.getInsets(WindowInsetsCompat.Type.systemBars()).bottom
@@ -140,7 +141,7 @@ class FilterFragment : Fragment(),
             insets
         }
 
-        handleBox.setOnClickListener {
+        handleImage.setOnClickListener {
             callback?.onHandleClick()
         }
 
@@ -163,57 +164,18 @@ class FilterFragment : Fragment(),
             filterAddButton.visibility = GONE
         }
 
-        searchAutoComplete.callbacks = this
+        searchBar.callbacks = this
 
-        searchBoxSpinner.adapter = object : ArrayAdapter<KClass<*>?>(
-            requireContext(),
-            R.layout.spinner_item_filter_type,
-            R.id.text_filter_option,
-            filterTypeOptions
-        ) {
-            override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
-                val view = convertView ?: inflate(
-                    context,
-                    R.layout.spinner_item_filter_type,
-                    null
-                )
-                val sortText: TextView = view.findViewById(R.id.text_filter_option)
-                val item = getItem(position)
-                sortText.text = item?.objectInstance.toString()
-                return view
-            }
-
-            override fun getDropDownView(
-                position: Int,
-                convertView: View?,
-                parent: ViewGroup,
-            ): View {
-                return getView(position, convertView, parent)
-            }
-        }
-
-        searchBoxSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(
-                parent: AdapterView<*>?,
-                view: View?,
-                position: Int,
-                id: Long,
-            ) {
-                parent?.let {
-                    val selectedFilterOption = it.getItemAtPosition(position) as KClass<*>
-                    viewModel.setFilterType(selectedFilterOption)
-
-                    searchAutoComplete.showDropDown()
-
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                        searchAutoComplete.refreshAutoCompleteResults()
-                    }
-
+        filterTypeChipGroup.setOnCheckedChangeListener { _, checkedId ->
+            if (checkedId >= 0) {
+                view?.findViewById<FilterTypeChip<*>>(checkedId)?.let { filterChip ->
+                    Log.d(TAG, "Setting filter type: $filterChip ${filterChip.type}")
+                    filterChip.type?.let { type -> viewModel.setFilterType(type) }
                 }
-            }
 
-            override fun onNothingSelected(parent: AdapterView<*>?) {
-                // Do nothing
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    searchBar.refreshAutoCompleteResults()
+                }
             }
         }
     }
@@ -221,6 +183,7 @@ class FilterFragment : Fragment(),
     private fun onCreateViewFindViews(view: View) {
         filterView = view.findViewById(R.id.layout_filter_fragment)
         handleBox = view.findViewById(R.id.layout_filter_fragment_handle)
+        handleImage = view.findViewById(R.id.handle_handle)
 
         sections = view.findViewById(R.id.sections)
         dateFilterSection = view.findViewById(R.id.section_date_filters)
@@ -241,8 +204,41 @@ class FilterFragment : Fragment(),
         filterAddButton = view.findViewById(R.id.add_filter_button)
 
         searchSection = view.findViewById(R.id.section_search)
-        searchAutoComplete = view.findViewById(R.id.search_auto)
-        searchBoxSpinner = view.findViewById(R.id.search_bar_spinner)
+        searchBar = view.findViewById(R.id.search_bar)
+        searchBar.dropDownAnchor = R.id.filter_type_chip_group
+
+        initFilterTypeChipGroup(view)
+    }
+
+    private fun initFilterTypeChipGroup(view: View) {
+        filterTypeChipGroup = view.findViewById(R.id.filter_type_chip_group)
+        filterChipAll =
+            view.findViewById<FilterTypeChip<All.Companion>>(R.id.filter_chip_all).apply {
+                type = All.Companion::class
+            }
+        filterChipSeries =
+            view.findViewById<FilterTypeChip<Series.Companion>>(R.id.filter_chip_series)
+                .apply {
+                    type = Series.Companion::class
+                }
+        filterChipCreator = view.findViewById<FilterTypeChip<NameDetail.Companion>>(
+            R.id.filter_chip_creator
+        )
+            .apply {
+                type = NameDetail.Companion::class
+            }
+        filterChipCharacter = view.findViewById<FilterTypeChip<Character.Companion>>(
+            R.id.filter_chip_character
+        )
+            .apply {
+                type = Character.Companion::class
+            }
+        filterChipPublisher = view.findViewById<FilterTypeChip<Publisher.Companion>>(
+            R.id.filter_chip_publisher
+        )
+            .apply {
+                type = Publisher.Companion::class
+            }
     }
 
     internal fun onSlide(slideOffset: Float) {
@@ -335,13 +331,15 @@ class FilterFragment : Fragment(),
     }
 
     // SearchTextViewCallback
-    override fun addFilterItem(option: FilterItem) {
-        Log.d(TAG, "setting filter: add item $option")
-        viewModel.addFilterItem(option)
-    }
+    override fun addFilterItem(option: FilterItem) = viewModel.addFilterItem(option)
+
 
     override fun hideKeyboard() {
         callback?.hideKeyboard()
+    }
+
+    override fun setFilterTypesVisibility(isVisible: Boolean) {
+        filterTypeChipGroup.visibility = if (isVisible) VISIBLE else GONE
     }
 
     // ChippyCallback
@@ -378,17 +376,19 @@ class FilterFragment : Fragment(),
         fun onHandleClick()
         fun hideKeyboard()
         fun showKeyboard(focus: EditText)
+        fun setProgressBar(isHidden: Boolean)
     }
 
     companion object {
         fun newInstance() = FilterFragment()
 
+/*
+        This is a better way to do the Filter-Type Chips, rather than hard-coding them, it was
+        just faster in the short run.
+
         val filterTypeOptions: List<KClass<*>> = FilterType::class.sealedSubclasses
             .sortedBy { it.objectInstance.toString() }
-
-        init {
-            Log.d(TAG, "FTO: ${filterTypeOptions.size} $filterTypeOptions")
-        }
+ */
     }
 
     override fun getDate(currentSelection: LocalDate, isStart: Boolean) {
@@ -396,12 +396,12 @@ class FilterFragment : Fragment(),
         parentFragmentManager.setFragmentResultListener(
             reqKey,
             viewLifecycleOwner,
-            { requestKey, result ->
+            { _, result ->
                 val resultDate: LocalDate? = result.getSerializable(ARG_DATE) as LocalDate?
                 when (reqKey) {
                     RESULT_DATE_PICKER_START -> resultDate?.let { dateChipGroup.setStartDate(it) }
-                    RESULT_DATE_PICKER_END   -> resultDate?.let { dateChipGroup.setEndDate(it) }
-                    else                     -> Unit
+                    RESULT_DATE_PICKER_END -> resultDate?.let { dateChipGroup.setEndDate(it) }
+                    else -> Unit
                 }
             })
 
@@ -424,6 +424,7 @@ class FilterFragment : Fragment(),
         viewModel.addFilterItem(DateFilter(date, isStart))
     }
 }
+
 
 data class Undo<T>(private val function: (T) -> Unit, private val item: T) {
     fun evaluate() = function(item)

@@ -15,7 +15,6 @@
     <dimen name="peek_height">48dp</dimen>
     <dimen name="chip_icon_size">20dp</dimen>
     <dimen name="chip_height">36dp</dimen>
-    <dimen name="text_small">13sp</dimen>
-    <dimen name="text_medium">14sp</dimen>
-
+    <dimen name="text_small">12sp</dimen>
+    <dimen name="text_medium">13sp</dimen>
 </resources>

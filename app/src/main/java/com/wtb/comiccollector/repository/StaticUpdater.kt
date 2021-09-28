@@ -1,15 +1,17 @@
 package com.wtb.comiccollector.repository
 
 import android.content.SharedPreferences
+import android.util.Log
 import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.Webservice
+import com.wtb.comiccollector.database.daos.Count
 import com.wtb.comiccollector.database.models.*
 import com.wtb.comiccollector.repository.Updater.Companion.Collector
 import com.wtb.comiccollector.repository.Updater.PriorityDispatcher.Companion.highPriorityDispatcher
 import com.wtb.comiccollector.repository.Updater.PriorityDispatcher.Companion.lowPriorityDispatcher
 import com.wtb.comiccollector.repository.Updater.PriorityDispatcher.Companion.nowDispatcher
+import com.wtb.comiccollector.views.ProgressUpdateCard
 import kotlinx.coroutines.*
-import java.time.Instant
 
 /**
  * Static updater
@@ -28,24 +30,23 @@ class StaticUpdater private constructor(
      *  UpdateAsync - Updates publisher, series, role, and storytype tables
      */
     @ExperimentalCoroutinesApi
-    internal suspend fun updateAsync() {
+    internal suspend fun updateAsync(progressUpdate: ProgressUpdateCard) {
+        getAllPublishers(progressUpdate::updatePublisherProgress)
         database.transactionDao().upsertStatic(
-            publishers = getPublishers(),
             roles = getRoles(),
             storyTypes = getStoryTypes(),
             bondTypes = getBondTypes(),
         )
 
         if (!DEBUG) {
-            getAllSeries()
-            getAllCreators()
-            getAllNameDetails()
-            getAllCharacters()
+            getAllSeries(progressUpdate::updateSeriesProgress)
+            getAllNameDetails(progressUpdate::updateCreatorProgress)
+            getAllCharacters(progressUpdate::updateCharacterProgress)
             getAllSeriesBonds()
         }
     }
 
-    fun updateSeries(seriesId: Int) = CoroutineScope(highPriorityDispatcher).launch {
+    fun updateSeriesAsync(seriesId: Int) = CoroutineScope(highPriorityDispatcher).async {
         withContext(Dispatchers.Default) {
             if (checkIfStale(seriesTag(seriesId), 1L, prefs)) {
                 val issues: List<Issue> = updateSeriesIssues(seriesId)
@@ -56,79 +57,78 @@ class StaticUpdater private constructor(
         }
     }
 
-    fun updateCharacter(characterId: Int) = CoroutineScope(lowPriorityDispatcher).launch {
-        withContext(Dispatchers.Default) {
-            if (checkIfStale(characterTag(characterId), 1L, prefs)) {
-                val appearances: List<Appearance> = updateCharacterAppearances(characterId)
-                checkFKeysAppearance(appearances)
-                val storyIds = appearances.map { it.story }
-                updateStoriesCredits(storyIds)
-                updateStoriesAppearances(storyIds)
-            }
-        }.let {
-            Repository.saveTime(prefs, characterTag(characterId))
-        }
-    }
-
-    /**
-     * Update issue - updates stories, credits, appearances, and cover
-     */
-    internal fun updateIssue(issueId: Int) =
-        CoroutineScope(nowDispatcher).launch {
+    fun updateCharacterAsync(characterId: Int) =
+        CoroutineScope(lowPriorityDispatcher).async {
             withContext(Dispatchers.Default) {
-                if (checkIfStale(issueTag(issueId), 1L, prefs)) {
-                    Repository.savePrefValue(prefs = prefs,
-                                             key = "${issueTag(issueId)}_STARTED",
-                                             value = true)
-                    Repository.savePrefValue(prefs = prefs,
-                                             key = "${issueTag(issueId)}_STARTED_TIME",
-                                             value = Instant.now().epochSecond)
-                    updateIssueStoryDetails(issueId)
+                if (checkIfStale(characterTag(characterId), 1L, prefs)) {
+                    val appearances: List<Appearance> = updateCharacterAppearances(characterId)
+                    checkFKeysAppearance(appearances)
+                    val storyIds = appearances.map { it.story }
+                    updateStoriesCredits(storyIds)
+                    updateStoriesAppearances(storyIds)
                 }
             }.let {
-                Repository.saveTime(prefs, issueTag(issueId))
-                Repository.savePrefValue(prefs = prefs,
-                                         key = "${issueTag(issueId)}_STARTED",
-                                         value = false)
-                Repository.savePrefValue(prefs = prefs,
-                                         key = "${issueTag(issueId)}_STARTED_TIME",
-                                         value = "${Instant.MIN.epochSecond}")
+                Repository.saveTime(prefs, characterTag(characterId))
             }
         }
 
+    /**
+     * Updates issue model, then stories, credits, appearances, and cover
+     */
+    internal fun updateIssue(issueId: Int, markedDelete: Boolean = true) =
+        CoroutineScope(nowDispatcher).launch {
+            withContext(Dispatchers.Default) {
+                updateIssueFromGcd(issueId)
+            }.let {
+                updateIssueStoryDetails(issueId)
+                UpdateIssueCover.get().update(issueId, markedDelete)
+            }
+        }.let {
+            Repository.saveTime(prefs, issueTag(issueId))
+        }
 
+    /**
+     * Updates issue story details and covers
+     *
+     * @param issueIds
+     */
     private fun updateIssues(issueIds: List<Int>) {
         CoroutineScope(highPriorityDispatcher).launch {
-            updateIssuesStoryDetails(issueIds)
-            issueIds.forEach { UpdateIssueCover.get().update(it) }
+            issueIds.forEach { updateIssue(it) }
         }
     }
 
-    fun updateCreators(creatorIds: List<Int>) = creatorIds.forEach(this::updateCreator)
+    fun updateCreatorsAsync(creatorIds: List<Int>) =
+        CoroutineScope(highPriorityDispatcher).async {
+            creatorIds.forEach { this@StaticUpdater.updateCreatorAsync(it).await() }
+        }
 
     /**
      * Gets nameDetails and credits for each creator
      */
-    private fun updateCreator(creatorId: Int) = CoroutineScope(lowPriorityDispatcher).launch {
-        withContext(Dispatchers.Default) {
-            if (checkIfStale(creatorTag(creatorId), 1L, prefs)) {
-                val nameDetails: List<NameDetail> =
-                    database.nameDetailDao().getNameDetailsByCreatorId(creatorId)
-                val credits: List<CreditX> = updateNameDetailsCredits(nameDetails.ids) +
-                        updateNameDetailsExCredits(nameDetails.ids)
-                checkFKeysCredit(credits)
-                val storyIds = credits.map { it.story }
-                updateStoriesCredits(storyIds)
-                updateStoriesAppearances(storyIds)
+    private fun updateCreatorAsync(creatorId: Int): Deferred<Int> =
+        CoroutineScope(lowPriorityDispatcher).async {
+            withContext(lowPriorityDispatcher) {
+                if (checkIfStale(creatorTag(creatorId), 1L, prefs)) {
+                    val nameDetails: List<NameDetail> =
+                        database.nameDetailDao().getNameDetailsByCreatorId(creatorId)
+                    val credits: List<CreditX> = updateNameDetailsCredits(nameDetails.ids) +
+                            updateNameDetailsExCredits(nameDetails.ids)
+                    CoroutineScope(lowPriorityDispatcher).launch {
+                        val storyIds = credits.map { it.story }
+                        updateStoriesCredits(storyIds)
+                        updateStoriesAppearances(storyIds)
+                    }
+                }
+            }.let {
+                Repository.saveTime(prefs, creatorTag(creatorId))
+                Log.d(TAG, "FINISHED CREATOR $creatorId")
             }
-        }.let {
-            Repository.saveTime(prefs, creatorTag(creatorId))
         }
-    }
 
 
     /**
-     * Update issue story details - updates stories, credits, and appearances for this issue
+     * Updates stories, credits, and appearances for this issue
      */
     private suspend fun updateIssueStoryDetails(issueId: Int) =
         updateIssuesStoryDetails(listOf(issueId))
@@ -147,83 +147,101 @@ class StaticUpdater private constructor(
 
 
     private suspend fun updateStoriesAppearances(storyIds: List<Int>): List<Appearance> =
-        updateById(prefs,
-                   null,
-                   ::getAppearancesByStoryIds,
-                   storyIds,
-                   ::checkFKeysAppearance,
-                   appearanceCollector)
+        updateById(
+            prefs,
+            null,
+            ::getAppearancesByStoryIds,
+            storyIds,
+            ::checkFKeysAppearance,
+            appearanceCollector
+        )
 
     private suspend fun updateStoriesCredits(storyIds: List<Int>): List<CreditX> =
-        updateById(prefs,
-                   null,
-                   ::getCreditsByStoryIds,
-                   storyIds,
-                   ::checkFKeysCredit,
-                   creditCollector) +
-                updateById(prefs,
-                           null,
-                           ::getExCreditsByStoryIds,
-                           storyIds,
-                           ::checkFKeysCredit,
-                           exCreditCollector)
+        updateById(
+            prefs,
+            null,
+            ::getCreditsByStoryIds,
+            storyIds,
+            ::checkFKeysCredit,
+            creditCollector
+        ) +
+                updateById(
+                    prefs,
+                    null,
+                    ::getExCreditsByStoryIds,
+                    storyIds,
+                    ::checkFKeysCredit,
+                    exCreditCollector
+                )
 
     private suspend fun updateIssuesStories(issueIds: List<Int>): List<Story> =
-        updateById(prefs,
-                   null,
-                   ::getStoriesByIssueIds,
-                   issueIds,
-                   ::checkFKeysStory,
-                   storyCollector)
+        updateById(
+            prefs,
+            null,
+            ::getStoriesByIssueIds,
+            issueIds,
+            ::checkFKeysStory,
+            storyCollector
+        )
 
     /**
      * Gets series issues, adds missing foreign key models
      */
     private suspend fun updateSeriesIssues(seriesId: Int) =
-        updateById(prefs,
-                   ::seriesTag,
-                   ::getIssuesBySeriesId,
-                   seriesId,
-                   ::checkFKeysIssue,
-                   issueCollector)
+        updateById(
+            prefs,
+            ::seriesTag,
+            ::getIssuesBySeriesId,
+            seriesId,
+            ::checkFKeysIssue,
+            issueCollector
+        )
 
     /**
      * Gets character appearances, adds missing foreign key models
      */
     private suspend fun updateCharacterAppearances(characterId: Int) =
-        updateById(prefs,
-                   ::characterTag,
-                   ::getAppearancesByCharacterId,
-                   characterId,
-                   ::checkFKeysAppearance,
-                   appearanceCollector)
+        updateById(
+            prefs,
+            ::characterTag,
+            ::getAppearancesByCharacterId,
+            characterId,
+            ::checkFKeysAppearance,
+            appearanceCollector
+        )
 
     /**
      * Gets name detail credits, adds missing foreign key models
      */
     private suspend fun updateNameDetailCredits(nameDetailId: Int) =
-        updateById(prefs,
-                   null,
-                   ::getCreditsByNameDetailId,
-                   nameDetailId,
-                   ::checkFKeysCredit,
-                   creditCollector)
+        updateById(
+            prefs,
+            null,
+            ::getCreditsByNameDetailId,
+            nameDetailId,
+            ::checkFKeysCredit,
+            creditCollector
+        )
 
     private suspend fun updateNameDetailsCredits(nameDetailIds: List<Int>) =
-        updateById(prefs,
-                   null,
-                   ::getCreditsByNameDetailIds,
-                   nameDetailIds,
-                   ::checkFKeysCredit,
-                   creditCollector)
+        updateById(
+            prefs,
+            null,
+            ::getCreditsByNameDetailIds,
+            nameDetailIds,
+            ::checkFKeysCredit,
+            creditCollector
+        )
 
     private suspend fun updateNameDetailsExCredits(nameDetailIds: List<Int>) =
-        updateById(prefs,
-                   null,
-                   ::getExCreditsByNameDetailIds,
-                   nameDetailIds,
-                   ::checkFKeysCredit,
-                   exCreditCollector)
+        updateById(
+            prefs,
+            null,
+            ::getExCreditsByNameDetailIds,
+            nameDetailIds,
+            ::checkFKeysCredit,
+            exCreditCollector
+        )
 
     private suspend fun getAppearancesByStoryIds(storyIds: List<Int>): List<Appearance> =
         getItemsByList(storyIds, webservice::getAppearancesByStoryIds)
@@ -235,13 +253,13 @@ class StaticUpdater private constructor(
         getItemsByList(storyIds, webservice::getExCreditsByStoryIds)
 
     private suspend fun getStoriesByIssueIds(issueIds: List<Int>): List<Story> =
-        getItemsByList(issueIds, webservice::getStoriesByIssues)
+        getItemsByList(issueIds, webservice::getStoriesByIssueIds)
 
     private suspend fun getIssuesBySeriesId(seriesId: Int): List<Issue>? =
         getItemsByArgument(seriesId, webservice::getIssuesBySeries)
 
     private suspend fun getAppearancesByCharacterId(characterId: Int): List<Appearance>? =
-        getItemsByArgument(characterId, webservice::getAppearances)
+        getItemsByArgument(characterId, webservice::getAppearancesByCharacterIds)
 
     private suspend fun getCreditsByNameDetailId(nameDetailId: Int): List<Credit>? =
         getItemsByArgument(listOf(nameDetailId), webservice::getCreditsByNameDetail)
@@ -262,50 +280,60 @@ class StaticUpdater private constructor(
         )
     }
 
-    private suspend fun getAllCharacters() {
-        refreshAllPaged<Character>(
+    private suspend fun getNumNameDetailPages(): Count = webservice.getNumNameDetailPages()
+    private suspend fun getNumSeriesPages(): Count = webservice.getNumSeriesPages()
+    private suspend fun getNumCharacterPages(): Count = webservice.getNumCharacterPages()
+    private suspend fun getNumPublisherPages(): Count = webservice.getNumPublisherPages()
+
+    private suspend fun getAllPublishers(updateProgress: (Int) -> Unit) {
+        refreshAllPaged<Publisher>(
             prefs = prefs,
-            savePageTag = UPDATED_CHARACTERS_PAGE,
-            saveTag = UPDATED_CHARACTERS,
-            getItemsByPage = this::getCharactersByPage,
-            dao = database.characterDao()
+            savePageTag = UPDATED_PUBLISHERS_PAGE,
+            saveTag = UPDATED_PUBLISHERS,
+            getItemsByPage = this::getPublishersByPage,
+            dao = database.publisherDao(),
+            getNumPages = ::getNumPublisherPages,
+            updateProgress = updateProgress
         )
     }
 
-    private suspend fun getAllNameDetails() {
-        refreshAllPaged<NameDetail>(
-            prefs = prefs,
-            savePageTag = UPDATED_NAME_DETAILS_PAGE,
-            saveTag = UPDATED_NAME_DETAILS,
-            getItemsByPage = this::getNameDetailsByPage,
-            verifyForeignKeys = this::checkFKeysNameDetail,
-            dao = database.nameDetailDao()
-        )
-    }
-
-    private suspend fun getAllCreators() {
-        refreshAllPaged<Creator>(
-            prefs = prefs,
-            savePageTag = UPDATED_CREATORS_PAGE,
-            saveTag = UPDATED_CREATORS,
-            getItemsByPage = this::getCreatorsByPage,
-            dao = database.creatorDao()
-        )
-    }
-
-    private suspend fun getAllSeries() {
+    private suspend fun getAllSeries(updateProgress: (Int) -> Unit) {
         refreshAllPaged<Series>(
             prefs = prefs,
             savePageTag = UPDATED_SERIES_PAGE,
             saveTag = UPDATED_SERIES,
             getItemsByPage = this::getSeriesByPage,
             verifyForeignKeys = this::checkFKeysSeries,
-            dao = database.seriesDao()
+            dao = database.seriesDao(),
+            getNumPages = ::getNumSeriesPages,
+            updateProgress = updateProgress
         )
     }
 
-    private suspend fun getPublishers(): List<Publisher>? =
-        getItems(prefs, webservice::getPublishers, UPDATED_PUBLISHERS)
+    private suspend fun getAllNameDetails(updateProgress: (Int) -> Unit) {
+        refreshAllPaged<NameDetail>(
+            prefs = prefs,
+            savePageTag = UPDATED_NAME_DETAILS_PAGE,
+            saveTag = UPDATED_NAME_DETAILS,
+            getItemsByPage = ::getNameDetailsByPage,
+            verifyForeignKeys = ::checkFKeysNameDetail,
+            dao = database.nameDetailDao(),
+            getNumPages = ::getNumNameDetailPages,
+            updateProgress = updateProgress
+        )
+    }
+
+    private suspend fun getAllCharacters(updateProgress: (Int) -> Unit) {
+        refreshAllPaged<Character>(
+            prefs = prefs,
+            savePageTag = UPDATED_CHARACTERS_PAGE,
+            saveTag = UPDATED_CHARACTERS,
+            getItemsByPage = ::getCharactersByPage,
+            dao = database.characterDao(),
+            getNumPages = ::getNumCharacterPages,
+            updateProgress = updateProgress
+        )
+    }
 
     private suspend fun getRoles(): List<Role>? =
         getItems(prefs, webservice::getRoles, UPDATED_ROLES)
@@ -319,11 +347,20 @@ class StaticUpdater private constructor(
     private suspend fun getSeriesBonds(): List<SeriesBond>? =
         getItems(prefs, webservice::getSeriesBonds, UPDATED_BONDS)
 
+    private suspend fun updateIssueFromGcd(issueId: Int) {
+        if (checkIfStale(issueTag(issueId), WEEKLY, prefs)) {
+            getItemsByArgument(listOf(issueId), webservice::getIssuesByIds)
+        }
+    }
+
     private suspend fun getCharactersByPage(page: Int): List<Character>? =
         getItemsByArgument(page, webservice::getCharactersByPage)
 
     private suspend fun getSeriesByPage(page: Int): List<Series>? =
         getItemsByArgument(page, webservice::getSeriesByPage)
+
+    private suspend fun getPublishersByPage(page: Int): List<Publisher>? =
+        getItemsByArgument(page, webservice::getPublisherByPage)
 
     private suspend fun getCreatorsByPage(page: Int): List<Creator>? =
         getItemsByArgument(page, webservice::getCreatorsByPage)
@@ -338,7 +375,7 @@ class StaticUpdater private constructor(
     inner class IssueCollector : Collector<Issue>(database.issueDao())
 
     companion object {
-        internal const val TAG = APP + "UpdateStatic"
+        internal const val TAG = APP + "StaticUpdater"
 
         private var INSTANCE: StaticUpdater? = null
 

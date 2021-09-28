@@ -1,8 +1,6 @@
 package com.wtb.comiccollector
 
-import android.Manifest
 import android.app.Activity
-import android.content.pm.PackageManager
 import android.net.ConnectivityManager
 import android.net.Network
 import android.net.NetworkCapabilities
@@ -11,14 +9,13 @@ import android.util.Log
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
+import android.widget.ProgressBar
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.ContentFrameLayout
 import androidx.appcompat.widget.Toolbar
 import androidx.coordinatorlayout.widget.CoordinatorLayout
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import androidx.core.view.*
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentContainerView
@@ -35,6 +32,8 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior.*
 import com.wtb.comiccollector.database.models.*
 import com.wtb.comiccollector.fragments.*
 import com.wtb.comiccollector.fragments_view_models.FilterViewModel
+import com.wtb.comiccollector.repository.Repository
+import com.wtb.comiccollector.views.ProgressUpdateCard
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
@@ -43,6 +42,7 @@ const val APP = "CC_"
 private const val TAG = APP + "MainActivity"
 
 private const val READ_EXTERNAL_STORAGE_REQUEST = 1
+private const val CAMERA_REQUEST = 8
 
 @ExperimentalCoroutinesApi
 class MainActivity : AppCompatActivity(),
@@ -53,8 +53,9 @@ class MainActivity : AppCompatActivity(),
     NewCreatorDialogFragment.NewCreatorDialogCallback,
     FilterFragment.FilterFragmentCallback {
 
-    private val PEEK_HEIGHT
+    internal val PEEK_HEIGHT
         get() = resources.getDimension(R.dimen.peek_height).toInt()
+
 
     private val filterViewModel: FilterViewModel by viewModels()
     private var filterFragment: FilterFragment? = null
@@ -65,6 +66,8 @@ class MainActivity : AppCompatActivity(),
     private lateinit var bottomSheet: FragmentContainerView
     private lateinit var bottomSheetBehavior: BottomSheetBehavior<*>
     private lateinit var mAdView: AdView
+    private lateinit var progressUpdate: ProgressUpdateCard
+    private lateinit var progressBar: ProgressBar
 
     private fun setFragment(fragment: ListFragment<out ListItem, out RecyclerView.ViewHolder>) {
         supportFragmentManager.beginTransaction()
@@ -86,40 +89,19 @@ class MainActivity : AppCompatActivity(),
         }
     }
 
-    private fun haveStoragePermssion() =
-        ContextCompat.checkSelfPermission(
-            this,
-            Manifest.permission.READ_EXTERNAL_STORAGE
-        ) == PackageManager.PERMISSION_GRANTED
-
-    private fun requestPermission() {
-        if (!haveStoragePermssion()) {
-            val permissions = arrayOf(
-                Manifest.permission.READ_EXTERNAL_STORAGE,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE
-            )
-            ActivityCompat.requestPermissions(
-                this,
-                permissions,
-                READ_EXTERNAL_STORAGE_REQUEST
-            )
-        }
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(R.style.Theme_ComicCollector)
         WindowCompat.setDecorFitsSystemWindows(window, false)
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        Log.d(TAG, "Flavor: ${BuildConfig.FLAVOR}")
+        if (BuildConfig.FLAVOR == "free") {
+            MobileAds.initialize(this)
 
-        MobileAds.initialize(this)
-
-        mAdView = findViewById(R.id.ad_view)
-        val adRequest = AdRequest.Builder().build()
-        mAdView.loadAd(adRequest)
-
-        if (!haveStoragePermssion()) {
-            requestPermission()
+            mAdView = findViewById(R.id.ad_view)
+            val adRequest = AdRequest.Builder().build()
+            mAdView.loadAd(adRequest)
+            mAdView.visibility = View.VISIBLE
         }
 
         filterFragment =
@@ -130,10 +112,14 @@ class MainActivity : AppCompatActivity(),
         setSupportActionBar(toolbar)
         resultFragmentContainer = findViewById(R.id.fragment_container)
         bottomSheet = findViewById(R.id.bottom_sheet)
+        progressUpdate = findViewById(R.id.progress_update_card)
+        progressBar = findViewById(R.id.progress_bar_item_list_update)
 
         initWindowInsets()
         initBottomSheet()
         initNetwork()
+
+        Repository.get().beginStaticUpdate(progressUpdate, this)
 
         filterViewModel.fragment.observe(
             this,
@@ -143,12 +129,16 @@ class MainActivity : AppCompatActivity(),
         )
     }
 
+    override fun onStop() {
+        Repository.get().cleanUpImages()
+        super.onStop()
+    }
+
     private fun initBottomSheet() {
         bottomSheetBehavior = from(bottomSheet)
         bottomSheetBehavior.apply {
             peekHeight = PEEK_HEIGHT
             isHideable = false
-            saveFlags = SAVE_ALL
         }
 
         bottomSheetBehavior.addBottomSheetCallback(object : BottomSheetCallback() {
@@ -167,14 +157,6 @@ class MainActivity : AppCompatActivity(),
             val posTop = insets.getInsets(WindowInsetsCompat.Type.systemBars()).top
 
             view.updatePadding(top = posTop)
-
-            insets
-        }
-
-        ViewCompat.setOnApplyWindowInsetsListener(resultFragmentContainer) { view, insets ->
-            val posBottom = insets.getInsets(WindowInsetsCompat.Type.systemBars()).bottom
-
-            view.updatePadding(bottom = posBottom)
 
             insets
         }
@@ -254,6 +236,12 @@ class MainActivity : AppCompatActivity(),
         val inputMethodManager =
             getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
         inputMethodManager.showSoftInput(focus, 0)
+    }
+
+    override fun setProgressBar(isHidden: Boolean) {
+        runOnUiThread {
+            progressBar.visibility = if (isHidden) View.GONE else View.VISIBLE
+        }
     }
 
     // IssueListFragment.IssueListCallback
@@ -347,5 +335,13 @@ class MainActivity : AppCompatActivity(),
 
     override fun updateFilter(filter: SearchFilter) {
         filterViewModel.setFilter(filter)
+    }
+
+    override fun addToCollection(issue: FullIssue) {
+        Repository.get().addToCollection(issue)
+    }
+
+    override fun removeFromCollection(issue: FullIssue) {
+        Repository.get().removeFromCollection(issue.issue.issueId)
     }
 }

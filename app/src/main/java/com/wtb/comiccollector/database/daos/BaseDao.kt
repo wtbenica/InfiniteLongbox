@@ -11,7 +11,7 @@ import com.wtb.comiccollector.database.models.Issue
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 private const val TAG = APP + "BaseDao"
-const val REQUEST_LIMIT = 20
+const val REQUEST_LIMIT = 30
 
 @ExperimentalCoroutinesApi
 @Dao
@@ -95,8 +95,8 @@ abstract class BaseDao<T : DataModel>(private val tableName: String) {
     }
 
     @Transaction
-    open suspend fun upsertSus(objList: List<T>) {
-
+    open suspend fun upsertSus(objList: List<T>): Boolean {
+        var success = true
         val objClass = if (objList.isNotEmpty()) {
             objList[0]::class.simpleName
         } else {
@@ -111,18 +111,21 @@ abstract class BaseDao<T : DataModel>(private val tableName: String) {
                 }
             } catch (sqlEx: SQLiteConstraintException) {
                 Log.d(TAG, "UGH SUS: $objClass $obj $sqlEx ${sqlEx.stackTrace} ${sqlEx.message}")
+                success = false
             }
         }
+
+        return success
     }
 
     companion object {
         internal fun <T : DataModel> modelsToSqlIdString(models: Collection<T>) =
             idsToSqlIdString(models.map { it.id })
 
-        internal fun idsToSqlIdString(ids: Collection<Int>) =
+        private fun idsToSqlIdString(ids: Collection<Int>) =
             ids.toString().replace("[", "(").replace("]", ")")
 
         internal fun textFilterToString(text: String) =
-            "%${text.replace(' ', '%').replace("'", "'m,,,,,,,,,,,,,,,,k.'")}%"
+            "%${text.replace(' ', '%').replace("'", "\'")}%"
     }
 }

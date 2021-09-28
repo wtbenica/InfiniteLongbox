@@ -50,10 +50,10 @@ data class Issue(
 ) : DataModel() {
 
     val coverFileName: String
-        get() = "IMG_$issueId.jpg"
+        get() = "COVER_$issueId.jpg"
 
     val url: String
-        get() = "https://longbox.wl.r.appspot.com/db_query/issue/$id/cover"
+        get() = "https://infinite-longbox.uc.r.appspot.com/db_query/issue/$id/cover"
 
     override val id: Int
         get() = issueId
@@ -175,6 +175,9 @@ data class FullIssue @ExperimentalCoroutinesApi constructor(
     val coverUri: Uri?
         get() = cover?.coverUri
 
+    override fun toString(): String = "${series.seriesName} #${issue.issueNumRaw}"
+
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
@@ -228,6 +231,7 @@ data class Cover(
     @PrimaryKey(autoGenerate = true) val coverId: Int = AUTO_ID,
     val issue: Int,
     val coverUri: Uri? = null,
+    val markedDelete: Boolean = true
 ) : DataModel() {
     override val id: Int
         get() = coverId

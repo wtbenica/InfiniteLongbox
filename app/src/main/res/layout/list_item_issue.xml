@@ -4,24 +4,38 @@
     xmlns:tools="http://schemas.android.com/tools"
     style="@style/mCardView.ListItemIssue"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:animateLayoutChanges="true">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/wrapper"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:animateLayoutChanges="true"
-        app:cardMaxElevation="8dp"
         tools:layout_width="200dp">
 
-        <ProgressBar
-            android:id="@+id/progress_cover_download"
+        <ImageView
+            android:id="@+id/no_cover"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:adjustViewBounds="true"
+            android:alpha="0"
+            android:contentDescription="@string/description_issue_cover"
+            android:scaleType="fitStart"
+            android:src="@drawable/cover_missing"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:alpha="1"
+            tools:layout_height="309dp"
+            tools:layout_width="200dp"
+            tools:visibility="visible" />
+
+        <ImageView
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:alpha="1"
-            android:indeterminate="true"
-            android:indeterminateBehavior="cycle"
-            android:indeterminateTint="?attr/colorOnPrimary"
+            android:scaleType="matrix"
+            android:src="@drawable/bg_cyan"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -32,7 +46,6 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:adjustViewBounds="true"
-            android:alpha="0"
             android:contentDescription="@string/description_issue_cover"
             android:scaleType="fitStart"
             app:layout_constraintEnd_toEndOf="parent"
@@ -40,44 +53,88 @@
             app:layout_constraintTop_toTopOf="parent"
             tools:alpha="1"
             tools:layout_height="309dp"
-            tools:layout_width="200dp"
-            tools:src="@tools:sample/backgrounds/scenic"
-            tools:visibility="visible" />
+            tools:layout_width="200dp" />
 
-        <LinearLayout
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/list_item_issue_box"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginEnd="@dimen/margin_default"
             android:layout_marginBottom="@dimen/margin_default"
-            android:background="#EFFF"
-            android:orientation="vertical"
+            android:background="@color/transparent_white"
             android:padding="@dimen/margin_default"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent">
 
-            <TextView
-                android:id="@+id/list_item_issue_number_text"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/archivo_black"
-                android:gravity="bottom|end"
-                android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle2"
-                android:textColor="?attr/colorOnPrimary"
-                android:textSize="16sp"
-                tools:text="8" />
+            <FrameLayout
+                android:id="@+id/progress_bar_box"
+                android:layout_width="0dp"
+                android:layout_height="4dp"
+                android:layout_marginTop="-1dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
 
-            <TextView
-                android:id="@+id/list_item_character_name_text"
-                android:layout_width="match_parent"
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="16dp"
+                    android:layout_gravity="center_vertical">
+
+                    <ProgressBar
+                        android:id="@+id/progress_cover_download"
+                        style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:indeterminateOnly="true"
+                        android:indeterminateTint="@color/text_character" />
+                </FrameLayout>
+            </FrameLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:fontFamily="@font/archivo_black"
-                android:gravity="bottom|end"
-                android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle2"
-                android:textColor="?attr/colorOnPrimary"
-                android:textSize="12sp"
-                tools:text="Ed McGuinness Cover" />
-        </LinearLayout>
+                android:orientation="horizontal"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/progress_bar_box">
+
+                <com.wtb.comiccollector.views.AddCollectionButton
+                    android:id="@+id/btn_issue_list_add_collection"
+                    style="@style/AddCollectionButtonStyle"
+                    android:background="@android:color/transparent"
+                    android:src="@drawable/add_collection"
+                    app:layout_constraintBottom_toTopOf="@id/btn_issue_list_add_wish_list"
+                    app:layout_constraintStart_toStartOf="parent" />
+
+                <ImageButton
+                    android:id="@+id/btn_issue_list_add_wish_list"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:scaleType="fitCenter"
+                    android:background="@android:color/transparent"
+                    android:src="@drawable/add_wish_list"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent" />
+
+                <TextView
+                    android:id="@+id/list_item_issue_number_text"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:fontFamily="@font/archivo_black"
+                    android:gravity="center_vertical|end"
+                    android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle2"
+                    android:textColor="?attr/colorOnPrimary"
+                    android:textSize="16sp"
+                    app:layout_constraintBottom_toBottomOf="@id/btn_issue_list_add_collection"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@id/btn_issue_list_add_collection"
+                    app:layout_constraintTop_toTopOf="@id/btn_issue_list_add_collection"
+                    tools:text="8" />
+
+            </LinearLayout>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.cardview.widget.CardView>

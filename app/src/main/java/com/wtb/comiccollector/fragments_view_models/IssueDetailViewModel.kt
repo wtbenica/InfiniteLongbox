@@ -51,9 +51,6 @@ class IssueDetailViewModel : ViewModel() {
     internal val primaryAppearancesLiveData =
         primaryId.flatMapLatest { repository.getAppearancesByIssue(it) }.asLiveData()
 
-    internal val inCollectionLiveData: LiveData<Count> =
-        primaryId.flatMapLatest { repository.inCollection(it) }.asLiveData()
-
     // Other parts rely on this possibly being null, which is why it's LiveData, instead of
     // StateFlow like 'issue'
     internal val variantLiveData: LiveData<FullIssue?> =
@@ -110,11 +107,14 @@ class IssueDetailViewModel : ViewModel() {
 
     fun addToCollection() {
         currentIssue?.let { repository.addToCollection(it) }
+        currentIssue?.let { it.cover?.id?.let { cid -> repository.markCoverSave(cid)}}
     }
 
 
     fun removeFromCollection() {
+        Log.d(TAG, "REMOVING FROM COLLECTION $currentIssue")
         currentIssue?.let { repository.removeFromCollection(it.issue.issueId) }
+        currentIssue?.let { it.cover?.id?.let { cid -> repository.markCoverDelete(cid)}}
     }
 
 

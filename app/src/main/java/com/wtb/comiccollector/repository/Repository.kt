@@ -10,6 +10,7 @@ import android.content.DialogInterface
 import android.content.SharedPreferences
 import android.database.sqlite.SQLiteConstraintException
 import android.os.Bundle
+import android.os.Parcelable
 import android.util.Log
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
@@ -19,12 +20,12 @@ import androidx.paging.PagingData
 import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.MainActivity
 import com.wtb.comiccollector.SearchFilter
-import com.wtb.comiccollector.Webservice
 import com.wtb.comiccollector.database.IssueDatabase
 import com.wtb.comiccollector.database.daos.Count
 import com.wtb.comiccollector.database.daos.REQUEST_LIMIT
 import com.wtb.comiccollector.database.models.*
-import com.wtb.comiccollector.network.RetrofitAPIClient
+import com.wtb.comiccollector.views.ProgressUpdateCard
+import com.wtb.comiccollector.views.hide
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
@@ -49,7 +50,7 @@ internal const val CREATOR_LIFETIME: Long = 7
 const val EXTERNAL = "http://24.176.172.169/"
 const val NIGHTWING = "http://192.168.0.141:8000/"
 const val ALFRED = "http://192.168.0.138:8000/"
-const val LONGBOX = "https://longbox.wl.r.appspot.com/"
+const val LONGBOX = "https://infinite-longbox.uc.r.appspot.com/"
 const val BASE_URL = LONGBOX
 
 internal const val UPDATED_ROLES = "updated_roles"
@@ -61,6 +62,7 @@ internal const val UPDATED_CREATORS = "updated_creators"
 internal const val UPDATED_CREATORS_PAGE = "updated_creators_page"
 internal const val UPDATED_SERIES = "updated_series"
 internal const val UPDATED_SERIES_PAGE = "updated_series_page"
+internal const val UPDATED_PUBLISHERS_PAGE = "updated_publishers_page"
 internal const val UPDATED_CHARACTERS = "update_characters"
 internal const val UPDATED_CHARACTERS_PAGE = "update_characters_page"
 internal const val UPDATED_ISSUES = "updated_issues"
@@ -89,15 +91,20 @@ internal fun characterTag(id: Int): String = UPDATED_TAG(id, "CHARACTER_")
 @ExperimentalCoroutinesApi
 class Repository private constructor(val context: Context) {
 
-    private val prefs: SharedPreferences =
-        context.getSharedPreferences(SHARED_PREFS, Context.MODE_PRIVATE)
+    var saveIssueListState: Parcelable? = null
+        get() {
+            val res = field
+            Log.d(TAG, "Issue FIELD BEFORE = $field")
+            field = null
+            Log.d(TAG, "Issue FIELD AFTER = $field")
+            return res
+        }
 
     private val executor = Executors.newSingleThreadExecutor()
     private val database: IssueDatabase
         get() = IssueDatabase.getInstance(context)
     private var hasConnection: Boolean = false
     private var hasUnmeteredConnection: Boolean = true
-    private var isIdle = true
 
     private val seriesDao
         get() = database.seriesDao()
@@ -125,39 +132,35 @@ class Repository private constructor(val context: Context) {
         get() = database.appearanceDao()
     private val collectionDao
         get() = database.collectionDao()
-
-    private val filesDir = context.applicationContext.filesDir
-
-    private val retrofit = RetrofitAPIClient.getRetrofitClient()
-
-    private val webservice: Webservice by lazy {
-        retrofit.create(Webservice::class.java)
-    }
+    private val coverDao
+        get() = database.coverDao()
 
     private val updater: StaticUpdater
         get() = StaticUpdater.get()
 
-    init {
-        MainActivity.hasConnection.observeForever {
-            hasConnection = it
-            if (checkConnectionStatus()) {
-                isIdle = false
+    private fun checkConnectionStatus() =
+        this.hasConnection && this.hasUnmeteredConnection
 
+    internal fun beginStaticUpdate(progressUpdate: ProgressUpdateCard, mainActivity: MainActivity) {
+        MainActivity.hasConnection.observeForever {
+            this.hasConnection = it
+            if (checkConnectionStatus()) {
                 // TODO: A lint inspection pointed out that update returns a Deferred, which
                 //  means that this is async async await. Look into
-                MainActivity.activeJob = CoroutineScope(Dispatchers.IO).launch {
+                MainActivity.activeJob = CoroutineScope(Dispatchers.IO).async {
                     withContext(Dispatchers.IO) {
-                        updater.updateAsync()
+                        Log.d(TAG, "STARTING UPDATE")
+                        updater.updateAsync(progressUpdate)
                     }.let {
                         Log.d(TAG, "Static update done")
-                        isIdle = true
+                        mainActivity.runOnUiThread {
+                            progressUpdate.hide()
+                        }
                     }
                 }
             }
         }
     }
-
-    private fun checkConnectionStatus() = hasConnection && hasUnmeteredConnection && isIdle
 
     // Static Items
     val allPublishers: Flow<List<Publisher>> = publisherDao.getAll()
@@ -171,31 +174,26 @@ class Repository private constructor(val context: Context) {
         }
     }
 
-    fun getFilterOptionsCharacter(filter: SearchFilter): Flow<List<Character>> {
-        Log.d(TAG, "getCharactersByFilter")
-
-        return if (!filter.hasCharacter()) {
+    fun getFilterOptionsCharacter(filter: SearchFilter): Flow<List<Character>> =
+        if (!filter.hasCharacter()) {
             characterDao.getCharacterFilterOptions(filter)
         } else {
             emptyFlow()
         }
-    }
 
-    fun getFilterOptionsCreator(filter: SearchFilter): Flow<List<Creator>> {
-        Log.d(TAG, "getCreatorsByFilter")
-        return if (filter.mCreators.isEmpty()) {
+    // TODO: This looks incorrect. it should filter to creators who have shared credits
+    fun getFilterOptionsCreator(filter: SearchFilter): Flow<List<Creator>> =
+        if (filter.mCreators.isEmpty()) {
             creatorDao.getCreatorsByFilter(filter)
         } else {
-            emptyFlow()
+            flow { emit(emptyList<Creator>()) }
         }
-    }
 
     // SERIES METHODS
     fun getSeries(seriesId: Int): Flow<FullSeries?> = seriesDao.getSeries(seriesId)
 
     fun getSeriesByFilterPaged(filter: SearchFilter): Flow<PagingData<FullSeries>> {
         val newFilter = SearchFilter(filter)
-        Log.d(TAG, "getSeriesByFilterPaged")
 
         return Pager(
             config = PagingConfig(
@@ -238,13 +236,14 @@ class Repository private constructor(val context: Context) {
     }
 
     // ISSUE METHODS
-    fun getIssue(issueId: Int): Flow<FullIssue?> {
+    fun getIssue(issueId: Int, markedDelete: Boolean = true): Flow<FullIssue?> {
         if (issueId != AUTO_ID) {
-            updateIssueCover(issueId)
-            updater.updateIssue(issueId)
+            CoroutineScope(Dispatchers.Default).launch {
+                updater.updateIssue(issueId, markedDelete)
+            }
         }
 
-        return issueDao.getFullIssue(issueId = issueId)
+        return issueDao.getFullIssue(issueId)
     }
 
     fun getIssuesByFilter(filter: SearchFilter): Flow<List<FullIssue>> {
@@ -253,7 +252,10 @@ class Repository private constructor(val context: Context) {
 
     fun getIssuesByFilterPaged(filter: SearchFilter): Flow<PagingData<FullIssue>> {
         return Pager(
-            config = PagingConfig(pageSize = REQUEST_LIMIT, enablePlaceholders = true),
+            config = PagingConfig(
+                pageSize = REQUEST_LIMIT,
+                enablePlaceholders = true
+            ),
             pagingSourceFactory = {
                 issueDao.getIssuesByFilterPagingSource(filter = filter)
             }
@@ -277,14 +279,12 @@ class Repository private constructor(val context: Context) {
     }
 
     // PUBLISHER METHODS
-    fun getFilterOptionsPublisher(filter: SearchFilter): Flow<List<Publisher>> {
-        Log.d(TAG, "getPublishersByFilter")
-        return if (filter.mPublishers.isEmpty()) {
+    fun getFilterOptionsPublisher(filter: SearchFilter): Flow<List<Publisher>> =
+        if (filter.mPublishers.isEmpty()) {
             publisherDao.getPublishersByFilter(filter)
         } else {
             flow { emit(emptyList<Publisher>()) }
         }
-    }
 
     fun updateIssueCover(issueId: Int) {
         if (hasConnection) {
@@ -294,8 +294,12 @@ class Repository private constructor(val context: Context) {
 
     fun addToCollection(issue: FullIssue) {
         executor.execute {
-            collectionDao.insert(MyCollection(issue = issue.issue.issueId,
-                                              series = issue.series.seriesId))
+            collectionDao.insert(
+                MyCollection(
+                    issue = issue.issue.issueId,
+                    series = issue.series.seriesId
+                )
+            )
         }
     }
 
@@ -325,14 +329,14 @@ class Repository private constructor(val context: Context) {
         fun savePrefValue(prefs: SharedPreferences, key: String, value: Any) {
             val editor = prefs.edit()
             when (value) {
-                is String  -> editor.putString(key, value)
-                is Int     -> editor.putInt(key, value)
+                is String -> editor.putString(key, value)
+                is Int -> editor.putInt(key, value)
                 is Boolean -> editor.putBoolean(key, value)
-                is Float   -> editor.putFloat(key, value)
-                is Long    -> editor.putLong(key, value)
+                is Float -> editor.putFloat(key, value)
+                is Long -> editor.putLong(key, value)
                 else -> throw IllegalArgumentException(
-                    "savePrefValue: Yeah, it says Any, but it really wants String, Int, Boolean, " +
-                            "Float, or Long")
+                    "savePrefValue: Yeah, it says Any, but it really wants String, Int, Boolean, Float, or Long"
+                )
             }
             editor.apply()
         }
@@ -420,9 +424,50 @@ class Repository private constructor(val context: Context) {
         }
     }
 
-    fun updateCharacter(characterId: Int) = updater.updateCharacter(characterId)
-    fun updateSeries(seriesId: Int) = updater.updateSeries(seriesId)
-    fun updateCreators(creatorIds: List<Int>) = updater.updateCreators(creatorIds)
+    fun updateCharacterAsync(characterId: Int): Deferred<Unit> =
+        updater.updateCharacterAsync(characterId)
+
+    fun updateSeriesAsync(seriesId: Int): Deferred<Unit> = updater.updateSeriesAsync(seriesId)
+    fun updateCreatorsAsync(creatorIds: List<Int>): Deferred<Unit> =
+        updater.updateCreatorsAsync(creatorIds)
+
+    fun cleanUpImages(seriesId: Int? = null) {
+        CoroutineScope(Dispatchers.Default).launch {
+            val covers: List<Cover> = coverDao.getAll()
+            Log.d(TAG, "There are ${covers.size} covers to cleanup")
+            covers.forEach { cover ->
+                if (cover.markedDelete) {
+                    Log.d("${APP}CLEANUP", "STARTING")
+                    val f = getFileHandle(context, coverFileName(cover.issue))
+                    if (f.exists()) {
+                        Log.d("${APP}CLEANUP", "Deleting")
+                        f.delete()
+                    }
+                    coverDao.delete(cover)
+                } else {
+                    Log.d("${APP}CLEANUP", "Saving")
+                }
+            }
+        }
+    }
+
+    fun markCoverSave(cid: Int) {
+        markCover(cid, false)
+    }
+
+    fun markCoverDelete(cid: Int) {
+        markCover(cid, true)
+    }
+
+    private fun markCover(cid: Int, isMarked: Boolean) =
+        CoroutineScope(Dispatchers.Default).launch {
+            val oc = coverDao.get(cid)
+            if (oc != null) {
+                val newCover = Cover(oc.coverId, oc.issue, oc.coverUri, isMarked)
+                coverDao.upsert(newCover)
+            }
+        }
+
 
     class DuplicateFragment : DialogFragment() {
         override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {

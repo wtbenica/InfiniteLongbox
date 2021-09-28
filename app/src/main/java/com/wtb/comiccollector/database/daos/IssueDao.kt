@@ -39,7 +39,7 @@ abstract class IssueDao : BaseDao<Issue>("issue") {
 
     fun getIssuesByFilterPagingSource(filter: SearchFilter): PagingSource<Int, FullIssue> {
         val query = createIssueQuery(filter)
-        Log.d(TAG, "sql: ${query.sql}")
+
         return getFullIssuesByQueryPagingSource(query)
     }
 

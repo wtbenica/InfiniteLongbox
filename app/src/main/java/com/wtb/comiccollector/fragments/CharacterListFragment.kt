@@ -3,6 +3,7 @@ package com.wtb.comiccollector.fragments
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.fragment.app.viewModels
 import androidx.paging.PagingDataAdapter
@@ -49,13 +50,15 @@ class CharacterListFragment : ListFragment<FullCharacter, CharacterListFragment.
 
         private lateinit var item: FullCharacter
         private val nameTextView: TextView =
-            itemView.findViewById(R.id.list_item_character_name_text)
+            itemView.findViewById(R.id.list_item_issue_variant_name)
         private val alterEgoTextView: TextView = itemView.findViewById(R.id.list_item_alter_ego)
         private val publisherTextView: TextView =
             itemView.findViewById(R.id.list_item_char_publisher)
+        private val bg: ImageView = itemView.findViewById(R.id.list_item_simple_bg)
 
         init {
             itemView.setOnClickListener(this)
+            bg.setImageResource(R.drawable.bg_yellow)
         }
 
         fun bind(item: FullCharacter) {

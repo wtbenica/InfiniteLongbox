@@ -1,10 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    app:cardElevation="@dimen/margin_default">
+    app:cardBackgroundColor="?attr/colorSecondary"
+    app:cardElevation="@dimen/margin_default"
+    app:cardPreventCornerOverlap="false"
+    app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay_bottom_sheet">
 
     <FrameLayout
         android:id="@+id/layout_filter_fragment"
@@ -13,10 +16,12 @@
         <FrameLayout
             android:id="@+id/layout_filter_fragment_handle"
             style="@style/HandleFrameLayout"
-            tools:visibility="gone">
+            android:elevation="1dp">
 
             <ImageView
+                android:id="@+id/handle_handle"
                 style="@style/Handle"
+                android:layout_width="match_parent"
                 android:contentDescription="@string/bottom_sheet_handle_description" />
         </FrameLayout>
 
@@ -26,7 +31,7 @@
             android:layout_height="wrap_content"
             android:alpha="0"
             android:orientation="vertical"
-            android:padding="@dimen/margin_default"
+            android:padding="@dimen/margin_wide"
             tools:alpha="1"
             tools:visibility="visible">
 
@@ -44,7 +49,7 @@
                 <com.wtb.comiccollector.views.DateChipGroup
                     android:id="@+id/chip_group_dates"
                     style="@style/FilterCardChipGroup"
-                    android:layout_weight="1"/>
+                    android:layout_weight="1" />
             </LinearLayout>
 
             <!--Switch Options-->
@@ -145,6 +150,7 @@
                     android:id="@+id/content_holder_filter"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:background="?attr/colorOnSecondary"
                     android:orientation="horizontal"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
@@ -174,36 +180,109 @@
                     <ImageButton
                         android:id="@+id/add_filter_button"
                         style="@style/ImageLabel"
-                        android:background="?attr/colorPrimaryVariant"
+                        android:background="@drawable/bg_btn_add_filter"
                         android:contentDescription="@string/content_description_add_filter_button"
-                        android:src="@drawable/ic_menu_add" />
+                        android:src="@drawable/ic_menu_add"
+                        app:tint="@android:color/black" />
                 </LinearLayout>
             </LinearLayout>
 
             <!--Search-->
-            <LinearLayout
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/section_search"
                 style="@style/FilterSection">
 
+                <HorizontalScrollView
+                    android:id="@+id/chip_group_scrollview"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent">
+
+                    <com.google.android.material.chip.ChipGroup
+                        android:id="@+id/filter_type_chip_group"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:visibility="gone"
+                        app:checkedChip="@+id/filter_chip_all"
+                        app:chipSpacingHorizontal="@dimen/margin_narrow"
+                        app:selectionRequired="true"
+                        app:singleLine="true"
+                        app:singleSelection="true"
+                        tools:visibility="visible">
+
+                        <com.wtb.comiccollector.views.FilterTypeChip
+                            android:id="@+id/filter_chip_all"
+                            style="@style/SearchFilterChip"
+                            android:text="All"
+                            android:textColor="@color/text_all"
+                            app:chipBackgroundColor="?attr/colorSecondary"
+                            app:chipStrokeColor="@color/filter_type_chip_all"
+                            app:closeIconEnabled="false" />
+
+                        <com.wtb.comiccollector.views.FilterTypeChip
+                            android:id="@+id/filter_chip_series"
+                            style="@style/SearchFilterChip"
+                            android:text="Series"
+                            android:textColor="@color/text_series"
+                            app:chipBackgroundColor="?attr/colorSecondary"
+                            app:chipStrokeColor="@color/filter_type_chip_series"
+                            app:closeIconEnabled="false" />
+
+                        <com.wtb.comiccollector.views.FilterTypeChip
+                            android:id="@+id/filter_chip_creator"
+                            style="@style/SearchFilterChip"
+                            android:text="Creator"
+                            android:textColor="@color/text_creator"
+                            app:chipBackgroundColor="?attr/colorSecondary"
+                            app:chipStrokeColor="@color/filter_type_chip_creator"
+                            app:closeIconEnabled="false" />
+
+                        <com.wtb.comiccollector.views.FilterTypeChip
+                            android:id="@+id/filter_chip_character"
+                            style="@style/SearchFilterChip"
+                            android:text="Character"
+                            android:textColor="@color/text_character"
+                            app:chipBackgroundColor="?attr/colorSecondary"
+                            app:chipStrokeColor="@color/filter_type_chip_character"
+                            app:closeIconEnabled="false" />
+
+                        <com.wtb.comiccollector.views.FilterTypeChip
+                            android:id="@+id/filter_chip_publisher"
+                            style="@style/SearchFilterChip"
+                            android:text="Publisher"
+                            android:textColor="@color/text_publisher"
+                            app:chipBackgroundColor="?attr/colorSecondary"
+                            app:chipStrokeColor="@color/filter_type_chip_publisher"
+                            app:closeIconEnabled="false" />
+                    </com.google.android.material.chip.ChipGroup>
+                </HorizontalScrollView>
+
                 <ImageView
-                    android:id="@+id/image_label_filter_items2"
+                    android:id="@+id/img_lbl_search_bar"
                     style="@style/ImageLabel"
-                    android:contentDescription="@string/sort_image_content_description"
-                    android:labelFor="@id/chip_group_sort"
+                    android:layout_gravity="bottom"
+                    android:contentDescription="@string/search_image_content_description"
+                    android:labelFor="@id/search_bar"
+                    android:layout_marginTop="@dimen/margin_default"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/chip_group_scrollview"
                     app:srcCompat="@drawable/ic_search_24" />
 
-                <com.wtb.comiccollector.views.SearchAutoComplete
-                    android:id="@+id/search_auto"
+                <com.wtb.comiccollector.views.SearchBar
+                    android:id="@+id/search_bar"
                     style="@style/SearchAutoCompleteStyle"
-                    tools:text="Potato Latke" />
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@id/img_lbl_search_bar"
+                    app:layout_constraintTop_toTopOf="@id/img_lbl_search_bar" />
 
-                <androidx.appcompat.widget.AppCompatSpinner
-                    android:id="@+id/search_bar_spinner"
-                    style="@style/SearchTypeSpinnerStyle"
-                    android:entries="@array/suffixes_array"
-                    tools:listitem="@layout/spinner_item_filter_type" />
-
-            </LinearLayout>
+                <!--                <androidx.appcompat.widget.AppCompatSpinner-->
+                <!--                    android:id="@+id/search_bar_spinner"-->
+                <!--                    style="@style/SearchTypeSpinnerStyle"-->
+                <!--                    android:entries="@array/suffixes_array"-->
+                <!--                    tools:listitem="@layout/spinner_item_filter_type" />-->
+            </androidx.constraintlayout.widget.ConstraintLayout>
         </LinearLayout>
     </FrameLayout>
-</androidx.cardview.widget.CardView>
+</com.google.android.material.card.MaterialCardView>

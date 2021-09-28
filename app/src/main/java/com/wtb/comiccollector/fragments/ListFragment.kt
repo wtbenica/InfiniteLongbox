@@ -2,14 +2,13 @@ package com.wtb.comiccollector.fragments
 
 import android.content.Context
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.ViewTreeObserver
 import android.widget.FrameLayout
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
+import androidx.core.widget.NestedScrollView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
@@ -17,6 +16,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.appbar.AppBarLayout.LayoutParams.SCROLL_FLAG_ENTER_ALWAYS
 import com.google.android.material.appbar.AppBarLayout.LayoutParams.SCROLL_FLAG_SCROLL
 import com.wtb.comiccollector.APP
@@ -36,8 +36,12 @@ abstract class ListFragment<T : ListItem, VH : RecyclerView.ViewHolder> : Fragme
 
     protected val filterViewModel: FilterViewModel by viewModels({ requireActivity() })
     protected abstract val viewModel: ListViewModel<T>
+
+    protected lateinit var outerScrollView: NestedScrollView
     protected lateinit var listRecyclerView: RecyclerView
+    private lateinit var appBar: AppBarLayout
     protected lateinit var details: FrameLayout
+
     protected var callback: ListFragmentCallback? = null
 
     override fun onAttach(context: Context) {
@@ -57,31 +61,47 @@ abstract class ListFragment<T : ListItem, VH : RecyclerView.ViewHolder> : Fragme
     ): View? {
         val view = inflater.inflate(R.layout.fragment_item_list, container, false)
 
-        listRecyclerView = view.findViewById(R.id.results_frame) as RecyclerView
+        listRecyclerView = view.findViewById(R.id.results_frame)
         listRecyclerView.layoutManager = getLayoutManager()
+
+        appBar = view.findViewById(R.id.app_bar)
+
         details = view.findViewById(R.id.details)
-
-        ViewCompat.setOnApplyWindowInsetsListener(listRecyclerView) { v, insets ->
-            val bottom =
-                PEEK_HEIGHT + insets.getInsets(WindowInsetsCompat.Type.systemBars()).bottom
-            v.updatePadding(bottom = bottom + details.height)
-
-            insets
-        }
+        details.viewTreeObserver.addOnGlobalLayoutListener(
+            object : ViewTreeObserver.OnGlobalLayoutListener {
+                var max = 0
+                override fun onGlobalLayout() {
+                    val height = details.height
+                    if (height > max) {
+                        updateBottomPadding(height)
+                        details.viewTreeObserver.removeOnGlobalLayoutListener(this)
+                        max = height
+                    }
+                }
+            }
+        )
 
         return view
+    }
+
+    protected fun updateBottomPadding(height: Int = 0) {
+        val bottom = PEEK_HEIGHT + height
+        listRecyclerView.updatePadding(bottom = bottom)
+        view?.requestLayout()
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        updateBottomPadding()
+
         val adapter = getAdapter()
+
         listRecyclerView.adapter = adapter
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.itemList.collectLatest {
-                    Log.d(TAG, "It's a new character list!")
                     adapter.submitData(it)
                 }
             }
@@ -90,7 +110,6 @@ abstract class ListFragment<T : ListItem, VH : RecyclerView.ViewHolder> : Fragme
         filterViewModel.filter.observe(
             viewLifecycleOwner,
             { filter ->
-                Log.d(TAG, "Updating listviewmodel filter")
                 viewModel.setFilter(filter)
             }
         )

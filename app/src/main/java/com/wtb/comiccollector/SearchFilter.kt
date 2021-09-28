@@ -81,14 +81,14 @@ class SearchFilter(
     var mShowVariants: Boolean = showVariants
     var mCharacter: Character? = character
 
-    var mViewOptionsIndex = viewOptionsIndex
+    private var mViewOptionsIndex = viewOptionsIndex
         get() = field % mViewOptions.size
 
-    val mViewOptions: List<KClass<out ListItem>>
+    private val mViewOptions: List<KClass<out ListItem>>
         get() = if (mSeries != null) {
-            listOf(FullIssue::class, Character::class, NameDetailAndCreator::class)
+            listOf(FullIssue::class, Character::class, FullCreator::class)
         } else {
-            listOf(FullSeries::class, Character::class, NameDetailAndCreator::class)
+            listOf(FullSeries::class, Character::class, FullCreator::class)
         }
 
     val mViewOption: KClass<out ListItem>
@@ -113,7 +113,10 @@ class SearchFilter(
     fun hasSeries(): Boolean = mSeries != null
 
     fun addFilter(vararg items: FilterItem) {
-        items.forEach { item ->
+        items.forEach { item: FilterItem ->
+            if (item is FilterModel) {
+                mTextFilter = null
+            }
             when (item) {
                 is FullSeries -> addSeries(item)
                 is Creator    -> addCreator(item)
@@ -231,7 +234,7 @@ class SearchFilter(
                 true  -> SortType.Companion.SortTypeOptions.SERIES_COMPLEX.options
                 false -> SortType.Companion.SortTypeOptions.SERIES.options
             }
-            NameDetailAndCreator::class -> SortType.Companion.SortTypeOptions.CREATOR.options
+            FullCreator::class -> SortType.Companion.SortTypeOptions.CREATOR.options
             else                        -> throw IllegalStateException("illegal view type: ${mViewOption.simpleName}")
         }
     }
@@ -245,7 +248,7 @@ class SearchFilter(
 
     override fun toString(): String =
         "Series: $mSeries Creators: ${mCreators.size} Pubs: " +
-                "${mPublishers.size} MyCol: $mMyCollection T: ${mTextFilter?.text} ${mCharacter?.name} ${mStartDate} ${mEndDate}"
+                "${mPublishers.size} MyCol: $mMyCollection T: ${mTextFilter?.text} ${mCharacter?.name} $mStartDate $mEndDate"
 
     override fun hashCode(): Int {
         var result = mShowIssues.hashCode()
@@ -266,8 +269,8 @@ class SearchFilter(
     }
 
     companion object {
-        val MIN_DATE = LocalDate.of(1900, 1, 1)
-        val MAX_DATE = LocalDate.now()
+        val MIN_DATE: LocalDate = LocalDate.of(1900, 1, 1)
+        val MAX_DATE: LocalDate = LocalDate.now()
     }
 }
 
@@ -276,9 +279,9 @@ class SortType(
     val sortColumn: String,
     val table: String?,
     var order: SortOrder,
-    val sortColumn2: String? = null,
-    val table2: String? = null,
-    var order2: SortOrder? = null,
+    private val sortColumn2: String? = null,
+    private val table2: String? = null,
+    private var order2: SortOrder? = null,
 ) : Serializable {
 
     constructor(other: SortType) : this(

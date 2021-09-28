@@ -1,6 +1,6 @@
 package com.wtb.comiccollector.fragments_view_models
 
-import android.util.Log
+import android.os.Parcelable
 import androidx.lifecycle.*
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
@@ -35,9 +35,14 @@ class IssueListViewModel : ListViewModel<FullIssue>() {
     }
 
     override val itemList: Flow<PagingData<FullIssue>> = filter.switchMap { filter ->
-        Log.d(TAG, "issueList!: ${filter.mSortType} ${filter.mViewOption}")
         repository.getIssuesByFilterPaged(filter).asLiveData()
     }.asFlow().cachedIn(viewModelScope)
 
     fun updateIssueCover(issueId: Int) = repository.updateIssueCover(issueId)
+
+    fun saveIssueListState(instanceState: Parcelable?) {
+        repository.saveIssueListState = instanceState
+    }
+
+    fun getIssueListState() = repository.saveIssueListState
 }

@@ -30,7 +30,7 @@
     <string name="hint_volume">Volume</string>
     <string name="search">Add Filter</string>
     <string name="grand_comic_database_tm">Grand Comic Database\u2122</string>
-    <string name="add_to_collection">Add to Collection</string>
+    <string name="add_to_collection">Collection</string>
     <string name="remove_from_collection">Remove from Collection</string>
     <string name="goto_start">First</string>
     <string name="goto_skip_back">-10</string>
@@ -45,7 +45,8 @@
     <string name="characters_dropdown_button">Show character appearances</string>
     <!-- Strings used for fragments for navigation -->
 
-    <string name="sort_image_content_description">Label: Sort by</string>
+    <string name="sort_image_content_description">Label for sort by picker box</string>
+    <string name="search_image_content_description">Label for search bar</string>
     <string name="tag_filter_fragment">filter_fragment</string>
     <string name="sort_type_series_name">Series Name</string>
     <string name="sort_type_start_date">Start Date</string>
@@ -55,7 +56,8 @@
     <string name="column_issue_num">issueNum</string>
     <string name="sort_type_release_date">Release Date</string>
     <string name="column_release_date">releaseDate</string>
-    <string name="content_description_add_filter_button">Open text box to add a new filter</string>
+    <string name="content_description_add_filter_button">Open search bar to add a new
+        filter</string>
     <string name="filter_type_character">Character</string>
     <string name="description_series_list_item_background_image">Background image of series\' first issue cover</string>
     <string name="dummy_text">Doom Patrol</string>
@@ -78,5 +80,5 @@
     <string name="table_col_character_name">ch.name</string>
     <string name="table_col_character_alterego">ch.alterEgo</string>
     <string name="table_col_namedetail2">nl2.name</string>
-    <string name="find_on_ebay">Search eBay</string>
+    <string name="find_on_ebay">eBay</string>
 </resources>

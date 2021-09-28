@@ -47,7 +47,7 @@ data class Character(
     override val compareValue: String
         get() = name
 
-    override fun toString(): String = name
+    override fun toString(): String = "$name${alterEgo?.let { " ($it)" } ?: ""}"
 
     companion object : FilterType {
         override val displayName: String =
@@ -112,7 +112,7 @@ data class FullAppearance(
     val appearance: Appearance,
 
     @Relation(parentColumn = "character", entityColumn = "characterId", entity = Character::class)
-    val character: FullCharacter
+    val character: FullCharacter,
 )
 
 @ExperimentalCoroutinesApi

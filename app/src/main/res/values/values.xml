@@ -12,4 +12,5 @@
     <attr name="styleCreatorLink" format="reference" />
     <attr name="styleIssueInfoBox" format="reference" />
     <attr name="styleSeriesDetail" format="reference" />
+    <attr name="styleAddCollectionButton" format="reference" />
 </resources>

@@ -2,7 +2,6 @@ package com.wtb.comiccollector.views
 
 import android.content.Context
 import android.util.AttributeSet
-import android.util.Log
 import com.google.android.material.chip.Chip
 import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.SearchFilter
@@ -79,7 +78,7 @@ class ViewChip @JvmOverloads constructor(
             FullSeries::class -> "Series"
             FullIssue::class -> "Issues"
             Character::class -> "Characters"
-            NameDetailAndCreator::class -> "Creators"
+            FullCreator::class -> "Creators"
             else -> "That's unusual..."
         }
         this.setOnClickListener {
@@ -113,7 +112,6 @@ class OptionChip(context: Context?) : Chip(context) {
         isCloseIconVisible = false
 
         this.setOnClickListener {
-            Log.d(TAG, "onClick ${this.isChecked} ${this.isEnabled}")
             action?.let {
                 action?.let { a -> caller?.checkChanged(a, this.isChecked) }
             }

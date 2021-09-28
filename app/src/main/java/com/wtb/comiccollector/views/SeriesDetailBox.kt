@@ -2,8 +2,8 @@ package com.wtb.comiccollector.views
 
 import android.content.Context
 import android.util.AttributeSet
-import android.util.Log
-import android.widget.ImageButton
+import android.view.ViewGroup.LayoutParams.MATCH_PARENT
+import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -12,8 +12,6 @@ import com.wtb.comiccollector.R
 import com.wtb.comiccollector.SearchFilter
 import com.wtb.comiccollector.database.models.FullSeries
 import com.wtb.comiccollector.fragments.ListFragment
-import com.wtb.comiccollector.fragments.toggleIcon
-import com.wtb.comiccollector.fragments.toggleVisibility
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 private const val TAG = APP + "SeriesDetailBox"
@@ -22,7 +20,8 @@ private const val DIALOG_SERIES_INFO = "DIALOG_EDIT_SERIES"
 
 @ExperimentalCoroutinesApi
 class SeriesDetailBox(context: Context, attrs: AttributeSet?, defStyleAttr: Int) :
-    ConstraintLayout(context, attrs, R.attr.styleSeriesDetail, R.style.SeriesDetailBackground), SeriesLinkCallback {
+    ConstraintLayout(context, attrs, R.attr.styleSeriesDetail, R.style.SeriesDetailBackground),
+    SeriesLinkCallback {
 
     constructor(context: Context, series: FullSeries) : this(context, null, 0) {
         setSeries(series)
@@ -41,15 +40,17 @@ class SeriesDetailBox(context: Context, attrs: AttributeSet?, defStyleAttr: Int)
     private var dateRangeTextview: TextView
     private var trackingNotesHeader: LinearLayout
     private var trackingNotesTextView: TextView
-    private var trackingDropdownButton: ImageButton
+    private var trackingDropdownButton: ExpandButton
     private var notesLabelHeader: LinearLayout
     private var notesTextView: TextView
-    private var notesDropdownButton: ImageButton
+    private var notesDropdownButton: ExpandButton
     private var notesBox: LinearLayout
 
-    fun setSeries(series: FullSeries) {
-        this.series = series
-        updateUI()
+    private fun setSeries(series: FullSeries) {
+        if (this.series != series) {
+            this.series = series
+            updateUI()
+        }
     }
 
 
@@ -77,14 +78,16 @@ class SeriesDetailBox(context: Context, attrs: AttributeSet?, defStyleAttr: Int)
         notesDropdownButton = findViewById(R.id.notes_dropdown_button)
         notesBox = findViewById(R.id.notes_box)
 
+        trackingDropdownButton.setOnClickListener(null)
         trackingDropdownButton.setOnClickListener {
-            trackingNotesTextView.toggleVisibility()
-            (it as ImageButton).toggleIcon(trackingNotesTextView)
+            trackingNotesTextView.toggleVisibility(MATCH_PARENT, WRAP_CONTENT)
+            (it as ExpandButton).toggleExpand()
         }
 
+        notesDropdownButton.setOnClickListener(null)
         notesDropdownButton.setOnClickListener {
-            notesBox.toggleVisibility()
-            (it as ImageButton).toggleIcon(notesBox)
+            notesBox.toggleVisibility(MATCH_PARENT, MATCH_PARENT)
+            (it as ExpandButton).toggleExpand()
         }
 
         listFragmentCallback = context as ListFragment.ListFragmentCallback?
@@ -92,7 +95,6 @@ class SeriesDetailBox(context: Context, attrs: AttributeSet?, defStyleAttr: Int)
 
 
     private fun updateUI() {
-        Log.d(TAG, "UPDATING SERIES DETAIL!!!!!!!!")
         volumeNumTextView.text = series?.series?.volume.toString()
         publisherTextView.text = series?.publisher?.publisher
         dateRangeTextview.text = series?.series?.dateRange
@@ -131,8 +133,8 @@ class SeriesDetailBox(context: Context, attrs: AttributeSet?, defStyleAttr: Int)
             VISIBLE
         }
 
-        series?.seriesBondTo?.targetSeries?. let { continuesAs.series = FullSeries(series = it) }
-        series?.seriesBondFrom?.originSeries?. let { continuesFrom.series = FullSeries(series = it) }
+        series?.seriesBondTo?.targetSeries?.let { continuesAs.series = FullSeries(series = it) }
+        series?.seriesBondFrom?.originSeries?.let { continuesFrom.series = FullSeries(series = it) }
     }
 
     override fun seriesClicked(series: FullSeries) {
