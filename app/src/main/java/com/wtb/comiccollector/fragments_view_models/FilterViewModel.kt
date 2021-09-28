@@ -30,7 +30,7 @@ class FilterViewModel : ViewModel() {
         get() = _filter
 
     private val _filterType: MutableLiveData<KClass<*>> =
-        MutableLiveData(All.Companion::class as KClass<*>)
+        MutableLiveData()
     private val filterType: LiveData<KClass<*>>
         get() = _filterType
 
@@ -166,7 +166,7 @@ class FilterViewModel : ViewModel() {
         _filter.value = SearchFilter(filter)
     }
 
-    fun setFilterType(filterType: KClass<*>) {
+    fun setFilterType(filterType: KClass<out FilterType>) {
         this._filterType.value = filterType
     }
 
@@ -221,7 +221,7 @@ class FilterViewModel : ViewModel() {
                         FullIssue::class -> issueListFragment
                         Character::class -> characterListFragment
                         FullSeries::class -> seriesListFragment
-                        NameDetailAndCreator::class -> creatorListFragment
+                        FullCreator::class -> creatorListFragment
                         else -> throw IllegalStateException("illegal viewOption: ${it.mViewOption}")
                     }
                 )

@@ -1,5 +1,6 @@
 package com.wtb.comiccollector.fragments
 
+import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -7,6 +8,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
+import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.viewModels
 import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
@@ -130,7 +132,14 @@ class SeriesListFragment : ListFragment<FullSeries, SeriesListFragment.SeriesHol
 
             val firstIssue: FullIssue? = this.item.firstIssue
 
-            seriesImageView.setImageURI(firstIssue?.coverUri)
+            val drawable: Drawable? = ResourcesCompat.getDrawable(resources, R.drawable
+                .bg_cyan, null)
+
+            if (firstIssue?.coverUri != null) {
+                seriesImageView.setImageURI(firstIssue.coverUri)
+            } else {
+                seriesImageView.setImageDrawable(drawable)
+            }
 
             seriesDateRangeTextView.text = this.item.series.dateRange
             formatTextView.text = this.item.series.publishingFormat?.lowercase()

@@ -72,11 +72,11 @@ class FilterFragment : Fragment(),
     private lateinit var searchBar: SearchBar
 
     private lateinit var filterTypeChipGroup: ChipGroup
-    private lateinit var filterChipAll: FilterTypeChip
-    private lateinit var filterChipSeries: FilterTypeChip
-    private lateinit var filterChipCreator: FilterTypeChip
-    private lateinit var filterChipCharacter: FilterTypeChip
-    private lateinit var filterChipPublisher: FilterTypeChip
+    private lateinit var filterChipAll: FilterTypeChip<All.Companion>
+    private lateinit var filterChipSeries: FilterTypeChip<Series.Companion>
+    private lateinit var filterChipCreator: FilterTypeChip<NameDetail.Companion>
+    private lateinit var filterChipCharacter: FilterTypeChip<Character.Companion>
+    private lateinit var filterChipPublisher: FilterTypeChip<Publisher.Companion>
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -168,9 +168,9 @@ class FilterFragment : Fragment(),
 
         filterTypeChipGroup.setOnCheckedChangeListener { _, checkedId ->
             if (checkedId >= 0) {
-                view?.findViewById<FilterTypeChip>(checkedId)?.let { it: FilterTypeChip ->
-                    Log.d(TAG, "Setting filter type: $it ${it.type}")
-                    it.type?.let { it1 -> viewModel.setFilterType(it1) }
+                view?.findViewById<FilterTypeChip<*>>(checkedId)?.let { filterChip ->
+                    Log.d(TAG, "Setting filter type: $filterChip ${filterChip.type}")
+                    filterChip.type?.let { type -> viewModel.setFilterType(type) }
                 }
 
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
@@ -212,21 +212,33 @@ class FilterFragment : Fragment(),
 
     private fun initFilterTypeChipGroup(view: View) {
         filterTypeChipGroup = view.findViewById(R.id.filter_type_chip_group)
-        filterChipAll = view.findViewById<FilterTypeChip>(R.id.filter_chip_all).apply {
-            type = All.Companion::class
-        }
-        filterChipSeries = view.findViewById<FilterTypeChip>(R.id.filter_chip_series).apply {
-            type = Series.Companion::class
-        }
-        filterChipCreator = view.findViewById<FilterTypeChip>(R.id.filter_chip_creator).apply {
-            type = NameDetail.Companion::class
-        }
-        filterChipCharacter = view.findViewById<FilterTypeChip>(R.id.filter_chip_character).apply {
-            type = Character.Companion::class
-        }
-        filterChipPublisher = view.findViewById<FilterTypeChip>(R.id.filter_chip_publisher).apply {
-            type = Publisher.Companion::class
-        }
+        filterChipAll =
+            view.findViewById<FilterTypeChip<All.Companion>>(R.id.filter_chip_all).apply {
+                type = All.Companion::class
+            }
+        filterChipSeries =
+            view.findViewById<FilterTypeChip<Series.Companion>>(R.id.filter_chip_series)
+                .apply {
+                    type = Series.Companion::class
+                }
+        filterChipCreator = view.findViewById<FilterTypeChip<NameDetail.Companion>>(
+            R.id.filter_chip_creator
+        )
+            .apply {
+                type = NameDetail.Companion::class
+            }
+        filterChipCharacter = view.findViewById<FilterTypeChip<Character.Companion>>(
+            R.id.filter_chip_character
+        )
+            .apply {
+                type = Character.Companion::class
+            }
+        filterChipPublisher = view.findViewById<FilterTypeChip<Publisher.Companion>>(
+            R.id.filter_chip_publisher
+        )
+            .apply {
+                type = Publisher.Companion::class
+            }
     }
 
     internal fun onSlide(slideOffset: Float) {

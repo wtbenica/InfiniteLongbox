@@ -61,6 +61,9 @@ sealed interface FilterModel : FilterItem, Comparable<FilterModel>, Serializable
     }
 }
 
+/**
+ * A model type that appears as a list item
+ */
 sealed interface ListItem
 
 @ExperimentalCoroutinesApi

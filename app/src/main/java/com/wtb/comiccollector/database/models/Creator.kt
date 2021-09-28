@@ -71,6 +71,9 @@ data class NameDetail(
         get() = name
 }
 
+/**
+ * Used in FullCredit to hold the creator linked to the nameDetail
+ */
 @ExperimentalCoroutinesApi
 data class NameDetailAndCreator(
     @Embedded
@@ -78,7 +81,7 @@ data class NameDetailAndCreator(
 
     @Relation(parentColumn = "creator", entityColumn = "creatorId")
     val creator: Creator,
-) : ListItem
+)
 
 @ExperimentalCoroutinesApi
 data class FullCreator(

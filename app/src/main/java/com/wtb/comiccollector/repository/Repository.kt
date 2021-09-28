@@ -186,7 +186,7 @@ class Repository private constructor(val context: Context) {
         if (filter.mCreators.isEmpty()) {
             creatorDao.getCreatorsByFilter(filter)
         } else {
-            emptyFlow()
+            flow { emit(emptyList<Creator>()) }
         }
 
     // SERIES METHODS

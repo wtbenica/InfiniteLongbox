@@ -86,9 +86,9 @@ class SearchFilter(
 
     private val mViewOptions: List<KClass<out ListItem>>
         get() = if (mSeries != null) {
-            listOf(FullIssue::class, Character::class, NameDetailAndCreator::class)
+            listOf(FullIssue::class, Character::class, FullCreator::class)
         } else {
-            listOf(FullSeries::class, Character::class, NameDetailAndCreator::class)
+            listOf(FullSeries::class, Character::class, FullCreator::class)
         }
 
     val mViewOption: KClass<out ListItem>
@@ -234,7 +234,7 @@ class SearchFilter(
                 true  -> SortType.Companion.SortTypeOptions.SERIES_COMPLEX.options
                 false -> SortType.Companion.SortTypeOptions.SERIES.options
             }
-            NameDetailAndCreator::class -> SortType.Companion.SortTypeOptions.CREATOR.options
+            FullCreator::class -> SortType.Companion.SortTypeOptions.CREATOR.options
             else                        -> throw IllegalStateException("illegal view type: ${mViewOption.simpleName}")
         }
     }

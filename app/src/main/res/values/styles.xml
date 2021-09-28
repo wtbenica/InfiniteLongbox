@@ -9,7 +9,7 @@
     <style name="myAppBarLayout" parent="Widget.Design.AppBarLayout">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:background">?attr/colorSecondaryLightLight</item>
+        <item name="android:background">?attr/colorSecondary</item>
     </style>
 
     <style name="myActionBarStyle" parent="Widget.AppCompat.ActionBar.Solid">

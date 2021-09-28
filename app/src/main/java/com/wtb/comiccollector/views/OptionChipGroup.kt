@@ -78,7 +78,7 @@ class ViewChip @JvmOverloads constructor(
             FullSeries::class -> "Series"
             FullIssue::class -> "Issues"
             Character::class -> "Characters"
-            NameDetailAndCreator::class -> "Creators"
+            FullCreator::class -> "Creators"
             else -> "That's unusual..."
         }
         this.setOnClickListener {

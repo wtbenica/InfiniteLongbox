@@ -21,6 +21,7 @@ class CreditsBox(context: Context) : TableLayout(context) {
 
     interface CreditsBoxCallback : CharacterLinkCallback, CreatorLinkCallback
 
+
     var mCallback: CreditsBoxCallback? = null
     private var mIssueStories: List<Story> = emptyList()
     private var mVariantStories: List<Story> = emptyList()

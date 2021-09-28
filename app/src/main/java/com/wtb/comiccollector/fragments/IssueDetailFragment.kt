@@ -148,7 +148,7 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback,
                 )
             }
         }
-        issueCreditsFrame = view.findViewById(R.id.issue_credits_table) as FrameLayout
+        issueCreditsFrame = view.findViewById(R.id.issue_credits_frame) as FrameLayout
         infoBox = view.findViewById(R.id.issue_info_box)
         gcdLinkButton = view.findViewById(R.id.gcd_link) as Button
         ebayButton = view.findViewById(R.id.ebayButton)

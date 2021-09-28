@@ -11,8 +11,19 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:paddingTop="@dimen/margin_narrow"
-        android:paddingBottom="@dimen/margin_narrow"
-        android:background="@drawable/alboha_bg">
+        android:paddingBottom="@dimen/margin_narrow">
+
+        <ImageView
+            android:id="@+id/list_item_simple_bg"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:scaleType="matrix"
+            android:src="@drawable/bg_cyan"
+            android:contentDescription="background - halftone design"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
             android:id="@+id/list_item_issue_variant_name"
@@ -31,9 +42,9 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginEnd="@dimen/margin_default"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="@id/list_item_issue_variant_name"
-            app:layout_constraintTop_toBottomOf="@id/list_item_issue_variant_name"
-            app:layout_constraintEnd_toEndOf="parent">
+            app:layout_constraintTop_toBottomOf="@id/list_item_issue_variant_name">
 
             <TextView
                 android:id="@+id/list_item_alter_ego"
@@ -41,12 +52,14 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 tools:text="Larry Trainor" />
+
             <View
                 android:layout_width="1dp"
                 android:layout_height="match_parent"
                 android:layout_marginTop="@dimen/margin_narrow"
                 android:layout_marginBottom="@dimen/margin_narrow"
-                android:background="@color/tag_creator"/>
+                android:background="@color/tag_creator" />
+
             <TextView
                 android:id="@+id/list_item_char_publisher"
                 style="@style/ListItemSeriesSubtitle"

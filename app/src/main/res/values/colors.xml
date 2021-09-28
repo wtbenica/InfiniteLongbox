@@ -9,19 +9,11 @@
     <color name="fantasia_dark">#00DDDD</color>
     <color name="fantasia_text">#D222</color>
 
-<!--    <color name="fantasia">#ABED92</color>-->
-<!--    <color name="fantasia_transparent">#DDABED92</color>-->
-<!--    <color name="fantasia_light">#D3FAC5</color>-->
-<!--    <color name="fantasia_light_light">#ECF8E7</color>-->
-<!--    <color name="fantasia_dark_dark">#2CA34E</color>-->
-<!--    <color name="fantasia_dark">#6AC947</color>-->
-<!--    <color name="fantasia_text">#D222</color>-->
-
-    <color name="amnesia">#BACACA</color>
-    <color name="amnesia_light">#CADADA</color>
-    <color name="amnesia_light_light">#E3E3E7</color>
+    <color name="amnesia">#E3E3E7</color>
+    <color name="amnesia_light">#F0F0F4</color>
+    <color name="amnesia_light_light">#F7F7FF</color>
     <color name="amnesia_light_transparent">#BBF3F3F3</color>
-    <color name="amnesia_dark">#889999</color>
+    <color name="amnesia_dark">#CADADA</color>
     <color name="amnesia_text">#DFFF</color>
 
     <color name="fantasia_muted">#E8FDAD</color>

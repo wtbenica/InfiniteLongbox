@@ -7,7 +7,8 @@
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
     android:animateLayoutChanges="true"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:background="?attr/colorSecondary">
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:id="@+id/main_activity"

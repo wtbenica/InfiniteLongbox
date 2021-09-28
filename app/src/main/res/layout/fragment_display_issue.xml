@@ -58,7 +58,8 @@
                     android:id="@+id/collectionButton"
                     android:layout_width="32dp"
                     android:layout_height="32dp"
-                    android:layout_margin="@dimen/margin_default"
+                    android:layout_marginStart="@dimen/margin_wide"
+                    android:layout_marginBottom="@dimen/margin_default"
                     android:scaleType="fitCenter"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toEndOf="@id/issue_cover"
@@ -66,6 +67,7 @@
                     tools:src="@drawable/add_collection" />
 
                 <com.wtb.comiccollector.views.AddWishListButton
+                    android:id="@+id/issue_add_wish_btn"
                     style="@style/AddCollectionButtonStyle"
                     android:layout_margin="@dimen/margin_default"
                     android:src="@drawable/add_wish_list"
@@ -79,7 +81,8 @@
                     android:id="@+id/ebayButton"
                     android:layout_width="32dp"
                     android:layout_height="32dp"
-                    android:layout_margin="@dimen/margin_default"
+                    android:layout_marginEnd="@dimen/margin_wide"
+                    android:layout_marginBottom="@dimen/margin_default"
                     android:background="@android:color/transparent"
                     android:contentDescription="Search ebay"
                     android:padding="0dp"
@@ -139,26 +142,23 @@
             </LinearLayout>
 
             <FrameLayout
-                android:id="@+id/issue_credits_table"
+                android:id="@+id/issue_credits_frame"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/margin_default"
                 android:animateLayoutChanges="true"
-                android:orientation="vertical"
-                android:scrollbars="none"
                 app:layout_constraintBottom_toTopOf="@id/bottom_stuff"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/variant_spinner_holder" />
         </LinearLayout>
-
     </ScrollView>
 
     <LinearLayout
         android:id="@+id/bottom_stuff"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="?attr/colorSecondaryLightLight"
+        android:background="?attr/colorSecondary"
         android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

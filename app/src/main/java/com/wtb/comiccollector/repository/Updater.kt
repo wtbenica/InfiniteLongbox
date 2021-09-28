@@ -582,56 +582,68 @@ abstract class Updater(
 
     class PriorityDispatcher {
         companion object {
+            @Volatile
             private var NOW_INSTANCE: CoroutineDispatcher? = null
+
+            @Volatile
             private var HP_INSTANCE: CoroutineDispatcher? = null
+
+            @Volatile
             private var LP_INSTANCE: CoroutineDispatcher? = null
 
             val nowDispatcher: CoroutineDispatcher
                 get() {
-                    val thread = HandlerThread(
-                        "nowThread",
-                        Process.THREAD_PRIORITY_DISPLAY
-                    ).also {
-                        it.start()
+                    synchronized(this) {
+                        val thread = HandlerThread(
+                            "nowThread",
+                            Process.THREAD_PRIORITY_DISPLAY
+                        ).also {
+                            it.start()
+                        }
+                        val res = NOW_INSTANCE
+                            ?: Handler(thread.looper).asCoroutineDispatcher("nowDispatcher")
+                        if (NOW_INSTANCE == null) {
+                            NOW_INSTANCE = res
+                        }
+                        return NOW_INSTANCE!!
                     }
-                    val res = NOW_INSTANCE
-                        ?: Handler(thread.looper).asCoroutineDispatcher("nowDispatcher")
-                    if (NOW_INSTANCE == null) {
-                        NOW_INSTANCE = res
-                    }
-                    return NOW_INSTANCE!!
                 }
 
             val highPriorityDispatcher: CoroutineDispatcher
                 get() {
-                    val thread = HandlerThread(
-                        "highPriorityThread",
-                        Process.THREAD_PRIORITY_MORE_FAVORABLE
-                    ).also {
-                        it.start()
+                    synchronized(this)
+                    {
+                        val thread = HandlerThread(
+                            "highPriorityThread",
+                            Process.THREAD_PRIORITY_MORE_FAVORABLE
+                        ).also {
+                            it.start()
+                        }
+                        val res = HP_INSTANCE
+                            ?: Handler(thread.looper).asCoroutineDispatcher("highPriorityDisptcher")
+                        if (HP_INSTANCE == null) {
+                            HP_INSTANCE = res
+                        }
+                        return HP_INSTANCE!!
                     }
-                    val res = HP_INSTANCE
-                        ?: Handler(thread.looper).asCoroutineDispatcher("highPriorityDisptcher")
-                    if (HP_INSTANCE == null) {
-                        HP_INSTANCE = res
-                    }
-                    return HP_INSTANCE!!
                 }
 
             val lowPriorityDispatcher: CoroutineDispatcher
                 get() {
-                    val thread = HandlerThread(
-                        "lowPriorityThread",
-                        Process.THREAD_PRIORITY_BACKGROUND
-                    ).also {
-                        it.start()
+                    synchronized(this) {
+                        val thread = HandlerThread(
+                            "lowPriorityThread",
+                            Process.THREAD_PRIORITY_BACKGROUND
+                        ).also {
+                            it.start()
+                        }
+                        val res = LP_INSTANCE
+                            ?: Handler(thread.looper).asCoroutineDispatcher("lowPriorityDisptcher")
+                        if (LP_INSTANCE == null) {
+                            LP_INSTANCE = res
+                        }
+                        return LP_INSTANCE!!
                     }
-                    val res = LP_INSTANCE
-                        ?: Handler(thread.looper).asCoroutineDispatcher("lowPriorityDisptcher")
-                    if (LP_INSTANCE == null) {
-                        LP_INSTANCE = res
-                    }
-                    return LP_INSTANCE!!
                 }
         }
     }

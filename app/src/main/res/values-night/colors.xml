@@ -1,28 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <color name="fantasia">#6AC947</color>
-    <color name="fantasia_transparent">#D060</color>
-    <color name="fantasia_light">#9BDD82</color>
-    <color name="fantasia_light_light">#00FFFF</color>
-    <color name="fantasia_dark">#6AC947</color>
-    <color name="fantasia_text">#DFFF</color>
+    <color name="fantasia">#00FFFF</color>
+    <color name="fantasia_transparent">#DD008888</color>
+    <color name="fantasia_light">#AAFFFF</color>
+    <color name="fantasia_light_light">#CCFFFF</color>
+    <color name="fantasia_dark_dark">#00BBBB</color>
+    <color name="fantasia_dark">#00DDDD</color>
+    <color name="fantasia_text">#008888</color>
 
-    <color name="amnesia">#BACACA</color>
-    <color name="amnesia_light">#9aaaaa</color>
-    <color name="amnesia_light_transparent">#E444</color>
-    <color name="amnesia_light_light">#333</color>
-    <color name="amnesia_dark">#889999</color>
+    <color name="amnesia">#222F2F</color>
+    <color name="amnesia_light">#222F2F</color>
+    <color name="amnesia_light_transparent">#E333</color>
+    <color name="amnesia_light_light">#434949</color>
+    <color name="amnesia_dark">#112222</color>
     <color name="amnesia_text">#D555</color>
 
     <color name="fantasia_muted">#E8FDAD</color>
     <color name="fantasia_light_muted">#E3F6B0</color>
     <color name="fantasia_dark_muted">#BAFE00</color>
 
-    <color name="tag_series">#14D1D1</color>
-    <color name="tag_creator">#E317E3</color>
-    <color name="tag_publisher">#FFE925</color>
-    <color name="tag_character">#0000FF</color>
+    <color name="tag_all">#2DDD</color>
+    <color name="text_all">#FFF</color>
+    <color name="tag_series">#2200FFFF</color>
+    <color name="text_series">#00FFFF</color>
+    <color name="tag_creator">#22FF00FF</color>
+    <color name="text_creator">#FF00FF</color>
+    <color name="tag_character">#22FFFF00</color>
+    <color name="text_character">#FFFF00</color>
+    <color name="tag_publisher">#2000</color>
+    <color name="text_publisher">#555</color>
 
     <color name="transparent_white">#DD0C0C0C</color>
 </resources>

@@ -15,6 +15,7 @@ import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.R
 import com.wtb.comiccollector.database.models.FilterItem
 import com.wtb.comiccollector.database.models.FilterModel
+import com.wtb.comiccollector.database.models.FilterType
 import com.wtb.comiccollector.database.models.TextFilter
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlin.reflect.KClass
@@ -106,14 +107,14 @@ class SearchBar(context: Context, attributeSet: AttributeSet) :
 }
 
 @ExperimentalCoroutinesApi
-class FilterTypeChip @JvmOverloads constructor(
+class FilterTypeChip<T: FilterType>  @JvmOverloads constructor(
     context: Context?,
     attributeSet:
     AttributeSet? = null,
 ) : Chip(context, attributeSet) {
-    var type: KClass<*>? = null
+    var type: KClass<T>? = null
 
-    constructor(context: Context, type: KClass<*>, bgColor: Int, strokeColor: Int) : this(context) {
+    constructor(context: Context, type: KClass<T>, bgColor: Int, strokeColor: Int) : this(context) {
         this.type = type
         setChipBackgroundColorResource(bgColor)
         setChipStrokeColorResource(strokeColor)

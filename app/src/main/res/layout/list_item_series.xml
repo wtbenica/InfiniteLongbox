@@ -9,8 +9,7 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@drawable/alboha_bg">
+        android:layout_height="match_parent">
 
         <ImageView
             android:id="@+id/series_imageview"
@@ -19,12 +18,12 @@
             android:contentDescription="@string/description_series_list_item_background_image"
             android:cropToPadding="true"
             android:scaleType="centerCrop"
+            android:src="@drawable/bg_cyan"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            tools:scaleType="centerCrop"
-            tools:src="@tools:sample/backgrounds/scenic" />
+            tools:scaleType="matrix" />
 
         <TextView
             android:id="@+id/list_item_series_name_text"
