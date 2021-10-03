@@ -4,7 +4,6 @@
     <color name="fantasia">#00FFFF</color>
     <color name="fantasia_transparent">#BB00FFFF</color>
     <color name="fantasia_light">#AAFFFF</color>
-    <color name="fantasia_light_light">#CCFFFF</color>
     <color name="fantasia_dark_dark">#00BBBB</color>
     <color name="fantasia_dark">#00DDDD</color>
     <color name="fantasia_text">#D222</color>
@@ -20,15 +19,11 @@
     <color name="fantasia_light_muted">#E3F6B0</color>
     <color name="fantasia_dark_muted">#BAFE00</color>
 
-    <color name="tag_all">#2DDD</color>
     <color name="text_all">#FFF</color>
-    <color name="tag_series">#2200FFFF</color>
     <color name="text_series">#00FFFF</color>
     <color name="tag_creator">#22FF00FF</color>
     <color name="text_creator">#FF00FF</color>
-    <color name="tag_character">#22FFFF00</color>
     <color name="text_character">#FFFF00</color>
-    <color name="tag_publisher">#2000</color>
     <color name="text_publisher">#555</color>
 
     <color name="transparent_white">#DFFF</color>

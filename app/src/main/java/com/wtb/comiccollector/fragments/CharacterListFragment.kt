@@ -1,5 +1,6 @@
 package com.wtb.comiccollector.fragments
 
+import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -32,6 +33,20 @@ class CharacterListFragment : ListFragment<FullCharacter, CharacterListFragment.
     override fun getLayoutManager(): RecyclerView.LayoutManager = LinearLayoutManager(context)
     override fun getAdapter(): CharacterAdapter = CharacterAdapter()
 
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        val view = super.onCreateView(inflater, container, savedInstanceState)
+
+        val itemOffsetDecoration = ItemOffsetDecoration(
+            resources.getDimension(R.dimen.margin_default).toInt()
+        )
+        listRecyclerView.addItemDecoration(itemOffsetDecoration)
+
+        return view
+    }
 
     inner class CharacterAdapter :
         PagingDataAdapter<FullCharacter, CharacterHolder>(DIFF_CALLBACK) {

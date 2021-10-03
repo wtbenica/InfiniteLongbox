@@ -1,13 +1,17 @@
 package com.wtb.comiccollector.fragments
 
+import android.content.Context
 import android.graphics.drawable.Drawable
 import android.os.Bundle
+import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
+import androidx.annotation.AttrRes
+import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.viewModels
 import androidx.paging.PagingDataAdapter
@@ -43,49 +47,15 @@ class SeriesListFragment : ListFragment<FullSeries, SeriesListFragment.SeriesHol
         savedInstanceState: Bundle?,
     ): View? {
         val view = super.onCreateView(inflater, container, savedInstanceState)
-        listRecyclerView.addItemDecoration(
-            ItemOffsetDecoration(resources.getDimension(R.dimen.margin_default).toInt())
+
+        val itemOffsetDecoration = ItemOffsetDecoration(
+            resources.getDimension(R.dimen.margin_default).toInt()
         )
+        listRecyclerView.addItemDecoration(itemOffsetDecoration)
+
         return view
     }
 
-    //    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-//        super.onViewCreated(view, savedInstanceState)
-//
-//        updateBottomPadding()
-//
-//        val adapter = getAdapter()
-//
-//        listRecyclerView.adapter = adapter
-//
-//        lifecycleScope.launch {
-//            repeatOnLifecycle(Lifecycle.State.STARTED) {
-//                viewModel.itemList.collectLatest {
-//                    adapter.submitData(it)
-//                    progressBar.hide()
-//                }
-//            }
-//        }
-//
-//        filterViewModel.filter.observe(
-//            viewLifecycleOwner,
-//            { filter ->
-//                viewModel.setFilter(filter)
-//            }
-//        )
-//    }
-//
-//
-    //    private fun runLayoutAnimation(view: RecyclerView) {
-//        val context = view.context
-//        val controller: LayoutAnimationController =
-//            AnimationUtils.loadLayoutAnimation(context, R.anim.layout_animation_fall_down)
-//
-//        view.layoutAnimation = controller
-//        view.adapter?.notifyDataSetChanged()
-//        view.scheduleLayoutAnimation()
-//    }
-//
     inner class SeriesAdapter :
         PagingDataAdapter<FullSeries, SeriesHolder>(DIFF_CALLBACK) {
 
@@ -132,13 +102,17 @@ class SeriesListFragment : ListFragment<FullSeries, SeriesListFragment.SeriesHol
 
             val firstIssue: FullIssue? = this.item.firstIssue
 
-            val drawable: Drawable? = ResourcesCompat.getDrawable(resources, R.drawable
-                .bg_cyan, null)
-
+            val draw: Int? = context?.getDrawableFromAttr(R.attr.listItemSeriesBackground)
+            val drawable: Drawable? = ResourcesCompat.getDrawable(
+                resources, draw ?: R.drawable
+                    .alboha2, null
+            )
             if (firstIssue?.coverUri != null) {
                 seriesImageView.setImageURI(firstIssue.coverUri)
+                seriesImageView.scaleType = ImageView.ScaleType.CENTER_CROP
             } else {
                 seriesImageView.setImageDrawable(drawable)
+                seriesImageView.scaleType = ImageView.ScaleType.MATRIX
             }
 
             seriesDateRangeTextView.text = this.item.series.dateRange
@@ -174,4 +148,13 @@ class SeriesListFragment : ListFragment<FullSeries, SeriesListFragment.SeriesHol
                 oldItem == newItem
         }
     }
+}
+
+fun Context.getDrawableFromAttr(
+    @AttrRes attrDrawable: Int,
+    typedValue: TypedValue = TypedValue(),
+    resolveRefs: Boolean = true
+): Int {
+    theme.resolveAttribute(attrDrawable, typedValue, resolveRefs)
+    return typedValue.resourceId
 }

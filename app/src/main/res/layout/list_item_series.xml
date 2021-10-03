@@ -17,13 +17,13 @@
             android:layout_height="0dp"
             android:contentDescription="@string/description_series_list_item_background_image"
             android:cropToPadding="true"
-            android:scaleType="centerCrop"
-            android:src="@drawable/bg_cyan"
+            android:scaleType="matrix"
+            android:src="?attr/listItemSeriesBackground"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:scaleType="matrix" />
+            app:layout_constraintTop_toTopOf="parent" />
+
 
         <TextView
             android:id="@+id/list_item_series_name_text"

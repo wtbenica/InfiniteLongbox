@@ -44,7 +44,7 @@
         <entry key="app/src/main/res/drawable/waiting.xml" value="0.27692307692307694" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.1" />
         <entry key="app/src/main/res/layout/auto_complete_filter_item.xml" value="0.67" />
-        <entry key="app/src/main/res/layout/dialog_fragment_cover.xml" value="0.75" />
+        <entry key="app/src/main/res/layout/dialog_fragment_cover.xml" value="0.3482051282051282" />
         <entry key="app/src/main/res/layout/fragment_display_issue.xml" value="0.33" />
         <entry key="app/src/main/res/layout/fragment_filter.xml" value="0.67" />
         <entry key="app/src/main/res/layout/fragment_item_list.xml" value="0.1" />
@@ -58,7 +58,7 @@
         <entry key="app/src/main/res/layout/list_item_issue.xml" value="0.67" />
         <entry key="app/src/main/res/layout/list_item_issue_variant.xml" value="0.75" />
         <entry key="app/src/main/res/layout/list_item_search_type.xml" value="0.2636752136752137" />
-        <entry key="app/src/main/res/layout/list_item_series.xml" value="0.67" />
+        <entry key="app/src/main/res/layout/list_item_series.xml" value="0.34379746835443037" />
         <entry key="app/src/main/res/layout/list_item_simple.xml" value="0.2636752136752137" />
         <entry key="app/src/main/res/layout/list_item_variant.xml" value="0.2636752136752137" />
         <entry key="app/src/main/res/layout/row_item_appearance.xml" value="0.1" />
@@ -68,7 +68,7 @@
       </map>
     </option>
   </component>
-  <component name="ProjectRootManager" version="2" languageLevel="JDK_X" project-jdk-name="1.8" project-jdk-type="JavaSDK">
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_15" project-jdk-name="1.8" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/build/classes" />
   </component>
   <component name="ProjectType">

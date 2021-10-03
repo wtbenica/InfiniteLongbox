@@ -16,5 +16,4 @@
     <dimen name="chip_icon_size">20dp</dimen>
     <dimen name="chip_height">36dp</dimen>
     <dimen name="text_small">12sp</dimen>
-    <dimen name="text_medium">13sp</dimen>
 </resources>

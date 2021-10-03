@@ -44,5 +44,7 @@
         <item name="colorPrimaryMuted">@color/fantasia_muted</item>
         <item name="colorPrimaryDarkMuted">@color/fantasia_dark_muted</item>
         <item name="colorPrimaryLightMuted">@color/fantasia_light_muted</item>
+
+        <item name="listItemSeriesBackground">@drawable/bg_cyan</item>
     </style>
 </resources>

@@ -29,17 +29,17 @@ class SearchFilter(
 ) : Serializable {
 
     constructor(filter: SearchFilter) : this(
-        filter.mCreators,
-        filter.mSeries,
-        filter.mPublishers,
-        filter.mStartDate,
-        filter.mEndDate,
-        filter.mMyCollection,
-        filter.mSortType,
-        filter.mTextFilter,
-        filter.mShowVariants,
-        filter.mCharacter,
-        filter.mViewOptionsIndex
+        creators = filter.mCreators,
+        series = filter.mSeries,
+        publishers = filter.mPublishers,
+        startDate = filter.mStartDate,
+        endDate = filter.mEndDate,
+        myCollection = filter.mMyCollection,
+        sortType = filter.mSortType,
+        textFilter = filter.mTextFilter,
+        showVariants = filter.mShowVariants,
+        character = filter.mCharacter,
+        viewOptionsIndex = filter.mViewOptionsIndex
     )
 
     override fun equals(other: Any?): Boolean {
