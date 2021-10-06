@@ -70,20 +70,22 @@ class CreatorListFragment : ListFragment<FullCreator, CreatorListFragment.Creato
         private val publisherTextView: TextView =
             itemView.findViewById(R.id.list_item_char_publisher)
         private val bg: ImageView = itemView.findViewById(R.id.list_item_simple_bg)
+        private val div: View = itemView.findViewById(R.id.divider_list_item_meta)
 
         init {
             itemView.setOnClickListener(this)
             bg.setImageResource(R.drawable.bg_magenta)
+            div.visibility = View.GONE
         }
 
         fun bind(item: FullCreator) {
             this.item = item
             nameTextView.text = this.item.creator.name
 //            alterEgoTextView.text = this.item.flatMap { it: FullCreator -> it.nameDetail.name }
-            val bb = this.item.nameDetail.fold(String(), { acc, fullCreator ->
+            val nameDetails = this.item.nameDetail.fold(String(), { acc, fullCreator ->
                 acc + "${fullCreator.name}, "
             })
-            alterEgoTextView.text = bb
+            alterEgoTextView.text = nameDetails.removeSuffix(", ")
         }
 
         override fun onClick(v: View?) {

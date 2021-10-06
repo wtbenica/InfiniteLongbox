@@ -50,9 +50,6 @@ interface Webservice {
     suspend fun getPublisherByPage(@Path("page") page: Int): List<Item<GcdPublisher, Publisher>>
 
     // GET num pages
-    @GET("/db_query/creator_page_count")
-    suspend fun getNumCreatorPages(): Count
-
     @GET("/db_query/name_detail_page_count")
     suspend fun getNumNameDetailPages(): Count
 

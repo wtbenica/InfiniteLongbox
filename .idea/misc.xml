@@ -59,7 +59,7 @@
         <entry key="app/src/main/res/layout/list_item_issue_variant.xml" value="0.75" />
         <entry key="app/src/main/res/layout/list_item_search_type.xml" value="0.2636752136752137" />
         <entry key="app/src/main/res/layout/list_item_series.xml" value="0.34379746835443037" />
-        <entry key="app/src/main/res/layout/list_item_simple.xml" value="0.2636752136752137" />
+        <entry key="app/src/main/res/layout/list_item_simple.xml" value="0.5" />
         <entry key="app/src/main/res/layout/list_item_variant.xml" value="0.2636752136752137" />
         <entry key="app/src/main/res/layout/row_item_appearance.xml" value="0.1" />
         <entry key="app/src/main/res/layout/search_autocomplete.xml" value="0.6248715313463515" />

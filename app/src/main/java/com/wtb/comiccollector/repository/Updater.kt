@@ -443,37 +443,51 @@ abstract class Updater(
         getNumPages: suspend () -> Count,
         updateProgress: ((Int) -> Unit)? = null
     ) {
-        // If it's been a week, mark all pages as stale
-        if (checkIfStale(saveTag, WEEKLY, prefs)) {
-            Log.d(TAG, "Pages are stale, updating")
-            updateProgress?.invoke(0)
-            Repository.savePrefValue(prefs, savePageTag, "")
-        } else {
-            updateProgress?.invoke(100)
+        // savePageTag's value is a string of whether each page has been updated, e.g. "tfffttttftt"
+        val pagesCompleteSaved: String = prefs.getString(savePageTag, "") ?: ""
+
+        if (!pagesCompleteSaved.contains('f')) {
+            // If it's been a week, mark all pages as stale
+            if (checkIfStale(saveTag, WEEKLY, prefs)) {
+                Log.d(TAG, "Pages are stale, updating")
+                updateProgress?.invoke(0)
+                Repository.savePrefValue(prefs, savePageTag, "")
+            } else {
+                updateProgress?.invoke(100)
+            }
         }
 
         // make an array for whether each page has been updated
         val numPages: Int = getNumPages().count
         val pagesComplete = BooleanArray(numPages)
 
-        // savePageTag's value is a string of whether each page has been updated, e.g. "tfffttttftt"
-        val pagesCompleteSaved: String = prefs.getString(savePageTag, "") ?: ""
-
         // if the number of pages match, then it's the same data, so use PCS to update PC,
-        // otherwise, this has the effect of marking all pages as unupdated
+        // otherwise, this has the effect of marking all pages as un-updated
         if (numPages == pagesCompleteSaved.length) {
-            pagesCompleteSaved.forEachIndexed { index, c ->
+            pagesCompleteSaved.forEachIndexed { index: Int, c: Char ->
+                Log.d(TAG, "Page $index ${if (c == 't') "is" else "is not"} complete.")
                 pagesComplete[index] = (c == 't')
             }
+        } else {
+            Log.d(TAG, "Num pages don't match: $numPages ${pagesCompleteSaved.length}")
         }
 
         var numComplete = pagesComplete.count { it }
         var progress: Int
 
+        updateProgress?.invoke(((numComplete.toFloat() / numPages) * 100).toInt())
+
+        fun BooleanArray.saveToPrefs(tag: String) {
+            val tsAndFs = java.lang.StringBuilder()
+            forEach { tsAndFs.append( if (it) 't' else 'f') }
+            Repository.savePrefValue(prefs, tag, tsAndFs.toString())
+        }
+
         fun pageFinished() {
             synchronized(this) {
                 numComplete++
                 progress = ((numComplete.toFloat()) / numPages * 100).toInt()
+                pagesComplete.saveToPrefs(savePageTag)
                 Log.d(TAG, "Page Complete $progress")
                 updateProgress?.invoke(progress)
             }
@@ -482,15 +496,16 @@ abstract class Updater(
         // for each page in PC, if not complete, then try to update again
         // if request is successful, save and mark as updated
         withContext(CoroutineScope(Dispatchers.IO).coroutineContext) {
-            pagesComplete.forEachIndexed { currPage, isComplete ->
+            pagesComplete.forEachIndexed { currPage: Int, isComplete: Boolean ->
                 if (!isComplete) {
-                    launch {
-                        Log.d(TAG, "WORKING ON $saveTag PAGE $currPage")
-                        val itemPage: List<ModelType>? = getItemsByPage(currPage)
+                    Log.d(TAG, "WORKING ON $saveTag PAGE $currPage")
+                    val itemPage: List<ModelType>? = getItemsByPage(currPage)
 
-                        // if request is successful, save and mark as updated
-                        if (itemPage != null && itemPage.isNotEmpty()) {
+                    // if request is successful, save and mark as updated
+                    if (itemPage != null && itemPage.isNotEmpty()) {
+                        async {
                             verifyForeignKeys(itemPage)
+                        }.await().let {
                             if (dao.upsertSus(itemPage)) {
                                 pagesComplete[currPage] = true
                                 pageFinished()

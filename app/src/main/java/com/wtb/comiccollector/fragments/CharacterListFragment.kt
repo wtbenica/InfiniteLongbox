@@ -70,6 +70,7 @@ class CharacterListFragment : ListFragment<FullCharacter, CharacterListFragment.
         private val publisherTextView: TextView =
             itemView.findViewById(R.id.list_item_char_publisher)
         private val bg: ImageView = itemView.findViewById(R.id.list_item_simple_bg)
+        private val div: View = itemView.findViewById(R.id.divider_list_item_meta)
 
         init {
             itemView.setOnClickListener(this)
@@ -81,6 +82,12 @@ class CharacterListFragment : ListFragment<FullCharacter, CharacterListFragment.
             nameTextView.text = this.item.character.name
             alterEgoTextView.text = this.item.character.alterEgo
             publisherTextView.text = this.item.publisher.publisher
+            div.visibility =
+                if (alterEgoTextView.text.isBlank() || publisherTextView.text.isBlank()) {
+                    View.GONE
+                } else {
+                    View.VISIBLE
+                }
         }
 
         override fun onClick(v: View?) {
