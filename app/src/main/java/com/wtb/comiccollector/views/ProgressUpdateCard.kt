@@ -26,7 +26,7 @@ class ProgressUpdateCard(context: Context, attributeSet: AttributeSet) :
         val view = inflate(context, R.layout.fragment_static_update, this)
         (view as CardView).cardElevation = 0f
         publisherStatus = view.findViewById(R.id.status_publisher)
-        publisherProgress = view.findViewById(R.id.progress_bar_publishers)
+        publisherProgress = view.findViewById<ProgressBar>(R.id.progress_bar_publishers)
 
         seriesStatus = view.findViewById(R.id.status_series)
         seriesProgress = view.findViewById(R.id.progress_bar_series)
@@ -38,20 +38,57 @@ class ProgressUpdateCard(context: Context, attributeSet: AttributeSet) :
         characterProgress = view.findViewById<ProgressBar>(R.id.progress_bar_characters)
     }
 
+    val publisherWrapper = ProgressWrapper(publisherProgress, publisherStatus, seriesStatus)
+    val seriesWrapper = ProgressWrapper(seriesProgress, seriesStatus, creatorStatus)
+    val creatorWrapper = ProgressWrapper(creatorProgress, creatorStatus, characterStatus)
+    val characterWrapper = ProgressWrapper(characterProgress, characterStatus)
+
+    class ProgressWrapper(val bar: ProgressBar, val status: ImageView, val nextStatus: ImageView?
+    = null) {
+        fun setMax(max: Int) {
+            bar.max = max
+        }
+
+        private fun incrementProgress() {
+            if (bar.progress == bar.max) {
+                status.setImageResource(R.drawable.status_done)
+                nextStatus?.setImageResource(R.drawable.status_in_progress)
+            }
+
+            bar.setProgress(bar.progress + 1, true)
+        }
+    }
+
+    fun setPublisherMax(max: Int) {
+        publisherProgress.max = max
+    }
+
     fun updatePublisherProgress(progressPct: Int) =
         updateProgress(progressPct,
                        publisherStatus,
                        seriesStatus,
                        publisherProgress)
 
+    fun setSeriesMax(max: Int) {
+        seriesProgress.max = max
+    }
+
     fun updateSeriesProgress(progressPct: Int) =
         updateProgress(progressPct, seriesStatus, creatorStatus, seriesProgress)
+
+    fun setCreatorMax(max: Int) {
+        creatorProgress.max = max
+    }
 
     fun updateCreatorProgress(progressPct: Int) =
         updateProgress(progressPct,
                        creatorStatus,
                        characterStatus,
                        creatorProgress)
+
+    fun setCharacterMax(max: Int) {
+        characterProgress.max = max
+    }
 
     fun updateCharacterProgress(progressPct: Int) =
         updateProgress(progressPct, characterStatus, null, characterProgress)
@@ -67,6 +104,6 @@ class ProgressUpdateCard(context: Context, attributeSet: AttributeSet) :
             nextItemStatus?.setImageResource(R.drawable.status_in_progress)
         }
 
-        currItemProgressBar.progress = progressPct
+        currItemProgressBar.setProgress(progressPct, true)
     }
 }
