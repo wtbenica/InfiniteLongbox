@@ -56,10 +56,7 @@ class SearchFilter(
             field = value
             val newOptions = getSortOptions()
             if (oldOptions != newOptions) {
-                Log.d(TAG, "SETTING mSortType to ${newOptions[0]}")
                 mSortType = newOptions[0]
-            } else {
-                Log.d(TAG, "NOT!!!! SETTING mSortType to ${newOptions[0]}")
             }
         }
     var mPublishers: Set<Publisher> = publishers ?: setOf()
@@ -142,10 +139,7 @@ class SearchFilter(
         val newCreators = mCreators + creator.toSet()
         val newOptions = getSortOptions()
         if (oldOptions != newOptions) {
-            Log.d(TAG, "SETTING mSortType to ${newOptions[0]}")
             mSortType = newOptions[0]
-        } else {
-            Log.d(TAG, "NOT!!!! SETTING mSortType to ${newOptions[0]}")
         }
         if (this.mViewOption == NameDetailAndCreator::class) {
             this.mViewOptionsIndex = 0
@@ -168,10 +162,7 @@ class SearchFilter(
         mCharacter = character
         val newOptions = getSortOptions()
         if (oldOptions != newOptions) {
-            Log.d(TAG, "SETTING mSortType to ${newOptions[0]}")
             mSortType = newOptions[0]
-        } else {
-            Log.d(TAG, "NOT!!!! SETTING mSortType to ${newOptions[0]}")
         }
         if (this.mViewOption == Character::class) {
             this.mViewOptionsIndex = 0

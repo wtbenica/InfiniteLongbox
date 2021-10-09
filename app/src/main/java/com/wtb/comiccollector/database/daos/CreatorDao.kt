@@ -32,7 +32,7 @@ abstract class CreatorDao : BaseDao<Creator>("creator") {
     fun getCreatorsByFilter(filter: SearchFilter): Flow<List<Creator>> {
 
         val query = getCreatorQuery(filter)
-        Log.d(TAG, query.sql)
+
         return getCreatorsByQuery(query)
     }
 
@@ -42,7 +42,7 @@ abstract class CreatorDao : BaseDao<Creator>("creator") {
 
     fun getCreatorsByFilterPagingSource(filter: SearchFilter): PagingSource<Int, FullCreator> {
         val query = getCreatorQuery(filter)
-        Log.d(TAG, query.sql)
+
         return getCreatorsByQueryPagingSource(query)
     }
 
@@ -139,7 +139,6 @@ abstract class CreatorDao : BaseDao<Creator>("creator") {
                 conditionsString.append("""${connectWord()} nd.name LIKE ?
                 OR cr.name LIKE ?
             """)
-                Log.d(TAG, text)
                 args.addAll(listOf(text, text))
             }
 

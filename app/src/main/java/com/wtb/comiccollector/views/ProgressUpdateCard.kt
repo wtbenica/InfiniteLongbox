@@ -43,13 +43,18 @@ class ProgressUpdateCard(context: Context, attributeSet: AttributeSet) :
     val creatorWrapper = ProgressWrapper(creatorProgress, creatorStatus, characterStatus)
     val characterWrapper = ProgressWrapper(characterProgress, characterStatus)
 
-    class ProgressWrapper(val bar: ProgressBar, val status: ImageView, val nextStatus: ImageView?
-    = null) {
+    class ProgressWrapper(
+        val bar: ProgressBar, val status: ImageView, val nextStatus: ImageView? = null,
+    ) {
         fun setMax(max: Int) {
             bar.max = max
         }
 
-        private fun incrementProgress() {
+        fun setProgress(progress: Int) {
+            bar.progress = progress
+        }
+
+        fun incrementProgress() {
             if (bar.progress == bar.max) {
                 status.setImageResource(R.drawable.status_done)
                 nextStatus?.setImageResource(R.drawable.status_in_progress)
@@ -57,53 +62,13 @@ class ProgressUpdateCard(context: Context, attributeSet: AttributeSet) :
 
             bar.setProgress(bar.progress + 1, true)
         }
-    }
 
-    fun setPublisherMax(max: Int) {
-        publisherProgress.max = max
-    }
-
-    fun updatePublisherProgress(progressPct: Int) =
-        updateProgress(progressPct,
-                       publisherStatus,
-                       seriesStatus,
-                       publisherProgress)
-
-    fun setSeriesMax(max: Int) {
-        seriesProgress.max = max
-    }
-
-    fun updateSeriesProgress(progressPct: Int) =
-        updateProgress(progressPct, seriesStatus, creatorStatus, seriesProgress)
-
-    fun setCreatorMax(max: Int) {
-        creatorProgress.max = max
-    }
-
-    fun updateCreatorProgress(progressPct: Int) =
-        updateProgress(progressPct,
-                       creatorStatus,
-                       characterStatus,
-                       creatorProgress)
-
-    fun setCharacterMax(max: Int) {
-        characterProgress.max = max
-    }
-
-    fun updateCharacterProgress(progressPct: Int) =
-        updateProgress(progressPct, characterStatus, null, characterProgress)
-
-    private fun updateProgress(
-        progressPct: Int,
-        currItemStatus: ImageView,
-        nextItemStatus: ImageView? = null,
-        currItemProgressBar: ProgressBar
-    ) {
-        if (progressPct == 100) {
-            currItemStatus.setImageResource(R.drawable.status_done)
-            nextItemStatus?.setImageResource(R.drawable.status_in_progress)
+        fun isComplete(bool: Boolean) {
+            bar.progress = if (bool) {
+                bar.max
+            } else {
+                0
+            }
         }
-
-        currItemProgressBar.setProgress(progressPct, true)
     }
 }

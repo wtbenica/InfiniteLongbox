@@ -63,7 +63,6 @@ class FilterViewModel : ViewModel() {
     }.asLiveData()
 
     var filterOptions: LiveData<List<FilterModel>> = filterType.switchMap {
-        Log.d(TAG, "Switching filters to: $it")
         when (it) {
             Series.Companion::class -> seriesOptions
             Publisher.Companion::class -> publisherOptions
@@ -87,7 +86,6 @@ class FilterViewModel : ViewModel() {
             updateCompleteCharacter,
             updateCompleteCreator
         ) { d1, d2, d3 ->
-            Log.d("$${APP}UPDATES_COMPLETE", "d1: $d1 d2: $d2 d3: $d3")
             d1 == true && d2 == true && d3 == true }
 
     class CombinedLiveData<T, K, S, R>(
@@ -130,11 +128,9 @@ class FilterViewModel : ViewModel() {
                     _updateCompleteSeries.postValue(false)
                     repository.updateSeriesAsync(seriesFilter.series.seriesId).await().let {
                         _updateCompleteSeries.postValue(true)
-                        Log.d(TAG, "SERIES FILTER UPDATE COMPLETE")
                     }
                 } else {
                     _updateCompleteSeries.postValue(true)
-                    Log.d(TAG, "SERIES FILTER UPDATE NOT REQUIRED")
                 }
             }.let {
                 withContext(Dispatchers.Default) {
@@ -143,22 +139,18 @@ class FilterViewModel : ViewModel() {
                         _updateCompleteCharacter.postValue(false)
                         repository.updateCharacterAsync(characterFilter.characterId).await().let {
                             _updateCompleteCharacter.postValue(true)
-                            Log.d(TAG, "CHARACTER FILTER UPDATE COMPLETE")
                         }
                     } else {
                         _updateCompleteCharacter.postValue(true)
-                        Log.d(TAG, "CHARACTER FILTER UPDATE NOT REQUIRED")
                     }
                 }.let {
                     if (filter.mCreators.isNotEmpty()) {
                         _updateCompleteCreator.postValue(false)
                         repository.updateCreatorsAsync(filter.mCreators.ids).await().let {
                             _updateCompleteCreator.postValue(true)
-                            Log.d(TAG, "CREATOR FILTER UPDATE COMPLETE")
                         }
                     } else {
                         _updateCompleteCreator.postValue(true)
-                        Log.d(TAG, "CREATOR FILTER UPDATE NOT REQUIRED")
                     }
                 }
             }

@@ -80,6 +80,7 @@ internal const val UPDATED_NAME_DETAILS_PAGE = "update_name_details_page"
 
 internal const val MONTHLY: Long = 30
 internal const val WEEKLY: Long = 7
+internal const val DAILY: Long = 1
 
 internal fun UPDATED_TAG(id: Int, type: String): String = "$type${id}_UPDATED"
 
@@ -150,7 +151,7 @@ class Repository private constructor(val context: Context) {
                 MainActivity.activeJob = CoroutineScope(Dispatchers.IO).async {
                     withContext(Dispatchers.IO) {
                         Log.d(TAG, "STARTING UPDATE")
-                        updater.updateAsync(progressUpdate)
+                        updater.updateStaticAsync(progressUpdate)
                     }.let {
                         Log.d(TAG, "Static update done")
                         mainActivity.runOnUiThread {

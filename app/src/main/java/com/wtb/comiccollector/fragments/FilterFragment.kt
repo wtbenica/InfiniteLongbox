@@ -123,7 +123,6 @@ class FilterFragment : Fragment(),
         )
 
         viewModel.updateComplete.observe(viewLifecycleOwner) {
-            Log.d(TAG, "UPDATE COMPLETE? $it")
             callback?.setProgressBar(it)
         }
     }
@@ -169,7 +168,6 @@ class FilterFragment : Fragment(),
         filterTypeChipGroup.setOnCheckedChangeListener { _, checkedId ->
             if (checkedId >= 0) {
                 view?.findViewById<FilterTypeChip<*>>(checkedId)?.let { filterChip ->
-                    Log.d(TAG, "Setting filter type: $filterChip ${filterChip.type}")
                     filterChip.type?.let { type -> viewModel.setFilterType(type) }
                 }
 

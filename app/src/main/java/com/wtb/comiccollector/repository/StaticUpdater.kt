@@ -29,9 +29,8 @@ class StaticUpdater private constructor(
     /**
      *  UpdateAsync - Updates publisher, series, role, and storytype tables
      */
-    @ExperimentalCoroutinesApi
-    internal suspend fun updateAsync(progressUpdate: ProgressUpdateCard) {
-        getAllPublishers(progressUpdate::updatePublisherProgress)
+    internal suspend fun updateStaticAsync(progressUpdate: ProgressUpdateCard) {
+        getAllPublishers(progressUpdate.publisherWrapper)
         database.transactionDao().upsertStatic(
             roles = getRoles(),
             storyTypes = getStoryTypes(),
@@ -39,9 +38,9 @@ class StaticUpdater private constructor(
         )
 
         if (!DEBUG) {
-            getAllSeries(progressUpdate::updateSeriesProgress)
-            getAllNameDetails(progressUpdate::updateCreatorProgress)
-            getAllCharacters(progressUpdate::updateCharacterProgress)
+            getAllSeries(progressUpdate.seriesWrapper)
+            getAllNameDetails(progressUpdate.creatorWrapper)
+            getAllCharacters(progressUpdate.characterWrapper)
             getAllSeriesBonds()
         }
     }
