@@ -320,7 +320,7 @@ abstract class Updater(
          * @return always returns a list (empty or non-empty). Does not report connection errors
          */
         internal suspend fun <GcdType : GcdJson<ModelType>, ModelType : DataModel, ArgType : Any>
-                retrieveItemsByArgument(
+                getItemsByArgument(
             arg: ArgType,
             apiCall: KSuspendFunction1<ArgType, List<Item<GcdType, ModelType>>>,
         ): List<ModelType> =
@@ -345,7 +345,7 @@ abstract class Updater(
             val lists = argList.chunked(20)
             val res = mutableListOf<ModelType>()
             for (elem in lists) {
-                res.addAll(retrieveItemsByArgument(elem, apiCall))
+                res.addAll(getItemsByArgument(elem, apiCall))
             }
             return res
         }
@@ -586,7 +586,7 @@ abstract class Updater(
         val missingItems: MutableList<FM> = mutableListOf()
 
         missingIds.chunked(20).forEach { ids ->
-            retrieveItemsByArgument(ids.toSet().toList(), getFkItems).let { items ->
+            getItemsByArgument(ids.toSet().toList(), getFkItems).let { items ->
                 missingItems.addAll(items)
             }
         }
@@ -639,7 +639,7 @@ abstract class Updater(
                             it.start()
                         }
                         val res = HP_INSTANCE
-                            ?: Handler(thread.looper).asCoroutineDispatcher("highPriorityDisptcher")
+                            ?: Handler(thread.looper).asCoroutineDispatcher("highPriorityDispatcher")
                         if (HP_INSTANCE == null) {
                             HP_INSTANCE = res
                         }
@@ -657,7 +657,7 @@ abstract class Updater(
                             it.start()
                         }
                         val res = LP_INSTANCE
-                            ?: Handler(thread.looper).asCoroutineDispatcher("lowPriorityDisptcher")
+                            ?: Handler(thread.looper).asCoroutineDispatcher("lowPriorityDispatcher")
                         if (LP_INSTANCE == null) {
                             LP_INSTANCE = res
                         }
