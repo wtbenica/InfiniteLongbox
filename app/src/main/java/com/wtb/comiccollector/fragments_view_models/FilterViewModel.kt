@@ -126,7 +126,7 @@ class FilterViewModel : ViewModel() {
                 val seriesFilter = filter.mSeries
                 if (seriesFilter != null) {
                     _updateCompleteSeries.postValue(false)
-                    repository.updateSeriesAsync(seriesFilter.series.seriesId).await().let {
+                    repository.updateSeriesAsync(seriesFilter.series).await().let {
                         _updateCompleteSeries.postValue(true)
                     }
                 } else {
@@ -137,7 +137,7 @@ class FilterViewModel : ViewModel() {
                     val characterFilter = filter.mCharacter
                     if (characterFilter != null) {
                         _updateCompleteCharacter.postValue(false)
-                        repository.updateCharacterAsync(characterFilter.characterId).await().let {
+                        repository.updateCharacterAsync(characterFilter).await().let {
                             _updateCompleteCharacter.postValue(true)
                         }
                     } else {
@@ -146,7 +146,7 @@ class FilterViewModel : ViewModel() {
                 }.let {
                     if (filter.mCreators.isNotEmpty()) {
                         _updateCompleteCreator.postValue(false)
-                        repository.updateCreatorsAsync(filter.mCreators.ids).await().let {
+                        repository.updateCreatorsAsync(filter.mCreators.toList()).await().let {
                             _updateCompleteCreator.postValue(true)
                         }
                     } else {

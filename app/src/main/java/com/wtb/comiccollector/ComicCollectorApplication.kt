@@ -8,10 +8,8 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.util.Log
 import com.wtb.comiccollector.network.RetrofitAPIClient
-import com.wtb.comiccollector.repository.Repository
+import com.wtb.comiccollector.repository.*
 import com.wtb.comiccollector.repository.SHARED_PREFS
-import com.wtb.comiccollector.repository.StaticUpdater
-import com.wtb.comiccollector.repository.UpdateIssueCover
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 @ExperimentalCoroutinesApi
@@ -34,6 +32,7 @@ class ComicCollectorApplication: Application() {
         Repository.initialize(this)
         UpdateIssueCover.initialize(webservice, prefs, this)
         StaticUpdater.initialize(webservice, prefs)
+        Expander.initialize(webservice, prefs)
         Log.d(TAG, "DONE INITIALIZING")
     }
 }

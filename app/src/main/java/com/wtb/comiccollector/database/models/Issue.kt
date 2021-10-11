@@ -53,7 +53,7 @@ data class Issue(
         get() = "COVER_$issueId.jpg"
 
     val url: String
-        get() = "https://infinite-longbox.uc.r.appspot.com/db_query/issue/$id/cover"
+        get() = "https://infinite-longbox.uc.r.appspot.com/db_query/issue/id/$id/cover"
 
     override val id: Int
         get() = issueId
