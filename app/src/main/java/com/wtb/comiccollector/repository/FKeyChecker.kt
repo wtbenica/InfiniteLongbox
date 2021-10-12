@@ -6,6 +6,7 @@ import com.wtb.comiccollector.Webservice
 import com.wtb.comiccollector.database.IssueDatabase
 import com.wtb.comiccollector.database.daos.BaseDao
 import com.wtb.comiccollector.database.models.*
+import com.wtb.comiccollector.repository.Updater.Companion.retrieveItemsByArgument
 import com.wtb.comiccollector.repository.Updater.PriorityDispatcher.Companion.highPriorityDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -59,7 +60,7 @@ class FKeyChecker(val database: IssueDatabase, private val webservice: Webservic
         val missingItems: MutableList<FM> = mutableListOf()
 
         missingIds.chunked(20).forEach { ids ->
-            Updater.retrieveItemsByArgument(ids.toSet().toList(), getFkItems).let { items: List<FM> ->
+            retrieveItemsByArgument(ids.toSet().toList(), getFkItems)?.let { items: List<FM> ->
                 Log.d(TAG, "UPDATING $theTime: adding ${items.size} to missingItems")
                 missingItems.addAll(items)
             }
@@ -137,14 +138,30 @@ class FKeyChecker(val database: IssueDatabase, private val webservice: Webservic
         )
 
     internal suspend fun <T : CreditX> checkFKeysCredit(credits: List<T>) {
+//        checkFKeysChunked(credits, this::checkCreditFkSeries)
+//        checkFKeysChunked(credits, this::checkCreditFkIssue)
         checkFKeysChunked(credits, this::checkCreditFkStory)
-        checkFKeysChunked(credits, this::checkCreditFkNameDetail)
+//        checkFKeysChunked(credits, this::checkCreditFkNameDetail)
     }
 
+    private suspend fun <T : CreditX> checkCreditFkSeries(credits: List<T>) =
+        checkForMissingForeignKeyModels(
+            itemsToCheck = credits,
+            getForeignKey = CreditX::series,
+            foreignKeyDao = database.seriesDao(),
+            getFkItems = webservice::getSeriesByIds,
+            checkFkFks = ::checkFKeysSeries
+        )
 
-    /**
-     * Checks credits foreign keys: name detail
-     */
+    private suspend fun <T : CreditX> checkCreditFkIssue(credits: List<T>) =
+        checkForMissingForeignKeyModels(
+            itemsToCheck = credits,
+            getForeignKey = CreditX::issue,
+            foreignKeyDao = database.issueDao(),
+            getFkItems = webservice::getIssuesByIds,
+            checkFkFks = ::checkFKeysIssue
+        )
+
     private suspend fun <T : CreditX> checkCreditFkNameDetail(credits: List<T>) =
         checkForMissingForeignKeyModels(
             itemsToCheck = credits,
@@ -164,8 +181,8 @@ class FKeyChecker(val database: IssueDatabase, private val webservice: Webservic
         )
 
     internal suspend fun checkFKeysSeriesBond(bonds: List<SeriesBond>) {
-        checkSeriesBondFkOriginIssue(bonds)
         checkSeriesBondFkOriginSeries(bonds)
+        checkSeriesBondFkOriginIssue(bonds)
         checkSeriesBondFkTargetIssue(bonds)
         checkSeriesBondFkTargetSeries(bonds)
     }

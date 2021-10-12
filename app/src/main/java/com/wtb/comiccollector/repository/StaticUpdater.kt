@@ -116,16 +116,16 @@ class StaticUpdater private constructor(
     private suspend fun getSeriesBonds(): List<SeriesBond>? =
         getItems(prefs, webservice::getSeriesBonds, UPDATED_BONDS)
 
-    private suspend fun getPublishersByPage(page: Int): List<Publisher> =
+    private suspend fun getPublishersByPage(page: Int): List<Publisher>? =
         retrieveItemsByArgument(page, webservice::getPublisherByPage)
 
-    private suspend fun getSeriesByPage(page: Int): List<Series> =
+    private suspend fun getSeriesByPage(page: Int): List<Series>? =
         retrieveItemsByArgument(page, webservice::getSeriesByPage)
 
-    private suspend fun getNameDetailsByPage(page: Int): List<NameDetail> =
+    private suspend fun getNameDetailsByPage(page: Int): List<NameDetail>? =
         retrieveItemsByArgument(page, webservice::getNameDetailsByPage)
 
-    private suspend fun getCharactersByPage(page: Int): List<Character> =
+    private suspend fun getCharactersByPage(page: Int): List<Character>? =
         retrieveItemsByArgument(page, webservice::getCharactersByPage)
 
 

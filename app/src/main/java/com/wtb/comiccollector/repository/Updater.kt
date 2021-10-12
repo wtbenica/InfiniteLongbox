@@ -154,22 +154,31 @@ abstract class Updater(
                 retrieveItemsByArgument(
             arg: ArgType,
             apiCall: KSuspendFunction1<ArgType, List<Item<GcdType, ModelType>>>,
-        ): List<ModelType> =
+        ): List<ModelType>? =
             supervisorScope {
                 Log.d(TAG, "Starting ${apiCall.name}")
                 runSafely(
                     name = "getItemsByArgument: ${apiCall.name}",
                     arg = arg,
                     queryFunction = {
-                        async { apiCall(it) }
+                        async {
+                            val res = apiCall(it)
+                            Log.d(
+                                TAG,
+                                "BOBA ${apiCall.name} ${res.size}/${
+                                    if (it is List<*>) "${it.size} $it" else ""
+                                }"
+                            )
+                            res
+                        }
                     })?.models
-            } ?: emptyList()
+            }
 
         /**
          * Get items by list
          * @return always returns a list (empty or non-empty). Does not report connection errors
          */
-        internal suspend fun <GcdType : GcdJson<ModelType>, ModelType : DataModel, ArgType : Any>
+        suspend fun <GcdType : GcdJson<ModelType>, ModelType : DataModel, ArgType : Any>
                 retrieveItemsByList(
             argList: List<ArgType>,
             apiCall: KSuspendFunction1<List<ArgType>, List<Item<GcdType, ModelType>>>,
@@ -177,7 +186,7 @@ abstract class Updater(
             val lists = argList.chunked(20)
             val res = mutableListOf<ModelType>()
             for (elem in lists) {
-                res.addAll(retrieveItemsByArgument(elem, apiCall))
+                retrieveItemsByArgument(elem, apiCall)?.let { res.addAll(it) }
             }
             return res
         }
@@ -201,12 +210,12 @@ abstract class Updater(
                 val items: List<ModelType>? = getItems(id)
                 Log.d(TAG, "updateById: numItems: ${items?.size}")
                 if (items != null && items.isNotEmpty()) {
-                    withContext(Dispatchers.Default) {
+                    async {
                         Log.d(TAG, "updateById: Following up")
                         followup(items)
-                    }.let {
+                    }.await().let {
                         Log.d(TAG, "updateById: Followup done")
-                        collector.collect(items)
+                        collector.dao.upsertSus(items)
                     }
                 }
                 return@coroutineScope items ?: emptyList()
@@ -241,7 +250,7 @@ abstract class Updater(
         prefs: SharedPreferences,
         savePageTag: String,
         saveTag: String,
-        getItemsByPage: suspend (Int) -> List<ModelType>,
+        getItemsByPage: suspend (Int) -> List<ModelType>?,
         verifyForeignKeys: suspend (List<ModelType>) -> Unit = {},
         dao: BaseDao<ModelType>,
         getNumPages: suspend () -> Count,
@@ -295,13 +304,13 @@ abstract class Updater(
         withContext(CoroutineScope(Dispatchers.IO).coroutineContext) {
             pagesComplete.forEachIndexed { currPage: Int, isComplete: Boolean ->
                 if (!isComplete) {
-                    val itemPage: List<ModelType> = getItemsByPage(currPage)
+                    val itemPage: List<ModelType>? = getItemsByPage(currPage)
 
                     // if request is successful, save and mark as updated
-                    if (itemPage.isNotEmpty()) {
-                        withContext(Dispatchers.Default) {
+                    if (itemPage != null && itemPage.isNotEmpty()) {
+                        async {
                             verifyForeignKeys(itemPage)
-                        }.let {
+                        }.await().let {
                             if (dao.upsertSus(itemPage)) {
                                 pagesComplete[currPage] = true
                                 pageFinished()

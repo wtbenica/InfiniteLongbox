@@ -10,7 +10,7 @@ class RetrofitAPIClient {
     companion object {
         private var retrofit: Retrofit? = null
 
-        internal fun getRetrofitClient(): Retrofit {
+        fun getRetrofitClient(): Retrofit {
 
             if (retrofit == null) {
                 val client = OkHttpClient.Builder()

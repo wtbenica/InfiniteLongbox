@@ -80,19 +80,21 @@ abstract class BaseDao<T : DataModel>(private val tableName: String) {
         }
 
         for (obj in objList) {
+            val s = when (obj) {
+                is Issue -> "Issue(issueId=${obj.issueId}, seriesId=${obj.series}, variantOf=${obj.variantOf}"
+                is Credit -> "Credit(story_id=${obj.story}, nameDetailId=${obj.nameDetail}"
+                is ExCredit -> "ExCredit(story_id=${obj.story}, nameDetailId=${obj.nameDetail}"
+                else     -> obj
+            }
+
             try {
                 val insertResult = insert(obj)
 
                 if (insertResult == -1L) {
                     update(obj)
+                    Log.d("CC2_", "SUCCESS: $s")
                 }
             } catch (sqlEx: SQLiteConstraintException) {
-                val s = when (obj) {
-                    is Issue -> "Issue(issueId=${obj.issueId}, seriesId=${obj.series}, variantOf=${obj.variantOf}"
-                    is Credit -> "Credit(story_id=${obj.story}, nameDetailId=${obj.nameDetail}"
-                    is ExCredit -> "ExCredit(story_id=${obj.story}, nameDetailId=${obj.nameDetail}"
-                    else     -> obj
-                }
                 Log.d("CC2_", "UGH!: $objClass $s $sqlEx")
             }
         }

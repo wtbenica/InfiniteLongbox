@@ -13,7 +13,7 @@ import kotlinx.coroutines.launch
 import java.time.Instant
 
 @ExperimentalCoroutinesApi
-abstract class Collector<ModelType : DataModel>(private val dao: BaseDao<ModelType>) {
+abstract class Collector<ModelType : DataModel>(val dao: BaseDao<ModelType>) {
     private var count: Int = 0
     private var startTime: Instant? = null
     private var itemList = mutableListOf<ModelType>()
@@ -27,9 +27,7 @@ abstract class Collector<ModelType : DataModel>(private val dao: BaseDao<ModelTy
 
         val currentTime = Instant.now()
 
-        if (++count == BUFFER_SIZE) {
-            saveList()
-        }
+        saveList()
 
         CoroutineScope(lowPriorityDispatcher).launch {
             delay(3000)
@@ -52,10 +50,10 @@ abstract class Collector<ModelType : DataModel>(private val dao: BaseDao<ModelTy
         itemList.clear()
         count = 0
     }
-    
+
     companion object {
         private const val TAG = APP + "Collector"
-        private const val BUFFER_SIZE = 500
+        private const val BUFFER_SIZE = 10
         private const val UPSERT_WAIT: Long = 1
 
         fun initialize(database: IssueDatabase) {
@@ -70,14 +68,19 @@ abstract class Collector<ModelType : DataModel>(private val dao: BaseDao<ModelTy
 
         @Volatile
         private var APP_COLL: AppearanceCollector? = null
+
         @Volatile
         private var CRE_COLL: CreditCollector? = null
+
         @Volatile
         private var EXC_COLL: ExCreditCollector? = null
+
         @Volatile
         private var STO_COLL: StoryCollector? = null
+
         @Volatile
         private var ISS_COLL: IssueCollector? = null
+
         @Volatile
         private var NMD_COLL: NameDetailCollector? = null
 
@@ -129,11 +132,16 @@ abstract class Collector<ModelType : DataModel>(private val dao: BaseDao<ModelTy
             }
         }
 
-        class AppearanceCollector(database: IssueDatabase) : Collector<Appearance>(database.appearanceDao())
+        class AppearanceCollector(database: IssueDatabase) :
+            Collector<Appearance>(database.appearanceDao())
+
         class CreditCollector(database: IssueDatabase) : Collector<Credit>(database.creditDao())
-        class ExCreditCollector(database: IssueDatabase) : Collector<ExCredit>(database.exCreditDao())
+        class ExCreditCollector(database: IssueDatabase) :
+            Collector<ExCredit>(database.exCreditDao())
+
         class StoryCollector(database: IssueDatabase) : Collector<Story>(database.storyDao())
         class IssueCollector(database: IssueDatabase) : Collector<Issue>(database.issueDao())
-        class NameDetailCollector(database: IssueDatabase) : Collector<NameDetail>(database.nameDetailDao())
+        class NameDetailCollector(database: IssueDatabase) :
+            Collector<NameDetail>(database.nameDetailDao())
     }
 }

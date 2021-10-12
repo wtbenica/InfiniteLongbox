@@ -7,17 +7,21 @@ import com.wtb.comiccollector.Webservice
 import com.wtb.comiccollector.database.models.*
 import com.wtb.comiccollector.repository.Updater.PriorityDispatcher.Companion.highPriorityDispatcher
 import kotlinx.coroutines.*
-import java.lang.IllegalStateException
 
 @ExperimentalCoroutinesApi
-class Expander private constructor(webservice: Webservice, prefs: SharedPreferences) : Updater(webservice,
-prefs) {
+class Expander private constructor(webservice: Webservice, prefs: SharedPreferences) : Updater(
+    webservice,
+    prefs
+) {
 
     fun expandSeriesAsync(series: Series) = seriesExpander.expandSeriesAsync(series)
-    fun expandCreatorsAsync(creators: List<Creator>) = creatorExpander.expandCreatorsAsync(creators)
+    fun expandCreatorsAsync(creators: List<Creator>) =
+        creatorExpander.expandCreatorsAsync(creators)
+
     fun expandIssueAsync(issues: List<Issue>) = issueExpander.expandIssueAsync(issues)
     fun expandStoryAsync(stories: List<Story>) = storyExpander.expandStoryAsync(stories)
-    fun expandCharacterAsync(characters: List<Character>) = characterExpander.expandCharacterAsync(characters)
+    fun expandCharacterAsync(characters: List<Character>) =
+        characterExpander.expandCharacterAsync(characters)
 
     private val seriesExpander
         get() = SeriesExpander()
@@ -57,7 +61,7 @@ prefs) {
                 collector = Collector.issueCollector()
             )
 
-        private suspend fun getIssuesBySeriesId(seriesId: Int): List<Issue> =
+        private suspend fun getIssuesBySeriesId(seriesId: Int): List<Issue>? =
             retrieveItemsByArgument(seriesId, webservice::getIssuesBySeries)
     }
 
@@ -153,12 +157,43 @@ prefs) {
                 collector = Collector.appearanceCollector()
             )
 
-        private suspend fun getAppearancesByCharacterId(characterId: Int): List<Appearance> =
+        private suspend fun getAppearancesByCharacterId(characterId: Int): List<Appearance>? =
             retrieveItemsByArgument(characterId, webservice::getAppearancesByCharacterIds)
     }
 
     inner class CreatorExpander {
         private val TAG = APP + "CreatorExpander"
+
+        internal fun expandCreators2Async(creators: List<Creator>): Deferred<Unit> =
+            CoroutineScope(highPriorityDispatcher).async {
+                val nameDetails: List<NameDetail> =
+                    database.nameDetailDao().getNameDetailsByCreatorIds(creators.ids)
+                val credits: List<Credit> = retrieveItemsByList(
+                    nameDetails.ids,
+                    webservice::getCreditsByNameDetail
+                )
+                val extracts: List<ExCredit> = retrieveItemsByList(
+                    nameDetails.ids,
+                    webservice::getExCreditsByNameDetail
+                )
+                val creditXs: List<CreditX> = credits + extracts
+                val stories = retrieveItemsByList(
+                    creditXs.map { it.story },
+                    webservice::getStoriesByIds
+                )
+                val issues: List<Issue> = retrieveItemsByList(
+                    stories.map { it.issue },
+                    webservice::getIssuesByIds
+                )
+                Log.d(TAG + "HOLLOW", "About to check ${issues.size} issues and upsert ${stories
+                    .size} " +
+                        "stories, ${credits.size} credits, and ${extracts.size} extracts")
+                fKeyChecker.checkFKeysIssue(issues)
+                database.storyDao().upsert(stories)
+                database.creditDao().upsert(credits)
+                database.exCreditDao().upsert(extracts)
+            }
+
 
         internal fun expandCreatorsAsync(creators: List<Creator>): Deferred<Unit> =
             CoroutineScope(highPriorityDispatcher).async {
