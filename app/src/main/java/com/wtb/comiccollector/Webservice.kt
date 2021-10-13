@@ -28,7 +28,7 @@ interface Webservice {
     @GET("/db_query/series/page/{page}")
     suspend fun getSeriesByPage(@Path("page") page: Int): List<Item<GcdSeries, Series>>
 
-    @GET("/db_query/name_details/page/{page}")
+    @GET("/db_query/name_detail/page/{page}")
     suspend fun getNameDetailsByPage(@Path("page") page: Int): List<Item<GcdNameDetail, NameDetail>>
 
     @GET("db_query/character/page/{page}")

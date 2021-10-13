@@ -16,7 +16,7 @@ class Expander private constructor(webservice: Webservice, prefs: SharedPreferen
 
     fun expandSeriesAsync(series: Series) = seriesExpander.expandSeriesAsync(series)
     fun expandCreatorsAsync(creators: List<Creator>) =
-        creatorExpander.expandCreatorsAsync(creators)
+        creatorExpander.expandCreators2Async(creators)
 
     fun expandIssueAsync(issues: List<Issue>) = issueExpander.expandIssueAsync(issues)
     fun expandStoryAsync(stories: List<Story>) = storyExpander.expandStoryAsync(stories)
@@ -185,10 +185,15 @@ class Expander private constructor(webservice: Webservice, prefs: SharedPreferen
                     stories.map { it.issue },
                     webservice::getIssuesByIds
                 )
-                Log.d(TAG + "HOLLOW", "About to check ${issues.size} issues and upsert ${stories
-                    .size} " +
-                        "stories, ${credits.size} credits, and ${extracts.size} extracts")
+                Log.d(
+                    TAG + "HOLLOW", "About to check ${issues.size} issues and upsert ${
+                        stories
+                            .size
+                    } " +
+                            "stories, ${credits.size} credits, and ${extracts.size} extracts"
+                )
                 fKeyChecker.checkFKeysIssue(issues)
+                database.issueDao().upsert(issues)
                 database.storyDao().upsert(stories)
                 database.creditDao().upsert(credits)
                 database.exCreditDao().upsert(extracts)

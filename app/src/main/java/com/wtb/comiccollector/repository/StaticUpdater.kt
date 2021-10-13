@@ -1,12 +1,9 @@
 package com.wtb.comiccollector.repository
 
 import android.content.SharedPreferences
-import android.util.Log
 import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.Webservice
 import com.wtb.comiccollector.database.models.*
-import com.wtb.comiccollector.repository.Updater.PriorityDispatcher.Companion.highPriorityDispatcher
-import com.wtb.comiccollector.repository.Updater.PriorityDispatcher.Companion.lowPriorityDispatcher
 import com.wtb.comiccollector.repository.Updater.PriorityDispatcher.Companion.nowDispatcher
 import com.wtb.comiccollector.views.ProgressUpdateCard
 import com.wtb.comiccollector.views.ProgressUpdateCard.ProgressWrapper
