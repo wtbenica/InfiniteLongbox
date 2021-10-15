@@ -1,7 +1,6 @@
 package com.wtb.comiccollector.repository
 
 import android.content.SharedPreferences
-import android.util.Log
 import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.Webservice
 import com.wtb.comiccollector.database.models.*
@@ -16,12 +15,12 @@ class Expander private constructor(webservice: Webservice, prefs: SharedPreferen
 
     fun expandSeriesAsync(series: Series) = seriesExpander.expandSeriesAsync(series)
     fun expandCreatorsAsync(creators: List<Creator>) =
-        creatorExpander.expandCreators2Async(creators)
+        creatorExpander.expandCreatorsAsync(creators)
 
     fun expandIssueAsync(issues: List<Issue>) = issueExpander.expandIssueAsync(issues)
     fun expandStoryAsync(stories: List<Story>) = storyExpander.expandStoryAsync(stories)
     fun expandCharacterAsync(characters: List<Character>) =
-        characterExpander.expandCharacterAsync(characters)
+        characterExpander.expandCharacter2Async(characters)
 
     private val seriesExpander
         get() = SeriesExpander()
@@ -137,106 +136,91 @@ class Expander private constructor(webservice: Webservice, prefs: SharedPreferen
     }
 
     inner class CharacterExpander {
-        internal fun expandCharacterAsync(characters: List<Character>): Deferred<Unit> =
+        internal fun expandCharacter2Async(characters: List<Character>): Deferred<Unit> =
             CoroutineScope(highPriorityDispatcher).async {
-                withContext(highPriorityDispatcher) {
-                    characters.ids.forEach { updateCharacterAppearances(it) }
-                }
+                val appearances: List<Appearance> = retrieveItemsByList(
+                    argList = characters.ids,
+                    apiCall = webservice::getAppearancesByCharacterIds
+                )
+                val storyIds = appearances.map { it.story }
+
+                val stories: List<Story> = retrieveItemsByList(
+                    argList = storyIds,
+                    apiCall = webservice::getStoriesByIds
+                )
+                val issueIds = stories.map { it.issue }
+
+                val issues: List<Issue> = retrieveItemsByList(
+                    argList = issueIds,
+                    apiCall = webservice::getIssuesByIds
+                )
+                fKeyChecker.checkFKeysIssue(issues)
+
+                database.issueDao().upsert(issues)
+                database.storyDao().upsert(stories)
+                database.appearanceDao().upsert(appearances)
+                expandStoryAsync(stories)
             }
 
-        /**
-         * Gets character appearances, adds missing foreign key models
-         */
-        private suspend fun updateCharacterAppearances(characterId: Int) =
-            updateById(
-                prefs = prefs,
-                saveTag = ::characterTag,
-                getItems = ::getAppearancesByCharacterId,
-                id = characterId,
-                followup = fKeyChecker::checkFKeysAppearance,
-                collector = Collector.appearanceCollector()
-            )
-
-        private suspend fun getAppearancesByCharacterId(characterId: Int): List<Appearance>? =
-            retrieveItemsByArgument(characterId, webservice::getAppearancesByCharacterIds)
+//        internal fun expandCharacterAsync(characters: List<Character>): Deferred<Unit> =
+//            CoroutineScope(highPriorityDispatcher).async {
+//                withContext(highPriorityDispatcher) {
+//                    characters.ids.forEach { updateCharacterAppearances(it) }
+//                }
+//            }
+//
+//        /**
+//         * Gets character appearances, adds missing foreign key models
+//         */
+//        private suspend fun updateCharacterAppearances(characterId: Int) =
+//            updateById(
+//                prefs = prefs,
+//                saveTag = ::characterTag,
+//                getItems = ::getAppearancesByCharacterId,
+//                id = characterId,
+//                followup = fKeyChecker::checkFKeysAppearance,
+//                collector = Collector.appearanceCollector()
+//            )
+//
+//        private suspend fun getAppearancesByCharacterId(characterId: Int): List<Appearance>? =
+//            retrieveItemsByArgument(characterId, webservice::getAppearancesByCharacterIds)
     }
 
     inner class CreatorExpander {
         private val TAG = APP + "CreatorExpander"
 
-        internal fun expandCreators2Async(creators: List<Creator>): Deferred<Unit> =
+        internal fun expandCreatorsAsync(creators: List<Creator>): Deferred<Unit> =
             CoroutineScope(highPriorityDispatcher).async {
                 val nameDetails: List<NameDetail> =
                     database.nameDetailDao().getNameDetailsByCreatorIds(creators.ids)
+
                 val credits: List<Credit> = retrieveItemsByList(
-                    nameDetails.ids,
-                    webservice::getCreditsByNameDetail
+                    argList = nameDetails.ids,
+                    apiCall = webservice::getCreditsByNameDetail
                 )
                 val extracts: List<ExCredit> = retrieveItemsByList(
-                    nameDetails.ids,
-                    webservice::getExCreditsByNameDetail
+                    argList = nameDetails.ids,
+                    apiCall = webservice::getExCreditsByNameDetail
                 )
                 val creditXs: List<CreditX> = credits + extracts
+
                 val stories = retrieveItemsByList(
-                    creditXs.map { it.story },
-                    webservice::getStoriesByIds
+                    argList = creditXs.map { it.story },
+                    apiCall = webservice::getStoriesByIds
                 )
+
                 val issues: List<Issue> = retrieveItemsByList(
                     stories.map { it.issue },
                     webservice::getIssuesByIds
                 )
-                Log.d(
-                    TAG + "HOLLOW", "About to check ${issues.size} issues and upsert ${
-                        stories
-                            .size
-                    } " +
-                            "stories, ${credits.size} credits, and ${extracts.size} extracts"
-                )
                 fKeyChecker.checkFKeysIssue(issues)
+
                 database.issueDao().upsert(issues)
                 database.storyDao().upsert(stories)
                 database.creditDao().upsert(credits)
                 database.exCreditDao().upsert(extracts)
+                expandStoryAsync(stories)
             }
-
-
-        internal fun expandCreatorsAsync(creators: List<Creator>): Deferred<Unit> =
-            CoroutineScope(highPriorityDispatcher).async {
-                withContext(highPriorityDispatcher) {
-                    Log.d(TAG, "Expanding Creators ${creators.size}")
-                    val nameDetails: List<NameDetail> =
-                        database.nameDetailDao().getNameDetailsByCreatorIds(creators.ids)
-                    Log.d(TAG, "Found ${nameDetails.size} NameDetails")
-                    updateNameDetailsCredits(nameDetails.ids)
-                    updateNameDetailsExCredits(nameDetails.ids)
-                }
-            }
-
-        private suspend fun updateNameDetailsCredits(nameDetailIds: List<Int>) =
-            updateById(
-                prefs = prefs,
-                saveTag = null,
-                getItems = ::retrieveCreditsByNameDetailIds,
-                id = nameDetailIds,
-                followup = fKeyChecker::checkFKeysCredit,
-                collector = Collector.creditCollector()
-            )
-
-        private suspend fun updateNameDetailsExCredits(nameDetailIds: List<Int>) =
-            updateById(
-                prefs = prefs,
-                saveTag = null,
-                getItems = ::retrieveExCreditsByNameDetailIds,
-                id = nameDetailIds,
-                followup = fKeyChecker::checkFKeysCredit,
-                collector = Collector.exCreditCollector()
-            )
-
-        private suspend fun retrieveCreditsByNameDetailIds(nameDetailIds: List<Int>): List<Credit> =
-            retrieveItemsByList(nameDetailIds, webservice::getCreditsByNameDetail)
-
-        private suspend fun retrieveExCreditsByNameDetailIds(nameDetailIds: List<Int>): List<ExCredit> =
-            retrieveItemsByList(nameDetailIds, webservice::getExCreditsByNameDetail)
     }
 
     companion object {

@@ -83,8 +83,8 @@ interface Webservice {
     suspend fun getExCreditsByNameDetail(@Path("nameDetailIds") nameDetailIds: List<Int>): List<Item<GcdExCredit, ExCredit>>
 
     // GET _ by Characters
-    @GET("db_query/character/id/{characterId}/appearances")
-    suspend fun getAppearancesByCharacterIds(@Path("characterId") characterId: Int): List<Item<GcdCharacterAppearance, Appearance>>
+    @GET("db_query/character/ids/{characterIds}/appearances")
+    suspend fun getAppearancesByCharacterIds(@Path("characterIds") characterId: List<Int>): List<Item<GcdCharacterAppearance, Appearance>>
 
     // GET Roles
     @GET("/db_query/role/all")
