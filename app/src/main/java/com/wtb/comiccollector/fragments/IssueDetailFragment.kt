@@ -506,7 +506,10 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback,
 
     private fun updateCover() {
         if (coverUri != null) {
-            coverImageView.setImageURI(coverUri)
+            coverImageView.apply {
+                setImageURI(coverUri)
+                isClickable = true
+            }
         } else {
             coverImageView.apply {
                 setImageResource(R.drawable.cover_missing)

@@ -81,9 +81,11 @@ abstract class IssueDatabase : RoomDatabase() {
                             }
                         }
                     }
-                ).addMigrations(
-                    migration_1_2, migration_2_3
                 )
+                    .createFromAsset("issue-database")
+//                    .addMigrations(
+//                    migration_1_2, migration_2_3
+//                )
                     .build().also {
                         INSTANCE = it
                     }
@@ -93,21 +95,21 @@ abstract class IssueDatabase : RoomDatabase() {
         /*
         I'm leaving these here as templates
          */
-        @Language("RoomSql")
-        val migration_1_2 = SimpleMigration(
-            1, 2,
-            """DROP INDEX index_MyCollection_series""",
-            """CREATE INDEX IF NOT EXISTS index_MyCollection_series ON mycollection(series)""",
-        )
-
-        @Language("RoomSql")
-        val migration_2_3 = SimpleMigration(
-            2, 3,
-            """ALTER TABLE cover ADD COLUMN markedDelete INTEGER NOT NULL DEFAULT 0""",
-            """UPDATE cover SET markedDelete = 0 WHERE issue IN ( SELECT firstIssue from series 
-                ) OR issue in ( SELECT issue FROM mycollection )"""
-        )
-
+//        @Language("RoomSql")
+//        val migration_1_2 = SimpleMigration(
+//            1, 2,
+//            """DROP INDEX index_MyCollection_series""",
+//            """CREATE INDEX IF NOT EXISTS index_MyCollection_series ON mycollection(series)""",
+//        )
+//
+//        @Language("RoomSql")
+//        val migration_2_3 = SimpleMigration(
+//            2, 3,
+//            """ALTER TABLE cover ADD COLUMN markedDelete INTEGER NOT NULL DEFAULT 0""",
+//            """UPDATE cover SET markedDelete = 0 WHERE issue IN ( SELECT firstIssue from series
+//                ) OR issue in ( SELECT issue FROM mycollection )"""
+//        )
+//
         //        val migration_1_2 = SimpleMigration(
         //            1,
         //            2,
