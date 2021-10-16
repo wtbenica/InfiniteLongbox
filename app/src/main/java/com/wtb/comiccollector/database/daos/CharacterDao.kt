@@ -72,7 +72,7 @@ abstract class CharacterDao : BaseDao<Character>("character") {
             """)
         }
 
-        if (filter.mCreators.isNotEmpty()) {
+        if (filter.hasCreator()) {
             val creatorsList = modelsToSqlIdString(filter.mCreators)
 
             tableJoinString.append("""JOIN story sy ON sy.storyId = ap.story """)

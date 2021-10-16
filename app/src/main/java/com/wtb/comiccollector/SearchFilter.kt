@@ -287,10 +287,10 @@ class SortType(
 
     val sortString: String
         get() {
-            val o2 = order2
             val primarySort =
                 """${if (table != null) "$table." else ""}$sortColumn ${order.option}"""
 
+            val o2 = order2
             val secondarySort: String =
                 if (sortColumn2 != null && table2 != null && o2 != null)
                     ", $table2.$sortColumn2 ${o2.option}"
