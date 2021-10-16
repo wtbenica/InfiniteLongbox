@@ -65,6 +65,11 @@ class SeriesListFragment : ListFragment<FullSeries, SeriesListFragment.SeriesHol
         override fun onBindViewHolder(holder: SeriesHolder, position: Int) {
             getItem(position)?.let { holder.bind(it) }
         }
+
+//        override fun onViewRecycled(holder: SeriesHolder) {
+//            super.onViewRecycled(holder)
+//            holder.clean()
+//        }
     }
 
     inner class SeriesHolder(parent: ViewGroup) : RecyclerView.ViewHolder(
@@ -109,10 +114,8 @@ class SeriesListFragment : ListFragment<FullSeries, SeriesListFragment.SeriesHol
             )
             if (firstIssue?.coverUri != null) {
                 seriesImageView.setImageURI(firstIssue.coverUri)
-                seriesImageView.scaleType = ImageView.ScaleType.CENTER_CROP
             } else {
                 seriesImageView.setImageDrawable(drawable)
-                seriesImageView.scaleType = ImageView.ScaleType.MATRIX
             }
 
             seriesDateRangeTextView.text = this.item.series.dateRange
@@ -124,6 +127,10 @@ class SeriesListFragment : ListFragment<FullSeries, SeriesListFragment.SeriesHol
                 } else {
                     View.VISIBLE
                 }
+        }
+
+        fun clean() {
+            seriesImageView.scaleType = ImageView.ScaleType.MATRIX
         }
 
         override fun onClick(v: View?) {
