@@ -10,8 +10,8 @@ import com.wtb.comiccollector.views.ProgressUpdateCard.ProgressWrapper
 import kotlinx.coroutines.*
 
 /**
- * Static updater
- *
+ * Static updater - deprecated
+ * might still be needed to pull updates later, so keeping it around ftm
  * @property webservice
  * @property database
  * @property prefs

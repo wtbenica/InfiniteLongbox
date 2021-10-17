@@ -12,18 +12,14 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:animateLayoutChanges="true"
-        app:cardMaxElevation="8dp"
         tools:layout_width="200dp">
 
         <ImageView
             android:id="@+id/no_cover"
+            style="@style/NoCover"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:adjustViewBounds="true"
-            android:alpha="0"
             android:contentDescription="@string/description_issue_cover"
-            android:scaleType="fitStart"
-            android:src="@drawable/cover_missing"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
@@ -33,10 +29,11 @@
             tools:visibility="visible" />
 
         <ImageView
+            android:id="@+id/bg_list_item_issue"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:scaleType="matrix"
             android:contentDescription="background - halftone design"
+            android:scaleType="matrix"
             android:src="@drawable/bg_cyan"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -63,7 +60,7 @@
             android:layout_height="wrap_content"
             android:layout_marginEnd="@dimen/margin_default"
             android:layout_marginBottom="@dimen/margin_default"
-            android:background="@color/transparent_white"
+            android:background="@color/amnesia_light_transparent"
             android:padding="@dimen/margin_default"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"

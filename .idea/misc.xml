@@ -6,6 +6,7 @@
         <entry key="../../../../layout/custom_preview.xml" value="0.3972222222222222" />
         <entry key="../../Android/Sdk/platforms/android-30/data/res/drawable/progress_horizontal_material.xml" value="0.67" />
         <entry key="../../Android/Sdk/platforms/android-30/data/res/drawable/progress_indeterminate_horizontal_material.xml" value="0.10598290598290598" />
+        <entry key="app/src/main/res/drawable-anydpi/cover_missing.xml" value="0.14166666666666666" />
         <entry key="app/src/main/res/drawable/add_collection.xml" value="0.27341772151898736" />
         <entry key="app/src/main/res/drawable/add_wish_list.xml" value="0.1" />
         <entry key="app/src/main/res/drawable/alboha_bg.xml" value="0.5" />
@@ -19,6 +20,7 @@
         <entry key="app/src/main/res/drawable/bg_character_name.xml" value="0.2111111111111111" />
         <entry key="app/src/main/res/drawable/bg_progress.xml" value="0.15" />
         <entry key="app/src/main/res/drawable/bg_series_dates.xml" value="0.27341772151898736" />
+        <entry key="app/src/main/res/drawable/bg_series_title.xml" value="0.5" />
         <entry key="app/src/main/res/drawable/done.xml" value="0.27341772151898736" />
         <entry key="app/src/main/res/drawable/dot_vortex.xml" value="0.21145833333333333" />
         <entry key="app/src/main/res/drawable/fofof.xml" value="0.27692307692307694" />
@@ -55,10 +57,10 @@
         <entry key="app/src/main/res/layout/issue_detail_issue_info_box.xml" value="0.11153846153846154" />
         <entry key="app/src/main/res/layout/list_item_character.xml" value="0.26033755274261605" />
         <entry key="app/src/main/res/layout/list_item_filter_option_auto_complete.xml" value="0.26033755274261605" />
-        <entry key="app/src/main/res/layout/list_item_issue.xml" value="0.67" />
-        <entry key="app/src/main/res/layout/list_item_issue_variant.xml" value="0.75" />
+        <entry key="app/src/main/res/layout/list_item_issue.xml" value="0.4438305709023941" />
+        <entry key="app/src/main/res/layout/list_item_issue_variant.xml" value="0.3553299492385787" />
         <entry key="app/src/main/res/layout/list_item_search_type.xml" value="0.2636752136752137" />
-        <entry key="app/src/main/res/layout/list_item_series.xml" value="0.34379746835443037" />
+        <entry key="app/src/main/res/layout/list_item_series.xml" value="0.5" />
         <entry key="app/src/main/res/layout/list_item_simple.xml" value="0.5" />
         <entry key="app/src/main/res/layout/list_item_variant.xml" value="0.2636752136752137" />
         <entry key="app/src/main/res/layout/row_item_appearance.xml" value="0.1" />
@@ -68,7 +70,7 @@
       </map>
     </option>
   </component>
-  <component name="ProjectRootManager" version="2" languageLevel="JDK_X" project-jdk-name="1.8" project-jdk-type="JavaSDK">
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_15" project-jdk-name="1.8" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/build/classes" />
   </component>
   <component name="ProjectType">

@@ -29,7 +29,6 @@
             android:id="@+id/list_item_series_name_text"
             style="@style/ListItemTitleText.Series"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
             android:singleLine="true"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -53,11 +52,13 @@
                 tools:text="(1990-2005)" />
 
             <View
-                android:layout_width="1dp"
+                android:layout_marginStart="@dimen/margin_default"
+                android:layout_marginEnd="@dimen/margin_default"
+                android:layout_width="2dp"
                 android:layout_height="match_parent"
                 android:layout_marginTop="@dimen/margin_narrow"
                 android:layout_marginBottom="@dimen/margin_narrow"
-                android:background="@color/tag_creator" />
+                android:background="?attr/colorPrimaryDark" />
 
             <TextView
                 android:id="@+id/list_item_series_format"

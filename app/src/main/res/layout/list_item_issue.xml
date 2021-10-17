@@ -4,8 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     style="@style/mCardView.ListItemIssue"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:animateLayoutChanges="true">
+    android:layout_height="wrap_content">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/wrapper"
@@ -16,13 +15,10 @@
 
         <ImageView
             android:id="@+id/no_cover"
+            style="@style/NoCover"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:adjustViewBounds="true"
-            android:alpha="0"
             android:contentDescription="@string/description_issue_cover"
-            android:scaleType="fitStart"
-            android:src="@drawable/cover_missing"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
@@ -32,8 +28,10 @@
             tools:visibility="visible" />
 
         <ImageView
+            android:id="@+id/bg_list_item_issue"
             android:layout_width="0dp"
             android:layout_height="0dp"
+            android:contentDescription="background - halftone design"
             android:scaleType="matrix"
             android:src="@drawable/bg_cyan"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -61,7 +59,7 @@
             android:layout_height="wrap_content"
             android:layout_marginEnd="@dimen/margin_default"
             android:layout_marginBottom="@dimen/margin_default"
-            android:background="@color/transparent_white"
+            android:background="@color/amnesia_light_transparent"
             android:padding="@dimen/margin_default"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -95,8 +93,8 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/progress_bar_box">
 
                 <com.wtb.comiccollector.views.AddCollectionButton
@@ -111,8 +109,8 @@
                     android:id="@+id/btn_issue_list_add_wish_list"
                     android:layout_width="32dp"
                     android:layout_height="32dp"
-                    android:scaleType="fitCenter"
                     android:background="@android:color/transparent"
+                    android:scaleType="fitCenter"
                     android:src="@drawable/add_wish_list"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toStartOf="parent" />

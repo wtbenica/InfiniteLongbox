@@ -4,9 +4,10 @@ import android.graphics.Rect
 import android.view.View
 import androidx.recyclerview.widget.RecyclerView
 
-class ItemOffsetDecoration(itemOffset: Int) :
+class ItemOffsetDecoration(itemOffset: Int, itemOffsetHorizontal: Int? = null) :
     RecyclerView.ItemDecoration() {
     private var mItemOffset = itemOffset
+    private var mItemOffsetHorizontal = itemOffsetHorizontal
 
     override fun getItemOffsets(
         outRect: Rect,
@@ -24,7 +25,7 @@ class ItemOffsetDecoration(itemOffset: Int) :
 
         outRect.top = mItemOffset / topDivisor
         outRect.bottom = mItemOffset / bottomDivisor
-        outRect.left = mItemOffset
-        outRect.right = mItemOffset
+        outRect.left = mItemOffsetHorizontal ?: mItemOffset
+        outRect.right = mItemOffsetHorizontal ?: mItemOffset
     }
 }
