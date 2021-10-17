@@ -59,88 +59,101 @@ abstract class CreatorDao : BaseDao<Creator>("creator") {
             //language=RoomSql
             tableJoinString.append(
                 """SELECT DISTINCT cr.* 
-                        FROM creator cr 
-                """)
+                FROM creator cr 
+                """
+            )
 
             if (filter.isNotEmpty()) {
                 tableJoinString.append(
                     """JOIN nameDetail nd ON cr.creatorId = nd.creator 
-                        JOIN credit ct ON ct.nameDetail = nd.nameDetailId 
-                        """)
+                    JOIN credit ct ON ct.nameDetail = nd.nameDetailId 
+                    """
+                )
             }
 
             //language=RoomSql
             filter.mSeries?.let {
                 conditionsString.append(
                     """${connectWord()} ct.series = ${it.series.seriesId}
-                        """)
+                    """
+                )
             }
 
             if (filter.hasPublisher()) {
                 val publisherList = modelsToSqlIdString(filter.mPublishers)
-                tableJoinString.append("""JOIN series ss on ct.series = ss.seriesId """)
+                tableJoinString.append(
+                    """JOIN series ss on ct.series = ss.seriesId 
+                    """
+                )
 
-                conditionsString.append("""${connectWord()} ss.publisher IN $publisherList  
-                """)
+                conditionsString.append(
+                    """${connectWord()} ss.publisher IN $publisherList  
+                    """
+                )
             }
 
             if (filter.hasCreator()) {
                 tableJoinString.append(
                     """JOIN story sy ON sy.storyId = ct.story
-                        """
+                    """
                 )
 
                 for (creatorId in filter.mCreators.ids) {
                     conditionsString.append(
-                        """${connectWord()} (
-                            sy.storyId IN (
-                                SELECT ct.story
-                                FROM credit ct
-                                WHERE ct.nameDetail IN (
-                                    SELECT nl.nameDetailId
-                                    FROM namedetail nl
-                                    WHERE nl.creator = $creatorId)
-                            )
-                            OR sy.storyId IN (
-                                SELECT ect.story
-                                FROM excredit ect
-                                WHERE ect.nameDetail IN (
-                                    SELECT nl.nameDetailId
-                                    FROM namedetail nl
-                                    WHERE nl.creator = $creatorId)
-                            )
+                        """${connectWord()} sy.storyId IN (
+                            SELECT ct.story
+                            FROM credit ct
+                            WHERE ct.nameDetail IN (
+                                SELECT nl.nameDetailId
+                                FROM namedetail nl
+                                WHERE nl.creator = $creatorId)
                         )
-                    """)
+                        """
+                    )
                 }
             }
 
             if (filter.hasDateFilter() || filter.mMyCollection) {
-                tableJoinString.append("""JOIN issue ie on ct.issue = ie.issueId """)
+                tableJoinString.append("""JOIN issue ie on ct.issue = ie.issueId 
+                """)
 
                 if (filter.hasDateFilter()) {
                     //language=RoomSql
                     conditionsString.append(
                         """${connectWord()} ie.releaseDate <= '${filter.mEndDate}'
-                            AND ie.releaseDate > '${filter.mStartDate}'
-                        """)
+                        AND ie.releaseDate > '${filter.mStartDate}'
+                        """
+                    )
                 }
 
                 if (filter.mMyCollection) {
                     conditionsString.append(
                         """${connectWord()} ie.issueId IN (
                             SELECT issue
-                            FROM mycollection) 
-                        """)
+                            FROM mycollection
+                        ) 
+                        """
+                    )
                 }
             }
 
             filter.mTextFilter?.let { textFilter ->
                 val text = textFilterToString(textFilter.text)
-                conditionsString.append("""${connectWord()} nd.name LIKE ?
-                OR cr.name LIKE ?
-            """)
+                conditionsString.append(
+                    """${connectWord()} nd.name LIKE ?
+                    OR cr.name LIKE ?
+                    """
+                )
                 args.addAll(listOf(text, text))
             }
+
+            if (filter.hasCreator()) {
+                conditionsString.append(
+                    """${connectWord()} cr.creatorId NOT IN ${modelsToSqlIdString(filter.mCreators)}
+                    """
+                )
+            }
+
 
             val allArgs: ArrayList<Any> = arrayListOf()
             args.forEach { allArgs.add(it) }
@@ -158,23 +171,26 @@ abstract class CreatorDao : BaseDao<Creator>("creator") {
                 "ORDER BY $sortString"
             } ?: ""
 
-            val tableJoinString2 =
-                tableJoinString.replace(Regex("credit"), "excredit")
-                    .replace(Regex(" ct"), " ect")
-            val conditionsString2 = conditionsString.replace(Regex(" ct"), " ect")
-            return SimpleSQLiteQuery(
+            val tableJoinString2 = sqlCreditToExCredit(tableJoinString)
+            val conditionsString2 = sqlCreditToExCredit(conditionsString)
+            val simpleSQLiteQuery = SimpleSQLiteQuery(
                 """
                     SELECT *
-                    FROM 
-                    ( 
+                    FROM ( 
                         $tableJoinString$conditionsString 
                         UNION 
                         $tableJoinString2$conditionsString2
-                    ) 
+                    )
                     $sortClause
                 """,
                 allArgs.toArray()
             )
+            Log.d(TAG, "XYZ ${simpleSQLiteQuery.sql}")
+            return simpleSQLiteQuery
         }
+
+        private fun sqlCreditToExCredit(tableJoinString: StringBuilder) =
+            tableJoinString.replace(Regex("credit"), "excredit")
+                .replace(Regex(" ct"), " ect")
     }
 }

@@ -1,5 +1,6 @@
 package com.wtb.comiccollector.database.daos
 
+import android.util.Log
 import androidx.paging.PagingSource
 import androidx.room.Dao
 import androidx.room.Query
@@ -54,62 +55,114 @@ abstract class CharacterDao : BaseDao<Character>("character") {
         val conditionsString = StringBuilder()
         val args: ArrayList<Any> = arrayListOf()
 
-        fun connectword(): String = if (conditionsString.isEmpty()) "WHERE" else "AND"
+        fun connectWord(): String = if (conditionsString.isEmpty()) "WHERE" else "AND"
 
-        tableJoinString.append("""SELECT DISTINCT ch.* 
-                FROM character ch 
-                """)
+        tableJoinString.append(
+            """SELECT DISTINCT ch.* 
+            FROM character ch 
+            JOIN appearance ap ON ap.character = ch.characterId 
+            """
+        )
 
         if (filter.isNotEmpty()) {
-            tableJoinString.append("""JOIN appearance ap ON ap.character = ch.characterId 
-                JOIN issue ie ON ap.issue = ie.issueId 
-                """)
+            tableJoinString.append(
+                """JOIN issue ie ON ap.issue = ie.issueId 
+                """
+            )
         }
+
+
+        if (filter.hasDateFilter()) {
+            conditionsString.append(
+                """${connectWord()} ie.releaseDate <= '${filter.mEndDate}'
+                AND ie.releaseDate > '${filter.mStartDate}'
+                """
+            )
+        }
+
         if (filter.mPublishers.isNotEmpty()) {
             val publisherList = modelsToSqlIdString(filter.mPublishers)
 
-            conditionsString.append("""${connectword()} ch.publisher IN $publisherList  
-            """)
+            conditionsString.append(
+                """${connectWord()} ch.publisher IN $publisherList  
+                """
+            )
         }
 
-        if (filter.mCreators.isNotEmpty()) {
+        if (filter.hasCharacter()) {
+            tableJoinString.append(
+                """JOIN story sy2 ON sy2.storyId = ap.story
+                """
+            )
+
+            conditionsString.append(
+                """${connectWord()} sy2.storyId IN (
+                    SELECT story
+                    FROM appearance
+                    WHERE character = ${filter.mCharacter!!.id}
+                )
+                """
+            )
+
+            conditionsString.append(
+                """${connectWord()} ch.characterId != ${filter.mCharacter!!.id}
+                """
+            )
+        }
+
+        if (filter.hasCreator()) {
             val creatorsList = modelsToSqlIdString(filter.mCreators)
 
-            tableJoinString.append("""JOIN story sy ON sy.storyId = ap.story """)
+            tableJoinString.append(
+                """JOIN story sy ON sy.storyId = ap.story 
+                """
+            )
 
-            conditionsString.append("""${connectword()} (sy.storyId IN (
-                SELECT story
-                FROM credit ct
-                JOIN namedetail nl on nl.nameDetailId = ct.nameDetail
-                WHERE nl.creator IN $creatorsList)
-                OR sy.storyId IN (
-                SELECT story
-                FROM excredit ect
-                JOIN namedetail nl on nl.nameDetailId = ect.nameDetail
-                WHERE nl.creator IN $creatorsList))
-            """)
+            conditionsString.append(
+                """${connectWord()} (
+                    sy.storyId IN (
+                        SELECT story
+                        FROM credit ct
+                        JOIN namedetail nl on nl.nameDetailId = ct.nameDetail
+                        WHERE nl.creator IN $creatorsList
+                    )
+                    OR sy.storyId IN (
+                        SELECT story
+                        FROM excredit ect
+                        JOIN namedetail nl on nl.nameDetailId = ect.nameDetail
+                        WHERE nl.creator IN $creatorsList
+                    )
+                )
+                """
+            )
         }
 
         filter.mSeries?.let {
-            conditionsString.append("""${connectword()} ie.series = ? 
-                """)
+            conditionsString.append(
+                """${connectWord()} ie.series = ? 
+                """
+            )
 
             args.add(it.series.seriesId)
         }
 
         if (filter.mMyCollection) {
-            conditionsString.append("""${connectword()} ie.issueId IN (
-                SELECT issue
-                FROM mycollection) 
-                """)
+            conditionsString.append(
+                """${connectWord()} ie.issueId IN (
+                    SELECT issue
+                    FROM mycollection
+                ) 
+                """
+            )
         }
 
         filter.mTextFilter?.let { textFilter ->
             val text = textFilterToString(textFilter.text)
             conditionsString.append(
-                """${connectword()} ch.name LIKE ?
-                    OR ch.alterEgo LIKE ?
-                    """)
+                """${connectWord()} ch.name LIKE ?
+                OR ch.alterEgo LIKE ?
+                """
+            )
 
             args.addAll(listOf(text, text))
         }
@@ -126,9 +179,11 @@ abstract class CharacterDao : BaseDao<Character>("character") {
             "ORDER BY $sortString"
         } ?: ""
 
-        return SimpleSQLiteQuery(
+        val simpleSQLiteQuery = SimpleSQLiteQuery(
             "$tableJoinString$conditionsString$sortClause", args.toArray()
         )
+        Log.d(TAG, "XYZ ${simpleSQLiteQuery.sql}")
+        return simpleSQLiteQuery
     }
 
     companion object {
@@ -142,9 +197,12 @@ abstract class CharacterDao : BaseDao<Character>("character") {
             var first = true
             lookup?.forEach {
                 res.append(
-                    addTextFilterCondition(it,
-                                           first,
-                                           textFilter))
+                    addTextFilterCondition(
+                        it,
+                        first,
+                        textFilter
+                    )
+                )
                     .also {
                         first = false
                     }

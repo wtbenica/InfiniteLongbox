@@ -150,8 +150,8 @@ class Repository private constructor(val context: Context) {
                 //  means that this is async async await. Look into
                 MainActivity.activeJob = CoroutineScope(Dispatchers.IO).async {
                     withContext(Dispatchers.IO) {
-                        Log.d(TAG, "STARTING UPDATE")
-                        updater.updateStaticAsync(progressUpdate)
+//                        Log.d(TAG, "STARTING UPDATE")
+//                        updater.updateStaticAsync(progressUpdate)
                     }.let {
                         Log.d(TAG, "Static update done")
                         mainActivity.runOnUiThread {
@@ -240,7 +240,7 @@ class Repository private constructor(val context: Context) {
     fun getIssue(issueId: Int, markedDelete: Boolean = true): Flow<FullIssue?> {
         if (issueId != AUTO_ID) {
             CoroutineScope(Dispatchers.Default).launch {
-                updater.updateIssue(issueId, markedDelete)
+                updater.expandIssueAsync(issueId, markedDelete)
             }
         }
 
@@ -425,12 +425,13 @@ class Repository private constructor(val context: Context) {
         }
     }
 
-    fun updateCharacterAsync(characterId: Int): Deferred<Unit> =
-        updater.updateCharacterAsync(characterId)
+    fun updateCharacterAsync(character: Character): Deferred<Unit> =
+        Expander.get().expandCharacterAsync(listOf(character))
 
-    fun updateSeriesAsync(seriesId: Int): Deferred<Unit> = updater.updateSeriesAsync(seriesId)
-    fun updateCreatorsAsync(creatorIds: List<Int>): Deferred<Unit> =
-        updater.updateCreatorsAsync(creatorIds)
+    fun updateSeriesAsync(series: Series): Deferred<Unit> = Expander.get().expandSeriesAsync(series)
+
+    fun updateCreatorsAsync(creators: List<Creator>): Deferred<Unit> =
+        Expander.get().expandCreatorsAsync(creators)
 
     fun cleanUpImages(seriesId: Int? = null) {
         CoroutineScope(Dispatchers.Default).launch {

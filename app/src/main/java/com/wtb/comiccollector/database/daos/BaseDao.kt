@@ -6,7 +6,9 @@ import androidx.room.*
 import androidx.sqlite.db.SimpleSQLiteQuery
 import androidx.sqlite.db.SupportSQLiteQuery
 import com.wtb.comiccollector.APP
+import com.wtb.comiccollector.database.models.Credit
 import com.wtb.comiccollector.database.models.DataModel
+import com.wtb.comiccollector.database.models.ExCredit
 import com.wtb.comiccollector.database.models.Issue
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
@@ -78,18 +80,22 @@ abstract class BaseDao<T : DataModel>(private val tableName: String) {
         }
 
         for (obj in objList) {
+            val s = when (obj) {
+                is Issue -> "Issue(issueId=${obj.issueId}, seriesId=${obj.series}, variantOf=${obj.variantOf}"
+                is Credit -> "Credit(story_id=${obj.story}, nameDetailId=${obj.nameDetail}"
+                is ExCredit -> "ExCredit(story_id=${obj.story}, nameDetailId=${obj.nameDetail}"
+                else     -> obj
+            }
+
             try {
                 val insertResult = insert(obj)
 
                 if (insertResult == -1L) {
                     update(obj)
+                    Log.d("CC2_", "SUCCESS: $s")
                 }
             } catch (sqlEx: SQLiteConstraintException) {
-                val s = when (obj) {
-                    is Issue -> "Issue(issueId=${obj.issueId}, seriesId=${obj.series}, variantOf=${obj.variantOf}"
-                    else     -> obj
-                }
-                Log.d(TAG, "UGH!: $objClass $s $sqlEx")
+                Log.d("CC2_", "UGH!: $objClass $s $sqlEx")
             }
         }
     }

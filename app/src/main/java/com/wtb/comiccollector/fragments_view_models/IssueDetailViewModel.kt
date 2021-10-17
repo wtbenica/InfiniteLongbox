@@ -7,8 +7,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
-import com.wtb.comiccollector.APP
-import com.wtb.comiccollector.SearchFilter
+import com.wtb.comiccollector.*
 import com.wtb.comiccollector.database.daos.Count
 import com.wtb.comiccollector.database.models.*
 import com.wtb.comiccollector.repository.Repository
@@ -77,8 +76,18 @@ class IssueDetailViewModel : ViewModel() {
 
     internal val issueList: LiveData<List<FullIssue>> = mIssue.flatMapLatest { fullIssue ->
         fullIssue?.let {
-            repository.getIssuesByFilter(SearchFilter(series = FullSeries(it.series),
-                                                      myCollection = false))
+            repository.getIssuesByFilter(
+                SearchFilter(
+                    series = FullSeries(it.series),
+                    myCollection = false,
+                    sortType = SortType(
+                        ComicCollectorApplication.context!!.getString(R.string.sort_type_issue_number),
+                        ComicCollectorApplication.context!!.getString(R.string.column_issue_num),
+                        "ie",
+                        SortType.SortOrder.ASC
+                    )
+                )
+            )
         } ?: emptyFlow()
     }.asLiveData()
 
@@ -107,14 +116,14 @@ class IssueDetailViewModel : ViewModel() {
 
     fun addToCollection() {
         currentIssue?.let { repository.addToCollection(it) }
-        currentIssue?.let { it.cover?.id?.let { cid -> repository.markCoverSave(cid)}}
+        currentIssue?.let { it.cover?.id?.let { cid -> repository.markCoverSave(cid) } }
     }
 
 
     fun removeFromCollection() {
         Log.d(TAG, "REMOVING FROM COLLECTION $currentIssue")
         currentIssue?.let { repository.removeFromCollection(it.issue.issueId) }
-        currentIssue?.let { it.cover?.id?.let { cid -> repository.markCoverDelete(cid)}}
+        currentIssue?.let { it.cover?.id?.let { cid -> repository.markCoverDelete(cid) } }
     }
 
 
@@ -131,19 +140,19 @@ class IssueDetailViewModel : ViewModel() {
 //
     fun upsert(dataModel: DataModel) {
         when (dataModel) {
-            is Series  -> repository.saveSeries(dataModel)
+            is Series -> repository.saveSeries(dataModel)
             is Creator -> repository.saveCreator(dataModel)
-            is Credit  -> repository.saveCredit(dataModel)
-            is Issue   -> repository.saveIssue(dataModel)
-            is Role    -> repository.saveRole(dataModel)
-            else       -> Unit
+            is Credit -> repository.saveCredit(dataModel)
+            is Issue -> repository.saveIssue(dataModel)
+            is Role -> repository.saveRole(dataModel)
+            else -> Unit
         }
     }
 
     fun delete(dataModel: DataModel) {
         when (dataModel) {
             is Issue -> repository.deleteIssue(dataModel)
-            else     -> Unit
+            else -> Unit
         }
     }
 }

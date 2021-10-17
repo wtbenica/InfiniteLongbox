@@ -1,5 +1,6 @@
 package com.wtb.comiccollector.database.daos
 
+import android.database.sqlite.SQLiteQueryBuilder
 import androidx.room.Dao
 import androidx.room.RawQuery
 import androidx.sqlite.db.SimpleSQLiteQuery
@@ -19,7 +20,22 @@ abstract class NameDetailDao : BaseDao<NameDetail>("namedetail") {
         val query = SimpleSQLiteQuery(
             """SELECT *
                 FROM namedetail nd
-                WHERE nd.creator = $creatorId """)
+                WHERE nd.creator = $creatorId """
+        )
+
+        return getNameDetailsRaw(query)
+    }
+
+    suspend fun getNameDetailsByCreatorIds(creatorIds: List<Int>): List<NameDetail> {
+        val query = SimpleSQLiteQuery(
+            """SELECT *
+                FROM namedetail nd
+                WHERE nd.creator in ${
+                creatorIds.toString()
+                    .replace('[', '(')
+                    .replace(']', ')')
+            }""",
+        )
 
         return getNameDetailsRaw(query)
     }

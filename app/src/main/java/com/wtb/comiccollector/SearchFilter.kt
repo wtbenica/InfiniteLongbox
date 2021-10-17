@@ -275,6 +275,7 @@ class SortType(
     private var order2: SortOrder? = null,
 ) : Serializable {
 
+
     constructor(other: SortType) : this(
         other.tag,
         other.sortColumn,
@@ -287,10 +288,10 @@ class SortType(
 
     val sortString: String
         get() {
-            val o2 = order2
             val primarySort =
                 """${if (table != null) "$table." else ""}$sortColumn ${order.option}"""
 
+            val o2 = order2
             val secondarySort: String =
                 if (sortColumn2 != null && table2 != null && o2 != null)
                     ", $table2.$sortColumn2 ${o2.option}"
@@ -355,6 +356,9 @@ class SortType(
             SortOrder.ASC
         )
 
+        // TODO: getting an option gets the same object. so if the sort order is changed in the
+        //  filter, trying to get a default sortorder doesn't work. Need to figure out when I
+        //  want it to be the same object and when I don't
         enum class SortTypeOptions(val options: List<SortType>) {
             SERIES(
                 listOf(

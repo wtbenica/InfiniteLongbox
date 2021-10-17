@@ -14,6 +14,7 @@ import com.wtb.comiccollector.SortType
 import com.wtb.comiccollector.SortType.Companion.containsSortType
 import com.wtb.comiccollector.database.models.FullIssue
 import com.wtb.comiccollector.database.models.Issue
+import com.wtb.comiccollector.database.models.ids
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 
@@ -29,7 +30,7 @@ abstract class IssueDao : BaseDao<Issue>("issue") {
 
     fun getIssuesByFilter(filter: SearchFilter): Flow<List<FullIssue>> {
         val query = createIssueQuery(filter)
-
+        Log.d(TAG, "this is the query: ${filter.mSortType?.order} ${query.sql}")
         return getFullIssuesByQuery(query)
     }
 
@@ -87,79 +88,110 @@ abstract class IssueDao : BaseDao<Issue>("issue") {
             val args: ArrayList<Any> = arrayListOf()
             fun connectword(): String = if (conditionsString.isEmpty()) "WHERE" else "AND"
 
-            tableJoinString.append("""SELECT DISTINCT ie.* 
+            tableJoinString.append(
+                """SELECT DISTINCT ie.* 
                         FROM issue ie 
-                        """)
+                        """
+            )
 
             filter.mSeries?.let {
-                conditionsString.append("""${connectword()} ie.series = ? 
-                """)
+                conditionsString.append(
+                    """${connectword()} ie.series = ? 
+                    """
+                )
                 args.add(it.series.seriesId)
             }
 
             if (filter.hasPublisher()) {
-                tableJoinString.append("""JOIN series ss ON ie.series = ss.seriesId 
-                """)
+                tableJoinString.append(
+                    """JOIN series ss ON ie.series = ss.seriesId 
+                    """
+                )
 
                 if (filter.mPublishers.isNotEmpty()) {
                     val publisherList = modelsToSqlIdString(filter.mPublishers)
 
-                    conditionsString.append("""${connectword()} ss.publisher IN $publisherList 
-                    """)
+                    conditionsString.append(
+                        """${connectword()} ss.publisher IN $publisherList 
+                        """
+                    )
                 }
             }
 
             if (filter.needsStoryTable) {
-                tableJoinString.append("""JOIN story sy on sy.issue = ie.issueId
-                """)
+                tableJoinString.append(
+                    """JOIN story sy on sy.issue = ie.issueId
+                    """
+                )
             }
 
-            if (filter.mCreators.isNotEmpty()) {
-                val creatorsList = modelsToSqlIdString(filter.mCreators)
-
-                conditionsString.append("""${connectword()} (sy.storyId IN (
-                SELECT story
-                FROM credit ct
-                JOIN namedetail nl on nl.nameDetailId = ct.nameDetail
-                WHERE nl.creator IN $creatorsList)
-                OR sy.storyId IN (
-                SELECT story
-                FROM excredit ect
-                JOIN namedetail nl on nl.nameDetailId = ect.nameDetail
-                WHERE nl.creator IN $creatorsList)) 
-            """)
+            if (filter.hasCreator()) {
+                for (creatorId in filter.mCreators.ids) {
+                    conditionsString.append(
+                        """${connectword()} (
+                            sy.storyId IN (
+                                SELECT ct.story
+                                FROM credit ct
+                                WHERE namedetail IN (
+                                    SELECT nl.nameDetailId
+                                    FROM namedetail nl
+                                    WHERE nl.creator = $creatorId
+                                )
+                            )
+                            OR sy.storyId IN (
+                                SELECT ect.story
+                                FROM excredit ect
+                                WHERE namedetail IN (
+                                    SELECT nl.nameDetailId
+                                    FROM namedetail nl
+                                    WHERE nl.creator = $creatorId
+                                )
+                            )
+                        ) 
+                        """
+                    )
+                }
             }
 
             if (filter.hasCharacter()) {
-                tableJoinString.append("""JOIN appearance ap ON ap.story = sy.storyId 
-                """)
+                tableJoinString.append(
+                    """JOIN appearance ap ON ap.story = sy.storyId 
+                """
+                )
 
                 filter.mCharacter?.let {
-                    conditionsString.append("""${connectword()} ap.character = ? 
-                    """)
+                    conditionsString.append(
+                        """${connectword()} ap.character = ? 
+                    """
+                    )
                     args.add(it.characterId)
                 }
             }
 
             if (filter.hasDateFilter()) {
-                conditionsString.append("""${connectword()} ((ie.releaseDate <= '${filter.mEndDate}' 
+                conditionsString.append(
+                    """${connectword()} ((ie.releaseDate <= '${filter.mEndDate}' 
                     AND ie.releaseDate >= '${filter.mStartDate}'
                     AND ie.releaseDate IS NOT NULL)
                     OR (ie.coverDate <= '${filter.mEndDate}'
                     AND ie.coverDate >= '${filter.mStartDate}'
                     AND ie.releaseDate IS NULL))
-                    """)
+                    """
+                )
             }
 
             if (filter.mMyCollection) {
-                conditionsString.append("""${connectword()} ie.issueId IN (
+                conditionsString.append(
+                    """${connectword()} ie.issueId IN (
                     SELECT issue
                     FROM mycollection) 
-                """)
+                """
+                )
             }
 
             if (!filter.mShowVariants) {
-                conditionsString.append("${connectword()} ie.variantOf IS NULL "
+                conditionsString.append(
+                    "${connectword()} ie.variantOf IS NULL "
                 )
             }
 
