@@ -7,9 +7,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
-import com.wtb.comiccollector.APP
-import com.wtb.comiccollector.SearchFilter
-import com.wtb.comiccollector.SortType
+import com.wtb.comiccollector.*
 import com.wtb.comiccollector.database.daos.Count
 import com.wtb.comiccollector.database.models.*
 import com.wtb.comiccollector.repository.Repository
@@ -82,7 +80,12 @@ class IssueDetailViewModel : ViewModel() {
                 SearchFilter(
                     series = FullSeries(it.series),
                     myCollection = false,
-                    sortType = SortType.Companion.SortTypeOptions.ISSUE.options[0]
+                    sortType = SortType(
+                        ComicCollectorApplication.context!!.getString(R.string.sort_type_issue_number),
+                        ComicCollectorApplication.context!!.getString(R.string.column_issue_num),
+                        "ie",
+                        SortType.SortOrder.ASC
+                    )
                 )
             )
         } ?: emptyFlow()

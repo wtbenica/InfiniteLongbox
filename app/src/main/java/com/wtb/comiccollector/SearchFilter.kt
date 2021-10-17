@@ -275,6 +275,7 @@ class SortType(
     private var order2: SortOrder? = null,
 ) : Serializable {
 
+
     constructor(other: SortType) : this(
         other.tag,
         other.sortColumn,

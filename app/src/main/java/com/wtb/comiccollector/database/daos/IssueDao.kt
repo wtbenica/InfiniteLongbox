@@ -29,7 +29,7 @@ abstract class IssueDao : BaseDao<Issue>("issue") {
 
     fun getIssuesByFilter(filter: SearchFilter): Flow<List<FullIssue>> {
         val query = createIssueQuery(filter)
-
+        Log.d(TAG, "this is the query: ${filter.mSortType?.order} ${query.sql}")
         return getFullIssuesByQuery(query)
     }
 
