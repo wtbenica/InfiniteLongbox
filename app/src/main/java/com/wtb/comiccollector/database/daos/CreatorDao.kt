@@ -59,15 +59,15 @@ abstract class CreatorDao : BaseDao<Creator>("creator") {
             //language=RoomSql
             tableJoinString.append(
                 """SELECT DISTINCT cr.* 
-                        FROM creator cr 
+                FROM creator cr 
                 """
             )
 
             if (filter.isNotEmpty()) {
                 tableJoinString.append(
                     """JOIN nameDetail nd ON cr.creatorId = nd.creator 
-                        JOIN credit ct ON ct.nameDetail = nd.nameDetailId 
-                        """
+                    JOIN credit ct ON ct.nameDetail = nd.nameDetailId 
+                    """
                 )
             }
 
@@ -75,7 +75,7 @@ abstract class CreatorDao : BaseDao<Creator>("creator") {
             filter.mSeries?.let {
                 conditionsString.append(
                     """${connectWord()} ct.series = ${it.series.seriesId}
-                        """
+                    """
                 )
             }
 
@@ -83,19 +83,19 @@ abstract class CreatorDao : BaseDao<Creator>("creator") {
                 val publisherList = modelsToSqlIdString(filter.mPublishers)
                 tableJoinString.append(
                     """JOIN series ss on ct.series = ss.seriesId 
-                """
+                    """
                 )
 
                 conditionsString.append(
                     """${connectWord()} ss.publisher IN $publisherList  
-                """
+                    """
                 )
             }
 
             if (filter.hasCreator()) {
                 tableJoinString.append(
                     """JOIN story sy ON sy.storyId = ct.story
-                        """
+                    """
                 )
 
                 for (creatorId in filter.mCreators.ids) {
@@ -114,13 +114,14 @@ abstract class CreatorDao : BaseDao<Creator>("creator") {
             }
 
             if (filter.hasDateFilter() || filter.mMyCollection) {
-                tableJoinString.append("""JOIN issue ie on ct.issue = ie.issueId """)
+                tableJoinString.append("""JOIN issue ie on ct.issue = ie.issueId 
+                """)
 
                 if (filter.hasDateFilter()) {
                     //language=RoomSql
                     conditionsString.append(
                         """${connectWord()} ie.releaseDate <= '${filter.mEndDate}'
-                            AND ie.releaseDate > '${filter.mStartDate}'
+                        AND ie.releaseDate > '${filter.mStartDate}'
                         """
                     )
                 }
@@ -140,17 +141,16 @@ abstract class CreatorDao : BaseDao<Creator>("creator") {
                 val text = textFilterToString(textFilter.text)
                 conditionsString.append(
                     """${connectWord()} nd.name LIKE ?
-                OR cr.name LIKE ?
-            """
+                    OR cr.name LIKE ?
+                    """
                 )
                 args.addAll(listOf(text, text))
             }
 
             if (filter.hasCreator()) {
                 conditionsString.append(
-                    "${connectWord()} cr.creatorId NOT IN ${
-                        modelsToSqlIdString(filter.mCreators)
-                    }"
+                    """${connectWord()} cr.creatorId NOT IN ${modelsToSqlIdString(filter.mCreators)}
+                    """
                 )
             }
 
@@ -176,8 +176,7 @@ abstract class CreatorDao : BaseDao<Creator>("creator") {
             val simpleSQLiteQuery = SimpleSQLiteQuery(
                 """
                     SELECT *
-                    FROM 
-                    ( 
+                    FROM ( 
                         $tableJoinString$conditionsString 
                         UNION 
                         $tableJoinString2$conditionsString2
