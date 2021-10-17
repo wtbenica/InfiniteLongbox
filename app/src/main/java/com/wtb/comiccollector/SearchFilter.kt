@@ -356,6 +356,9 @@ class SortType(
             SortOrder.ASC
         )
 
+        // TODO: getting an option gets the same object. so if the sort order is changed in the
+        //  filter, trying to get a default sortorder doesn't work. Need to figure out when I
+        //  want it to be the same object and when I don't
         enum class SortTypeOptions(val options: List<SortType>) {
             SERIES(
                 listOf(

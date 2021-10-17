@@ -71,6 +71,15 @@ abstract class CharacterDao : BaseDao<Character>("character") {
             )
         }
 
+
+        if (filter.hasDateFilter()) {
+            conditionsString.append(
+                """${connectWord()} ie.releaseDate <= '${filter.mEndDate}'
+                AND ie.releaseDate > '${filter.mStartDate}'
+                """
+            )
+        }
+
         if (filter.mPublishers.isNotEmpty()) {
             val publisherList = modelsToSqlIdString(filter.mPublishers)
 
