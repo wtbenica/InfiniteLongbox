@@ -74,7 +74,7 @@ class CharacterListFragment : ListFragment<FullCharacter, CharacterListFragment.
 
         init {
             itemView.setOnClickListener(this)
-            bg.setImageResource(R.drawable.bg_yellow)
+//            bg.setImageResource(R.drawable.bg_yellow)
         }
 
         fun bind(item: FullCharacter) {

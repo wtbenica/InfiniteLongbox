@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<shape xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
     <stroke
-        android:width="2dp"
-        android:color="?attr/colorPrimaryDark" />
-    <solid android:color="@color/amnesia_light_transparent" />
+        android:width="1dp"
+        android:color="?attr/colorOnPrimary" />
+    <solid android:color="?attr/colorPrimaryTransparent" />
     <corners
         android:topLeftRadius="@dimen/radius_list_item_series"
         android:topRightRadius="@dimen/radius_list_item_series" />

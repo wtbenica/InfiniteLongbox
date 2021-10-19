@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <attr name="colorPrimaryMuted" format="reference" />
-    <attr name="colorPrimaryDarkMuted" format="reference" />
-    <attr name="colorPrimaryLightMuted" format="reference" />
-    <attr name="colorPrimaryLightLight" format="reference" />
     <attr name="colorSecondaryLightLight" format="reference" />
     <attr name="colorTransparentWhite" format="reference" />
     <attr name="colorPrimaryTransparent" format="color" />
+    <attr name="colorSecondaryTransparent" format="color" />
+
+    <attr name="colorUi" format="reference" />
     <attr name="colorStoryBoxTitle" format="reference" />
     <attr name="colorStoryBoxSubtitle" format="reference" />
     <attr name="styleCreatorLink" format="reference" />
@@ -14,4 +13,13 @@
     <attr name="styleSeriesDetail" format="reference" />
     <attr name="styleAddCollectionButton" format="reference" />
     <attr name="listItemSeriesBackground" format="reference" />
+
+    <attr name="textColorTitleBar" format="reference" />
+    <attr name="textColorTitle" format="reference" />
+    <attr name="textColorSubtitle" format="reference" />
+
+    <attr name="colorChipBgActive" format="reference" />
+    <attr name="colorChipBgInactive" format="reference" />
+    <attr name="colorChipFgActive" format="reference" />
+    <attr name="colorChipFgInactive" format="reference" />
 </resources>

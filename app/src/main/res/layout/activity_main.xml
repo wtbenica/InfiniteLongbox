@@ -8,7 +8,7 @@
     android:fitsSystemWindows="true"
     android:animateLayoutChanges="true"
     android:orientation="vertical"
-    android:background="?attr/colorSecondary">
+    android:background="?attr/colorUi">
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:id="@+id/main_activity"

@@ -11,16 +11,11 @@
         <item name="android:textSize">15sp</item>
         <item name="android:gravity">bottom</item>
         <item name="android:layout_height">@dimen/radius_list_item_series</item>
-        <item name="android:paddingTop">@dimen/margin_default</item>
         <item name="android:paddingStart">@dimen/margin_wide</item>
-        <item name="android:paddingBottom">@dimen/margin_default</item>
-        <item name="android:background">@drawable/bg_series_title</item>
-        <item name="android:textColor">?attr/colorOnPrimary</item>
+        <item name="android:paddingTop">@dimen/margin_narrow</item>
+        <item name="android:paddingBottom">@dimen/margin_narrow</item>
+        <item name="android:textColor">?attr/textColorTitle</item>
         <item name="fontFamily">@font/archivo_black</item>
-    </style>
-
-    <style name="ListItemTitleText.Series">
-        <item name="android:background">@drawable/bg_series_title</item>
     </style>
 
     <style name="ListItemTitleText.Character">
@@ -28,8 +23,8 @@
     </style>
 
     <style name="ListItemMetaBox">
-        <item name="android:background">@drawable/bg_series_dates</item>
         <item name="android:paddingStart">@dimen/margin_wide</item>
+        <item name="android:paddingEnd">@dimen/margin_wide</item>
     </style>
 
     <style name="ListItemSeriesSubtitle" parent="TextAppearance.AppCompat.Light.SearchResult.Subtitle">
@@ -37,7 +32,7 @@
         <item name="android:textSize">12sp</item>
         <item name="android:paddingTop">@dimen/margin_narrow</item>
         <item name="android:paddingBottom">@dimen/margin_narrow</item>
-        <item name="android:textColor">#000</item>
+        <item name="android:textColor">?attr/textColorSubtitle</item>
         <item name="fontFamily">@font/archivo_black</item>
     </style>
 </resources>
