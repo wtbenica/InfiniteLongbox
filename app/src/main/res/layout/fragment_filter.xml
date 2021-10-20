@@ -153,7 +153,8 @@
 
                     <LinearLayout
                         android:id="@+id/content_holder_filter"
-                        android:layout_width="match_parent"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
                         android:layout_height="wrap_content"
                         android:background="?attr/colorOnSecondary"
                         android:orientation="horizontal"
@@ -179,17 +180,18 @@
                                     app:closeIconEnabled="true" />
 
                             </com.wtb.comiccollector.views.FilterChipGroup>
-
                         </HorizontalScrollView>
-
-                        <ImageButton
-                            android:id="@+id/add_filter_button"
-                            style="@style/ImageLabel"
-                            android:background="@drawable/bg_btn_add_filter"
-                            android:contentDescription="@string/content_description_add_filter_button"
-                            android:src="@drawable/ic_menu_add"
-                            app:tint="?attr/colorPrimaryDark" />
                     </LinearLayout>
+
+                    <ImageButton
+                        android:id="@+id/add_filter_button"
+                        android:layout_height="match_parent"
+                        android:layout_width="wrap_content"
+                        android:background="@drawable/bg_btn_add_filter"
+                        android:contentDescription="@string/content_description_add_filter_button"
+                        android:padding="@dimen/margin_default"
+                        android:src="@drawable/ic_menu_add"
+                        app:tint="?attr/textColorSubtitle" />
                 </LinearLayout>
             </LinearLayout>
 

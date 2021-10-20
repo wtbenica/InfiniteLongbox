@@ -56,7 +56,10 @@ class IssueListFragment : ListFragment<FullIssue, IssueListFragment.IssueViewHol
         super.onViewCreated(view, savedInstanceState)
 
         val itemDecoration =
-            ItemOffsetDecoration(resources.getDimension(R.dimen.margin_default).toInt(), numCols = NUM_COLS)
+            ItemOffsetDecoration(
+                resources.getDimension(R.dimen.margin_default).toInt() * 3 / 2,
+                numCols = NUM_COLS
+            )
         listRecyclerView.addItemDecoration(itemDecoration)
 
         val adapter = getAdapter()
@@ -206,13 +209,19 @@ class IssueListFragment : ListFragment<FullIssue, IssueListFragment.IssueViewHol
                 if (inCollection)
                     R.attr.colorPrimary
                 else
-                    R.attr.colorAccent
+                    R.attr.colorPrimaryLight
             )
 
             bgColor?.let {
                 wrapper.setBackgroundColor(it)
-                issueNameBox.setBackgroundColor(it)
             }
+
+            issueNameBox.setBackgroundResource(
+                if (inCollection)
+                    R.drawable.bg_issue_list_item_info
+                else
+                    R.drawable.bg_issue_list_item_not_in_collection
+            )
 
             issueNumTextView.text = this.fullIssue?.issue?.issueNumRaw
         }

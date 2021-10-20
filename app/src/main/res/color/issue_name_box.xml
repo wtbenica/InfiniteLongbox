@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<selector xmlns:android="http://schemas.android.com/apk/res/android" xmlns:custom="http://schemas.android.com/apk/res-auto">
-    <item android:color="?attr/colorPrimaryTransparent" custom:in_collection="false" />
-    <item android:color="?attr/colorPrimary" />
-</selector>

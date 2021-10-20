@@ -32,8 +32,8 @@
     <style name="ImageLabel">
         <item name="android:layout_width">?attr/dropdownListPreferredItemHeight</item>
         <item name="android:layout_height">?attr/dropdownListPreferredItemHeight</item>
-        <item name="android:background">?attr/colorPrimaryDark</item>
-        <item name="tint">?attr/colorPrimaryTransparent</item>
+        <item name="android:background">?attr/colorSecondary</item>
+        <item name="tint">?attr/colorPrimary</item>
         <item name="android:layout_weight">0</item>
         <item name="android:layout_gravity">center</item>
     </style>
