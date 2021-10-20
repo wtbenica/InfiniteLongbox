@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:custom="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     style="@style/mCardView.ListItemIssue"
     android:layout_width="match_parent"
@@ -19,14 +20,12 @@
             style="@style/NoCover"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/margin_wide"
             android:contentDescription="@string/description_issue_cover"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:alpha="1"
-            tools:layout_height="309dp"
-            tools:layout_width="200dp"
-            tools:visibility="visible" />
+            app:layout_constraintTop_toTopOf="parent" />
 
         <ImageView
             android:id="@+id/bg_list_item_issue"
@@ -54,13 +53,11 @@
             tools:layout_height="309dp"
             tools:layout_width="200dp" />
 
-        <androidx.constraintlayout.widget.ConstraintLayout
+        <com.wtb.comiccollector.fragments.IssueNameBox
             android:id="@+id/list_item_issue_box"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="@dimen/margin_default"
-            android:layout_marginBottom="@dimen/margin_default"
-            android:background="@color/amnesia_light_transparent"
+            android:background="?attr/colorPrimaryTransparent"
             android:padding="@dimen/margin_default"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -137,6 +134,6 @@
                 app:layout_constraintStart_toEndOf="@id/btn_issue_list_add_wish_list"
                 app:layout_constraintTop_toTopOf="@id/btn_issue_list_add_wish_list"
                 tools:text="Ed McGuinness Cover" />
-        </androidx.constraintlayout.widget.ConstraintLayout>
+        </com.wtb.comiccollector.fragments.IssueNameBox>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.cardview.widget.CardView>

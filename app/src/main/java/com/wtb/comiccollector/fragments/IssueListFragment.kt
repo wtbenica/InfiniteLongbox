@@ -1,7 +1,11 @@
 package com.wtb.comiccollector.fragments
 
 import android.animation.ValueAnimator
+import android.content.Context
+import android.content.res.ColorStateList
 import android.os.Bundle
+import android.util.AttributeSet
+import android.util.Log
 import android.view.*
 import android.view.animation.AccelerateInterpolator
 import android.widget.ImageView
@@ -17,6 +21,8 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.wtb.comiccollector.APP
+import com.wtb.comiccollector.MainActivity
+import com.wtb.comiccollector.MainActivity.Companion.getColorFromAttr
 import com.wtb.comiccollector.R
 import com.wtb.comiccollector.database.models.FullIssue
 import com.wtb.comiccollector.database.models.FullSeries
@@ -27,6 +33,9 @@ import com.wtb.comiccollector.views.SeriesDetailBox
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+
+class IssueNameBox(context: Context, attrs: AttributeSet) :
+    ConstraintLayout(context, attrs)
 
 @ExperimentalCoroutinesApi
 class IssueListFragment : ListFragment<FullIssue, IssueListFragment.IssueViewHolder>() {
@@ -39,13 +48,15 @@ class IssueListFragment : ListFragment<FullIssue, IssueListFragment.IssueViewHol
         updateBottomPadding()
     }
 
-    override fun getLayoutManager(): RecyclerView.LayoutManager = GridLayoutManager(context, 2)
+    override fun getLayoutManager(): RecyclerView.LayoutManager {
+        return GridLayoutManager(context, NUM_COLS)
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         val itemDecoration =
-            ItemOffsetDecoration(resources.getDimension(R.dimen.margin_narrow).toInt())
+            ItemOffsetDecoration(resources.getDimension(R.dimen.margin_default).toInt(), numCols = NUM_COLS)
         listRecyclerView.addItemDecoration(itemDecoration)
 
         val adapter = getAdapter()
@@ -129,9 +140,10 @@ class IssueListFragment : ListFragment<FullIssue, IssueListFragment.IssueViewHol
         protected var fullIssue: FullIssue? = null
         private val progressCover: ProgressBar =
             itemView.findViewById(R.id.progress_cover_download)
+        private val wrapper: ConstraintLayout = itemView.findViewById(R.id.wrapper)
         private val bg: ImageView = itemView.findViewById(R.id.bg_list_item_issue)
         private val coverImageView: ImageView = itemView.findViewById(R.id.list_item_cover)
-        private val issueNameBox: ConstraintLayout =
+        private val issueNameBox: IssueNameBox =
             itemView.findViewById(R.id.list_item_issue_box)
         private val issueNumTextView: TextView =
             itemView.findViewById(R.id.list_item_issue_number_text)
@@ -164,13 +176,7 @@ class IssueListFragment : ListFragment<FullIssue, IssueListFragment.IssueViewHol
             val coverUri = this.fullIssue?.coverUri
 
             if (coverUri != null) {
-
                 coverImageView.setImageURI(coverUri)
-            } else {
-                coverImageView.setImageURI(null)
-            }
-
-            if (fullIssue?.cover != null) {
                 val animation = ValueAnimator.ofFloat(0F, 1F)
                 animation.addUpdateListener {
                     val value = it.animatedValue as Float
@@ -181,6 +187,7 @@ class IssueListFragment : ListFragment<FullIssue, IssueListFragment.IssueViewHol
                 animation.interpolator = AccelerateInterpolator()
                 animation.start()
             } else {
+                coverImageView.setImageURI(null)
                 val animation = ValueAnimator.ofFloat(0F, 1F)
                 animation.addUpdateListener {
                     val value = it.animatedValue as Float
@@ -194,12 +201,18 @@ class IssueListFragment : ListFragment<FullIssue, IssueListFragment.IssueViewHol
 
             val inCollection = fullIssue?.myCollection?.collectionId != null
             addCollectionButton.inCollection = inCollection
-            val bgColor = if (inCollection) {
-                context?.getColor(R.color.fantasia_transparent)
-            } else {
-                context?.getColor(R.color.transparent_white)
+
+            val bgColor = context?.getColorFromAttr(
+                if (inCollection)
+                    R.attr.colorPrimary
+                else
+                    R.attr.colorAccent
+            )
+
+            bgColor?.let {
+                wrapper.setBackgroundColor(it)
+                issueNameBox.setBackgroundColor(it)
             }
-            bgColor?.let { issueNameBox.setBackgroundColor(it) }
 
             issueNumTextView.text = this.fullIssue?.issue?.issueNumRaw
         }
@@ -258,5 +271,6 @@ class IssueListFragment : ListFragment<FullIssue, IssueListFragment.IssueViewHol
         }
 
         private const val TAG = APP + "IssueListFragment"
+        private const val NUM_COLS = 2
     }
 }
