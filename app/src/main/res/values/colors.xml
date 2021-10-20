@@ -11,8 +11,8 @@
     <color name="argonaut">#E8FDAD</color>
 
     <color name="amnesia">#CFCFCA</color>
-    <color name="amnesia_variant">#F0F0F4</color>
-    <color name="amnesia_light">#F7F7FF</color>
+    <color name="amnesia_variant">#F4F4F0</color>
+    <color name="amnesia_light">#FFFFF7</color>
     <color name="amnesia_transparent">#DFFF</color>
     <color name="amnesia_dark">#575948</color>
     <color name="amnesia_text">#DFFF</color>

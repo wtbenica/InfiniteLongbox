@@ -29,6 +29,7 @@
             android:id="@+id/bg_list_item_issue"
             android:layout_width="0dp"
             android:layout_height="0dp"
+            android:alpha="0"
             android:contentDescription="background - halftone design"
             android:scaleType="matrix"
             android:src="@drawable/bg_cyan"
@@ -48,12 +49,13 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <com.wtb.comiccollector.fragments.IssueNameBox
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/list_item_issue_box"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:background="@color/amnesia_transparent"
-            android:padding="@dimen/margin_default"
+            android:paddingStart="@dimen/margin_default"
+            android:paddingEnd="@dimen/margin_default"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent">
@@ -61,7 +63,7 @@
             <FrameLayout
                 android:id="@+id/progress_bar_box"
                 android:layout_width="0dp"
-                android:layout_height="4dp"
+                android:layout_height="2dp"
                 android:layout_marginTop="-1dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -77,55 +79,64 @@
                         style="@style/Widget.AppCompat.ProgressBar.Horizontal"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
+                        android:background="?attr/colorPrimaryTransparent"
                         android:indeterminateOnly="true"
-                        android:indeterminateTint="@color/text_character" />
+                        android:indeterminateTint="?attr/colorPrimary" />
                 </FrameLayout>
             </FrameLayout>
 
-            <LinearLayout
+            <TextView
+                android:id="@+id/list_item_issue_variant_name"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
+                android:layout_marginStart="@dimen/margin_narrow"
+                android:fontFamily="@font/archivo_black"
+                android:gravity="end"
+                android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle2"
+                android:textColor="?attr/textColorSubtitle"
+                android:textSize="12sp"
+                android:layout_marginTop="@dimen/margin_narrow"
+                app:layout_constraintTop_toBottomOf="@id/progress_bar_box"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/progress_bar_box">
+                tools:text="Ed McGuinness Cover" />
 
-                <com.wtb.comiccollector.views.AddCollectionButton
-                    android:id="@+id/btn_issue_list_add_collection"
-                    style="@style/AddCollectionButtonStyle"
-                    android:background="@android:color/transparent"
-                    android:src="@drawable/add_collection"
-                    app:layout_constraintBottom_toTopOf="@id/btn_issue_list_add_wish_list"
-                    app:layout_constraintStart_toStartOf="parent" />
+            <com.wtb.comiccollector.views.AddCollectionButton
+                android:id="@+id/btn_issue_list_add_collection"
+                style="@style/AddCollectionButtonStyle"
+                android:background="@android:color/transparent"
+                android:src="@drawable/add_collection"
+                android:layout_marginTop="@dimen/margin_narrow"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/list_item_issue_variant_name"/>
 
-                <ImageButton
-                    android:id="@+id/btn_issue_list_add_wish_list"
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
-                    android:background="@android:color/transparent"
-                    android:scaleType="fitCenter"
-                    android:src="@drawable/add_wish_list"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintStart_toStartOf="parent" />
+            <ImageButton
+                android:id="@+id/btn_issue_list_add_wish_list"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:background="@android:color/transparent"
+                android:scaleType="fitCenter"
+                android:src="@drawable/add_wish_list"
+                app:layout_constraintTop_toTopOf="@id/btn_issue_list_add_collection"
+                app:layout_constraintBottom_toBottomOf="@id/btn_issue_list_add_collection"
+                app:layout_constraintStart_toEndOf="@id/btn_issue_list_add_collection" />
 
-                <TextView
-                    android:id="@+id/list_item_issue_number_text"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:fontFamily="@font/archivo_black"
-                    android:gravity="center_vertical|end"
-                    android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle2"
-                    android:textColor="?attr/colorOnPrimary"
-                    android:textSize="16sp"
-                    app:layout_constraintBottom_toBottomOf="@id/btn_issue_list_add_collection"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toEndOf="@id/btn_issue_list_add_collection"
-                    app:layout_constraintTop_toTopOf="@id/btn_issue_list_add_collection"
-                    tools:text="8" />
+            <TextView
+                android:id="@+id/list_item_issue_number_text"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:fontFamily="@font/archivo_black"
+                android:gravity="center_vertical|end"
+                android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle2"
+                android:textColor="?attr/colorOnPrimary"
+                android:textSize="16sp"
+                app:layout_constraintBottom_toBottomOf="@id/btn_issue_list_add_wish_list"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/btn_issue_list_add_wish_list"
+                app:layout_constraintTop_toTopOf="@id/btn_issue_list_add_wish_list"
+                tools:text="8" />
 
-            </LinearLayout>
-
-        </com.wtb.comiccollector.fragments.IssueNameBox>
+        </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.cardview.widget.CardView>

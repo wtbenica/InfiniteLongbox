@@ -16,7 +16,7 @@
         <entry key="app/src/main/res/drawable/background_series_title.xml" value="0.12863247863247862" />
         <entry key="app/src/main/res/drawable/background_story_box_subtitle_bar.xml" value="0.27692307692307694" />
         <entry key="app/src/main/res/drawable/background_story_box_title_bar.xml" value="0.27692307692307694" />
-        <entry key="app/src/main/res/drawable/bg_btn_add_filter.xml" value="0.1" />
+        <entry key="app/src/main/res/drawable/bg_btn_add_filter.xml" value="0.25" />
         <entry key="app/src/main/res/drawable/bg_character_name.xml" value="0.2111111111111111" />
         <entry key="app/src/main/res/drawable/bg_issue_list_item_info.xml" value="1.0" />
         <entry key="app/src/main/res/drawable/bg_issue_list_item_not_in_collection.xml" value="0.25" />
@@ -61,10 +61,11 @@
         <entry key="app/src/main/res/layout/issue_detail_issue_info_box.xml" value="0.11153846153846154" />
         <entry key="app/src/main/res/layout/list_item_character.xml" value="0.26033755274261605" />
         <entry key="app/src/main/res/layout/list_item_filter_option_auto_complete.xml" value="0.26033755274261605" />
-        <entry key="app/src/main/res/layout/list_item_issue.xml" value="0.4438305709023941" />
+        <entry key="app/src/main/res/layout/list_item_issue.xml" value="0.30675909878682844" />
+        <entry key="app/src/main/res/layout/list_item_issue_new.xml" value="0.67" />
         <entry key="app/src/main/res/layout/list_item_issue_variant.xml" value="0.3553299492385787" />
         <entry key="app/src/main/res/layout/list_item_search_type.xml" value="0.2636752136752137" />
-        <entry key="app/src/main/res/layout/list_item_series.xml" value="0.5" />
+        <entry key="app/src/main/res/layout/list_item_series.xml" value="0.21339950372208435" />
         <entry key="app/src/main/res/layout/list_item_simple.xml" value="0.7082818294190358" />
         <entry key="app/src/main/res/layout/list_item_variant.xml" value="0.2636752136752137" />
         <entry key="app/src/main/res/layout/row_item_appearance.xml" value="0.1" />

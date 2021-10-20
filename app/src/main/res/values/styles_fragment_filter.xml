@@ -32,8 +32,8 @@
     <style name="ImageLabel">
         <item name="android:layout_width">?attr/dropdownListPreferredItemHeight</item>
         <item name="android:layout_height">?attr/dropdownListPreferredItemHeight</item>
-        <item name="android:background">?attr/colorSecondary</item>
-        <item name="tint">?attr/colorPrimary</item>
+        <item name="android:background">?attr/colorSecondaryLightLight</item>
+        <item name="tint">?attr/colorPrimaryDark</item>
         <item name="android:layout_weight">0</item>
         <item name="android:layout_gravity">center</item>
     </style>
@@ -99,12 +99,12 @@
         <item name="android:textColor">?attr/colorChipFgActive</item>
         <item name="android:textAppearance">@style/myChipText</item>
         <item name="android:animateLayoutChanges">true</item>
-    </style>
+    </style>1
 
     <style name="myChipText" parent="TextAppearance.MaterialComponents.Chip">
         <item name="fontFamily">@font/archivo_black</item>
         <item name="android:textAllCaps">false</item>
-        <item name="android:textSize">14sp</item>
+        <item name="android:textSize">13sp</item>
     </style>
 
     <style name="SearchFilterChip" parent="myNewChip">
