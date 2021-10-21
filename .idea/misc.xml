@@ -18,6 +18,8 @@
         <entry key="app/src/main/res/drawable/background_story_box_title_bar.xml" value="0.27692307692307694" />
         <entry key="app/src/main/res/drawable/bg_btn_add_filter.xml" value="0.25" />
         <entry key="app/src/main/res/drawable/bg_character_name.xml" value="0.2111111111111111" />
+        <entry key="app/src/main/res/drawable/bg_filter_section.xml" value="0.1078125" />
+        <entry key="app/src/main/res/drawable/bg_image_label.xml" value="0.31574074074074077" />
         <entry key="app/src/main/res/drawable/bg_issue_list_item_info.xml" value="1.0" />
         <entry key="app/src/main/res/drawable/bg_issue_list_item_not_in_collection.xml" value="0.25" />
         <entry key="app/src/main/res/drawable/bg_progress.xml" value="0.15" />
@@ -52,7 +54,7 @@
         <entry key="app/src/main/res/layout/auto_complete_filter_item.xml" value="0.67" />
         <entry key="app/src/main/res/layout/dialog_fragment_cover.xml" value="0.25" />
         <entry key="app/src/main/res/layout/fragment_display_issue.xml" value="0.33" />
-        <entry key="app/src/main/res/layout/fragment_filter.xml" value="0.67" />
+        <entry key="app/src/main/res/layout/fragment_filter.xml" value="0.48017148981779206" />
         <entry key="app/src/main/res/layout/fragment_item_list.xml" value="0.15288394718554552" />
         <entry key="app/src/main/res/layout/fragment_series_detail.xml" value="0.3856332703213611" />
         <entry key="app/src/main/res/layout/fragment_static_update.xml" value="0.3079136690647482" />
@@ -61,7 +63,7 @@
         <entry key="app/src/main/res/layout/issue_detail_issue_info_box.xml" value="0.11153846153846154" />
         <entry key="app/src/main/res/layout/list_item_character.xml" value="0.26033755274261605" />
         <entry key="app/src/main/res/layout/list_item_filter_option_auto_complete.xml" value="0.26033755274261605" />
-        <entry key="app/src/main/res/layout/list_item_issue.xml" value="0.30675909878682844" />
+        <entry key="app/src/main/res/layout/list_item_issue.xml" value="0.586848635235732" />
         <entry key="app/src/main/res/layout/list_item_issue_new.xml" value="0.67" />
         <entry key="app/src/main/res/layout/list_item_issue_variant.xml" value="0.3553299492385787" />
         <entry key="app/src/main/res/layout/list_item_search_type.xml" value="0.2636752136752137" />

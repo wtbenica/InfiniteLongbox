@@ -98,18 +98,10 @@
                         android:labelFor="@id/chip_group_sort"
                         app:srcCompat="@drawable/sort_24" />
 
-                    <!--            <com.google.android.material.card.MaterialCardView-->
-                    <!--                style="@style/filterContentCard"-->
-                    <!--                android:layout_width="0dp"-->
-                    <!--                android:layout_height="wrap_content"-->
-                    <!--                android:layout_weight="1"-->
-                    <!--                app:shapeAppearanceOverlay="@style/both_right">-->
-
                     <HorizontalScrollView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:background="?attr/colorOnSecondary"
                         android:scrollbars="none">
 
                         <com.wtb.comiccollector.views.SortChipGroup
@@ -156,7 +148,6 @@
                         android:layout_width="0dp"
                         android:layout_weight="1"
                         android:layout_height="wrap_content"
-                        android:background="?attr/colorOnSecondary"
                         android:orientation="horizontal"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
@@ -166,7 +157,6 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:background="?attr/colorOnSecondary"
                             android:scrollbars="none">
 
                             <com.wtb.comiccollector.views.FilterChipGroup

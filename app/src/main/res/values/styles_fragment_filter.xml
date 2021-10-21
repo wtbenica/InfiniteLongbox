@@ -26,13 +26,13 @@
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_marginBottom">@dimen/margin_default</item>
         <item name="android:orientation">horizontal</item>
-        <item name="android:background">@android:color/white</item>
+        <item name="android:background">@drawable/bg_filter_section</item>
     </style>
 
     <style name="ImageLabel">
         <item name="android:layout_width">?attr/dropdownListPreferredItemHeight</item>
         <item name="android:layout_height">?attr/dropdownListPreferredItemHeight</item>
-        <item name="android:background">?attr/colorSecondaryLightLight</item>
+        <item name="android:background">@drawable/bg_image_label</item>
         <item name="tint">?attr/colorPrimaryDark</item>
         <item name="android:layout_weight">0</item>
         <item name="android:layout_gravity">center</item>
@@ -64,7 +64,7 @@
         <item name="android:textColor">?attr/colorOnPrimary</item>
         <item name="android:textSize">18sp</item>
         <item name="fontFamily">@font/archivo_black</item>
-        <item name="android:background">?attr/colorOnSecondary</item>
+        <item name="android:background">@android:color/transparent</item>
         <item name="singleLine">true</item>
         <item name="android:popupBackground">@color/fantasia_transparent</item>
         <item name="android:completionThreshold">1</item>

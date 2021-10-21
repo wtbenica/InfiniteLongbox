@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <color name="fantasia">#dbfa86</color>
+    <color name="fantasia">#dbfF86</color>
     <color name="fantasia_transparent">#ddF5FFD9</color>
     <color name="fantasia_light">#F5FFD9</color>
     <color name="fantasia_variant">#E8FDAD</color>

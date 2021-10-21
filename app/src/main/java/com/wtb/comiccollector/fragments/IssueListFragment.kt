@@ -169,6 +169,9 @@ class IssueListFragment : ListFragment<FullIssue, IssueListFragment.IssueViewHol
                     progressCover.alpha = 1 - value
                     bg.alpha = 1 - value
                     coverImageView.alpha = value
+                    if (value == 1f) {
+                        progressCover.visibility = GONE
+                    }
                 }
                 animation.interpolator = AccelerateInterpolator()
                 animation.start()
@@ -180,6 +183,9 @@ class IssueListFragment : ListFragment<FullIssue, IssueListFragment.IssueViewHol
                     progressCover.alpha = value
                     bg.alpha = value
                     coverImageView.alpha = 1 - value
+                    if (value == 0f) {
+                        progressCover.visibility = VISIBLE
+                    }
                 }
                 animation.interpolator = AccelerateInterpolator()
                 animation.start()
@@ -194,17 +200,6 @@ class IssueListFragment : ListFragment<FullIssue, IssueListFragment.IssueViewHol
                 issueVariantName.visibility = VISIBLE
             } else {
                 issueVariantName.visibility = GONE
-            }
-
-            val bgColor = context?.getColorFromAttr(
-                if (inCollection)
-                    R.attr.colorPrimary
-                else
-                    R.attr.colorPrimaryLight
-            )
-
-            bgColor?.let {
-                wrapper.setBackgroundColor(it)
             }
 
             issueNameBox.setBackgroundResource(
