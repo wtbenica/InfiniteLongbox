@@ -63,8 +63,8 @@
     </style>
 
     <style name="AddCollectionButtonStyle" parent="Widget.AppCompat.ImageButton">
-        <item name="android:layout_width">32dp</item>
-        <item name="android:layout_height">32dp</item>
+        <item name="android:layout_width">48dp</item>
+        <item name="android:layout_height">48dp</item>
         <item name="android:scaleType">fitCenter</item>
         <item name="android:src">@drawable/add_collection</item>
         <item name="android:tint">?attr/textColorSubtitle</item>

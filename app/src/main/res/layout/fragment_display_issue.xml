@@ -39,7 +39,7 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
                     tools:scaleType="fitXY"
-                    tools:src="@tools:sample/backgrounds/scenic" />
+                    tools:src="@drawable/cover_sample" />
 
                 <com.wtb.comiccollector.views.IssueInfoBox
                     android:id="@+id/issue_info_box"
@@ -56,14 +56,14 @@
 
                 <com.wtb.comiccollector.views.AddCollectionButton
                     android:id="@+id/collectionButton"
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
                     android:layout_marginStart="@dimen/margin_wide"
                     android:layout_marginBottom="@dimen/margin_default"
                     android:scaleType="fitCenter"
+                    android:tint="?attr/colorPrimaryDark"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toEndOf="@id/issue_cover"
-                    app:tint="?attr/colorPrimaryDark"
                     tools:src="@drawable/add_collection" />
 
                 <com.wtb.comiccollector.views.AddWishListButton
@@ -79,8 +79,8 @@
 
                 <ImageButton
                     android:id="@+id/ebayButton"
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
                     android:layout_marginEnd="@dimen/margin_wide"
                     android:layout_marginBottom="@dimen/margin_default"
                     android:background="@android:color/transparent"
@@ -145,7 +145,7 @@
                 android:id="@+id/issue_credits_frame"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/margin_default"
+                android:padding="@dimen/margin_narrow"
                 android:animateLayoutChanges="true"
                 app:layout_constraintBottom_toTopOf="@id/bottom_stuff"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -233,6 +233,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="end"
+            android:textColor="?attr/colorSecondaryDark"
             android:contentDescription="@string/content_desc_issue_display_gcd_link"
             android:gravity="bottom|clip_horizontal|end"
             android:text="@string/grand_comic_database_tm"
