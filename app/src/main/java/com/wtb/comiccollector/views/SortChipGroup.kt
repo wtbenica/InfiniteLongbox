@@ -2,6 +2,7 @@ package com.wtb.comiccollector.views
 
 import android.content.Context
 import android.util.AttributeSet
+import android.util.Log
 import android.view.View
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.children
@@ -46,16 +47,21 @@ class SortChipGroup(context: Context, attributeSet: AttributeSet) :
             }
         }.toList()
 
+        toRemoveList.forEach {
+            removeView(it)
+        }
+
         toAddList.forEach { sortTypeIn ->
             val chip = SortChip(context)
             chip.callback = this@SortChipGroup
             chip.isChecked = filter.mSortType == sortTypeIn
             chip.sortType = sortTypeIn
+            Log.d(
+                TAG,
+                "Added a sort chip. It ${if (chip.isChecked) "is" else "isn't"} checked. " +
+                        "${filter.mSortType} ${filter.getSortOptions()} ${chip.sortType}"
+            )
             addView(chip)
-        }
-
-        toRemoveList.forEach {
-            removeView(it)
         }
 
         sortTypes = sortColumnsIn

@@ -64,13 +64,13 @@ class SearchFilter(
         get() = when (field) {
             LocalDate.MIN -> MIN_DATE
             LocalDate.MAX -> MAX_DATE
-            else          -> field
+            else -> field
         }
     var mEndDate: LocalDate = endDate ?: LocalDate.MAX
         get() = when (field) {
             LocalDate.MIN -> MIN_DATE
             LocalDate.MAX -> MAX_DATE
-            else          -> field
+            else -> field
         }
     var mMyCollection: Boolean = myCollection
     var mSortType: SortType? = sortType ?: getSortOptions()[0]
@@ -80,6 +80,12 @@ class SearchFilter(
 
     private var mViewOptionsIndex = viewOptionsIndex
         get() = field % mViewOptions.size
+        set(value) {
+            field = value
+            if (mSortType !in getSortOptions()) {
+                mSortType = getSortOptions()[0]
+            }
+        }
 
     private val mViewOptions: List<KClass<out ListItem>>
         get() = if (mSeries != null) {
@@ -116,15 +122,15 @@ class SearchFilter(
             }
             when (item) {
                 is FullSeries -> addSeries(item)
-                is Creator    -> addCreator(item)
-                is Publisher  -> addPublisher(item)
+                is Creator -> addCreator(item)
+                is Publisher -> addPublisher(item)
                 is TextFilter -> addTextFilter(item)
                 is NameDetail -> {
                     // maybe should add namedetail as option. if someone wanted to find uses of
                     // alias specifically. How to differentiate though? creator and namedetail don't
                     // describe what sets them apart
                 }
-                is Character  -> addCharacter(item)
+                is Character -> addCharacter(item)
                 is DateFilter -> addDateFilter(item)
             }
         }
@@ -171,7 +177,7 @@ class SearchFilter(
 
     private fun addDateFilter(dateFilter: DateFilter) {
         when (dateFilter.isStart) {
-            true  -> mStartDate = dateFilter.date
+            true -> mStartDate = dateFilter.date
             false -> mEndDate = dateFilter.date
         }
     }
@@ -181,12 +187,12 @@ class SearchFilter(
         items.forEach { item ->
             when (item) {
                 is FullSeries -> removeSeries()
-                is Creator    -> removeCreator(item)
-                is Publisher  -> removePublisher(item)
+                is Creator -> removeCreator(item)
+                is Publisher -> removePublisher(item)
                 is TextFilter -> removeTextFilter(item)
                 is NameDetail -> {
                 }
-                is Character  -> removeCharacter()
+                is Character -> removeCharacter()
                 is DateFilter -> Unit
             }
         }
@@ -219,14 +225,14 @@ class SearchFilter(
 
     fun getSortOptions(): List<SortType> {
         return when (mViewOption) {
-            Character::class            -> SortType.Companion.SortTypeOptions.CHARACTER.options
-            FullIssue::class            -> SortType.Companion.SortTypeOptions.ISSUE.options
-            FullSeries::class           -> when (isComplex) {
-                true  -> SortType.Companion.SortTypeOptions.SERIES_COMPLEX.options
+            Character::class -> SortType.Companion.SortTypeOptions.CHARACTER.options
+            FullIssue::class -> SortType.Companion.SortTypeOptions.ISSUE.options
+            FullSeries::class -> when (isComplex) {
+                true -> SortType.Companion.SortTypeOptions.SERIES_COMPLEX.options
                 false -> SortType.Companion.SortTypeOptions.SERIES.options
             }
             FullCreator::class -> SortType.Companion.SortTypeOptions.CREATOR.options
-            else                        -> throw IllegalStateException("illegal view type: ${mViewOption.simpleName}")
+            else -> throw IllegalStateException("illegal view type: ${mViewOption.simpleName}")
         }
     }
 
@@ -312,7 +318,7 @@ class SortType(
     }
 
     private fun flipSortOrder(sortOrder: SortOrder) = when (sortOrder) {
-        SortOrder.ASC  -> SortOrder.DESC
+        SortOrder.ASC -> SortOrder.DESC
         SortOrder.DESC -> SortOrder.ASC
     }
 

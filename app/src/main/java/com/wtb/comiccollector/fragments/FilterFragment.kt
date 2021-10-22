@@ -335,7 +335,6 @@ class FilterFragment : Fragment(),
     // SearchTextViewCallback
     override fun addFilterItem(option: FilterItem) = viewModel.addFilterItem(option)
 
-
     override fun hideKeyboard() {
         callback?.hideKeyboard()
     }

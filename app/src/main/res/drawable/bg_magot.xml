@@ -4,40 +4,45 @@
         <shape>
             <gradient
                 android:centerColor="?attr/colorSecondaryVariant"
-                android:endColor="?attr/colorPrimaryDark"
-                android:gradientRadius="80%"
                 android:centerX="75%"
                 android:centerY="18%"
+                android:endColor="?attr/colorPrimaryDark"
+                android:gradientRadius="80%"
                 android:startColor="?attr/colorPrimaryDark"
+                android:type="radial" />
+        </shape>
+    </item>
+    <item>
+        <bitmap android:src="@drawable/bg_green"
+            android:alpha=".4"
+            android:tintMode="multiply"/>
+    </item>
+    <item>
+        <shape>
+            <gradient
+                android:angle="135"
+                android:centerX="25%"
+                android:centerY="60%"
+                android:endColor="#44C4F462"
+                android:gradientRadius="50%"
+                android:startColor="#44E8FDAD"
                 android:type="radial" />
         </shape>
     </item>
     <item>
         <shape>
             <gradient
-                android:type="radial"
-                android:gradientRadius="50%"
-                android:centerX="25%"
-                android:centerY="60%"
-                android:angle="135"
-                android:endColor="#33C4F462"
-                android:startColor="?attr/colorPrimaryVariant" />
-        </shape>
-    </item>
-    <item>
-        <shape>
-            <gradient
                 android:angle="45"
-                android:endColor="#35C4F462"
-                android:startColor="#85FFFFFF" />
+                android:endColor="#44C4F462"
+                android:startColor="#44FFFFFF" />
         </shape>
     </item>
     <item>
         <shape>
             <gradient
                 android:angle="90"
-                android:endColor="#35C4F462"
-                android:startColor="#35FFFFFF"
+                android:endColor="#44C4F462"
+                android:startColor="#44FFFFFF"
                 android:type="linear" />
         </shape>
     </item>

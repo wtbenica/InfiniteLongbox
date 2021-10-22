@@ -22,7 +22,7 @@
         <entry key="app/src/main/res/drawable/bg_image_label.xml" value="0.31574074074074077" />
         <entry key="app/src/main/res/drawable/bg_issue_list_item_info.xml" value="1.0" />
         <entry key="app/src/main/res/drawable/bg_issue_list_item_not_in_collection.xml" value="0.25" />
-        <entry key="app/src/main/res/drawable/bg_magot.xml" value="0.35208333333333336" />
+        <entry key="app/src/main/res/drawable/bg_magot.xml" value="0.75" />
         <entry key="app/src/main/res/drawable/bg_progress.xml" value="0.15" />
         <entry key="app/src/main/res/drawable/bg_series_dates.xml" value="0.27341772151898736" />
         <entry key="app/src/main/res/drawable/bg_series_title.xml" value="0.5" />
