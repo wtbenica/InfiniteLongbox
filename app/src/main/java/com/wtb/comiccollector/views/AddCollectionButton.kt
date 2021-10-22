@@ -18,7 +18,6 @@ class AddCollectionButton(context: Context, attributeSet: AttributeSet) :
     var checkToPlus: AnimatedVectorDrawableCompat? = null
     var showingPlus: Boolean = false
 
-
     var callback: AddCollectionCallback? = null
     var inCollection = false
         set(value) {

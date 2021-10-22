@@ -29,5 +29,5 @@
     <color name="text_character">#FFFF00</color>
     <color name="text_publisher">#555</color>
 
-    <color name="transparent_white">#DFFF</color>
+    <color name="transparent_filter">#DFFF</color>
 </resources>

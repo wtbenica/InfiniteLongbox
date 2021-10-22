@@ -5,22 +5,22 @@
 
     <style name="BaseTheme" parent="Theme.MaterialComponents.Light.NoActionBar">
         <!-- Primary brand color. -->
-        <item name="colorPrimary">@color/fantasia</item>
-        <item name="colorPrimaryVariant">@color/fantasia_variant</item>
-        <item name="colorPrimaryLight">@color/fantasia_light</item>
-        <item name="colorPrimaryDark">@color/fantasia_dark</item>
         <item name="colorPrimaryTransparent">@color/fantasia_transparent</item>
+        <item name="colorPrimaryLight">@color/fantasia_light</item>
+        <item name="colorPrimaryVariant">@color/fantasia_variant</item>
+        <item name="colorPrimary">@color/fantasia</item>
+        <item name="colorPrimaryDark">@color/fantasia_dark</item>
 
         <item name="colorOnPrimary">@color/fantasia_text</item>
 
         <!-- Secondary brand color. -->
         <item name="colorAccent">@color/argonaut</item>
 
-        <item name="colorSecondary">@color/amnesia</item>
-        <item name="colorSecondaryVariant">@color/amnesia_variant</item>
-        <item name="colorSecondaryDark">@color/amnesia_dark</item>
-        <item name="colorSecondaryLightLight">@color/amnesia_light</item>
         <item name="colorSecondaryTransparent">@color/amnesia_transparent</item>
+        <item name="colorSecondaryLight">@color/amnesia_light</item>
+        <item name="colorSecondaryVariant">@color/amnesia_variant</item>
+        <item name="colorSecondary">@color/amnesia</item>
+        <item name="colorSecondaryDark">@color/amnesia_dark</item>
 
         <item name="colorOnSecondary">@color/amnesia_text</item>
 
@@ -34,10 +34,11 @@
         <item name="textColorTitle">?attr/colorOnPrimary</item>
         <item name="textColorSubtitle">?attr/colorSecondaryDark</item>
 
-        <item name="colorTransparentWhite">@color/transparent_white</item>
+        <item name="colorTransparentFilter">@color/transparent_filter</item>
 
         <!-- Customize your theme here. -->
         <item name="colorUi">?attr/colorSecondary</item>
+        <item name="colorUiBackground">?attr/colorSecondaryVariant</item>
         <item name="android:textColorPrimary">?attr/colorOnPrimary</item>
         <item name="android:textColor">?attr/colorOnPrimary</item>
 
@@ -46,7 +47,7 @@
         <item name="colorChipFgActive">?attr/textColorSubtitle</item>
         <item name="colorChipFgInactive">?attr/colorSecondary</item>
 
-        <item name="android:windowBackground">?attr/colorSecondaryLightLight</item>
+        <item name="android:windowBackground">?attr/colorSecondaryLight</item>
         <item name="cardViewStyle">@style/mCardView</item>
         <item name="materialButtonStyle">@style/myButtonStyle</item>
         <item name="android:spinnerStyle">@style/IssueDetailVariantSpinnerStyle</item>

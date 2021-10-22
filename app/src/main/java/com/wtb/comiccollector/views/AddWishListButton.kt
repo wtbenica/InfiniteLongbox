@@ -5,6 +5,7 @@ import android.util.AttributeSet
 import android.util.Log
 import android.widget.Button
 import androidx.core.content.res.ResourcesCompat
+import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat
 import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.R
 
@@ -14,31 +15,55 @@ class AddWishListButton(context: Context, attributeSet: AttributeSet) :
         attributeSet,
         R.attr.styleAddCollectionButton
     ) {
+    var plusToCheck: AnimatedVectorDrawableCompat? = null
+    var checkToPlus: AnimatedVectorDrawableCompat? = null
+    var showingPlus: Boolean = false
 
-    var callback: AddCollectionCallback? = null
-    private var inCollection = false
+    var callback: AddCollectionButton.AddCollectionCallback? = null
+    var inCollection = false
         set(value) {
             field = value
-            val draw = ResourcesCompat.getDrawable(
-                resources,
-                if (field) {
-                    R.drawable.remove_wish_list
-                } else {
-                    R.drawable.add_wish_list
-                },
-                null
-            )
-            this.setImageDrawable(draw)
+
+            if (field) {
+                showCheck()
+            } else {
+                showPlus()
+            }
 
             this.contentDescription = if (field) {
-                "Remove from my wish list"
+                "Remove from my collection"
             } else {
-                "Add to my wish list"
+                "Add to my collection"
             }
         }
 
+    fun showCheck() {
+        if (showingPlus) {
+            morph()
+        }
+    }
+
+    fun showPlus() {
+        if (!showingPlus) {
+            morph()
+        }
+    }
+
+    fun morph() {
+        val drawable = if (showingPlus) plusToCheck else checkToPlus
+        setImageDrawable(drawable)
+        drawable?.start()
+        showingPlus = !showingPlus
+    }
+
     init {
+        showingPlus = true
+        plusToCheck = AnimatedVectorDrawableCompat.create(context, R.drawable.added_to_wish_list_anim)
+        checkToPlus = AnimatedVectorDrawableCompat.create(context, R.drawable.removed_from_wish_list_anim)
+        setImageDrawable(plusToCheck)
+
         setOnClickListener {
+            morph()
             if (inCollection) {
                 callback?.removeFromCollection()
             } else {
@@ -54,6 +79,6 @@ class AddWishListButton(context: Context, attributeSet: AttributeSet) :
 
 
     companion object {
-        const val TAG = APP + "AddCollectionButton"
+        const val TAG = APP + "AddWishListButton"
     }
 }

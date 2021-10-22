@@ -12,6 +12,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:animateLayoutChanges="true"
+        android:background="?attr/colorSecondaryLight"
+        tools:layout_height="400dp"
         tools:layout_width="200dp">
 
         <ImageView
@@ -55,7 +57,7 @@
             android:id="@+id/list_item_issue_box"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:background="@drawable/bg_issue_list_item_not_in_collection"
+            android:background="@drawable/bg_issue_list_item_in_collection"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent">
@@ -108,8 +110,6 @@
                 style="@style/AddCollectionButtonStyle"
                 android:layout_marginStart="@dimen/margin_narrow"
                 android:layout_marginBottom="@dimen/margin_narrow"
-                android:src="@drawable/added_to_collection_anim"
-                android:tint="?attr/colorSecondaryDark"
                 android:padding="@dimen/margin_narrow"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -118,13 +118,10 @@
             <com.wtb.comiccollector.views.AddWishListButton
                 android:id="@+id/btn_issue_list_add_wish_list"
                 style="@style/AddCollectionButtonStyle"
-                android:src="@drawable/add_wish_list"
-                android:tint="?attr/colorOnPrimary"
                 android:padding="@dimen/margin_narrow"
                 app:layout_constraintBottom_toBottomOf="@id/btn_issue_list_add_collection"
                 app:layout_constraintStart_toEndOf="@id/btn_issue_list_add_collection"
-                app:layout_constraintTop_toTopOf="@id/btn_issue_list_add_collection"
-                app:tint="?attr/textColorSubtitle" />
+                app:layout_constraintTop_toTopOf="@id/btn_issue_list_add_collection" />
 
             <TextView
                 android:id="@+id/list_item_issue_number_text"

@@ -21,7 +21,6 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.wtb.comiccollector.APP
-import com.wtb.comiccollector.MainActivity.Companion.getColorFromAttr
 import com.wtb.comiccollector.R
 import com.wtb.comiccollector.database.models.FullIssue
 import com.wtb.comiccollector.database.models.FullSeries
@@ -204,7 +203,7 @@ class IssueListFragment : ListFragment<FullIssue, IssueListFragment.IssueViewHol
 
             issueNameBox.setBackgroundResource(
                 if (inCollection)
-                    R.drawable.bg_issue_list_item_info
+                    R.drawable.bg_issue_list_item_in_collection
                 else
                     R.drawable.bg_issue_list_item_not_in_collection
             )

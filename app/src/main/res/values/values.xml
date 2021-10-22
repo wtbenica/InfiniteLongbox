@@ -1,13 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <attr name="colorSecondaryDark" format="reference" />
-    <attr name="colorSecondaryLightLight" format="reference" />
+    <attr name="colorSecondaryLight" format="reference" />
     <attr name="colorPrimaryLight" format="reference" />
-    <attr name="colorTransparentWhite" format="reference" />
+    <attr name="colorTransparentFilter" format="reference" />
     <attr name="colorPrimaryTransparent" format="color" />
     <attr name="colorSecondaryTransparent" format="color" />
 
     <attr name="colorUi" format="reference" />
+    <attr name="colorUiBackground" format="reference" />
+
     <attr name="colorStoryBoxTitle" format="reference" />
     <attr name="colorStoryBoxSubtitle" format="reference" />
     <attr name="styleCreatorLink" format="reference" />
