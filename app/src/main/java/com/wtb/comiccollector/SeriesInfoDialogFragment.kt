@@ -13,6 +13,10 @@ private const val DIALOG_END_DATE = "DialogEndDate"
 
 const val ARG_SERIES_ID = "seriesId"
 
+/**
+ * Currently unused, but if the ability to edit/enter series info is put back, this is the
+ * fragment to do it, along with [com.wtb.comiccollector.fragments_view_models.SeriesInfoViewModel]
+ */
 @ExperimentalCoroutinesApi
 class SeriesInfoDialogFragment private constructor() : DialogFragment() {
 //

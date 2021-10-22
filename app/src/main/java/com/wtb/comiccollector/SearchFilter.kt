@@ -1,7 +1,6 @@
 package com.wtb.comiccollector
 
 import android.annotation.SuppressLint
-import android.util.Log
 import com.wtb.comiccollector.ComicCollectorApplication.Companion.context
 import com.wtb.comiccollector.database.models.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -48,7 +47,7 @@ class SearchFilter(
 
     val needsStoryTable: Boolean
         get() = hasCreator() || hasCharacter()
-    var mShowIssues: Boolean = false
+    private var mShowIssues: Boolean = false
     var mCreators: Set<Creator> = creators ?: setOf()
     var mSeries: FullSeries? = series
         set(value) {

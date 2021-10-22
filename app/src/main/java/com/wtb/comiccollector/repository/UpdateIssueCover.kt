@@ -1,15 +1,11 @@
 package com.wtb.comiccollector.repository
 
-import android.content.ContentValues
 import android.content.Context
 import android.content.ContextWrapper
 import android.content.SharedPreferences
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
-import android.os.Build
-import android.os.Environment
-import android.provider.MediaStore
 import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.Webservice
 import com.wtb.comiccollector.database.models.Cover
@@ -20,7 +16,6 @@ import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
-import java.io.OutputStream
 import java.net.HttpURLConnection
 import java.net.URL
 import java.time.LocalDate
@@ -88,8 +83,6 @@ class UpdateIssueCover private constructor(
         }
     }
 
-    private fun checkForExistingCover(file: File): Boolean =
-        file.exists()
 }
 
 fun URL.toBitmap(): Bitmap? {
@@ -132,33 +125,3 @@ fun getFileHandle(context: Context, uri: String): File {
     return file
 }
 
-@Suppress("DEPRECATION")
-fun Bitmap.saveToInternalStorage2(context: Context, filename: String): Uri? {
-    val mimeType = "images/jpeg"
-    val directory = Environment.DIRECTORY_PICTURES
-    val mediaUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
-    val imageOutputStream: OutputStream?
-    val uri: Uri?
-
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-        val values = ContentValues().apply {
-            put(MediaStore.Images.Media.DISPLAY_NAME, filename)
-            put(MediaStore.Images.Media.MIME_TYPE, mimeType)
-            put(MediaStore.Images.Media.RELATIVE_PATH, directory)
-        }
-
-        context.contentResolver.run {
-            uri = context.contentResolver.insert(mediaUri, values)
-            imageOutputStream = uri?.let { openOutputStream(it) }
-        }
-    } else {
-        val imagePath = Environment.getExternalStoragePublicDirectory(directory).absolutePath
-        val image = File(imagePath, filename)
-        imageOutputStream = FileOutputStream(image)
-        uri = Uri.parse(image.absolutePath)
-    }
-
-    imageOutputStream.use { compress(Bitmap.CompressFormat.JPEG, 100, it) }
-
-    return uri
-}

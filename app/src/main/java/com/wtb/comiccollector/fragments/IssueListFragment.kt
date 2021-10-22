@@ -1,9 +1,7 @@
 package com.wtb.comiccollector.fragments
 
 import android.animation.ValueAnimator
-import android.content.Context
 import android.os.Bundle
-import android.util.AttributeSet
 import android.view.*
 import android.view.View.GONE
 import android.view.View.VISIBLE
@@ -31,9 +29,6 @@ import com.wtb.comiccollector.views.SeriesDetailBox
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-
-class IssueNameBox(context: Context, attrs: AttributeSet) :
-    ConstraintLayout(context, attrs)
 
 @ExperimentalCoroutinesApi
 class IssueListFragment : ListFragment<FullIssue, IssueListFragment.IssueViewHolder>() {
@@ -122,7 +117,6 @@ class IssueListFragment : ListFragment<FullIssue, IssueListFragment.IssueViewHol
     ), View.OnClickListener, AddCollectionButton.AddCollectionCallback {
         private var fullIssue: FullIssue? = null
         private val progressCover: ProgressBar = itemView.findViewById(R.id.progress_cover_download)
-        private val wrapper: ConstraintLayout = itemView.findViewById(R.id.wrapper)
         private val bg: ImageView = itemView.findViewById(R.id.bg_list_item_issue)
         private val coverImageView: ImageView = itemView.findViewById(R.id.list_item_cover)
         private val issueNameBox: ConstraintLayout =

@@ -1,6 +1,5 @@
 package com.wtb.comiccollector.fragments_view_models
 
-import android.util.Log
 import androidx.lifecycle.*
 import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.SearchFilter
@@ -74,11 +73,11 @@ class FilterViewModel : ViewModel() {
     }
 
     private val _updateCompleteSeries = MutableLiveData(false)
-    val updateCompleteSeries: LiveData<Boolean> = _updateCompleteSeries
+    private val updateCompleteSeries: LiveData<Boolean> = _updateCompleteSeries
     private var _updateCompleteCharacter = MutableLiveData(false)
-    val updateCompleteCharacter: LiveData<Boolean> = _updateCompleteCharacter
+    private val updateCompleteCharacter: LiveData<Boolean> = _updateCompleteCharacter
     private var _updateCompleteCreator = MutableLiveData(false)
-    val updateCompleteCreator: LiveData<Boolean> = _updateCompleteCreator
+    private val updateCompleteCreator: LiveData<Boolean> = _updateCompleteCreator
 
     val updateComplete =
         CombinedLiveData(

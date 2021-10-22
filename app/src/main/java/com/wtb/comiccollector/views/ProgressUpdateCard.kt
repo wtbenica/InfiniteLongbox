@@ -44,7 +44,9 @@ class ProgressUpdateCard(context: Context, attributeSet: AttributeSet) :
     val characterWrapper = ProgressWrapper(characterProgress, characterStatus)
 
     class ProgressWrapper(
-        val bar: ProgressBar, val status: ImageView, val nextStatus: ImageView? = null,
+        private val bar: ProgressBar,
+        private val status: ImageView,
+        private val nextStatus: ImageView? = null,
     ) {
         fun setMax(max: Int) {
             bar.max = max

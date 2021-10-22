@@ -4,11 +4,9 @@ import android.content.Context
 import android.util.AttributeSet
 import android.util.Log
 import android.view.View
-import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.children
 import com.google.android.material.chip.Chip
 import com.wtb.comiccollector.APP
-import com.wtb.comiccollector.R
 import com.wtb.comiccollector.SearchFilter
 import com.wtb.comiccollector.SortType
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -100,13 +98,6 @@ class SortChip(context: Context?) : Chip(context) {
                     callback?.sortOrderChanged(it)
                 }
             }
-        }
-
-    private var icon: Int? = null
-        set(value) {
-            field = value
-            closeIconTint = context.getColorStateList(R.color.filter_chip_text)
-            closeIcon = value?.let { ResourcesCompat.getDrawable(resources, it, null) }
         }
 
     var callback: SortChipCallback? = null

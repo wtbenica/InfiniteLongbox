@@ -43,6 +43,4 @@ class IssueListViewModel : ListViewModel<FullIssue>() {
     fun saveIssueListState(instanceState: Parcelable?) {
         repository.saveIssueListState = instanceState
     }
-
-    fun getIssueListState() = repository.saveIssueListState
 }

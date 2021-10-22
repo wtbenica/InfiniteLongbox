@@ -64,6 +64,6 @@
         <item name="styleAddCollectionButton">@style/AddCollectionButtonStyle</item>
 
 
-        <item name="listItemSeriesBackground">@drawable/bg_magot</item>
+        <item name="listItemSeriesBackground">@drawable/bg_swirl</item>
     </style>
 </resources>

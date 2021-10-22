@@ -2,8 +2,6 @@ package com.wtb.comiccollector.views
 
 import android.content.Context
 import android.util.AttributeSet
-import android.util.Log
-import androidx.core.content.res.ResourcesCompat
 import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat
 import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.R
@@ -14,9 +12,9 @@ class AddCollectionButton(context: Context, attributeSet: AttributeSet) :
         attributeSet,
         R.attr.styleAddCollectionButton
     ) {
-    var plusToCheck: AnimatedVectorDrawableCompat? = null
-    var checkToPlus: AnimatedVectorDrawableCompat? = null
-    var showingPlus: Boolean = false
+    private var plusToCheck: AnimatedVectorDrawableCompat? = null
+    private var checkToPlus: AnimatedVectorDrawableCompat? = null
+    private var showingPlus: Boolean = false
 
     var callback: AddCollectionCallback? = null
     var inCollection = false
@@ -36,19 +34,19 @@ class AddCollectionButton(context: Context, attributeSet: AttributeSet) :
             }
         }
 
-    fun showCheck() {
+    private fun showCheck() {
         if (showingPlus) {
             morph()
         }
     }
 
-    fun showPlus() {
+    private fun showPlus() {
         if (!showingPlus) {
             morph()
         }
     }
 
-    fun morph() {
+    private fun morph() {
         val drawable = if (showingPlus) plusToCheck else checkToPlus
         setImageDrawable(drawable)
         drawable?.start()
@@ -57,8 +55,10 @@ class AddCollectionButton(context: Context, attributeSet: AttributeSet) :
 
     init {
         showingPlus = true
-        plusToCheck = AnimatedVectorDrawableCompat.create(context, R.drawable.added_to_collection_anim)
-        checkToPlus = AnimatedVectorDrawableCompat.create(context, R.drawable.removed_from_collection_anim)
+        plusToCheck =
+            AnimatedVectorDrawableCompat.create(context, R.drawable.added_to_collection_anim)
+        checkToPlus =
+            AnimatedVectorDrawableCompat.create(context, R.drawable.removed_from_collection_anim)
         setImageDrawable(plusToCheck)
 
         setOnClickListener {

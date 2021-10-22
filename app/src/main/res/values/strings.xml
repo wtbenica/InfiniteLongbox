@@ -4,6 +4,7 @@
     <string name="delete_issue">Delete Issue</string>
     <string name="hint_series_title">Series title</string>
     <string name="description_issue_cover">Issue Cover (not set)</string>
+    <string name="description_issue_cover_set">Issue cover</string>
     <string name="hint_publisher">Publisher</string>
     <string name="save">Save</string>
     <string name="cancel">Cancel</string>

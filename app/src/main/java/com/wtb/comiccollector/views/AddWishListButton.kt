@@ -2,9 +2,6 @@ package com.wtb.comiccollector.views
 
 import android.content.Context
 import android.util.AttributeSet
-import android.util.Log
-import android.widget.Button
-import androidx.core.content.res.ResourcesCompat
 import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat
 import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.R
@@ -15,12 +12,12 @@ class AddWishListButton(context: Context, attributeSet: AttributeSet) :
         attributeSet,
         R.attr.styleAddCollectionButton
     ) {
-    var plusToCheck: AnimatedVectorDrawableCompat? = null
-    var checkToPlus: AnimatedVectorDrawableCompat? = null
-    var showingPlus: Boolean = false
+    private var plusToCheck: AnimatedVectorDrawableCompat? = null
+    private var checkToPlus: AnimatedVectorDrawableCompat? = null
+    private var showingPlus: Boolean = false
 
     var callback: AddCollectionButton.AddCollectionCallback? = null
-    var inCollection = false
+    private var inCollection = false
         set(value) {
             field = value
 
@@ -37,19 +34,19 @@ class AddWishListButton(context: Context, attributeSet: AttributeSet) :
             }
         }
 
-    fun showCheck() {
+    private fun showCheck() {
         if (showingPlus) {
             morph()
         }
     }
 
-    fun showPlus() {
+    private fun showPlus() {
         if (!showingPlus) {
             morph()
         }
     }
 
-    fun morph() {
+    private fun morph() {
         val drawable = if (showingPlus) plusToCheck else checkToPlus
         setImageDrawable(drawable)
         drawable?.start()
