@@ -54,7 +54,7 @@
         <entry key="app/src/main/res/drawable/remove_wish_list.xml" value="0.1111111111111111" />
         <entry key="app/src/main/res/drawable/removed_from_wish_list_anim.xml" value="0.18717948717948718" />
         <entry key="app/src/main/res/drawable/shape_bg_bottom_sheet.xml" value="0.2675925925925926" />
-        <entry key="app/src/main/res/drawable/splash.xml" value="0.21197916666666666" />
+        <entry key="app/src/main/res/drawable/splash.xml" value="1.0" />
         <entry key="app/src/main/res/drawable/status_in_progress.xml" value="0.27341772151898736" />
         <entry key="app/src/main/res/drawable/waiting.xml" value="0.27692307692307694" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.5" />
