@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="FilterFrameLayout">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">true</item>
+    </style>
+
+    <style name="HandleFrameLayout">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">@dimen/peek_height</item>
+    </style>
+
+    <style name="Handle">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">@dimen/peek_height</item>
+        <item name="android:layout_gravity">top|center_horizontal</item>
+        <item name="android:scaleType">fitCenter</item>
+        <item name="android:src">@drawable/arrow_up_24</item>
+        <item name="tint">?attr/colorOnPrimary</item>
+    </style>
+
+    <style name="FilterSection">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginBottom">@dimen/margin_default</item>
+        <item name="android:orientation">horizontal</item>
+        <item name="android:background">@drawable/bg_filter_section</item>
+    </style>
+
+    <style name="ImageLabel">
+        <item name="android:layout_width">?attr/dropdownListPreferredItemHeight</item>
+        <item name="android:layout_height">?attr/dropdownListPreferredItemHeight</item>
+        <item name="android:background">@drawable/bg_image_label</item>
+        <item name="tint">?attr/textColorBody</item>
+        <item name="android:layout_weight">0</item>
+        <item name="android:layout_gravity">center</item>
+    </style>
+
+    <style name="mySwitchStyle" parent="Widget.AppCompat.CompoundButton.Switch">
+        <item name="thumbTint">@color/my_switch</item>
+        <item name="trackTint">?attr/colorSecondary</item>
+        <item name="android:paddingStart">@dimen/margin_wide</item>
+        <item name="android:paddingEnd">@dimen/margin_wide</item>
+        <item name="fontFamily">@font/permanent_marker</item>
+        <item name="android:textColor">?attr/colorOnPrimary</item>
+        <item name="android:textAppearance">@style/mySwitchTextAppearance</item>
+    </style>
+
+    <style name="mySwitchTextAppearance" parent="TextAppearance.AppCompat.Widget.Switch">
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">16sp</item>
+    </style>
+
+    <style name="SearchAutoCompleteStyle" parent="Widget.AppCompat.Light.AutoCompleteTextView">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">?attr/dropdownListPreferredItemHeight</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:hint">@string/search</item>
+        <item name="android:paddingStart">@dimen/margin_default</item>
+        <item name="android:textColorHint">?attr/colorPrimaryLight</item>
+        <item name="android:popupElevation">4dp</item>
+        <item name="android:textColor">?attr/colorOnPrimary</item>
+        <item name="android:textSize">18sp</item>
+        <item name="fontFamily">@font/archivo_black</item>
+        <item name="android:background">@android:color/transparent</item>
+        <item name="singleLine">true</item>
+        <item name="android:popupBackground">@color/fantasia_transparent</item>
+        <item name="android:completionThreshold">1</item>
+    </style>
+
+    <style name="FilterCardChipGroup" parent="Widget.MaterialComponents.ChipGroup">
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="singleLine">true</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:background">@android:color/transparent</item>
+        <item name="chipSpacingVertical">@dimen/margin_narrow</item>
+        <item name="chipSpacingHorizontal">@dimen/margin_narrow</item>
+        <item name="android:paddingStart">@dimen/margin_narrow</item>
+        <item name="android:paddingEnd">@dimen/margin_narrow</item>
+    </style>
+
+    <style name="myNewChip" parent="Widget.MaterialComponents.Chip.Entry">
+        <item name="chipStrokeColor">@color/filter_chip_stroke</item>
+        <item name="chipStrokeWidth">1dp</item>
+        <item name="chipBackgroundColor">@color/filter_chip</item>
+        <item name="chipMinHeight">@dimen/chip_height</item>
+        <item name="chipCornerRadius">@dimen/margin_wide</item>
+        <item name="checkedIconSize">@dimen/chip_icon_size</item>
+        <item name="checkedIconVisible">false</item>
+        <item name="checkedIcon">@drawable/ic_check_circle</item>
+        <item name="checkedIconTint">?attr/textColorSubtitle</item>
+        <item name="closeIconSize">@dimen/chip_icon_size</item>
+        <item name="closeIconTint">?attr/colorChipFgActive</item>
+        <item name="chipStartPadding">@dimen/margin_default</item>
+        <item name="chipEndPadding">@dimen/margin_default</item>
+        <item name="android:textColor">?attr/colorChipFgActive</item>
+        <item name="android:textAppearance">@style/myChipText</item>
+        <item name="android:animateLayoutChanges">true</item>
+    </style>1
+
+    <style name="myChipText" parent="TextAppearance.MaterialComponents.Chip">
+        <item name="fontFamily">@font/archivo_black</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:textSize">13sp</item>
+    </style>
+
+    <style name="SearchFilterChip" parent="myNewChip">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="chipStartPadding">@dimen/margin_narrow</item>
+        <item name="chipEndPadding">@dimen/margin_narrow</item>
+        <item name="android:textAllCaps">true</item>
+        <item name="chipStrokeWidth">1dp</item>
+        <item name="closeIconEnabled">false</item>
+        <item name="android:textSize">@dimen/text_small</item>
+    </style>
+</resources>

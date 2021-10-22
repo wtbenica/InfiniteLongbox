@@ -18,11 +18,6 @@
     <color name="amnesia_dark">#575948</color>
     <color name="amnesia_text">#DFFF</color>
 
-    <color name="fantasia_muted">#E8FDAD</color>
-    <color name="fantasia_light_muted">#E3F6B0</color>
-    <color name="fantasia_dark_muted">#BAFE00</color>
-
-    <color name="text_all">#FFF</color>
     <color name="text_series">#00FFFF</color>
     <color name="tag_creator">#22FF00FF</color>
     <color name="text_creator">#FF00FF</color>

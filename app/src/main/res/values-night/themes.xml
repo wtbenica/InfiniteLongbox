@@ -1,23 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources>
 
     <style name="Theme.ComicCollector" parent="BaseTheme">
         <!-- Status bar color. -->
         <item name="android:windowLightStatusBar">false</item>
 
         <!-- Text Colors -->
-        <item name="textColorTitleBar">?attr/colorPrimaryVariant</item>
-        <item name="textColorTitle">?attr/colorPrimaryDark</item>
-        <item name="textColorSubtitle">?attr/colorPrimaryVariant</item>
+        <item name="textColorTitleBar">?attr/colorPrimaryDark</item>
+        <item name="textColorTitle">?attr/colorPrimary</item>
+        <item name="textColorSubtitle">?attr/colorPrimaryLight</item>
 
         <item name="colorTransparentFilter">@color/transparent_filter</item>
 
         <!-- Customize your theme here. -->
         <item name="colorUi">?attr/colorSecondaryDark</item>
+        <item name="colorUiBackground">?attr/colorSecondary</item>
 
         <item name="colorChipBgActive">?attr/colorPrimaryVariant</item>
-        <item name="colorChipBgInactive">?attr/colorSecondaryVariant</item>
-        <item name="colorChipFgActive">?attr/textColorSubtitle</item>
+        <item name="colorChipBgInactive">?attr/colorSecondaryTransparent</item>
+        <item name="colorChipFgActive">?attr/colorOnPrimary</item>
         <item name="colorChipFgInactive">?attr/colorSecondary</item>
 
         <item name="android:windowBackground">?attr/colorSecondaryVariant</item>

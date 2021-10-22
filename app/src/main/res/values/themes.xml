@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources>
 
     <style name="Theme.ComicCollector" parent="BaseTheme" />
 
@@ -33,14 +33,15 @@
         <item name="textColorTitleBar">?attr/colorSecondaryDark</item>
         <item name="textColorTitle">?attr/colorOnPrimary</item>
         <item name="textColorSubtitle">?attr/colorSecondaryDark</item>
+        <item name="textColorBody">?attr/colorOnPrimary</item>
 
         <item name="colorTransparentFilter">@color/transparent_filter</item>
 
         <!-- Customize your theme here. -->
         <item name="colorUi">?attr/colorSecondary</item>
         <item name="colorUiBackground">?attr/colorSecondaryVariant</item>
-        <item name="android:textColorPrimary">?attr/colorOnPrimary</item>
-        <item name="android:textColor">?attr/colorOnPrimary</item>
+        <item name="android:textColorPrimary">?attr/textColorBody</item>
+        <item name="android:textColor">?attr/textColorBody</item>
 
         <item name="colorChipBgActive">?attr/colorPrimaryVariant</item>
         <item name="colorChipBgInactive">?attr/colorSecondaryVariant</item>

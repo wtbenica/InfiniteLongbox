@@ -21,6 +21,7 @@
     <attr name="textColorTitleBar" format="reference" />
     <attr name="textColorTitle" format="reference" />
     <attr name="textColorSubtitle" format="reference" />
+    <attr name="textColorBody" format="reference" />
 
     <attr name="colorChipBgActive" format="reference" />
     <attr name="colorChipBgInactive" format="reference" />
