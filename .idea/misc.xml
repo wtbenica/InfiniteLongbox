@@ -53,7 +53,7 @@
         <entry key="app/src/main/res/drawable/waiting.xml" value="0.27692307692307694" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.5" />
         <entry key="app/src/main/res/layout/auto_complete_filter_item.xml" value="0.67" />
-        <entry key="app/src/main/res/layout/dialog_fragment_cover.xml" value="0.25" />
+        <entry key="app/src/main/res/layout/dialog_fragment_cover.xml" value="0.33" />
         <entry key="app/src/main/res/layout/fragment_display_issue.xml" value="0.33" />
         <entry key="app/src/main/res/layout/fragment_filter.xml" value="0.48017148981779206" />
         <entry key="app/src/main/res/layout/fragment_item_list.xml" value="0.15288394718554552" />
