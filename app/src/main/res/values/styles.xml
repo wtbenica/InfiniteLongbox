@@ -62,12 +62,12 @@
         <item name="android:popupBackground">?attr/colorOnSecondary</item>
     </style>
 
-    <style name="AddCollectionButtonStyle" parent="Widget.AppCompat.ImageButton">
+    <style name="AddCollectionButtonStyle" parent="Widget.AppCompat.Button">
         <item name="android:layout_width">48dp</item>
-        <item name="android:layout_height">48dp</item>
-        <item name="android:scaleType">fitCenter</item>
-        <item name="android:src">@drawable/add_collection</item>
-        <item name="android:tint">?attr/textColorSubtitle</item>
+        <item name="android:layout_height">wrap_content</item>
         <item name="android:background">@android:color/transparent</item>
+        <item name="android:tint">@color/fantasia_dark_dark</item>
+        <item name="android:textSize">8sp</item>
+        <item name="android:scaleType">fitCenter</item>
     </style>
 </resources>

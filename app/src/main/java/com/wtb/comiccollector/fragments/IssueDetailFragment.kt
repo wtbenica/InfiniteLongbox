@@ -8,6 +8,8 @@ import android.util.Log
 import android.view.*
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.*
+import androidx.appcompat.widget.AppCompatButton
+import androidx.appcompat.widget.AppCompatImageButton
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.google.android.material.appbar.AppBarLayout
@@ -68,7 +70,7 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback,
     private var issueVariants: List<Issue> = emptyList()
 
     private lateinit var coverImageView: ImageButton
-    private lateinit var ebayButton: ImageButton
+    private lateinit var ebayButton: AppCompatImageButton
     private lateinit var collectionButton: AddCollectionButton
     private lateinit var variantSpinnerHolder: LinearLayout
     private lateinit var variantSpinner: Spinner

@@ -3,6 +3,8 @@ package com.wtb.comiccollector.views
 import android.content.Context
 import android.util.AttributeSet
 import android.util.Log
+import android.widget.Button
+import androidx.core.content.res.ResourcesCompat
 import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.R
 
@@ -14,18 +16,25 @@ class AddWishListButton(context: Context, attributeSet: AttributeSet) :
     ) {
 
     var callback: AddCollectionCallback? = null
-    var inCollection = false
+    private var inCollection = false
         set(value) {
             field = value
-            this.setImageResource(
+            val draw = ResourcesCompat.getDrawable(
+                resources,
                 if (field) {
-                    Log.d(TAG, "In collection, so setting to remove collection image.")
                     R.drawable.remove_wish_list
                 } else {
-                    Log.d(TAG, "Not in collection, so setting to add collection image.")
                     R.drawable.add_wish_list
-                }
+                },
+                null
             )
+            this.setImageDrawable(draw)
+
+            this.contentDescription = if (field) {
+                "Remove from my wish list"
+            } else {
+                "Add to my wish list"
+            }
         }
 
     init {

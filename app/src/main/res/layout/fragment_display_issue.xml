@@ -48,6 +48,8 @@
                     android:layout_marginTop="@dimen/margin_narrow"
                     android:layout_marginEnd="@dimen/margin_narrow"
                     android:layout_marginBottom="@dimen/margin_narrow"
+                    android:animateLayoutChanges="true"
+                    android:contentDescription="Issue release info"
                     app:layout_constraintBottom_toTopOf="@id/collectionButton"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toEndOf="@id/issue_cover"
@@ -56,42 +58,69 @@
 
                 <com.wtb.comiccollector.views.AddCollectionButton
                     android:id="@+id/collectionButton"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
+                    style="@style/AddCollectionButtonStyle"
                     android:layout_marginStart="@dimen/margin_wide"
+                    android:contentDescription="Add to my collection"
+                    android:src="@drawable/removed_from_collection_anim"
+                    app:layout_constraintBottom_toTopOf="@id/lbl_collection_button"
+                    app:layout_constraintStart_toEndOf="@id/issue_cover" />
+
+                <TextView
+                    android:id="@+id/lbl_collection_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
                     android:layout_marginBottom="@dimen/margin_default"
-                    android:scaleType="fitCenter"
-                    android:tint="?attr/colorPrimaryDark"
+                    android:labelFor="@id/collectionButton"
+                    android:text="have"
+                    android:textAllCaps="true"
+                    android:textColor="@color/fantasia_dark_dark"
                     app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintStart_toEndOf="@id/issue_cover"
-                    tools:src="@drawable/add_collection" />
+                    app:layout_constraintEnd_toEndOf="@id/collectionButton"
+                    app:layout_constraintStart_toStartOf="@id/collectionButton" />
 
                 <com.wtb.comiccollector.views.AddWishListButton
                     android:id="@+id/issue_add_wish_btn"
                     style="@style/AddCollectionButtonStyle"
-                    android:layout_margin="@dimen/margin_default"
+                    android:contentDescription="Add to wish list"
                     android:src="@drawable/add_wish_list"
-                    android:tint="?attr/colorPrimaryDark"
-                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintBottom_toTopOf="@id/lbl_wish_list_button"
                     app:layout_constraintEnd_toStartOf="@id/ebayButton"
-                    app:layout_constraintStart_toEndOf="@id/collectionButton"
-                    tools:src="@drawable/add_wish_list" />
+                    app:layout_constraintStart_toEndOf="@id/collectionButton" />
 
-                <ImageButton
-                    android:id="@+id/ebayButton"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:layout_marginEnd="@dimen/margin_wide"
+                <TextView
+                    android:id="@+id/lbl_wish_list_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
                     android:layout_marginBottom="@dimen/margin_default"
-                    android:background="@android:color/transparent"
-                    android:contentDescription="Search ebay"
-                    android:padding="0dp"
-                    android:scaleType="fitCenter"
-                    android:src="@drawable/ic_search_24"
-                    android:text="@string/find_on_ebay"
+                    android:labelFor="@id/issue_add_wish_btn"
+                    android:text="want"
+                    android:textAllCaps="true"
+                    android:textColor="@color/fantasia_dark_dark"
                     app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="@id/issue_add_wish_btn"
+                    app:layout_constraintStart_toStartOf="@id/issue_add_wish_btn" />
+
+                <androidx.appcompat.widget.AppCompatImageButton
+                    android:id="@+id/ebayButton"
+                    style="@style/AddCollectionButtonStyle"
+                    android:layout_marginEnd="@dimen/margin_wide"
+                    android:contentDescription="Search ebay"
+                    android:src="@drawable/ic_search_24"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:tint="?attr/colorPrimaryDark" />
+                    app:layout_constraintBottom_toTopOf="@id/lbl_ebay_button" />
+
+                <TextView
+                    android:id="@+id/lbl_ebay_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="@dimen/margin_default"
+                    android:labelFor="@id/ebayButton"
+                    android:text="find"
+                    android:textAllCaps="true"
+                    android:textColor="@color/fantasia_dark_dark"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="@id/ebayButton"
+                    app:layout_constraintStart_toStartOf="@id/ebayButton" />
             </androidx.constraintlayout.widget.ConstraintLayout>
 
             <LinearLayout
@@ -133,6 +162,7 @@
                     android:layout_height="wrap_content"
                     android:layout_margin="@dimen/margin_narrow"
                     android:layout_weight="1"
+                    android:contentDescription="Select variant"
                     android:elevation="1dp"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toEndOf="@id/label_variants"
@@ -145,8 +175,8 @@
                 android:id="@+id/issue_credits_frame"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:padding="@dimen/margin_narrow"
                 android:animateLayoutChanges="true"
+                android:padding="@dimen/margin_narrow"
                 app:layout_constraintBottom_toTopOf="@id/bottom_stuff"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -233,10 +263,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="end"
-            android:textColor="?attr/colorSecondaryDark"
             android:contentDescription="@string/content_desc_issue_display_gcd_link"
             android:gravity="bottom|clip_horizontal|end"
             android:text="@string/grand_comic_database_tm"
+            android:textColor="?attr/colorSecondaryDark"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
     </LinearLayout>
