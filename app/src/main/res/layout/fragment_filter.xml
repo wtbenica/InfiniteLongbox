@@ -198,7 +198,9 @@
                     android:visibility="gone"
                     app:layout_constraintBottom_toTopOf="@id/img_lbl_search_bar"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent">
+                    android:scrollbars="none"
+                    app:layout_constraintStart_toStartOf="parent"
+                    tools:visibility="visible">
 
                     <com.google.android.material.chip.ChipGroup
                         android:id="@+id/filter_type_chip_group"
@@ -215,45 +217,30 @@
                             android:id="@+id/filter_chip_all"
                             style="@style/SearchFilterChip"
                             android:text="All"
-                            android:textColor="@color/text_all"
-                            app:chipBackgroundColor="?attr/colorSecondary"
-                            app:chipStrokeColor="@color/filter_type_chip_all"
                             app:closeIconEnabled="false" />
 
                         <com.wtb.comiccollector.views.FilterTypeChip
                             android:id="@+id/filter_chip_series"
                             style="@style/SearchFilterChip"
                             android:text="Series"
-                            android:textColor="@color/text_series"
-                            app:chipBackgroundColor="?attr/colorSecondary"
-                            app:chipStrokeColor="@color/filter_type_chip_series"
                             app:closeIconEnabled="false" />
 
                         <com.wtb.comiccollector.views.FilterTypeChip
                             android:id="@+id/filter_chip_creator"
                             style="@style/SearchFilterChip"
                             android:text="Creator"
-                            android:textColor="@color/text_creator"
-                            app:chipBackgroundColor="?attr/colorSecondary"
-                            app:chipStrokeColor="@color/filter_type_chip_creator"
                             app:closeIconEnabled="false" />
 
                         <com.wtb.comiccollector.views.FilterTypeChip
                             android:id="@+id/filter_chip_character"
                             style="@style/SearchFilterChip"
                             android:text="Character"
-                            android:textColor="@color/text_character"
-                            app:chipBackgroundColor="?attr/colorSecondary"
-                            app:chipStrokeColor="@color/filter_type_chip_character"
                             app:closeIconEnabled="false" />
 
                         <com.wtb.comiccollector.views.FilterTypeChip
                             android:id="@+id/filter_chip_publisher"
                             style="@style/SearchFilterChip"
                             android:text="Publisher"
-                            android:textColor="@color/text_publisher"
-                            app:chipBackgroundColor="?attr/colorSecondary"
-                            app:chipStrokeColor="@color/filter_type_chip_publisher"
                             app:closeIconEnabled="false" />
                     </com.google.android.material.chip.ChipGroup>
                 </HorizontalScrollView>
@@ -271,6 +258,7 @@
                 <com.wtb.comiccollector.views.SearchBar
                     android:id="@+id/search_bar"
                     style="@style/SearchAutoCompleteStyle"
+                    android:dropDownAnchor="@id/filter_type_chip_group"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toEndOf="@id/img_lbl_search_bar"
                     app:layout_constraintTop_toTopOf="@id/img_lbl_search_bar" />

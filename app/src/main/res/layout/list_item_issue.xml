@@ -33,7 +33,7 @@
             android:alpha="0"
             android:contentDescription="background - halftone design"
             android:scaleType="matrix"
-            android:src="@drawable/bg_cyan"
+            android:src="?attr/listItemSeriesBackground"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"

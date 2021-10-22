@@ -2,7 +2,7 @@
 <resources>
 
     <color name="fantasia">#dbfF86</color>
-    <color name="fantasia_transparent">#e5F5FFD9</color>
+    <color name="fantasia_transparent">#e5E8FDAD</color>
     <color name="fantasia_light">#F5FFD9</color>
     <color name="fantasia_variant">#E8FDAD</color>
     <color name="fantasia_dark">#c4f462</color>

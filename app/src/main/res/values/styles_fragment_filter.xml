@@ -113,7 +113,7 @@
         <item name="chipStartPadding">@dimen/margin_narrow</item>
         <item name="chipEndPadding">@dimen/margin_narrow</item>
         <item name="android:textAllCaps">true</item>
-        <item name="chipStrokeWidth">@dimen/margin_narrow</item>
+        <item name="chipStrokeWidth">1dp</item>
         <item name="closeIconEnabled">false</item>
         <item name="android:textSize">@dimen/text_small</item>
     </style>

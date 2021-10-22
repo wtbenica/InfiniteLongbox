@@ -108,15 +108,10 @@ class SeriesListFragment : ListFragment<FullSeries, SeriesListFragment.SeriesHol
 
             val firstIssue: FullIssue? = this.item.firstIssue
 
-            val draw: Int? = context?.getDrawableFromAttr(R.attr.listItemSeriesBackground)
-            val drawable: Drawable? = ResourcesCompat.getDrawable(
-                resources, draw ?: R.drawable
-                    .alboha2, null
-            )
             if (firstIssue?.coverUri != null) {
                 seriesImageView.setImageURI(firstIssue.coverUri)
             } else {
-                seriesImageView.setImageDrawable(drawable)
+                seriesImageView.setImageResource(R.drawable.bg_magot)
             }
 
             seriesDateRangeTextView.text = this.item.series.dateRange

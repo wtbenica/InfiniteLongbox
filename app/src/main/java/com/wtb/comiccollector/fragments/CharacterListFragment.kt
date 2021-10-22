@@ -41,7 +41,7 @@ class CharacterListFragment : ListFragment<FullCharacter, CharacterListFragment.
         val view = super.onCreateView(inflater, container, savedInstanceState)
 
         val itemOffsetDecoration = ItemOffsetDecoration(
-            resources.getDimension(R.dimen.margin_default).toInt()
+            resources.getDimension(R.dimen.margin_wide).toInt()
         )
         listRecyclerView.addItemDecoration(itemOffsetDecoration)
 
