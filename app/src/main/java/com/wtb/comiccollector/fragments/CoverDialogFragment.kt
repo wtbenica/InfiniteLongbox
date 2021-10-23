@@ -18,10 +18,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 @ExperimentalCoroutinesApi
 class CoverDialogFragment(private val draw: Drawable, private val currentIssue: FullIssue) :
-    DialogFragment(
-        R.layout
-            .dialog_fragment_cover
-    ) {
+    DialogFragment(R.layout.dialog_fragment_cover) {
 
     private var coverView: ImageView? = null
     private var coverTextView: TextView? = null

@@ -4,17 +4,17 @@
         <shape>
             <stroke
                 android:width="1dp"
-                android:color="?attr/colorPrimaryDark" />
+                android:color="?attr/colorSecondary" />
             <corners
                 android:bottomLeftRadius="@dimen/margin_default"
                 android:bottomRightRadius="@dimen/margin_default" />
-            <solid android:color="?attr/colorPrimaryDark" />
+            <solid android:color="?attr/colorSecondaryLight" />
         </shape>
     </item>
     <item>
         <shape>
             <gradient
-                android:centerX="45%"
+                android:centerX="55%"
                 android:centerY="45%"
                 android:endColor="#AFFF"
                 android:gradientRadius="200%"

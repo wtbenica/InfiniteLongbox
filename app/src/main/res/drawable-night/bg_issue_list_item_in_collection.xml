@@ -2,20 +2,17 @@
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
     <item>
         <shape>
-            <stroke
-                android:width="1dp"
-                android:color="?attr/colorPrimaryDark" />
             <corners
                 android:bottomLeftRadius="@dimen/margin_default"
                 android:bottomRightRadius="@dimen/margin_default" />
-            <solid android:color="?attr/colorPrimaryDark" />
+            <solid android:color="@color/fantasia_dark_dark" />
         </shape>
     </item>
     <item>
         <shape>
             <gradient
-                android:centerX="45%"
-                android:centerY="45%"
+                android:centerX="55%"
+                android:centerY="55%"
                 android:endColor="#AFFF"
                 android:gradientRadius="200%"
                 android:startColor="#7FFF"

@@ -18,7 +18,7 @@
         <item name="android:layout_gravity">top|center_horizontal</item>
         <item name="android:scaleType">fitCenter</item>
         <item name="android:src">@drawable/arrow_up_24</item>
-        <item name="tint">?attr/colorOnPrimary</item>
+        <item name="tint">?attr/textColorTitle</item>
     </style>
 
     <style name="FilterSection">

@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?attr/colorUiBackground"
+    android:background="?attr/colorSecondaryLight"
     android:orientation="vertical">
 
     <ScrollView
@@ -62,6 +62,7 @@
                     android:layout_marginStart="@dimen/margin_wide"
                     android:contentDescription="Add to my collection"
                     android:src="@drawable/removed_from_collection_anim"
+                    android:tint="@color/fantasia_dark_dark"
                     app:layout_constraintBottom_toTopOf="@id/lbl_collection_button"
                     app:layout_constraintStart_toEndOf="@id/issue_cover" />
 
@@ -82,7 +83,8 @@
                     android:id="@+id/issue_add_wish_btn"
                     style="@style/AddCollectionButtonStyle"
                     android:contentDescription="Add to wish list"
-                    android:src="@drawable/add_wish_list"
+                    android:src="@drawable/added_to_wish_list_anim"
+                    android:tint="@color/fantasia_dark_dark"
                     app:layout_constraintBottom_toTopOf="@id/lbl_wish_list_button"
                     app:layout_constraintEnd_toStartOf="@id/ebayButton"
                     app:layout_constraintStart_toEndOf="@id/collectionButton" />
@@ -106,6 +108,7 @@
                     android:layout_marginEnd="@dimen/margin_wide"
                     android:contentDescription="Search ebay"
                     android:src="@drawable/ic_search_24"
+                    android:tint="@color/fantasia_dark_dark"
                     app:layout_constraintBottom_toTopOf="@id/lbl_ebay_button"
                     app:layout_constraintEnd_toEndOf="parent" />
 
@@ -174,7 +177,8 @@
             <FrameLayout
                 android:id="@+id/issue_credits_frame"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="0dp"
+                android:layout_weight="1"
                 android:animateLayoutChanges="true"
                 android:padding="@dimen/margin_narrow"
                 app:layout_constraintBottom_toTopOf="@id/bottom_stuff"
@@ -188,7 +192,7 @@
         android:id="@+id/bottom_stuff"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="?attr/colorSecondary"
+        android:background="?attr/colorUi"
         android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -210,7 +214,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:enabled="false"
-                android:text="@string/goto_start" />
+                android:text="@string/goto_start"
+                tools:enabled="true" />
 
             <Button
                 android:id="@+id/goto_skip_back_button"
@@ -237,7 +242,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:enabled="false"
+                android:enabled="true"
                 android:text="@string/goto_one_forward" />
 
             <Button
@@ -246,7 +251,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:enabled="false"
+                android:enabled="true"
                 android:text="@string/goto_skip_forward" />
 
             <Button
@@ -254,7 +259,7 @@
                 style="?android:attr/buttonBarButtonStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:enabled="false"
+                android:enabled="true"
                 android:text="@string/goto_end" />
         </LinearLayout>
 
