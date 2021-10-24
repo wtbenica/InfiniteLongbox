@@ -3,28 +3,29 @@
     <item>
         <shape>
             <gradient
-                android:centerColor="?attr/colorSecondaryVariant"
-                android:centerX="75%"
-                android:centerY="18%"
-                android:endColor="?attr/colorPrimaryDark"
-                android:gradientRadius="80%"
-                android:startColor="?attr/colorPrimaryDark"
+                android:centerColor="@color/amnesia_variant"
+                android:centerX="0.25"
+                android:centerY="0.65"
+                android:endColor="@color/fantasia"
+                android:gradientRadius="2000"
+                android:startColor="@color/fantasia_dark_dark"
                 android:type="radial" />
         </shape>
     </item>
     <item>
-        <bitmap android:src="@drawable/bg_green"
+        <bitmap
             android:alpha=".4"
-            android:tintMode="multiply"/>
+            android:src="@drawable/bg_green"
+            android:tintMode="multiply" />
     </item>
     <item>
         <shape>
             <gradient
                 android:angle="135"
-                android:centerX="25%"
-                android:centerY="60%"
+                android:centerX="0.50"
+                android:centerY="0.25"
                 android:endColor="#44C4F462"
-                android:gradientRadius="50%"
+                android:gradientRadius="1000"
                 android:startColor="#44E8FDAD"
                 android:type="radial" />
         </shape>
@@ -34,7 +35,8 @@
             <gradient
                 android:angle="45"
                 android:endColor="#44C4F462"
-                android:startColor="#44FFFFFF" />
+                android:startColor="#44FFFFFF"
+                android:type="linear" />
         </shape>
     </item>
     <item>

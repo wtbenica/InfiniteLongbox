@@ -29,12 +29,14 @@
         <entry key="app/src/main/res/drawable/bg_issue_list_item_in_collection.xml" value="0.28055555555555556" />
         <entry key="app/src/main/res/drawable/bg_issue_list_item_info.xml" value="1.0" />
         <entry key="app/src/main/res/drawable/bg_issue_list_item_not_in_collection.xml" value="0.25" />
+        <entry key="app/src/main/res/drawable/bg_list_item_simple_meta.xml" value="0.33" />
         <entry key="app/src/main/res/drawable/bg_magot.xml" value="0.75" />
         <entry key="app/src/main/res/drawable/bg_progress.xml" value="0.15" />
         <entry key="app/src/main/res/drawable/bg_series_dates.xml" value="0.27341772151898736" />
         <entry key="app/src/main/res/drawable/bg_series_title.xml" value="0.5" />
         <entry key="app/src/main/res/drawable/bg_story_box_subtitle_bar.xml" value="0.21145833333333333" />
         <entry key="app/src/main/res/drawable/bg_story_box_title_bar.xml" value="0.17426160337552743" />
+        <entry key="app/src/main/res/drawable/bg_swirl.xml" value="0.5" />
         <entry key="app/src/main/res/drawable/done.xml" value="0.27341772151898736" />
         <entry key="app/src/main/res/drawable/dot_vortex.xml" value="0.21145833333333333" />
         <entry key="app/src/main/res/drawable/fofof.xml" value="0.27692307692307694" />
@@ -78,8 +80,8 @@
         <entry key="app/src/main/res/layout/list_item_issue_new.xml" value="0.67" />
         <entry key="app/src/main/res/layout/list_item_issue_variant.xml" value="0.3553299492385787" />
         <entry key="app/src/main/res/layout/list_item_search_type.xml" value="0.2636752136752137" />
-        <entry key="app/src/main/res/layout/list_item_series.xml" value="0.67" />
-        <entry key="app/src/main/res/layout/list_item_simple.xml" value="0.506544502617801" />
+        <entry key="app/src/main/res/layout/list_item_series.xml" value="0.539568345323741" />
+        <entry key="app/src/main/res/layout/list_item_simple.xml" value="0.3846787479406919" />
         <entry key="app/src/main/res/layout/list_item_variant.xml" value="0.2636752136752137" />
         <entry key="app/src/main/res/layout/row_item_appearance.xml" value="0.5" />
         <entry key="app/src/main/res/layout/search_autocomplete.xml" value="0.6248715313463515" />

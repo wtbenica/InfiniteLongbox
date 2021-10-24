@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="ListItemTitleText.Character">
+        <item name="android:background">@drawable/bg_character_name</item>
+        <item name="android:textColor">?attr/colorPrimaryDark</item>
+    </style>
+
+
+    <style name="ListItemSeriesSubtitle.Simple">
+        <item name="android:textColor">?attr/colorOnPrimary</item>
+    </style>
+</resources>
