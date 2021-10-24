@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     style="@style/mCardView.ListItemSeries"
     android:layout_width="match_parent"
-    android:layout_height="150dp"
+    android:layout_height="170dp"
     android:animateLayoutChanges="true">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -14,80 +14,91 @@
         <ImageView
             android:id="@+id/series_imageview"
             android:layout_width="0dp"
-            android:layout_height="0dp"
+            android:layout_height="match_parent"
             android:contentDescription="@string/description_series_list_item_background_image"
-            android:cropToPadding="true"
             android:scaleType="centerCrop"
             android:src="?attr/listItemSeriesBackground"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-
-        <TextView
-            android:id="@+id/list_item_series_name_text"
-            style="@style/ListItemTitleText.Series"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:singleLine="true"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            tools:text="@string/hint_series_title" />
+            tools:src="@drawable/cover_sample"/>
+
 
         <LinearLayout
-            android:id="@+id/metadata_box"
-            style="@style/ListItemMetaBox"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            app:layout_constraintEnd_toEndOf="@id/list_item_series_name_text"
-            app:layout_constraintStart_toStartOf="@id/list_item_series_name_text"
-            app:layout_constraintTop_toBottomOf="@id/list_item_series_name_text">
-
-            <TextView
-                android:id="@+id/list_item_pub_dates"
-                style="@style/ListItemSeriesSubtitle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                tools:text="(1990-2005)" />
-
-            <View
-                android:layout_width="1dp"
-                android:layout_height="match_parent"
-                android:layout_marginTop="@dimen/margin_narrow"
-                android:layout_marginBottom="@dimen/margin_narrow"
-                android:background="@color/tag_creator" />
-
-            <TextView
-                android:id="@+id/list_item_series_format"
-                style="@style/ListItemSeriesSubtitle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                tools:text="was ongoing series" />
-        </LinearLayout>
-
-        <FrameLayout
-            android:layout_width="0dp"
-            android:layout_height="4dp"
-            android:layout_marginTop="-1dp"
+            android:background="@drawable/bg_series_title"
+            android:orientation="vertical"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/metadata_box">
+            app:layout_constraintTop_toTopOf="parent">
+
+            <TextView
+                android:id="@+id/list_item_series_name_text"
+                style="@style/ListItemTitleText"
+                android:layout_width="match_parent"
+                android:singleLine="true"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="@string/hint_series_title" />
+
+            <LinearLayout
+                android:id="@+id/metadata_box"
+                style="@style/ListItemMetaBox"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintEnd_toEndOf="@id/list_item_series_name_text"
+                app:layout_constraintStart_toStartOf="@id/list_item_series_name_text"
+                app:layout_constraintTop_toBottomOf="@id/list_item_series_name_text">
+
+                <TextView
+                    android:id="@+id/list_item_pub_dates"
+                    style="@style/ListItemSeriesSubtitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    tools:text="(1990-2005)" />
+
+                <View
+                    android:layout_width="2dp"
+                    android:layout_height="match_parent"
+                    android:layout_marginStart="@dimen/margin_default"
+                    android:layout_marginTop="@dimen/margin_narrow"
+                    android:layout_marginEnd="@dimen/margin_default"
+                    android:layout_marginBottom="@dimen/margin_narrow"
+                    android:background="?attr/textColorSubtitle" />
+
+                <TextView
+                    android:id="@+id/list_item_series_format"
+                    style="@style/ListItemSeriesSubtitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    tools:text="was ongoing series" />
+            </LinearLayout>
 
             <FrameLayout
                 android:layout_width="match_parent"
-                android:layout_height="16dp"
-                android:layout_gravity="center_vertical">
+                android:layout_height="2dp"
+                android:layout_marginTop="-1dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/metadata_box">
 
-                <ProgressBar
-                    android:id="@+id/cover_progress_bar"
-                    style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+                <FrameLayout
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:indeterminateOnly="true"
-                    android:indeterminateTint="?attr/colorPrimaryDark" />
+                    android:layout_height="16dp"
+                    android:layout_gravity="center_vertical">
+
+                    <ProgressBar
+                        android:id="@+id/cover_progress_bar"
+                        style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:indeterminateOnly="true"
+                        android:indeterminateTint="?attr/colorPrimaryLight"
+                        android:background="?attr/colorSecondaryDark"/>
+                </FrameLayout>
             </FrameLayout>
-        </FrameLayout>
+        </LinearLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.cardview.widget.CardView>

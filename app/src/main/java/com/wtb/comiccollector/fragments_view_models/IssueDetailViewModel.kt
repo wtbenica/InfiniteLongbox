@@ -8,7 +8,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import com.wtb.comiccollector.*
-import com.wtb.comiccollector.database.daos.Count
 import com.wtb.comiccollector.database.models.*
 import com.wtb.comiccollector.repository.Repository
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -67,9 +66,6 @@ class IssueDetailViewModel : ViewModel() {
     internal val variantAppearancesLiveData: LiveData<List<FullAppearance>> =
         variantId.flatMapLatest { issueId -> repository.getAppearancesByIssue(issueId) }
             .asLiveData()
-
-    internal val variantInCollectionLiveData: LiveData<Count> =
-        variantId.flatMapLatest { repository.inCollection(it) }.asLiveData()
 
     internal val variantsLiveData: LiveData<List<Issue>> =
         primaryId.flatMapLatest { id -> repository.getVariants(id) }.asLiveData()

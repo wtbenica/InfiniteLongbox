@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.View.*
@@ -53,6 +52,8 @@ class FilterFragment : Fragment(),
     private lateinit var handleBox: FrameLayout
     private lateinit var handleImage: ImageView
 
+    private lateinit var chipSections: LinearLayout
+
     private lateinit var dateFilterSection: LinearLayout
     private lateinit var dateChipGroup: DateChipGroup
 
@@ -71,6 +72,7 @@ class FilterFragment : Fragment(),
     private lateinit var searchSection: ConstraintLayout
     private lateinit var searchBar: SearchBar
 
+    private lateinit var filterTypeScrollView: HorizontalScrollView
     private lateinit var filterTypeChipGroup: ChipGroup
     private lateinit var filterChipAll: FilterTypeChip<All.Companion>
     private lateinit var filterChipSeries: FilterTypeChip<Series.Companion>
@@ -184,6 +186,7 @@ class FilterFragment : Fragment(),
         handleImage = view.findViewById(R.id.handle_handle)
 
         sections = view.findViewById(R.id.sections)
+        chipSections = view.findViewById(R.id.chip_sections)
         dateFilterSection = view.findViewById(R.id.section_date_filters)
         dateChipGroup = view.findViewById(R.id.chip_group_dates)
         dateChipGroup.callback = this
@@ -209,6 +212,7 @@ class FilterFragment : Fragment(),
     }
 
     private fun initFilterTypeChipGroup(view: View) {
+        filterTypeScrollView = view.findViewById(R.id.chip_group_scrollview)
         filterTypeChipGroup = view.findViewById(R.id.filter_type_chip_group)
         filterChipAll =
             view.findViewById<FilterTypeChip<All.Companion>>(R.id.filter_chip_all).apply {
@@ -331,13 +335,13 @@ class FilterFragment : Fragment(),
     // SearchTextViewCallback
     override fun addFilterItem(option: FilterItem) = viewModel.addFilterItem(option)
 
-
     override fun hideKeyboard() {
         callback?.hideKeyboard()
     }
 
     override fun setFilterTypesVisibility(isVisible: Boolean) {
-        filterTypeChipGroup.visibility = if (isVisible) VISIBLE else GONE
+        filterTypeScrollView.visibility = if (isVisible) VISIBLE else GONE
+        chipSections.visibility = if (isVisible) GONE else VISIBLE
     }
 
     // ChippyCallback

@@ -210,10 +210,10 @@ abstract class Updater(
                 val items: List<ModelType>? = getItems(id)
                 Log.d(TAG, "updateById: numItems: ${items?.size}")
                 if (items != null && items.isNotEmpty()) {
-                    async {
+                    withContext(Dispatchers.Default) {
                         Log.d(TAG, "updateById: Following up")
                         followup(items)
-                    }.await().let {
+                    }.let {
                         Log.d(TAG, "updateById: Followup done")
                         collector.dao.upsertSus(items)
                     }
@@ -308,9 +308,9 @@ abstract class Updater(
 
                     // if request is successful, save and mark as updated
                     if (itemPage != null && itemPage.isNotEmpty()) {
-                        async {
+                        withContext(Dispatchers.Default) {
                             verifyForeignKeys(itemPage)
-                        }.await().let {
+                        }.let {
                             if (dao.upsertSus(itemPage)) {
                                 pagesComplete[currPage] = true
                                 pageFinished()

@@ -16,8 +16,8 @@
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:contentDescription="background - halftone design"
-            android:scaleType="matrix"
-            android:src="@drawable/bg_cyan"
+            android:scaleType="centerCrop"
+            android:src="?attr/listItemSeriesBackground"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -26,6 +26,7 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:paddingEnd="@dimen/margin_default"
             android:paddingTop="@dimen/margin_default"
             android:paddingBottom="@dimen/margin_default">
 
@@ -41,8 +42,8 @@
                 tools:text="Negative Man" />
 
             <LinearLayout
-                style="@style/ListItemMetaBox"
-                android:layout_width="0dp"
+                style="@style/ListItemMetaBox.Simple"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="@dimen/margin_default"
                 app:layout_constraintStart_toStartOf="@id/list_item_issue_variant_name"
@@ -50,7 +51,7 @@
 
                 <TextView
                     android:id="@+id/list_item_alter_ego"
-                    style="@style/ListItemSeriesSubtitle"
+                    style="@style/ListItemSeriesSubtitle.Simple"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     tools:text="Larry Trainor" />
@@ -59,13 +60,12 @@
                     android:id="@+id/divider_list_item_meta"
                     android:layout_width="1dp"
                     android:layout_height="match_parent"
-                    android:layout_marginTop="@dimen/margin_narrow"
-                    android:layout_marginBottom="@dimen/margin_narrow"
+                    android:layout_margin="@dimen/margin_narrow"
                     android:background="@color/tag_creator" />
 
                 <TextView
                     android:id="@+id/list_item_char_publisher"
-                    style="@style/ListItemSeriesSubtitle"
+                    style="@style/ListItemSeriesSubtitle.Simple"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     tools:text="DC" />

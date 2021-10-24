@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape>
+            <corners
+                android:bottomLeftRadius="@dimen/margin_default"
+                android:bottomRightRadius="@dimen/margin_default" />
+            <solid android:color="@color/fantasia_dark_dark" />
+        </shape>
+    </item>
+    <item>
+        <shape>
+            <gradient
+                android:centerX="55%"
+                android:centerY="55%"
+                android:endColor="#AFFF"
+                android:gradientRadius="200%"
+                android:startColor="#7FFF"
+                android:type="radial" />
+        </shape>
+    </item>
+</layer-list>

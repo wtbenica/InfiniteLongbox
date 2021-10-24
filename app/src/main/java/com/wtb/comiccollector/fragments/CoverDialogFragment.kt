@@ -17,12 +17,12 @@ import com.wtb.comiccollector.database.models.FullIssue
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 @ExperimentalCoroutinesApi
-class CoverDialogFragment(val draw: Drawable, val currentIssue: FullIssue) : DialogFragment(R.layout
-    .dialog_fragment_cover) {
+class CoverDialogFragment(private val draw: Drawable, private val currentIssue: FullIssue) :
+    DialogFragment(R.layout.dialog_fragment_cover) {
 
-    var coverView: ImageView? = null
-    var coverTextView: TextView? = null
-    var variantNameTextView: TextView? = null
+    private var coverView: ImageView? = null
+    private var coverTextView: TextView? = null
+    private var variantNameTextView: TextView? = null
 
     override fun onResume() {
         super.onResume()

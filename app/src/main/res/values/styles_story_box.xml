@@ -48,6 +48,15 @@
         <item name="android:textSize">@dimen/text_small</item>
     </style>
 
+    <style name="IssueInfoText" parent="Widget.AppCompat.TextView">
+        <item name="android:layout_margin">@dimen/margin_narrow</item>
+        <item name="fontFamily">@font/archivo_black</item>
+        <item name="android:background">@drawable/primary_border</item>
+        <item name="android:padding">@dimen/margin_narrow</item>
+        <item name="android:textSize">@dimen/text_small</item>
+        <item name="android:textColor">?attr/textColorBody</item>
+    </style>
+
     <style name="CreatorNameText" parent="Widget.AppCompat.TextView">
         <item name="fontFamily">@font/heebo_medium</item>
         <item name="android:paddingStart">@dimen/margin_default</item>

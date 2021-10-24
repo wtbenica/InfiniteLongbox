@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="SeriesDetailLabel">
+        <item name="fontFamily">@font/archivo_black</item>
+        <item name="android:textColor">?attr/colorSecondaryVariant</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="SeriesDetailText">
+        <item name="android:textColor">?attr/colorSecondaryLight</item>
+        <item name="fontFamily">@font/heebo_medium</item>
+        <item name="android:textSize">@dimen/text_small</item>
+    </style>
+</resources>

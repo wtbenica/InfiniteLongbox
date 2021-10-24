@@ -2,12 +2,11 @@ package com.wtb.comiccollector.views
 
 import android.content.Context
 import android.util.AttributeSet
+import android.util.Log
 import android.view.View
-import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.children
 import com.google.android.material.chip.Chip
 import com.wtb.comiccollector.APP
-import com.wtb.comiccollector.R
 import com.wtb.comiccollector.SearchFilter
 import com.wtb.comiccollector.SortType
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -46,16 +45,21 @@ class SortChipGroup(context: Context, attributeSet: AttributeSet) :
             }
         }.toList()
 
+        toRemoveList.forEach {
+            removeView(it)
+        }
+
         toAddList.forEach { sortTypeIn ->
             val chip = SortChip(context)
             chip.callback = this@SortChipGroup
             chip.isChecked = filter.mSortType == sortTypeIn
             chip.sortType = sortTypeIn
+            Log.d(
+                TAG,
+                "Added a sort chip. It ${if (chip.isChecked) "is" else "isn't"} checked. " +
+                        "${filter.mSortType} ${filter.getSortOptions()} ${chip.sortType}"
+            )
             addView(chip)
-        }
-
-        toRemoveList.forEach {
-            removeView(it)
         }
 
         sortTypes = sortColumnsIn
@@ -94,13 +98,6 @@ class SortChip(context: Context?) : Chip(context) {
                     callback?.sortOrderChanged(it)
                 }
             }
-        }
-
-    private var icon: Int? = null
-        set(value) {
-            field = value
-            closeIconTint = context.getColorStateList(R.color.filter_chip_text)
-            closeIcon = value?.let { ResourcesCompat.getDrawable(resources, it, null) }
         }
 
     var callback: SortChipCallback? = null

@@ -117,7 +117,7 @@ data class ExCredit(
     override val role: Int,
     override val issue: Int?,
     override val series: Int?,
-) : CreditX() 
+) : CreditX()
 
 @Entity(
     foreignKeys = [
@@ -166,16 +166,6 @@ data class Role(
         get() = roleId
 
     override fun toString(): String = roleName
-
-    // TODO: Marked for deletion 8/6/21
-    companion object {
-        enum class Name(val value: Int) {
-            SCRIPT(1), PENCILS(2), INKS(3), COLORS(4), LETTERS(5), EDITING(6), PENCILS_INKS(7),
-            PENCILS_INKS_COLORS(8), PAINTING(9), SCRIPT_PENCILS_INKS(10),
-            SCRIPT_PENCILS_INKS_COLORS(11), SCRIPT_PENCILS_INKS_LETTERS(12),
-            SCRIPT_PENCILS_INKS_COLORS_LETTERS(13), PENCILS_INKS_LETTERS(14)
-        }
-    }
 }
 
 @ExperimentalCoroutinesApi

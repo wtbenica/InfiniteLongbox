@@ -14,7 +14,6 @@ import com.wtb.comiccollector.SortType
 import com.wtb.comiccollector.SortType.Companion.containsSortType
 import com.wtb.comiccollector.database.models.Character
 import com.wtb.comiccollector.database.models.FullCharacter
-import com.wtb.comiccollector.database.models.TextFilter
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import java.util.*
@@ -189,48 +188,5 @@ abstract class CharacterDao : BaseDao<Character>("character") {
     companion object {
         private const val TAG = APP + "CharacterDao"
 
-        private fun addTypeFilterElse(
-            lookup: List<String?>?,
-            textFilter: TextFilter,
-        ): StringBuilder {
-            val res = StringBuilder()
-            var first = true
-            lookup?.forEach {
-                res.append(
-                    addTextFilterCondition(
-                        it,
-                        first,
-                        textFilter
-                    )
-                )
-                    .also {
-                        first = false
-                    }
-            }
-
-            return res
-        }
-
-        private fun addTextFilterCondition(
-            column: String?,
-            first: Boolean,
-            textFilter: TextFilter,
-        ): StringBuilder {
-            val res = StringBuilder()
-            if (!first) {
-                res.append("""OR """)
-            }
-
-            res.append("""$column like '%${textFilter.text}%' """)
-
-            return res
-        }
     }
-
-//    fun getCharacterIdsByFilter(filter: SearchFilter) {
-//        val t = listOf(filter.mSeries, filter.mCreators, filter.mCharacter, filter.mTextFilter,
-//                       filter.mPublishers, Pair(filter.mStartDate, filter.mEndDate), filter.mMyCollection)
-//
-//        val issuesInMyCollection = CollectionDao().
-//    }
 }

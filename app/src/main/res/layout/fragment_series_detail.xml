@@ -5,6 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:animateLayoutChanges="true"
+    tools:showIn="@layout/fragment_item_list"
     tools:parentTag="androidx.constraintlayout.widget.ConstraintLayout">
 
         <TextView
@@ -82,7 +83,6 @@
             app:layout_constraintTop_toBottomOf="@id/continues_from_box">
 
             <TextView
-                android:id="@+id/label_series_continues_as"
                 style="@style/SeriesDetailLabel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -129,7 +129,6 @@
             app:layout_constraintTop_toBottomOf="@+id/label_publisher">
 
             <TextView
-                android:id="@+id/label_tracking_notes"
                 style="@style/SeriesDetailLabel"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -174,7 +173,6 @@
             app:layout_constraintTop_toBottomOf="@id/tracking_box">
 
             <TextView
-                android:id="@+id/label_notes"
                 style="@style/SeriesDetailLabel"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"

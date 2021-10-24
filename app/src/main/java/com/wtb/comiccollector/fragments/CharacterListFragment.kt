@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
 import android.widget.TextView
 import androidx.fragment.app.viewModels
 import androidx.paging.PagingDataAdapter
@@ -41,7 +40,7 @@ class CharacterListFragment : ListFragment<FullCharacter, CharacterListFragment.
         val view = super.onCreateView(inflater, container, savedInstanceState)
 
         val itemOffsetDecoration = ItemOffsetDecoration(
-            resources.getDimension(R.dimen.margin_default).toInt()
+            resources.getDimension(R.dimen.margin_wide).toInt()
         )
         listRecyclerView.addItemDecoration(itemOffsetDecoration)
 
@@ -69,12 +68,11 @@ class CharacterListFragment : ListFragment<FullCharacter, CharacterListFragment.
         private val alterEgoTextView: TextView = itemView.findViewById(R.id.list_item_alter_ego)
         private val publisherTextView: TextView =
             itemView.findViewById(R.id.list_item_char_publisher)
-        private val bg: ImageView = itemView.findViewById(R.id.list_item_simple_bg)
         private val div: View = itemView.findViewById(R.id.divider_list_item_meta)
 
         init {
             itemView.setOnClickListener(this)
-            bg.setImageResource(R.drawable.bg_yellow)
+//            bg.setImageResource(R.drawable.bg_yellow)
         }
 
         fun bind(item: FullCharacter) {

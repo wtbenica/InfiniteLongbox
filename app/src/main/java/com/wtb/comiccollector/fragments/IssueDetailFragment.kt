@@ -8,6 +8,7 @@ import android.util.Log
 import android.view.*
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.*
+import androidx.appcompat.widget.AppCompatImageButton
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.google.android.material.appbar.AppBarLayout
@@ -68,7 +69,7 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback,
     private var issueVariants: List<Issue> = emptyList()
 
     private lateinit var coverImageView: ImageButton
-    private lateinit var ebayButton: ImageButton
+    private lateinit var ebayButton: AppCompatImageButton
     private lateinit var collectionButton: AddCollectionButton
     private lateinit var variantSpinnerHolder: LinearLayout
     private lateinit var variantSpinner: Spinner
@@ -480,12 +481,13 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback,
         if (issue.issueId != AUTO_ID) {
             listFragmentCallback?.setTitle("$currentIssue")
 
-            if ((!isVariant &&
-                        (issueStories.isEmpty() || issueCredits.isEmpty() || issueAppearances.isEmpty())) ||
-                (isVariant &&
-                        (variantStories.isEmpty() || variantCredits.isEmpty() || variantAppearances.isEmpty()))
+            // TODO: Marked for deletion: 10/22/21
+            if ((!isVariant && (issueStories.isEmpty() || issueCredits.isEmpty() || issueAppearances.isEmpty())) ||
+                (isVariant && (variantStories.isEmpty() || variantCredits.isEmpty() || variantAppearances.isEmpty()))
             ) {
-
+                // Not sure whether my intention was to give some sort of indication that there
+                // was no info or whether this was before I had implemented progress bars
+                Unit
             }
 
             infoBox.update(issue.releaseDate, issue.coverDate, issue.notes)

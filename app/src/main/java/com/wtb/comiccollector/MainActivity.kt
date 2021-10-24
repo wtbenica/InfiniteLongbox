@@ -1,17 +1,21 @@
 package com.wtb.comiccollector
 
 import android.app.Activity
+import android.content.Context
 import android.net.ConnectivityManager
 import android.net.Network
 import android.net.NetworkCapabilities
 import android.os.Bundle
 import android.util.Log
+import android.util.TypedValue
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import android.widget.ProgressBar
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.viewModels
+import androidx.annotation.AttrRes
+import androidx.annotation.ColorInt
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.ContentFrameLayout
 import androidx.appcompat.widget.Toolbar
@@ -329,6 +333,17 @@ class MainActivity : AppCompatActivity(),
         init {
             hasConnection.observeForever {
                 Log.d(TAG, "HAS CONNECTION: $it")
+            }
+        }
+
+        @ColorInt
+        fun Context.getColorFromAttr(
+            @AttrRes attrColor: Int,
+            resolveRefs: Boolean = true
+        ): Int {
+            TypedValue().let {
+                theme.resolveAttribute(attrColor, it, resolveRefs)
+                return it.data
             }
         }
     }

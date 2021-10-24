@@ -68,21 +68,28 @@ abstract class SeriesDao : BaseDao<Series>("series") {
             val args: ArrayList<Any> = arrayListOf()
             fun connectWord(): String = if (conditions.isEmpty()) "WHERE" else "AND"
 
-            table.append("""SELECT DISTINCT ss.* 
+            table.append(
+                """SELECT DISTINCT ss.* 
                         FROM series ss 
-                        """)
+                        """
+            )
 
             conditions.append("${connectWord()} ss.seriesId != $DUMMY_ID ")
 
             if (filter.hasCreator() || filter.hasCharacter() || filter.hasDateFilter() || filter
-                    .mMyCollection) {
-                table.append("""JOIN issue ie ON ie.series = ss.seriesId
-                    """)
+                    .mMyCollection
+            ) {
+                table.append(
+                    """JOIN issue ie ON ie.series = ss.seriesId
+                    """
+                )
             }
 
             if (filter.hasCreator() || filter.hasCharacter())
-                table.append("""JOIN story sy ON sy.issue = ie.issueId
-                       """)
+                table.append(
+                    """JOIN story sy ON sy.issue = ie.issueId
+                       """
+                )
 
             if (filter.mPublishers.isNotEmpty()) {
                 val publisherList = modelsToSqlIdString(filter.mPublishers)
@@ -113,18 +120,21 @@ abstract class SeriesDao : BaseDao<Series>("series") {
                                 )
                             )
                         )
-                    """)
+                    """
+                    )
                 }
             }
 
             if (filter.hasDateFilter()) {
-                conditions.append("""${connectWord()} ((ie.releaseDate <= '${filter.mEndDate}' 
+                conditions.append(
+                    """${connectWord()} ((ie.releaseDate <= '${filter.mEndDate}' 
                         AND ie.releaseDate >= '${filter.mStartDate}'
                         AND ie.releaseDate IS NOT NULL)
                         OR (ie.coverDate <= '${filter.mEndDate}'
                         AND ie.coverDate >= '${filter.mStartDate}'
                         AND ie.releaseDate IS NULL))
-                        """)
+                        """
+                )
             }
 
             filter.mCharacter?.characterId?.let {
@@ -133,28 +143,35 @@ abstract class SeriesDao : BaseDao<Series>("series") {
                         SELECT ap.story
                         FROM appearance ap
                         WHERE ap.character = $it)
-                         """)
+                         """
+                )
             }
 
             if (filter.mMyCollection) {
                 if (filter.hasCharacter() || filter.hasCreator() || filter.hasDateFilter()) {
-                    conditions.append("""${connectWord()} ie.issueId IN (
+                    conditions.append(
+                        """${connectWord()} ie.issueId IN (
                     SELECT issue
                     FROM mycollection)
-                    """)
+                    """
+                    )
                 } else {
-                    conditions.append("""${connectWord()} ss.seriesId IN (
+                    conditions.append(
+                        """${connectWord()} ss.seriesId IN (
                     SELECT series
                     FROM mycollection) 
-                """)
+                """
+                    )
                 }
             }
 
             filter.mTextFilter?.let { textFilter ->
                 val text = textFilterToString(textFilter.text)
 
-                conditions.append("""${connectWord()} ss.seriesName like ? 
-                """)
+                conditions.append(
+                    """${connectWord()} ss.seriesName like ? 
+                """
+                )
 
                 args.add(text)
             }
@@ -163,7 +180,8 @@ abstract class SeriesDao : BaseDao<Series>("series") {
                 val isValid =
                     if (filter.isComplex)
                         SortType.Companion.SortTypeOptions.SERIES_COMPLEX.options.containsSortType(
-                            it)
+                            it
+                        )
                     else
                         SortType.Companion.SortTypeOptions.SERIES.options.containsSortType(it)
 
@@ -189,10 +207,12 @@ abstract class SeriesDao : BaseDao<Series>("series") {
         ) {
             var first = true
             lookup?.forEach {
-                addTextFilterCondition(it,
-                                       first,
-                                       conditions,
-                                       textFilter)
+                addTextFilterCondition(
+                    it,
+                    first,
+                    conditions,
+                    textFilter
+                )
                     .also { first = false }
             }
         }

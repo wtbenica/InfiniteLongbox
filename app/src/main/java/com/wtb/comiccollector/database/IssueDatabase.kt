@@ -12,7 +12,6 @@ import com.wtb.comiccollector.database.models.*
 import com.wtb.comiccollector.database.models.Issue
 import com.wtb.comiccollector.repository.DUMMY_ID
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import org.intellij.lang.annotations.Language
 import java.time.LocalDate
 import java.util.concurrent.Executors
 

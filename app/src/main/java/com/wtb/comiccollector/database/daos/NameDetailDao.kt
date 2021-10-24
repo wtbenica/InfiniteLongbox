@@ -1,6 +1,5 @@
 package com.wtb.comiccollector.database.daos
 
-import android.database.sqlite.SQLiteQueryBuilder
 import androidx.room.Dao
 import androidx.room.RawQuery
 import androidx.sqlite.db.SimpleSQLiteQuery

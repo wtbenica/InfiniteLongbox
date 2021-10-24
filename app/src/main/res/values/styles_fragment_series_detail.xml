@@ -2,7 +2,7 @@
 <resources>
 
     <style name="SeriesDetailBackground">
-        <item name="android:background">?attr/colorAccent</item>
+        <item name="android:background">?attr/colorPrimaryLight</item>
         <item name="android:padding">@dimen/margin_default</item>
     </style>
 

@@ -34,7 +34,7 @@ abstract class ListFragment<T : ListItem, VH : RecyclerView.ViewHolder> : Fragme
     private val PEEK_HEIGHT
         get() = resources.getDimension(R.dimen.peek_height).toInt()
 
-    protected val filterViewModel: FilterViewModel by viewModels({ requireActivity() })
+    private val filterViewModel: FilterViewModel by viewModels({ requireActivity() })
     protected abstract val viewModel: ListViewModel<T>
 
     protected lateinit var outerScrollView: NestedScrollView

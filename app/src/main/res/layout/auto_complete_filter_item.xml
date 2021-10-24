@@ -38,7 +38,7 @@
                 android:id="@+id/format_text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="?attr/colorSecondaryLightLight"
+                android:background="?attr/colorSecondaryLight"
                 android:fontFamily="@font/archivo_black"
                 android:padding="@dimen/margin_narrow"
                 android:text="@string/cancel"

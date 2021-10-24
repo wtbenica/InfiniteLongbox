@@ -107,6 +107,3 @@ interface Webservice {
     }
 }
 
-class PageCount(
-    val pageCount: Int
-)

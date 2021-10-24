@@ -2,6 +2,7 @@ package com.wtb.comiccollector.views
 
 import android.content.Context
 import android.util.AttributeSet
+import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat
 import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.R
 
@@ -11,27 +12,57 @@ class AddCollectionButton(context: Context, attributeSet: AttributeSet) :
         attributeSet,
         R.attr.styleAddCollectionButton
     ) {
+    private var plusToCheck: AnimatedVectorDrawableCompat? = null
+    private var checkToPlus: AnimatedVectorDrawableCompat? = null
+    private var showingPlus: Boolean = false
 
     var callback: AddCollectionCallback? = null
     var inCollection = false
         set(value) {
             field = value
-            this.setImageResource(
-                if (field) {
-                    R.drawable.remove_collection
-                } else {
-                    R.drawable.add_collection
-                }
-            )
-            this.contentDescription = if (field) {
-                "Remove from collection"
+
+            if (field) {
+                showCheck()
             } else {
-                "Add to collection"
+                showPlus()
+            }
+
+            this.contentDescription = if (field) {
+                "Remove from my collection"
+            } else {
+                "Add to my collection"
             }
         }
 
+    private fun showCheck() {
+        if (showingPlus) {
+            morph()
+        }
+    }
+
+    private fun showPlus() {
+        if (!showingPlus) {
+            morph()
+        }
+    }
+
+    private fun morph() {
+        val drawable = if (showingPlus) plusToCheck else checkToPlus
+        setImageDrawable(drawable)
+        drawable?.start()
+        showingPlus = !showingPlus
+    }
+
     init {
+        showingPlus = true
+        plusToCheck =
+            AnimatedVectorDrawableCompat.create(context, R.drawable.added_to_collection_anim)
+        checkToPlus =
+            AnimatedVectorDrawableCompat.create(context, R.drawable.removed_from_collection_anim)
+        setImageDrawable(plusToCheck)
+
         setOnClickListener {
+            morph()
             if (inCollection) {
                 callback?.removeFromCollection()
             } else {

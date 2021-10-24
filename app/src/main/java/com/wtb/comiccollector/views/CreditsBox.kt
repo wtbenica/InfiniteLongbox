@@ -10,7 +10,6 @@ import com.wtb.comiccollector.R
 import com.wtb.comiccollector.database.models.FullAppearance
 import com.wtb.comiccollector.database.models.FullCredit
 import com.wtb.comiccollector.database.models.Story
-import com.wtb.comiccollector.database.models.ids
 import com.wtb.comiccollector.fragments.RoleNameTextView
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
@@ -31,9 +30,6 @@ class CreditsBox(context: Context) : TableLayout(context) {
     private var mVariantAppearances: List<FullAppearance> = emptyList()
     private val completeVariantStories
         get() = getCompleteVariantStories(mIssueStories, mVariantStories)
-
-    private val mStoryIds: List<Int>
-        get() = completeVariantStories.ids
 
     fun update(
         issueStories: List<Story>? = null,
@@ -122,7 +118,7 @@ class CreditsBox(context: Context) : TableLayout(context) {
 
             storyTitle.text = storyTitle1
 
-            if (mStory.synopsis != null && mStory.synopsis != "") {
+            if (mStory.synopsis != null && mStory.synopsis.isNotBlank()) {
                 hasAddedInfo = true
                 val synopsis: TextView = findViewById(R.id.synopsis)
                 synopsis.text = mStory.synopsis

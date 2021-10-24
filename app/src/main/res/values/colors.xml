@@ -1,30 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <color name="fantasia">#00FFFF</color>
-    <color name="fantasia_transparent">#BB00FFFF</color>
-    <color name="fantasia_light">#AAFFFF</color>
-    <color name="fantasia_dark_dark">#00BBBB</color>
-    <color name="fantasia_dark">#00DDDD</color>
+    <color name="fantasia">#dbfF86</color>
+    <color name="fantasia_transparent">#e5E8FDAD</color>
+    <color name="fantasia_light">#F5FFD9</color>
+    <color name="fantasia_variant">#E8FDAD</color>
+    <color name="fantasia_dark">#c4f462</color>
+    <color name="fantasia_dark_dark">#8ACD00</color>
     <color name="fantasia_text">#D222</color>
 
-    <color name="amnesia">#E3E3E7</color>
-    <color name="amnesia_light">#F0F0F4</color>
-    <color name="amnesia_light_light">#F7F7FF</color>
-    <color name="amnesia_light_transparent">#BBF3F3F3</color>
-    <color name="amnesia_dark">#CADADA</color>
+    <color name="argonaut">#E8FDAD</color>
+
+    <color name="amnesia">#CFCFCA</color>
+    <color name="amnesia_variant">#F4F4F0</color>
+    <color name="amnesia_light">#FFFFF7</color>
+    <color name="amnesia_transparent">#DFFF</color>
+    <color name="amnesia_dark">#575948</color>
     <color name="amnesia_text">#DFFF</color>
 
-    <color name="fantasia_muted">#E8FDAD</color>
-    <color name="fantasia_light_muted">#E3F6B0</color>
-    <color name="fantasia_dark_muted">#BAFE00</color>
-
-    <color name="text_all">#FFF</color>
     <color name="text_series">#00FFFF</color>
     <color name="tag_creator">#22FF00FF</color>
     <color name="text_creator">#FF00FF</color>
     <color name="text_character">#FFFF00</color>
     <color name="text_publisher">#555</color>
 
-    <color name="transparent_white">#DFFF</color>
+    <color name="transparent_filter">#DFFF</color>
 </resources>

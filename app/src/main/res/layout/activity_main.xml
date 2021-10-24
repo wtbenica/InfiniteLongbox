@@ -5,10 +5,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true"
     android:animateLayoutChanges="true"
-    android:orientation="vertical"
-    android:background="?attr/colorSecondary">
+    android:background="?attr/colorUi"
+    android:fitsSystemWindows="true"
+    android:orientation="vertical">
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:id="@+id/main_activity"
@@ -22,9 +22,9 @@
         <com.google.android.material.appbar.AppBarLayout
             android:id="@+id/app_bar_layout"
             style="@style/myAppBarLayout"
+            android:animateLayoutChanges="true"
             app:layout_behavior="com.google.android.material.appbar.AppBarLayout$Behavior"
-            app:layout_insetEdge="top"
-            android:animateLayoutChanges="true">
+            app:layout_insetEdge="top">
 
             <androidx.appcompat.widget.Toolbar
                 android:id="@+id/action_bar"
@@ -32,10 +32,10 @@
                 tools:title="Doom Patrol #9" />
 
             <com.wtb.comiccollector.views.ProgressUpdateCard
-                android:layout_margin="@dimen/margin_default"
                 android:id="@+id/progress_update_card"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/margin_default" />
 
             <FrameLayout
                 android:layout_width="match_parent"
@@ -53,7 +53,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:indeterminateOnly="true"
-                        android:indeterminateTint="@color/text_creator"/>
+                        android:indeterminateTint="?attr/colorPrimary"/>
                 </FrameLayout>
             </FrameLayout>
         </com.google.android.material.appbar.AppBarLayout>

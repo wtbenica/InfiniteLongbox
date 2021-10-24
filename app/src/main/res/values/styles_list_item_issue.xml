@@ -3,6 +3,13 @@
     <style name="mCardView.ListItemIssue">
         <item name="cardCornerRadius">@dimen/radius_list_item_issue</item>
         <item name="cardElevation">@dimen/margin_narrow</item>
+        <item name="android:animateLayoutChanges">true</item>
     </style>
 
+    <style name="NoCover">
+        <item name="android:adjustViewBounds">true</item>
+        <item name="android:alpha">0</item>
+        <item name="android:scaleType">fitStart</item>
+        <item name="android:src">@drawable/cover_missing</item>
+    </style>
 </resources>

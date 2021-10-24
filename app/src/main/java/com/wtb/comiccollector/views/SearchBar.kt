@@ -69,7 +69,7 @@ class SearchBar(context: Context, attributeSet: AttributeSet) :
             item?.let { callbacks?.addFilterItem(it) }
         }
 
-        setOnTouchListener(object: OnTouchListener {
+        setOnTouchListener(object : OnTouchListener {
             override fun onTouch(v: View?, event: MotionEvent?): Boolean {
                 if (event?.action == MotionEvent.ACTION_DOWN) {
                     showDropDown()
@@ -107,7 +107,7 @@ class SearchBar(context: Context, attributeSet: AttributeSet) :
 }
 
 @ExperimentalCoroutinesApi
-class FilterTypeChip<T: FilterType>  @JvmOverloads constructor(
+class FilterTypeChip<T : FilterType> @JvmOverloads constructor(
     context: Context?,
     attributeSet:
     AttributeSet? = null,

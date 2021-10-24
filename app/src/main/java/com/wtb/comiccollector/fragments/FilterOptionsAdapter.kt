@@ -46,8 +46,14 @@ class FilterOptionsAdapter(context: Context, filterOptions: List<FilterModel>) :
         optionTypeText.setTextColor(modelItem.textColor)
         when (modelItem) {
             is FullSeries -> {
-                itemFormatText.visibility = VISIBLE
-                itemFormatText.text = modelItem.series.publishingFormat
+                modelItem.series.publishingFormat.let {
+                    if (it?.isNotBlank() == true) {
+                        itemFormatText.text = it
+                        itemFormatText.visibility = VISIBLE
+                    } else {
+                        itemFormatText.visibility = GONE
+                    }
+                }
             }
             is Character -> {
                 itemFormatText.visibility = GONE

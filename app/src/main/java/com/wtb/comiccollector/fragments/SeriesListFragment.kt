@@ -11,7 +11,6 @@ import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.annotation.AttrRes
-import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.viewModels
 import androidx.paging.PagingDataAdapter
@@ -49,7 +48,8 @@ class SeriesListFragment : ListFragment<FullSeries, SeriesListFragment.SeriesHol
         val view = super.onCreateView(inflater, container, savedInstanceState)
 
         val itemOffsetDecoration = ItemOffsetDecoration(
-            resources.getDimension(R.dimen.margin_default).toInt()
+            resources.getDimension(R.dimen.item_offset_vert_list_item_series).toInt(),
+            resources.getDimension(R.dimen.item_offset_horz_list_item_series).toInt()
         )
         listRecyclerView.addItemDecoration(itemOffsetDecoration)
 
@@ -65,11 +65,6 @@ class SeriesListFragment : ListFragment<FullSeries, SeriesListFragment.SeriesHol
         override fun onBindViewHolder(holder: SeriesHolder, position: Int) {
             getItem(position)?.let { holder.bind(it) }
         }
-
-//        override fun onViewRecycled(holder: SeriesHolder) {
-//            super.onViewRecycled(holder)
-//            holder.clean()
-//        }
     }
 
     inner class SeriesHolder(parent: ViewGroup) : RecyclerView.ViewHolder(
@@ -108,14 +103,12 @@ class SeriesListFragment : ListFragment<FullSeries, SeriesListFragment.SeriesHol
             val firstIssue: FullIssue? = this.item.firstIssue
 
             val draw: Int? = context?.getDrawableFromAttr(R.attr.listItemSeriesBackground)
-            val drawable: Drawable? = ResourcesCompat.getDrawable(
-                resources, draw ?: R.drawable
-                    .alboha2, null
-            )
+            val draw2: Drawable? = draw?.let { ResourcesCompat.getDrawable(resources, it, null) }
+
             if (firstIssue?.coverUri != null) {
                 seriesImageView.setImageURI(firstIssue.coverUri)
             } else {
-                seriesImageView.setImageDrawable(drawable)
+                seriesImageView.setImageDrawable(draw2)
             }
 
             seriesDateRangeTextView.text = this.item.series.dateRange
@@ -127,10 +120,6 @@ class SeriesListFragment : ListFragment<FullSeries, SeriesListFragment.SeriesHol
                 } else {
                     View.VISIBLE
                 }
-        }
-
-        fun clean() {
-            seriesImageView.scaleType = ImageView.ScaleType.MATRIX
         }
 
         override fun onClick(v: View?) {

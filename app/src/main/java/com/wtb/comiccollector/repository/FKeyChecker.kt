@@ -10,7 +10,7 @@ import com.wtb.comiccollector.repository.Updater.Companion.retrieveItemsByArgume
 import com.wtb.comiccollector.repository.Updater.PriorityDispatcher.Companion.highPriorityDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.async
+import kotlinx.coroutines.withContext
 import java.time.LocalDateTime
 import kotlin.reflect.KSuspendFunction1
 
@@ -69,9 +69,9 @@ class FKeyChecker(val database: IssueDatabase, private val webservice: Webservic
         Log.d(TAG, "UPDATING $theTime: recovered ${missingItems.size} items $getForeignKey")
 
         if (missingItems.isNotEmpty()) {
-            CoroutineScope(highPriorityDispatcher).async {
+            withContext(CoroutineScope(highPriorityDispatcher).coroutineContext) {
                 checkFkFks?.let { it(missingItems) }
-            }.await().let {
+            }.let {
                 foreignKeyDao.upsert(missingItems)
             }
         }
