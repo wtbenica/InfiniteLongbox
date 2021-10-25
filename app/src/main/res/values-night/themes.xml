@@ -25,16 +25,22 @@
         <!-- FilterFragment -->
         <item name="imageLabelBackground">@drawable/filter_fragment_image_label_bg</item>
         <item name="imageLabelTint">?attr/colorChipText</item>
-        <item name="searchBarTextColorHint">?attr/colorPrimaryLight</item>
+        <item name="searchBarTextColorHint">#6111</item>
         <item name="searchBarTextColor">?attr/colorOnPrimary</item>
         <item name="searchBarBackground">@android:color/transparent</item>
         <item name="searchBarPopupBackground">?attr/colorPrimaryTransparent</item>
         <item name="filterChipGroupBackground">@android:color/transparent</item>
         <item name="colorChipBgActive">?attr/colorPrimaryVariant</item>
-        <item name="colorChipBgInactive">?attr/colorSecondaryVariant</item>
-        <item name="colorChipStrokeActive">?attr/colorOnPrimary</item>
+        <item name="colorChipBgInactive">?attr/colorSecondaryTransparent</item>
+        <item name="colorChipStrokeActive">?attr/colorSecondary</item>
         <item name="colorChipStrokeInactive">?attr/colorSecondary</item>
-        <item name="colorChipText">?attr/textColorSubtitle</item>
+        <item name="colorChipText">?attr/colorUi</item>
+
+        <!-- SeriesDetailBox -->
+        <item name="styleSeriesDetail">@style/SeriesDetailBackground</item>
+        <item name="seriesDetailBackground">?attr/colorPrimary</item>
+        <item name="seriesDetailLabelColor">?attr/colorOnPrimary</item>
+        <item name="seriesDetailTextColor">?attr/colorOnPrimary</item>
 
         <item name="android:windowBackground">?attr/colorSecondaryVariant</item>
 

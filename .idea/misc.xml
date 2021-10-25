@@ -75,8 +75,8 @@
         <entry key="app/src/main/res/layout/dialog_fragment_cover.xml" value="0.28931623931623934" />
         <entry key="app/src/main/res/layout/fragment_display_issue.xml" value="0.38095238095238093" />
         <entry key="app/src/main/res/layout/fragment_filter.xml" value="0.5898617511520737" />
-        <entry key="app/src/main/res/layout/fragment_issue_detail.xml" value="0.25" />
-        <entry key="app/src/main/res/layout/fragment_item_list.xml" value="0.15" />
+        <entry key="app/src/main/res/layout/fragment_issue_detail.xml" value="0.1" />
+        <entry key="app/src/main/res/layout/fragment_item_list.xml" value="0.1" />
         <entry key="app/src/main/res/layout/fragment_series_detail.xml" value="0.3856332703213611" />
         <entry key="app/src/main/res/layout/fragment_static_update.xml" value="0.3079136690647482" />
         <entry key="app/src/main/res/layout/issue_detail_info_row.xml" value="0.75" />
@@ -95,6 +95,7 @@
         <entry key="app/src/main/res/layout/search_autocomplete.xml" value="0.6248715313463515" />
         <entry key="app/src/main/res/layout/spinner_item_variant.xml" value="0.5" />
         <entry key="app/src/main/res/layout/story_box.xml" value="0.2859154929577465" />
+        <entry key="app/src/main/res/layout/view_series_detail.xml" value="0.27552742616033754" />
         <entry key="app/src/main/res/menu/fragment_issue_list.xml" value="0.16452991452991453" />
         <entry key="app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml" value="0.17777777777777778" />
         <entry key="app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml" value="0.17777777777777778" />

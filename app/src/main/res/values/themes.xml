@@ -62,9 +62,15 @@
         <item name="filterChipGroupBackground">@android:color/transparent</item>
         <item name="colorChipBgActive">?attr/colorPrimaryVariant</item>
         <item name="colorChipBgInactive">?attr/colorSecondary</item>
-        <item name="colorChipStrokeActive">?attr/colorPrimaryDark</item>
+        <item name="colorChipStrokeActive">?attr/colorSecondaryDark</item>
         <item name="colorChipStrokeInactive">?attr/colorSecondaryDark</item>
         <item name="colorChipText">?attr/textColorSubtitle</item>
+
+        <!-- SeriesDetailBox -->
+        <item name="styleSeriesDetail">@style/SeriesDetailBackground</item>
+        <item name="seriesDetailBackground">?attr/colorPrimary</item>
+        <item name="seriesDetailLabelColor">?attr/colorOnPrimary</item>
+        <item name="seriesDetailTextColor">?attr/colorOnPrimary</item>
 
         <item name="android:windowBackground">?attr/colorSecondaryLight</item>
 
@@ -76,7 +82,6 @@
         <item name="chipStyle">@style/myNewChip</item>
 
         <item name="styleCreatorLink">@style/CreatorLink</item>
-        <item name="styleSeriesDetail">@style/SeriesDetailBackground</item>
         <item name="styleAddCollectionButton">@style/AddCollectionButtonStyle</item>
         <item name="styleIssueInfoBox">@style/IssueInfoBox</item>
 

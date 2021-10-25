@@ -21,17 +21,23 @@
     <!-- FilterFragment Theme Values -->
     <attr name="imageLabelBackground" format="reference" />
     <attr name="imageLabelTint" format="reference" />
-    <attr name="searchBarTextColorHint" format="reference" />
+    <attr name="searchBarTextColorHint" format="reference|color" />
     <attr name="searchBarTextColor" format="reference" />
     <attr name="searchBarBackground" format="reference" />
     <attr name="searchBarPopupBackground" format="reference" />
     <attr name="filterChipGroupBackground" format="reference" />
 
+    <!-- SeriesDetailBox Theme Values -->
+    <attr name="styleSeriesDetail" format="reference" />
+    <attr name="seriesDetailBackground" format="reference" />
+    <attr name="seriesDetailLabelColor" format="reference" />
+    <attr name="seriesDetailTextColor" format="reference" />
+
+
     <attr name="colorStoryBoxTitle" format="reference" />
     <attr name="colorStoryBoxSubtitle" format="reference" />
     <attr name="styleCreatorLink" format="reference" />
     <attr name="styleIssueInfoBox" format="reference" />
-    <attr name="styleSeriesDetail" format="reference" />
     <attr name="styleAddCollectionButton" format="reference" />
     <attr name="listItemSeriesBackground" format="reference" />
 
@@ -45,6 +51,4 @@
     <attr name="colorChipStrokeActive" format="reference" />
     <attr name="colorChipStrokeInactive" format="reference" />
     <attr name="colorChipText" format="reference" />
-
-
 </resources>
