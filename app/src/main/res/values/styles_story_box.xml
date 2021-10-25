@@ -23,7 +23,7 @@
 
     <style name="StoryBoxDropdownButton.Title">
         <item name="android:background">@android:color/transparent</item>
-        <item name="srcCompat">@drawable/arrow_down_24</item>
+        <item name="srcCompat">@drawable/icon_arrow_down</item>
     </style>
 
     <style name="StoryBoxSubtitleText">
@@ -43,18 +43,9 @@
     <style name="RoleNameText" parent="Widget.AppCompat.TextView">
         <item name="android:layout_margin">@dimen/margin_narrow</item>
         <item name="fontFamily">@font/archivo_black</item>
-        <item name="android:background">@drawable/primary_border</item>
+        <item name="android:background">?attr/colorPrimaryVariant</item>
         <item name="android:padding">@dimen/margin_narrow</item>
         <item name="android:textSize">@dimen/text_small</item>
-    </style>
-
-    <style name="IssueInfoText" parent="Widget.AppCompat.TextView">
-        <item name="android:layout_margin">@dimen/margin_narrow</item>
-        <item name="fontFamily">@font/archivo_black</item>
-        <item name="android:background">@drawable/primary_border</item>
-        <item name="android:padding">@dimen/margin_narrow</item>
-        <item name="android:textSize">@dimen/text_small</item>
-        <item name="android:textColor">?attr/textColorBody</item>
     </style>
 
     <style name="CreatorNameText" parent="Widget.AppCompat.TextView">

@@ -17,7 +17,7 @@
         <item name="android:layout_height">@dimen/peek_height</item>
         <item name="android:layout_gravity">top|center_horizontal</item>
         <item name="android:scaleType">fitCenter</item>
-        <item name="android:src">@drawable/arrow_up_24</item>
+        <item name="android:src">@drawable/icon_arrow_up</item>
         <item name="tint">?attr/colorOnPrimary</item>
     </style>
 
@@ -26,26 +26,16 @@
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_marginBottom">@dimen/margin_default</item>
         <item name="android:orientation">horizontal</item>
-        <item name="android:background">@drawable/bg_filter_section</item>
+        <item name="android:background">@drawable/filter_fragment_section_background</item>
     </style>
 
     <style name="ImageLabel">
         <item name="android:layout_width">?attr/dropdownListPreferredItemHeight</item>
         <item name="android:layout_height">?attr/dropdownListPreferredItemHeight</item>
-        <item name="android:background">@drawable/bg_image_label</item>
-        <item name="tint">?attr/colorPrimaryDark</item>
+        <item name="android:background">@drawable/filter_fragment_image_label_bg</item>
+        <item name="tint">?attr/colorChipText</item>
         <item name="android:layout_weight">0</item>
         <item name="android:layout_gravity">center</item>
-    </style>
-
-    <style name="mySwitchStyle" parent="Widget.AppCompat.CompoundButton.Switch">
-        <item name="thumbTint">@color/my_switch</item>
-        <item name="trackTint">?attr/colorSecondary</item>
-        <item name="android:paddingStart">@dimen/margin_wide</item>
-        <item name="android:paddingEnd">@dimen/margin_wide</item>
-        <item name="fontFamily">@font/permanent_marker</item>
-        <item name="android:textColor">?attr/colorOnPrimary</item>
-        <item name="android:textAppearance">@style/mySwitchTextAppearance</item>
     </style>
 
     <style name="mySwitchTextAppearance" parent="TextAppearance.AppCompat.Widget.Switch">
@@ -83,23 +73,23 @@
     </style>
 
     <style name="myNewChip" parent="Widget.MaterialComponents.Chip.Entry">
-        <item name="chipStrokeColor">@color/filter_chip_stroke</item>
-        <item name="chipStrokeWidth">1dp</item>
-        <item name="chipBackgroundColor">@color/filter_chip</item>
+        <item name="chipStrokeColor">@color/selector_filter_chip_stroke</item>
+        <item name="chipStrokeWidth">0dp</item>
+        <item name="chipBackgroundColor">@color/selector_filter_chip_bg</item>
         <item name="chipMinHeight">@dimen/chip_height</item>
         <item name="chipCornerRadius">@dimen/margin_wide</item>
         <item name="checkedIconSize">@dimen/chip_icon_size</item>
         <item name="checkedIconVisible">false</item>
-        <item name="checkedIcon">@drawable/ic_check_circle</item>
-        <item name="checkedIconTint">?attr/textColorSubtitle</item>
+        <item name="checkedIcon">@drawable/icon_check_filled</item>
+        <item name="checkedIconTint">?attr/colorChipText</item>
         <item name="closeIconSize">@dimen/chip_icon_size</item>
-        <item name="closeIconTint">?attr/colorChipFgActive</item>
+        <item name="closeIconTint">?attr/colorChipText</item>
         <item name="chipStartPadding">@dimen/margin_default</item>
         <item name="chipEndPadding">@dimen/margin_default</item>
-        <item name="android:textColor">?attr/colorChipFgActive</item>
+        <item name="android:textColor">?attr/colorChipText</item>
         <item name="android:textAppearance">@style/myChipText</item>
         <item name="android:animateLayoutChanges">true</item>
-    </style>1
+    </style>
 
     <style name="myChipText" parent="TextAppearance.MaterialComponents.Chip">
         <item name="fontFamily">@font/archivo_black</item>

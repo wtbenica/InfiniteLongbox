@@ -4,12 +4,11 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
 import android.widget.TextView
 import androidx.fragment.app.viewModels
 import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
-import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.R
@@ -25,12 +24,17 @@ class CreatorListFragment : ListFragment<FullCreator, CreatorListFragment.Creato
 
     override val viewModel: CreatorListViewModel by viewModels()
 
+    override val minColSizeDp: Int
+        get() = 600
+
     override fun onResume() {
         super.onResume()
         callback?.setTitle()
     }
 
-    override fun getLayoutManager(): RecyclerView.LayoutManager = LinearLayoutManager(context)
+    override fun getLayoutManager(): RecyclerView.LayoutManager =
+        GridLayoutManager(context, numCols)
+
     override fun getAdapter() = CreatorAdapter()
 
     override fun onCreateView(
@@ -41,7 +45,8 @@ class CreatorListFragment : ListFragment<FullCreator, CreatorListFragment.Creato
         val view = super.onCreateView(inflater, container, savedInstanceState)
 
         val itemOffsetDecoration = ItemOffsetDecoration(
-            resources.getDimension(R.dimen.margin_wide).toInt()
+            resources.getDimension(R.dimen.margin_wide).toInt(),
+            numCols = numCols
         )
         listRecyclerView.addItemDecoration(itemOffsetDecoration)
 
@@ -65,11 +70,11 @@ class CreatorListFragment : ListFragment<FullCreator, CreatorListFragment.Creato
 
         private lateinit var item: FullCreator
         private val nameTextView: TextView =
-            itemView.findViewById(R.id.list_item_issue_variant_name)
-        private val alterEgoTextView: TextView = itemView.findViewById(R.id.list_item_alter_ego)
-        private val publisherTextView: TextView =
-            itemView.findViewById(R.id.list_item_char_publisher)
-        private val bg: ImageView = itemView.findViewById(R.id.list_item_simple_bg)
+            itemView.findViewById(R.id.list_item_simple_name)
+        private val nameDetailTextView: TextView =
+            itemView.findViewById(R.id.list_item_simple_meta_1)
+
+        //        private val bg: ImageView = itemView.findViewById(R.id.list_item_simple_bg)
         private val div: View = itemView.findViewById(R.id.divider_list_item_meta)
 
         init {
@@ -84,7 +89,7 @@ class CreatorListFragment : ListFragment<FullCreator, CreatorListFragment.Creato
             val nameDetails = this.item.nameDetail.fold(String(), { acc, fullCreator ->
                 acc + "${fullCreator.name}, "
             })
-            alterEgoTextView.text = nameDetails.removeSuffix(", ")
+            nameDetailTextView.text = nameDetails.removeSuffix(", ")
         }
 
         override fun onClick(v: View?) {

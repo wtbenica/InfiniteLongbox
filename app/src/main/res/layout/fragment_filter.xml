@@ -50,7 +50,7 @@
                         style="@style/ImageLabel"
                         android:contentDescription="@string/sort_image_content_description"
                         android:labelFor="@id/chip_group_sort"
-                        app:srcCompat="@drawable/dates_24" />
+                        app:srcCompat="@drawable/filter_fragment_image_label_dates_icon" />
 
                     <com.wtb.comiccollector.views.DateChipGroup
                         android:id="@+id/chip_group_dates"
@@ -117,14 +117,14 @@
                                 android:checked="true"
                                 android:enabled="false"
                                 android:text="@string/sort_type_series_name"
-                                app:closeIcon="@drawable/arrow_up_24"
+                                app:closeIcon="@drawable/icon_arrow_up"
                                 app:closeIconEnabled="true" />
 
                             <com.google.android.material.chip.Chip
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="@string/sort_type_release_date"
-                                app:closeIcon="@drawable/arrow_up_24"
+                                app:closeIcon="@drawable/icon_arrow_up"
                                 app:closeIconEnabled="true" />
 
                         </com.wtb.comiccollector.views.SortChipGroup>
@@ -141,12 +141,12 @@
                         style="@style/ImageLabel"
                         android:contentDescription="@string/sort_image_content_description"
                         android:labelFor="@id/chip_group_sort"
-                        app:srcCompat="@drawable/ic_filter" />
+                        app:srcCompat="@drawable/filter_fragment_image_label_filter_icon" />
 
                     <LinearLayout
                         android:layout_width="0dp"
-                        android:layout_weight="1"
                         android:layout_height="wrap_content"
+                        android:layout_weight="1"
                         android:orientation="horizontal"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
@@ -174,12 +174,12 @@
 
                     <ImageButton
                         android:id="@+id/add_filter_button"
-                        android:layout_height="match_parent"
                         android:layout_width="wrap_content"
-                        android:background="@drawable/bg_btn_add_filter"
+                        android:layout_height="match_parent"
+                        android:background="@drawable/filter_fragment_add_filter_button_bg"
                         android:contentDescription="@string/content_description_add_filter_button"
                         android:padding="@dimen/margin_default"
-                        android:src="@drawable/ic_menu_add"
+                        android:src="@drawable/icon_plus_sign"
                         app:tint="?attr/textColorBody" />
                 </LinearLayout>
             </LinearLayout>
@@ -194,10 +194,10 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="@dimen/margin_default"
+                    android:scrollbars="none"
                     android:visibility="gone"
                     app:layout_constraintBottom_toTopOf="@id/img_lbl_search_bar"
                     app:layout_constraintEnd_toEndOf="parent"
-                    android:scrollbars="none"
                     app:layout_constraintStart_toStartOf="parent"
                     tools:visibility="visible">
 

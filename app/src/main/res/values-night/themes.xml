@@ -11,16 +11,19 @@
         <item name="textColorSubtitle">?attr/colorPrimaryLight</item>
 
         <item name="colorTransparentFilter">@color/transparent_filter</item>
+        <item name="colorTransparentFilterLow">@color/transparent_filter_low</item>
 
         <!-- Customize your theme here. -->
         <item name="colorUi">?attr/colorSecondaryDark</item>
-        <item name="colorUiBackground">?attr/colorSecondary</item>
+        <item name="colorUiBackground">?attr/colorSecondaryVariant</item>
 
         <item name="colorChipBgActive">?attr/colorPrimaryVariant</item>
-        <item name="colorChipBgInactive">?attr/colorSecondaryTransparent</item>
-        <item name="colorChipFgActive">?attr/colorOnPrimary</item>
-        <item name="colorChipFgInactive">?attr/colorSecondary</item>
+        <item name="colorChipBgInactive">?attr/colorSecondaryVariant</item>
+        <item name="colorChipStrokeActive">?attr/colorOnPrimary</item>
+        <item name="colorChipStrokeInactive">?attr/colorSecondary</item>
+        <item name="colorChipText">?attr/textColorSubtitle</item>
 
         <item name="android:windowBackground">?attr/colorSecondaryVariant</item>
+        <item name="listItemSeriesBackground">@drawable/bg_swirl</item>
     </style>
 </resources>

@@ -4,6 +4,7 @@
     <attr name="colorSecondaryLight" format="reference" />
     <attr name="colorPrimaryLight" format="reference" />
     <attr name="colorTransparentFilter" format="reference" />
+    <attr name="colorTransparentFilterLow" format="reference" />
     <attr name="colorPrimaryTransparent" format="color" />
     <attr name="colorSecondaryTransparent" format="color" />
 
@@ -25,6 +26,7 @@
 
     <attr name="colorChipBgActive" format="reference" />
     <attr name="colorChipBgInactive" format="reference" />
-    <attr name="colorChipFgActive" format="reference" />
-    <attr name="colorChipFgInactive" format="reference" />
+    <attr name="colorChipStrokeActive" format="reference" />
+    <attr name="colorChipStrokeInactive" format="reference" />
+    <attr name="colorChipText" format="reference" />
 </resources>

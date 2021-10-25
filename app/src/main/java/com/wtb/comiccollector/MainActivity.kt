@@ -2,6 +2,7 @@ package com.wtb.comiccollector
 
 import android.app.Activity
 import android.content.Context
+import android.graphics.Point
 import android.net.ConnectivityManager
 import android.net.Network
 import android.net.NetworkCapabilities
@@ -60,6 +61,14 @@ class MainActivity : AppCompatActivity(),
     internal val PEEK_HEIGHT
         get() = resources.getDimension(R.dimen.peek_height).toInt()
 
+    internal val screenSizeInDp: Point
+        get() {
+            val dm = resources.displayMetrics
+            return Point(
+                (dm.widthPixels / dm.density).toInt(),
+                (dm.heightPixels / dm.density).toInt()
+            )
+        }
 
     private val filterViewModel: FilterViewModel by viewModels()
     private var filterFragment: FilterFragment? = null
@@ -170,7 +179,7 @@ class MainActivity : AppCompatActivity(),
         val connManager = getSystemService(ConnectivityManager::class.java)
 
         connManager.registerDefaultNetworkCallback(object :
-                                                       ConnectivityManager.NetworkCallback() {
+            ConnectivityManager.NetworkCallback() {
             override fun onAvailable(network: Network) {
                 super.onAvailable(network)
                 hasConnection.postValue(true)
@@ -250,8 +259,10 @@ class MainActivity : AppCompatActivity(),
 
     // IssueListFragment.IssueListCallback
     override fun onIssueSelected(issue: Issue) {
-        val fragment = IssueDetailFragment.newInstance(issueSelectedId = issue.issueId,
-                                                       variantOf = issue.variantOf)
+        val fragment = IssueDetailFragment.newInstance(
+            issueSelectedId = issue.issueId,
+            variantOf = issue.variantOf
+        )
         val prevState = bottomSheetBehavior.state
         supportFragmentManager
             .beginTransaction()

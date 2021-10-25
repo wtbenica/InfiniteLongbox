@@ -514,7 +514,7 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback,
             }
         } else {
             coverImageView.apply {
-                setImageResource(R.drawable.cover_missing)
+                setImageResource(R.drawable.issue_cover_missing)
                 isClickable = false
             }
         }

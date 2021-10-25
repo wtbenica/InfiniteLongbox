@@ -12,14 +12,13 @@
         android:layout_height="wrap_content"
         android:animateLayoutChanges="true"
         android:background="?attr/colorSecondaryLight"
-        tools:layout_height="400dp"
         tools:layout_width="200dp">
 
         <ImageView
             style="@style/NoCover"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/margin_wide"
+            android:layout_marginBottom="@dimen/list_item_issue_cover_spacing"
             android:importantForAccessibility="no"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -55,7 +54,7 @@
             android:id="@+id/list_item_issue_box"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:background="@drawable/bg_issue_list_item_in_collection"
+            android:background="@drawable/issue_list_item_in_collection_bg"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent">

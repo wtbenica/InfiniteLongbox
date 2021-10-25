@@ -53,8 +53,7 @@
                     app:layout_constraintBottom_toTopOf="@id/collectionButton"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toEndOf="@id/issue_cover"
-                    app:layout_constraintTop_toTopOf="parent"
-                    tools:layout="@layout/issue_detail_issue_info_box" />
+                    app:layout_constraintTop_toTopOf="parent" />
 
                 <com.wtb.comiccollector.views.AddCollectionButton
                     android:id="@+id/collectionButton"
@@ -83,7 +82,7 @@
                     android:id="@+id/issue_add_wish_btn"
                     style="@style/AddCollectionButtonStyle"
                     android:contentDescription="Add to wish list"
-                    android:src="@drawable/added_to_wish_list_anim"
+                    android:src="@drawable/issue_added_to_wish_list"
                     android:tint="@color/fantasia_dark_dark"
                     app:layout_constraintBottom_toTopOf="@id/lbl_wish_list_button"
                     app:layout_constraintEnd_toStartOf="@id/ebayButton"

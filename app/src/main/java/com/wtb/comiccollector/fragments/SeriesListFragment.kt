@@ -15,7 +15,7 @@ import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.viewModels
 import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
-import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.R
@@ -30,13 +30,16 @@ private const val TAG = APP + "SeriesListFragment"
 class SeriesListFragment : ListFragment<FullSeries, SeriesListFragment.SeriesHolder>() {
 
     override val viewModel: SeriesListViewModel by viewModels()
+    override val minColSizeDp: Int
+        get() = 600
 
     override fun onResume() {
         super.onResume()
         callback?.setTitle()
     }
 
-    override fun getLayoutManager(): RecyclerView.LayoutManager = LinearLayoutManager(context)
+    override fun getLayoutManager(): RecyclerView.LayoutManager =
+        GridLayoutManager(context, numCols)
 
     override fun getAdapter(): SeriesAdapter = SeriesAdapter()
 
@@ -48,8 +51,10 @@ class SeriesListFragment : ListFragment<FullSeries, SeriesListFragment.SeriesHol
         val view = super.onCreateView(inflater, container, savedInstanceState)
 
         val itemOffsetDecoration = ItemOffsetDecoration(
-            resources.getDimension(R.dimen.item_offset_vert_list_item_series).toInt(),
-            resources.getDimension(R.dimen.item_offset_horz_list_item_series).toInt()
+            itemOffset = resources.getDimension(R.dimen.item_offset_vert_list_item_series).toInt(),
+            itemOffsetHorizontal = resources.getDimension(R.dimen.item_offset_horz_list_item_series)
+                .toInt(),
+            numCols = numCols
         )
         listRecyclerView.addItemDecoration(itemOffsetDecoration)
 

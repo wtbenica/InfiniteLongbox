@@ -31,8 +31,8 @@
             android:paddingBottom="@dimen/margin_default">
 
             <TextView
-                android:id="@+id/list_item_issue_variant_name"
-                style="@style/ListItemTitleText.Character"
+                android:id="@+id/list_item_simple_name"
+                style="@style/ListItemTitleText.Simple"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:singleLine="true"
@@ -46,11 +46,11 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="@dimen/margin_default"
-                app:layout_constraintStart_toStartOf="@id/list_item_issue_variant_name"
-                app:layout_constraintTop_toBottomOf="@id/list_item_issue_variant_name">
+                app:layout_constraintStart_toStartOf="@id/list_item_simple_name"
+                app:layout_constraintTop_toBottomOf="@id/list_item_simple_name">
 
                 <TextView
-                    android:id="@+id/list_item_alter_ego"
+                    android:id="@+id/list_item_simple_meta_1"
                     style="@style/ListItemSeriesSubtitle.Simple"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -64,7 +64,7 @@
                     android:background="@color/tag_creator" />
 
                 <TextView
-                    android:id="@+id/list_item_char_publisher"
+                    android:id="@+id/list_item_simple_meta_2"
                     style="@style/ListItemSeriesSubtitle.Simple"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"

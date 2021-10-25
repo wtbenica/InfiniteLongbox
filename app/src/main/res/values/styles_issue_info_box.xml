@@ -1,9 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
     <style name="IssueInfoBox">
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_width">match_parent</item>
         <item name="android:orientation">vertical</item>
         <item name="android:gravity">top</item>
+    </style>
+
+    <style name="IssueDetailInfoLabel" parent="Widget.AppCompat.TextView">
+        <item name="android:layout_margin">@dimen/margin_narrow</item>
+        <item name="fontFamily">@font/archivo_black</item>
+        <item name="android:background">@drawable/bg_story_box_subtitle_bar</item>
+        <item name="android:padding">@dimen/margin_narrow</item>
+        <item name="android:textSize">@dimen/text_small</item>
+        <item name="android:textColor">?attr/textColorBody</item>
     </style>
 </resources>

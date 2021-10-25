@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Margins -->
     <dimen name="margin_wide">20dp</dimen>
     <dimen name="margin_default">8dp</dimen>
     <dimen name="margin_narrow">4dp</dimen>
 
+    <!-- Radii -->
     <dimen name="radius_default">8dp</dimen>
 
     <dimen name="card_elevation">4dp</dimen>
@@ -19,4 +21,5 @@
     <dimen name="chip_height">36dp</dimen>
     <dimen name="text_small">14sp</dimen>
     <dimen name="radius_thicc">48dp</dimen>
+    <dimen name="list_item_issue_cover_spacing">40dp</dimen>
 </resources>

@@ -34,6 +34,7 @@ import kotlinx.coroutines.launch
 class IssueListFragment : ListFragment<FullIssue, IssueListFragment.IssueViewHolder>() {
 
     override val viewModel: IssueListViewModel by viewModels()
+    override val minColSizeDp = 350
 
     private fun updateSeriesDetailFragment(series: FullSeries) {
         val seriesDetailBox = SeriesDetailBox(requireContext(), series)
@@ -41,18 +42,18 @@ class IssueListFragment : ListFragment<FullIssue, IssueListFragment.IssueViewHol
         updateBottomPadding()
     }
 
-    override fun getLayoutManager(): RecyclerView.LayoutManager {
-        return GridLayoutManager(context, NUM_COLS)
-    }
+    override fun getLayoutManager(): RecyclerView.LayoutManager =
+        GridLayoutManager(context, numCols)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         val itemDecoration =
             ItemOffsetDecoration(
-                resources.getDimension(R.dimen.margin_default).toInt() * 3 / 2,
-                numCols = NUM_COLS
+                itemOffset = resources.getDimension(R.dimen.margin_default).toInt() * 3 / 2,
+                numCols = numCols
             )
+
         listRecyclerView.addItemDecoration(itemDecoration)
 
         val adapter = getAdapter()
@@ -197,9 +198,9 @@ class IssueListFragment : ListFragment<FullIssue, IssueListFragment.IssueViewHol
 
             issueNameBox.setBackgroundResource(
                 if (inCollection)
-                    R.drawable.bg_issue_list_item_in_collection
+                    R.drawable.issue_list_item_in_collection_bg
                 else
-                    R.drawable.bg_issue_list_item_not_in_collection
+                    R.drawable.issue_list_item_not_in_collection_bg
             )
 
             issueNumTextView.text = this.fullIssue?.issue?.issueNumRaw
@@ -226,6 +227,5 @@ class IssueListFragment : ListFragment<FullIssue, IssueListFragment.IssueViewHol
         }
 
         private const val TAG = APP + "IssueListFragment"
-        private const val NUM_COLS = 2
     }
 }
