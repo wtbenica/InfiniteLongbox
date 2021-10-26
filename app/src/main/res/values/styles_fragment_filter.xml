@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
     <style name="FilterFrameLayout">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
@@ -18,7 +19,7 @@
         <item name="android:layout_gravity">top|center_horizontal</item>
         <item name="android:scaleType">fitCenter</item>
         <item name="android:src">@drawable/icon_arrow_up</item>
-        <item name="tint">?attr/colorOnPrimary</item>
+        <item name="tint">?attr/colorUiInterface</item>
     </style>
 
     <style name="FilterSection">
@@ -33,30 +34,25 @@
         <item name="android:layout_width">?attr/dropdownListPreferredItemHeight</item>
         <item name="android:layout_height">?attr/dropdownListPreferredItemHeight</item>
         <item name="android:background">@drawable/filter_fragment_image_label_bg</item>
-        <item name="tint">?attr/colorChipText</item>
+        <item name="tint">?attr/textColorBody</item>
         <item name="android:layout_weight">0</item>
         <item name="android:layout_gravity">center</item>
     </style>
 
-    <style name="mySwitchTextAppearance" parent="TextAppearance.AppCompat.Widget.Switch">
-        <item name="android:textStyle">bold</item>
-        <item name="android:textSize">16sp</item>
-    </style>
-
-    <style name="SearchAutoCompleteStyle" parent="Widget.AppCompat.Light.AutoCompleteTextView">
+    <style name="SearchBarStyle" parent="Widget.AppCompat.Light.AutoCompleteTextView">
         <item name="android:layout_width">0dp</item>
         <item name="android:layout_height">?attr/dropdownListPreferredItemHeight</item>
         <item name="android:layout_weight">1</item>
         <item name="android:hint">@string/search</item>
         <item name="android:paddingStart">@dimen/margin_default</item>
-        <item name="android:textColorHint">?attr/colorSecondary</item>
+        <item name="android:textColorHint">?attr/searchBarTextColorHint</item>
         <item name="android:popupElevation">4dp</item>
-        <item name="android:textColor">?attr/colorOnPrimary</item>
+        <item name="android:textColor">?attr/searchBarTextColor</item>
         <item name="android:textSize">18sp</item>
-        <item name="fontFamily">@font/archivo_black</item>
-        <item name="android:background">@android:color/transparent</item>
+        <item name="fontFamily">?attr/fontBlock</item>
+        <item name="android:background">?attr/searchBarBackground</item>
         <item name="singleLine">true</item>
-        <item name="android:popupBackground">@color/fantasia_transparent</item>
+        <item name="android:popupBackground">?attr/searchBarPopupBackground</item>
         <item name="android:completionThreshold">1</item>
     </style>
 
@@ -65,7 +61,7 @@
         <item name="android:layout_width">wrap_content</item>
         <item name="singleLine">true</item>
         <item name="android:layout_weight">1</item>
-        <item name="android:background">@android:color/transparent</item>
+        <item name="android:background">?attr/filterChipGroupBackground</item>
         <item name="chipSpacingVertical">@dimen/margin_narrow</item>
         <item name="chipSpacingHorizontal">@dimen/margin_narrow</item>
         <item name="android:paddingStart">@dimen/margin_narrow</item>
@@ -92,7 +88,7 @@
     </style>
 
     <style name="myChipText" parent="TextAppearance.MaterialComponents.Chip">
-        <item name="fontFamily">@font/archivo_black</item>
+        <item name="fontFamily">?attr/fontBlock</item>
         <item name="android:textAllCaps">false</item>
         <item name="android:textSize">13sp</item>
     </style>

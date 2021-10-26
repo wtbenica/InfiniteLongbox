@@ -7,7 +7,6 @@ import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.annotation.AttrRes
@@ -22,6 +21,7 @@ import com.wtb.comiccollector.R
 import com.wtb.comiccollector.database.models.FullIssue
 import com.wtb.comiccollector.database.models.FullSeries
 import com.wtb.comiccollector.fragments_view_models.SeriesListViewModel
+import com.wtb.comiccollector.views.FitTopImageView
 import kotlinx.coroutines.*
 
 private const val TAG = APP + "SeriesListFragment"
@@ -80,7 +80,7 @@ class SeriesListFragment : ListFragment<FullSeries, SeriesListFragment.SeriesHol
 
         private val seriesTextView: TextView =
             itemView.findViewById(R.id.list_item_series_name_text)
-        private val seriesImageView: ImageView = itemView.findViewById(R.id.series_imageview)
+        private val seriesImageView: FitTopImageView = itemView.findViewById(R.id.series_imageview)
         private val seriesDateRangeTextView: TextView =
             itemView.findViewById(R.id.list_item_pub_dates)
         private val formatTextView: TextView =
@@ -109,6 +109,15 @@ class SeriesListFragment : ListFragment<FullSeries, SeriesListFragment.SeriesHol
 
             val draw: Int? = context?.getDrawableFromAttr(R.attr.listItemSeriesBackground)
             val draw2: Drawable? = draw?.let { ResourcesCompat.getDrawable(resources, it, null) }
+
+            firstIssue?.coverUri.let { coverUri ->
+                seriesImageView.isScaleEnabled = coverUri != null
+                if (seriesImageView.isScaleEnabled) {
+                    seriesImageView.setImageURI(coverUri)
+                } else {
+                    seriesImageView.setImageDrawable(draw2)
+                }
+            }
 
             if (firstIssue?.coverUri != null) {
                 seriesImageView.setImageURI(firstIssue.coverUri)

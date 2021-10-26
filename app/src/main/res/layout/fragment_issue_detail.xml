@@ -198,7 +198,7 @@
         app:layout_constraintStart_toStartOf="parent">
 
         <LinearLayout
-            style="?android:attr/buttonBarStyle"
+            style="@style/IssueDetailButtonBar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
@@ -263,13 +263,13 @@
 
         <Button
             android:id="@+id/gcd_link"
+            style="@style/IssueDetailGcdLinkButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="end"
             android:contentDescription="@string/content_desc_issue_display_gcd_link"
             android:gravity="bottom|clip_horizontal|end"
             android:text="@string/grand_comic_database_tm"
-            android:textColor="?attr/colorSecondaryDark"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
     </LinearLayout>

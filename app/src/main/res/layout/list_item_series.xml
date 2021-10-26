@@ -16,13 +16,13 @@
             android:id="@+id/series_imageview"
             android:layout_width="0dp"
             android:layout_height="0dp"
+            android:scaleType="fitXY"
             android:contentDescription="@string/description_series_list_item_background_image"
             android:src="?attr/listItemSeriesBackground"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            tools:src="@drawable/cover_sample" />
+            app:layout_constraintBottom_toBottomOf="parent" />
 
         <LinearLayout
             android:layout_width="0dp"
@@ -96,7 +96,7 @@
                         android:layout_height="match_parent"
                         android:background="?attr/colorSecondaryDark"
                         android:indeterminateOnly="true"
-                        android:indeterminateTint="?attr/colorPrimaryLight" />
+                        android:indeterminateTint="?attr/colorPrimaryDark" />
                 </FrameLayout>
             </FrameLayout>
         </LinearLayout>

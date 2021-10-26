@@ -24,7 +24,7 @@ private const val TAG = APP + "SearchAutoCompleteTextView"
 
 @ExperimentalCoroutinesApi
 class SearchBar(context: Context, attributeSet: AttributeSet) :
-    MaterialAutoCompleteTextView(context, attributeSet, R.style.SearchAutoCompleteStyle) {
+    MaterialAutoCompleteTextView(context, attributeSet, R.style.SearchBarStyle) {
 
     var callbacks: SearchTextViewCallback? = null
     private var item: FilterModel? = null

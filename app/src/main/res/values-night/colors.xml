@@ -19,5 +19,5 @@
     <color name="amnesia_text">#ddf0f0f0</color>
 
     <color name="transparent_filter">#a001</color>
-    <color name="transparent_filter_low">#5000</color>
+    <color name="transparent_filter_low">#DD6A9D00</color>
 </resources>

@@ -9,6 +9,8 @@ class FitTopImageView(
     attrs: AttributeSet? = null
 ) : androidx.appcompat.widget.AppCompatImageView(context, attrs) {
 
+    internal var isScaleEnabled = true
+
     init {
         scaleType = ScaleType.MATRIX
     }

@@ -19,11 +19,11 @@ private const val RESULT_SERIES_INFO = 312
 private const val DIALOG_SERIES_INFO = "DIALOG_EDIT_SERIES"
 
 @ExperimentalCoroutinesApi
-class SeriesDetailBox(context: Context, attrs: AttributeSet?, defStyleAttr: Int) :
+class SeriesDetailBox(context: Context, attrs: AttributeSet?) :
     ConstraintLayout(context, attrs, R.attr.styleSeriesDetail, R.style.SeriesDetailBackground),
     SeriesLinkCallback {
 
-    constructor(context: Context, series: FullSeries) : this(context, null, 0) {
+    constructor(context: Context, series: FullSeries) : this(context, null) {
         setSeries(series)
     }
 
@@ -55,7 +55,7 @@ class SeriesDetailBox(context: Context, attrs: AttributeSet?, defStyleAttr: Int)
 
 
     init {
-        inflate(context, R.layout.fragment_series_detail, this)
+        inflate(context, R.layout.view_series_detail, this)
 
         volumeNumTextView = findViewById(R.id.details_series_volume)
         continuesFromBox = findViewById(R.id.continues_from_box)

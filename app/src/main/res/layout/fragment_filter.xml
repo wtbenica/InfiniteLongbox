@@ -256,7 +256,7 @@
 
                 <com.wtb.comiccollector.views.SearchBar
                     android:id="@+id/search_bar"
-                    style="@style/SearchAutoCompleteStyle"
+                    style="@style/SearchBarStyle"
                     android:dropDownAnchor="@id/filter_type_chip_group"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toEndOf="@id/img_lbl_search_bar"

@@ -139,7 +139,7 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback,
         savedInstanceState: Bundle?,
     ): View? {
 
-        val view = inflater.inflate(R.layout.fragment_display_issue, container, false)
+        val view = inflater.inflate(R.layout.fragment_issue_detail, container, false)
 
         coverImageView = view.findViewById<ImageButton>(R.id.issue_cover).apply {
             setOnClickListener {

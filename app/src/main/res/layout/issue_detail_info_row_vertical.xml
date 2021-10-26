@@ -12,7 +12,7 @@
         android:layout_height="wrap_content"
         android:labelFor="@id/info_row_text"
         android:text="@string/label_release_date"
-        tools:showIn="@layout/fragment_display_issue" />
+        tools:showIn="@layout/fragment_issue_detail" />
 
     <TextView
         android:id="@+id/info_row_text"

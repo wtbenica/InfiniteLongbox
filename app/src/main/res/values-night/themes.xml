@@ -9,14 +9,27 @@
         <item name="textColorTitleBar">?attr/colorPrimaryDark</item>
         <item name="textColorTitle">?attr/colorPrimary</item>
         <item name="textColorSubtitle">?attr/colorPrimaryLight</item>
+        <item name="textColorBody">?attr/colorOnPrimary</item>
 
         <item name="colorTransparentFilter">@color/transparent_filter</item>
         <item name="colorTransparentFilterLow">@color/transparent_filter_low</item>
 
         <!-- Customize your theme here. -->
+        <item name="android:textColorPrimary">?attr/textColorBody</item>
+        <item name="android:textColor">?attr/textColorBody</item>
+
         <item name="colorUi">?attr/colorSecondaryDark</item>
         <item name="colorUiBackground">?attr/colorSecondaryVariant</item>
+        <item name="colorUiInterface">?attr/textColorTitleBar</item>
 
+        <!-- FilterFragment -->
+        <item name="imageLabelBackground">@drawable/filter_fragment_image_label_bg</item>
+        <item name="imageLabelTint">?attr/colorChipText</item>
+        <item name="searchBarTextColorHint">?attr/colorPrimaryLight</item>
+        <item name="searchBarTextColor">?attr/colorOnPrimary</item>
+        <item name="searchBarBackground">@android:color/transparent</item>
+        <item name="searchBarPopupBackground">?attr/colorPrimaryTransparent</item>
+        <item name="filterChipGroupBackground">@android:color/transparent</item>
         <item name="colorChipBgActive">?attr/colorPrimaryVariant</item>
         <item name="colorChipBgInactive">?attr/colorSecondaryVariant</item>
         <item name="colorChipStrokeActive">?attr/colorOnPrimary</item>
@@ -24,6 +37,7 @@
         <item name="colorChipText">?attr/textColorSubtitle</item>
 
         <item name="android:windowBackground">?attr/colorSecondaryVariant</item>
+
         <item name="listItemSeriesBackground">@drawable/bg_swirl</item>
     </style>
 </resources>

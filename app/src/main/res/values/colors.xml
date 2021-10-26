@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <color name="fantasia">#dbfF86</color>
+    <color name="fantasia">#c4f462</color>
     <color name="fantasia_transparent">#e5E8FDAD</color>
     <color name="fantasia_light">#F5FFD9</color>
     <color name="fantasia_variant">#E8FDAD</color>
@@ -25,5 +25,5 @@
     <color name="text_publisher">#555</color>
 
     <color name="transparent_filter">#CFFF</color>
-    <color name="transparent_filter_low">#5FFF</color>
+    <color name="transparent_filter_low">#ddc4f462</color>
 </resources>
