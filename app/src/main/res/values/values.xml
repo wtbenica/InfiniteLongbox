@@ -33,13 +33,32 @@
     <attr name="seriesDetailLabelColor" format="reference" />
     <attr name="seriesDetailTextColor" format="reference" />
 
+    <!-- ListItem -->
+    <attr name="listItemTitleTextColor" format="reference" />
+    <attr name="listItemBackground" format="reference" />
+    <attr name="listItemBackgroundBase" format="reference" />
+    <attr name="listItemBackgroundFilter" format="reference|color" />
+
+    <!-- ListItemSeries -->
+    <attr name="listItemSeriesTitleCardBackground" format="reference" />
+    <attr name="listItemSeriesProgressBarBackground" format="reference" />
+    <attr name="listItemSeriesProgressBarIndeterminateTint" format="reference" />
+
+    <!-- ListItemSimple -->
+    <attr name="listItemSimpleTitleTextBackground" format="reference" />
+    <attr name="listItemSimpleMetaBoxBackground" format="reference" />
+
+    <!-- StoryBox -->
+    <attr name="storyBoxTitleBarBackground" format="reference" />
+    <attr name="storyBoxDropdownButtonTitleBackground" format="reference" />
+    <attr name="storyBoxSubtitleTextBackground" format="reference" />
+    <attr name="storyBoxRoleNameTextBackground" format="reference" />
 
     <attr name="colorStoryBoxTitle" format="reference" />
     <attr name="colorStoryBoxSubtitle" format="reference" />
     <attr name="styleCreatorLink" format="reference" />
     <attr name="styleIssueInfoBox" format="reference" />
     <attr name="styleAddCollectionButton" format="reference" />
-    <attr name="listItemSeriesBackground" format="reference" />
 
     <attr name="textColorTitleBar" format="reference" />
     <attr name="textColorTitle" format="reference" />

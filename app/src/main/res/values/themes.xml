@@ -72,6 +72,28 @@
         <item name="seriesDetailLabelColor">?attr/colorOnPrimary</item>
         <item name="seriesDetailTextColor">?attr/colorOnPrimary</item>
 
+        <!-- ListItem -->
+        <item name="listItemBackground">@drawable/bg_green</item>
+        <item name="listItemBackgroundBase">@drawable/bg_green</item>
+        <item name="listItemBackgroundFilter">?attr/colorTransparentFilterLow</item>
+
+        <!-- ListItemSeries -->
+        <item name="listItemTitleTextColor">?attr/textColorTitle</item>
+        <item name="listItemSeriesTitleCardBackground">?attr/colorTransparentFilter</item>
+        <item name="listItemSeriesProgressBarBackground">?attr/colorSecondaryDark</item>
+        <item name="listItemSeriesProgressBarIndeterminateTint">?attr/colorPrimaryDark</item>
+
+        <!-- ListItemSimple -->
+        <item name="listItemSimpleTitleTextBackground">@drawable/list_item_simple_name_bg</item>
+        <item name="listItemSimpleMetaBoxBackground">@drawable/bg_list_item_simple_meta</item>
+
+        <!-- StoryBox -->
+        <item name="storyBoxTitleBarBackground">@drawable/bg_story_box_title_bar</item>
+        <item name="storyBoxDropdownButtonTitleBackground">@android:color/transparent</item>
+        <item name="storyBoxSubtitleTextBackground">@drawable/bg_story_box_subtitle_bar</item>
+        <item name="storyBoxRoleNameTextBackground">?attr/colorPrimaryVariant</item>
+
+
         <item name="android:windowBackground">?attr/colorSecondaryLight</item>
 
         <item name="cardViewStyle">@style/mCardView</item>
@@ -85,6 +107,5 @@
         <item name="styleAddCollectionButton">@style/AddCollectionButtonStyle</item>
         <item name="styleIssueInfoBox">@style/IssueInfoBox</item>
 
-        <item name="listItemSeriesBackground">@drawable/bg_swirl</item>
     </style>
 </resources>

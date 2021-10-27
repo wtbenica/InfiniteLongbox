@@ -6,15 +6,12 @@ import android.util.AttributeSet
 
 class FitTopImageView(
     context: Context,
-    attrs: AttributeSet? = null
+    attrs: AttributeSet
 ) : androidx.appcompat.widget.AppCompatImageView(context, attrs) {
-
-    internal var isScaleEnabled = true
 
     init {
         scaleType = ScaleType.MATRIX
     }
-
     override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
         super.onLayout(changed, left, top, right, bottom)
         calculateMatrix()

@@ -107,22 +107,15 @@ class SeriesListFragment : ListFragment<FullSeries, SeriesListFragment.SeriesHol
 
             val firstIssue: FullIssue? = this.item.firstIssue
 
-            val draw: Int? = context?.getDrawableFromAttr(R.attr.listItemSeriesBackground)
+            val draw: Int? = context?.getDrawableFromAttr(R.attr.listItemBackground)
             val draw2: Drawable? = draw?.let { ResourcesCompat.getDrawable(resources, it, null) }
 
-            firstIssue?.coverUri.let { coverUri ->
-                seriesImageView.isScaleEnabled = coverUri != null
-                if (seriesImageView.isScaleEnabled) {
-                    seriesImageView.setImageURI(coverUri)
+            firstIssue?.coverUri.let {
+                if (it != null) {
+                    seriesImageView.setImageURI(it)
                 } else {
                     seriesImageView.setImageDrawable(draw2)
                 }
-            }
-
-            if (firstIssue?.coverUri != null) {
-                seriesImageView.setImageURI(firstIssue.coverUri)
-            } else {
-                seriesImageView.setImageDrawable(draw2)
             }
 
             seriesDateRangeTextView.text = this.item.series.dateRange
@@ -141,7 +134,7 @@ class SeriesListFragment : ListFragment<FullSeries, SeriesListFragment.SeriesHol
         }
     }
 
-    interface SeriesListCallback : ListFragmentCallback {
+    interface SeriesListCallback : ListFragment.ListFragmentCallback {
         fun onSeriesSelected(series: FullSeries)
     }
 

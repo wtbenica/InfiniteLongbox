@@ -25,5 +25,5 @@
     <color name="text_publisher">#555</color>
 
     <color name="transparent_filter">#CFFF</color>
-    <color name="transparent_filter_low">#ddc4f462</color>
+    <color name="transparent_filter_low">#aac4f462</color>
 </resources>

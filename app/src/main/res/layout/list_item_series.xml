@@ -4,57 +4,68 @@
     xmlns:tools="http://schemas.android.com/tools"
     style="@style/mCardView.ListItemSeries"
     android:layout_width="match_parent"
-    android:layout_height="170dp"
     android:animateLayoutChanges="true">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-
         <com.wtb.comiccollector.views.FitTopImageView
             android:id="@+id/series_imageview"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:scaleType="fitXY"
             android:contentDescription="@string/description_series_list_item_background_image"
-            android:src="?attr/listItemSeriesBackground"
+            android:src="?attr/listItemBackground"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent" />
+            app:layout_constraintTop_toTopOf="parent" />
 
         <LinearLayout
+            style="@style/ListItemSeriesTitleCard"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:background="@drawable/bg_series_title"
             android:orientation="vertical"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent">
 
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="2dp"
+                android:layout_marginTop="-1dp">
+
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="16dp"
+                    android:layout_gravity="center_vertical">
+
+                    <ProgressBar
+                        android:id="@+id/cover_progress_bar"
+                        style="@style/ListItemSeriesProgressBar"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:indeterminateOnly="true" />
+                </FrameLayout>
+            </FrameLayout>
+
             <TextView
                 android:id="@+id/list_item_series_name_text"
                 style="@style/ListItemTitleText.Series"
                 android:layout_width="match_parent"
-                android:singleLine="true"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                tools:text="@string/hint_series_title" />
+                android:layout_marginTop="@dimen/margin_narrow"
+                tools:text="This is a very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very long title I want to see what it does" />
 
             <LinearLayout
                 android:id="@+id/metadata_box"
                 style="@style/ListItemMetaBox"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                app:layout_constraintEnd_toEndOf="@id/list_item_series_name_text"
-                app:layout_constraintStart_toStartOf="@id/list_item_series_name_text"
-                app:layout_constraintTop_toBottomOf="@id/list_item_series_name_text">
+                android:layout_marginBottom="@dimen/margin_default">
 
                 <TextView
                     android:id="@+id/list_item_pub_dates"
-                    style="@style/ListItemSeriesSubtitle"
+                    style="@style/ListItemSeriesMeta"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     tools:text="(1990-2005)" />
@@ -70,35 +81,11 @@
 
                 <TextView
                     android:id="@+id/list_item_series_format"
-                    style="@style/ListItemSeriesSubtitle"
+                    style="@style/ListItemSeriesMeta"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     tools:text="was ongoing series" />
             </LinearLayout>
-
-            <FrameLayout
-                android:layout_width="match_parent"
-                android:layout_height="2dp"
-                android:layout_marginTop="-1dp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/metadata_box">
-
-                <FrameLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="16dp"
-                    android:layout_gravity="center_vertical">
-
-                    <ProgressBar
-                        android:id="@+id/cover_progress_bar"
-                        style="@style/Widget.AppCompat.ProgressBar.Horizontal"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:background="?attr/colorSecondaryDark"
-                        android:indeterminateOnly="true"
-                        android:indeterminateTint="?attr/colorPrimaryDark" />
-                </FrameLayout>
-            </FrameLayout>
         </LinearLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.cardview.widget.CardView>

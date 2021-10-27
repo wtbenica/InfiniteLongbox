@@ -48,6 +48,7 @@
         <entry key="app/src/main/res/drawable/filter_fragment_image_label_bg.xml" value="0.13240740740740742" />
         <entry key="app/src/main/res/drawable/fofof.xml" value="0.27692307692307694" />
         <entry key="app/src/main/res/drawable/ic_search_24.xml" value="0.27692307692307694" />
+        <entry key="app/src/main/res/drawable/list_item_simple_name_bg.xml" value="0.3021367521367521" />
         <entry key="app/src/main/res/drawable/primary_border.xml" value="0.1111111111111111" />
         <entry key="app/src/main/res/drawable/primary_dark_border.xml" value="0.1111111111111111" />
         <entry key="app/src/main/res/drawable/progress_bar_big.xml" value="0.1" />
@@ -84,17 +85,17 @@
         <entry key="app/src/main/res/layout/issue_detail_issue_info_box.xml" value="0.11153846153846154" />
         <entry key="app/src/main/res/layout/list_item_character.xml" value="0.26033755274261605" />
         <entry key="app/src/main/res/layout/list_item_filter_option_auto_complete.xml" value="0.26033755274261605" />
-        <entry key="app/src/main/res/layout/list_item_issue.xml" value="0.33" />
+        <entry key="app/src/main/res/layout/list_item_issue.xml" value="0.1" />
         <entry key="app/src/main/res/layout/list_item_issue_new.xml" value="0.67" />
         <entry key="app/src/main/res/layout/list_item_issue_variant.xml" value="0.3553299492385787" />
         <entry key="app/src/main/res/layout/list_item_search_type.xml" value="0.2636752136752137" />
-        <entry key="app/src/main/res/layout/list_item_series.xml" value="0.4903314917127072" />
-        <entry key="app/src/main/res/layout/list_item_simple.xml" value="0.3846787479406919" />
+        <entry key="app/src/main/res/layout/list_item_series.xml" value="0.5" />
+        <entry key="app/src/main/res/layout/list_item_simple.xml" value="0.1" />
         <entry key="app/src/main/res/layout/list_item_variant.xml" value="0.2636752136752137" />
         <entry key="app/src/main/res/layout/row_item_appearance.xml" value="0.5" />
         <entry key="app/src/main/res/layout/search_autocomplete.xml" value="0.6248715313463515" />
         <entry key="app/src/main/res/layout/spinner_item_variant.xml" value="0.5" />
-        <entry key="app/src/main/res/layout/story_box.xml" value="0.2859154929577465" />
+        <entry key="app/src/main/res/layout/story_box.xml" value="0.1" />
         <entry key="app/src/main/res/layout/view_series_detail.xml" value="0.27552742616033754" />
         <entry key="app/src/main/res/menu/fragment_issue_list.xml" value="0.16452991452991453" />
         <entry key="app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml" value="0.17777777777777778" />

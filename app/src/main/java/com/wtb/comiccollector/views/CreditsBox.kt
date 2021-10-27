@@ -91,6 +91,8 @@ class CreditsBox(context: Context) : TableLayout(context) {
     inner class StoryRow(context: Context, private val mStory: Story) : LinearLayout(context) {
         private val storyDetailButton: ExpandButton
         private val storyDetailBox: LinearLayout
+        private val synopsisBox: LinearLayout
+        private val charactersBox: LinearLayout
         private val storyTitle: TextView
 
         init {
@@ -101,13 +103,14 @@ class CreditsBox(context: Context) : TableLayout(context) {
 
             storyDetailButton = findViewById(R.id.story_dropdown_button)
             storyDetailBox = findViewById(R.id.story_details_box)
+            synopsisBox = findViewById(R.id.synopsis_box)
+            charactersBox = findViewById(R.id.characters_box)
             storyDetailButton.setOnClickListener {
                 storyDetailBox.toggleVisibility(MATCH_PARENT, WRAP_CONTENT)
                 (it as ExpandButton).toggleExpand()
             }
 
             storyTitle = findViewById(R.id.story_title)
-
 
             update()
         }
@@ -119,18 +122,19 @@ class CreditsBox(context: Context) : TableLayout(context) {
             storyTitle.text = storyTitle1
 
             if (mStory.synopsis != null && mStory.synopsis.isNotBlank()) {
+                synopsisBox.visibility = VISIBLE
                 hasAddedInfo = true
                 val synopsis: TextView = findViewById(R.id.synopsis)
                 synopsis.text = mStory.synopsis
             } else {
-                val synopsisBox: TextView = findViewById(R.id.label_synopsis)
-                val synopsis: TextView = findViewById(R.id.synopsis)
                 synopsisBox.visibility = GONE
-                synopsis.visibility = GONE
             }
 
-            val appearances = mIssueAppearances + mVariantAppearances
-            if (appearances.isNotEmpty()) {
+            val appearances = (mIssueAppearances + mVariantAppearances).sortedBy {
+                it.character.character.name
+            }
+            if (appearances.filter { it.appearance.story == mStory.storyId }.isNotEmpty()) {
+                charactersBox.visibility = VISIBLE
                 hasAddedInfo = true
                 val characters: TableLayout = findViewById(R.id.characters)
 
@@ -140,10 +144,7 @@ class CreditsBox(context: Context) : TableLayout(context) {
                     }
                 }
             } else {
-                val characterBox: TextView = findViewById(R.id.label_characters)
-                val characters: TableLayout = findViewById(R.id.characters)
-                characterBox.visibility = GONE
-                characters.visibility = GONE
+                charactersBox.visibility = GONE
             }
 
             if (!hasAddedInfo) {

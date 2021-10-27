@@ -6,8 +6,8 @@
     android:layout_height="match_parent"
     android:layout_marginBottom="@dimen/margin_default"
     android:animateLayoutChanges="true"
-    android:padding="@dimen/margin_narrow"
     android:orientation="vertical"
+    android:padding="@dimen/margin_narrow"
     tools:parentTag="android.widget.LinearLayout">
 
     <LinearLayout
@@ -46,42 +46,56 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:animateLayoutChanges="true"
-        android:padding="@dimen/margin_narrow"
         android:orientation="vertical"
+        android:padding="@dimen/margin_narrow"
         android:visibility="gone"
         tools:visibility="visible">
 
-        <TextView
-            android:id="@+id/label_synopsis"
-            style="@style/StoryBoxSubtitleText"
+        <LinearLayout
+            android:id="@+id/synopsis_box"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="@dimen/margin_narrow"
-            android:text="@string/synopsis" />
+            android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/synopsis"
-            style="@style/ContentBox"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="@dimen/margin_default"
-            tools:text="Cliff feels out of place again. Dorothy and Josh spend some time together. The group goes to therapy." />
+            <TextView
+                android:id="@+id/label_synopsis"
+                style="@style/StoryBoxSubtitleText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="@dimen/margin_narrow"
+                android:text="@string/synopsis" />
 
-        <TextView
-            android:id="@+id/label_characters"
-            style="@style/StoryBoxSubtitleText"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="@dimen/margin_narrow"
-            android:text="@string/characters" />
+            <TextView
+                android:id="@+id/synopsis"
+                style="@style/ContentBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="@dimen/margin_default"
+                tools:text="Cliff feels out of place again. Dorothy and Josh spend some time together. The group goes to therapy." />
+        </LinearLayout>
 
-        <TableLayout
-            android:id="@+id/characters"
-            style="@style/ContentBox"
-            android:stretchColumns="*"
+        <LinearLayout
+            android:id="@+id/characters_box"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="@dimen/margin_default"
-            tools:text="Robotman, Crazy Jane, Rebis, Dorothy Spinner, the Chief" />
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/label_characters"
+                style="@style/StoryBoxSubtitleText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="@dimen/margin_narrow"
+                android:text="@string/characters" />
+
+            <TableLayout
+                android:id="@+id/characters"
+                style="@style/ContentBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="@dimen/margin_default"
+                android:stretchColumns="*"
+                tools:text="Robotman, Crazy Jane, Rebis, Dorothy Spinner, the Chief" />
+        </LinearLayout>
     </LinearLayout>
 </merge>
