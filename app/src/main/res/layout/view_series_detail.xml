@@ -208,9 +208,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:visibility="gone"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/header_notes"
                 tools:text="A guy whose brain is stuck in a robot body goes on adventures with a ragtag group of fellow outcasts." />
         </LinearLayout>
 </merge>

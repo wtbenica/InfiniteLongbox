@@ -2,8 +2,6 @@ package com.wtb.comiccollector.views
 
 import android.content.Context
 import android.util.AttributeSet
-import android.view.ViewGroup.LayoutParams.MATCH_PARENT
-import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -80,13 +78,13 @@ class SeriesDetailBox(context: Context, attrs: AttributeSet?) :
 
         trackingDropdownButton.setOnClickListener(null)
         trackingDropdownButton.setOnClickListener {
-            trackingNotesTextView.toggleVisibility(MATCH_PARENT, WRAP_CONTENT)
+            trackingNotesTextView.toggleVisibility()
             (it as ExpandButton).toggleExpand()
         }
 
         notesDropdownButton.setOnClickListener(null)
         notesDropdownButton.setOnClickListener {
-            notesBox.toggleVisibility(MATCH_PARENT, MATCH_PARENT)
+            notesBox.toggleVisibility()
             (it as ExpandButton).toggleExpand()
         }
 

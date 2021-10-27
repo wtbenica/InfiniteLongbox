@@ -159,7 +159,7 @@ class StoryBox(
         storyDetailButton = findViewById<ExpandButton>(R.id.story_dropdown_button).apply {
             initExpanded(isExpanded)
             setOnClickListener {
-                if (storyDetailBox.toggleVisibility(MATCH_PARENT, WRAP_CONTENT)) {
+                if (storyDetailBox.toggleVisibility()) {
                     Log.d(APP + "StoryBox", "SetExpanded: ${mStory.storyId} TRUE")
                     sbc.setExpanded(mStory.storyId, true)
                 } else {

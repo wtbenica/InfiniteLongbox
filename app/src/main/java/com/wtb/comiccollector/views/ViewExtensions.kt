@@ -44,7 +44,7 @@ internal fun View.show() {
     val lp = layoutParams
     lp.height = WRAP_CONTENT
     layoutParams = lp
-    measure(0, 0)
+    measure(UNSPECIFIED, UNSPECIFIED)
     val hh = measuredHeight
 
     this@show.scaleY = 0f
@@ -158,7 +158,7 @@ private fun View.animateHeight(startValue: Int, endValue: Int, duration: Long) {
     if (endValue == 0) {
         layoutHeightAnimator.addListener(object : AnimatorListenerAdapter() {
             override fun onAnimationEnd(animation: Animator?) {
-                this@animateHeight.visibility = View.GONE
+                this@animateHeight.visibility = GONE
             }
         })
     }
@@ -168,7 +168,7 @@ private fun View.animateHeight(startValue: Int, endValue: Int, duration: Long) {
     layoutHeightAnimator.start()
 }
 
-internal fun View.toggleVisibility(layout_width: Int, layout_height: Int): Boolean {
+internal fun View.toggleVisibility(): Boolean {
     val isExpanded = this.visibility == View.VISIBLE
     if (isExpanded) {
         this.hide()
