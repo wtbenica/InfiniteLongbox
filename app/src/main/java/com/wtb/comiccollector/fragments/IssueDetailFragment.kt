@@ -158,7 +158,7 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback,
         }
         variantSpinnerHolder = view.findViewById(R.id.variant_spinner_holder)
         variantSpinner = view.findViewById(R.id.variant_spinner) as Spinner
-        creditsBox = CreditsBox(requireContext()).apply { mCallback = this@IssueDetailFragment }
+        creditsBox = CreditsBox(requireContext(), this@IssueDetailFragment)
         issueCreditsFrame.addView(creditsBox)
 
         gotoStartButton = view.findViewById(R.id.goto_start_button) as Button
@@ -493,8 +493,12 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback,
             infoBox.update(issue.releaseDate, issue.coverDate, issue.notes)
             collectionButton.inCollection = currentIssue.myCollection != null
             creditsBox.update(
-                issueStories, variantStories, issueCredits, variantCredits,
-                issueAppearances, variantAppearances
+                issueStories = issueStories,
+                variantStories = variantStories,
+                issueCredits = issueCredits,
+                variantCredits = variantCredits,
+                issueAppearances = issueAppearances,
+                variantAppearances = variantAppearances
             )
 
             issue.let {

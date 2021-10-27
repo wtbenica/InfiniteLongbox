@@ -13,6 +13,15 @@ class ExpandButton(context: Context, attributeSet: AttributeSet) :
 
     private var isExpanded = false
 
+    fun initExpanded(isExpanded: Boolean) {
+        this.isExpanded = isExpanded
+        rotation = if (isExpanded) {
+            180f
+        } else {
+            0f
+        }
+    }
+
     fun toggleExpand() {
         val currRotation = rotation
         val destRotation = if (isExpanded) 0f else 180f
