@@ -145,9 +145,9 @@ class StoryBox(
 
         inflate(context, R.layout.view_story_box, this)
 
-        storyTitleTextView = findViewById(R.id.story_title)
+        storyTitleTextView = findViewById(R.id.story_box_title)
 
-        storyDetailBox = findViewById<LinearLayout>(R.id.story_details_box).apply {
+        storyDetailBox = findViewById<LinearLayout>(R.id.story_box_details_box).apply {
             visibility =
                 if (isExpanded) {
                     VISIBLE
@@ -169,8 +169,8 @@ class StoryBox(
                 (it as ExpandButton).toggleExpand()
             }
         }
-        synopsisBox = findViewById(R.id.synopsis_box)
-        charactersBox = findViewById(R.id.characters_box)
+        synopsisBox = findViewById(R.id.story_box_synopsis_box)
+        charactersBox = findViewById(R.id.story_box_characters_box)
 
         update()
     }
@@ -199,7 +199,7 @@ class StoryBox(
         if (mAppearances.filter { it.appearance.story == mStory.storyId }.isNotEmpty()) {
             hasAddedInfo1 = true
             charactersBox.visibility = VISIBLE
-            val characters: TableLayout = findViewById(R.id.characters)
+            val characters: TableLayout = findViewById(R.id.story_box_characters)
 
             mAppearances.forEach { appearance ->
                 if (appearance.appearance.story == mStory.storyId) {
@@ -217,7 +217,7 @@ class StoryBox(
         if (mStory.synopsis?.isNotBlank() == true) {
             hasAddedInfo1 = true
             synopsisBox.visibility = VISIBLE
-            val synopsis: TextView = findViewById(R.id.synopsis)
+            val synopsis: TextView = findViewById(R.id.story_box_synopsis)
             synopsis.text = mStory.synopsis
         } else {
             synopsisBox.visibility = GONE
@@ -284,7 +284,7 @@ class AppearanceRow(
         fullCredit.appearance.notes?.let {
             notes.apply {
                 text = it
-                setTextAppearance(R.style.CreatorLink)
+                setTextAppearance(R.style.LinkTextView)
                 visibility = VISIBLE
             }
         }
@@ -292,7 +292,7 @@ class AppearanceRow(
         fullCredit.appearance.details?.let {
             details.apply {
                 text = it
-                setTextAppearance(R.style.CreatorLink)
+                setTextAppearance(R.style.LinkTextView)
                 visibility = VISIBLE
             }.also {
                 divider.visibility = VISIBLE
@@ -302,7 +302,7 @@ class AppearanceRow(
         fullCredit.appearance.membership?.let {
             membership.apply {
                 text = it
-                setTextAppearance(R.style.CreatorLink)
+                setTextAppearance(R.style.LinkTextView)
                 visibility = VISIBLE
             }
         }

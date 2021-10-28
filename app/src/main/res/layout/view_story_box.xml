@@ -14,11 +14,12 @@
         style="@style/StoryBoxTitleBar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:minHeight="@dimen/peek_height"
         android:animateLayoutChanges="true"
         android:orientation="horizontal">
 
         <TextView
-            android:id="@+id/story_title"
+            android:id="@+id/story_box_title"
             style="@style/StoryBoxTitleBarText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -29,20 +30,17 @@
 
         <com.wtb.comiccollector.views.ExpandButton
             android:id="@+id/story_dropdown_button"
-            style="@style/StoryBoxDropdownButton.Title"
+            style="@style/StoryBoxDropdownButton"
             android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_gravity="end"
-            android:background="@android:color/transparent"
+            android:layout_height="wrap_content"
             android:contentDescription="@string/story_dropdown_button"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
-
     </LinearLayout>
 
     <LinearLayout
-        android:id="@+id/story_details_box"
+        android:id="@+id/story_box_details_box"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:animateLayoutChanges="true"
@@ -52,13 +50,13 @@
         tools:visibility="visible">
 
         <LinearLayout
-            android:id="@+id/synopsis_box"
+            android:id="@+id/story_box_synopsis_box"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
             <TextView
-                android:id="@+id/label_synopsis"
+                android:id="@+id/story_box_synopsis_label"
                 style="@style/StoryBoxSubtitleText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -66,7 +64,7 @@
                 android:text="@string/synopsis" />
 
             <TextView
-                android:id="@+id/synopsis"
+                android:id="@+id/story_box_synopsis"
                 style="@style/ContentBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -75,13 +73,13 @@
         </LinearLayout>
 
         <LinearLayout
-            android:id="@+id/characters_box"
+            android:id="@+id/story_box_characters_box"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
             <TextView
-                android:id="@+id/label_characters"
+                android:id="@+id/story_box_characters_label"
                 style="@style/StoryBoxSubtitleText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -89,7 +87,7 @@
                 android:text="@string/characters" />
 
             <TableLayout
-                android:id="@+id/characters"
+                android:id="@+id/story_box_characters"
                 style="@style/ContentBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

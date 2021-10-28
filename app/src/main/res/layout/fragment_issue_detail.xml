@@ -61,7 +61,7 @@
                     android:layout_marginStart="@dimen/margin_wide"
                     android:contentDescription="Add to my collection"
                     android:src="@drawable/removed_from_collection_anim"
-                    android:tint="@color/fantasia_dark_dark"
+                    android:tint="?attr/fragmentIssueDetailButtonColor"
                     app:layout_constraintBottom_toTopOf="@id/lbl_collection_button"
                     app:layout_constraintStart_toEndOf="@id/issue_cover" />
 
@@ -73,7 +73,7 @@
                     android:labelFor="@id/collectionButton"
                     android:text="have"
                     android:textAllCaps="true"
-                    android:textColor="@color/fantasia_dark_dark"
+                    android:textColor="?attr/fragmentIssueDetailButtonColor"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="@id/collectionButton"
                     app:layout_constraintStart_toStartOf="@id/collectionButton" />
@@ -83,7 +83,7 @@
                     style="@style/AddCollectionButtonStyle"
                     android:contentDescription="Add to wish list"
                     android:src="@drawable/issue_added_to_wish_list"
-                    android:tint="@color/fantasia_dark_dark"
+                    android:tint="?attr/fragmentIssueDetailButtonColor"
                     app:layout_constraintBottom_toTopOf="@id/lbl_wish_list_button"
                     app:layout_constraintEnd_toStartOf="@id/ebayButton"
                     app:layout_constraintStart_toEndOf="@id/collectionButton" />
@@ -96,7 +96,7 @@
                     android:labelFor="@id/issue_add_wish_btn"
                     android:text="want"
                     android:textAllCaps="true"
-                    android:textColor="@color/fantasia_dark_dark"
+                    android:textColor="?attr/fragmentIssueDetailButtonColor"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="@id/issue_add_wish_btn"
                     app:layout_constraintStart_toStartOf="@id/issue_add_wish_btn" />
@@ -107,7 +107,7 @@
                     android:layout_marginEnd="@dimen/margin_wide"
                     android:contentDescription="Search ebay"
                     android:src="@drawable/ic_search_24"
-                    android:tint="@color/fantasia_dark_dark"
+                    android:tint="?attr/fragmentIssueDetailButtonColor"
                     app:layout_constraintBottom_toTopOf="@id/lbl_ebay_button"
                     app:layout_constraintEnd_toEndOf="parent" />
 
@@ -119,7 +119,7 @@
                     android:labelFor="@id/ebayButton"
                     android:text="find"
                     android:textAllCaps="true"
-                    android:textColor="@color/fantasia_dark_dark"
+                    android:textColor="?attr/fragmentIssueDetailButtonColor"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="@id/ebayButton"
                     app:layout_constraintStart_toStartOf="@id/ebayButton" />

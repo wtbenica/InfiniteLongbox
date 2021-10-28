@@ -17,12 +17,9 @@
     </style>
 
     <style name="StoryBoxDropdownButton" parent="Widget.AppCompat.ImageButton">
-        <item name="minHeight">@dimen/peek_height</item>
-        <item name="android:minWidth">36dp</item>
-    </style>
-
-    <style name="StoryBoxDropdownButton.Title">
-        <item name="android:background">?attr/storyBoxDropdownButtonTitleBackground</item>
+        <item name="android:minHeight">@dimen/peek_height</item>
+        <item name="android:minWidth">@dimen/peek_height</item>
+        <item name="android:background">@android:color/transparent</item>
         <item name="srcCompat">@drawable/icon_arrow_down</item>
     </style>
 
@@ -34,10 +31,11 @@
         <item name="android:fontFamily">?attr/fontBlock</item>
     </style>
 
-    <style name="CreatorLink" parent="Widget.MaterialComponents.TextView">
+    <style name="LinkTextView" parent="Widget.MaterialComponents.TextView">
         <item name="android:textAppearance">@style/CreatorNameText</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_width">wrap_content</item>
+        <item name="android:textColor">?attr/storyBoxCreatorLinkTextColor</item>
     </style>
 
     <style name="CreatorNameText" parent="Widget.AppCompat.TextView">
@@ -45,6 +43,7 @@
         <item name="android:paddingStart">@dimen/margin_default</item>
         <item name="android:paddingEnd">@dimen/margin_default</item>
         <item name="android:textSize">@dimen/text_small</item>
+        <item name="android:textColor">?attr/storyBoxCreatorNameTextColor</item>
     </style>
 
     <style name="RoleNameText" parent="Widget.AppCompat.TextView">
@@ -53,11 +52,13 @@
         <item name="android:background">?attr/storyBoxRoleNameTextBackground</item>
         <item name="android:padding">@dimen/margin_narrow</item>
         <item name="android:textSize">@dimen/text_small</item>
+        <item name="android:textColor">?attr/storyBoxRoleNameTextColor</item>
     </style>
 
     <style name="ContentBox">
         <item name="android:padding">@dimen/margin_default</item>
         <item name="android:textAppearance">@style/ContentBoxText</item>
+        <item name="android:textColor">?attr/storyBoxContentBoxTextColor</item>
     </style>
 
     <style name="ContentBoxText" parent="TextAppearance.AppCompat">

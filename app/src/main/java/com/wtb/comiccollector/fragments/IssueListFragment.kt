@@ -141,7 +141,7 @@ class IssueListFragment : ListFragment<FullIssue, IssueListFragment.IssueViewHol
     ), View.OnClickListener, AddCollectionButton.AddCollectionCallback {
         private var fullIssue: FullIssue? = null
         private val progressCover: ProgressBar = itemView.findViewById(R.id.progress_cover_download)
-        private val bg: ImageView = itemView.findViewById(R.id.bg_list_item_issue)
+        private val bg: ImageView = itemView.findViewById(R.id.list_item_issue_bg)
         private val coverImageView: ImageView = itemView.findViewById(R.id.list_item_cover)
         private val issueNameBox: ConstraintLayout =
             itemView.findViewById(R.id.list_item_issue_box)

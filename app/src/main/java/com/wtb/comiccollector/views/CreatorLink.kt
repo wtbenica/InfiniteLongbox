@@ -15,7 +15,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 class CreatorLink(
     context: Context,
     attrs: AttributeSet? = null,
-    defStyleAttr: Int = R.attr.styleCreatorLink,
+    defStyleAttr: Int = R.attr.styleLinkTextView,
 ) : AppCompatTextView(context, attrs, defStyleAttr), View.OnClickListener {
 
     internal var callback: CreatorLinkCallback? = null
@@ -56,7 +56,7 @@ interface CreatorLinkCallback {
 class CharacterLink @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
-    defStyleAttr: Int = R.attr.styleCreatorLink,
+    defStyleAttr: Int = R.attr.styleLinkTextView,
 ) : AppCompatTextView(context, attrs, defStyleAttr), View.OnClickListener {
 
     internal var callback: CharacterLinkCallback? = null
@@ -98,7 +98,7 @@ interface CharacterLinkCallback {
 class SeriesLink(
     context: Context,
     attrs: AttributeSet,
-) : AppCompatTextView(context, attrs, R.attr.styleCreatorLink), View.OnClickListener {
+) : AppCompatTextView(context, attrs, R.attr.styleLinkTextView), View.OnClickListener {
 
     internal var callback: SeriesLinkCallback? = null
 

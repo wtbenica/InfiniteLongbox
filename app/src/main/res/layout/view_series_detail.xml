@@ -138,7 +138,7 @@
 
         <com.wtb.comiccollector.views.ExpandButton
             android:id="@+id/series_detail_tracking_dropdown_button"
-            style="@style/StoryBoxDropdownButton.Title"
+            style="@style/StoryBoxDropdownButton"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_gravity="end"
@@ -178,7 +178,7 @@
 
         <com.wtb.comiccollector.views.ExpandButton
             android:id="@+id/series_detail_notes_dropdown_button"
-            style="@style/StoryBoxDropdownButton.Title"
+            style="@style/StoryBoxDropdownButton"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_gravity="end"

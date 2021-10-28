@@ -11,7 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:animateLayoutChanges="true"
-        android:background="?attr/colorSecondaryLight"
+        android:background="?attr/listItemIssueBg"
         tools:layout_width="200dp">
 
         <ImageView
@@ -26,7 +26,7 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <ImageView
-            android:id="@+id/bg_list_item_issue"
+            android:id="@+id/list_item_issue_bg"
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:alpha="0"
@@ -54,7 +54,7 @@
             android:id="@+id/list_item_issue_box"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:background="@drawable/issue_list_item_in_collection_bg"
+            android:background="?attr/listItemIssueBoxBg"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent">
@@ -79,9 +79,9 @@
                         style="@style/Widget.AppCompat.ProgressBar.Horizontal"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:background="?attr/colorPrimaryTransparent"
+                        android:background="?attr/listItemIssueProgressBarBg"
                         android:indeterminateOnly="true"
-                        android:indeterminateTint="?attr/colorPrimary" />
+                        android:indeterminateTint="?attr/listItemIssueProgressBarIndetTint" />
                 </FrameLayout>
             </FrameLayout>
 
@@ -92,11 +92,11 @@
                 android:layout_marginStart="@dimen/margin_narrow"
                 android:layout_marginTop="@dimen/margin_narrow"
                 android:layout_marginEnd="@dimen/margin_narrow"
-                android:fontFamily="@font/archivo_black"
+                android:fontFamily="?attr/fontBlock"
                 android:gravity="end"
                 android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle2"
-                android:textColor="?attr/textColorBody"
-                android:textSize="12sp"
+                android:textColor="?attr/listItemIssueBoxTextColor"
+                android:textSize="@dimen/text_small"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/progress_bar_box"
@@ -105,8 +105,8 @@
             <com.wtb.comiccollector.views.AddCollectionButton
                 android:id="@+id/btn_issue_list_add_collection"
                 style="@style/AddCollectionButtonStyle"
-                android:layout_marginStart="@dimen/margin_narrow"
-                android:layout_marginBottom="@dimen/margin_narrow"
+                android:padding="@dimen/margin_narrow"
+                android:tint="?attr/listItemIssueBoxTextColor"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/list_item_issue_variant_name" />
@@ -114,6 +114,8 @@
             <com.wtb.comiccollector.views.AddWishListButton
                 android:id="@+id/btn_issue_list_add_wish_list"
                 style="@style/AddCollectionButtonStyle"
+                android:padding="@dimen/margin_narrow"
+                android:tint="?attr/listItemIssueBoxTextColor"
                 app:layout_constraintBottom_toBottomOf="@id/btn_issue_list_add_collection"
                 app:layout_constraintStart_toEndOf="@id/btn_issue_list_add_collection"
                 app:layout_constraintTop_toTopOf="@id/btn_issue_list_add_collection" />
@@ -124,11 +126,11 @@
                 android:layout_height="match_parent"
                 android:layout_margin="@dimen/margin_default"
                 android:layout_weight="1"
-                android:fontFamily="@font/archivo_black"
+                android:fontFamily="?attr/fontBlock"
                 android:gravity="center_vertical|end"
                 android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle2"
-                android:textColor="?attr/textColorBody"
-                android:textSize="18sp"
+                android:textColor="?attr/listItemIssueBoxTextColor"
+                android:textSize="@dimen/text_large"
                 app:layout_constraintBottom_toBottomOf="@id/btn_issue_list_add_wish_list"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@id/btn_issue_list_add_wish_list"
