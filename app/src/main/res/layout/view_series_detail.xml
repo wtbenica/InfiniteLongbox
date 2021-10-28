@@ -121,7 +121,7 @@
         tools:text="DC/Vertigo" />
 
     <LinearLayout
-        android:id="@+id/header_tracking"
+        android:id="@+id/series_detail_tracking_header"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_constraintEnd_toEndOf="parent"
@@ -137,7 +137,7 @@
             android:text="@string/series_detail_tracking_notes" />
 
         <com.wtb.comiccollector.views.ExpandButton
-            android:id="@+id/tracking_dropdown_button"
+            android:id="@+id/series_detail_tracking_dropdown_button"
             style="@style/StoryBoxDropdownButton.Title"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
@@ -146,31 +146,26 @@
             android:contentDescription="@string/story_dropdown_button" />
     </LinearLayout>
 
-    <LinearLayout
-        android:id="@+id/tracking_box"
-        android:layout_width="0dp"
+    <TextView
+        android:id="@+id/series_detail_tracking_notes"
+        style="@style/SeriesDetailText"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="@dimen/margin_narrow"
         android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/header_tracking">
-
-        <TextView
-            android:id="@+id/details_tracking_notes"
-            style="@style/SeriesDetailText"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            tools:text="A guy whose brain is stuck in a robot body goes on adventures with a ragtag group of fellow outcasts." />
-    </LinearLayout>
+        app:layout_constraintTop_toBottomOf="@+id/series_detail_tracking_header"
+        tools:text="A guy whose brain is stuck in a robot body goes on adventures with a ragtag group of fellow outcasts."
+        tools:visibility="visible" />
 
     <LinearLayout
-        android:id="@+id/header_notes"
+        android:id="@+id/series_detail_notes_header"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tracking_box">
+        app:layout_constraintTop_toBottomOf="@id/series_detail_tracking_notes">
 
         <TextView
             style="@style/SeriesDetailLabel"
@@ -182,7 +177,7 @@
             tools:visibility="visible" />
 
         <com.wtb.comiccollector.views.ExpandButton
-            android:id="@+id/notes_dropdown_button"
+            android:id="@+id/series_detail_notes_dropdown_button"
             style="@style/StoryBoxDropdownButton.Title"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
@@ -193,7 +188,7 @@
 
 
     <TextView
-        android:id="@+id/notes_box"
+        android:id="@+id/series_detail_notes"
         style="@style/SeriesDetailText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -201,7 +196,7 @@
         android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/header_notes"
+        app:layout_constraintTop_toBottomOf="@+id/series_detail_notes_header"
         tools:text="A guy whose brain is stuck in a robot body goes on adventures with a ragtag group of fellow outcasts."
         tools:visibility="visible" />
 </merge>

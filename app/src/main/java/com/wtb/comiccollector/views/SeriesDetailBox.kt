@@ -68,12 +68,12 @@ class SeriesDetailBox(context: Context, attrs: AttributeSet?) :
         }
         publisherTextView = findViewById(R.id.details_publisher)
         dateRangeTextview = findViewById(R.id.details_date_range)
-        trackingNotesHeader = findViewById(R.id.header_tracking)
-        trackingNotesTextView = findViewById(R.id.details_tracking_notes)
-        trackingDropdownButton = findViewById(R.id.tracking_dropdown_button)
-        notesLabelHeader = findViewById(R.id.header_notes)
-        notesTextView = findViewById(R.id.notes_box)
-        notesDropdownButton = findViewById(R.id.notes_dropdown_button)
+        trackingNotesHeader = findViewById(R.id.series_detail_tracking_header)
+        trackingNotesTextView = findViewById(R.id.series_detail_tracking_notes)
+        trackingDropdownButton = findViewById(R.id.series_detail_tracking_dropdown_button)
+        notesLabelHeader = findViewById(R.id.series_detail_notes_header)
+        notesTextView = findViewById(R.id.series_detail_notes)
+        notesDropdownButton = findViewById(R.id.series_detail_notes_dropdown_button)
 
         trackingDropdownButton.setOnClickListener(null)
         trackingDropdownButton.setOnClickListener {
@@ -100,10 +100,8 @@ class SeriesDetailBox(context: Context, attrs: AttributeSet?) :
             if (it != null && it != "") {
                 trackingNotesTextView.text = it
                 trackingNotesHeader.visibility = TextView.VISIBLE
-                trackingNotesTextView.visibility = TextView.VISIBLE
             } else {
                 trackingNotesHeader.visibility = TextView.GONE
-                trackingNotesTextView.visibility = TextView.GONE
             }
         }
 
