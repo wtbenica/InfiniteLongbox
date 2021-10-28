@@ -9,7 +9,9 @@ import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.view.animation.DecelerateInterpolator
 import androidx.core.view.marginTop
 import androidx.core.view.updateMargins
+import com.wtb.comiccollector.MainActivity
 import com.wtb.comiccollector.R
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 private const val DURATION = 200L
 
@@ -37,14 +39,17 @@ internal fun View.hide() {
     }
 }
 
+@ExperimentalCoroutinesApi
 internal fun View.show() {
     this@show.visibility = View.VISIBLE
-
+    val tt = measuredHeight
     scaleY = 1f
     val lp = layoutParams
     lp.height = WRAP_CONTENT
     layoutParams = lp
-    measure(UNSPECIFIED, UNSPECIFIED)
+    measure(
+        makeMeasureSpec((context as MainActivity).screenSize.x, AT_MOST), UNSPECIFIED
+    )
     val hh = measuredHeight
 
     this@show.scaleY = 0f

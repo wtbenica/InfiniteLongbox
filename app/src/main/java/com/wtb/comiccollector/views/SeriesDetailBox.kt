@@ -2,6 +2,7 @@ package com.wtb.comiccollector.views
 
 import android.content.Context
 import android.util.AttributeSet
+import android.util.Log
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -42,9 +43,8 @@ class SeriesDetailBox(context: Context, attrs: AttributeSet?) :
     private var notesLabelHeader: LinearLayout
     private var notesTextView: TextView
     private var notesDropdownButton: ExpandButton
-    private var notesBox: LinearLayout
 
-    private fun setSeries(series: FullSeries) {
+    internal fun setSeries(series: FullSeries) {
         if (this.series != series) {
             this.series = series
             updateUI()
@@ -72,9 +72,8 @@ class SeriesDetailBox(context: Context, attrs: AttributeSet?) :
         trackingNotesTextView = findViewById(R.id.details_tracking_notes)
         trackingDropdownButton = findViewById(R.id.tracking_dropdown_button)
         notesLabelHeader = findViewById(R.id.header_notes)
-        notesTextView = findViewById(R.id.details_notes)
+        notesTextView = findViewById(R.id.notes_box)
         notesDropdownButton = findViewById(R.id.notes_dropdown_button)
-        notesBox = findViewById(R.id.notes_box)
 
         trackingDropdownButton.setOnClickListener(null)
         trackingDropdownButton.setOnClickListener {
@@ -84,7 +83,7 @@ class SeriesDetailBox(context: Context, attrs: AttributeSet?) :
 
         notesDropdownButton.setOnClickListener(null)
         notesDropdownButton.setOnClickListener {
-            notesBox.toggleVisibility()
+            notesTextView.toggleVisibility()
             (it as ExpandButton).toggleExpand()
         }
 
@@ -111,11 +110,10 @@ class SeriesDetailBox(context: Context, attrs: AttributeSet?) :
         series?.series?.notes.let {
             if (it != null && it != "") {
                 notesTextView.text = it
+                Log.d(TAG, "FUBUWMO $it")
                 notesLabelHeader.visibility = TextView.VISIBLE
-                notesTextView.visibility = TextView.VISIBLE
             } else {
                 notesLabelHeader.visibility = TextView.GONE
-                notesTextView.visibility = TextView.GONE
             }
         }
 

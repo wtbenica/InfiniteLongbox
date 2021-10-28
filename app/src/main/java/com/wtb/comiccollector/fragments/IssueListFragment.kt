@@ -2,6 +2,7 @@ package com.wtb.comiccollector.fragments
 
 import android.animation.ValueAnimator
 import android.os.Bundle
+import android.util.Log
 import android.view.*
 import android.view.View.GONE
 import android.view.View.VISIBLE
@@ -35,10 +36,20 @@ class IssueListFragment : ListFragment<FullIssue, IssueListFragment.IssueViewHol
 
     override val viewModel: IssueListViewModel by viewModels()
     override val minColSizeDp = 350
+    private var mSeries: FullSeries? = null
+    private var seriesDetailBox: SeriesDetailBox? = null
 
-    private fun updateSeriesDetailFragment(series: FullSeries) {
-        val seriesDetailBox = SeriesDetailBox(requireContext(), series)
-        details.addView(seriesDetailBox)
+    private fun updateSeriesDetailFragment(series: FullSeries, newBox: Boolean = false) {
+        seriesDetailBox.let {
+            if (newBox || it == null) {
+                details.removeAllViews()
+                seriesDetailBox = SeriesDetailBox(requireContext(), series)
+                details.addView(seriesDetailBox)
+            } else {
+                it.setSeries(series)
+            }
+        }
+
         updateBottomPadding()
     }
 
@@ -70,10 +81,22 @@ class IssueListFragment : ListFragment<FullIssue, IssueListFragment.IssueViewHol
         viewModel.seriesLiveData.observe(
             viewLifecycleOwner,
             { fullSeries ->
-                fullSeries?.let { updateSeriesDetailFragment(it) }
-                callback?.setTitle(fullSeries?.series?.seriesName)
+                fullSeries?.let {
+                    mSeries = fullSeries
+                    updateSeriesDetailFragment(it)
+                    callback?.setTitle(fullSeries.series.seriesName)
+                }
             }
         )
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        mSeries?.let {
+            Log.d(TAG, "FUBUWMO")
+            updateSeriesDetailFragment(it, true)
+        }
     }
 
     override fun getAdapter(): IssueAdapter = IssueAdapter()
@@ -207,7 +230,7 @@ class IssueListFragment : ListFragment<FullIssue, IssueListFragment.IssueViewHol
         }
     }
 
-    interface IssueListCallback : ListFragmentCallback {
+    interface IssueListCallback : ListFragment.ListFragmentCallback {
         fun onIssueSelected(issue: Issue)
         fun onNewIssue(issueId: Int)
         fun addToCollection(issue: FullIssue)

@@ -143,7 +143,7 @@ class StoryBox(
         orientation = VERTICAL
         layoutParams = LayoutParams(MATCH_PARENT, WRAP_CONTENT)
 
-        inflate(context, R.layout.story_box, this)
+        inflate(context, R.layout.view_story_box, this)
 
         storyTitleTextView = findViewById(R.id.story_title)
 

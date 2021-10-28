@@ -70,6 +70,12 @@ class MainActivity : AppCompatActivity(),
             )
         }
 
+    internal val screenSize: Point
+        get() {
+            val dm = resources.displayMetrics
+            return Point(dm.widthPixels, dm.heightPixels)
+        }
+
     private val filterViewModel: FilterViewModel by viewModels()
     private var filterFragment: FilterFragment? = null
     private lateinit var mainLayout: CoordinatorLayout
