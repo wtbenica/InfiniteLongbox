@@ -3,6 +3,7 @@
     <!-- Colors -->
     <attr name="colorSecondaryDark" format="reference" />
     <attr name="colorSecondaryLight" format="reference" />
+    <attr name="colorPrimaryDarkDark" format="reference" />
     <attr name="colorPrimaryLight" format="reference" />
     <attr name="colorTransparentFilter" format="reference" />
     <attr name="colorTransparentFilterLow" format="reference" />
@@ -85,6 +86,13 @@
     <attr name="styleLinkTextView" format="reference" />
     <attr name="styleIssueInfoBox" format="reference" />
     <attr name="styleAddCollectionButton" format="reference" />
+
+    <!-- CoverDialogFragment -->
+    <attr name="dialogFragmentCoverLayoutBackground" format="reference" />
+    <attr name="dialogFragmentCoverLayoutPadding" format="reference" />
+    <attr name="dialogFragmentCoverInfoCardBackground" format="reference" />
+    <attr name="dialogFragmentCoverInfoCardTextColor" format="reference" />
+
 
     <attr name="textColorTitleBar" format="reference" />
     <attr name="textColorTitle" format="reference" />

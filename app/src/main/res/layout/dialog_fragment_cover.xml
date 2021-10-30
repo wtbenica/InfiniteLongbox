@@ -1,70 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    style="@style/DialogFragmentCoverLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="?attr/colorUi"
-    android:padding="@dimen/margin_narrow">
+    android:orientation="vertical">
+
+    <ImageView
+        android:id="@+id/cover_view"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginBottom="@dimen/margin_default"
+        android:layout_weight="1"
+        android:contentDescription="@string/description_issue_cover_set"
+        tools:src="@drawable/cover_sample" />
 
     <androidx.cardview.widget.CardView
-        android:id="@+id/cover_card"
-        android:layout_width="0dp"
+        android:id="@+id/dialog_fragment_cover_info_card"
+        style="@style/DialogFragmentCoverInfoCard"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        app:cardCornerRadius="0dp"
-        app:cardElevation="@dimen/margin_default"
-        app:cardUseCompatPadding="false"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <ImageView
-            android:id="@+id/cover_view"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:adjustViewBounds="true"
-            android:background="?attr/colorOnPrimary"
-            android:contentDescription="@string/description_issue_cover_set"
-            android:padding="1dp"
-            tools:src="@drawable/cover_sample" />
-    </androidx.cardview.widget.CardView>
-
-    <androidx.cardview.widget.CardView
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_margin="@dimen/margin_default"
-        android:clipToPadding="true"
-        app:cardCornerRadius="@dimen/margin_wide"
-        app:cardElevation="@dimen/margin_default"
-        app:cardUseCompatPadding="false"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/cover_card">
+        android:layout_weight="0">
 
         <androidx.constraintlayout.widget.ConstraintLayout
+            style="@style/DialogFragmentCoverInfoCardBackground"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-            <ImageView
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:importantForAccessibility="no"
-                android:scaleType="centerCrop"
-                android:src="@drawable/bg_swirl"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
             <TextView
                 android:id="@+id/tv_issue"
+                style="@style/DialogFragmentCoverTitleTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_margin="@dimen/margin_wide"
-                android:textAppearance="@style/CoverDialogTitleText"
                 app:layout_constraintBottom_toTopOf="@id/tv_variant_name"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -72,15 +40,14 @@
                 tools:text="Skippy #42" />
 
             <TextView
+                style="@style/DialogFragmentCoverTitleTextView"
                 android:id="@+id/tv_variant_name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_margin="@dimen/margin_wide"
-                android:textAppearance="@style/CoverDialogTitleText"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 tools:text="Lucky Variant" />
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.cardview.widget.CardView>
-</androidx.constraintlayout.widget.ConstraintLayout>
+</LinearLayout>
