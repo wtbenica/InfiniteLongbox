@@ -56,7 +56,7 @@ class AddCollectionButton(context: Context, attributeSet: AttributeSet) :
     init {
         showingPlus = true
         plusToCheck =
-            AnimatedVectorDrawableCompat.create(context, R.drawable.added_to_collection_anim)
+            AnimatedVectorDrawableCompat.create(context, R.drawable.issue_added_to_collection)
         checkToPlus =
             AnimatedVectorDrawableCompat.create(context, R.drawable.removed_from_collection_anim)
         setImageDrawable(plusToCheck)

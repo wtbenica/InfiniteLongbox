@@ -6,4 +6,13 @@
         <item name="android:orientation">vertical</item>
         <item name="android:gravity">top</item>
     </style>
+
+    <style name="IssueDetailInfoLabel" parent="Widget.AppCompat.TextView">
+        <item name="android:layout_margin">@dimen/margin_narrow</item>
+        <item name="fontFamily">?attr/fontBlock</item>
+        <item name="android:background">?attr/fragmentIssueDetailInfoRowLabelBg</item>
+        <item name="android:padding">@dimen/margin_narrow</item>
+        <item name="android:textSize">@dimen/text_small</item>
+        <item name="android:textColor">?attr/fragmentIssueDetailInfoRowLabelTextColor</item>
+    </style>
 </resources>

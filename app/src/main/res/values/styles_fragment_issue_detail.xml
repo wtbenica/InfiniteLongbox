@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="IssueDetailButtonBarButton" parent="Widget.MaterialComponents.Button.TextButton">
+        <item name="android:textColor">@color/selector_jump_bar_button</item>
+        <item name="cornerRadius">@dimen/margin_default</item>
+        <item name="android:fontFamily">?attr/fontBlock</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="IssueDetailVariantSpinner" parent="Widget.AppCompat.Spinner">
+        <item name="android:layout_height">?attr/dropdownListPreferredItemHeight</item>
+        <item name="android:textColor">?attr/colorOnPrimary</item>
+        <item name="android:popupBackground">?attr/colorOnSecondary</item>
+    </style>
+
+    <style name="IssueDetailButtonBar" parent="Widget.AppCompat.ButtonBar">
+
+    </style>
+
+    <style name="IssueDetailGcdLinkButton" parent="Widget.MaterialComponents.Button.TextButton">
+        <item name="android:textColor">?attr/colorUiInterface</item>
+    </style>
+
+    <style name="myButtonStyle" parent="Widget.MaterialComponents.Button.TextButton">
+        <item name="android:textColor">?attr/colorSecondaryDark</item>
+        <item name="android:fontFamily">?attr/fontBlock</item>
+    </style>
+
+    <style name="AddCollectionButtonStyle" parent="Widget.AppCompat.Button">
+        <item name="android:layout_width">48dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:background">@android:color/transparent</item>
+        <item name="android:textSize">8sp</item>
+        <item name="android:scaleType">fitCenter</item>
+    </style>
+</resources>

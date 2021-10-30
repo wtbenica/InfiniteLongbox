@@ -8,7 +8,7 @@ import android.widget.TextView
 import androidx.fragment.app.viewModels
 import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
-import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.R
@@ -23,13 +23,17 @@ private const val TAG = APP + "CharacterListFragment"
 class CharacterListFragment : ListFragment<FullCharacter, CharacterListFragment.CharacterHolder>() {
 
     override val viewModel: CharacterListViewModel by viewModels()
+    override val minColSizeDp: Int
+        get() = 600
 
     override fun onResume() {
         super.onResume()
         callback?.setTitle()
     }
 
-    override fun getLayoutManager(): RecyclerView.LayoutManager = LinearLayoutManager(context)
+    override fun getLayoutManager(): RecyclerView.LayoutManager =
+        GridLayoutManager(context, numCols)
+
     override fun getAdapter(): CharacterAdapter = CharacterAdapter()
 
     override fun onCreateView(
@@ -40,7 +44,8 @@ class CharacterListFragment : ListFragment<FullCharacter, CharacterListFragment.
         val view = super.onCreateView(inflater, container, savedInstanceState)
 
         val itemOffsetDecoration = ItemOffsetDecoration(
-            resources.getDimension(R.dimen.margin_wide).toInt()
+            itemOffset = resources.getDimension(R.dimen.margin_wide).toInt(),
+            numCols = numCols
         )
         listRecyclerView.addItemDecoration(itemOffsetDecoration)
 
@@ -64,15 +69,14 @@ class CharacterListFragment : ListFragment<FullCharacter, CharacterListFragment.
 
         private lateinit var item: FullCharacter
         private val nameTextView: TextView =
-            itemView.findViewById(R.id.list_item_issue_variant_name)
-        private val alterEgoTextView: TextView = itemView.findViewById(R.id.list_item_alter_ego)
+            itemView.findViewById(R.id.list_item_simple_name)
+        private val alterEgoTextView: TextView = itemView.findViewById(R.id.list_item_simple_meta_1)
         private val publisherTextView: TextView =
-            itemView.findViewById(R.id.list_item_char_publisher)
+            itemView.findViewById(R.id.list_item_simple_meta_2)
         private val div: View = itemView.findViewById(R.id.divider_list_item_meta)
 
         init {
             itemView.setOnClickListener(this)
-//            bg.setImageResource(R.drawable.bg_yellow)
         }
 
         fun bind(item: FullCharacter) {

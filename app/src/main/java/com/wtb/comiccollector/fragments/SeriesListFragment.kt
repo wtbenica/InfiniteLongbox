@@ -7,7 +7,6 @@ import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.annotation.AttrRes
@@ -15,13 +14,14 @@ import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.viewModels
 import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
-import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.R
 import com.wtb.comiccollector.database.models.FullIssue
 import com.wtb.comiccollector.database.models.FullSeries
 import com.wtb.comiccollector.fragments_view_models.SeriesListViewModel
+import com.wtb.comiccollector.views.FitTopImageView
 import kotlinx.coroutines.*
 
 private const val TAG = APP + "SeriesListFragment"
@@ -30,13 +30,16 @@ private const val TAG = APP + "SeriesListFragment"
 class SeriesListFragment : ListFragment<FullSeries, SeriesListFragment.SeriesHolder>() {
 
     override val viewModel: SeriesListViewModel by viewModels()
+    override val minColSizeDp: Int
+        get() = 600
 
     override fun onResume() {
         super.onResume()
         callback?.setTitle()
     }
 
-    override fun getLayoutManager(): RecyclerView.LayoutManager = LinearLayoutManager(context)
+    override fun getLayoutManager(): RecyclerView.LayoutManager =
+        GridLayoutManager(context, numCols)
 
     override fun getAdapter(): SeriesAdapter = SeriesAdapter()
 
@@ -48,8 +51,10 @@ class SeriesListFragment : ListFragment<FullSeries, SeriesListFragment.SeriesHol
         val view = super.onCreateView(inflater, container, savedInstanceState)
 
         val itemOffsetDecoration = ItemOffsetDecoration(
-            resources.getDimension(R.dimen.item_offset_vert_list_item_series).toInt(),
-            resources.getDimension(R.dimen.item_offset_horz_list_item_series).toInt()
+            itemOffset = resources.getDimension(R.dimen.item_offset_vert_list_item_series).toInt(),
+            itemOffsetHorizontal = resources.getDimension(R.dimen.item_offset_horz_list_item_series)
+                .toInt(),
+            numCols = numCols
         )
         listRecyclerView.addItemDecoration(itemOffsetDecoration)
 
@@ -75,7 +80,7 @@ class SeriesListFragment : ListFragment<FullSeries, SeriesListFragment.SeriesHol
 
         private val seriesTextView: TextView =
             itemView.findViewById(R.id.list_item_series_name_text)
-        private val seriesImageView: ImageView = itemView.findViewById(R.id.series_imageview)
+        private val seriesImageView: FitTopImageView = itemView.findViewById(R.id.series_imageview)
         private val seriesDateRangeTextView: TextView =
             itemView.findViewById(R.id.list_item_pub_dates)
         private val formatTextView: TextView =
@@ -102,13 +107,15 @@ class SeriesListFragment : ListFragment<FullSeries, SeriesListFragment.SeriesHol
 
             val firstIssue: FullIssue? = this.item.firstIssue
 
-            val draw: Int? = context?.getDrawableFromAttr(R.attr.listItemSeriesBackground)
+            val draw: Int? = context?.getDrawableFromAttr(R.attr.listItemBackground)
             val draw2: Drawable? = draw?.let { ResourcesCompat.getDrawable(resources, it, null) }
 
-            if (firstIssue?.coverUri != null) {
-                seriesImageView.setImageURI(firstIssue.coverUri)
-            } else {
-                seriesImageView.setImageDrawable(draw2)
+            firstIssue?.coverUri.let {
+                if (it != null) {
+                    seriesImageView.setImageURI(it)
+                } else {
+                    seriesImageView.setImageDrawable(draw2)
+                }
             }
 
             seriesDateRangeTextView.text = this.item.series.dateRange
@@ -127,7 +134,7 @@ class SeriesListFragment : ListFragment<FullSeries, SeriesListFragment.SeriesHol
         }
     }
 
-    interface SeriesListCallback : ListFragmentCallback {
+    interface SeriesListCallback : ListFragment.ListFragmentCallback {
         fun onSeriesSelected(series: FullSeries)
     }
 

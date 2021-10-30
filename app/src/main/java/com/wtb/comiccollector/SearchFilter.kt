@@ -342,8 +342,8 @@ class SortType(
 
     enum class SortOrder(val option: String, val icon: Int, val contentDescription: String) :
         Serializable {
-        ASC("ASC", R.drawable.arrow_up_24, "Sort Ascending"),
-        DESC("DESC", R.drawable.arrow_down_24, "Sort Descending")
+        ASC("ASC", R.drawable.icon_arrow_up, "Sort Ascending"),
+        DESC("DESC", R.drawable.icon_arrow_down, "Sort Descending")
     }
 
     @ExperimentalCoroutinesApi

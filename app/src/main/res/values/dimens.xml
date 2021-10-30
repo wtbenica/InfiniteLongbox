@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Margins -->
     <dimen name="margin_wide">20dp</dimen>
     <dimen name="margin_default">8dp</dimen>
     <dimen name="margin_narrow">4dp</dimen>
 
+    <!-- Radii -->
     <dimen name="radius_default">8dp</dimen>
 
     <dimen name="card_elevation">4dp</dimen>
@@ -17,6 +19,22 @@
     <dimen name="peek_height">48dp</dimen>
     <dimen name="chip_icon_size">20dp</dimen>
     <dimen name="chip_height">36dp</dimen>
+
     <dimen name="text_small">14sp</dimen>
+    <dimen name="text_med">16sp</dimen>
+    <dimen name="text_large">18sp</dimen>
+
     <dimen name="radius_thicc">48dp</dimen>
+    <dimen name="list_item_issue_cover_spacing">40dp</dimen>
+
+    <!-- ListItem -->
+    <dimen name="list_item_title_text_size">18sp</dimen>
+    <dimen name="list_item_series_meta_text_size">14sp</dimen>
+
+    <!-- ListItemSeries -->
+    <dimen name="list_item_series_card_height">200dp</dimen>
+
+    <!-- StoryBox -->
+    <dimen name="story_box_title_bar_text">18sp</dimen>
+
 </resources>

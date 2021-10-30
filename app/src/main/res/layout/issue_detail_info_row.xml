@@ -7,13 +7,13 @@
 
     <TextView
         android:id="@+id/info_row_label"
-        style="@style/IssueInfoText"
+        style="@style/IssueDetailInfoLabel"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:gravity="center_vertical"
         android:labelFor="@id/info_row_text"
         android:text="@string/label_release_date"
-        tools:showIn="@layout/fragment_display_issue" />
+        tools:showIn="@layout/fragment_issue_detail" />
 
     <TextView
         android:id="@+id/info_row_text"

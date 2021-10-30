@@ -3,23 +3,11 @@
 
     <style name="mCardView.ListItemSeries">
         <item name="cardCornerRadius">@dimen/radius_list_item_series</item>
+        <item name="android:layout_height">@dimen/list_item_series_card_height</item>
     </style>
 
-    <style name="ListItemTitleText" parent="TextAppearance.AppCompat.Light.SearchResult.Title">
-        <item name="android:fontFamily">sans-serif-condensed</item>
-        <item name="android:textStyle">bold</item>
-        <item name="android:textSize">16sp</item>
-        <item name="android:gravity">bottom</item>
-        <item name="android:layout_height">@dimen/radius_list_item_series</item>
-        <item name="android:paddingStart">@dimen/margin_wide</item>
-        <item name="android:paddingTop">@dimen/margin_narrow</item>
-        <item name="android:paddingBottom">@dimen/margin_narrow</item>
-        <item name="android:textColor">?attr/textColorTitle</item>
-        <item name="fontFamily">@font/archivo_black</item>
-    </style>
-
-    <style name="ListItemTitleText.Character">
-        <item name="android:background">@drawable/bg_character_name</item>
+    <style name="ListItemTitleText.Series">
+        <item name="android:singleLine">true</item>
     </style>
 
     <style name="ListItemMetaBox">
@@ -27,18 +15,21 @@
         <item name="android:paddingEnd">@dimen/margin_wide</item>
     </style>
 
-    <style name="ListItemMetaBox.Simple">
-        <item name="android:background">@drawable/bg_list_item_simple_meta</item>
-    </style>
-
-    <style name="ListItemSeriesSubtitle" parent="TextAppearance.AppCompat.Light.SearchResult.Subtitle">
-        <item name="android:fontFamily">sans-serif-condensed</item>
-        <item name="android:textSize">12sp</item>
+    <style name="ListItemSeriesMeta" parent="TextAppearance.AppCompat.Light.SearchResult.Subtitle">
+        <item name="android:textSize">@dimen/list_item_series_meta_text_size</item>
         <item name="android:paddingTop">@dimen/margin_narrow</item>
         <item name="android:paddingBottom">@dimen/margin_narrow</item>
         <item name="android:textColor">?attr/textColorSubtitle</item>
-        <item name="fontFamily">@font/archivo_black</item>
+        <item name="android:fontFamily">?attr/fontBlock</item>
     </style>
 
-    <style name="ListItemSeriesSubtitle.Simple" />
+    <style name="ListItemSeriesTitleCard">
+        <item name="android:background">?attr/listItemSeriesTitleCardBackground</item>
+    </style>
+
+    <style name="ListItemSeriesProgressBar" parent="Widget.AppCompat.ProgressBar.Horizontal">
+        <item name="android:background">?attr/listItemSeriesProgressBarBackground</item>
+        <item name="android:indeterminateTint">?attr/listItemSeriesProgressBarIndeterminateTint
+        </item>
+    </style>
 </resources>

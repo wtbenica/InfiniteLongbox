@@ -55,8 +55,10 @@ class AddWishListButton(context: Context, attributeSet: AttributeSet) :
 
     init {
         showingPlus = true
-        plusToCheck = AnimatedVectorDrawableCompat.create(context, R.drawable.added_to_wish_list_anim)
-        checkToPlus = AnimatedVectorDrawableCompat.create(context, R.drawable.removed_from_wish_list_anim)
+        plusToCheck =
+            AnimatedVectorDrawableCompat.create(context, R.drawable.issue_added_to_wish_list)
+        checkToPlus =
+            AnimatedVectorDrawableCompat.create(context, R.drawable.removed_from_wish_list_anim)
         setImageDrawable(plusToCheck)
 
         setOnClickListener {

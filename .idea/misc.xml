@@ -7,9 +7,13 @@
         <entry key="../../Android/Sdk/platforms/android-30/data/res/drawable/progress_horizontal_material.xml" value="0.67" />
         <entry key="../../Android/Sdk/platforms/android-30/data/res/drawable/progress_indeterminate_horizontal_material.xml" value="0.10598290598290598" />
         <entry key="app/src/main/res/drawable-anydpi/cover_missing.xml" value="0.14166666666666666" />
+        <entry key="app/src/main/res/drawable-anydpi/ic_check_circle.xml" value="0.17777777777777778" />
+        <entry key="app/src/main/res/drawable-anydpi/ic_menu_add.xml" value="0.17777777777777778" />
+        <entry key="app/src/main/res/drawable-anydpi/issue_cover_missing.xml" value="0.17777777777777778" />
         <entry key="app/src/main/res/drawable-night/bg_image_label.xml" value="0.19704641350210972" />
-        <entry key="app/src/main/res/drawable-night/bg_issue_list_item_in_collection.xml" value="0.22870370370370371" />
+        <entry key="app/src/main/res/drawable-night/bg_issue_list_item_in_collection.xml" value="3.0" />
         <entry key="app/src/main/res/drawable-night/bg_issue_list_item_not_in_collection.xml" value="0.28055555555555556" />
+        <entry key="app/src/main/res/drawable-night/bg_series_title.xml" value="2.0" />
         <entry key="app/src/main/res/drawable-night/bg_story_box_subtitle_bar.xml" value="0.17383966244725738" />
         <entry key="app/src/main/res/drawable/add_collection.xml" value="0.27341772151898736" />
         <entry key="app/src/main/res/drawable/add_wish_list.xml" value="0.1" />
@@ -17,6 +21,7 @@
         <entry key="app/src/main/res/drawable/added_to_wish_list_anim.xml" value="0.1841880341880342" />
         <entry key="app/src/main/res/drawable/alboha_bg.xml" value="0.5" />
         <entry key="app/src/main/res/drawable/alboha_fg.xml" value="0.21197916666666666" />
+        <entry key="app/src/main/res/drawable/arrow_down_24.xml" value="0.12051282051282051" />
         <entry key="app/src/main/res/drawable/arrow_up_24.xml" value="0.27692307692307694" />
         <entry key="app/src/main/res/drawable/background_series_dates.xml" value="0.12863247863247862" />
         <entry key="app/src/main/res/drawable/background_series_title.xml" value="0.12863247863247862" />
@@ -36,13 +41,17 @@
         <entry key="app/src/main/res/drawable/bg_series_title.xml" value="0.5" />
         <entry key="app/src/main/res/drawable/bg_story_box_subtitle_bar.xml" value="0.21145833333333333" />
         <entry key="app/src/main/res/drawable/bg_story_box_title_bar.xml" value="0.17426160337552743" />
-        <entry key="app/src/main/res/drawable/bg_swirl.xml" value="0.5" />
+        <entry key="app/src/main/res/drawable/bg_swirl.xml" value="0.1" />
+        <entry key="app/src/main/res/drawable/dates_24.xml" value="0.17777777777777778" />
         <entry key="app/src/main/res/drawable/done.xml" value="0.27341772151898736" />
         <entry key="app/src/main/res/drawable/dot_vortex.xml" value="0.21145833333333333" />
+        <entry key="app/src/main/res/drawable/filter_fragment_image_label_bg.xml" value="0.13240740740740742" />
         <entry key="app/src/main/res/drawable/fofof.xml" value="0.27692307692307694" />
         <entry key="app/src/main/res/drawable/ic_search_24.xml" value="0.27692307692307694" />
+        <entry key="app/src/main/res/drawable/list_item_simple_name_bg.xml" value="0.3021367521367521" />
         <entry key="app/src/main/res/drawable/primary_border.xml" value="0.1111111111111111" />
         <entry key="app/src/main/res/drawable/primary_dark_border.xml" value="0.1111111111111111" />
+        <entry key="app/src/main/res/drawable/primary_fade_to_top.xml" value="0.5" />
         <entry key="app/src/main/res/drawable/progress_bar_big.xml" value="0.1" />
         <entry key="app/src/main/res/drawable/progress_bar_big0.xml" value="0.5" />
         <entry key="app/src/main/res/drawable/progress_bar_big05.xml" value="0.27341772151898736" />
@@ -65,10 +74,11 @@
         <entry key="app/src/main/res/drawable/waiting.xml" value="0.27692307692307694" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.5" />
         <entry key="app/src/main/res/layout/auto_complete_filter_item.xml" value="0.67" />
-        <entry key="app/src/main/res/layout/dialog_fragment_cover.xml" value="0.33" />
+        <entry key="app/src/main/res/layout/dialog_fragment_cover.xml" value="0.52890625" />
         <entry key="app/src/main/res/layout/fragment_display_issue.xml" value="0.38095238095238093" />
-        <entry key="app/src/main/res/layout/fragment_filter.xml" value="0.67" />
-        <entry key="app/src/main/res/layout/fragment_item_list.xml" value="0.67" />
+        <entry key="app/src/main/res/layout/fragment_filter.xml" value="0.5898617511520737" />
+        <entry key="app/src/main/res/layout/fragment_issue_detail.xml" value="0.1" />
+        <entry key="app/src/main/res/layout/fragment_item_list.xml" value="0.1" />
         <entry key="app/src/main/res/layout/fragment_series_detail.xml" value="0.3856332703213611" />
         <entry key="app/src/main/res/layout/fragment_static_update.xml" value="0.3079136690647482" />
         <entry key="app/src/main/res/layout/issue_detail_info_row.xml" value="0.75" />
@@ -76,17 +86,22 @@
         <entry key="app/src/main/res/layout/issue_detail_issue_info_box.xml" value="0.11153846153846154" />
         <entry key="app/src/main/res/layout/list_item_character.xml" value="0.26033755274261605" />
         <entry key="app/src/main/res/layout/list_item_filter_option_auto_complete.xml" value="0.26033755274261605" />
-        <entry key="app/src/main/res/layout/list_item_issue.xml" value="0.33" />
+        <entry key="app/src/main/res/layout/list_item_issue.xml" value="0.1" />
         <entry key="app/src/main/res/layout/list_item_issue_new.xml" value="0.67" />
         <entry key="app/src/main/res/layout/list_item_issue_variant.xml" value="0.3553299492385787" />
         <entry key="app/src/main/res/layout/list_item_search_type.xml" value="0.2636752136752137" />
-        <entry key="app/src/main/res/layout/list_item_series.xml" value="0.539568345323741" />
-        <entry key="app/src/main/res/layout/list_item_simple.xml" value="0.3846787479406919" />
+        <entry key="app/src/main/res/layout/list_item_series.xml" value="0.5" />
+        <entry key="app/src/main/res/layout/list_item_simple.xml" value="0.1" />
         <entry key="app/src/main/res/layout/list_item_variant.xml" value="0.2636752136752137" />
         <entry key="app/src/main/res/layout/row_item_appearance.xml" value="0.5" />
         <entry key="app/src/main/res/layout/search_autocomplete.xml" value="0.6248715313463515" />
         <entry key="app/src/main/res/layout/spinner_item_variant.xml" value="0.5" />
-        <entry key="app/src/main/res/layout/story_box.xml" value="0.3037156704361874" />
+        <entry key="app/src/main/res/layout/story_box.xml" value="0.33" />
+        <entry key="app/src/main/res/layout/view_expandable_box.xml" value="0.13931623931623932" />
+        <entry key="app/src/main/res/layout/view_series_detail.xml" value="0.27552742616033754" />
+        <entry key="app/src/main/res/menu/fragment_issue_list.xml" value="0.16452991452991453" />
+        <entry key="app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml" value="0.17777777777777778" />
+        <entry key="app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml" value="0.17777777777777778" />
       </map>
     </option>
   </component>

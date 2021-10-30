@@ -156,21 +156,11 @@ abstract class Updater(
             apiCall: KSuspendFunction1<ArgType, List<Item<GcdType, ModelType>>>,
         ): List<ModelType>? =
             supervisorScope {
-                Log.d(TAG, "Starting ${apiCall.name}")
                 runSafely(
                     name = "getItemsByArgument: ${apiCall.name}",
                     arg = arg,
                     queryFunction = {
-                        async {
-                            val res = apiCall(it)
-                            Log.d(
-                                TAG,
-                                "BOBA ${apiCall.name} ${res.size}/${
-                                    if (it is List<*>) "${it.size} $it" else ""
-                                }"
-                            )
-                            res
-                        }
+                        async { apiCall(it) }
                     })?.models
             }
 
@@ -206,15 +196,12 @@ abstract class Updater(
             collector: Collector<ModelType>,
         ): List<ModelType> {
             return coroutineScope {
-                Log.d(TAG, "updateById")
                 val items: List<ModelType>? = getItems(id)
-                Log.d(TAG, "updateById: numItems: ${items?.size}")
+
                 if (items != null && items.isNotEmpty()) {
                     withContext(Dispatchers.Default) {
-                        Log.d(TAG, "updateById: Following up")
                         followup(items)
                     }.let {
-                        Log.d(TAG, "updateById: Followup done")
                         collector.dao.upsertSus(items)
                     }
                 }

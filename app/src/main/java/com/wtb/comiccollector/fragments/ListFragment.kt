@@ -20,6 +20,7 @@ import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.appbar.AppBarLayout.LayoutParams.SCROLL_FLAG_ENTER_ALWAYS
 import com.google.android.material.appbar.AppBarLayout.LayoutParams.SCROLL_FLAG_SCROLL
 import com.wtb.comiccollector.APP
+import com.wtb.comiccollector.MainActivity
 import com.wtb.comiccollector.R
 import com.wtb.comiccollector.SearchFilter
 import com.wtb.comiccollector.database.models.ListItem
@@ -44,9 +45,18 @@ abstract class ListFragment<T : ListItem, VH : RecyclerView.ViewHolder> : Fragme
 
     protected var callback: ListFragmentCallback? = null
 
+    protected var numCols: Int = 1
+    abstract val minColSizeDp: Int
+
     override fun onAttach(context: Context) {
         super.onAttach(context)
         callback = context as ListFragmentCallback
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        numCols = (context as MainActivity).screenSizeInDp.x / minColSizeDp + 1
     }
 
     override fun onResume() {

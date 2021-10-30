@@ -1,0 +1,276 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?attr/colorSecondaryLight"
+    android:orientation="vertical">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:scrollbars="none">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/top_section"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <ImageButton
+                    android:id="@+id/issue_cover"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="@dimen/margin_narrow"
+                    android:layout_weight="1"
+                    android:adjustViewBounds="true"
+                    android:background="@android:color/transparent"
+                    android:contentDescription="@string/description_issue_cover"
+                    android:elevation="1dp"
+                    android:padding="0dp"
+                    android:scaleType="fitStart"
+                    app:layout_constraintEnd_toStartOf="@id/issue_info_box"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:scaleType="fitXY"
+                    tools:src="@drawable/cover_sample" />
+
+                <com.wtb.comiccollector.views.IssueInfoBox
+                    android:id="@+id/issue_info_box"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:layout_marginTop="@dimen/margin_narrow"
+                    android:layout_marginEnd="@dimen/margin_narrow"
+                    android:layout_marginBottom="@dimen/margin_narrow"
+                    android:animateLayoutChanges="true"
+                    android:contentDescription="Issue release info"
+                    app:layout_constraintBottom_toTopOf="@id/collectionButton"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@id/issue_cover"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <com.wtb.comiccollector.views.AddCollectionButton
+                    android:id="@+id/collectionButton"
+                    style="@style/AddCollectionButtonStyle"
+                    android:layout_marginStart="@dimen/margin_wide"
+                    android:contentDescription="Add to my collection"
+                    android:src="@drawable/removed_from_collection_anim"
+                    android:tint="?attr/fragmentIssueDetailButtonColor"
+                    app:layout_constraintBottom_toTopOf="@id/lbl_collection_button"
+                    app:layout_constraintStart_toEndOf="@id/issue_cover" />
+
+                <TextView
+                    android:id="@+id/lbl_collection_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="@dimen/margin_default"
+                    android:labelFor="@id/collectionButton"
+                    android:text="have"
+                    android:textAllCaps="true"
+                    android:textColor="?attr/fragmentIssueDetailButtonColor"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="@id/collectionButton"
+                    app:layout_constraintStart_toStartOf="@id/collectionButton" />
+
+                <com.wtb.comiccollector.views.AddWishListButton
+                    android:id="@+id/issue_add_wish_btn"
+                    style="@style/AddCollectionButtonStyle"
+                    android:contentDescription="Add to wish list"
+                    android:src="@drawable/issue_added_to_wish_list"
+                    android:tint="?attr/fragmentIssueDetailButtonColor"
+                    app:layout_constraintBottom_toTopOf="@id/lbl_wish_list_button"
+                    app:layout_constraintEnd_toStartOf="@id/ebayButton"
+                    app:layout_constraintStart_toEndOf="@id/collectionButton" />
+
+                <TextView
+                    android:id="@+id/lbl_wish_list_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="@dimen/margin_default"
+                    android:labelFor="@id/issue_add_wish_btn"
+                    android:text="want"
+                    android:textAllCaps="true"
+                    android:textColor="?attr/fragmentIssueDetailButtonColor"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="@id/issue_add_wish_btn"
+                    app:layout_constraintStart_toStartOf="@id/issue_add_wish_btn" />
+
+                <androidx.appcompat.widget.AppCompatImageButton
+                    android:id="@+id/ebayButton"
+                    style="@style/AddCollectionButtonStyle"
+                    android:layout_marginEnd="@dimen/margin_wide"
+                    android:contentDescription="Search ebay"
+                    android:src="@drawable/ic_search_24"
+                    android:tint="?attr/fragmentIssueDetailButtonColor"
+                    app:layout_constraintBottom_toTopOf="@id/lbl_ebay_button"
+                    app:layout_constraintEnd_toEndOf="parent" />
+
+                <TextView
+                    android:id="@+id/lbl_ebay_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="@dimen/margin_default"
+                    android:labelFor="@id/ebayButton"
+                    android:text="find"
+                    android:textAllCaps="true"
+                    android:textColor="?attr/fragmentIssueDetailButtonColor"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="@id/ebayButton"
+                    app:layout_constraintStart_toStartOf="@id/ebayButton" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <LinearLayout
+                android:id="@+id/variant_spinner_holder"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/margin_default"
+                android:orientation="vertical"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/top_section">
+
+                <LinearLayout
+                    android:id="@+id/title_bar_variant_spinner"
+                    style="@style/StoryBoxTitleBar"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/margin_narrow"
+                    android:layout_marginEnd="@dimen/margin_narrow"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent">
+
+                    <TextView
+                        android:id="@+id/label_variants"
+                        style="@style/StoryBoxTitleBarText"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:labelFor="@id/variant_spinner"
+                        android:text="@string/label_variants"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+                </LinearLayout>
+
+                <Spinner
+                    android:id="@+id/variant_spinner"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="@dimen/margin_narrow"
+                    android:layout_weight="1"
+                    android:contentDescription="Select variant"
+                    android:elevation="1dp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@id/label_variants"
+                    app:layout_constraintTop_toBottomOf="@id/title_bar_variant_spinner"
+                    tools:listitem="@layout/spinner_item_variant"
+                    tools:visibility="visible" />
+            </LinearLayout>
+
+            <FrameLayout
+                android:id="@+id/issue_credits_frame"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:animateLayoutChanges="true"
+                android:padding="@dimen/margin_narrow"
+                app:layout_constraintBottom_toTopOf="@id/bottom_stuff"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/variant_spinner_holder" />
+        </LinearLayout>
+    </ScrollView>
+
+    <LinearLayout
+        android:id="@+id/bottom_stuff"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/colorUi"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <LinearLayout
+            style="@style/IssueDetailButtonBar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintBottom_toTopOf="@id/gcd_link"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent">
+
+            <Button
+                android:id="@+id/goto_start_button"
+                style="?android:attr/buttonBarButtonStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:enabled="false"
+                android:text="@string/goto_start"
+                tools:enabled="true" />
+
+            <Button
+                android:id="@+id/goto_skip_back_button"
+                style="?android:attr/buttonBarButtonStyle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:enabled="false"
+                android:text="@string/goto_skip_back"
+                tools:enabled="false" />
+
+            <Button
+                android:id="@+id/goto_previous_button"
+                style="?android:attr/buttonBarButtonStyle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:enabled="false"
+                android:text="@string/goto_one_back" />
+
+            <Button
+                android:id="@+id/goto_next_button"
+                style="?android:attr/buttonBarButtonStyle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:enabled="true"
+                android:text="@string/goto_one_forward" />
+
+            <Button
+                android:id="@+id/goto_skip_forward_button"
+                style="?android:attr/buttonBarButtonStyle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:enabled="true"
+                android:text="@string/goto_skip_forward" />
+
+            <Button
+                android:id="@+id/goto_end_button"
+                style="?android:attr/buttonBarButtonStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:enabled="true"
+                android:text="@string/goto_end" />
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/gcd_link"
+            style="@style/IssueDetailGcdLinkButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:contentDescription="@string/content_desc_issue_display_gcd_link"
+            android:gravity="bottom|clip_horizontal|end"
+            android:text="@string/grand_comic_database_tm"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+    </LinearLayout>
+</LinearLayout>

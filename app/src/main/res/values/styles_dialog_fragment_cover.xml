@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="DialogFragmentCoverLayout">
+        <item name="android:background">?attr/dialogFragmentCoverLayoutBackground</item>
+        <item name="android:padding">?attr/dialogFragmentCoverLayoutPadding</item>
+    </style>
+
+    <style name="DialogFragmentCoverInfoCard" parent="Widget.MaterialComponents.CardView">
+        <item name="android:layout_margin">@dimen/margin_default</item>
+        <item name="cardCornerRadius">@dimen/margin_wide</item>
+        <item name="cardElevation">@dimen/margin_default</item>
+    </style>
+
+    <style name="DialogFragmentCoverInfoCardBackground">
+        <item name="android:background">?attr/dialogFragmentCoverInfoCardBackground</item>
+    </style>
+
+    <style name="DialogFragmentCoverTitleTextView" parent="Widget.MaterialComponents.TextView">
+        <item name="android:textAppearance">@style/CoverDialogTitleText</item>
+        <item name="android:layout_margin">@dimen/margin_default</item>
+        <item name="android:textColor">?attr/dialogFragmentCoverInfoCardTextColor</item>
+    </style>
+
+    <style name="CoverDialogTitleText" parent="TextAppearance.AppCompat.Light.SearchResult.Title">
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">@dimen/text_med</item>
+        <item name="android:fontFamily">?attr/fontBlock</item>
+    </style>
+</resources>

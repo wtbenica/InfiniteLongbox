@@ -2,8 +2,7 @@ package com.wtb.comiccollector.views
 
 import android.content.Context
 import android.util.AttributeSet
-import android.view.ViewGroup.LayoutParams.MATCH_PARENT
-import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
+import android.util.Log
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -19,11 +18,11 @@ private const val RESULT_SERIES_INFO = 312
 private const val DIALOG_SERIES_INFO = "DIALOG_EDIT_SERIES"
 
 @ExperimentalCoroutinesApi
-class SeriesDetailBox(context: Context, attrs: AttributeSet?, defStyleAttr: Int) :
+class SeriesDetailBox(context: Context, attrs: AttributeSet?) :
     ConstraintLayout(context, attrs, R.attr.styleSeriesDetail, R.style.SeriesDetailBackground),
     SeriesLinkCallback {
 
-    constructor(context: Context, series: FullSeries) : this(context, null, 0) {
+    constructor(context: Context, series: FullSeries) : this(context, null) {
         setSeries(series)
     }
 
@@ -44,9 +43,8 @@ class SeriesDetailBox(context: Context, attrs: AttributeSet?, defStyleAttr: Int)
     private var notesLabelHeader: LinearLayout
     private var notesTextView: TextView
     private var notesDropdownButton: ExpandButton
-    private var notesBox: LinearLayout
 
-    private fun setSeries(series: FullSeries) {
+    internal fun setSeries(series: FullSeries) {
         if (this.series != series) {
             this.series = series
             updateUI()
@@ -55,7 +53,7 @@ class SeriesDetailBox(context: Context, attrs: AttributeSet?, defStyleAttr: Int)
 
 
     init {
-        inflate(context, R.layout.fragment_series_detail, this)
+        inflate(context, R.layout.view_series_detail, this)
 
         volumeNumTextView = findViewById(R.id.details_series_volume)
         continuesFromBox = findViewById(R.id.continues_from_box)
@@ -70,23 +68,22 @@ class SeriesDetailBox(context: Context, attrs: AttributeSet?, defStyleAttr: Int)
         }
         publisherTextView = findViewById(R.id.details_publisher)
         dateRangeTextview = findViewById(R.id.details_date_range)
-        trackingNotesHeader = findViewById(R.id.header_tracking)
-        trackingNotesTextView = findViewById(R.id.details_tracking_notes)
-        trackingDropdownButton = findViewById(R.id.tracking_dropdown_button)
-        notesLabelHeader = findViewById(R.id.header_notes)
-        notesTextView = findViewById(R.id.details_notes)
-        notesDropdownButton = findViewById(R.id.notes_dropdown_button)
-        notesBox = findViewById(R.id.notes_box)
+        trackingNotesHeader = findViewById(R.id.series_detail_tracking_header)
+        trackingNotesTextView = findViewById(R.id.series_detail_tracking_notes)
+        trackingDropdownButton = findViewById(R.id.series_detail_tracking_dropdown_button)
+        notesLabelHeader = findViewById(R.id.series_detail_notes_header)
+        notesTextView = findViewById(R.id.series_detail_notes)
+        notesDropdownButton = findViewById(R.id.series_detail_notes_dropdown_button)
 
         trackingDropdownButton.setOnClickListener(null)
         trackingDropdownButton.setOnClickListener {
-            trackingNotesTextView.toggleVisibility(MATCH_PARENT, WRAP_CONTENT)
+            trackingNotesTextView.toggleVisibility()
             (it as ExpandButton).toggleExpand()
         }
 
         notesDropdownButton.setOnClickListener(null)
         notesDropdownButton.setOnClickListener {
-            notesBox.toggleVisibility(MATCH_PARENT, MATCH_PARENT)
+            notesTextView.toggleVisibility()
             (it as ExpandButton).toggleExpand()
         }
 
@@ -103,21 +100,18 @@ class SeriesDetailBox(context: Context, attrs: AttributeSet?, defStyleAttr: Int)
             if (it != null && it != "") {
                 trackingNotesTextView.text = it
                 trackingNotesHeader.visibility = TextView.VISIBLE
-                trackingNotesTextView.visibility = TextView.VISIBLE
             } else {
                 trackingNotesHeader.visibility = TextView.GONE
-                trackingNotesTextView.visibility = TextView.GONE
             }
         }
 
         series?.series?.notes.let {
             if (it != null && it != "") {
                 notesTextView.text = it
+                Log.d(TAG, "FUBUWMO $it")
                 notesLabelHeader.visibility = TextView.VISIBLE
-                notesTextView.visibility = TextView.VISIBLE
             } else {
                 notesLabelHeader.visibility = TextView.GONE
-                notesTextView.visibility = TextView.GONE
             }
         }
 

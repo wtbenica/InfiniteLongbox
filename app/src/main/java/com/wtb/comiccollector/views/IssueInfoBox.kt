@@ -13,18 +13,17 @@ import com.wtb.comiccollector.R
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
-class IssueInfoBox(context: Context, attrs: AttributeSet? = null) : NestedScrollView(context, attrs) {
+class IssueInfoBox(context: Context, attrs: AttributeSet? = null) : NestedScrollView(
+    context,
+    attrs, R.layout.issue_detail_issue_info_box
+) {
 
     private var releaseDate: LocalDate? = null
     private var coverDate: LocalDate? = null
     private var notes: String? = null
 
-    val view: View = inflate(context, R.layout.issue_detail_issue_info_box, null)
-    val linearLayout: LinearLayout = view.findViewById(R.id.issue_info_box)
-
-    init {
-        addView(linearLayout)
-    }
+    val view: View = inflate(context, R.layout.issue_detail_issue_info_box, this)
+    val linearLayout: LinearLayout = view.findViewById(R.id.info_wrapper)
 
     fun update(releaseDate: LocalDate?, coverDate: LocalDate?, notes: String?) {
         if (this.releaseDate != releaseDate || this.coverDate != coverDate || this.notes != notes) {
@@ -35,7 +34,8 @@ class IssueInfoBox(context: Context, attrs: AttributeSet? = null) : NestedScroll
                     IssueInfoRow(
                         context,
                         context.getString(R.string.label_release_date),
-                        it.format(DateTimeFormatter.ofPattern("MMM d, YYYY"))
+                        it.format(DateTimeFormatter.ofPattern("MMM d, YYYY")),
+                        VERTICAL
                     )
                 )
             }
@@ -44,7 +44,8 @@ class IssueInfoBox(context: Context, attrs: AttributeSet? = null) : NestedScroll
                     IssueInfoRow(
                         context,
                         context.getString(R.string.label_cover_date),
-                        it.format(DateTimeFormatter.ofPattern("MMM YYYY"))
+                        it.format(DateTimeFormatter.ofPattern("MMM YYYY")),
+                        VERTICAL
                     )
                 )
             }

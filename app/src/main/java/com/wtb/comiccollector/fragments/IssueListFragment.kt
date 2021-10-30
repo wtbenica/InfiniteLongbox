@@ -2,6 +2,7 @@ package com.wtb.comiccollector.fragments
 
 import android.animation.ValueAnimator
 import android.os.Bundle
+import android.util.Log
 import android.view.*
 import android.view.View.GONE
 import android.view.View.VISIBLE
@@ -34,25 +35,36 @@ import kotlinx.coroutines.launch
 class IssueListFragment : ListFragment<FullIssue, IssueListFragment.IssueViewHolder>() {
 
     override val viewModel: IssueListViewModel by viewModels()
+    override val minColSizeDp = 350
+    private var mSeries: FullSeries? = null
+    private var seriesDetailBox: SeriesDetailBox? = null
 
-    private fun updateSeriesDetailFragment(series: FullSeries) {
-        val seriesDetailBox = SeriesDetailBox(requireContext(), series)
-        details.addView(seriesDetailBox)
+    private fun updateSeriesDetailFragment(series: FullSeries, newBox: Boolean = false) {
+        seriesDetailBox.let {
+            if (newBox || it == null) {
+                details.removeAllViews()
+                seriesDetailBox = SeriesDetailBox(requireContext(), series)
+                details.addView(seriesDetailBox)
+            } else {
+                it.setSeries(series)
+            }
+        }
+
         updateBottomPadding()
     }
 
-    override fun getLayoutManager(): RecyclerView.LayoutManager {
-        return GridLayoutManager(context, NUM_COLS)
-    }
+    override fun getLayoutManager(): RecyclerView.LayoutManager =
+        GridLayoutManager(context, numCols)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         val itemDecoration =
             ItemOffsetDecoration(
-                resources.getDimension(R.dimen.margin_default).toInt() * 3 / 2,
-                numCols = NUM_COLS
+                itemOffset = resources.getDimension(R.dimen.margin_default).toInt() * 3 / 2,
+                numCols = numCols
             )
+
         listRecyclerView.addItemDecoration(itemDecoration)
 
         val adapter = getAdapter()
@@ -69,10 +81,22 @@ class IssueListFragment : ListFragment<FullIssue, IssueListFragment.IssueViewHol
         viewModel.seriesLiveData.observe(
             viewLifecycleOwner,
             { fullSeries ->
-                fullSeries?.let { updateSeriesDetailFragment(it) }
-                callback?.setTitle(fullSeries?.series?.seriesName)
+                fullSeries?.let {
+                    mSeries = fullSeries
+                    updateSeriesDetailFragment(it)
+                    callback?.setTitle(fullSeries.series.seriesName)
+                }
             }
         )
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        mSeries?.let {
+            Log.d(TAG, "FUBUWMO")
+            updateSeriesDetailFragment(it, true)
+        }
     }
 
     override fun getAdapter(): IssueAdapter = IssueAdapter()
@@ -117,7 +141,7 @@ class IssueListFragment : ListFragment<FullIssue, IssueListFragment.IssueViewHol
     ), View.OnClickListener, AddCollectionButton.AddCollectionCallback {
         private var fullIssue: FullIssue? = null
         private val progressCover: ProgressBar = itemView.findViewById(R.id.progress_cover_download)
-        private val bg: ImageView = itemView.findViewById(R.id.bg_list_item_issue)
+        private val bg: ImageView = itemView.findViewById(R.id.list_item_issue_bg)
         private val coverImageView: ImageView = itemView.findViewById(R.id.list_item_cover)
         private val issueNameBox: ConstraintLayout =
             itemView.findViewById(R.id.list_item_issue_box)
@@ -197,16 +221,16 @@ class IssueListFragment : ListFragment<FullIssue, IssueListFragment.IssueViewHol
 
             issueNameBox.setBackgroundResource(
                 if (inCollection)
-                    R.drawable.bg_issue_list_item_in_collection
+                    R.drawable.issue_list_item_in_collection_bg
                 else
-                    R.drawable.bg_issue_list_item_not_in_collection
+                    R.drawable.issue_list_item_not_in_collection_bg
             )
 
             issueNumTextView.text = this.fullIssue?.issue?.issueNumRaw
         }
     }
 
-    interface IssueListCallback : ListFragmentCallback {
+    interface IssueListCallback : ListFragment.ListFragmentCallback {
         fun onIssueSelected(issue: Issue)
         fun onNewIssue(issueId: Int)
         fun addToCollection(issue: FullIssue)
@@ -226,6 +250,5 @@ class IssueListFragment : ListFragment<FullIssue, IssueListFragment.IssueViewHol
         }
 
         private const val TAG = APP + "IssueListFragment"
-        private const val NUM_COLS = 2
     }
 }

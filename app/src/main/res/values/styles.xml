@@ -18,14 +18,13 @@
         <item name="titleTextColor">?attr/textColorTitleBar</item>
         <item name="titleTextAppearance">@style/myActionBarText</item>
         <item name="layout_scrollFlags">scroll|enterAlways</item>
-        <item name="android:background">@android:color/transparent</item>
     </style>
 
     <style name="myActionBarText" parent="TextAppearance.AppCompat.Widget.ActionBar.Title">
         <item name="android:textSize">24sp</item>
         <item name="android:textStyle">bold</item>
         <item name="textAllCaps">true</item>
-        <item name="android:fontFamily">@font/archivo_black</item>
+        <item name="android:fontFamily">?attr/fontBlock</item>
     </style>
 
     <style name="mCardView" parent="Widget.MaterialComponents.CardView">
@@ -33,41 +32,5 @@
         <item name="cardMaxElevation">@dimen/card_elevation</item>
         <item name="cardCornerRadius">@dimen/radius_default</item>
         <item name="cardUseCompatPadding">false</item>
-    </style>
-
-    <style name="myFabStyle" parent="Widget.Design.FloatingActionButton">
-        <item name="android:backgroundTint">?attr/colorSecondary</item>
-        <item name="borderWidth">0dp</item>
-    </style>
-
-    <style name="myButtonBarStyle" parent="Widget.AppCompat.ButtonBar">
-
-    </style>
-
-    <style name="myButtonStyle" parent="Widget.MaterialComponents.Button.TextButton">
-        <item name="android:textColor">?attr/colorPrimaryDark</item>
-        <item name="android:fontFamily">@font/archivo_black</item>
-    </style>
-
-    <style name="myButtonBarButtonStyle" parent="Widget.MaterialComponents.Button.TextButton">
-        <item name="android:textColor">@color/my_button_bar_button</item>
-        <item name="cornerRadius">@dimen/margin_default</item>
-        <item name="android:fontFamily">@font/archivo_black</item>
-        <item name="android:textStyle">bold</item>
-    </style>
-
-    <style name="IssueDetailVariantSpinnerStyle" parent="Widget.AppCompat.Spinner">
-        <item name="android:layout_height">?attr/dropdownListPreferredItemHeight</item>
-        <item name="android:textColor">?attr/colorOnPrimary</item>
-        <item name="android:popupBackground">?attr/colorOnSecondary</item>
-    </style>
-
-    <style name="AddCollectionButtonStyle" parent="Widget.AppCompat.Button">
-        <item name="android:layout_width">48dp</item>
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:background">@android:color/transparent</item>
-        <item name="android:tint">?attr/textColorBody</item>
-        <item name="android:textSize">8sp</item>
-        <item name="android:scaleType">fitCenter</item>
     </style>
 </resources>

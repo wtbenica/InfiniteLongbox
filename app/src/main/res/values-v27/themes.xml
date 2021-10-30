@@ -2,7 +2,6 @@
 <resources>
 
     <style name="Theme.ComicCollector" parent="BaseTheme">
-        <!-- Status bar color. -->
         <item name="android:windowLightNavigationBar">true</item>
     </style>
 </resources>

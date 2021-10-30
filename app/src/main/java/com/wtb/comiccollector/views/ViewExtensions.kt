@@ -2,13 +2,16 @@ package com.wtb.comiccollector.views
 
 import android.animation.*
 import android.view.View
+import android.view.View.GONE
 import android.view.View.MeasureSpec.*
 import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.view.animation.DecelerateInterpolator
 import androidx.core.view.marginTop
 import androidx.core.view.updateMargins
+import com.wtb.comiccollector.MainActivity
 import com.wtb.comiccollector.R
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 private const val DURATION = 200L
 
@@ -24,6 +27,10 @@ internal fun View.hide() {
                 animateHeight(height, 0, DURATION)
                 animateMargins(this@hide.marginTop, 0, DURATION)
             }
+
+            override fun onAnimationEnd(animation: Animator?) {
+                this@hide.visibility = GONE
+            }
         })
         play(fadeoutAnimation).with(shrinkYAnimation).with(shrinkXAnimation).apply {
             interpolator = DecelerateInterpolator()
@@ -32,18 +39,24 @@ internal fun View.hide() {
     }
 }
 
+@ExperimentalCoroutinesApi
 internal fun View.show() {
     this@show.visibility = View.VISIBLE
+    val tt = measuredHeight
     scaleY = 1f
     val lp = layoutParams
     lp.height = WRAP_CONTENT
     layoutParams = lp
-    measure(0, 0)
+    measure(
+        makeMeasureSpec((context as MainActivity).screenSize.x, AT_MOST), UNSPECIFIED
+    )
     val hh = measuredHeight
+
     this@show.scaleY = 0f
     val lp2 = layoutParams
     lp2.height = 0
     layoutParams = lp2
+
     val growYAnimation = ObjectAnimator.ofFloat(this, "scaleY", 0f, 1f)
     val growXAnimation = ObjectAnimator.ofFloat(this, "scaleX", 0f, 1f)
     val fadeAnimation = ObjectAnimator.ofFloat(this, "alpha", 0f, 1f)
@@ -150,7 +163,7 @@ private fun View.animateHeight(startValue: Int, endValue: Int, duration: Long) {
     if (endValue == 0) {
         layoutHeightAnimator.addListener(object : AnimatorListenerAdapter() {
             override fun onAnimationEnd(animation: Animator?) {
-                this@animateHeight.visibility = View.GONE
+                this@animateHeight.visibility = GONE
             }
         })
     }
@@ -160,13 +173,13 @@ private fun View.animateHeight(startValue: Int, endValue: Int, duration: Long) {
     layoutHeightAnimator.start()
 }
 
-internal fun View.toggleVisibility(layout_width: Int, layout_height: Int): Int {
+internal fun View.toggleVisibility(): Boolean {
     val isExpanded = this.visibility == View.VISIBLE
     if (isExpanded) {
         this.hide()
     } else {
         this.show()
     }
-    return this.visibility
+    return !isExpanded
 }
 

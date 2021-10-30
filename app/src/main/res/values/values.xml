@@ -1,22 +1,98 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Colors -->
     <attr name="colorSecondaryDark" format="reference" />
     <attr name="colorSecondaryLight" format="reference" />
+    <attr name="colorPrimaryDarkDark" format="reference" />
     <attr name="colorPrimaryLight" format="reference" />
     <attr name="colorTransparentFilter" format="reference" />
+    <attr name="colorTransparentFilterLow" format="reference" />
     <attr name="colorPrimaryTransparent" format="color" />
     <attr name="colorSecondaryTransparent" format="color" />
 
+    <!-- Fonts -->
+    <attr name="fontBlock" format="reference" />
+    <attr name="fontRegular" format="reference" />
+
+    <!-- MainActivity Theme Values -->
     <attr name="colorUi" format="reference" />
     <attr name="colorUiBackground" format="reference" />
+    <attr name="colorUiInterface" formate="reference" />
+
+    <!-- FilterFragment Theme Values -->
+    <attr name="imageLabelBackground" format="reference" />
+    <attr name="imageLabelBackgroundColor" format="reference" />
+    <attr name="imageLabelTint" format="reference" />
+    <attr name="searchBarTextColorHint" format="reference|color" />
+    <attr name="searchBarTextColor" format="reference" />
+    <attr name="searchBarBackground" format="reference" />
+    <attr name="searchBarPopupBackground" format="reference" />
+    <attr name="filterChipGroupBackground" format="reference" />
+
+    <!-- IssueDetailFragment -->
+    <attr name="fragmentIssueDetailButtonColor" format="reference" />
+
+    <!-- IssueDetailFragment Variant Spinner -->
+    <attr name="fragmentIssueDetailVariantSpinnerBgColor" format="reference" />
+    <attr name="fragmentIssueDetailVariantSpinnerTextBg" format="reference" />
+    <attr name="fragmentIssueDetailVariantSpinnerTextColor" format="reference" />
+
+    <!-- IssueInfoRow -->
+    <attr name="fragmentIssueDetailInfoRowLabelBg" format="reference" />
+    <attr name="fragmentIssueDetailInfoRowLabelBgColor" format="reference" />
+    <attr name="fragmentIssueDetailInfoRowLabelTextColor" format="reference" />
+
+    <!-- SeriesDetailBox Theme Values -->
+    <attr name="styleSeriesDetail" format="reference" />
+    <attr name="seriesDetailBackground" format="reference" />
+    <attr name="seriesDetailLabelColor" format="reference" />
+    <attr name="seriesDetailTextColor" format="reference" />
+
+    <!-- ListItem -->
+    <attr name="listItemTitleTextColor" format="reference" />
+    <attr name="listItemBackground" format="reference" />
+    <attr name="listItemBackgroundBase" format="reference" />
+    <attr name="listItemBackgroundFilter" format="reference|color" />
+
+    <!-- ListItemSeries -->
+    <attr name="listItemSeriesTitleCardBackground" format="reference" />
+    <attr name="listItemSeriesProgressBarBackground" format="reference" />
+    <attr name="listItemSeriesProgressBarIndeterminateTint" format="reference" />
+
+    <!-- ListItemIssue -->
+    <attr name="listItemIssueBg" format="reference" />
+    <attr name="listItemIssueBoxBg" format="reference" />
+    <attr name="listItemIssueProgressBarBg" format="reference" />
+    <attr name="listItemIssueProgressBarIndetTint" format="reference" />
+    <attr name="listItemIssueBoxTextColor" format="reference" />
+
+    <!-- ListItemSimple -->
+    <attr name="listItemSimpleTitleTextBackground" format="reference" />
+    <attr name="listItemSimpleMetaBoxBackground" format="reference" />
+
+    <!-- StoryBox -->
+    <attr name="storyBoxTitleBarBackground" format="reference" />
+    <attr name="storyBoxTitleBarBackgroundColor" format="reference" />
+    <attr name="storyBoxDropdownButtonTitleBackground" format="reference" />
+    <attr name="storyBoxSubtitleTextBackground" format="reference" />
+    <attr name="storyBoxRoleNameTextBackground" format="reference" />
+    <attr name="storyBoxCreatorLinkTextColor" format="reference" />
+    <attr name="storyBoxCreatorNameTextColor" format="reference" />
+    <attr name="storyBoxRoleNameTextColor" format="reference" />
+    <attr name="storyBoxContentBoxTextColor" format="reference" />
 
     <attr name="colorStoryBoxTitle" format="reference" />
     <attr name="colorStoryBoxSubtitle" format="reference" />
-    <attr name="styleCreatorLink" format="reference" />
+    <attr name="styleLinkTextView" format="reference" />
     <attr name="styleIssueInfoBox" format="reference" />
-    <attr name="styleSeriesDetail" format="reference" />
     <attr name="styleAddCollectionButton" format="reference" />
-    <attr name="listItemSeriesBackground" format="reference" />
+
+    <!-- CoverDialogFragment -->
+    <attr name="dialogFragmentCoverLayoutBackground" format="reference" />
+    <attr name="dialogFragmentCoverLayoutPadding" format="reference" />
+    <attr name="dialogFragmentCoverInfoCardBackground" format="reference" />
+    <attr name="dialogFragmentCoverInfoCardTextColor" format="reference" />
+
 
     <attr name="textColorTitleBar" format="reference" />
     <attr name="textColorTitle" format="reference" />
@@ -25,6 +101,7 @@
 
     <attr name="colorChipBgActive" format="reference" />
     <attr name="colorChipBgInactive" format="reference" />
-    <attr name="colorChipFgActive" format="reference" />
-    <attr name="colorChipFgInactive" format="reference" />
+    <attr name="colorChipStrokeActive" format="reference" />
+    <attr name="colorChipStrokeInactive" format="reference" />
+    <attr name="colorChipText" format="reference" />
 </resources>
