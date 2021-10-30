@@ -40,6 +40,5 @@
     <dimen name="list_item_issue_cover_spacing">8dp</dimen>
 
     <!-- StoryBox -->
-    <dimen name="story_box_title_bar_text">18sp</dimen>
 
 </resources>
