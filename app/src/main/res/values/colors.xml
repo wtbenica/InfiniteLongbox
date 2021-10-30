@@ -2,11 +2,11 @@
 <resources>
 
     <color name="fantasia">#c4f462</color>
-    <color name="fantasia_transparent">#e5E8FDAD</color>
+    <color name="fantasia_transparent">#EEE8FDAD</color>
     <color name="fantasia_light">#F5FFD9</color>
     <color name="fantasia_variant">#E8FDAD</color>
     <color name="fantasia_dark">#8ACD00</color>
-    <color name="fantasia_dark_dark">#8ACD00</color>
+    <color name="fantasia_dark_dark">#62A500</color>
     <color name="fantasia_text">#D222</color>
 
     <color name="argonaut">#E8FDAD</color>
@@ -24,6 +24,6 @@
     <color name="text_character">#FFFF00</color>
     <color name="text_publisher">#555</color>
 
-    <color name="transparent_filter">#CFFF</color>
+    <color name="transparent_filter">#DFFF</color>
     <color name="transparent_filter_low">#aac4f462</color>
 </resources>

@@ -10,6 +10,7 @@
         <item name="colorPrimaryVariant">@color/fantasia_variant</item>
         <item name="colorPrimary">@color/fantasia</item>
         <item name="colorPrimaryDark">@color/fantasia_dark</item>
+        <item name="colorPrimaryDarkDark">@color/fantasia_dark_dark</item>
 
         <item name="colorOnPrimary">@color/fantasia_text</item>
 
@@ -34,7 +35,7 @@
         <item name="android:windowLightStatusBar">true</item>
 
         <!-- Text Colors -->
-        <item name="textColorTitleBar">?attr/colorOnPrimary</item>
+        <item name="textColorTitleBar">?attr/colorPrimaryDarkDark</item>
         <item name="textColorTitle">?attr/colorOnPrimary</item>
         <item name="textColorSubtitle">?attr/colorSecondaryDark</item>
         <item name="textColorBody">?attr/colorOnPrimary</item>
@@ -94,7 +95,7 @@
 
         <!-- ListItemSeries -->
         <item name="listItemTitleTextColor">?attr/textColorTitle</item>
-        <item name="listItemSeriesTitleCardBackground">?attr/colorTransparentFilter</item>
+        <item name="listItemSeriesTitleCardBackground">?attr/colorPrimaryTransparent</item>
         <item name="listItemSeriesProgressBarBackground">?attr/colorSecondaryDark</item>
         <item name="listItemSeriesProgressBarIndeterminateTint">?attr/colorPrimaryDark</item>
 
