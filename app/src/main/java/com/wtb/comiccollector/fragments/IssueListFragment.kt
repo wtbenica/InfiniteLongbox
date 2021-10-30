@@ -2,7 +2,6 @@ package com.wtb.comiccollector.fragments
 
 import android.animation.ValueAnimator
 import android.os.Bundle
-import android.util.Log
 import android.view.*
 import android.view.View.GONE
 import android.view.View.VISIBLE
@@ -94,7 +93,6 @@ class IssueListFragment : ListFragment<FullIssue, IssueListFragment.IssueViewHol
         super.onResume()
 
         mSeries?.let {
-            Log.d(TAG, "FUBUWMO")
             updateSeriesDetailFragment(it, true)
         }
     }
@@ -172,8 +170,8 @@ class IssueListFragment : ListFragment<FullIssue, IssueListFragment.IssueViewHol
             this.fullIssue?.let { (callback as IssueListCallback?)?.removeFromCollection(it) }
         }
 
-        fun bind(issue: FullIssue?) {
-            this.fullIssue = issue
+        fun bind(item: FullIssue?) {
+            this.fullIssue = item
 
             this.fullIssue?.let { viewModel.updateIssueCover(it.issue.issueId) }
             val coverUri = this.fullIssue?.coverUri
@@ -208,12 +206,12 @@ class IssueListFragment : ListFragment<FullIssue, IssueListFragment.IssueViewHol
                 animation.start()
             }
 
-            val inCollection = fullIssue?.myCollection?.collectionId != null
+            val inCollection = this.fullIssue?.myCollection?.collectionId != null
             addCollectionButton.inCollection = inCollection
 
-            val variantName: String? = this.fullIssue?.issue?.variantName
-            if (variantName?.isNotEmpty() == true) {
-                issueVariantName.text = variantName
+            val issue = this.fullIssue?.issue
+            if (issue?.variantName?.isNotEmpty() == true && issue.variantOf != null) {
+                issueVariantName.text = issue.variantName
                 issueVariantName.visibility = VISIBLE
             } else {
                 issueVariantName.visibility = GONE
@@ -230,7 +228,7 @@ class IssueListFragment : ListFragment<FullIssue, IssueListFragment.IssueViewHol
         }
     }
 
-    interface IssueListCallback : ListFragment.ListFragmentCallback {
+    interface IssueListCallback : ListFragmentCallback {
         fun onIssueSelected(issue: Issue)
         fun onNewIssue(issueId: Int)
         fun addToCollection(issue: FullIssue)
