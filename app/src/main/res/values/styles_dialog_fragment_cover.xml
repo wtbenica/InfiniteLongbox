@@ -25,7 +25,7 @@
 
     <style name="CoverDialogTitleText" parent="TextAppearance.AppCompat.Light.SearchResult.Title">
         <item name="android:textStyle">bold</item>
-        <item name="android:textSize">@dimen/text_med</item>
+        <item name="android:textSize">@dimen/text_small</item>
         <item name="android:fontFamily">?attr/fontBlock</item>
     </style>
 </resources>
