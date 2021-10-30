@@ -1,32 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     style="@style/DialogFragmentCoverLayout"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:layout_height="match_parent">
 
     <ImageView
         android:id="@+id/cover_view"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginBottom="@dimen/margin_default"
-        android:layout_weight="1"
         android:contentDescription="@string/description_issue_cover_set"
+        app:layout_constraintBottom_toTopOf="@id/dialog_fragment_cover_info_card"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
         tools:src="@drawable/cover_sample" />
 
     <androidx.cardview.widget.CardView
         android:id="@+id/dialog_fragment_cover_info_card"
         style="@style/DialogFragmentCoverInfoCard"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_weight="0">
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/cover_view">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             style="@style/DialogFragmentCoverInfoCardBackground"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:padding="@dimen/margin_wide">
 
             <TextView
                 android:id="@+id/tv_issue"
@@ -37,11 +42,11 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                tools:text="Skippy #42" />
+                tools:text="Doom Patrol: Weight of the Worlds #1" />
 
             <TextView
-                style="@style/DialogFragmentCoverTitleTextView"
                 android:id="@+id/tv_variant_name"
+                style="@style/DialogFragmentCoverTitleTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 app:layout_constraintBottom_toBottomOf="parent"
@@ -50,4 +55,4 @@
                 tools:text="Lucky Variant" />
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.cardview.widget.CardView>
-</LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

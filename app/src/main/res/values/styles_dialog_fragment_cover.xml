@@ -9,7 +9,7 @@
     <style name="DialogFragmentCoverInfoCard" parent="Widget.MaterialComponents.CardView">
         <item name="android:layout_margin">@dimen/margin_default</item>
         <item name="cardCornerRadius">@dimen/margin_wide</item>
-        <item name="cardElevation">@dimen/margin_default</item>
+        <item name="cardElevation">0dp</item>
     </style>
 
     <style name="DialogFragmentCoverInfoCardBackground">
@@ -18,8 +18,9 @@
 
     <style name="DialogFragmentCoverTitleTextView" parent="Widget.MaterialComponents.TextView">
         <item name="android:textAppearance">@style/CoverDialogTitleText</item>
-        <item name="android:layout_margin">@dimen/margin_default</item>
+        <item name="android:layout_margin">0dp</item>
         <item name="android:textColor">?attr/dialogFragmentCoverInfoCardTextColor</item>
+        <item name="android:textAlignment">center</item>
     </style>
 
     <style name="CoverDialogTitleText" parent="TextAppearance.AppCompat.Light.SearchResult.Title">
