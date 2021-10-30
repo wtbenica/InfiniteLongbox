@@ -2,7 +2,6 @@
 <resources>
     <style name="mCardView.ListItemIssue">
         <item name="cardCornerRadius">@dimen/radius_list_item_issue</item>
-        <item name="cardElevation">@dimen/margin_narrow</item>
         <item name="android:animateLayoutChanges">true</item>
     </style>
 

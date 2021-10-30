@@ -8,13 +8,13 @@
     <!-- Radii -->
     <dimen name="radius_default">8dp</dimen>
 
-    <dimen name="card_elevation">4dp</dimen>
+    <dimen name="card_elevation">0dp</dimen>
 
     <dimen name="radius_list_item_issue">8dp</dimen>
 
-    <dimen name="radius_list_item_series">34dp</dimen>
-    <dimen name="item_offset_vert_list_item_series">20dp</dimen>
-    <dimen name="item_offset_horz_list_item_series">16dp</dimen>
+    <!--    <dimen name="radius_list_item_series">34dp</dimen>-->
+    <!--    <dimen name="item_offset_vert_list_item_series">20dp</dimen>-->
+    <!--    <dimen name="item_offset_horz_list_item_series">16dp</dimen>-->
 
     <dimen name="peek_height">48dp</dimen>
     <dimen name="chip_icon_size">20dp</dimen>
@@ -25,7 +25,6 @@
     <dimen name="text_large">18sp</dimen>
 
     <dimen name="radius_thicc">48dp</dimen>
-    <dimen name="list_item_issue_cover_spacing">40dp</dimen>
 
     <!-- ListItem -->
     <dimen name="list_item_title_text_size">18sp</dimen>
@@ -33,6 +32,12 @@
 
     <!-- ListItemSeries -->
     <dimen name="list_item_series_card_height">200dp</dimen>
+    <dimen name="radius_list_item_series">8dp</dimen>
+    <dimen name="item_offset_vert_list_item_series">8dp</dimen>
+    <dimen name="item_offset_horz_list_item_series">8dp</dimen>
+
+    <!-- ListItemIssue -->
+    <dimen name="list_item_issue_cover_spacing">8dp</dimen>
 
     <!-- StoryBox -->
     <dimen name="story_box_title_bar_text">18sp</dimen>

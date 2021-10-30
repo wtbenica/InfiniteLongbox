@@ -60,7 +60,7 @@ class IssueListFragment : ListFragment<FullIssue, IssueListFragment.IssueViewHol
 
         val itemDecoration =
             ItemOffsetDecoration(
-                itemOffset = resources.getDimension(R.dimen.margin_default).toInt() * 3 / 2,
+                itemOffset = resources.getDimension(R.dimen.margin_default).toInt(),
                 numCols = numCols
             )
 

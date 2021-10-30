@@ -23,10 +23,12 @@ class ItemOffsetDecoration(itemOffset: Int, itemOffsetHorizontal: Int? = null, n
 
         val topDivisor = if (childAdapterPosition < mNumCols) 1 else 2
         val bottomDivisor = if (childAdapterPosition >= itemCount / mNumCols * mNumCols) 1 else 2
+        val leftDivisor = if (childAdapterPosition % mNumCols < mNumCols - 1) 1 else 2
+        val rightDivisor = if (childAdapterPosition % mNumCols > 0) 1 else 2
 
         outRect.top = mItemOffset / topDivisor
         outRect.bottom = mItemOffset / bottomDivisor
-        outRect.left = mItemOffsetHorizontal ?: mItemOffset
-        outRect.right = mItemOffsetHorizontal ?: mItemOffset
+        outRect.left = (mItemOffsetHorizontal ?: mItemOffset) / leftDivisor
+        outRect.right = (mItemOffsetHorizontal ?: mItemOffset) / rightDivisor
     }
 }
