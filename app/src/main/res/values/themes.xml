@@ -120,6 +120,12 @@
         <item name="storyBoxRoleNameTextColor">?attr/colorOnPrimary</item>
         <item name="storyBoxContentBoxTextColor">?attr/colorOnPrimary</item>
 
+        <!-- CoverDialogFragment -->
+        <item name="dialogFragmentCoverLayoutBackground">?attr/colorUi</item>
+        <item name="dialogFragmentCoverLayoutPadding">@dimen/margin_default</item>
+        <item name="dialogFragmentCoverInfoCardBackground">?attr/colorPrimaryVariant</item>
+        <item name="dialogFragmentCoverInfoCardTextColor">?attr/textColorTitle</item>
+
         <item name="android:windowBackground">?attr/colorSecondaryLight</item>
 
         <item name="cardViewStyle">@style/mCardView</item>

@@ -86,6 +86,13 @@
     <attr name="styleIssueInfoBox" format="reference" />
     <attr name="styleAddCollectionButton" format="reference" />
 
+    <!-- CoverDialogFragment -->
+    <attr name="dialogFragmentCoverLayoutBackground" format="reference" />
+    <attr name="dialogFragmentCoverLayoutPadding" format="reference" />
+    <attr name="dialogFragmentCoverInfoCardBackground" format="reference" />
+    <attr name="dialogFragmentCoverInfoCardTextColor" format="reference" />
+
+
     <attr name="textColorTitleBar" format="reference" />
     <attr name="textColorTitle" format="reference" />
     <attr name="textColorSubtitle" format="reference" />
