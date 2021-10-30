@@ -27,18 +27,18 @@ class StaticUpdater private constructor(
      */
     internal suspend fun updateStaticAsync(progressUpdate: ProgressUpdateCard) {
 //        getAllPublishers(progressUpdate.publisherWrapper)
-//        database.transactionDao().upsertStatic(
-//            roles = getRoles(),
-//            storyTypes = getStoryTypes(),
-//            bondTypes = getBondTypes(),
-//        )
-//
-        if (!DEBUG) {
+        database.transactionDao().upsertStatic(
+            roles = getRoles(),
+            storyTypes = getStoryTypes(),
+            bondTypes = getBondTypes(),
+        )
+
+//        if (!DEBUG) {
 //            getAllSeries(progressUpdate.seriesWrapper)
-            getAllNameDetails(progressUpdate.creatorWrapper)
+//            getAllNameDetails(progressUpdate.creatorWrapper)
 //            getAllCharacters(progressUpdate.characterWrapper)
 //            getAllSeriesBonds()
-        }
+//        }
     }
 
     private suspend fun getAllPublishers(updateProgress: ProgressWrapper) {

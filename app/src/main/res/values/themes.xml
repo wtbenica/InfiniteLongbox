@@ -49,17 +49,19 @@
 
         <!-- MainActivity -->
         <item name="colorUi">?attr/colorSecondary</item>
-        <item name="colorUiBackground">?attr/colorSecondaryVariant</item>
+        <item name="colorUiBackground">?attr/colorSecondaryLight</item>
         <item name="colorUiInterface">?attr/textColorTitleBar</item>
 
         <!-- FilterFragment -->
-        <item name="imageLabelBackgroundColor">?attr/colorPrimaryDark</item>
+        <item name="imageLabelBackgroundColor">?attr/colorPrimary</item>
         <item name="imageLabelBackground">@drawable/filter_fragment_image_label_bg</item>
         <item name="imageLabelTint">?attr/colorChipText</item>
         <item name="searchBarTextColorHint">?attr/colorSecondary</item>
         <item name="searchBarTextColor">?attr/colorOnPrimary</item>
         <item name="searchBarBackground">@android:color/transparent</item>
         <item name="searchBarPopupBackground">?attr/colorPrimaryTransparent</item>
+        <item name="filterSectionBackground">@drawable/filter_fragment_section_background</item>
+        <item name="filterSectionBackgroundColor">?attr/colorSecondaryLight</item>
         <item name="filterChipGroupBackground">@android:color/transparent</item>
         <item name="colorChipBgActive">?attr/colorPrimaryVariant</item>
         <item name="colorChipBgInactive">?attr/colorSecondary</item>
@@ -84,7 +86,7 @@
 
         <!-- SeriesDetailBox -->
         <item name="styleSeriesDetail">@style/SeriesDetailBackground</item>
-        <item name="seriesDetailBackground">?attr/colorPrimaryVariant</item>
+        <item name="seriesDetailBackground">?attr/colorPrimary</item>
         <item name="seriesDetailLabelColor">?attr/colorOnPrimary</item>
         <item name="seriesDetailTextColor">?attr/colorOnPrimary</item>
 
@@ -101,10 +103,14 @@
 
         <!-- ListItemIssue -->
         <item name="listItemIssueBg">?attr/colorSecondaryLight</item>
-        <item name="listItemIssueBoxBg">@drawable/issue_list_item_in_collection_bg</item>
+        <item name="listItemIssueBoxBgInCollection">@drawable/issue_list_item_in_collection_bg
+        </item>
+        <item name="listItemIssueBoxBgColorInCollection">?attr/colorPrimaryVariant</item>
+        <item name="listItemIssueBoxBgColorNotInCollection">?attr/colorSecondaryVariant</item>
         <item name="listItemIssueProgressBarBg">?attr/colorPrimaryTransparent</item>
         <item name="listItemIssueProgressBarIndetTint">?attr/colorPrimary</item>
         <item name="listItemIssueBoxTextColor">?attr/textColorBody</item>
+
 
         <!-- ListItemSimple -->
         <item name="listItemSimpleTitleTextBackground">@drawable/list_item_simple_name_bg</item>

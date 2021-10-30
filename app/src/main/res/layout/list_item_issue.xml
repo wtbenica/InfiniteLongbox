@@ -54,7 +54,7 @@
             android:id="@+id/list_item_issue_box"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:background="?attr/listItemIssueBoxBg"
+            android:background="?attr/listItemIssueBoxBgInCollection"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent">

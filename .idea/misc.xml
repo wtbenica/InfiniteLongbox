@@ -15,6 +15,9 @@
         <entry key="app/src/main/res/drawable-night/bg_issue_list_item_not_in_collection.xml" value="0.28055555555555556" />
         <entry key="app/src/main/res/drawable-night/bg_series_title.xml" value="2.0" />
         <entry key="app/src/main/res/drawable-night/bg_story_box_subtitle_bar.xml" value="0.17383966244725738" />
+        <entry key="app/src/main/res/drawable-night/filter_fragment_image_label_bg.xml" value="0.553125" />
+        <entry key="app/src/main/res/drawable-night/issue_list_item_in_collection_bg.xml" value="0.553125" />
+        <entry key="app/src/main/res/drawable-night/issue_list_item_not_in_collection_bg.xml" value="0.27633587786259545" />
         <entry key="app/src/main/res/drawable/add_collection.xml" value="0.27341772151898736" />
         <entry key="app/src/main/res/drawable/add_wish_list.xml" value="0.1" />
         <entry key="app/src/main/res/drawable/added_to_collection_anim.xml" value="0.14722222222222223" />
@@ -46,8 +49,11 @@
         <entry key="app/src/main/res/drawable/done.xml" value="0.27341772151898736" />
         <entry key="app/src/main/res/drawable/dot_vortex.xml" value="0.21145833333333333" />
         <entry key="app/src/main/res/drawable/filter_fragment_image_label_bg.xml" value="0.13240740740740742" />
+        <entry key="app/src/main/res/drawable/filter_fragment_section_background.xml" value="0.2972222222222222" />
         <entry key="app/src/main/res/drawable/fofof.xml" value="0.27692307692307694" />
         <entry key="app/src/main/res/drawable/ic_search_24.xml" value="0.27692307692307694" />
+        <entry key="app/src/main/res/drawable/issue_list_item_in_collection_bg.xml" value="0.553125" />
+        <entry key="app/src/main/res/drawable/issue_list_item_not_in_collection_bg.xml" value="0.27633587786259545" />
         <entry key="app/src/main/res/drawable/list_item_simple_name_bg.xml" value="0.3021367521367521" />
         <entry key="app/src/main/res/drawable/primary_border.xml" value="0.1111111111111111" />
         <entry key="app/src/main/res/drawable/primary_dark_border.xml" value="0.1111111111111111" />
@@ -76,7 +82,7 @@
         <entry key="app/src/main/res/layout/auto_complete_filter_item.xml" value="0.67" />
         <entry key="app/src/main/res/layout/dialog_fragment_cover.xml" value="0.5" />
         <entry key="app/src/main/res/layout/fragment_display_issue.xml" value="0.38095238095238093" />
-        <entry key="app/src/main/res/layout/fragment_filter.xml" value="0.5898617511520737" />
+        <entry key="app/src/main/res/layout/fragment_filter.xml" value="0.1" />
         <entry key="app/src/main/res/layout/fragment_issue_detail.xml" value="0.67" />
         <entry key="app/src/main/res/layout/fragment_item_list.xml" value="0.1" />
         <entry key="app/src/main/res/layout/fragment_series_detail.xml" value="0.3856332703213611" />

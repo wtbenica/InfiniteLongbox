@@ -151,7 +151,8 @@ class Repository private constructor(val context: Context) {
                 MainActivity.activeJob = CoroutineScope(Dispatchers.IO).async {
                     withContext(Dispatchers.IO) {
 //                        Log.d(TAG, "STARTING UPDATE")
-//                        updater.updateStaticAsync(progressUpdate)
+//                        progressUpdate.show()
+                        updater.updateStaticAsync(progressUpdate)
                     }.let {
                         Log.d(TAG, "Static update done")
                         mainActivity.runOnUiThread {

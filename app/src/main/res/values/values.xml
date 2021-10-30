@@ -28,6 +28,8 @@
     <attr name="searchBarBackground" format="reference" />
     <attr name="searchBarPopupBackground" format="reference" />
     <attr name="filterChipGroupBackground" format="reference" />
+    <attr name="filterSectionBackground" format="reference" />
+    <attr name="filterSectionBackgroundColor" format="reference" />
 
     <!-- IssueDetailFragment -->
     <attr name="fragmentIssueDetailButtonColor" format="reference" />
@@ -61,7 +63,9 @@
 
     <!-- ListItemIssue -->
     <attr name="listItemIssueBg" format="reference" />
-    <attr name="listItemIssueBoxBg" format="reference" />
+    <attr name="listItemIssueBoxBgInCollection" format="reference" />
+    <attr name="listItemIssueBoxBgColorInCollection" format="reference" />
+    <attr name="listItemIssueBoxBgColorNotInCollection" format="reference" />
     <attr name="listItemIssueProgressBarBg" format="reference" />
     <attr name="listItemIssueProgressBarIndetTint" format="reference" />
     <attr name="listItemIssueBoxTextColor" format="reference" />

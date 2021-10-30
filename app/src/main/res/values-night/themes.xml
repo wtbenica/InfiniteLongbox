@@ -59,7 +59,8 @@
 
         <!-- ListItemIssue -->
         <item name="listItemIssueBg">?attr/colorSecondaryLight</item>
-        <item name="listItemIssueBoxBg">@drawable/issue_list_item_in_collection_bg</item>
+        <item name="listItemIssueBoxBgInCollection">@drawable/issue_list_item_in_collection_bg
+        </item>
         <item name="listItemIssueProgressBarBg">?attr/colorPrimaryTransparent</item>
         <item name="listItemIssueProgressBarIndetTint">?attr/colorPrimary</item>
         <item name="listItemIssueBoxTextColor">?attr/textColorBody</item>
