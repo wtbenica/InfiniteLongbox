@@ -2,11 +2,11 @@
 <resources>
 
     <color name="fantasia">#c4f462</color>
-    <color name="fantasia_transparent">#EEE8FDAD</color>
+    <color name="fantasia_transparent">#EDDCFFAD</color>
     <color name="fantasia_light">#F5FFD9</color>
-    <color name="fantasia_variant">#E8FDAD</color>
+    <color name="fantasia_variant">#DCFFAD</color>
     <color name="fantasia_dark">#8ACD00</color>
-    <color name="fantasia_dark_dark">#327B00</color>
+    <color name="fantasia_dark_dark">#28500C</color>
     <color name="fantasia_text">#D222</color>
 
     <color name="argonaut">#E8FDAD</color>

@@ -6,7 +6,7 @@
     </style>
 
     <style name="ListItemMetaBox.Simple">
-        <item name="android:background">?attr/listItemSimpleMetaBoxBackground</item>
+        <item name="android:background">?attr/listItemSimpleMetaBoxBg</item>
     </style>
 
     <style name="ListItemSeriesMeta.Simple" />

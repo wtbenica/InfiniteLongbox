@@ -17,7 +17,9 @@
     <!-- MainActivity Theme Values -->
     <attr name="colorUi" format="reference" />
     <attr name="colorUiBackground" format="reference" />
-    <attr name="colorUiInterface" formate="reference" />
+    <attr name="colorUiInterface" format="reference" />
+    <attr name="mainActivityProgressBarIndeterminateTint" format="reference" />
+    <attr name="mainActivityProgressBarBgColor" format="reference" />
 
     <!-- FilterFragment Theme Values -->
     <attr name="imageLabelBackground" format="reference" />
@@ -55,11 +57,14 @@
     <attr name="listItemBackground" format="reference" />
     <attr name="listItemBackgroundBase" format="reference" />
     <attr name="listItemBackgroundFilter" format="reference|color" />
+    <attr name="listItemTitleTextSize" format="reference" />
 
     <!-- ListItemSeries -->
+    <attr name="listItemSeriesLayoutHeight" format="reference|dimension" />
     <attr name="listItemSeriesTitleCardBackground" format="reference" />
     <attr name="listItemSeriesProgressBarBackground" format="reference" />
     <attr name="listItemSeriesProgressBarIndeterminateTint" format="reference" />
+    <attr name="listItemSeriesMetaTextSize" format="reference|dimension" />
 
     <!-- ListItemIssue -->
     <attr name="listItemIssueBg" format="reference" />
@@ -72,7 +77,11 @@
 
     <!-- ListItemSimple -->
     <attr name="listItemSimpleTitleTextBackground" format="reference" />
-    <attr name="listItemSimpleMetaBoxBackground" format="reference" />
+    <attr name="listItemSimpleTitleTextBackgroundColor" format="reference" />
+    <attr name="listItemSimpleMetaBoxBg" format="reference" />
+    <attr name="listItemSimpleMetaBoxBgColor" format="reference" />
+    <attr name="listItemSimpleMetaBoxBgStrokeColor" format="reference" />
+    <attr name="listItemSimpleMetaBoxCornerRadius" format="reference|dimension" />
 
     <!-- StoryBox -->
     <attr name="storyBoxTitleBarBackground" format="reference" />
@@ -103,9 +112,9 @@
     <attr name="textColorSubtitle" format="reference" />
     <attr name="textColorBody" format="reference" />
 
-    <attr name="colorChipBgActive" format="reference" />
-    <attr name="colorChipBgInactive" format="reference" />
-    <attr name="colorChipStrokeActive" format="reference" />
-    <attr name="colorChipStrokeInactive" format="reference" />
-    <attr name="colorChipText" format="reference" />
+    <attr name="chipActiveBgColor" format="reference" />
+    <attr name="chipInactiveBgColor" format="reference" />
+    <attr name="chipActiveStrokeColor" format="reference" />
+    <attr name="chipInactiveStrokeColor" format="reference" />
+    <attr name="chipTextColor" format="reference" />
 </resources>

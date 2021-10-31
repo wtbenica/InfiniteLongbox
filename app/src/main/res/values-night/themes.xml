@@ -28,17 +28,17 @@
         <!-- FilterFragment -->
         <item name="imageLabelBackground">@drawable/filter_fragment_image_label_bg</item>
         <item name="imageLabelBackgroundColor">?attr/colorPrimary</item>
-        <item name="imageLabelTint">?attr/colorChipText</item>
+        <item name="imageLabelTint">?attr/chipTextColor</item>
         <item name="searchBarTextColorHint">#6111</item>
         <item name="searchBarTextColor">?attr/colorOnPrimary</item>
         <item name="searchBarBackground">@android:color/transparent</item>
         <item name="searchBarPopupBackground">?attr/colorPrimaryTransparent</item>
         <item name="filterChipGroupBackground">@android:color/transparent</item>
-        <item name="colorChipBgActive">?attr/colorPrimaryVariant</item>
-        <item name="colorChipBgInactive">?attr/colorSecondaryTransparent</item>
-        <item name="colorChipStrokeActive">?attr/colorSecondary</item>
-        <item name="colorChipStrokeInactive">?attr/colorSecondary</item>
-        <item name="colorChipText">?attr/colorUi</item>
+        <item name="chipActiveBgColor">?attr/colorPrimaryVariant</item>
+        <item name="chipInactiveBgColor">?attr/colorSecondaryTransparent</item>
+        <item name="chipActiveStrokeColor">?attr/colorSecondary</item>
+        <item name="chipInactiveStrokeColor">?attr/colorSecondary</item>
+        <item name="chipTextColor">?attr/colorUi</item>
 
         <!-- SeriesDetailBox -->
         <item name="styleSeriesDetail">@style/SeriesDetailBackground</item>
@@ -67,7 +67,7 @@
 
         <!-- ListItemSimple -->
         <item name="listItemSimpleTitleTextBackground">@drawable/list_item_simple_name_bg</item>
-        <item name="listItemSimpleMetaBoxBackground">@drawable/bg_list_item_simple_meta</item>
+        <item name="listItemSimpleMetaBoxBg">@drawable/bg_list_item_simple_meta</item>
 
         <!-- StoryBox -->
         <item name="storyBoxTitleBarBackground">@drawable/bg_story_box_title_bar</item>

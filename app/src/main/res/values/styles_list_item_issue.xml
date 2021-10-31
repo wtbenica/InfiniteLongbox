@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="mCardView.ListItemIssue">
-        <item name="cardCornerRadius">@dimen/radius_list_item_issue</item>
+    <style name="ListItemIssue" parent="myCardView">
         <item name="android:animateLayoutChanges">true</item>
     </style>
 

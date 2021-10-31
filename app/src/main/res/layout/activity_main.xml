@@ -53,8 +53,9 @@
                         style="@style/Widget.AppCompat.ProgressBar.Horizontal"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
+                        android:background="?attr/mainActivityProgressBarBgColor"
                         android:indeterminateOnly="true"
-                        android:indeterminateTint="?attr/colorPrimary"/>
+                        android:indeterminateTint="?attr/mainActivityProgressBarIndeterminateTint" />
                 </FrameLayout>
             </FrameLayout>
         </com.google.android.material.appbar.AppBarLayout>

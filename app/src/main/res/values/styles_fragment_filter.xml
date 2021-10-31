@@ -69,20 +69,20 @@
     </style>
 
     <style name="myNewChip" parent="Widget.MaterialComponents.Chip.Entry">
+        <item name="chipCornerRadius">@dimen/radius_default</item>
+        <item name="chipMinHeight">36dp</item>
         <item name="chipStrokeColor">@color/selector_filter_chip_stroke</item>
         <item name="chipStrokeWidth">0dp</item>
+        <item name="checkedIconSize">?attr/chipIconSize</item>
         <item name="chipBackgroundColor">@color/selector_filter_chip_bg</item>
-        <item name="chipMinHeight">@dimen/chip_height</item>
-        <item name="chipCornerRadius">@dimen/margin_wide</item>
-        <item name="checkedIconSize">@dimen/chip_icon_size</item>
         <item name="checkedIconVisible">false</item>
         <item name="checkedIcon">@drawable/icon_check_filled</item>
-        <item name="checkedIconTint">?attr/colorChipText</item>
-        <item name="closeIconSize">@dimen/chip_icon_size</item>
-        <item name="closeIconTint">?attr/colorChipText</item>
+        <item name="checkedIconTint">?attr/chipTextColor</item>
+        <item name="closeIconSize">?attr/chipIconSize</item>
+        <item name="closeIconTint">?attr/chipTextColor</item>
         <item name="chipStartPadding">@dimen/margin_default</item>
         <item name="chipEndPadding">@dimen/margin_default</item>
-        <item name="android:textColor">?attr/colorChipText</item>
+        <item name="android:textColor">?attr/chipTextColor</item>
         <item name="android:textAppearance">@style/myChipText</item>
         <item name="android:animateLayoutChanges">true</item>
     </style>
