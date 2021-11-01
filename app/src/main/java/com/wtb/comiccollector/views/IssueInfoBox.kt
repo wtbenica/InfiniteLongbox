@@ -6,7 +6,6 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.LinearLayout
-import android.widget.LinearLayout.VERTICAL
 import android.widget.TextView
 import androidx.core.widget.NestedScrollView
 import com.wtb.comiccollector.R
@@ -34,8 +33,7 @@ class IssueInfoBox(context: Context, attrs: AttributeSet? = null) : NestedScroll
                     IssueInfoRow(
                         context,
                         context.getString(R.string.label_release_date),
-                        it.format(DateTimeFormatter.ofPattern("MMM d, YYYY")),
-                        VERTICAL
+                        it.format(DateTimeFormatter.ofPattern("MMM d, YYYY"))
                     )
                 )
             }
@@ -44,8 +42,7 @@ class IssueInfoBox(context: Context, attrs: AttributeSet? = null) : NestedScroll
                     IssueInfoRow(
                         context,
                         context.getString(R.string.label_cover_date),
-                        it.format(DateTimeFormatter.ofPattern("MMM YYYY")),
-                        VERTICAL
+                        it.format(DateTimeFormatter.ofPattern("MMM YYYY"))
                     )
                 )
             }
@@ -54,8 +51,7 @@ class IssueInfoBox(context: Context, attrs: AttributeSet? = null) : NestedScroll
                     IssueInfoRow(
                         context,
                         context.getString(R.string.label_notes),
-                        it,
-                        VERTICAL
+                        it
                     )
                 )
             }
@@ -76,7 +72,6 @@ class IssueInfoRow(
     context: Context,
     label: String? = null,
     infoText: String? = null,
-    direction: Int = HORIZONTAL,
     attrs: AttributeSet? = null
 ) : LinearLayout(context, attrs) {
 
@@ -84,16 +79,12 @@ class IssueInfoRow(
 
     private var labelView: TextView? = null
     private var infoTextView: TextView? = null
-    private var infoRowLayout: Int = R.layout.issue_detail_info_row
+    private var infoRowLayout: Int = R.layout.issue_detail_info_row_vertical
 
     init {
-        if (direction == VERTICAL)
-            infoRowLayout = R.layout.issue_detail_info_row_vertical
         val view = LayoutInflater.from(context).inflate(infoRowLayout, this)
         labelView = view.findViewById(R.id.info_row_label)
         infoTextView = view.findViewById(R.id.info_row_text)
-        if (direction == HORIZONTAL)
-            infoTextView?.isSingleLine = true
         this.labelView?.text = label
         this.infoTextView?.text = infoText
     }

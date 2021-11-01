@@ -34,7 +34,7 @@
         <item name="android:layout_width">?attr/dropdownListPreferredItemHeight</item>
         <item name="android:layout_height">?attr/dropdownListPreferredItemHeight</item>
         <item name="android:background">@drawable/filter_fragment_image_label_bg</item>
-        <item name="tint">?attr/textColorBody</item>
+        <item name="android:tint">?attr/imageLabelTint</item>
         <item name="android:layout_weight">0</item>
         <item name="android:layout_gravity">center</item>
     </style>

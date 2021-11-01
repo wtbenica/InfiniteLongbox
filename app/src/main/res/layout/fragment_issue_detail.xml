@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?attr/colorSecondaryLight"
+    android:background="?attr/fragmentIssueDetailBgColor"
     android:orientation="vertical">
 
     <ScrollView
@@ -167,6 +167,8 @@
                     android:layout_marginEnd="@dimen/margin_default"
                     android:layout_marginBottom="@dimen/margin_narrow"
                     android:layout_weight="1"
+                    android:backgroundTint="?attr/fragmentIssueDetailVariantSpinnerBgTint"
+                    android:spinnerMode="dialog"
                     android:contentDescription="Select variant"
                     android:elevation="1dp"
                     app:layout_constraintEnd_toEndOf="parent"

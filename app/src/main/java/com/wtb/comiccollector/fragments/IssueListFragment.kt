@@ -34,7 +34,7 @@ import kotlinx.coroutines.launch
 class IssueListFragment : ListFragment<FullIssue, IssueListFragment.IssueViewHolder>() {
 
     override val viewModel: IssueListViewModel by viewModels()
-    override val minColSizeDp = 350
+    override val minColSizeDp = 200
     private var mSeries: FullSeries? = null
     private var seriesDetailBox: SeriesDetailBox? = null
 
@@ -60,8 +60,7 @@ class IssueListFragment : ListFragment<FullIssue, IssueListFragment.IssueViewHol
 
         val itemDecoration =
             ItemOffsetDecoration(
-                itemOffset = resources.getDimension(R.dimen.margin_default).toInt(),
-                numCols = numCols
+                itemOffset = resources.getDimension(R.dimen.margin_default).toInt()
             )
 
         listRecyclerView.addItemDecoration(itemDecoration)

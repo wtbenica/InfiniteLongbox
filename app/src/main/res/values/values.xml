@@ -4,6 +4,7 @@
     <attr name="colorSecondaryDark" format="reference" />
     <attr name="colorSecondaryLight" format="reference" />
     <attr name="colorPrimaryDarkDark" format="reference" />
+    <attr name="colorSecondaryDarkDark" format="reference" />
     <attr name="colorPrimaryLight" format="reference" />
     <attr name="colorTransparentFilter" format="reference" />
     <attr name="colorTransparentFilterLow" format="reference" />
@@ -15,9 +16,9 @@
     <attr name="fontRegular" format="reference" />
 
     <!-- MainActivity Theme Values -->
-    <attr name="colorUi" format="reference" />
-    <attr name="colorUiBackground" format="reference" />
-    <attr name="colorUiInterface" format="reference" />
+    <attr name="colorUi" format="reference|color" />
+    <attr name="colorUiBackground" format="reference|color" />
+    <attr name="colorUiInterface" format="reference|color" />
     <attr name="mainActivityProgressBarIndeterminateTint" format="reference" />
     <attr name="mainActivityProgressBarBgColor" format="reference" />
 
@@ -31,15 +32,17 @@
     <attr name="searchBarPopupBackground" format="reference" />
     <attr name="filterChipGroupBackground" format="reference" />
     <attr name="filterSectionBackground" format="reference" />
-    <attr name="filterSectionBackgroundColor" format="reference" />
+    <attr name="filterSectionBackgroundColor" format="reference|color" />
 
     <!-- IssueDetailFragment -->
     <attr name="fragmentIssueDetailButtonColor" format="reference" />
+    <attr name="fragmentIssueDetailBgColor" format="reference" />
 
     <!-- IssueDetailFragment Variant Spinner -->
     <attr name="fragmentIssueDetailVariantSpinnerBgColor" format="reference" />
     <attr name="fragmentIssueDetailVariantSpinnerTextBg" format="reference" />
     <attr name="fragmentIssueDetailVariantSpinnerTextColor" format="reference" />
+    <attr name="fragmentIssueDetailVariantSpinnerBgTint" format="color|reference" />
 
     <!-- IssueInfoRow -->
     <attr name="fragmentIssueDetailInfoRowLabelBg" format="reference" />
@@ -51,6 +54,7 @@
     <attr name="seriesDetailBackground" format="reference" />
     <attr name="seriesDetailLabelColor" format="reference" />
     <attr name="seriesDetailTextColor" format="reference" />
+    <attr name="seriesDetailDropdownButtonTint" format="reference|color" />
 
     <!-- ListItem -->
     <attr name="listItemTitleTextColor" format="reference" />
@@ -60,6 +64,7 @@
     <attr name="listItemTitleTextSize" format="reference" />
 
     <!-- ListItemSeries -->
+    <attr name="listItemSeriesBg" format="reference|color" />
     <attr name="listItemSeriesLayoutHeight" format="reference|dimension" />
     <attr name="listItemSeriesTitleCardBackground" format="reference" />
     <attr name="listItemSeriesProgressBarBackground" format="reference" />
@@ -84,12 +89,17 @@
     <attr name="listItemSimpleMetaBoxCornerRadius" format="reference|dimension" />
 
     <!-- StoryBox -->
-    <attr name="storyBoxTitleBarBackground" format="reference" />
-    <attr name="storyBoxTitleBarBackgroundColor" format="reference" />
-    <attr name="storyBoxDropdownButtonTitleBackground" format="reference" />
-    <attr name="storyBoxSubtitleTextBackground" format="reference" />
-    <attr name="storyBoxRoleNameTextBackground" format="reference" />
-    <attr name="storyBoxCreatorLinkTextColor" format="reference" />
+    <attr name="storyBoxTitleBarBg" format="reference" />
+    <attr name="storyBoxTitleBarBgColor" format="reference" />
+    <attr name="storyBoxTitleBarTextColor" format="reference" />
+    <attr name="storyBoxTitleDropdownButtonBg" format="reference" />
+    <attr name="storyBoxTitleDropdownButtonTint" format="reference|color" />
+
+    <attr name="storyBoxSubtitleTextBg" format="reference" />
+    <attr name="storyBoxSubtitleTextBgColor" format="reference|color" />
+    <attr name="storyBoxSubtitleTextColor" format="reference|color" />
+    <attr name="storyBoxRoleNameTextBg" format="reference" />
+    <attr name="storyBoxLinkTextColor" format="reference" />
     <attr name="storyBoxCreatorNameTextColor" format="reference" />
     <attr name="storyBoxRoleNameTextColor" format="reference" />
     <attr name="storyBoxContentBoxTextColor" format="reference" />

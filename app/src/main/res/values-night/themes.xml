@@ -6,7 +6,6 @@
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>
         <item name="android:windowLightStatusBar">false</item>
-        <item name="android:windowLightNavigationBar">false</item>
 
         <!-- Text Colors -->
         <item name="textColorTitleBar">?attr/colorPrimaryDark</item>
@@ -21,30 +20,54 @@
         <item name="android:textColorPrimary">?attr/textColorBody</item>
         <item name="android:textColor">?attr/textColorBody</item>
 
-        <item name="colorUi">?attr/colorSecondaryDark</item>
-        <item name="colorUiBackground">?attr/colorSecondaryVariant</item>
+        <!-- MainActivity -->
+        <item name="colorUi">?attr/colorSecondaryDarkDark</item>
+        <item name="colorUiBackground">?attr/colorSecondaryDark</item>
         <item name="colorUiInterface">?attr/textColorTitleBar</item>
+        <item name="mainActivityProgressBarBgColor">?attr/colorPrimary</item>
+        <item name="mainActivityProgressBarIndeterminateTint">?attr/colorPrimaryDarkDark</item>
 
         <!-- FilterFragment -->
         <item name="imageLabelBackground">@drawable/filter_fragment_image_label_bg</item>
-        <item name="imageLabelBackgroundColor">?attr/colorPrimary</item>
-        <item name="imageLabelTint">?attr/chipTextColor</item>
+        <item name="imageLabelBackgroundColor">?attr/colorSecondary</item>
+        <item name="imageLabelTint">?attr/colorPrimary</item>
+
         <item name="searchBarTextColorHint">#6111</item>
         <item name="searchBarTextColor">?attr/colorOnPrimary</item>
         <item name="searchBarBackground">@android:color/transparent</item>
-        <item name="searchBarPopupBackground">?attr/colorPrimaryTransparent</item>
+        <item name="searchBarPopupBackground">?attr/colorSecondaryTransparent</item>
+
+        <item name="filterSectionBackgroundColor">?attr/colorSecondaryLight</item>
         <item name="filterChipGroupBackground">@android:color/transparent</item>
-        <item name="chipActiveBgColor">?attr/colorPrimaryVariant</item>
-        <item name="chipInactiveBgColor">?attr/colorSecondaryTransparent</item>
-        <item name="chipActiveStrokeColor">?attr/colorSecondary</item>
+
+        <item name="chipActiveBgColor">?attr/colorSecondaryDarkDark</item>
+        <item name="chipInactiveBgColor">?attr/colorSecondary</item>
+        <item name="chipActiveStrokeColor">?attr/colorPrimaryVariant</item>
         <item name="chipInactiveStrokeColor">?attr/colorSecondary</item>
-        <item name="chipTextColor">?attr/colorUi</item>
+        <item name="chipTextColor">?attr/colorPrimaryVariant</item>
+
+        <!-- IssueDetailFragment -->
+        <item name="fragmentIssueDetailButtonColor">?attr/colorPrimaryDark</item>
+        <item name="fragmentIssueDetailBgColor">?attr/colorSecondaryVariant</item>
+
+        <!-- IssueDetailFragment Variant Spinner -->
+        <item name="fragmentIssueDetailVariantSpinnerBgColor">@android:color/transparent</item>
+        <item name="fragmentIssueDetailVariantSpinnerTextBg">
+            @drawable/bg_fragment_issue_detail_variant_spinner
+        </item>
+        <item name="fragmentIssueDetailVariantSpinnerTextColor">?attr/colorPrimaryVariant</item>
+        <item name="fragmentIssueDetailVariantSpinnerBgTint">?attr/colorPrimaryLight</item>
+
+        <!-- IssueInfoRow -->
+        <item name="fragmentIssueDetailInfoRowLabelBgColor">?attr/colorPrimary</item>
+        <item name="fragmentIssueDetailInfoRowLabelTextColor">?attr/colorPrimary</item>
 
         <!-- SeriesDetailBox -->
         <item name="styleSeriesDetail">@style/SeriesDetailBackground</item>
         <item name="seriesDetailBackground">?attr/colorPrimary</item>
         <item name="seriesDetailLabelColor">?attr/colorOnPrimary</item>
         <item name="seriesDetailTextColor">?attr/colorOnPrimary</item>
+        <item name="seriesDetailDropdownButtonTint">?attr/colorOnPrimary</item>
 
         <!-- ListItem -->
         <item name="listItemBackground">@drawable/bg_green</item>
@@ -52,6 +75,7 @@
         <item name="listItemBackgroundFilter">?attr/colorTransparentFilterLow</item>
 
         <!-- ListItemSeries -->
+        <item name="listItemSeriesBg">?attr/colorSecondaryLight</item>
         <item name="listItemTitleTextColor">?attr/textColorTitle</item>
         <item name="listItemSeriesTitleCardBackground">?attr/colorTransparentFilter</item>
         <item name="listItemSeriesProgressBarBackground">?attr/colorSecondaryDark</item>
@@ -70,13 +94,21 @@
         <item name="listItemSimpleMetaBoxBg">@drawable/bg_list_item_simple_meta</item>
 
         <!-- StoryBox -->
-        <item name="storyBoxTitleBarBackground">@drawable/bg_story_box_title_bar</item>
-        <item name="storyBoxDropdownButtonTitleBackground">@android:color/transparent</item>
-        <item name="storyBoxSubtitleTextBackground">@drawable/bg_story_box_subtitle_bar</item>
-        <item name="storyBoxRoleNameTextBackground">?attr/colorPrimaryVariant</item>
-        <item name="storyBoxCreatorLinkTextColor">?attr/colorPrimaryLight</item>
+        <item name="storyBoxTitleBarBg">@drawable/bg_story_box_title_bar</item>
+        <item name="storyBoxTitleBarBgColor">?attr/colorSecondaryDark</item>
+        <item name="storyBoxTitleBarTextColor">?attr/colorPrimary</item>
+        <item name="storyBoxTitleDropdownButtonBg">@android:color/transparent</item>
+        <item name="storyBoxTitleDropdownButtonTint">?attr/colorPrimary</item>
+
+        <item name="storyBoxSubtitleTextBg">@drawable/bg_story_box_subtitle_bar</item>
+        <item name="storyBoxSubtitleTextBgColor">?attr/colorSecondaryDark</item>
+        <item name="storyBoxSubtitleTextColor">?attr/colorPrimaryVariant</item>
+
+        <item name="storyBoxRoleNameTextBg">?attr/colorPrimaryVariant</item>
+        <item name="storyBoxLinkTextColor">?attr/colorPrimaryLight</item>
         <item name="storyBoxCreatorNameTextColor">?attr/colorPrimaryLight</item>
-        <item name="storyBoxRoleNameTextColor">?attr/colorPrimary</item>
+        <item name="storyBoxRoleNameTextColor">?attr/colorPrimaryVariant</item>
+
         <item name="storyBoxContentBoxTextColor">?attr/colorPrimaryLight</item>
 
         <item name="android:windowBackground">?attr/colorSecondaryVariant</item>

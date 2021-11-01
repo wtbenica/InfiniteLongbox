@@ -12,14 +12,14 @@
         </deviceKey>
       </Target>
     </runningDeviceTargetSelectedWithDropDown>
-    <timeTargetWasSelectedWithDropDown value="2021-10-30T04:37:25.964384Z" />
+    <timeTargetWasSelectedWithDropDown value="2021-10-31T22:27:56.153529Z" />
     <runningDeviceTargetsSelectedWithDialog>
       <Target>
         <type value="RUNNING_DEVICE_TARGET" />
         <deviceKey>
           <Key>
             <type value="SERIAL_NUMBER" />
-            <value value="ZY22396TWN" />
+            <value value="52037175fcbf3465" />
           </Key>
         </deviceKey>
       </Target>
