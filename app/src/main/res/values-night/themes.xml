@@ -83,8 +83,8 @@
 
         <!-- ListItemIssue -->
         <item name="listItemIssueBg">?attr/colorSecondaryLight</item>
-        <item name="listItemIssueBoxBgInCollection">@drawable/issue_list_item_in_collection_bg
-        </item>
+        <item name="listItemIssueBoxBgColorInCollection">?attr/colorPrimaryDark</item>
+        <item name="listItemIssueBoxBgColorNotInCollection">?attr/colorSecondaryLight</item>
         <item name="listItemIssueProgressBarBg">?attr/colorPrimaryTransparent</item>
         <item name="listItemIssueProgressBarIndetTint">?attr/colorPrimary</item>
         <item name="listItemIssueBoxTextColor">?attr/textColorBody</item>
@@ -92,6 +92,7 @@
         <!-- ListItemSimple -->
         <item name="listItemSimpleTitleTextBackground">@drawable/list_item_simple_name_bg</item>
         <item name="listItemSimpleMetaBoxBg">@drawable/bg_list_item_simple_meta</item>
+        <item name="listItemSimpleMetaTextColor">?attr/colorOnPrimary</item>
 
         <!-- StoryBox -->
         <item name="storyBoxTitleBarBg">@drawable/bg_story_box_title_bar</item>
@@ -110,6 +111,10 @@
         <item name="storyBoxRoleNameTextColor">?attr/colorPrimaryVariant</item>
 
         <item name="storyBoxContentBoxTextColor">?attr/colorPrimaryLight</item>
+
+        <!-- CoverDialogFragment -->
+        <item name="dialogFragmentCoverInfoCardBackground">?attr/colorPrimary</item>
+        <item name="dialogFragmentCoverInfoCardTextColor">?attr/colorOnPrimary</item>
 
         <item name="android:windowBackground">?attr/colorSecondaryVariant</item>
     </style>

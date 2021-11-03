@@ -67,4 +67,17 @@
     <string name="series_detail_tracking_notes">Tracking notes</string>
     <string name="label_cover_date">Cover Date</string>
     <string name="label_notes">Notes</string>
+    <string name="url_creative_commons_3_0">http://creativecommons.org/licenses/by/3.0/</string>
+    <string name="url_creative_commons_3_0_img">https://i.creativecommons.org/l/by/3.0/88x31.png</string>
+    <string name="text_gcd_cc_credit">Data courtesy of the
+        <a href="https://www.comics.org">Grand Comics Database\u2122</a> under the
+        <a href="https://creativecommons.org/licenses/by-sa/4.0/">Creative Commons
+            Attribution-ShareAlike 4.0 International License (CC BY-SA 4.0)</a>.</string>
+    <string name="text_gcd_cc_changes">The original database has been adapted to only include a
+        subset of its records and fields. Additionally, some creator credits and character
+        appearances have been converted from text fields to database records.</string>
+    <string name="gcd_thanks">This app wouldn\'t be possible without the efforts of the
+        volunteers of the Grand Comics Database Project. If you want to help out, you can
+        <a href="">register an account</a> and then <a href="">help index</a>, or
+        <a href="">donate to the GCD</a>.</string>
 </resources>

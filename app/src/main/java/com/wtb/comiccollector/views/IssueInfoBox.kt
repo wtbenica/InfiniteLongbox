@@ -79,7 +79,7 @@ class IssueInfoRow(
 
     private var labelView: TextView? = null
     private var infoTextView: TextView? = null
-    private var infoRowLayout: Int = R.layout.issue_detail_info_row_vertical
+    private var infoRowLayout: Int = R.layout.issue_detail_info_row
 
     init {
         val view = LayoutInflater.from(context).inflate(infoRowLayout, this)

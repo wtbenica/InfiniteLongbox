@@ -87,6 +87,7 @@
     <attr name="listItemSimpleMetaBoxBgColor" format="reference" />
     <attr name="listItemSimpleMetaBoxBgStrokeColor" format="reference" />
     <attr name="listItemSimpleMetaBoxCornerRadius" format="reference|dimension" />
+    <attr name="listItemSimpleMetaTextColor" format="reference|color" />
 
     <!-- StoryBox -->
     <attr name="storyBoxTitleBarBg" format="reference" />
@@ -115,7 +116,6 @@
     <attr name="dialogFragmentCoverLayoutPadding" format="reference" />
     <attr name="dialogFragmentCoverInfoCardBackground" format="reference" />
     <attr name="dialogFragmentCoverInfoCardTextColor" format="reference" />
-
 
     <attr name="textColorTitleBar" format="reference" />
     <attr name="textColorTitle" format="reference" />

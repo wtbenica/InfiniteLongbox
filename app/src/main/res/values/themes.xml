@@ -125,8 +125,7 @@
 
         <!-- ListItemIssue -->
         <item name="listItemIssueBg">?attr/colorSecondaryLight</item>
-        <item name="listItemIssueBoxBgInCollection">
-            @drawable/issue_list_item_in_collection_bg
+        <item name="listItemIssueBoxBgInCollection">@drawable/issue_list_item_in_collection_bg
         </item>
         <item name="listItemIssueBoxBgColorInCollection">?attr/colorPrimaryDark</item>
         <item name="listItemIssueBoxBgColorNotInCollection">?attr/colorSecondaryDark</item>
@@ -136,11 +135,13 @@
 
         <!-- ListItemSimple -->
         <item name="listItemSimpleTitleTextBackground">@drawable/list_item_simple_name_bg</item>
-        <item name="listItemSimpleTitleTextBackgroundColor">?attr/colorTransparentFilter</item>
         <item name="listItemSimpleMetaBoxBg">@drawable/bg_list_item_simple_meta</item>
+
+        <item name="listItemSimpleTitleTextBackgroundColor">?attr/colorTransparentFilter</item>
         <item name="listItemSimpleMetaBoxBgColor">?attr/colorPrimaryVariant</item>
         <item name="listItemSimpleMetaBoxBgStrokeColor">?attr/colorPrimaryDark</item>
         <item name="listItemSimpleMetaBoxCornerRadius">48dp</item>
+        <item name="listItemSimpleMetaTextColor">?attr/textColorBody</item>
 
         <!-- StoryBox -->
         <item name="storyBoxTitleBarBg">@drawable/bg_story_box_title_bar</item>

@@ -34,7 +34,7 @@ import kotlinx.coroutines.launch
 class IssueListFragment : ListFragment<FullIssue, IssueListFragment.IssueViewHolder>() {
 
     override val viewModel: IssueListViewModel by viewModels()
-    override val minColSizeDp = 200
+    override val minColSizeDp = 250
     private var mSeries: FullSeries? = null
     private var seriesDetailBox: SeriesDetailBox? = null
 

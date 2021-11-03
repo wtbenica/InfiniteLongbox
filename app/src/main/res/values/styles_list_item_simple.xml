@@ -9,5 +9,7 @@
         <item name="android:background">?attr/listItemSimpleMetaBoxBg</item>
     </style>
 
-    <style name="ListItemSeriesMeta.Simple" />
+    <style name="ListItemSeriesMeta.Simple">
+        <item name="android:textColor">?attr/listItemSimpleMetaTextColor</item>
+    </style>
 </resources>

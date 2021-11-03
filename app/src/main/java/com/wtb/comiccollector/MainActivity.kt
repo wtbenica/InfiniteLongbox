@@ -9,6 +9,8 @@ import android.net.NetworkCapabilities
 import android.os.Bundle
 import android.util.Log
 import android.util.TypedValue
+import android.view.Menu
+import android.view.MenuItem
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
@@ -151,6 +153,20 @@ class MainActivity : AppCompatActivity(),
     override fun onStop() {
         Repository.get().cleanUpImages()
         super.onStop()
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        super.onCreateOptionsMenu(menu)
+        menuInflater.inflate(R.menu.activity_main, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.app_about -> AboutDialogFragment().show(supportFragmentManager, "app_about")
+            else -> super.onOptionsItemSelected(item)
+        }
+        return true
     }
 
     private fun initBottomSheet() {

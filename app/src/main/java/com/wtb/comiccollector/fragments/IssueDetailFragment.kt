@@ -1,14 +1,12 @@
 package com.wtb.comiccollector.fragments
 
 import android.content.Context
-import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.*
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.*
-import androidx.appcompat.widget.AppCompatImageButton
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.google.android.material.appbar.AppBarLayout
@@ -16,9 +14,7 @@ import com.wtb.comiccollector.*
 import com.wtb.comiccollector.database.daos.Count
 import com.wtb.comiccollector.database.models.*
 import com.wtb.comiccollector.fragments_view_models.IssueDetailViewModel
-import com.wtb.comiccollector.views.AddCollectionButton
-import com.wtb.comiccollector.views.CreditsBox
-import com.wtb.comiccollector.views.IssueInfoBox
+import com.wtb.comiccollector.views.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import java.util.*
 
@@ -69,7 +65,7 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback,
     private var issueVariants: List<Issue> = emptyList()
 
     private lateinit var coverImageView: ImageButton
-    private lateinit var ebayButton: AppCompatImageButton
+    private lateinit var ebayButton: ImageWebLink
     private lateinit var collectionButton: AddCollectionButton
     private lateinit var variantSpinnerHolder: LinearLayout
     private lateinit var variantSpinner: Spinner
@@ -87,7 +83,7 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback,
     private lateinit var gotoSkipForwardButton: Button
     private lateinit var gotoEndButton: Button
 
-    private lateinit var gcdLinkButton: Button
+    private lateinit var gcdLinkButton: WebLink
 
     private val currentIssue: FullIssue
         get() = fullVariant ?: fullIssue
@@ -151,7 +147,7 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback,
         }
         issueCreditsFrame = view.findViewById(R.id.issue_credits_frame) as FrameLayout
         infoBox = view.findViewById(R.id.issue_info_box)
-        gcdLinkButton = view.findViewById(R.id.gcd_link) as Button
+        gcdLinkButton = view.findViewById(R.id.gcd_link)
         ebayButton = view.findViewById(R.id.ebayButton)
         collectionButton = (view.findViewById(R.id.collectionButton) as AddCollectionButton).apply {
             callback = this@IssueDetailFragment
@@ -356,27 +352,17 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback,
 
     override fun onStart() {
         super.onStart()
-        gcdLinkButton.setOnClickListener {
-            val url = "https://www.comics.org/issue/${fullIssue.issue.issueId}"
-            val intent = Intent().apply {
-                action = Intent.ACTION_VIEW
-                data = Uri.parse(url)
-            }
-            startActivity(intent)
-        }
+        gcdLinkButton.url = { "https://www.comics.org/issue/${currentIssue.issue.issueId}" }
 
-        ebayButton.setOnClickListener {
+        ebayButton.apply {
             val category = 259104
-            val url = "https://www.ebay.com/sch/?_sacat=$category&_nkw=${
-                fullIssue.series.seriesName.replace(' ', '+')
-            }+${currentIssue.issue.issueNumRaw}+${currentIssue.issue.variantName}+${
-                currentIssue.series.startDate?.year ?: ""
-            }"
-            val intent = Intent().apply {
-                action = Intent.ACTION_VIEW
-                data = Uri.parse(url)
+            url = {
+                "https://www.ebay.com/sch/?_sacat=$category&_nkw=${
+                    currentIssue.series.seriesName.replace(' ', '+')
+                }+${currentIssue.issue.issueNumRaw}+${currentIssue.issue.variantName}+${
+                    currentIssue.series.startDate?.year ?: ""
+                }"
             }
-            startActivity(intent)
         }
 
         gotoStartButton.setOnClickListener {

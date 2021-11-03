@@ -18,7 +18,7 @@
 
     </style>
 
-    <style name="IssueDetailGcdLinkButton" parent="Widget.MaterialComponents.Button.TextButton">
+    <style name="IssueDetailGcdLinkButton" parent="myButtonStyle">
         <item name="android:textColor">?attr/colorUiInterface</item>
     </style>
 

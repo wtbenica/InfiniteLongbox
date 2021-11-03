@@ -1,10 +1,15 @@
 package com.wtb.comiccollector.views
 
 import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import android.util.AttributeSet
 import android.util.Log
 import android.view.View
+import androidx.appcompat.widget.AppCompatButton
+import androidx.appcompat.widget.AppCompatImageButton
 import androidx.appcompat.widget.AppCompatTextView
+import com.squareup.picasso.Picasso
 import com.wtb.comiccollector.R
 import com.wtb.comiccollector.database.models.FullCharacter
 import com.wtb.comiccollector.database.models.FullSeries
@@ -45,11 +50,10 @@ class CreatorLink(
     companion object {
         private const val TAG = "CreatorLink"
     }
-}
 
-@ExperimentalCoroutinesApi
-interface CreatorLinkCallback {
-    fun creatorClicked(creator: NameDetailAndCreator)
+    interface CreatorLinkCallback {
+        fun creatorClicked(creator: NameDetailAndCreator)
+    }
 }
 
 @ExperimentalCoroutinesApi
@@ -80,18 +84,16 @@ class CharacterLink @JvmOverloads constructor(
     }
 
     override fun onClick(v: View?) {
-        Log.d(TAG, "Creator Clicked!!!!!")
         character?.let { callback?.characterClicked(it) }
     }
 
     companion object {
         private const val TAG = "CreatorLink"
     }
-}
 
-@ExperimentalCoroutinesApi
-interface CharacterLinkCallback {
-    fun characterClicked(character: FullCharacter)
+    interface CharacterLinkCallback {
+        fun characterClicked(character: FullCharacter)
+    }
 }
 
 @ExperimentalCoroutinesApi
@@ -120,9 +122,58 @@ class SeriesLink(
     companion object {
         private const val TAG = "CreatorLink"
     }
+
+    interface SeriesLinkCallback {
+        fun seriesClicked(series: FullSeries)
+    }
 }
 
-@ExperimentalCoroutinesApi
-interface SeriesLinkCallback {
-    fun seriesClicked(series: FullSeries)
+class WebLink(
+    context: Context,
+    attrs: AttributeSet?,
+) : AppCompatButton(context, attrs) {
+    val styledAttrs = context.theme.obtainStyledAttributes(attrs, R.styleable.ImageWebLink, 0, 0)
+    var url: (() -> String?)? = null
+
+    init {
+        setOnClickListener {
+            val invokeUrl = url?.invoke() ?: styledAttrs.getString(R.styleable.WebLink_url_weblink)
+            if (invokeUrl == null) {
+                throw IllegalStateException("Weblink: Missing url")
+            } else {
+                val intent = Intent().apply {
+                    action = Intent.ACTION_VIEW
+                    data = Uri.parse(invokeUrl)
+                }
+                context.startActivity(intent)
+            }
+        }
+    }
+}
+
+class ImageWebLink(
+    context: Context,
+    attrs: AttributeSet?,
+) : AppCompatImageButton(context, attrs) {
+    val styledAttrs = context.theme.obtainStyledAttributes(attrs, R.styleable.ImageWebLink, 0, 0)
+    var url: (() -> String?)? = null
+
+    init {
+        val src = styledAttrs.getString(R.styleable.ImageWebLink_img_src)
+        Picasso.get().load(src).into(this)
+
+        setOnClickListener {
+            val invokeUrl =
+                url?.invoke() ?: styledAttrs.getString(R.styleable.ImageWebLink_url_imageweblink)
+            if (invokeUrl == null) {
+                throw IllegalStateException("Weblink: Missing url")
+            } else {
+                val intent = Intent().apply {
+                    action = Intent.ACTION_VIEW
+                    data = Uri.parse(invokeUrl)
+                }
+                context.startActivity(intent)
+            }
+        }
+    }
 }
