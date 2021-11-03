@@ -27,23 +27,16 @@
                 android:layout_margin="@dimen/margin_default"
                 android:fontFamily="?attr/fontBlock"
                 android:text="Thanks"
-                android:textAllCaps="true" />
+                android:textAllCaps="true"
+                android:textSize="@dimen/text_med" />
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="@dimen/margin_default"
                 android:text="@string/gcd_thanks"
-                android:textColorLink="?attr/colorPrimaryDark" />
-
-            <TextView
-                android:id="@+id/donate_me"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_margin="@dimen/margin_default"
-                android:fontFamily="?attr/fontRegular"
-                android:text="Donate to me" />
+                android:textColorLink="?attr/colorPrimaryDark"
+                android:textSize="@dimen/text_med" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -51,7 +44,8 @@
                 android:layout_gravity="center"
                 android:fontFamily="?attr/fontBlock"
                 android:text="Copyright Notices"
-                android:textAllCaps="true" />
+                android:textAllCaps="true"
+                android:textSize="@dimen/text_med" />
 
             <TextView
                 android:id="@+id/cc_credit"
@@ -60,7 +54,8 @@
                 android:layout_gravity="center"
                 android:layout_margin="@dimen/margin_default"
                 android:text="@string/text_gcd_cc_credit"
-                android:textColorLink="?attr/colorPrimaryDark" />
+                android:textColorLink="?attr/colorPrimaryDark"
+                android:textSize="@dimen/text_med" />
 
             <TextView
                 android:id="@+id/cc_credit_pt_II"
@@ -68,7 +63,8 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:layout_margin="@dimen/margin_default"
-                android:text="@string/text_gcd_cc_changes" />
+                android:text="@string/text_gcd_cc_changes"
+                android:textSize="@dimen/text_med" />
 
             <TextView
                 android:id="@+id/cover_acknowledgements"
@@ -76,7 +72,8 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:layout_margin="@dimen/margin_default"
-                android:text="Cover images are used for identification purposes only. All rights to cover images reserved by the respective copyright holders." />
+                android:text="Cover images are used for identification purposes only. All rights to cover images reserved by the respective copyright holders."
+                android:textSize="@dimen/text_med" />
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -77,7 +77,9 @@
         subset of its records and fields. Additionally, some creator credits and character
         appearances have been converted from text fields to database records.</string>
     <string name="gcd_thanks">This app wouldn\'t be possible without the efforts of the
-        volunteers of the Grand Comics Database Project. If you want to help out, you can
-        <a href="">register an account</a> and then <a href="">help index</a>, or
-        <a href="">donate to the GCD</a>.</string>
+        volunteers of the Grand Comics Database\u2122 Project. If you want to help out, you can\n
+            <a href="https://www.comics.org/accounts/register/">Register an account</a>\n
+            <a href="http://docs.comics.org/wiki/How_To_Contribute_FAQ">Help index</a>\n
+            <a href="https://www.comics.org/donate/">Donate to the GCD</a>
+        </string>
 </resources>
