@@ -60,6 +60,7 @@
         <item name="colorUiInterface">?attr/textColorTitleBar</item>
         <item name="mainActivityProgressBarBgColor">?attr/colorPrimary</item>
         <item name="mainActivityProgressBarIndeterminateTint">?attr/colorPrimaryDarkDark</item>
+        <item name="actionOverflowButtonStyle">@style/OverflowButtonStyle</item>
 
         <!-- FilterFragment -->
         <item name="imageLabelBackgroundColor">?attr/colorPrimary</item>

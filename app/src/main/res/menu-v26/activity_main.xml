@@ -4,6 +4,7 @@
     <item
         android:id="@+id/app_about"
         android:icon="@drawable/info_24"
+        android:iconTint="?attr/colorPrimary"
         android:title="About"
-        app:showAsAction="always" />
+        app:showAsAction="collapseActionView" />
 </menu>

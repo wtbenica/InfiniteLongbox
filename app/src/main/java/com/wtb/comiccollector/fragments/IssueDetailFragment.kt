@@ -450,24 +450,24 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback,
         variantSpinner.setOnTouchListener(touchSelectListener)
     }
 
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        super.onCreateOptionsMenu(menu, inflater)
-        inflater.inflate(R.menu.fragment_issue, menu)
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId) {
-            R.id.delete_issue -> {
-                saveIssue = false
-                issueDetailViewModel.delete(fullIssue.issue)
-                requireActivity().onBackPressed()
-                true
-            }
-            else -> super.onOptionsItemSelected(item)
-        }
-    }
-
-    private var i = 0
+////    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+////        super.onCreateOptionsMenu(menu, inflater)
+////        inflater.inflate(R.menu.fragment_issue, menu)
+////    }
+////
+//    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+//        return when (item.itemId) {
+//            R.id.delete_issue -> {
+//                saveIssue = false
+//                issueDetailViewModel.delete(fullIssue.issue)
+//                requireActivity().onBackPressed()
+//                true
+//            }
+//            else -> super.onOptionsItemSelected(item)
+//        }
+//    }
+//
+private var i = 0
 
     private fun updateUI() {
         val issue: Issue = currentIssue.issue

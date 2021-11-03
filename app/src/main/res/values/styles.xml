@@ -33,4 +33,8 @@
         <item name="cardCornerRadius">?attr/cardCornerRadius</item>
         <item name="cardUseCompatPadding">?attr/cardUseCompatPadding</item>
     </style>
+
+    <style name="OverflowButtonStyle" parent="Widget.AppCompat.ActionButton.Overflow">
+        <item name="android:tint">?attr/textColorTitleBar</item>
+    </style>
 </resources>
