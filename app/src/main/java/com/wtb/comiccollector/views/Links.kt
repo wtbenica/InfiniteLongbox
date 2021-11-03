@@ -159,8 +159,10 @@ class ImageWebLink(
     var url: (() -> String?)? = null
 
     init {
-        val src = styledAttrs.getString(R.styleable.ImageWebLink_img_src)
-        Picasso.get().load(src).into(this)
+        styledAttrs.getString(R.styleable.AppCompatImageView_android_src) ?: styledAttrs
+            .getString(R.styleable.ImageWebLink_img_src).also {
+                Picasso.get().load(it).into(this)
+            }
 
         setOnClickListener {
             val invokeUrl =

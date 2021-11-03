@@ -1,12 +1,14 @@
 package com.wtb.comiccollector.fragments
 
 import android.content.Context
+import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.*
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.*
+import androidx.appcompat.widget.AppCompatImageButton
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.google.android.material.appbar.AppBarLayout
@@ -65,7 +67,7 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback,
     private var issueVariants: List<Issue> = emptyList()
 
     private lateinit var coverImageView: ImageButton
-    private lateinit var ebayButton: ImageWebLink
+    private lateinit var ebayButton: AppCompatImageButton
     private lateinit var collectionButton: AddCollectionButton
     private lateinit var variantSpinnerHolder: LinearLayout
     private lateinit var variantSpinner: Spinner
@@ -354,15 +356,20 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback,
         super.onStart()
         gcdLinkButton.url = { "https://www.comics.org/issue/${currentIssue.issue.issueId}" }
 
-        ebayButton.apply {
+        ebayButton.setOnClickListener {
             val category = 259104
-            url = {
+            val url =
                 "https://www.ebay.com/sch/?_sacat=$category&_nkw=${
                     currentIssue.series.seriesName.replace(' ', '+')
                 }+${currentIssue.issue.issueNumRaw}+${currentIssue.issue.variantName}+${
                     currentIssue.series.startDate?.year ?: ""
                 }"
+
+            val intent = Intent().apply {
+                action = Intent.ACTION_VIEW
+                data = Uri.parse(url)
             }
+            context?.startActivity(intent)
         }
 
         gotoStartButton.setOnClickListener {
