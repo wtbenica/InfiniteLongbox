@@ -11,10 +11,7 @@ import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.SearchFilter
 import com.wtb.comiccollector.SortType
 import com.wtb.comiccollector.SortType.Companion.containsSortType
-import com.wtb.comiccollector.database.models.Character
-import com.wtb.comiccollector.database.models.Creator
-import com.wtb.comiccollector.database.models.FullCreator
-import com.wtb.comiccollector.database.models.ids
+import com.wtb.comiccollector.database.models.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 
@@ -130,10 +127,12 @@ abstract class CreatorDao : BaseDao<Creator>("creator") {
                     conditionsString.append(
                         """${connectWord()} ie.issueId IN (
                             SELECT issue
-                            FROM mycollection
+                            FROM collectionItem
+                            WHERE userCollection = ?
                         ) 
                         """
                     )
+                    args.add(BaseCollection.MY_COLL.id)
                 }
             }
 

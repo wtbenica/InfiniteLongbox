@@ -1,6 +1,7 @@
 package com.wtb.comiccollector.repository
 
 import android.content.SharedPreferences
+import android.util.Log
 import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.Webservice
 import com.wtb.comiccollector.database.models.*
@@ -26,19 +27,21 @@ class StaticUpdater private constructor(
      *  UpdateAsync - Updates publisher, series, role, and storytype tables
      */
     internal suspend fun updateStaticAsync(progressUpdate: ProgressUpdateCard) {
-//        getAllPublishers(progressUpdate.publisherWrapper)
+        Log.d(TAG, "updateStaticAsync Begin")
+        getAllPublishers(progressUpdate.publisherWrapper)
         database.transactionDao().upsertStatic(
             roles = getRoles(),
             storyTypes = getStoryTypes(),
             bondTypes = getBondTypes(),
         )
+        Log.d(TAG, "updateStaticAsync Part II")
 
-//        if (!DEBUG) {
-//            getAllSeries(progressUpdate.seriesWrapper)
-//            getAllNameDetails(progressUpdate.creatorWrapper)
-//            getAllCharacters(progressUpdate.characterWrapper)
-//            getAllSeriesBonds()
-//        }
+        if (!DEBUG) {
+            getAllSeries(progressUpdate.seriesWrapper)
+            getAllNameDetails(progressUpdate.creatorWrapper)
+            getAllCharacters(progressUpdate.characterWrapper)
+            getAllSeriesBonds()
+        }
     }
 
     private suspend fun getAllPublishers(updateProgress: ProgressWrapper) {

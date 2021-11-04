@@ -21,9 +21,10 @@ private const val DATABASE_NAME = "issue-database"
 @Database(
     entities = [Issue::class, Series::class, Creator::class, Role::class, Credit::class,
         Publisher::class, Story::class, ExCredit::class, StoryType::class, NameDetail::class,
-        Character::class, Appearance::class, MyCollection::class, Cover::class,
-        SeriesBond::class, BondType::class, Brand::class],
-    version = 3,
+        Character::class, Appearance::class, Cover::class,
+        SeriesBond::class, BondType::class, Brand::class, UserCollection::class,
+        CollectionItem::class],
+    version = 1,
 )
 @TypeConverters(IssueTypeConverters::class)
 abstract class IssueDatabase : RoomDatabase() {
@@ -41,7 +42,8 @@ abstract class IssueDatabase : RoomDatabase() {
     abstract fun transactionDao(): TransactionDao
     abstract fun characterDao(): CharacterDao
     abstract fun appearanceDao(): AppearanceDao
-    abstract fun collectionDao(): CollectionDao
+    abstract fun userCollectionDao(): UserCollectionDao
+    abstract fun collectionItemDao(): CollectionItemDao
     abstract fun coverDao(): CoverDao
     abstract fun bondTypeDao(): BondTypeDao
     abstract fun seriesBondDao(): SeriesBondDao
@@ -78,10 +80,21 @@ abstract class IssueDatabase : RoomDatabase() {
                                     )
                                 )
                             }
+                            val myCollection =
+                                UserCollection(BaseCollection.MY_COLL.id, "My Collection", true)
+                            val wishList = UserCollection(
+                                BaseCollection.WISH_LIST.id, "Wish List", true
+                            )
+
+                            executor.execute {
+                                getInstance(context).userCollectionDao().upsert(
+                                    listOf(myCollection, wishList)
+                                )
+                            }
                         }
                     }
                 )
-                    .createFromAsset("issue-database")
+//                    .createFromAsset("issue-database")
 //                    .addMigrations(
 //                    migration_1_2, migration_2_3
 //                )
@@ -124,13 +137,13 @@ abstract class IssueDatabase : RoomDatabase() {
         //            """ALTER TABLE series ADD COLUMN notes TEXT""",
         //            """ALTER TABLE series ADD COLUMN issueCount INTEGER NOT NULL DEFAULT 0"""
         //        )
-        //
-        //        @Language("RoomSql")
-        //        val migration_3_4 = SimpleMigration(
-        //            3, 4,
-        //            """ALTER TABLE namedetail ADD COLUMN sortName TEXT"""
-        //        )
-        //
+//
+//                @Language("RoomSql")
+//                val migration_3_4 = SimpleMigration(
+//                    3, 4,
+//                    """ALTER TABLE namedetail ADD COLUMN sortName TEXT"""
+//                )
+//
         //        @Language("RoomSql")
         //        val migration_4_5 = SimpleMigration(
         //            4, 5,

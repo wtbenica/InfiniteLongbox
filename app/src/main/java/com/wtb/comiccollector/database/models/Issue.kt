@@ -164,7 +164,7 @@ data class FullIssue @ExperimentalCoroutinesApi constructor(
     val cover: Cover? = null,
 
     @Relation(parentColumn = "issueId", entityColumn = "issue")
-    val myCollection: MyCollection? = null,
+    val collectionItems: List<CollectionItem> = emptyList(),
 ) : ListItem {
     val series: Series
         get() = seriesAndPublisher.series
@@ -187,7 +187,7 @@ data class FullIssue @ExperimentalCoroutinesApi constructor(
         if (issue != other.issue) return false
         if (seriesAndPublisher != other.seriesAndPublisher) return false
         if (cover != other.cover) return false
-        if (myCollection != other.myCollection) return false
+        if (collectionItems != other.collectionItems) return false
         if (series != other.series) return false
         if (publisher != other.publisher) return false
         if (coverUri != other.coverUri) return false
@@ -199,7 +199,7 @@ data class FullIssue @ExperimentalCoroutinesApi constructor(
         var result = issue.hashCode()
         result = 31 * result + seriesAndPublisher.hashCode()
         result = 31 * result + (cover?.hashCode() ?: 0)
-        result = 31 * result + (myCollection?.hashCode() ?: 0)
+        result = 31 * result + collectionItems.hashCode()
         result = 31 * result + series.hashCode()
         result = 31 * result + publisher.hashCode()
         result = 31 * result + (coverUri?.hashCode() ?: 0)

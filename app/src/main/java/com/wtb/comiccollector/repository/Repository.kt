@@ -21,7 +21,6 @@ import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.MainActivity
 import com.wtb.comiccollector.SearchFilter
 import com.wtb.comiccollector.database.IssueDatabase
-import com.wtb.comiccollector.database.daos.Count
 import com.wtb.comiccollector.database.daos.REQUEST_LIMIT
 import com.wtb.comiccollector.database.models.*
 import com.wtb.comiccollector.views.ProgressUpdateCard
@@ -131,8 +130,8 @@ class Repository private constructor(val context: Context) {
         get() = database.characterDao()
     private val appearanceDao
         get() = database.appearanceDao()
-    private val collectionDao
-        get() = database.collectionDao()
+    private val collectionItemDao
+        get() = database.collectionItemDao()
     private val coverDao
         get() = database.coverDao()
 
@@ -144,13 +143,15 @@ class Repository private constructor(val context: Context) {
 
     internal fun beginStaticUpdate(progressUpdate: ProgressUpdateCard, mainActivity: MainActivity) {
         MainActivity.hasConnection.observeForever {
+            Log.d(TAG, "PrE BOB")
             this.hasConnection = it
             if (checkConnectionStatus()) {
+                Log.d(TAG, "BOB")
                 // TODO: A lint inspection pointed out that update returns a Deferred, which
                 //  means that this is async async await. Look into
                 MainActivity.activeJob = CoroutineScope(Dispatchers.IO).async {
                     withContext(Dispatchers.IO) {
-//                        Log.d(TAG, "STARTING UPDATE")
+                        Log.d(TAG, "STARTING UPDATE")
 //                        progressUpdate.show()
                         updater.updateStaticAsync(progressUpdate)
                     }.let {
@@ -294,24 +295,23 @@ class Repository private constructor(val context: Context) {
         }
     }
 
-    fun addToCollection(issue: FullIssue) {
+    fun addToCollection(issue: FullIssue, collId: Int) {
         executor.execute {
-            collectionDao.insert(
-                MyCollection(
+            collectionItemDao.insert(
+                CollectionItem(
                     issue = issue.issue.issueId,
-                    series = issue.series.seriesId
+                    series = issue.series.seriesId,
+                    userCollection = collId
                 )
             )
         }
     }
 
-    fun removeFromCollection(issueId: Int) {
+    fun removeFromCollection(issueId: Int, collId: Int) {
         executor.execute {
-            collectionDao.deleteById(issueId)
+            collectionItemDao.deleteById(issueId, collId)
         }
     }
-
-    fun inCollection(issueId: Int): Flow<Count> = collectionDao.inCollection(issueId)
 
     companion object {
         @SuppressLint("StaticFieldLeak")

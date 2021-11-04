@@ -12,6 +12,7 @@ import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.SearchFilter
 import com.wtb.comiccollector.SortType
 import com.wtb.comiccollector.SortType.Companion.containsSortType
+import com.wtb.comiccollector.database.models.BaseCollection
 import com.wtb.comiccollector.database.models.Character
 import com.wtb.comiccollector.database.models.FullCharacter
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -149,10 +150,12 @@ abstract class CharacterDao : BaseDao<Character>("character") {
             conditionsString.append(
                 """${connectWord()} ie.issueId IN (
                     SELECT issue
-                    FROM mycollection
+                    FROM collectionItem
+                    WHERE userCollection = ?
                 ) 
                 """
             )
+            args.add(BaseCollection.MY_COLL.id)
         }
 
         filter.mTextFilter?.let { textFilter ->

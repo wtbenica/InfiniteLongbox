@@ -16,23 +16,38 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
             onDelete = ForeignKey.CASCADE
         ),
         ForeignKey(
-            entity = Series::class,
-            parentColumns = arrayOf("seriesId"),
-            childColumns = arrayOf("series"),
+            entity = UserCollection::class,
+            parentColumns = arrayOf("userCollectionId"),
+            childColumns = arrayOf("userCollection"),
             onDelete = ForeignKey.CASCADE
         )
     ],
     indices = [
-        Index("issue", unique = true),
+        Index("issue", "userCollection", unique = true),
         Index("series"),
     ]
 )
-data class MyCollection(
-    @PrimaryKey(autoGenerate = true) val collectionId: Int = AUTO_ID,
+data class CollectionItem(
+    @PrimaryKey(autoGenerate = true) val collectionItemId: Int = AUTO_ID,
     var issue: Int,
     var series: Int,
+    var userCollection: Int
 ) : DataModel() {
     override val id: Int
-        get() = collectionId
+        get() = collectionItemId
+}
+
+@Entity
+data class UserCollection(
+    @PrimaryKey(autoGenerate = true) val userCollectionId: Int = AUTO_ID,
+    var name: String,
+    var permanent: Boolean = false
+) : DataModel() {
+    override val id: Int
+        get() = userCollectionId
+}
+
+enum class BaseCollection(val id: Int) {
+    MY_COLL(1), WISH_LIST(2)
 }
 

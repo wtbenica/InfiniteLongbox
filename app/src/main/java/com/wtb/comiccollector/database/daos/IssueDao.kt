@@ -12,6 +12,7 @@ import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.SearchFilter
 import com.wtb.comiccollector.SortType
 import com.wtb.comiccollector.SortType.Companion.containsSortType
+import com.wtb.comiccollector.database.models.BaseCollection
 import com.wtb.comiccollector.database.models.FullIssue
 import com.wtb.comiccollector.database.models.Issue
 import com.wtb.comiccollector.database.models.ids
@@ -184,9 +185,11 @@ abstract class IssueDao : BaseDao<Issue>("issue") {
                 conditionsString.append(
                     """${connectword()} ie.issueId IN (
                     SELECT issue
-                    FROM mycollection) 
+                    FROM collectionItem
+                    WHERE userCollection = ?) 
                 """
                 )
+                args.add(BaseCollection.MY_COLL.id)
             }
 
             if (!filter.mShowVariants) {

@@ -245,7 +245,7 @@ abstract class Updater(
     ) {
         // savePageTag's value is a string of whether each page has been updated, e.g. "tfffttttftt"
         val pagesCompleteSaved: String = prefs.getString(savePageTag, "") ?: ""
-
+        Log.d(TAG, "HELLO BABY!")
         if (!pagesCompleteSaved.contains('f')) {
             // If it's been a week, mark all pages as stale
             if (checkIfStale(saveTag, WEEKLY, prefs)) {

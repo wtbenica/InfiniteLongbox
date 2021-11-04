@@ -5,7 +5,8 @@ import androidx.room.Query
 import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
 import com.wtb.comiccollector.APP
-import com.wtb.comiccollector.database.models.MyCollection
+import com.wtb.comiccollector.database.models.CollectionItem
+import com.wtb.comiccollector.database.models.UserCollection
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 
@@ -13,24 +14,29 @@ private const val TAG = APP + "CollectionDao"
 
 @ExperimentalCoroutinesApi
 @Dao
-abstract class CollectionDao : BaseDao<MyCollection>("collection") {
+abstract class UserCollectionDao : BaseDao<UserCollection>("userCollection")
 
+@ExperimentalCoroutinesApi
+@Dao
+abstract class CollectionItemDao : BaseDao<CollectionItem>("collectionItem") {
     @Query(
         """
             SELECT COUNT(*) as count
-            FROM mycollection mc
-            WHERE mc.issue = :issueId
+            FROM collectionItem ci
+            WHERE ci.issue = :issueId
+            AND ci.userCollection = :collectionId
         """
     )
-    abstract fun inCollection(issueId: Int): Flow<Count>
+    abstract fun inCollection(issueId: Int, collectionId: Int): Flow<Count>
 
     @Query(
         """
-            DELETE FROM mycollection
+            DELETE FROM collectionItem
             WHERE issue = :issueId
+            AND userCollection = :collectionId
         """
     )
-    abstract fun deleteById(issueId: Int)
+    abstract fun deleteById(issueId: Int, collectionId: Int)
 }
 
 data class Count(

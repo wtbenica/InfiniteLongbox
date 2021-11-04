@@ -20,11 +20,13 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.R
+import com.wtb.comiccollector.database.models.BaseCollection
 import com.wtb.comiccollector.database.models.FullIssue
 import com.wtb.comiccollector.database.models.FullSeries
 import com.wtb.comiccollector.database.models.Issue
 import com.wtb.comiccollector.fragments_view_models.IssueListViewModel
 import com.wtb.comiccollector.views.AddCollectionButton
+import com.wtb.comiccollector.views.AddWishListButton
 import com.wtb.comiccollector.views.SeriesDetailBox
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collectLatest
@@ -146,6 +148,8 @@ class IssueListFragment : ListFragment<FullIssue, IssueListFragment.IssueViewHol
             itemView.findViewById(R.id.list_item_issue_number_text)
         private val addCollectionButton: AddCollectionButton =
             itemView.findViewById(R.id.btn_issue_list_add_collection)
+        private val addWishListButton: AddWishListButton =
+            itemView.findViewById(R.id.btn_issue_list_add_wish_list)
         private val issueVariantName: TextView =
             itemView.findViewById(R.id.list_item_issue_variant_name)
 
@@ -153,6 +157,7 @@ class IssueListFragment : ListFragment<FullIssue, IssueListFragment.IssueViewHol
         init {
             itemView.setOnClickListener(this)
             addCollectionButton.callback = this
+            addWishListButton.callback = this
         }
 
 
@@ -161,12 +166,17 @@ class IssueListFragment : ListFragment<FullIssue, IssueListFragment.IssueViewHol
             issue?.let { (callback as IssueListCallback?)?.onIssueSelected(it) }
         }
 
-        override fun addToCollection() {
-            this.fullIssue?.let { (callback as IssueListCallback?)?.addToCollection(it) }
+        override fun addToCollection(collId: Int) {
+            this.fullIssue?.let { (callback as IssueListCallback?)?.addToCollection(it, collId) }
         }
 
-        override fun removeFromCollection() {
-            this.fullIssue?.let { (callback as IssueListCallback?)?.removeFromCollection(it) }
+        override fun removeFromCollection(collId: Int) {
+            this.fullIssue?.let {
+                (callback as IssueListCallback?)?.removeFromCollection(
+                    it,
+                    collId
+                )
+            }
         }
 
         fun bind(item: FullIssue?) {
@@ -205,8 +215,10 @@ class IssueListFragment : ListFragment<FullIssue, IssueListFragment.IssueViewHol
                 animation.start()
             }
 
-            val inCollection = this.fullIssue?.myCollection?.collectionId != null
-            addCollectionButton.inCollection = inCollection
+            val collectionIds =
+                this.fullIssue?.collectionItems?.map { it.userCollection } ?: emptyList()
+            addCollectionButton.inCollection = BaseCollection.MY_COLL.id in collectionIds
+            addWishListButton.inCollection = BaseCollection.WISH_LIST.id in collectionIds
 
             val issue = this.fullIssue?.issue
             if (issue?.variantName?.isNotEmpty() == true && issue.variantOf != null) {
@@ -217,7 +229,7 @@ class IssueListFragment : ListFragment<FullIssue, IssueListFragment.IssueViewHol
             }
 
             issueNameBox.setBackgroundResource(
-                if (inCollection)
+                if (addCollectionButton.inCollection)
                     R.drawable.issue_list_item_in_collection_bg
                 else
                     R.drawable.issue_list_item_not_in_collection_bg
@@ -230,8 +242,8 @@ class IssueListFragment : ListFragment<FullIssue, IssueListFragment.IssueViewHol
     interface IssueListCallback : ListFragmentCallback {
         fun onIssueSelected(issue: Issue)
         fun onNewIssue(issueId: Int)
-        fun addToCollection(issue: FullIssue)
-        fun removeFromCollection(issue: FullIssue)
+        fun addToCollection(issue: FullIssue, collId: Int)
+        fun removeFromCollection(issue: FullIssue, collId: Int)
     }
 
     companion object {

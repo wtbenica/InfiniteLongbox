@@ -13,7 +13,6 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.google.android.material.appbar.AppBarLayout
 import com.wtb.comiccollector.*
-import com.wtb.comiccollector.database.daos.Count
 import com.wtb.comiccollector.database.models.*
 import com.wtb.comiccollector.fragments_view_models.IssueDetailViewModel
 import com.wtb.comiccollector.views.*
@@ -69,6 +68,7 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback,
     private lateinit var coverImageView: ImageButton
     private lateinit var ebayButton: AppCompatImageButton
     private lateinit var collectionButton: AddCollectionButton
+    private lateinit var wishListButton: AddWishListButton
     private lateinit var variantSpinnerHolder: LinearLayout
     private lateinit var variantSpinner: Spinner
     private var isVariant: Boolean = false
@@ -151,9 +151,14 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback,
         infoBox = view.findViewById(R.id.issue_info_box)
         gcdLinkButton = view.findViewById(R.id.gcd_link)
         ebayButton = view.findViewById(R.id.ebayButton)
-        collectionButton = (view.findViewById(R.id.collectionButton) as AddCollectionButton).apply {
-            callback = this@IssueDetailFragment
-        }
+        collectionButton =
+            (view.findViewById(R.id.collectionButton) as AddCollectionButton).apply {
+                callback = this@IssueDetailFragment
+            }
+        wishListButton =
+            (view.findViewById(R.id.issue_add_wish_btn) as AddWishListButton).apply {
+                callback = this@IssueDetailFragment
+            }
         variantSpinnerHolder = view.findViewById(R.id.variant_spinner_holder)
         variantSpinner = view.findViewById(R.id.variant_spinner) as Spinner
         creditsBox = CreditsBox(requireContext(), this@IssueDetailFragment)
@@ -342,10 +347,6 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback,
         this.gotoEndButton.isEnabled = (currentPos < this.issuesInSeries.size - 1) && found
     }
 
-    private fun setCollectionButton(count: Count) {
-        collectionButton.inCollection = count.count > 0
-    }
-
     private fun jumpToIssue(skipNum: Int) {
         currentPos += skipNum
         issueDetailViewModel.loadIssue(this.issuesInSeries[currentPos])
@@ -450,7 +451,7 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback,
         variantSpinner.setOnTouchListener(touchSelectListener)
     }
 
-////    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+    ////    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
 ////        super.onCreateOptionsMenu(menu, inflater)
 ////        inflater.inflate(R.menu.fragment_issue, menu)
 ////    }
@@ -467,7 +468,7 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback,
 //        }
 //    }
 //
-private var i = 0
+    private var i = 0
 
     private fun updateUI() {
         val issue: Issue = currentIssue.issue
@@ -484,7 +485,10 @@ private var i = 0
             }
 
             infoBox.update(issue.releaseDate, issue.coverDate, issue.notes)
-            collectionButton.inCollection = currentIssue.myCollection != null
+            val collectionIds: List<Int> = currentIssue.collectionItems.map { it.userCollection }
+            collectionButton.inCollection = collectionIds.contains(BaseCollection.MY_COLL.id)
+            wishListButton.inCollection = collectionIds.contains(BaseCollection.WISH_LIST.id)
+
             creditsBox.update(
                 issueStories = issueStories,
                 variantStories = variantStories,
@@ -549,11 +553,11 @@ private var i = 0
         private const val TAG = APP + "IssueDetailFragment"
     }
 
-    override fun addToCollection() = issueDetailViewModel.addToCollection()
+    override fun addToCollection(collId: Int) = issueDetailViewModel.addToCollection(collId)
 
-    override fun removeFromCollection() {
+    override fun removeFromCollection(collId: Int) {
         Log.d(TAG, "REMOVING FROM COLLECTION $fullIssue $fullVariant")
-        issueDetailViewModel.removeFromCollection()
+        issueDetailViewModel.removeFromCollection(collId)
     }
 
 }

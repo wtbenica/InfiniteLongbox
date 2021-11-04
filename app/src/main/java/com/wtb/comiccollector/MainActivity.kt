@@ -385,11 +385,11 @@ class MainActivity : AppCompatActivity(),
         filterViewModel.setFilter(filter)
     }
 
-    override fun addToCollection(issue: FullIssue) {
-        Repository.get().addToCollection(issue)
+    override fun addToCollection(issue: FullIssue, collId: Int) {
+        Repository.get().addToCollection(issue, collId)
     }
 
-    override fun removeFromCollection(issue: FullIssue) {
-        Repository.get().removeFromCollection(issue.issue.issueId)
+    override fun removeFromCollection(issue: FullIssue, collId: Int) {
+        Repository.get().removeFromCollection(issue.issue.issueId, collId)
     }
 }
