@@ -18,7 +18,7 @@ const val AUTO_ID = 0
             entity = Series::class,
             parentColumns = arrayOf("seriesId"),
             childColumns = arrayOf("series"),
-            onDelete = CASCADE
+            onDelete = CASCADE,
         ),
         ForeignKey(
             entity = Issue::class,

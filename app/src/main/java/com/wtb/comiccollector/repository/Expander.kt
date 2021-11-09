@@ -91,10 +91,8 @@ class Expander private constructor(webservice: Webservice, prefs: SharedPreferen
     inner class StoryExpander {
         internal fun expandStoryAsync(stories: List<Story>): Deferred<Unit> =
             CoroutineScope(highPriorityDispatcher).async {
-                withContext(highPriorityDispatcher) {
-                    updateStoriesCredits(stories.ids)
-                    updateStoriesAppearances(stories.ids)
-                }
+                updateStoriesCredits(stories.ids)
+                updateStoriesAppearances(stories.ids)
             }
 
         private suspend fun updateStoriesCredits(storyIds: List<Int>): List<CreditX> =
@@ -203,15 +201,17 @@ class Expander private constructor(webservice: Webservice, prefs: SharedPreferen
                     apiCall = webservice::getExCreditsByNameDetail
                 )
                 val creditXs: List<CreditX> = credits + extracts
+                val storyIds = creditXs.map { it.story }
 
-                val stories = retrieveItemsByList(
-                    argList = creditXs.map { it.story },
+                val stories: List<Story> = retrieveItemsByList(
+                    argList = storyIds,
                     apiCall = webservice::getStoriesByIds
                 )
+                val issueIds = stories.map { it.issue }
 
                 val issues: List<Issue> = retrieveItemsByList(
-                    stories.map { it.issue },
-                    webservice::getIssuesByIds
+                    argList = issueIds,
+                    apiCall = webservice::getIssuesByIds
                 )
                 fKeyChecker.checkFKeysIssue(issues)
 

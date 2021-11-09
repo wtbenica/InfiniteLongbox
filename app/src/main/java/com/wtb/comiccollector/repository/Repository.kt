@@ -101,39 +101,39 @@ class Repository private constructor(val context: Context) {
         }
 
     private val executor = Executors.newSingleThreadExecutor()
-    private val database: IssueDatabase
+    private val issueDatabase: IssueDatabase
         get() = IssueDatabase.getInstance(context)
     private var hasConnection: Boolean = false
     private var hasUnmeteredConnection: Boolean = true
 
     private val seriesDao
-        get() = database.seriesDao()
+        get() = issueDatabase.seriesDao()
     private val issueDao
-        get() = database.issueDao()
+        get() = issueDatabase.issueDao()
     private val creatorDao
-        get() = database.creatorDao()
+        get() = issueDatabase.creatorDao()
     private val publisherDao
-        get() = database.publisherDao()
+        get() = issueDatabase.publisherDao()
     private val roleDao
-        get() = database.roleDao()
+        get() = issueDatabase.roleDao()
     private val storyDao
-        get() = database.storyDao()
+        get() = issueDatabase.storyDao()
     private val creditDao
-        get() = database.creditDao()
+        get() = issueDatabase.creditDao()
     private val exCreditDao
-        get() = database.exCreditDao()
+        get() = issueDatabase.exCreditDao()
     private val storyTypeDao
-        get() = database.storyTypeDao()
+        get() = issueDatabase.storyTypeDao()
     private val nameDetailDao
-        get() = database.nameDetailDao()
+        get() = issueDatabase.nameDetailDao()
     private val characterDao
-        get() = database.characterDao()
+        get() = issueDatabase.characterDao()
     private val appearanceDao
-        get() = database.appearanceDao()
+        get() = issueDatabase.appearanceDao()
     private val collectionItemDao
-        get() = database.collectionItemDao()
+        get() = issueDatabase.collectionItemDao()
     private val coverDao
-        get() = database.coverDao()
+        get() = issueDatabase.coverDao()
 
     private val updater: StaticUpdater
         get() = StaticUpdater.get()
@@ -143,16 +143,13 @@ class Repository private constructor(val context: Context) {
 
     internal fun beginStaticUpdate(progressUpdate: ProgressUpdateCard, mainActivity: MainActivity) {
         MainActivity.hasConnection.observeForever {
-            Log.d(TAG, "PrE BOB")
             this.hasConnection = it
             if (checkConnectionStatus()) {
-                Log.d(TAG, "BOB")
                 // TODO: A lint inspection pointed out that update returns a Deferred, which
                 //  means that this is async async await. Look into
                 MainActivity.activeJob = CoroutineScope(Dispatchers.IO).async {
                     withContext(Dispatchers.IO) {
-                        Log.d(TAG, "STARTING UPDATE")
-//                        progressUpdate.show()
+//                        Log.d(TAG, "STARTING UPDATE")
                         updater.updateStaticAsync(progressUpdate)
                     }.let {
                         Log.d(TAG, "Static update done")

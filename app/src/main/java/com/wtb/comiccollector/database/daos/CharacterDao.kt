@@ -60,13 +60,15 @@ abstract class CharacterDao : BaseDao<Character>("character") {
         tableJoinString.append(
             """SELECT DISTINCT ch.* 
             FROM character ch 
-            JOIN appearance ap ON ap.character = ch.characterId 
             """
         )
 
-        if (filter.isNotEmpty()) {
+        if (filter.hasDateFilter() || filter.hasCharacter() || filter.hasCreator() || filter
+                .hasSeries() || filter.mMyCollection
+        ) {
             tableJoinString.append(
-                """JOIN issue ie ON ap.issue = ie.issueId 
+                """JOIN appearance ap ON ap.character = ch.characterId 
+                JOIN issue ie ON ap.issue = ie.issueId 
                 """
             )
         }
@@ -161,8 +163,8 @@ abstract class CharacterDao : BaseDao<Character>("character") {
         filter.mTextFilter?.let { textFilter ->
             val text = textFilterToString(textFilter.text)
             conditionsString.append(
-                """${connectWord()} ch.name LIKE ?
-                OR ch.alterEgo LIKE ?
+                """${connectWord()} (ch.name LIKE ?
+                OR ch.alterEgo LIKE ?)
                 """
             )
 

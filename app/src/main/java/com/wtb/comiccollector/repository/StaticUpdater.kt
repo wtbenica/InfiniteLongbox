@@ -37,9 +37,9 @@ class StaticUpdater private constructor(
         Log.d(TAG, "updateStaticAsync Part II")
 
         if (!DEBUG) {
-            getAllSeries(progressUpdate.seriesWrapper)
-            getAllNameDetails(progressUpdate.creatorWrapper)
-            getAllCharacters(progressUpdate.characterWrapper)
+//            getAllSeries(progressUpdate.seriesWrapper)
+//            getAllNameDetails(progressUpdate.creatorWrapper)
+//            getAllCharacters(progressUpdate.characterWrapper)
             getAllSeriesBonds()
         }
     }
