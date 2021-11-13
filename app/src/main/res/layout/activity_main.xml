@@ -35,8 +35,7 @@
                 android:id="@+id/progress_update_card"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="@dimen/margin_default"
-                android:visibility="gone" />
+                android:layout_margin="@dimen/margin_default" />
 
             <FrameLayout
                 android:layout_width="match_parent"
@@ -53,8 +52,9 @@
                         style="@style/Widget.AppCompat.ProgressBar.Horizontal"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
+                        android:background="?attr/mainActivityProgressBarBgColor"
                         android:indeterminateOnly="true"
-                        android:indeterminateTint="?attr/colorPrimary"/>
+                        android:indeterminateTint="?attr/mainActivityProgressBarIndeterminateTint" />
                 </FrameLayout>
             </FrameLayout>
         </com.google.android.material.appbar.AppBarLayout>

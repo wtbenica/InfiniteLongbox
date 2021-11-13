@@ -3,8 +3,18 @@
     <declare-styleable name="TitleBarDropdownButton">
         <attr name="expanded" format="boolean" />
     </declare-styleable>
+
     <declare-styleable name="IssueNameBox">
         <attr name="in_collection" format="boolean" />
+    </declare-styleable>
+
+    <declare-styleable name="ImageWebLink">
+        <attr name="url_imageweblink" format="string" />
+        <attr name="img_src" format="string" />
+    </declare-styleable>
+
+    <declare-styleable name="WebLink">
+        <attr name="url_weblink" format="string" />
     </declare-styleable>
 </resources>
 

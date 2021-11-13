@@ -8,7 +8,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
-import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.fragment.app.DialogFragment
@@ -26,7 +25,7 @@ class CoverDialogFragment(private val draw: Drawable, private val currentIssue: 
 
     override fun onResume() {
         super.onResume()
-        updateLayoutParams(MATCH_PARENT, WRAP_CONTENT)
+        updateLayoutParams(MATCH_PARENT, MATCH_PARENT)
     }
 
     private fun updateLayoutParams(w: Int, h: Int) {

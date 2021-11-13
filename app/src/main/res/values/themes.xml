@@ -22,6 +22,7 @@
         <item name="colorSecondaryVariant">@color/amnesia_variant</item>
         <item name="colorSecondary">@color/amnesia</item>
         <item name="colorSecondaryDark">@color/amnesia_dark</item>
+        <item name="colorSecondaryDarkDark">@color/amnesia_dark_dark</item>
 
         <item name="colorOnSecondary">@color/amnesia_text</item>
 
@@ -37,7 +38,7 @@
         <!-- Text Colors -->
         <item name="textColorTitleBar">?attr/colorPrimaryDarkDark</item>
         <item name="textColorTitle">?attr/colorOnPrimary</item>
-        <item name="textColorSubtitle">?attr/colorSecondaryDark</item>
+        <item name="textColorSubtitle">?attr/colorSecondaryDarkDark</item>
         <item name="textColorBody">?attr/colorOnPrimary</item>
 
         <item name="colorTransparentFilter">@color/transparent_filter</item>
@@ -47,35 +48,53 @@
         <item name="android:textColorPrimary">?attr/textColorBody</item>
         <item name="android:textColor">?attr/textColorBody</item>
 
+        <!-- CardView -->
+        <item name="cardElevation">0dp</item>
+        <item name="cardMaxElevation">0dp</item>
+        <item name="cardCornerRadius">@dimen/radius_default</item>
+        <item name="cardUseCompatPadding">false</item>
+
         <!-- MainActivity -->
         <item name="colorUi">?attr/colorSecondary</item>
-        <item name="colorUiBackground">?attr/colorSecondaryVariant</item>
+        <item name="colorUiBackground">?attr/colorSecondaryLight</item>
         <item name="colorUiInterface">?attr/textColorTitleBar</item>
+        <item name="mainActivityProgressBarBgColor">?attr/colorPrimary</item>
+        <item name="mainActivityProgressBarIndeterminateTint">?attr/colorPrimaryDarkDark</item>
+        <item name="actionOverflowButtonStyle">@style/OverflowButtonStyle</item>
 
         <!-- FilterFragment -->
-        <item name="imageLabelBackgroundColor">?attr/colorPrimaryDark</item>
+        <item name="imageLabelBackgroundColor">?attr/colorPrimary</item>
         <item name="imageLabelBackground">@drawable/filter_fragment_image_label_bg</item>
-        <item name="imageLabelTint">?attr/colorChipText</item>
+        <item name="imageLabelTint">?attr/chipTextColor</item>
+
         <item name="searchBarTextColorHint">?attr/colorSecondary</item>
         <item name="searchBarTextColor">?attr/colorOnPrimary</item>
         <item name="searchBarBackground">@android:color/transparent</item>
         <item name="searchBarPopupBackground">?attr/colorPrimaryTransparent</item>
+
+        <item name="filterSectionBackground">@drawable/filter_fragment_section_background</item>
+
+        <item name="filterSectionBackgroundColor">?attr/colorSecondaryLight</item>
         <item name="filterChipGroupBackground">@android:color/transparent</item>
-        <item name="colorChipBgActive">?attr/colorPrimaryVariant</item>
-        <item name="colorChipBgInactive">?attr/colorSecondary</item>
-        <item name="colorChipStrokeActive">?attr/colorSecondaryDark</item>
-        <item name="colorChipStrokeInactive">?attr/colorSecondaryDark</item>
-        <item name="colorChipText">?attr/textColorSubtitle</item>
+
+        <item name="chipActiveBgColor">?attr/colorPrimaryVariant</item>
+        <item name="chipInactiveBgColor">?attr/colorSecondary</item>
+        <item name="chipActiveStrokeColor">?attr/colorSecondaryDark</item>
+        <item name="chipInactiveStrokeColor">?attr/colorSecondaryDark</item>
+        <item name="chipTextColor">?attr/textColorSubtitle</item>
+        <item name="chipIconSize">20dp</item>
 
         <!-- IssueDetailFragment -->
         <item name="fragmentIssueDetailButtonColor">?attr/colorSecondaryDark</item>
+        <item name="fragmentIssueDetailBgColor">?attr/colorUiBackground</item>
 
         <!-- IssueDetailFragment Variant Spinner -->
-        <item name="fragmentIssueDetailVariantSpinnerBgColor">?attr/colorSecondaryVariant</item>
+        <item name="fragmentIssueDetailVariantSpinnerBgColor">@android:color/transparent</item>
         <item name="fragmentIssueDetailVariantSpinnerTextBg">
             @drawable/bg_fragment_issue_detail_variant_spinner
         </item>
         <item name="fragmentIssueDetailVariantSpinnerTextColor">?attr/textColorBody</item>
+        <item name="fragmentIssueDetailVariantSpinnerBgTint">?attr/colorOnPrimary</item>
 
         <!-- IssueInfoRow -->
         <item name="fragmentIssueDetailInfoRowLabelBg">@drawable/bg_story_box_title_bar</item>
@@ -84,41 +103,65 @@
 
         <!-- SeriesDetailBox -->
         <item name="styleSeriesDetail">@style/SeriesDetailBackground</item>
-        <item name="seriesDetailBackground">?attr/colorPrimaryVariant</item>
+        <item name="seriesDetailBackground">?attr/colorPrimary</item>
         <item name="seriesDetailLabelColor">?attr/colorOnPrimary</item>
         <item name="seriesDetailTextColor">?attr/colorOnPrimary</item>
+        <item name="seriesDetailDropdownButtonTint">?attr/colorOnPrimary</item>
 
         <!-- ListItem -->
         <item name="listItemBackground">@drawable/bg_green</item>
         <item name="listItemBackgroundBase">@drawable/bg_green</item>
         <item name="listItemBackgroundFilter">?attr/colorTransparentFilterLow</item>
+        <item name="listItemTitleTextSize">@dimen/text_large</item>
 
         <!-- ListItemSeries -->
+        <item name="listItemSeriesBg">?attr/colorSecondaryLight</item>
         <item name="listItemTitleTextColor">?attr/textColorTitle</item>
         <item name="listItemSeriesTitleCardBackground">?attr/colorPrimaryTransparent</item>
-        <item name="listItemSeriesProgressBarBackground">?attr/colorSecondaryDark</item>
-        <item name="listItemSeriesProgressBarIndeterminateTint">?attr/colorPrimaryDark</item>
+        <item name="listItemSeriesProgressBarBackground">?attr/colorPrimary</item>
+        <item name="listItemSeriesProgressBarIndeterminateTint">?attr/colorPrimaryDarkDark</item>
+
+        <item name="listItemSeriesMetaTextSize">@dimen/text_small</item>
+        <item name="listItemSeriesLayoutHeight">200dp</item>
 
         <!-- ListItemIssue -->
         <item name="listItemIssueBg">?attr/colorSecondaryLight</item>
-        <item name="listItemIssueBoxBg">@drawable/issue_list_item_in_collection_bg</item>
-        <item name="listItemIssueProgressBarBg">?attr/colorPrimaryTransparent</item>
-        <item name="listItemIssueProgressBarIndetTint">?attr/colorPrimary</item>
+        <item name="listItemIssueBoxBgInCollection">@drawable/issue_list_item_in_collection_bg
+        </item>
+        <item name="listItemIssueBoxBgColorInCollection">?attr/colorPrimaryDark</item>
+        <item name="listItemIssueBoxBgColorNotInCollection">?attr/colorSecondaryDark</item>
+        <item name="listItemIssueProgressBarBg">?attr/colorPrimary</item>
+        <item name="listItemIssueProgressBarIndetTint">?attr/colorPrimaryDarkDark</item>
         <item name="listItemIssueBoxTextColor">?attr/textColorBody</item>
 
         <!-- ListItemSimple -->
         <item name="listItemSimpleTitleTextBackground">@drawable/list_item_simple_name_bg</item>
-        <item name="listItemSimpleMetaBoxBackground">@drawable/bg_list_item_simple_meta</item>
+        <item name="listItemSimpleMetaBoxBg">@drawable/bg_list_item_simple_meta</item>
+
+        <item name="listItemSimpleTitleTextBackgroundColor">?attr/colorTransparentFilter</item>
+        <item name="listItemSimpleMetaBoxBgColor">?attr/colorPrimaryVariant</item>
+        <item name="listItemSimpleMetaBoxBgStrokeColor">?attr/colorPrimaryDark</item>
+        <item name="listItemSimpleMetaBoxCornerRadius">48dp</item>
+        <item name="listItemSimpleMetaTextColor">?attr/textColorBody</item>
 
         <!-- StoryBox -->
-        <item name="storyBoxTitleBarBackground">@drawable/bg_story_box_title_bar</item>
-        <item name="storyBoxTitleBarBackgroundColor">?attr/colorPrimary</item>
-        <item name="storyBoxDropdownButtonTitleBackground">@android:color/transparent</item>
-        <item name="storyBoxSubtitleTextBackground">@drawable/bg_story_box_subtitle_bar</item>
-        <item name="storyBoxRoleNameTextBackground">?attr/colorPrimaryVariant</item>
-        <item name="storyBoxCreatorLinkTextColor">?attr/colorOnPrimary</item>
-        <item name="storyBoxCreatorNameTextColor">?attr/colorOnPrimary</item>
+        <item name="storyBoxTitleBarBg">@drawable/bg_story_box_title_bar</item>
+        <item name="storyBoxTitleBarBgColor">?attr/colorPrimary</item>
+        <item name="storyBoxTitleBarTextColor">?attr/colorOnPrimary</item>
+        <item name="storyBoxTitleDropdownButtonBg">@android:color/transparent</item>
+        <item name="storyBoxTitleDropdownButtonTint">?attr/colorOnPrimary</item>
+
+        <item name="storyBoxSubtitleTextBg">@drawable/bg_story_box_subtitle_bar</item>
+        <item name="storyBoxSubtitleTextBgColor">?attr/colorPrimaryVariant</item>
+        <item name="storyBoxSubtitleTextColor">?attr/colorOnPrimary</item>
+
+        <item name="storyBoxRoleNameTextBg">?attr/colorPrimaryVariant</item>
         <item name="storyBoxRoleNameTextColor">?attr/colorOnPrimary</item>
+
+        <item name="storyBoxLinkTextColor">?attr/colorOnPrimary</item>
+
+        <item name="storyBoxCreatorNameTextColor">?attr/colorOnPrimary</item>
+
         <item name="storyBoxContentBoxTextColor">?attr/colorOnPrimary</item>
 
         <!-- CoverDialogFragment -->
@@ -129,13 +172,14 @@
 
         <item name="android:windowBackground">?attr/colorSecondaryLight</item>
 
-        <item name="cardViewStyle">@style/mCardView</item>
+        <item name="chipStyle">@style/myNewChip</item>
         <item name="materialButtonStyle">@style/myButtonStyle</item>
         <item name="android:spinnerStyle">@style/IssueDetailVariantSpinner</item>
         <item name="android:buttonBarButtonStyle">@style/IssueDetailButtonBarButton</item>
         <item name="android:buttonBarStyle">@style/IssueDetailButtonBar</item>
-        <item name="chipStyle">@style/myNewChip</item>
+        <item name="cardViewStyle">@style/myCardView</item>
 
+        <!-- These are here for custom views. It might be tempting to delete them, but don't -->
         <item name="styleLinkTextView">@style/LinkTextView</item>
         <item name="styleAddCollectionButton">@style/AddCollectionButtonStyle</item>
         <item name="styleIssueInfoBox">@style/IssueInfoBox</item>

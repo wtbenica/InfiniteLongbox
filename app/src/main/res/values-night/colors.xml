@@ -1,22 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="fantasia_transparent">#33c4f462</color>
-    <color name="fantasia_light">#f0ffcd</color>
-    <color name="fantasia_variant">#d8fd9d</color>
-    <color name="fantasia">#c4f462</color>
-    <color name="fantasia_dark">#9acd00</color>
-    <color name="fantasia_dark_dark">#6AAD00</color>
 
-    <color name="fantasia_text">#d222</color>
-
-    <color name="argonaut">#E4FFA6</color>
-
-    <color name="amnesia_transparent">#ccccd7</color>
+    <color name="amnesia_transparent">#ee707070</color>
     <color name="amnesia_light">#606666</color>
     <color name="amnesia_variant">#505555</color>
     <color name="amnesia">#404040</color>
-    <color name="amnesia_dark">#2a2f2f</color>
+    <color name="amnesia_dark">#333636</color>
+    <color name="amnesia_dark_dark">#202929</color>
+
     <color name="amnesia_text">#ddf0f0f0</color>
+
+    <color name="text_publisher">#F7F7F7</color>
 
     <color name="transparent_filter">#a001</color>
     <color name="transparent_filter_low">#DD6A9D00</color>

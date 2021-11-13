@@ -152,17 +152,21 @@ abstract class SeriesDao : BaseDao<Series>("series") {
                     conditions.append(
                         """${connectWord()} ie.issueId IN (
                     SELECT issue
-                    FROM mycollection)
+                    FROM collectionItem
+                    WHERE userCollection = ?)
                     """
                     )
                 } else {
                     conditions.append(
                         """${connectWord()} ss.seriesId IN (
                     SELECT series
-                    FROM mycollection) 
+                    FROM collectionItem
+                    WHERE userCollection = ?) 
                 """
                     )
                 }
+
+                args.add(BaseCollection.MY_COLL.id)
             }
 
             filter.mTextFilter?.let { textFilter ->

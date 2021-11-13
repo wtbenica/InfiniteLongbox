@@ -13,12 +13,9 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.google.android.material.appbar.AppBarLayout
 import com.wtb.comiccollector.*
-import com.wtb.comiccollector.database.daos.Count
 import com.wtb.comiccollector.database.models.*
 import com.wtb.comiccollector.fragments_view_models.IssueDetailViewModel
-import com.wtb.comiccollector.views.AddCollectionButton
-import com.wtb.comiccollector.views.CreditsBox
-import com.wtb.comiccollector.views.IssueInfoBox
+import com.wtb.comiccollector.views.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import java.util.*
 
@@ -71,6 +68,7 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback,
     private lateinit var coverImageView: ImageButton
     private lateinit var ebayButton: AppCompatImageButton
     private lateinit var collectionButton: AddCollectionButton
+    private lateinit var wishListButton: AddWishListButton
     private lateinit var variantSpinnerHolder: LinearLayout
     private lateinit var variantSpinner: Spinner
     private var isVariant: Boolean = false
@@ -87,7 +85,7 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback,
     private lateinit var gotoSkipForwardButton: Button
     private lateinit var gotoEndButton: Button
 
-    private lateinit var gcdLinkButton: Button
+    private lateinit var gcdLinkButton: WebLink
 
     private val currentIssue: FullIssue
         get() = fullVariant ?: fullIssue
@@ -151,11 +149,16 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback,
         }
         issueCreditsFrame = view.findViewById(R.id.issue_credits_frame) as FrameLayout
         infoBox = view.findViewById(R.id.issue_info_box)
-        gcdLinkButton = view.findViewById(R.id.gcd_link) as Button
+        gcdLinkButton = view.findViewById(R.id.gcd_link)
         ebayButton = view.findViewById(R.id.ebayButton)
-        collectionButton = (view.findViewById(R.id.collectionButton) as AddCollectionButton).apply {
-            callback = this@IssueDetailFragment
-        }
+        collectionButton =
+            (view.findViewById(R.id.collectionButton) as AddCollectionButton).apply {
+                callback = this@IssueDetailFragment
+            }
+        wishListButton =
+            (view.findViewById(R.id.issue_add_wish_btn) as AddWishListButton).apply {
+                callback = this@IssueDetailFragment
+            }
         variantSpinnerHolder = view.findViewById(R.id.variant_spinner_holder)
         variantSpinner = view.findViewById(R.id.variant_spinner) as Spinner
         creditsBox = CreditsBox(requireContext(), this@IssueDetailFragment)
@@ -344,10 +347,6 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback,
         this.gotoEndButton.isEnabled = (currentPos < this.issuesInSeries.size - 1) && found
     }
 
-    private fun setCollectionButton(count: Count) {
-        collectionButton.inCollection = count.count > 0
-    }
-
     private fun jumpToIssue(skipNum: Int) {
         currentPos += skipNum
         issueDetailViewModel.loadIssue(this.issuesInSeries[currentPos])
@@ -356,27 +355,22 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback,
 
     override fun onStart() {
         super.onStart()
-        gcdLinkButton.setOnClickListener {
-            val url = "https://www.comics.org/issue/${fullIssue.issue.issueId}"
-            val intent = Intent().apply {
-                action = Intent.ACTION_VIEW
-                data = Uri.parse(url)
-            }
-            startActivity(intent)
-        }
+        gcdLinkButton.url = { "https://www.comics.org/issue/${currentIssue.issue.issueId}" }
 
         ebayButton.setOnClickListener {
             val category = 259104
-            val url = "https://www.ebay.com/sch/?_sacat=$category&_nkw=${
-                fullIssue.series.seriesName.replace(' ', '+')
-            }+${currentIssue.issue.issueNumRaw}+${currentIssue.issue.variantName}+${
-                currentIssue.series.startDate?.year ?: ""
-            }"
+            val url =
+                "https://www.ebay.com/sch/?_sacat=$category&_nkw=${
+                    currentIssue.series.seriesName.replace(' ', '+')
+                }+${currentIssue.issue.issueNumRaw}+${currentIssue.issue.variantName}+${
+                    currentIssue.series.startDate?.year ?: ""
+                }"
+
             val intent = Intent().apply {
                 action = Intent.ACTION_VIEW
                 data = Uri.parse(url)
             }
-            startActivity(intent)
+            context?.startActivity(intent)
         }
 
         gotoStartButton.setOnClickListener {
@@ -457,23 +451,23 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback,
         variantSpinner.setOnTouchListener(touchSelectListener)
     }
 
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        super.onCreateOptionsMenu(menu, inflater)
-        inflater.inflate(R.menu.fragment_issue, menu)
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId) {
-            R.id.delete_issue -> {
-                saveIssue = false
-                issueDetailViewModel.delete(fullIssue.issue)
-                requireActivity().onBackPressed()
-                true
-            }
-            else -> super.onOptionsItemSelected(item)
-        }
-    }
-
+    ////    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+////        super.onCreateOptionsMenu(menu, inflater)
+////        inflater.inflate(R.menu.fragment_issue, menu)
+////    }
+////
+//    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+//        return when (item.itemId) {
+//            R.id.delete_issue -> {
+//                saveIssue = false
+//                issueDetailViewModel.delete(fullIssue.issue)
+//                requireActivity().onBackPressed()
+//                true
+//            }
+//            else -> super.onOptionsItemSelected(item)
+//        }
+//    }
+//
     private var i = 0
 
     private fun updateUI() {
@@ -491,7 +485,10 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback,
             }
 
             infoBox.update(issue.releaseDate, issue.coverDate, issue.notes)
-            collectionButton.inCollection = currentIssue.myCollection != null
+            val collectionIds: List<Int> = currentIssue.collectionItems.map { it.userCollection }
+            collectionButton.inCollection = collectionIds.contains(BaseCollection.MY_COLL.id)
+            wishListButton.inCollection = collectionIds.contains(BaseCollection.WISH_LIST.id)
+
             creditsBox.update(
                 issueStories = issueStories,
                 variantStories = variantStories,
@@ -556,11 +553,11 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback,
         private const val TAG = APP + "IssueDetailFragment"
     }
 
-    override fun addToCollection() = issueDetailViewModel.addToCollection()
+    override fun addToCollection(collId: Int) = issueDetailViewModel.addToCollection(collId)
 
-    override fun removeFromCollection() {
+    override fun removeFromCollection(collId: Int) {
         Log.d(TAG, "REMOVING FROM COLLECTION $fullIssue $fullVariant")
-        issueDetailViewModel.removeFromCollection()
+        issueDetailViewModel.removeFromCollection(collId)
     }
 
 }

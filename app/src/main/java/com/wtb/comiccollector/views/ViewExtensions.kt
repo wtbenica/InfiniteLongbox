@@ -173,6 +173,7 @@ private fun View.animateHeight(startValue: Int, endValue: Int, duration: Long) {
     layoutHeightAnimator.start()
 }
 
+@ExperimentalCoroutinesApi
 internal fun View.toggleVisibility(): Boolean {
     val isExpanded = this.visibility == View.VISIBLE
     if (isExpanded) {

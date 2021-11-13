@@ -5,12 +5,13 @@
         <item name="android:gravity">center_vertical</item>
         <item name="android:orientation">horizontal</item>
         <item name="android:paddingStart">@dimen/margin_narrow</item>
-        <item name="android:background">?attr/storyBoxTitleBarBackground</item>
+        <item name="android:background">?attr/storyBoxTitleBarBg</item>
     </style>
 
     <style name="StoryBoxTitleBarText">
         <item name="android:textSize">@dimen/text_large</item>
         <item name="android:padding">@dimen/margin_narrow</item>
+        <item name="android:textColor">?attr/storyBoxTitleBarTextColor</item>
         <item name="android:textAllCaps">true</item>
         <item name="android:fontFamily">?attr/fontBlock</item>
         <item name="android:textStyle">bold</item>
@@ -21,24 +22,26 @@
         <item name="android:minWidth">@dimen/peek_height</item>
         <item name="android:background">@android:color/transparent</item>
         <item name="srcCompat">@drawable/icon_arrow_down</item>
+        <item name="android:tint">?attr/storyBoxTitleBarTextColor</item>
     </style>
 
     <style name="StoryBoxSubtitleText">
-        <item name="android:background">?attr/storyBoxSubtitleTextBackground</item>
+        <item name="android:background">?attr/storyBoxSubtitleTextBg</item>
         <item name="android:textSize">@dimen/text_small</item>
         <item name="android:textAllCaps">false</item>
+        <item name="android:textColor">?attr/storyBoxSubtitleTextColor</item>
         <item name="android:padding">@dimen/margin_narrow</item>
         <item name="android:fontFamily">?attr/fontBlock</item>
     </style>
 
-    <style name="LinkTextView" parent="Widget.MaterialComponents.TextView">
-        <item name="android:textAppearance">@style/CreatorNameText</item>
+    <style name="LinkTextView" parent="Widget.AppCompat.TextView">
+        <item name="android:textAppearance">@style/LinkTextAppearance</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_width">wrap_content</item>
-        <item name="android:textColor">?attr/storyBoxCreatorLinkTextColor</item>
+        <item name="android:textColor">?attr/storyBoxLinkTextColor</item>
     </style>
 
-    <style name="CreatorNameText" parent="Widget.AppCompat.TextView">
+    <style name="LinkTextAppearance" parent="Widget.AppCompat.TextView">
         <item name="fontFamily">?attr/fontRegular</item>
         <item name="android:paddingStart">@dimen/margin_default</item>
         <item name="android:paddingEnd">@dimen/margin_default</item>
@@ -49,7 +52,7 @@
     <style name="RoleNameText" parent="Widget.AppCompat.TextView">
         <item name="android:layout_margin">@dimen/margin_narrow</item>
         <item name="fontFamily">?attr/fontBlock</item>
-        <item name="android:background">?attr/storyBoxRoleNameTextBackground</item>
+        <item name="android:background">?attr/storyBoxRoleNameTextBg</item>
         <item name="android:padding">@dimen/margin_narrow</item>
         <item name="android:textSize">@dimen/text_small</item>
         <item name="android:textColor">?attr/storyBoxRoleNameTextColor</item>

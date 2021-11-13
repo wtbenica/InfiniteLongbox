@@ -125,10 +125,16 @@ data class ExCredit(
             entity = StoryType::class,
             parentColumns = arrayOf("storyTypeId"),
             childColumns = arrayOf("storyType")
+        ),
+        ForeignKey(
+            entity = Issue::class,
+            parentColumns = arrayOf("issueId"),
+            childColumns = arrayOf("issue")
         )
     ],
     indices = [
         Index(value = ["storyType"]),
+        Index(value = ["issue"]),
     ]
 )
 data class Story(

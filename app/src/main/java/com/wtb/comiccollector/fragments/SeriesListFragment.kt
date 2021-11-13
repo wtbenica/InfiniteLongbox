@@ -53,9 +53,16 @@ class SeriesListFragment : ListFragment<FullSeries, SeriesListFragment.SeriesHol
         val itemOffsetDecoration = ItemOffsetDecoration(
             itemOffset = resources.getDimension(R.dimen.item_offset_vert_list_item_series).toInt(),
             itemOffsetHorizontal = resources.getDimension(R.dimen.item_offset_horz_list_item_series)
+                .toInt()
+        )
+
+        val itemOffsetDecoration2 = ItemOffsetDecoration(
+            itemOffset = resources.getDimension(R.dimen.item_offset_vert_list_item_series).toInt(),
+            itemOffsetHorizontal = resources.getDimension(R.dimen.item_offset_horz_list_item_series)
                 .toInt(),
             numCols = numCols
         )
+
         listRecyclerView.addItemDecoration(itemOffsetDecoration)
 
         return view

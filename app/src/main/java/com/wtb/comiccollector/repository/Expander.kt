@@ -203,23 +203,27 @@ class Expander private constructor(webservice: Webservice, prefs: SharedPreferen
                     apiCall = webservice::getExCreditsByNameDetail
                 )
                 val creditXs: List<CreditX> = credits + extracts
+                val storyIds = creditXs.map { it.story }
 
-                val stories = retrieveItemsByList(
-                    argList = creditXs.map { it.story },
+                val stories: List<Story> = retrieveItemsByList(
+                    argList = storyIds,
                     apiCall = webservice::getStoriesByIds
                 )
+                val issueIds = stories.map { it.issue }
 
                 val issues: List<Issue> = retrieveItemsByList(
-                    stories.map { it.issue },
-                    webservice::getIssuesByIds
+                    argList = issueIds,
+                    apiCall = webservice::getIssuesByIds
                 )
-                fKeyChecker.checkFKeysIssue(issues)
-
-                database.issueDao().upsert(issues)
-                database.storyDao().upsert(stories)
-                database.creditDao().upsert(credits)
-                database.exCreditDao().upsert(extracts)
-                expandStoryAsync(stories)
+                async {
+                    fKeyChecker.checkFKeysIssue(issues)
+                }.await().let {
+                    database.issueDao().upsert(issues)
+                    database.storyDao().upsert(stories)
+                    database.creditDao().upsert(credits)
+                    database.exCreditDao().upsert(extracts)
+                    expandStoryAsync(stories)
+                }
             }
     }
 

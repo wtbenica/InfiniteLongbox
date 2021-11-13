@@ -20,7 +20,7 @@ private const val DIALOG_SERIES_INFO = "DIALOG_EDIT_SERIES"
 @ExperimentalCoroutinesApi
 class SeriesDetailBox(context: Context, attrs: AttributeSet?) :
     ConstraintLayout(context, attrs, R.attr.styleSeriesDetail, R.style.SeriesDetailBackground),
-    SeriesLinkCallback {
+    SeriesLink.SeriesLinkCallback {
 
     constructor(context: Context, series: FullSeries) : this(context, null) {
         setSeries(series)

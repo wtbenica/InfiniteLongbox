@@ -110,16 +110,27 @@ class IssueDetailViewModel : ViewModel() {
         }
 
 
-    fun addToCollection() {
-        currentIssue?.let { repository.addToCollection(it) }
+    fun addToCollection(collId: Int) {
+        Log.d(
+            TAG,
+            "Adding ${currentIssue?.series?.seriesName} #${currentIssue?.issue?.issueNum} to " +
+                    "collection #$collId"
+        )
+        currentIssue?.let { repository.addToCollection(it, collId) }
         currentIssue?.let { it.cover?.id?.let { cid -> repository.markCoverSave(cid) } }
     }
 
 
-    fun removeFromCollection() {
+    fun removeFromCollection(collId: Int) {
         Log.d(TAG, "REMOVING FROM COLLECTION $currentIssue")
-        currentIssue?.let { repository.removeFromCollection(it.issue.issueId) }
-        currentIssue?.let { it.cover?.id?.let { cid -> repository.markCoverDelete(cid) } }
+        currentIssue?.let { repository.removeFromCollection(it.issue.issueId, collId) }
+        currentIssue?.let {
+            it.cover?.id?.let { cid ->
+                if (currentIssue?.collectionItems?.isEmpty() == true) {
+                    repository.markCoverDelete(cid)
+                }
+            }
+        }
     }
 
 

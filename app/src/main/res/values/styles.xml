@@ -27,10 +27,14 @@
         <item name="android:fontFamily">?attr/fontBlock</item>
     </style>
 
-    <style name="mCardView" parent="Widget.MaterialComponents.CardView">
-        <item name="cardElevation">@dimen/card_elevation</item>
-        <item name="cardMaxElevation">@dimen/card_elevation</item>
-        <item name="cardCornerRadius">@dimen/radius_default</item>
-        <item name="cardUseCompatPadding">false</item>
+    <style name="myCardView" parent="CardView">
+        <item name="cardElevation">?attr/cardElevation</item>
+        <item name="cardMaxElevation">?attr/cardMaxElevation</item>
+        <item name="cardCornerRadius">?attr/cardCornerRadius</item>
+        <item name="cardUseCompatPadding">?attr/cardUseCompatPadding</item>
+    </style>
+
+    <style name="OverflowButtonStyle" parent="Widget.AppCompat.ActionButton.Overflow">
+        <item name="android:tint">?attr/textColorTitleBar</item>
     </style>
 </resources>

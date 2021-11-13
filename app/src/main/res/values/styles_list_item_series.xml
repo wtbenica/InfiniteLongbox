@@ -1,13 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="mCardView.ListItemSeries">
-        <item name="cardCornerRadius">@dimen/radius_list_item_series</item>
-        <item name="android:layout_height">@dimen/list_item_series_card_height</item>
-    </style>
-
-    <style name="ListItemTitleText.Series">
-        <item name="android:singleLine">true</item>
+    <style name="ListItemSeries" parent="myCardView">
+        <item name="android:layout_height">?attr/listItemSeriesLayoutHeight</item>
     </style>
 
     <style name="ListItemMetaBox">
@@ -16,7 +11,7 @@
     </style>
 
     <style name="ListItemSeriesMeta" parent="TextAppearance.AppCompat.Light.SearchResult.Subtitle">
-        <item name="android:textSize">@dimen/list_item_series_meta_text_size</item>
+        <item name="android:textSize">?attr/listItemSeriesMetaTextSize</item>
         <item name="android:paddingTop">@dimen/margin_narrow</item>
         <item name="android:paddingBottom">@dimen/margin_narrow</item>
         <item name="android:textColor">?attr/textColorSubtitle</item>

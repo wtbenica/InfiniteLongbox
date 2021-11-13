@@ -2,7 +2,7 @@
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    style="@style/mCardView.ListItemSeries"
+    style="@style/ListItemSeries"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:animateLayoutChanges="true">
@@ -12,7 +12,6 @@
         android:layout_height="match_parent">
 
         <ImageView
-            android:id="@+id/list_item_simple_bg"
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:contentDescription="background - halftone design"

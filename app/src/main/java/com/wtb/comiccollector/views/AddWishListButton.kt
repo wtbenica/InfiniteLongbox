@@ -5,6 +5,7 @@ import android.util.AttributeSet
 import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat
 import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.R
+import com.wtb.comiccollector.database.models.BaseCollection
 
 class AddWishListButton(context: Context, attributeSet: AttributeSet) :
     androidx.appcompat.widget.AppCompatImageButton(
@@ -17,7 +18,7 @@ class AddWishListButton(context: Context, attributeSet: AttributeSet) :
     private var showingPlus: Boolean = false
 
     var callback: AddCollectionButton.AddCollectionCallback? = null
-    private var inCollection = false
+    var inCollection = false
         set(value) {
             field = value
 
@@ -28,9 +29,9 @@ class AddWishListButton(context: Context, attributeSet: AttributeSet) :
             }
 
             this.contentDescription = if (field) {
-                "Remove from my collection"
+                "Remove from wish list"
             } else {
-                "Add to my collection"
+                "Add to wish list"
             }
         }
 
@@ -64,20 +65,16 @@ class AddWishListButton(context: Context, attributeSet: AttributeSet) :
         setOnClickListener {
             morph()
             if (inCollection) {
-                callback?.removeFromCollection()
+                callback?.removeFromCollection(collId)
             } else {
-                callback?.addToCollection()
+                callback?.addToCollection(collId)
             }
         }
     }
 
-    interface AddCollectionCallback {
-        fun addToCollection()
-        fun removeFromCollection()
-    }
-
-
     companion object {
         const val TAG = APP + "AddWishListButton"
+
+        val collId = BaseCollection.WISH_LIST.id
     }
 }

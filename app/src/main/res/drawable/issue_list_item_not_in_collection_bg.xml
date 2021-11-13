@@ -3,5 +3,5 @@
     <corners
         android:bottomLeftRadius="@dimen/margin_default"
         android:bottomRightRadius="@dimen/margin_default" />
-    <solid android:color="?attr/colorSecondary" />
+    <solid android:color="?attr/listItemIssueBoxBgColorNotInCollection" />
 </shape>

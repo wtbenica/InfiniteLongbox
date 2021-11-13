@@ -10,4 +10,12 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 abstract class CoverDao : BaseDao<Cover>("cover") {
     @Query("""SELECT * FROM cover""")
     abstract suspend fun getAll(): List<Cover>
+
+    @Query(
+        """
+       DELETE FROM cover
+        WHERE 0 = 0
+    """
+    )
+    abstract fun dropAll()
 }

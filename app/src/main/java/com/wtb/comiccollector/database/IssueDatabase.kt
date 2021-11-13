@@ -12,6 +12,7 @@ import com.wtb.comiccollector.database.models.*
 import com.wtb.comiccollector.database.models.Issue
 import com.wtb.comiccollector.repository.DUMMY_ID
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import org.intellij.lang.annotations.Language
 import java.time.LocalDate
 import java.util.concurrent.Executors
 
@@ -21,9 +22,9 @@ private const val DATABASE_NAME = "issue-database"
 @Database(
     entities = [Issue::class, Series::class, Creator::class, Role::class, Credit::class,
         Publisher::class, Story::class, ExCredit::class, StoryType::class, NameDetail::class,
-        Character::class, Appearance::class, MyCollection::class, Cover::class,
-        SeriesBond::class, BondType::class, Brand::class],
-    version = 3,
+        Character::class, Appearance::class, Cover::class, SeriesBond::class, BondType::class,
+        Brand::class, UserCollection::class, CollectionItem::class],
+    version = 1,
 )
 @TypeConverters(IssueTypeConverters::class)
 abstract class IssueDatabase : RoomDatabase() {
@@ -41,7 +42,8 @@ abstract class IssueDatabase : RoomDatabase() {
     abstract fun transactionDao(): TransactionDao
     abstract fun characterDao(): CharacterDao
     abstract fun appearanceDao(): AppearanceDao
-    abstract fun collectionDao(): CollectionDao
+    abstract fun userCollectionDao(): UserCollectionDao
+    abstract fun collectionItemDao(): CollectionItemDao
     abstract fun coverDao(): CoverDao
     abstract fun bondTypeDao(): BondTypeDao
     abstract fun seriesBondDao(): SeriesBondDao
@@ -78,18 +80,61 @@ abstract class IssueDatabase : RoomDatabase() {
                                     )
                                 )
                             }
+
+                            val myCollection =
+                                UserCollection(BaseCollection.MY_COLL.id, "My Collection", true)
+                            val wishList = UserCollection(
+                                BaseCollection.WISH_LIST.id, "Wish List", true
+                            )
+
+                            executor.execute {
+                                getInstance(context).userCollectionDao().upsert(
+                                    listOf(myCollection, wishList)
+                                )
+                            }
                         }
                     }
                 )
-                    .createFromAsset("issue-database")
+//                    .createFromAsset(DATABASE_NAME)
 //                    .addMigrations(
-//                    migration_1_2, migration_2_3
-//                )
+//
+//                    )
                     .build().also {
                         INSTANCE = it
                     }
             }
         }
+
+        @Language("RoomSql")
+        val migration_3_4 = SimpleMigration(
+            3, 4,
+            """CREATE TABLE 'CollectionItem' (
+                            'collectionItemId' INTEGER NOT NULL,
+                            'issue' INTEGER NOT NULL REFERENCES Issue(issueId) ON DELETE CASCADE,
+                            'series' INTEGER NOT NULL REFERENCES Series(seriesId) ON DELETE CASCADE,
+                            'userCollection' INTEGER NOT NULL REFERENCES UserCollection
+                            (userCollectionId) ON DELETE CASCADE,
+                            'lastUpdated' TEXT NOT NULL,
+                            PRIMARY KEY('collectionItemId')
+                            )""",
+            """CREATE TABLE 'UserCollection' (
+                            'userCollectionId' INTEGER NOT NULL,
+                            'name' TEXT NOT NULL,
+                            'permanent' INTEGER NOT NULL,
+                            'lastUpdated' TEXT NOT NULL,
+                            PRIMARY KEY('userCollectionId')
+                            )""",
+            """CREATE UNIQUE INDEX index_CollectionItem_issue_userCollection
+                ON CollectionItem(issue, userCollection)
+            """,
+            """CREATE INDEX index_CollectionItem_series
+                ON CollectionItem(series)
+            """,
+            """INSERT INTO UserCollection(userCollectionId, name, permanent, lastUpdated)
+                VALUES (${BaseCollection.MY_COLL.id}, "My Collection", 0, DATETIME()),
+                (${BaseCollection.WISH_LIST.id}, "Wish List", 0, DATETIME())
+            """
+        )
 
         /*
         I'm leaving these here as templates
@@ -124,13 +169,13 @@ abstract class IssueDatabase : RoomDatabase() {
         //            """ALTER TABLE series ADD COLUMN notes TEXT""",
         //            """ALTER TABLE series ADD COLUMN issueCount INTEGER NOT NULL DEFAULT 0"""
         //        )
-        //
-        //        @Language("RoomSql")
-        //        val migration_3_4 = SimpleMigration(
-        //            3, 4,
-        //            """ALTER TABLE namedetail ADD COLUMN sortName TEXT"""
-        //        )
-        //
+//
+//                @Language("RoomSql")
+//                val migration_3_4 = SimpleMigration(
+//                    3, 4,
+//                    """ALTER TABLE namedetail ADD COLUMN sortName TEXT"""
+//                )
+//
         //        @Language("RoomSql")
         //        val migration_4_5 = SimpleMigration(
         //            4, 5,
@@ -277,11 +322,6 @@ abstract class IssueDatabase : RoomDatabase() {
         //            """CREATE INDEX IF NOT EXISTS index_Appearance_issue ON Appearance(issue)""",
         //        )
         //
-        //        val migration_12_13 = SimpleMigration(
-        //            12, 13,
-        //            """ALTER TABLE mycollection
-        //                ADD FOREIGN KEY (series) REFERENCES Series(seriesId) ON DELETE CASCADE"""
-        //        )
     }
 }
 

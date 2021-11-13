@@ -9,8 +9,9 @@ import com.wtb.comiccollector.database.models.*
 import com.wtb.comiccollector.repository.Updater.Companion.retrieveItemsByArgument
 import com.wtb.comiccollector.repository.Updater.PriorityDispatcher.Companion.highPriorityDispatcher
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.async
 import java.time.LocalDateTime
 import kotlin.reflect.KSuspendFunction1
 
@@ -49,14 +50,19 @@ class FKeyChecker(val database: IssueDatabase, private val webservice: Webservic
         getForeignKey: (M) -> Int?,
         foreignKeyDao: BaseDao<FM>,
         getFkItems: KSuspendFunction1<List<Int>, List<Item<FG, FM>>>,
-        checkFkFks: (suspend (List<FM>) -> Unit)? = null,
+        checkFkFks: (suspend (List<FM>) -> Deferred<Unit>)? = null,
     ) {
         val fkIds: List<Int> = itemsToCheck.mapNotNull { getForeignKey(it) }
-        val missingIds: List<Int> = fkIds.mapNotNull {
-            if (foreignKeyDao.get(it) == null) it else null
+        val missingIds: List<Int> = fkIds.toSet().mapNotNull {
+            val getItem = foreignKeyDao.get(it)
+            Log.d(TAG, "BOGW THE GOTTEN ITEM IS $getItem")
+            if (getItem == null) it else null
         }
         val theTime = LocalDateTime.now()
-        Log.d(TAG, "UPDATING $theTime: missing ${missingIds.size} items $getForeignKey")
+        Log.d(
+            TAG,
+            "UPDATING $theTime: missing ${missingIds.size} foreign key $getForeignKey items "
+        )
         val missingItems: MutableList<FM> = mutableListOf()
 
         missingIds.chunked(20).forEach { ids ->
@@ -66,20 +72,19 @@ class FKeyChecker(val database: IssueDatabase, private val webservice: Webservic
             }
         }
 
-        Log.d(TAG, "UPDATING $theTime: recovered ${missingItems.size} items $getForeignKey")
+        Log.d(TAG, "UPDATING $theTime: downloaded ${missingItems.size} items $getForeignKey")
 
         if (missingItems.isNotEmpty()) {
-            withContext(CoroutineScope(highPriorityDispatcher).coroutineContext) {
-                checkFkFks?.let { it(missingItems) }
-            }.let {
+            checkFkFks?.let { it(missingItems) }?.await().let {
                 foreignKeyDao.upsert(missingItems)
             }
         }
     }
 
-    internal suspend fun checkFKeysSeries(series: List<Series>) {
-        checkFKeysChunked(series, this::checkSeriesFkPublisher)
-    }
+    internal suspend fun checkFKeysSeries(series: List<Series>): Deferred<Unit> =
+        CoroutineScope(highPriorityDispatcher).async {
+            checkFKeysChunked(series, this@FKeyChecker::checkSeriesFkPublisher)
+        }
 
     private suspend fun checkSeriesFkPublisher(series: List<Series>) =
         checkForMissingForeignKeyModels(
@@ -89,10 +94,11 @@ class FKeyChecker(val database: IssueDatabase, private val webservice: Webservic
             getFkItems = webservice::getPublishersByIds
         )
 
-    internal suspend fun checkFKeysIssue(issues: List<Issue>) {
-        checkFKeysChunked(issues, this::checkIssueFkSeries)
-        checkFKeysChunked(issues, this::checkIssueFkVariantOf)
-    }
+    internal suspend fun checkFKeysIssue(issues: List<Issue>): Deferred<Unit> =
+        CoroutineScope(highPriorityDispatcher).async {
+            checkFKeysChunked(issues, this@FKeyChecker::checkIssueFkSeries)
+            checkFKeysChunked(issues, this@FKeyChecker::checkIssueFkVariantOf)
+        }
 
     private suspend fun checkIssueFkSeries(issues: List<Issue>) =
         checkForMissingForeignKeyModels(
@@ -112,9 +118,10 @@ class FKeyChecker(val database: IssueDatabase, private val webservice: Webservic
             checkFkFks = ::checkFKeysIssue
         )
 
-    internal suspend fun checkFKeysStory(stories: List<Story>) {
-        checkFKeysChunked(stories, this::checkStoryFkIssue)
-    }
+    internal suspend fun checkFKeysStory(stories: List<Story>) =
+        CoroutineScope(highPriorityDispatcher).async {
+            checkFKeysChunked(stories, this@FKeyChecker::checkStoryFkIssue)
+        }
 
     private suspend fun checkStoryFkIssue(stories: List<Story>) =
         checkForMissingForeignKeyModels(
@@ -125,9 +132,10 @@ class FKeyChecker(val database: IssueDatabase, private val webservice: Webservic
             checkFkFks = ::checkFKeysIssue
         )
 
-    internal suspend fun checkFKeysNameDetail(nameDetails: List<NameDetail>) {
-        checkFKeysChunked(nameDetails, this::checkNameDetailFkCreator)
-    }
+    internal suspend fun checkFKeysNameDetail(nameDetails: List<NameDetail>) =
+        CoroutineScope(highPriorityDispatcher).async {
+            checkFKeysChunked(nameDetails, this@FKeyChecker::checkNameDetailFkCreator)
+        }
 
     private suspend fun checkNameDetailFkCreator(nameDetails: List<NameDetail>) =
         checkForMissingForeignKeyModels(

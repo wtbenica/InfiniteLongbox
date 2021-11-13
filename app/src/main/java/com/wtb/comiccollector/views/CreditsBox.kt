@@ -25,7 +25,8 @@ private const val STORY_TYPE_COVER = 6
 class CreditsBox(context: Context, private var mCallback: CreditsBoxCallback) :
     TableLayout(context), StoryBox.StoryBoxCallback {
 
-    interface CreditsBoxCallback : CharacterLinkCallback, CreatorLinkCallback
+    interface CreditsBoxCallback : CharacterLink.CharacterLinkCallback,
+        CreatorLink.CreatorLinkCallback
 
     private var mIssueStories: List<Story> = emptyList()
     private var mVariantStories: List<Story> = emptyList()
@@ -264,7 +265,7 @@ class StoryBox(
 class AppearanceRow(
     context: Context,
     private val fullCredit: FullAppearance,
-    cb: CharacterLinkCallback
+    cb: CharacterLink.CharacterLinkCallback
 ) :
     TableRow(context) {
 
@@ -311,7 +312,11 @@ class AppearanceRow(
 
 @ExperimentalCoroutinesApi
 @SuppressLint("ViewConstructor")
-class CreditsRow(context: Context, private val fullCredit: FullCredit, cb: CreatorLinkCallback) :
+class CreditsRow(
+    context: Context,
+    private val fullCredit: FullCredit,
+    cb: CreatorLink.CreatorLinkCallback
+) :
     TableRow(context) {
 
     init {

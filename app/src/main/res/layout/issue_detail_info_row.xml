@@ -3,24 +3,21 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="horizontal">
+    android:orientation="vertical">
 
     <TextView
         android:id="@+id/info_row_label"
         style="@style/IssueDetailInfoLabel"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:gravity="center_vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:labelFor="@id/info_row_text"
         android:text="@string/label_release_date"
         tools:showIn="@layout/fragment_issue_detail" />
 
     <TextView
         android:id="@+id/info_row_text"
-        style="@style/CreatorNameText"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:layout_weight="1"
-        android:gravity="center_vertical"
+        style="@style/LinkTextAppearance"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         tools:text="May 6, 2021" />
 </LinearLayout>

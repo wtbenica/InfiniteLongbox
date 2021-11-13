@@ -44,10 +44,14 @@ class CreatorListFragment : ListFragment<FullCreator, CreatorListFragment.Creato
     ): View? {
         val view = super.onCreateView(inflater, container, savedInstanceState)
 
-        val itemOffsetDecoration = ItemOffsetDecoration(
-            resources.getDimension(R.dimen.margin_wide).toInt(),
-            numCols = numCols
-        )
+        val itemOffsetDecoration =
+            ItemOffsetDecoration(
+                itemOffset = resources.getDimension(R.dimen.item_offset_vert_list_item_simple)
+                    .toInt(),
+                itemOffsetHorizontal = resources.getDimension(R.dimen.item_offset_horz_list_item_simple)
+                    .toInt(),
+                numCols = numCols
+            )
         listRecyclerView.addItemDecoration(itemOffsetDecoration)
 
         return view

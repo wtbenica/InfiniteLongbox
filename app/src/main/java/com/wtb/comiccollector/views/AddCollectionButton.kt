@@ -5,6 +5,7 @@ import android.util.AttributeSet
 import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat
 import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.R
+import com.wtb.comiccollector.database.models.BaseCollection
 
 class AddCollectionButton(context: Context, attributeSet: AttributeSet) :
     androidx.appcompat.widget.AppCompatImageButton(
@@ -64,20 +65,22 @@ class AddCollectionButton(context: Context, attributeSet: AttributeSet) :
         setOnClickListener {
             morph()
             if (inCollection) {
-                callback?.removeFromCollection()
+                callback?.removeFromCollection(collId)
             } else {
-                callback?.addToCollection()
+                callback?.addToCollection(collId)
             }
         }
     }
 
     interface AddCollectionCallback {
-        fun addToCollection()
-        fun removeFromCollection()
+        fun addToCollection(collId: Int)
+        fun removeFromCollection(collId: Int)
     }
 
 
     companion object {
         const val TAG = APP + "AddCollectionButton"
+
+        val collId = BaseCollection.MY_COLL.id
     }
 }

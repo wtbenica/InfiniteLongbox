@@ -9,6 +9,8 @@ import android.net.NetworkCapabilities
 import android.os.Bundle
 import android.util.Log
 import android.util.TypedValue
+import android.view.Menu
+import android.view.MenuItem
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
@@ -34,6 +36,7 @@ import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.appbar.AppBarLayout.LayoutParams.SCROLL_FLAG_SCROLL
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetBehavior.*
+import com.wtb.comiccollector.database.IssueDatabase
 import com.wtb.comiccollector.database.models.*
 import com.wtb.comiccollector.fragments.*
 import com.wtb.comiccollector.fragments_view_models.FilterViewModel
@@ -151,6 +154,22 @@ class MainActivity : AppCompatActivity(),
     override fun onStop() {
         Repository.get().cleanUpImages()
         super.onStop()
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        super.onCreateOptionsMenu(menu)
+        menuInflater.inflate(R.menu.activity_main, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.app_about -> AboutDialogFragment().show(supportFragmentManager, "app_about")
+            R.id.menu_main_clear_db -> IssueDatabase.getInstance(this).transactionDao()
+                .cleanDatabase()
+            else -> super.onOptionsItemSelected(item)
+        }
+        return true
     }
 
     private fun initBottomSheet() {
@@ -369,11 +388,11 @@ class MainActivity : AppCompatActivity(),
         filterViewModel.setFilter(filter)
     }
 
-    override fun addToCollection(issue: FullIssue) {
-        Repository.get().addToCollection(issue)
+    override fun addToCollection(issue: FullIssue, collId: Int) {
+        Repository.get().addToCollection(issue, collId)
     }
 
-    override fun removeFromCollection(issue: FullIssue) {
-        Repository.get().removeFromCollection(issue.issue.issueId)
+    override fun removeFromCollection(issue: FullIssue, collId: Int) {
+        Repository.get().removeFromCollection(issue.issue.issueId, collId)
     }
 }

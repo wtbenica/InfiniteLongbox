@@ -21,11 +21,11 @@ import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.MainActivity
 import com.wtb.comiccollector.SearchFilter
 import com.wtb.comiccollector.database.IssueDatabase
-import com.wtb.comiccollector.database.daos.Count
 import com.wtb.comiccollector.database.daos.REQUEST_LIMIT
 import com.wtb.comiccollector.database.models.*
 import com.wtb.comiccollector.views.ProgressUpdateCard
 import com.wtb.comiccollector.views.hide
+import com.wtb.comiccollector.views.show
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
@@ -102,39 +102,39 @@ class Repository private constructor(val context: Context) {
         }
 
     private val executor = Executors.newSingleThreadExecutor()
-    private val database: IssueDatabase
+    private val issueDatabase: IssueDatabase
         get() = IssueDatabase.getInstance(context)
     private var hasConnection: Boolean = false
     private var hasUnmeteredConnection: Boolean = true
 
     private val seriesDao
-        get() = database.seriesDao()
+        get() = issueDatabase.seriesDao()
     private val issueDao
-        get() = database.issueDao()
+        get() = issueDatabase.issueDao()
     private val creatorDao
-        get() = database.creatorDao()
+        get() = issueDatabase.creatorDao()
     private val publisherDao
-        get() = database.publisherDao()
+        get() = issueDatabase.publisherDao()
     private val roleDao
-        get() = database.roleDao()
+        get() = issueDatabase.roleDao()
     private val storyDao
-        get() = database.storyDao()
+        get() = issueDatabase.storyDao()
     private val creditDao
-        get() = database.creditDao()
+        get() = issueDatabase.creditDao()
     private val exCreditDao
-        get() = database.exCreditDao()
+        get() = issueDatabase.exCreditDao()
     private val storyTypeDao
-        get() = database.storyTypeDao()
+        get() = issueDatabase.storyTypeDao()
     private val nameDetailDao
-        get() = database.nameDetailDao()
+        get() = issueDatabase.nameDetailDao()
     private val characterDao
-        get() = database.characterDao()
+        get() = issueDatabase.characterDao()
     private val appearanceDao
-        get() = database.appearanceDao()
-    private val collectionDao
-        get() = database.collectionDao()
+        get() = issueDatabase.appearanceDao()
+    private val collectionItemDao
+        get() = issueDatabase.collectionItemDao()
     private val coverDao
-        get() = database.coverDao()
+        get() = issueDatabase.coverDao()
 
     private val updater: StaticUpdater
         get() = StaticUpdater.get()
@@ -148,17 +148,21 @@ class Repository private constructor(val context: Context) {
             if (checkConnectionStatus()) {
                 // TODO: A lint inspection pointed out that update returns a Deferred, which
                 //  means that this is async async await. Look into
-                MainActivity.activeJob = CoroutineScope(Dispatchers.IO).async {
-                    withContext(Dispatchers.IO) {
-//                        Log.d(TAG, "STARTING UPDATE")
-//                        updater.updateStaticAsync(progressUpdate)
-                    }.let {
-                        Log.d(TAG, "Static update done")
-                        mainActivity.runOnUiThread {
-                            progressUpdate.hide()
+                MainActivity.activeJob =
+                    CoroutineScope(Dispatchers.IO).async {
+                        withContext(Dispatchers.Default) {
+                            Log.d(TAG, "STARTING UPDATE")
+                            mainActivity.runOnUiThread {
+                                progressUpdate.show()
+                            }
+                            updater.updateStaticAsync(progressUpdate)
+                        }.let {
+                            Log.d(TAG, "Static update done")
+                            mainActivity.runOnUiThread {
+                                progressUpdate.hide()
+                            }
                         }
                     }
-                }
             }
         }
     }
@@ -293,24 +297,23 @@ class Repository private constructor(val context: Context) {
         }
     }
 
-    fun addToCollection(issue: FullIssue) {
+    fun addToCollection(issue: FullIssue, collId: Int) {
         executor.execute {
-            collectionDao.insert(
-                MyCollection(
+            collectionItemDao.insert(
+                CollectionItem(
                     issue = issue.issue.issueId,
-                    series = issue.series.seriesId
+                    series = issue.series.seriesId,
+                    userCollection = collId
                 )
             )
         }
     }
 
-    fun removeFromCollection(issueId: Int) {
+    fun removeFromCollection(issueId: Int, collId: Int) {
         executor.execute {
-            collectionDao.deleteById(issueId)
+            collectionItemDao.deleteById(issueId, collId)
         }
     }
-
-    fun inCollection(issueId: Int): Flow<Count> = collectionDao.inCollection(issueId)
 
     companion object {
         @SuppressLint("StaticFieldLeak")
@@ -325,6 +328,17 @@ class Repository private constructor(val context: Context) {
         fun get(): Repository {
             return INSTANCE
                 ?: throw IllegalStateException("IssueRepository must be initialized")
+        }
+
+        fun removePrefs(prefs: SharedPreferences, keyPattern: String) {
+            val editor = prefs.edit()
+            val allPrefs = prefs.all
+            for (kv in allPrefs) {
+                if (Regex(keyPattern).matches(kv.key)) {
+                    editor.remove(kv.key)
+                }
+            }
+            editor.apply()
         }
 
         fun savePrefValue(prefs: SharedPreferences, key: String, value: Any) {
