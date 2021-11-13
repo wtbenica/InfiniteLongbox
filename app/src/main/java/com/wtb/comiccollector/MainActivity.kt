@@ -36,6 +36,7 @@ import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.appbar.AppBarLayout.LayoutParams.SCROLL_FLAG_SCROLL
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetBehavior.*
+import com.wtb.comiccollector.database.IssueDatabase
 import com.wtb.comiccollector.database.models.*
 import com.wtb.comiccollector.fragments.*
 import com.wtb.comiccollector.fragments_view_models.FilterViewModel
@@ -164,6 +165,8 @@ class MainActivity : AppCompatActivity(),
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.app_about -> AboutDialogFragment().show(supportFragmentManager, "app_about")
+            R.id.menu_main_clear_db -> IssueDatabase.getInstance(this).transactionDao()
+                .cleanDatabase()
             else -> super.onOptionsItemSelected(item)
         }
         return true

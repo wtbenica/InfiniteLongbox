@@ -24,7 +24,7 @@ private const val DATABASE_NAME = "issue-database"
         Publisher::class, Story::class, ExCredit::class, StoryType::class, NameDetail::class,
         Character::class, Appearance::class, Cover::class, SeriesBond::class, BondType::class,
         Brand::class, UserCollection::class, CollectionItem::class],
-    version = 4,
+    version = 1,
 )
 @TypeConverters(IssueTypeConverters::class)
 abstract class IssueDatabase : RoomDatabase() {
@@ -95,10 +95,10 @@ abstract class IssueDatabase : RoomDatabase() {
                         }
                     }
                 )
-                    .createFromAsset(DATABASE_NAME)
+//                    .createFromAsset(DATABASE_NAME)
 //                    .addMigrations(
-//                    migration_1_2, migration_2_3
-//                )
+//
+//                    )
                     .build().also {
                         INSTANCE = it
                     }
@@ -129,6 +129,10 @@ abstract class IssueDatabase : RoomDatabase() {
             """,
             """CREATE INDEX index_CollectionItem_series
                 ON CollectionItem(series)
+            """,
+            """INSERT INTO UserCollection(userCollectionId, name, permanent, lastUpdated)
+                VALUES (${BaseCollection.MY_COLL.id}, "My Collection", 0, DATETIME()),
+                (${BaseCollection.WISH_LIST.id}, "Wish List", 0, DATETIME())
             """
         )
 
@@ -318,11 +322,6 @@ abstract class IssueDatabase : RoomDatabase() {
         //            """CREATE INDEX IF NOT EXISTS index_Appearance_issue ON Appearance(issue)""",
         //        )
         //
-        //        val migration_12_13 = SimpleMigration(
-        //            12, 13,
-        //            """ALTER TABLE mycollection
-        //                ADD FOREIGN KEY (series) REFERENCES Series(seriesId) ON DELETE CASCADE"""
-        //        )
     }
 }
 

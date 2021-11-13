@@ -82,6 +82,14 @@ abstract class IssueDao : BaseDao<Issue>("issue") {
     )
     abstract suspend fun getIssueSus(issueId: Int): FullIssue?
 
+    @Query(
+        """
+            DELETE FROM issue
+            WHERE 0 = 0
+        """
+    )
+    abstract fun dropAll()
+
     companion object {
         private fun createIssueQuery(filter: SearchFilter): SimpleSQLiteQuery {
             val tableJoinString = StringBuilder()

@@ -25,6 +25,7 @@ import com.wtb.comiccollector.database.daos.REQUEST_LIMIT
 import com.wtb.comiccollector.database.models.*
 import com.wtb.comiccollector.views.ProgressUpdateCard
 import com.wtb.comiccollector.views.hide
+import com.wtb.comiccollector.views.show
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
@@ -147,17 +148,21 @@ class Repository private constructor(val context: Context) {
             if (checkConnectionStatus()) {
                 // TODO: A lint inspection pointed out that update returns a Deferred, which
                 //  means that this is async async await. Look into
-                MainActivity.activeJob = CoroutineScope(Dispatchers.IO).async {
-                    withContext(Dispatchers.IO) {
-//                        Log.d(TAG, "STARTING UPDATE")
-                        updater.updateStaticAsync(progressUpdate)
-                    }.let {
-                        Log.d(TAG, "Static update done")
-                        mainActivity.runOnUiThread {
-                            progressUpdate.hide()
+                MainActivity.activeJob =
+                    CoroutineScope(Dispatchers.IO).async {
+                        withContext(Dispatchers.Default) {
+                            Log.d(TAG, "STARTING UPDATE")
+                            mainActivity.runOnUiThread {
+                                progressUpdate.show()
+                            }
+                            updater.updateStaticAsync(progressUpdate)
+                        }.let {
+                            Log.d(TAG, "Static update done")
+                            mainActivity.runOnUiThread {
+                                progressUpdate.hide()
+                            }
                         }
                     }
-                }
             }
         }
     }
@@ -323,6 +328,17 @@ class Repository private constructor(val context: Context) {
         fun get(): Repository {
             return INSTANCE
                 ?: throw IllegalStateException("IssueRepository must be initialized")
+        }
+
+        fun removePrefs(prefs: SharedPreferences, keyPattern: String) {
+            val editor = prefs.edit()
+            val allPrefs = prefs.all
+            for (kv in allPrefs) {
+                if (Regex(keyPattern).matches(kv.key)) {
+                    editor.remove(kv.key)
+                }
+            }
+            editor.apply()
         }
 
         fun savePrefValue(prefs: SharedPreferences, key: String, value: Any) {

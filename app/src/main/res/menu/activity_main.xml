@@ -5,5 +5,10 @@
         android:id="@+id/app_about"
         android:icon="@drawable/info_24"
         android:title="About"
-        app:showAsAction="always" />
+        app:showAsAction="withText" />
+    <item
+        android:id="@+id/menu_main_clear_db"
+        android:icon="@drawable/reset_db"
+        android:title="Clear DB"
+        app:showAsAction="withText" />
 </menu>

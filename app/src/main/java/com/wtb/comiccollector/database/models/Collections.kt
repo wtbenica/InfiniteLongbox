@@ -30,6 +30,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
     ],
     indices = [
         Index("issue", "userCollection", unique = true),
+        Index("userCollection"),
         Index("series"),
     ]
 )

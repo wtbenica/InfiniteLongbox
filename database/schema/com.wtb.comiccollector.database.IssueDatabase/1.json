@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "d036bd3ccb6088876e3359d2ea2554ae",
+    "identityHash": "4a4d38721abfd9f9cee2f4bf0e81609f",
     "entities": [
       {
         "tableName": "Issue",
@@ -605,7 +605,7 @@
       },
       {
         "tableName": "Story",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`storyId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `storyType` INTEGER NOT NULL, `title` TEXT, `feature` TEXT, `characters` TEXT, `synopsis` TEXT, `notes` TEXT, `sequenceNumber` INTEGER NOT NULL, `issue` INTEGER NOT NULL, `lastUpdated` TEXT NOT NULL, FOREIGN KEY(`storyType`) REFERENCES `StoryType`(`storyTypeId`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`storyId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `storyType` INTEGER NOT NULL, `title` TEXT, `feature` TEXT, `characters` TEXT, `synopsis` TEXT, `notes` TEXT, `sequenceNumber` INTEGER NOT NULL, `issue` INTEGER NOT NULL, `lastUpdated` TEXT NOT NULL, FOREIGN KEY(`storyType`) REFERENCES `StoryType`(`storyTypeId`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`issue`) REFERENCES `Issue`(`issueId`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
         "fields": [
           {
             "fieldPath": "storyId",
@@ -682,6 +682,14 @@
               "storyType"
             ],
             "createSql": "CREATE INDEX IF NOT EXISTS `index_Story_storyType` ON `${TABLE_NAME}` (`storyType`)"
+          },
+          {
+            "name": "index_Story_issue",
+            "unique": false,
+            "columnNames": [
+              "issue"
+            ],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_Story_issue` ON `${TABLE_NAME}` (`issue`)"
           }
         ],
         "foreignKeys": [
@@ -694,6 +702,17 @@
             ],
             "referencedColumns": [
               "storyTypeId"
+            ]
+          },
+          {
+            "table": "Issue",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "issue"
+            ],
+            "referencedColumns": [
+              "issueId"
             ]
           }
         ]
@@ -1589,7 +1608,7 @@
       },
       {
         "tableName": "CollectionItem",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`collectionItemId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `issue` INTEGER NOT NULL, `series` INTEGER NOT NULL, `userCollection` INTEGER NOT NULL, `lastUpdated` TEXT NOT NULL, FOREIGN KEY(`issue`) REFERENCES `Issue`(`issueId`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`userCollection`) REFERENCES `UserCollection`(`userCollectionId`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`collectionItemId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `issue` INTEGER NOT NULL, `series` INTEGER NOT NULL, `userCollection` INTEGER NOT NULL, `lastUpdated` TEXT NOT NULL, FOREIGN KEY(`issue`) REFERENCES `Issue`(`issueId`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`series`) REFERENCES `Series`(`seriesId`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`userCollection`) REFERENCES `UserCollection`(`userCollectionId`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "collectionItemId",
@@ -1639,6 +1658,14 @@
             "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_CollectionItem_issue_userCollection` ON `${TABLE_NAME}` (`issue`, `userCollection`)"
           },
           {
+            "name": "index_CollectionItem_userCollection",
+            "unique": false,
+            "columnNames": [
+              "userCollection"
+            ],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_CollectionItem_userCollection` ON `${TABLE_NAME}` (`userCollection`)"
+          },
+          {
             "name": "index_CollectionItem_series",
             "unique": false,
             "columnNames": [
@@ -1660,6 +1687,17 @@
             ]
           },
           {
+            "table": "Series",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "series"
+            ],
+            "referencedColumns": [
+              "seriesId"
+            ]
+          },
+          {
             "table": "UserCollection",
             "onDelete": "CASCADE",
             "onUpdate": "NO ACTION",
@@ -1676,7 +1714,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'd036bd3ccb6088876e3359d2ea2554ae')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '4a4d38721abfd9f9cee2f4bf0e81609f')"
     ]
   }
 }

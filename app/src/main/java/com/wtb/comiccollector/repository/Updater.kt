@@ -199,9 +199,9 @@ abstract class Updater(
                 val items: List<ModelType>? = getItems(id)
 
                 if (items != null && items.isNotEmpty()) {
-                    withContext(Dispatchers.Default) {
+                    async {
                         followup(items)
-                    }.let {
+                    }.await().let {
                         collector.dao.upsertSus(items)
                     }
                 }
@@ -245,7 +245,7 @@ abstract class Updater(
     ) {
         // savePageTag's value is a string of whether each page has been updated, e.g. "tfffttttftt"
         val pagesCompleteSaved: String = prefs.getString(savePageTag, "") ?: ""
-        Log.d(TAG, "HELLO BABY!")
+
         if (!pagesCompleteSaved.contains('f')) {
             // If it's been a week, mark all pages as stale
             if (checkIfStale(saveTag, WEEKLY, prefs)) {
@@ -295,9 +295,9 @@ abstract class Updater(
 
                     // if request is successful, save and mark as updated
                     if (itemPage != null && itemPage.isNotEmpty()) {
-                        withContext(Dispatchers.Default) {
+                        async {
                             verifyForeignKeys(itemPage)
-                        }.let {
+                        }.await().let {
                             if (dao.upsertSus(itemPage)) {
                                 pagesComplete[currPage] = true
                                 pageFinished()

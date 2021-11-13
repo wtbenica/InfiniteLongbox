@@ -1,5 +1,6 @@
 package com.wtb.comiccollector.database.daos
 
+import android.content.Context
 import androidx.room.Dao
 import androidx.room.Transaction
 import com.wtb.comiccollector.APP
@@ -9,7 +10,12 @@ import com.wtb.comiccollector.database.models.BondType
 import com.wtb.comiccollector.database.models.Publisher
 import com.wtb.comiccollector.database.models.Role
 import com.wtb.comiccollector.database.models.StoryType
+import com.wtb.comiccollector.repository.Repository
+import com.wtb.comiccollector.repository.SHARED_PREFS
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.launch
 
 private const val TAG = APP + "TransactionDao"
 
@@ -33,28 +39,22 @@ abstract class TransactionDao {
         bondTypes?.let { if (it.isNotEmpty()) database.bondTypeDao().upsertSus(it) }
     }
 
-//    @Transaction
-//    open suspend fun upsert(
-//        stories: List<Story>? = null,
-//        creators: List<Creator>? = null,
-//        nameDetails: List<NameDetail>? = null,
-//        credits: List<Credit>? = null,
-//        exCredits: List<ExCredit>? = null,
-//        issues: List<Issue>? = null,
-//        series: List<Series>? = null,
-//        seriesBonds: List<SeriesBond>? = null,
-//        appearances: List<Appearance>? = null,
-//        characters: List<Character>? = null,
-//    ) {
-//        series?.let { database.seriesDao().upsertSus(it) }
-//        issues?.let { database.issueDao().upsertSus(it) }
-//        stories?.let { database.storyDao().upsertSus(it) }
-//        creators?.let { database.creatorDao().upsertSus(it) }
-//        nameDetails?.let { database.nameDetailDao().upsertSus(it) }
-//        credits?.let { database.creditDao().upsertSus(it) }
-//        exCredits?.let { database.exCreditDao().upsertSus(it) }
-//        seriesBonds?.let { database.seriesBondDao().upsertSus(it) }
-//        appearances?.let { database.appearanceDao().upsertSus(it) }
-//        characters?.let { database.characterDao().upsertSus(it) }
-//    }
+    fun cleanDatabase() {
+        CoroutineScope(Dispatchers.IO).launch {
+            database.collectionItemDao().dropAll()
+            database.userCollectionDao().dropAll()
+            database.coverDao().dropAll()
+            database.appearanceDao().dropAll()
+            database.creditDao().dropAll()
+            database.exCreditDao().dropAll()
+            database.storyDao().dropAll()
+            database.issueDao().dropAll()
+            context?.getSharedPreferences(SHARED_PREFS, Context.MODE_PRIVATE)?.let {
+                Repository.removePrefs(
+                    prefs = it,
+                    keyPattern = "^((?!_page).)*\$"
+                )
+            }
+        }
+    }
 }

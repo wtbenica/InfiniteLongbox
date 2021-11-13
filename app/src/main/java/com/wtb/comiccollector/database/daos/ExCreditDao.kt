@@ -28,4 +28,12 @@ abstract class ExCreditDao : BaseDao<ExCredit>("excredit") {
         """
     )
     abstract fun getIssueExtractedCredits(issueId: Int): Flow<List<FullCredit>>
+
+    @Query(
+        """
+            DELETE FROM excredit
+            WHERE 0 = 0
+        """
+    )
+    abstract fun dropAll()
 }

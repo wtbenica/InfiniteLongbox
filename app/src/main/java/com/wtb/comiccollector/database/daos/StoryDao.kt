@@ -17,6 +17,14 @@ abstract class StoryDao : BaseDao<Story>("Story") {
     @Query(query)
     abstract suspend fun getStories(issueId: Int): List<Story>
 
+    @Query(
+        """
+            DELETE FROM story
+            WHERE 0 = 0
+        """
+    )
+    abstract fun dropAll()
+
     companion object {
         @Language("RoomSql")
         const val query = """

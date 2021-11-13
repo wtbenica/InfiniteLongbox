@@ -14,7 +14,16 @@ private const val TAG = APP + "CollectionDao"
 
 @ExperimentalCoroutinesApi
 @Dao
-abstract class UserCollectionDao : BaseDao<UserCollection>("userCollection")
+abstract class UserCollectionDao : BaseDao<UserCollection>("userCollection") {
+
+    @Query(
+        """
+            DELETE FROM collectionitem
+            WHERE collectionItemId > 2;
+        """
+    )
+    abstract fun dropAll()
+}
 
 @ExperimentalCoroutinesApi
 @Dao
@@ -37,6 +46,14 @@ abstract class CollectionItemDao : BaseDao<CollectionItem>("collectionItem") {
         """
     )
     abstract fun deleteById(issueId: Int, collectionId: Int)
+
+    @Query(
+        """
+            DELETE FROM collectionitem
+            WHERE 0 = 0
+        """
+    )
+    abstract fun dropAll()
 }
 
 data class Count(

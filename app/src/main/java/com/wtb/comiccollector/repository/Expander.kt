@@ -91,8 +91,10 @@ class Expander private constructor(webservice: Webservice, prefs: SharedPreferen
     inner class StoryExpander {
         internal fun expandStoryAsync(stories: List<Story>): Deferred<Unit> =
             CoroutineScope(highPriorityDispatcher).async {
-                updateStoriesCredits(stories.ids)
-                updateStoriesAppearances(stories.ids)
+                withContext(highPriorityDispatcher) {
+                    updateStoriesCredits(stories.ids)
+                    updateStoriesAppearances(stories.ids)
+                }
             }
 
         private suspend fun updateStoriesCredits(storyIds: List<Int>): List<CreditX> =
@@ -213,13 +215,15 @@ class Expander private constructor(webservice: Webservice, prefs: SharedPreferen
                     argList = issueIds,
                     apiCall = webservice::getIssuesByIds
                 )
-                fKeyChecker.checkFKeysIssue(issues)
-
-                database.issueDao().upsert(issues)
-                database.storyDao().upsert(stories)
-                database.creditDao().upsert(credits)
-                database.exCreditDao().upsert(extracts)
-                expandStoryAsync(stories)
+                async {
+                    fKeyChecker.checkFKeysIssue(issues)
+                }.await().let {
+                    database.issueDao().upsert(issues)
+                    database.storyDao().upsert(stories)
+                    database.creditDao().upsert(credits)
+                    database.exCreditDao().upsert(extracts)
+                    expandStoryAsync(stories)
+                }
             }
     }
 

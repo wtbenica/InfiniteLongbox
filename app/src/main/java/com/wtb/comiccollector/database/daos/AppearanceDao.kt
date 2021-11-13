@@ -19,9 +19,19 @@ abstract class AppearanceDao : BaseDao<Appearance>("appearance") {
     abstract fun getAppearancesBySeriesId(seriesId: Int): List<Appearance>
 
     @Transaction
-    @Query("""SELECT ap.*
+    @Query(
+        """SELECT ap.*
         FROM appearance ap
         WHERE ap.issue = :issueId
-    """)
+    """
+    )
     abstract fun getAppearancesByIssueId(issueId: Int): Flow<List<FullAppearance>>
+
+    @Query(
+        """
+            DELETE FROM appearance
+            WHERE 0 = 0
+        """
+    )
+    abstract fun dropAll()
 }

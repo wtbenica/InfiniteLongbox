@@ -62,7 +62,11 @@ class IssueListFragment : ListFragment<FullIssue, IssueListFragment.IssueViewHol
 
         val itemDecoration =
             ItemOffsetDecoration(
-                itemOffset = resources.getDimension(R.dimen.margin_default).toInt()
+                itemOffset = resources.getDimension(R.dimen.item_offset_vert_list_item_issue)
+                    .toInt(),
+                itemOffsetHorizontal = resources.getDimension(R.dimen.item_offset_horz_list_item_issue)
+                    .toInt(),
+                numCols = numCols
             )
 
         listRecyclerView.addItemDecoration(itemDecoration)
