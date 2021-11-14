@@ -76,8 +76,7 @@ abstract class SeriesDao : BaseDao<Series>("series") {
 
             conditions.append("${connectWord()} ss.seriesId != $DUMMY_ID ")
 
-            if (filter.hasCreator() || filter.hasCharacter() || filter.hasDateFilter() || filter
-                    .mMyCollection
+            if (filter.hasCreator() || filter.hasCharacter() || filter.mMyCollection
             ) {
                 table.append(
                     """JOIN issue ie ON ie.series = ss.seriesId
@@ -126,15 +125,23 @@ abstract class SeriesDao : BaseDao<Series>("series") {
             }
 
             if (filter.hasDateFilter()) {
-                conditions.append(
-                    """${connectWord()} ((ie.releaseDate <= '${filter.mEndDate}' 
+                if (filter.hasCreator() || filter.hasCharacter() || filter.mMyCollection) {
+                    conditions.append(
+                        """${connectWord()} ((ie.releaseDate <= '${filter.mEndDate}' 
                         AND ie.releaseDate >= '${filter.mStartDate}'
                         AND ie.releaseDate IS NOT NULL)
                         OR (ie.coverDate <= '${filter.mEndDate}'
                         AND ie.coverDate >= '${filter.mStartDate}'
                         AND ie.releaseDate IS NULL))
                         """
-                )
+                    )
+                } else {
+                    conditions.append(
+                        """${connectWord()} ss.startDate <= '${filter.mEndDate}' 
+                        AND ss.endDate >= '${filter.mStartDate}'
+                        """
+                    )
+                }
             }
 
             filter.mCharacter?.characterId?.let {
@@ -148,7 +155,7 @@ abstract class SeriesDao : BaseDao<Series>("series") {
             }
 
             if (filter.mMyCollection) {
-                if (filter.hasCharacter() || filter.hasCreator() || filter.hasDateFilter()) {
+                if (filter.hasCharacter() || filter.hasCreator()) {
                     conditions.append(
                         """${connectWord()} ie.issueId IN (
                     SELECT issue
