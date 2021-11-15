@@ -179,8 +179,8 @@ data class FullSeries(
     @Relation(parentColumn = "seriesId", entityColumn = "target", entity = SeriesBond::class)
     val seriesBondFrom: Bond? = null,
 
-    @Relation(parentColumn = "firstIssue", entityColumn = "issue", entity = Cover::class)
-    val firstIssueCover: Cover? = null
+//    @Relation(parentColumn = "firstIssue", entityColumn = "issue", entity = Cover::class)
+//    val firstIssueCover: Cover? = null
 ) : ListItem, FilterModel {
     override val tagName: String
         get() = "Series"

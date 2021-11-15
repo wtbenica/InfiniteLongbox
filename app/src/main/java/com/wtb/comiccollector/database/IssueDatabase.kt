@@ -22,8 +22,8 @@ private const val DATABASE_NAME = "issue-database"
 @Database(
     entities = [Issue::class, Series::class, Creator::class, Role::class, Credit::class,
         Publisher::class, Story::class, ExCredit::class, StoryType::class, NameDetail::class,
-        Character::class, Appearance::class, Cover::class, SeriesBond::class, BondType::class,
-        Brand::class, UserCollection::class, CollectionItem::class],
+        Character::class, Appearance::class, SeriesBond::class, BondType::class,
+        Brand::class],
     version = 1,
 )
 @TypeConverters(IssueTypeConverters::class)
@@ -42,9 +42,6 @@ abstract class IssueDatabase : RoomDatabase() {
     abstract fun transactionDao(): TransactionDao
     abstract fun characterDao(): CharacterDao
     abstract fun appearanceDao(): AppearanceDao
-    abstract fun userCollectionDao(): UserCollectionDao
-    abstract fun collectionItemDao(): CollectionItemDao
-    abstract fun coverDao(): CoverDao
     abstract fun bondTypeDao(): BondTypeDao
     abstract fun seriesBondDao(): SeriesBondDao
 
@@ -80,61 +77,15 @@ abstract class IssueDatabase : RoomDatabase() {
                                     )
                                 )
                             }
-
-                            val myCollection =
-                                UserCollection(BaseCollection.MY_COLL.id, "My Collection", true)
-                            val wishList = UserCollection(
-                                BaseCollection.WISH_LIST.id, "Wish List", true
-                            )
-
-                            executor.execute {
-                                getInstance(context).userCollectionDao().upsert(
-                                    listOf(myCollection, wishList)
-                                )
-                            }
                         }
                     }
                 )
 //                    .createFromAsset(DATABASE_NAME)
-//                    .addMigrations(
-//
-//                    )
                     .build().also {
                         INSTANCE = it
                     }
             }
         }
-
-        @Language("RoomSql")
-        val migration_3_4 = SimpleMigration(
-            3, 4,
-            """CREATE TABLE 'CollectionItem' (
-                            'collectionItemId' INTEGER NOT NULL,
-                            'issue' INTEGER NOT NULL REFERENCES Issue(issueId) ON DELETE CASCADE,
-                            'series' INTEGER NOT NULL REFERENCES Series(seriesId) ON DELETE CASCADE,
-                            'userCollection' INTEGER NOT NULL REFERENCES UserCollection
-                            (userCollectionId) ON DELETE CASCADE,
-                            'lastUpdated' TEXT NOT NULL,
-                            PRIMARY KEY('collectionItemId')
-                            )""",
-            """CREATE TABLE 'UserCollection' (
-                            'userCollectionId' INTEGER NOT NULL,
-                            'name' TEXT NOT NULL,
-                            'permanent' INTEGER NOT NULL,
-                            'lastUpdated' TEXT NOT NULL,
-                            PRIMARY KEY('userCollectionId')
-                            )""",
-            """CREATE UNIQUE INDEX index_CollectionItem_issue_userCollection
-                ON CollectionItem(issue, userCollection)
-            """,
-            """CREATE INDEX index_CollectionItem_series
-                ON CollectionItem(series)
-            """,
-            """INSERT INTO UserCollection(userCollectionId, name, permanent, lastUpdated)
-                VALUES (${BaseCollection.MY_COLL.id}, "My Collection", 0, DATETIME()),
-                (${BaseCollection.WISH_LIST.id}, "Wish List", 0, DATETIME())
-            """
-        )
 
         /*
         I'm leaving these here as templates

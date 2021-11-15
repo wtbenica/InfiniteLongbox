@@ -156,9 +156,9 @@ class Expander private constructor(webservice: Webservice, prefs: SharedPreferen
                 )
                 fKeyChecker.checkFKeysIssue(issues)
 
-                database.issueDao().upsert(issues)
-                database.storyDao().upsert(stories)
-                database.appearanceDao().upsert(appearances)
+                issueDatabase.issueDao().upsert(issues)
+                issueDatabase.storyDao().upsert(stories)
+                issueDatabase.appearanceDao().upsert(appearances)
                 expandStoryAsync(stories)
             }
 
@@ -192,7 +192,7 @@ class Expander private constructor(webservice: Webservice, prefs: SharedPreferen
         internal fun expandCreatorsAsync(creators: List<Creator>): Deferred<Unit> =
             CoroutineScope(highPriorityDispatcher).async {
                 val nameDetails: List<NameDetail> =
-                    database.nameDetailDao().getNameDetailsByCreatorIds(creators.ids)
+                    issueDatabase.nameDetailDao().getNameDetailsByCreatorIds(creators.ids)
 
                 val credits: List<Credit> = retrieveItemsByList(
                     argList = nameDetails.ids,
@@ -218,10 +218,10 @@ class Expander private constructor(webservice: Webservice, prefs: SharedPreferen
                 async {
                     fKeyChecker.checkFKeysIssue(issues)
                 }.await().let {
-                    database.issueDao().upsert(issues)
-                    database.storyDao().upsert(stories)
-                    database.creditDao().upsert(credits)
-                    database.exCreditDao().upsert(extracts)
+                    issueDatabase.issueDao().upsert(issues)
+                    issueDatabase.storyDao().upsert(stories)
+                    issueDatabase.creditDao().upsert(credits)
+                    issueDatabase.exCreditDao().upsert(extracts)
                     expandStoryAsync(stories)
                 }
             }

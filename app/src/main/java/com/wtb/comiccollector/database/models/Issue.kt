@@ -159,21 +159,12 @@ data class FullIssue @ExperimentalCoroutinesApi constructor(
 
     @Relation(parentColumn = "series", entityColumn = "seriesId", entity = Series::class)
     val seriesAndPublisher: SeriesAndPublisher,
-
-    @Relation(parentColumn = "issueId", entityColumn = "issue")
-    val cover: Cover? = null,
-
-    @Relation(parentColumn = "issueId", entityColumn = "issue")
-    val collectionItems: List<CollectionItem> = emptyList(),
 ) : ListItem {
     val series: Series
         get() = seriesAndPublisher.series
 
     val publisher: Publisher
         get() = seriesAndPublisher.publisher
-
-    val coverUri: Uri?
-        get() = cover?.coverUri
 
     override fun toString(): String = "${series.seriesName} #${issue.issueNumRaw}"
 
@@ -186,11 +177,8 @@ data class FullIssue @ExperimentalCoroutinesApi constructor(
 
         if (issue != other.issue) return false
         if (seriesAndPublisher != other.seriesAndPublisher) return false
-        if (cover != other.cover) return false
-        if (collectionItems != other.collectionItems) return false
         if (series != other.series) return false
         if (publisher != other.publisher) return false
-        if (coverUri != other.coverUri) return false
 
         return true
     }
@@ -198,11 +186,8 @@ data class FullIssue @ExperimentalCoroutinesApi constructor(
     override fun hashCode(): Int {
         var result = issue.hashCode()
         result = 31 * result + seriesAndPublisher.hashCode()
-        result = 31 * result + (cover?.hashCode() ?: 0)
-        result = 31 * result + collectionItems.hashCode()
         result = 31 * result + series.hashCode()
         result = 31 * result + publisher.hashCode()
-        result = 31 * result + (coverUri?.hashCode() ?: 0)
         return result
     }
 
@@ -215,14 +200,6 @@ data class FullIssue @ExperimentalCoroutinesApi constructor(
 //  seems like it was done more out of necessity than purpose
 @ExperimentalCoroutinesApi
 @Entity(
-    foreignKeys = [
-        ForeignKey(
-            entity = Issue::class,
-            parentColumns = arrayOf("issueId"),
-            childColumns = arrayOf("issue"),
-            onDelete = CASCADE
-        ),
-    ],
     indices = [
         Index(value = ["issue"], unique = true),
     ]

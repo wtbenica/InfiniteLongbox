@@ -1,5 +1,6 @@
 package com.wtb.comiccollector.database.daos
 
+import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Query
 import com.google.gson.annotations.Expose
@@ -54,6 +55,15 @@ abstract class CollectionItemDao : BaseDao<CollectionItem>("collectionItem") {
         """
     )
     abstract fun dropAll()
+
+    @Query(
+        """
+        SELECT *
+        FROM collectionitem ci
+        WHERE ci.issue = :issueId
+    """
+    )
+    abstract fun getIssueCollections(issueId: Int): LiveData<List<CollectionItem>>
 }
 
 data class Count(

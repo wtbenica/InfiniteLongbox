@@ -2,11 +2,9 @@
 
 package com.wtb.comiccollector.fragments_view_models
 
+import android.net.Uri
 import android.util.Log
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.asLiveData
-import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.*
 import com.wtb.comiccollector.*
 import com.wtb.comiccollector.database.models.*
 import com.wtb.comiccollector.repository.Repository
@@ -21,13 +19,30 @@ class IssueDetailViewModel : ViewModel() {
 
     private val repository: Repository = Repository.get()
 
+    private val currentIssue: FullIssue?
+        get() = if (variantId.value == AUTO_ID) {
+            mIssue.value
+        } else {
+            variantLiveData.value
+        }
+
+    private val currentCover: Cover?
+        get() = if (variantId.value == AUTO_ID) {
+            primaryCover.value
+        } else {
+            variantCover.value
+        }
+
+    private val currentCollections: List<CollectionItem>?
+        get() = if (variantId.value == AUTO_ID) {
+            primaryCollections.value
+        } else {
+            variantCollections.value
+        }
+
     private val _primaryId = MutableStateFlow(AUTO_ID)
     val primaryId: StateFlow<Int>
         get() = _primaryId
-
-    private val _variantId = MutableStateFlow(AUTO_ID)
-    private val variantId: StateFlow<Int>
-        get() = _variantId
 
     private val mIssue: StateFlow<FullIssue?> = primaryId.flatMapLatest { id ->
         Log.d(TAG, "issueId changed: $id")
@@ -40,6 +55,10 @@ class IssueDetailViewModel : ViewModel() {
 
     internal val primaryIssue: LiveData<FullIssue?> = mIssue.asLiveData()
 
+    internal val primaryCover: LiveData<Cover?> = primaryId.mapLatest {
+        repository.getCover(it)
+    }.asLiveData()
+
     internal val primaryStoriesLiveData: LiveData<List<Story>> =
         primaryId.flatMapLatest { issueId -> repository.getStoriesByIssue(issueId) }.asLiveData()
 
@@ -49,6 +68,13 @@ class IssueDetailViewModel : ViewModel() {
     internal val primaryAppearancesLiveData =
         primaryId.flatMapLatest { repository.getAppearancesByIssue(it) }.asLiveData()
 
+    internal val primaryCollections =
+        primaryId.flatMapLatest { repository.getIssueCollections(it).asFlow() }.asLiveData()
+
+    private val _variantId = MutableStateFlow(AUTO_ID)
+    private val variantId: StateFlow<Int>
+        get() = _variantId
+
     // Other parts rely on this possibly being null, which is why it's LiveData, instead of
     // StateFlow like 'issue'
     internal val variantLiveData: LiveData<FullIssue?> =
@@ -56,6 +82,10 @@ class IssueDetailViewModel : ViewModel() {
             Log.d(TAG, "variantId changed, updating variantLiveData $id")
             repository.getIssue(id)
         }.asLiveData()
+
+    internal val variantCover: LiveData<Cover?> = variantId.mapLatest {
+        repository.getCover(it)
+    }.asLiveData()
 
     internal val variantStoriesLiveData: LiveData<List<Story>> =
         variantId.flatMapLatest { issueId -> repository.getStoriesByIssue(issueId) }.asLiveData()
@@ -66,6 +96,9 @@ class IssueDetailViewModel : ViewModel() {
     internal val variantAppearancesLiveData: LiveData<List<FullAppearance>> =
         variantId.flatMapLatest { issueId -> repository.getAppearancesByIssue(issueId) }
             .asLiveData()
+
+    internal val variantCollections =
+        variantId.flatMapLatest { repository.getIssueCollections(it).asFlow() }.asLiveData()
 
     internal val variantsLiveData: LiveData<List<Issue>> =
         primaryId.flatMapLatest { id -> repository.getVariants(id) }.asLiveData()
@@ -100,16 +133,6 @@ class IssueDetailViewModel : ViewModel() {
         _variantId.value = AUTO_ID
     }
 
-    private val currentIssue: FullIssue?
-        get() = if (variantId.value == AUTO_ID) {
-            Log.d(TAG, "Getting Current Issue - Primary")
-            mIssue.value
-        } else {
-            Log.d(TAG, "Getting Current Issue - Variant")
-            variantLiveData.value
-        }
-
-
     fun addToCollection(collId: Int) {
         Log.d(
             TAG,
@@ -117,16 +140,16 @@ class IssueDetailViewModel : ViewModel() {
                     "collection #$collId"
         )
         currentIssue?.let { repository.addToCollection(it, collId) }
-        currentIssue?.let { it.cover?.id?.let { cid -> repository.markCoverSave(cid) } }
+        currentCover?.let { repository.markCoverSave(it.coverId) }
     }
 
 
     fun removeFromCollection(collId: Int) {
         Log.d(TAG, "REMOVING FROM COLLECTION $currentIssue")
         currentIssue?.let { repository.removeFromCollection(it.issue.issueId, collId) }
-        currentIssue?.let {
-            it.cover?.id?.let { cid ->
-                if (currentIssue?.collectionItems?.isEmpty() == true) {
+        currentCover?.let {
+            it.id.let { cid ->
+                if (currentCollections?.isEmpty() == true) {
                     repository.markCoverDelete(cid)
                 }
             }

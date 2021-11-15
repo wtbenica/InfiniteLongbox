@@ -24,6 +24,9 @@ abstract class ListViewModel<T : ListItem> : ViewModel() {
         _filter.value = filter
     }
 
+    fun getIssueCover(issueId: Int) = repository.getCover(issueId)
+    fun updateIssueCover(issueId: Int) = repository.updateIssueCover(issueId)
+
     companion object {
         private const val TAG = APP + "ListViewModel"
     }

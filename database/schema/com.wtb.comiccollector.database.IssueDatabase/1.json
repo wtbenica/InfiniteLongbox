@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "4a4d38721abfd9f9cee2f4bf0e81609f",
+    "identityHash": "bd17093129561464a72119b1b5dbe85b",
     "entities": [
       {
         "tableName": "Issue",
@@ -1227,71 +1227,6 @@
         ]
       },
       {
-        "tableName": "Cover",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`coverId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `issue` INTEGER NOT NULL, `coverUri` TEXT, `markedDelete` INTEGER NOT NULL, `lastUpdated` TEXT NOT NULL, FOREIGN KEY(`issue`) REFERENCES `Issue`(`issueId`) ON UPDATE NO ACTION ON DELETE CASCADE )",
-        "fields": [
-          {
-            "fieldPath": "coverId",
-            "columnName": "coverId",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "issue",
-            "columnName": "issue",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "coverUri",
-            "columnName": "coverUri",
-            "affinity": "TEXT",
-            "notNull": false
-          },
-          {
-            "fieldPath": "markedDelete",
-            "columnName": "markedDelete",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "lastUpdated",
-            "columnName": "lastUpdated",
-            "affinity": "TEXT",
-            "notNull": true
-          }
-        ],
-        "primaryKey": {
-          "columnNames": [
-            "coverId"
-          ],
-          "autoGenerate": true
-        },
-        "indices": [
-          {
-            "name": "index_Cover_issue",
-            "unique": true,
-            "columnNames": [
-              "issue"
-            ],
-            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_Cover_issue` ON `${TABLE_NAME}` (`issue`)"
-          }
-        ],
-        "foreignKeys": [
-          {
-            "table": "Issue",
-            "onDelete": "CASCADE",
-            "onUpdate": "NO ACTION",
-            "columns": [
-              "issue"
-            ],
-            "referencedColumns": [
-              "issueId"
-            ]
-          }
-        ]
-      },
-      {
         "tableName": "SeriesBond",
         "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`bondId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `origin` INTEGER NOT NULL, `target` INTEGER NOT NULL, `originIssue` INTEGER, `targetIssue` INTEGER, `bondType` INTEGER NOT NULL, `notes` TEXT, `lastUpdated` TEXT NOT NULL, FOREIGN KEY(`origin`) REFERENCES `Series`(`seriesId`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`target`) REFERENCES `Series`(`seriesId`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`originIssue`) REFERENCES `Issue`(`issueId`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`targetIssue`) REFERENCES `Issue`(`issueId`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`bondType`) REFERENCES `BondType`(`bondTypeId`) ON UPDATE NO ACTION ON DELETE RESTRICT )",
         "fields": [
@@ -1567,154 +1502,12 @@
         },
         "indices": [],
         "foreignKeys": []
-      },
-      {
-        "tableName": "UserCollection",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`userCollectionId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `permanent` INTEGER NOT NULL, `lastUpdated` TEXT NOT NULL)",
-        "fields": [
-          {
-            "fieldPath": "userCollectionId",
-            "columnName": "userCollectionId",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "name",
-            "columnName": "name",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "permanent",
-            "columnName": "permanent",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "lastUpdated",
-            "columnName": "lastUpdated",
-            "affinity": "TEXT",
-            "notNull": true
-          }
-        ],
-        "primaryKey": {
-          "columnNames": [
-            "userCollectionId"
-          ],
-          "autoGenerate": true
-        },
-        "indices": [],
-        "foreignKeys": []
-      },
-      {
-        "tableName": "CollectionItem",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`collectionItemId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `issue` INTEGER NOT NULL, `series` INTEGER NOT NULL, `userCollection` INTEGER NOT NULL, `lastUpdated` TEXT NOT NULL, FOREIGN KEY(`issue`) REFERENCES `Issue`(`issueId`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`series`) REFERENCES `Series`(`seriesId`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`userCollection`) REFERENCES `UserCollection`(`userCollectionId`) ON UPDATE NO ACTION ON DELETE CASCADE )",
-        "fields": [
-          {
-            "fieldPath": "collectionItemId",
-            "columnName": "collectionItemId",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "issue",
-            "columnName": "issue",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "series",
-            "columnName": "series",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "userCollection",
-            "columnName": "userCollection",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "lastUpdated",
-            "columnName": "lastUpdated",
-            "affinity": "TEXT",
-            "notNull": true
-          }
-        ],
-        "primaryKey": {
-          "columnNames": [
-            "collectionItemId"
-          ],
-          "autoGenerate": true
-        },
-        "indices": [
-          {
-            "name": "index_CollectionItem_issue_userCollection",
-            "unique": true,
-            "columnNames": [
-              "issue",
-              "userCollection"
-            ],
-            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_CollectionItem_issue_userCollection` ON `${TABLE_NAME}` (`issue`, `userCollection`)"
-          },
-          {
-            "name": "index_CollectionItem_userCollection",
-            "unique": false,
-            "columnNames": [
-              "userCollection"
-            ],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_CollectionItem_userCollection` ON `${TABLE_NAME}` (`userCollection`)"
-          },
-          {
-            "name": "index_CollectionItem_series",
-            "unique": false,
-            "columnNames": [
-              "series"
-            ],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_CollectionItem_series` ON `${TABLE_NAME}` (`series`)"
-          }
-        ],
-        "foreignKeys": [
-          {
-            "table": "Issue",
-            "onDelete": "CASCADE",
-            "onUpdate": "NO ACTION",
-            "columns": [
-              "issue"
-            ],
-            "referencedColumns": [
-              "issueId"
-            ]
-          },
-          {
-            "table": "Series",
-            "onDelete": "CASCADE",
-            "onUpdate": "NO ACTION",
-            "columns": [
-              "series"
-            ],
-            "referencedColumns": [
-              "seriesId"
-            ]
-          },
-          {
-            "table": "UserCollection",
-            "onDelete": "CASCADE",
-            "onUpdate": "NO ACTION",
-            "columns": [
-              "userCollection"
-            ],
-            "referencedColumns": [
-              "userCollectionId"
-            ]
-          }
-        ]
       }
     ],
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '4a4d38721abfd9f9cee2f4bf0e81609f')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'bd17093129561464a72119b1b5dbe85b')"
     ]
   }
 }

@@ -20,10 +20,7 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.R
-import com.wtb.comiccollector.database.models.BaseCollection
-import com.wtb.comiccollector.database.models.FullIssue
-import com.wtb.comiccollector.database.models.FullSeries
-import com.wtb.comiccollector.database.models.Issue
+import com.wtb.comiccollector.database.models.*
 import com.wtb.comiccollector.fragments_view_models.IssueListViewModel
 import com.wtb.comiccollector.views.AddCollectionButton
 import com.wtb.comiccollector.views.AddWishListButton
@@ -143,6 +140,8 @@ class IssueListFragment : ListFragment<FullIssue, IssueListFragment.IssueViewHol
         LayoutInflater.from(parent.context).inflate(R.layout.list_item_issue, parent, false)
     ), View.OnClickListener, AddCollectionButton.AddCollectionCallback {
         private var fullIssue: FullIssue? = null
+        private var cover: Cover? = null
+        private var collections: List<CollectionItem> = emptyList()
         private val progressCover: ProgressBar = itemView.findViewById(R.id.progress_cover_download)
         private val bg: ImageView = itemView.findViewById(R.id.list_item_issue_bg)
         private val coverImageView: ImageView = itemView.findViewById(R.id.list_item_cover)
@@ -186,11 +185,14 @@ class IssueListFragment : ListFragment<FullIssue, IssueListFragment.IssueViewHol
         fun bind(item: FullIssue?) {
             this.fullIssue = item
 
-            this.fullIssue?.let { viewModel.updateIssueCover(it.issue.issueId) }
-            val coverUri = this.fullIssue?.coverUri
+            this.fullIssue?.let {
+                viewModel.updateIssueCover(it.issue.issueId)
+                cover = viewModel.getIssueCover(it.issue.issueId)
+                collections = viewModel.getIssueCollections(it.issue.issueId).value ?: emptyList()
+            }
 
-            if (coverUri != null) {
-                coverImageView.setImageURI(coverUri)
+            if (cover?.coverUri != null) {
+                coverImageView.setImageURI(cover?.coverUri)
                 val animation = ValueAnimator.ofFloat(0F, 1F)
                 animation.addUpdateListener {
                     val value = it.animatedValue as Float
@@ -219,8 +221,7 @@ class IssueListFragment : ListFragment<FullIssue, IssueListFragment.IssueViewHol
                 animation.start()
             }
 
-            val collectionIds =
-                this.fullIssue?.collectionItems?.map { it.userCollection } ?: emptyList()
+            val collectionIds = collections.map { it.userCollection }
             addCollectionButton.inCollection = BaseCollection.MY_COLL.id in collectionIds
             addWishListButton.inCollection = BaseCollection.WISH_LIST.id in collectionIds
 

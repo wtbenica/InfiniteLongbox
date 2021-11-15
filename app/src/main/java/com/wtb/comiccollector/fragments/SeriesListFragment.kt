@@ -117,23 +117,27 @@ class SeriesListFragment : ListFragment<FullSeries, SeriesListFragment.SeriesHol
             val draw: Int? = context?.getDrawableFromAttr(R.attr.listItemBackground)
             val draw2: Drawable? = draw?.let { ResourcesCompat.getDrawable(resources, it, null) }
 
-            firstIssue?.coverUri.let {
-                if (it != null) {
-                    seriesImageView.setImageURI(it)
-                } else {
-                    seriesImageView.setImageDrawable(draw2)
+            firstIssue?.let {
+                viewModel.getIssueCover(it.issue.issueId)?.coverUri.let { uri ->
+                    if (uri != null) {
+                        seriesImageView.setImageURI(uri)
+                        coverProgressBar.visibility = View.GONE
+                    } else {
+                        seriesImageView.setImageDrawable(draw2)
+                        coverProgressBar.visibility = View.VISIBLE
+                    }
                 }
             }
 
             seriesDateRangeTextView.text = this.item.series.dateRange
             formatTextView.text = this.item.series.publishingFormat?.lowercase()
 
-            coverProgressBar.visibility =
-                if (firstIssue == null || firstIssue.coverUri != null || firstIssue.cover != null) {
-                    View.GONE
-                } else {
-                    View.VISIBLE
-                }
+//            coverProgressBar.visibility =
+//                if (firstIssue == null || firstIssue.coverUri != null || firstIssue.cover != null) {
+//                    View.GONE
+//                } else {
+//                    View.VISIBLE
+//                }
         }
 
         override fun onClick(v: View?) {

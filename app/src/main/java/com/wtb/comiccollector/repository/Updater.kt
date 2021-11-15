@@ -9,6 +9,7 @@ import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.ComicCollectorApplication.Companion.context
 import com.wtb.comiccollector.Webservice
 import com.wtb.comiccollector.database.IssueDatabase
+import com.wtb.comiccollector.database.UserDatabase
 import com.wtb.comiccollector.database.daos.BaseDao
 import com.wtb.comiccollector.database.daos.Count
 import com.wtb.comiccollector.database.models.*
@@ -31,14 +32,17 @@ abstract class Updater(
     val webservice: Webservice,
     val prefs: SharedPreferences,
 ) {
-    protected val database: IssueDatabase
+    protected val issueDatabase: IssueDatabase
         get() = IssueDatabase.getInstance(context!!)
 
+    protected val userDatabase: UserDatabase
+        get() = UserDatabase.getInstance(context!!)
+
     val fKeyChecker
-        get() = FKeyChecker(database, webservice)
+        get() = FKeyChecker(issueDatabase, webservice)
 
     init {
-        Collector.initialize(database)
+        Collector.initialize(issueDatabase)
     }
 
     @ExperimentalCoroutinesApi

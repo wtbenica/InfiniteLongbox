@@ -14,7 +14,7 @@ import kotlinx.coroutines.*
  * Static updater - deprecated
  * might still be needed to pull updates later, so keeping it around ftm
  * @property webservice
- * @property database
+ * @property issueDatabase
  * @property prefs
  * @constructor Create empty Static updater
  */
@@ -29,7 +29,7 @@ class StaticUpdater private constructor(
     internal suspend fun updateStaticAsync(progressUpdate: ProgressUpdateCard) {
         Log.d(TAG, "updateStaticAsync Begin")
         getAllPublishers(progressUpdate.publisherWrapper)
-        database.transactionDao().upsertStatic(
+        issueDatabase.transactionDao().upsertStatic(
             roles = getRoles(),
             storyTypes = getStoryTypes(),
             bondTypes = getBondTypes(),
@@ -50,7 +50,7 @@ class StaticUpdater private constructor(
             savePageTag = UPDATED_PUBLISHERS_PAGE,
             saveTag = UPDATED_PUBLISHERS,
             getItemsByPage = ::getPublishersByPage,
-            dao = database.publisherDao(),
+            dao = issueDatabase.publisherDao(),
             getNumPages = webservice::getNumPublisherPages,
             progressWrapper = updateProgress
         )
@@ -63,7 +63,7 @@ class StaticUpdater private constructor(
             saveTag = UPDATED_SERIES,
             getItemsByPage = ::getSeriesByPage,
             verifyForeignKeys = fKeyChecker::checkFKeysSeries,
-            dao = database.seriesDao(),
+            dao = issueDatabase.seriesDao(),
             getNumPages = webservice::getNumSeriesPages,
             progressWrapper = updateProgress
         )
@@ -76,7 +76,7 @@ class StaticUpdater private constructor(
             saveTag = UPDATED_NAME_DETAILS,
             getItemsByPage = ::getNameDetailsByPage,
             verifyForeignKeys = fKeyChecker::checkFKeysNameDetail,
-            dao = database.nameDetailDao(),
+            dao = issueDatabase.nameDetailDao(),
             getNumPages = webservice::getNumNameDetailPages,
             progressWrapper = updateProgress
         )
@@ -88,7 +88,7 @@ class StaticUpdater private constructor(
             savePageTag = UPDATED_CHARACTERS_PAGE,
             saveTag = UPDATED_CHARACTERS,
             getItemsByPage = ::getCharactersByPage,
-            dao = database.characterDao(),
+            dao = issueDatabase.characterDao(),
             getNumPages = webservice::getNumCharacterPages,
             progressWrapper = updateProgress
         )
@@ -100,7 +100,7 @@ class StaticUpdater private constructor(
             saveTag = UPDATED_BONDS,
             getItems = this::getSeriesBonds,
             followup = fKeyChecker::checkFKeysSeriesBond,
-            dao = database.seriesBondDao()
+            dao = issueDatabase.seriesBondDao()
         )
     }
 

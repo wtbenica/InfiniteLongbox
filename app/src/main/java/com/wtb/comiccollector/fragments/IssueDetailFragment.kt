@@ -54,16 +54,22 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback,
     private var listFragmentCallback: ListFragment.ListFragmentCallback? = null
 
     private var fullIssue: FullIssue = FullIssue.getEmptyFullIssue()
-    private var fullVariant: FullIssue? = null
-    private var issuesInSeries: List<Int> = emptyList()
-    private var currentPos: Int = 0
+    private var issueCoverUri: Uri? = null
     private var issueCredits: List<FullCredit> = emptyList()
     private var issueStories: List<Story> = emptyList()
     private var issueAppearances: List<FullAppearance> = emptyList()
+    private var issueCollections: List<CollectionItem> = emptyList()
+
+    private var fullVariant: FullIssue? = null
+    private var variantCoverUri: Uri? = null
     private var variantCredits: List<FullCredit> = emptyList()
     private var variantStories: List<Story> = emptyList()
     private var variantAppearances: List<FullAppearance> = emptyList()
+    private var variantCollections: List<CollectionItem> = emptyList()
+
     private var issueVariants: List<Issue> = emptyList()
+    private var issuesInSeries: List<Int> = emptyList()
+    private var currentPos: Int = 0
 
     private lateinit var coverImageView: ImageButton
     private lateinit var ebayButton: AppCompatImageButton
@@ -90,8 +96,11 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback,
     private val currentIssue: FullIssue
         get() = fullVariant ?: fullIssue
 
+    private val currentCollections
+        get() = if (isVariant) variantCollections else issueCollections
+
     private val coverUri: Uri?
-        get() = currentIssue.coverUri
+        get() = if (isVariant) variantCoverUri else issueCoverUri
 
     private var saveIssue = true
 
@@ -112,7 +121,7 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback,
         setHasOptionsMenu(true)
 
         fullIssue =
-            FullIssue(Issue(issueNumRaw = null), SeriesAndPublisher(Series(), Publisher()), null)
+            FullIssue(Issue(issueNumRaw = null), SeriesAndPublisher(Series(), Publisher()))
         issueCredits = emptyList()
         issueStories = emptyList()
         issueAppearances = emptyList()
@@ -201,6 +210,18 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback,
             }
         )
 
+        issueDetailViewModel.primaryCover.observe(
+            viewLifecycleOwner,
+            { cover ->
+                cover?.let {
+                    if (issueCoverUri != it.coverUri) {
+                        issueCoverUri = it.coverUri
+                        updateUI()
+                    }
+                }
+            }
+        )
+
         issueDetailViewModel.primaryCreditsLiveData.observe(
             viewLifecycleOwner,
             { credits: List<FullCredit>? ->
@@ -237,6 +258,15 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback,
             }
         )
 
+        issueDetailViewModel.primaryCollections.observe(
+            viewLifecycleOwner,
+            { collections: List<CollectionItem> ->
+                if (issueCollections != collections) {
+                    issueCollections = collections
+                }
+            }
+        )
+
         issueDetailViewModel.variantLiveData.observe(
             viewLifecycleOwner,
             {
@@ -244,6 +274,18 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback,
                     if (fullVariant != variant) {
                         isVariant = fullVariant?.issue?.issueId != AUTO_ID
                         fullVariant = variant
+                        updateUI()
+                    }
+                }
+            }
+        )
+
+        issueDetailViewModel.variantCover.observe(
+            viewLifecycleOwner,
+            { cover ->
+                cover?.let {
+                    if (variantCoverUri != it.coverUri) {
+                        variantCoverUri = it.coverUri
                         updateUI()
                     }
                 }
@@ -282,6 +324,15 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback,
                         this.variantAppearances = it
                         updateUI()
                     }
+                }
+            }
+        )
+
+        issueDetailViewModel.variantCollections.observe(
+            viewLifecycleOwner,
+            { collections: List<CollectionItem> ->
+                if (variantCollections != collections) {
+                    variantCollections = collections
                 }
             }
         )
@@ -485,7 +536,7 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback,
             }
 
             infoBox.update(issue.releaseDate, issue.coverDate, issue.notes)
-            val collectionIds: List<Int> = currentIssue.collectionItems.map { it.userCollection }
+            val collectionIds: List<Int> = currentCollections.map { it.userCollection }
             collectionButton.inCollection = collectionIds.contains(BaseCollection.MY_COLL.id)
             wishListButton.inCollection = collectionIds.contains(BaseCollection.WISH_LIST.id)
 

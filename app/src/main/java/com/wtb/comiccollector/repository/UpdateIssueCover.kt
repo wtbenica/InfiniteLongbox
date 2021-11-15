@@ -6,8 +6,11 @@ import android.content.SharedPreferences
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.asLiveData
 import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.Webservice
+import com.wtb.comiccollector.database.models.CollectionItem
 import com.wtb.comiccollector.database.models.Cover
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -36,9 +39,10 @@ class UpdateIssueCover private constructor(
             val file = getFileHandle(context, coverFileName(issueId))
             val fileDNE = !file.exists()
 
-            database.issueDao().getIssueSus(issueId)?.let { issue ->
-                val uriDNE = issue.coverUri == null &&
-                        issue.cover?.lastUpdated?.plusDays(7) ?: LocalDate.MIN < LocalDate.now()
+            issueDatabase.issueDao().getIssueSus(issueId)?.let { issue ->
+                val cover = userDatabase.coverDao().getCoverByIssueId(issueId)
+                val uriDNE = cover == null &&
+                        cover?.lastUpdated?.plusDays(7) ?: LocalDate.MIN < LocalDate.now()
                 if (fileDNE || uriDNE || DEBUG) {
                     if (fileDNE) {
                         kotlin.runCatching {
@@ -46,21 +50,22 @@ class UpdateIssueCover private constructor(
                             val image = url.toBitmap()
                             if (image != null) {
                                 val savedUri: Uri? = image.saveToInternalStorage(file)
-
-                                val cover = Cover(
+                                val collections: List<CollectionItem>? = userDatabase.collectionItemDao()
+                                    .getIssueCollections(issueId).value
+                                val newCover = Cover(
                                     issue = issueId, coverUri = savedUri,
-                                    markedDelete = markedDelete && issue.collectionItems == null
+                                    markedDelete = markedDelete && collections?.isEmpty() == true
                                 )
-                                database.coverDao().upsertSus(listOf(cover))
+                                userDatabase.coverDao().upsertSus(listOf(newCover))
                             } else {
-                                val cover = Cover(issue = issueId, coverUri = null)
-                                database.coverDao().upsertSus(cover)
+                                val newCover = Cover(issue = issueId, coverUri = null)
+                                userDatabase.coverDao().upsertSus(newCover)
                             }
                         }
                     } else {
                         val cover =
                             Cover(issue = issueId, coverUri = Uri.parse(file.absolutePath))
-                        database.coverDao().upsertSus(listOf(cover))
+                        userDatabase.coverDao().upsertSus(listOf(cover))
                     }
                 }
             }

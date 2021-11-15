@@ -38,7 +38,7 @@ class IssueListViewModel : ListViewModel<FullIssue>() {
         repository.getIssuesByFilterPaged(filter).asLiveData()
     }.asFlow().cachedIn(viewModelScope)
 
-    fun updateIssueCover(issueId: Int) = repository.updateIssueCover(issueId)
+    fun getIssueCollections(issueId: Int) = repository.getIssueCollections(issueId)
 
     fun saveIssueListState(instanceState: Parcelable?) {
         repository.saveIssueListState = instanceState

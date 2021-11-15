@@ -14,6 +14,7 @@ import android.os.Parcelable
 import android.util.Log
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
+import androidx.lifecycle.LiveData
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
@@ -21,6 +22,7 @@ import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.MainActivity
 import com.wtb.comiccollector.SearchFilter
 import com.wtb.comiccollector.database.IssueDatabase
+import com.wtb.comiccollector.database.UserDatabase
 import com.wtb.comiccollector.database.daos.REQUEST_LIMIT
 import com.wtb.comiccollector.database.models.*
 import com.wtb.comiccollector.views.ProgressUpdateCard
@@ -104,6 +106,8 @@ class Repository private constructor(val context: Context) {
     private val executor = Executors.newSingleThreadExecutor()
     private val issueDatabase: IssueDatabase
         get() = IssueDatabase.getInstance(context)
+    private val userDatabase: UserDatabase
+        get() = UserDatabase.getInstance(context)
     private var hasConnection: Boolean = false
     private var hasUnmeteredConnection: Boolean = true
 
@@ -132,9 +136,9 @@ class Repository private constructor(val context: Context) {
     private val appearanceDao
         get() = issueDatabase.appearanceDao()
     private val collectionItemDao
-        get() = issueDatabase.collectionItemDao()
+        get() = userDatabase.collectionItemDao()
     private val coverDao
-        get() = issueDatabase.coverDao()
+        get() = userDatabase.coverDao()
 
     private val updater: StaticUpdater
         get() = StaticUpdater.get()
@@ -291,12 +295,16 @@ class Repository private constructor(val context: Context) {
             flow { emit(emptyList<Publisher>()) }
         }
 
+    // COVER METHODS
     fun updateIssueCover(issueId: Int) {
         if (hasConnection) {
             UpdateIssueCover.get().update(issueId)
         }
     }
 
+    fun getCover(issueId: Int): Cover? = coverDao.get(issueId)
+
+    // COLLECTION METHODS
     fun addToCollection(issue: FullIssue, collId: Int) {
         executor.execute {
             collectionItemDao.insert(
@@ -314,6 +322,10 @@ class Repository private constructor(val context: Context) {
             collectionItemDao.deleteById(issueId, collId)
         }
     }
+
+    fun getIssueCollections(issueId: Int): LiveData<List<CollectionItem>> =
+        collectionItemDao.getIssueCollections(issueId)
+
 
     companion object {
         @SuppressLint("StaticFieldLeak")

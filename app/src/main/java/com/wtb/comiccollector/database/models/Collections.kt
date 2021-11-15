@@ -10,18 +10,6 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 @Entity(
     foreignKeys = [
         ForeignKey(
-            entity = Issue::class,
-            parentColumns = arrayOf("issueId"),
-            childColumns = arrayOf("issue"),
-            onDelete = ForeignKey.CASCADE
-        ),
-        ForeignKey(
-            entity = Series::class,
-            parentColumns = arrayOf("seriesId"),
-            childColumns = arrayOf("series"),
-            onDelete = ForeignKey.CASCADE
-        ),
-        ForeignKey(
             entity = UserCollection::class,
             parentColumns = arrayOf("userCollectionId"),
             childColumns = arrayOf("userCollection"),
