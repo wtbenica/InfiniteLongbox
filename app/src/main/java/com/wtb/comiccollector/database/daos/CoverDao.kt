@@ -28,4 +28,13 @@ abstract class CoverDao : BaseDao<Cover>("cover") {
         """
     )
     abstract suspend fun getCoverByIssueId(issueId: Int): Cover?
+
+    @Query(
+        """
+            SELECT *
+            FROM cover
+            WHERE issue = :issueId
+        """
+    )
+    abstract fun getCoverByIssueIdFlow(issueId: Int): Flow<Cover?>
 }

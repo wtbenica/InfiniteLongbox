@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 2,
-    "identityHash": "39a1f697dfb79c02246f870de67526d2",
+    "identityHash": "bd17093129561464a72119b1b5dbe85b",
     "entities": [
       {
         "tableName": "Issue",
@@ -605,7 +605,7 @@
       },
       {
         "tableName": "Story",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`storyId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `storyType` INTEGER NOT NULL, `title` TEXT, `feature` TEXT, `characters` TEXT, `synopsis` TEXT, `notes` TEXT, `sequenceNumber` INTEGER NOT NULL, `issue` INTEGER NOT NULL, `lastUpdated` TEXT NOT NULL, FOREIGN KEY(`storyType`) REFERENCES `StoryType`(`storyTypeId`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`storyId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `storyType` INTEGER NOT NULL, `title` TEXT, `feature` TEXT, `characters` TEXT, `synopsis` TEXT, `notes` TEXT, `sequenceNumber` INTEGER NOT NULL, `issue` INTEGER NOT NULL, `lastUpdated` TEXT NOT NULL, FOREIGN KEY(`storyType`) REFERENCES `StoryType`(`storyTypeId`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`issue`) REFERENCES `Issue`(`issueId`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
         "fields": [
           {
             "fieldPath": "storyId",
@@ -682,6 +682,14 @@
               "storyType"
             ],
             "createSql": "CREATE INDEX IF NOT EXISTS `index_Story_storyType` ON `${TABLE_NAME}` (`storyType`)"
+          },
+          {
+            "name": "index_Story_issue",
+            "unique": false,
+            "columnNames": [
+              "issue"
+            ],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_Story_issue` ON `${TABLE_NAME}` (`issue`)"
           }
         ],
         "foreignKeys": [
@@ -694,6 +702,17 @@
             ],
             "referencedColumns": [
               "storyTypeId"
+            ]
+          },
+          {
+            "table": "Issue",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "issue"
+            ],
+            "referencedColumns": [
+              "issueId"
             ]
           }
         ]
@@ -1208,149 +1227,6 @@
         ]
       },
       {
-        "tableName": "MyCollection",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`collectionId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `issue` INTEGER NOT NULL, `series` INTEGER NOT NULL, `lastUpdated` TEXT NOT NULL, FOREIGN KEY(`issue`) REFERENCES `Issue`(`issueId`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`series`) REFERENCES `Series`(`seriesId`) ON UPDATE NO ACTION ON DELETE CASCADE )",
-        "fields": [
-          {
-            "fieldPath": "collectionId",
-            "columnName": "collectionId",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "issue",
-            "columnName": "issue",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "series",
-            "columnName": "series",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "lastUpdated",
-            "columnName": "lastUpdated",
-            "affinity": "TEXT",
-            "notNull": true
-          }
-        ],
-        "primaryKey": {
-          "columnNames": [
-            "collectionId"
-          ],
-          "autoGenerate": true
-        },
-        "indices": [
-          {
-            "name": "index_MyCollection_issue",
-            "unique": true,
-            "columnNames": [
-              "issue"
-            ],
-            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_MyCollection_issue` ON `${TABLE_NAME}` (`issue`)"
-          },
-          {
-            "name": "index_MyCollection_series",
-            "unique": false,
-            "columnNames": [
-              "series"
-            ],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_MyCollection_series` ON `${TABLE_NAME}` (`series`)"
-          }
-        ],
-        "foreignKeys": [
-          {
-            "table": "Issue",
-            "onDelete": "CASCADE",
-            "onUpdate": "NO ACTION",
-            "columns": [
-              "issue"
-            ],
-            "referencedColumns": [
-              "issueId"
-            ]
-          },
-          {
-            "table": "Series",
-            "onDelete": "CASCADE",
-            "onUpdate": "NO ACTION",
-            "columns": [
-              "series"
-            ],
-            "referencedColumns": [
-              "seriesId"
-            ]
-          }
-        ]
-      },
-      {
-        "tableName": "Cover",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`coverId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `issue` INTEGER NOT NULL, `coverUri` TEXT, `markedDelete` INTEGER NOT NULL, `lastUpdated` TEXT NOT NULL, FOREIGN KEY(`issue`) REFERENCES `Issue`(`issueId`) ON UPDATE NO ACTION ON DELETE CASCADE )",
-        "fields": [
-          {
-            "fieldPath": "coverId",
-            "columnName": "coverId",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "issue",
-            "columnName": "issue",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "coverUri",
-            "columnName": "coverUri",
-            "affinity": "TEXT",
-            "notNull": false
-          },
-          {
-            "fieldPath": "markedDelete",
-            "columnName": "markedDelete",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "lastUpdated",
-            "columnName": "lastUpdated",
-            "affinity": "TEXT",
-            "notNull": true
-          }
-        ],
-        "primaryKey": {
-          "columnNames": [
-            "coverId"
-          ],
-          "autoGenerate": true
-        },
-        "indices": [
-          {
-            "name": "index_Cover_issue",
-            "unique": true,
-            "columnNames": [
-              "issue"
-            ],
-            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_Cover_issue` ON `${TABLE_NAME}` (`issue`)"
-          }
-        ],
-        "foreignKeys": [
-          {
-            "table": "Issue",
-            "onDelete": "CASCADE",
-            "onUpdate": "NO ACTION",
-            "columns": [
-              "issue"
-            ],
-            "referencedColumns": [
-              "issueId"
-            ]
-          }
-        ]
-      },
-      {
         "tableName": "SeriesBond",
         "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`bondId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `origin` INTEGER NOT NULL, `target` INTEGER NOT NULL, `originIssue` INTEGER, `targetIssue` INTEGER, `bondType` INTEGER NOT NULL, `notes` TEXT, `lastUpdated` TEXT NOT NULL, FOREIGN KEY(`origin`) REFERENCES `Series`(`seriesId`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`target`) REFERENCES `Series`(`seriesId`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`originIssue`) REFERENCES `Issue`(`issueId`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`targetIssue`) REFERENCES `Issue`(`issueId`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`bondType`) REFERENCES `BondType`(`bondTypeId`) ON UPDATE NO ACTION ON DELETE RESTRICT )",
         "fields": [
@@ -1631,7 +1507,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '39a1f697dfb79c02246f870de67526d2')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'bd17093129561464a72119b1b5dbe85b')"
     ]
   }
 }

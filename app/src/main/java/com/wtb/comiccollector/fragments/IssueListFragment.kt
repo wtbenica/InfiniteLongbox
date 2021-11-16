@@ -19,15 +19,15 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.wtb.comiccollector.APP
+import com.wtb.comiccollector.MainActivity
 import com.wtb.comiccollector.R
 import com.wtb.comiccollector.database.models.*
 import com.wtb.comiccollector.fragments_view_models.IssueListViewModel
 import com.wtb.comiccollector.views.AddCollectionButton
 import com.wtb.comiccollector.views.AddWishListButton
 import com.wtb.comiccollector.views.SeriesDetailBox
-import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.launch
 
 @ExperimentalCoroutinesApi
 class IssueListFragment : ListFragment<FullIssue, IssueListFragment.IssueViewHolder>() {
@@ -141,6 +141,7 @@ class IssueListFragment : ListFragment<FullIssue, IssueListFragment.IssueViewHol
     ), View.OnClickListener, AddCollectionButton.AddCollectionCallback {
         private var fullIssue: FullIssue? = null
         private var cover: Cover? = null
+        private var coverJob: Job? = null
         private var collections: List<CollectionItem> = emptyList()
         private val progressCover: ProgressBar = itemView.findViewById(R.id.progress_cover_download)
         private val bg: ImageView = itemView.findViewById(R.id.list_item_issue_bg)
@@ -184,13 +185,50 @@ class IssueListFragment : ListFragment<FullIssue, IssueListFragment.IssueViewHol
 
         fun bind(item: FullIssue?) {
             this.fullIssue = item
+            coverJob?.cancel("New item to bind")
 
             this.fullIssue?.let {
                 viewModel.updateIssueCover(it.issue.issueId)
-                cover = viewModel.getIssueCover(it.issue.issueId)
-                collections = viewModel.getIssueCollections(it.issue.issueId).value ?: emptyList()
-            }
 
+                collections = viewModel.getIssueCollections(it.issue.issueId).value ?: emptyList()
+
+                coverJob = CoroutineScope(Dispatchers.Default).launch {
+                    viewModel.getIssueCoverFlow(it.issue.issueId).collectLatest {
+                        it?.let { it2 ->
+                            cover = it2
+                            (context as MainActivity).runOnUiThread {
+                                updateCoverView()
+                            }
+                        }
+                    }
+                }
+
+                updateCoverView()
+
+                val collectionIds = collections.map { it.userCollection }
+                addCollectionButton.inCollection = BaseCollection.MY_COLL.id in collectionIds
+                addWishListButton.inCollection = BaseCollection.WISH_LIST.id in collectionIds
+
+                val issue = this.fullIssue?.issue
+                if (issue?.variantName?.isNotEmpty() == true && issue.variantOf != null) {
+                    issueVariantName.text = issue.variantName
+                    issueVariantName.visibility = VISIBLE
+                } else {
+                    issueVariantName.visibility = GONE
+                }
+
+                issueNameBox.setBackgroundResource(
+                    if (addCollectionButton.inCollection)
+                        R.drawable.issue_list_item_in_collection_bg
+                    else
+                        R.drawable.issue_list_item_not_in_collection_bg
+                )
+
+                issueNumTextView.text = this.fullIssue?.issue?.issueNumRaw
+            }
+        }
+
+        private fun updateCoverView() {
             if (cover?.coverUri != null) {
                 coverImageView.setImageURI(cover?.coverUri)
                 val animation = ValueAnimator.ofFloat(0F, 1F)
@@ -220,31 +258,10 @@ class IssueListFragment : ListFragment<FullIssue, IssueListFragment.IssueViewHol
                 animation.interpolator = AccelerateInterpolator()
                 animation.start()
             }
-
-            val collectionIds = collections.map { it.userCollection }
-            addCollectionButton.inCollection = BaseCollection.MY_COLL.id in collectionIds
-            addWishListButton.inCollection = BaseCollection.WISH_LIST.id in collectionIds
-
-            val issue = this.fullIssue?.issue
-            if (issue?.variantName?.isNotEmpty() == true && issue.variantOf != null) {
-                issueVariantName.text = issue.variantName
-                issueVariantName.visibility = VISIBLE
-            } else {
-                issueVariantName.visibility = GONE
-            }
-
-            issueNameBox.setBackgroundResource(
-                if (addCollectionButton.inCollection)
-                    R.drawable.issue_list_item_in_collection_bg
-                else
-                    R.drawable.issue_list_item_not_in_collection_bg
-            )
-
-            issueNumTextView.text = this.fullIssue?.issue?.issueNumRaw
         }
     }
 
-    interface IssueListCallback : ListFragmentCallback {
+    interface IssueListCallback : ListFragment.ListFragmentCallback {
         fun onIssueSelected(issue: Issue)
         fun onNewIssue(issueId: Int)
         fun addToCollection(issue: FullIssue, collId: Int)
@@ -259,7 +276,10 @@ class IssueListFragment : ListFragment<FullIssue, IssueListFragment.IssueViewHol
             override fun areItemsTheSame(oldItem: FullIssue, newItem: FullIssue): Boolean =
                 oldItem.issue.issueId == newItem.issue.issueId
 
-            override fun areContentsTheSame(oldItem: FullIssue, newItem: FullIssue): Boolean =
+            override fun areContentsTheSame(
+                oldItem: FullIssue,
+                newItem: FullIssue
+            ): Boolean =
                 oldItem == newItem
         }
 

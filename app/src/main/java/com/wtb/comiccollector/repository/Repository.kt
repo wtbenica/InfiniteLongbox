@@ -152,21 +152,21 @@ class Repository private constructor(val context: Context) {
             if (checkConnectionStatus()) {
                 // TODO: A lint inspection pointed out that update returns a Deferred, which
                 //  means that this is async async await. Look into
-                MainActivity.activeJob =
-                    CoroutineScope(Dispatchers.IO).async {
-                        withContext(Dispatchers.Default) {
-                            Log.d(TAG, "STARTING UPDATE")
-                            mainActivity.runOnUiThread {
-                                progressUpdate.show()
-                            }
-                            updater.updateStaticAsync(progressUpdate)
-                        }.let {
-                            Log.d(TAG, "Static update done")
-                            mainActivity.runOnUiThread {
-                                progressUpdate.hide()
-                            }
-                        }
-                    }
+//                MainActivity.activeJob =
+//                    CoroutineScope(Dispatchers.IO).async {
+//                        withContext(Dispatchers.Default) {
+//                            Log.d(TAG, "STARTING UPDATE")
+//                            mainActivity.runOnUiThread {
+//                                progressUpdate.show()
+//                            }
+//                            updater.updateStaticAsync(progressUpdate)
+//                        }.let {
+//                            Log.d(TAG, "Static update done")
+//                            mainActivity.runOnUiThread {
+//                                progressUpdate.hide()
+//                            }
+//                        }
+//                    }
             }
         }
     }
@@ -302,7 +302,9 @@ class Repository private constructor(val context: Context) {
         }
     }
 
-    fun getCover(issueId: Int): Cover? = coverDao.get(issueId)
+    suspend fun getCover(issueId: Int): Cover? = coverDao.getCoverByIssueId(issueId)
+
+    suspend fun getCoverFlow(issueId: Int): Flow<Cover?> = coverDao.getCoverByIssueIdFlow(issueId)
 
     // COLLECTION METHODS
     fun addToCollection(issue: FullIssue, collId: Int) {

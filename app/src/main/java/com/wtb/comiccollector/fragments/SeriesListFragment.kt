@@ -2,6 +2,7 @@ package com.wtb.comiccollector.fragments
 
 import android.content.Context
 import android.graphics.drawable.Drawable
+import android.net.Uri
 import android.os.Bundle
 import android.util.TypedValue
 import android.view.LayoutInflater
@@ -17,12 +18,14 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.wtb.comiccollector.APP
+import com.wtb.comiccollector.MainActivity
 import com.wtb.comiccollector.R
 import com.wtb.comiccollector.database.models.FullIssue
 import com.wtb.comiccollector.database.models.FullSeries
 import com.wtb.comiccollector.fragments_view_models.SeriesListViewModel
 import com.wtb.comiccollector.views.FitTopImageView
 import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.collectLatest
 
 private const val TAG = APP + "SeriesListFragment"
 
@@ -84,7 +87,7 @@ class SeriesListFragment : ListFragment<FullSeries, SeriesListFragment.SeriesHol
     ), View.OnClickListener {
 
         private lateinit var item: FullSeries
-
+        private var coverJob: Job? = null
         private val seriesTextView: TextView =
             itemView.findViewById(R.id.list_item_series_name_text)
         private val seriesImageView: FitTopImageView = itemView.findViewById(R.id.series_imageview)
@@ -101,7 +104,7 @@ class SeriesListFragment : ListFragment<FullSeries, SeriesListFragment.SeriesHol
 
         fun bind(item: FullSeries) {
             this.item = item
-
+            coverJob?.cancel("New item to bind")
             seriesTextView.text = this.item.series.seriesName
 
             val firstIssueId = this.item.series.firstIssue
@@ -114,17 +117,20 @@ class SeriesListFragment : ListFragment<FullSeries, SeriesListFragment.SeriesHol
 
             val firstIssue: FullIssue? = this.item.firstIssue
 
-            val draw: Int? = context?.getDrawableFromAttr(R.attr.listItemBackground)
-            val draw2: Drawable? = draw?.let { ResourcesCompat.getDrawable(resources, it, null) }
+            val defaultBgId: Int? = context?.getDrawableFromAttr(R.attr.listItemBackground)
+            val defaultBg: Drawable? =
+                defaultBgId?.let { ResourcesCompat.getDrawable(resources, it, null) }
+
+            updateCoverView(null, defaultBg)
 
             firstIssue?.let {
-                viewModel.getIssueCover(it.issue.issueId)?.coverUri.let { uri ->
-                    if (uri != null) {
-                        seriesImageView.setImageURI(uri)
-                        coverProgressBar.visibility = View.GONE
-                    } else {
-                        seriesImageView.setImageDrawable(draw2)
-                        coverProgressBar.visibility = View.VISIBLE
+                coverJob = CoroutineScope(Dispatchers.Default).launch {
+                    viewModel.getIssueCoverFlow(it.issue.issueId).collectLatest {
+                        it?.let { cover ->
+                            (context as MainActivity).runOnUiThread {
+                                updateCoverView(cover.coverUri, defaultBg)
+                            }
+                        }
                     }
                 }
             }
@@ -138,6 +144,16 @@ class SeriesListFragment : ListFragment<FullSeries, SeriesListFragment.SeriesHol
 //                } else {
 //                    View.VISIBLE
 //                }
+        }
+
+        private fun updateCoverView(uri: Uri?, defaultBg: Drawable?) {
+            if (uri != null) {
+                seriesImageView.setImageURI(uri)
+                coverProgressBar.visibility = View.GONE
+            } else {
+                seriesImageView.setImageDrawable(defaultBg)
+                coverProgressBar.visibility = View.VISIBLE
+            }
         }
 
         override fun onClick(v: View?) {

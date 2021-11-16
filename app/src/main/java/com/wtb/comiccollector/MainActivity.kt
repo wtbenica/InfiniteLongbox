@@ -37,6 +37,7 @@ import com.google.android.material.appbar.AppBarLayout.LayoutParams.SCROLL_FLAG_
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetBehavior.*
 import com.wtb.comiccollector.database.IssueDatabase
+import com.wtb.comiccollector.database.UserDatabase
 import com.wtb.comiccollector.database.models.*
 import com.wtb.comiccollector.fragments.*
 import com.wtb.comiccollector.fragments_view_models.FilterViewModel
@@ -114,8 +115,11 @@ class MainActivity : AppCompatActivity(),
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(R.style.Theme_ComicCollector)
         WindowCompat.setDecorFitsSystemWindows(window, false)
+
         super.onCreate(savedInstanceState)
+
         setContentView(R.layout.activity_main)
+
         Log.d(TAG, "Flavor: ${BuildConfig.FLAVOR}")
         if (BuildConfig.FLAVOR == "free") {
             MobileAds.initialize(this)
@@ -140,7 +144,8 @@ class MainActivity : AppCompatActivity(),
         initWindowInsets()
         initBottomSheet()
         initNetwork()
-
+        UserDatabase.getInstance(this)
+        IssueDatabase.getInstance(this)
         Repository.get().beginStaticUpdate(progressUpdate, this)
 
         filterViewModel.fragment.observe(

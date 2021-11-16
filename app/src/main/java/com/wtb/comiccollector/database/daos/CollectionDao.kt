@@ -50,7 +50,7 @@ abstract class CollectionItemDao : BaseDao<CollectionItem>("collectionItem") {
 
     @Query(
         """
-            DELETE FROM collectionitem
+            DELETE FROM collectionItem
             WHERE 0 = 0
         """
     )
@@ -59,7 +59,7 @@ abstract class CollectionItemDao : BaseDao<CollectionItem>("collectionItem") {
     @Query(
         """
         SELECT *
-        FROM collectionitem ci
+        FROM collectionItem ci
         WHERE ci.issue = :issueId
     """
     )

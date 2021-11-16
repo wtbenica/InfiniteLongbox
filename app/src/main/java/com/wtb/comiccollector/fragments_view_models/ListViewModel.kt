@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.paging.PagingData
 import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.SearchFilter
+import com.wtb.comiccollector.database.models.Cover
 import com.wtb.comiccollector.database.models.ListItem
 import com.wtb.comiccollector.repository.Repository
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -24,7 +25,10 @@ abstract class ListViewModel<T : ListItem> : ViewModel() {
         _filter.value = filter
     }
 
-    fun getIssueCover(issueId: Int) = repository.getCover(issueId)
+    suspend fun getIssueCover(issueId: Int) = repository.getCover(issueId)
+
+    suspend fun getIssueCoverFlow(issueId: Int): Flow<Cover?> = repository.getCoverFlow(issueId)
+
     fun updateIssueCover(issueId: Int) = repository.updateIssueCover(issueId)
 
     companion object {

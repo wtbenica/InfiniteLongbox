@@ -159,7 +159,7 @@ abstract class SeriesDao : BaseDao<Series>("series") {
                     conditions.append(
                         """${connectWord()} ie.issueId IN (
                     SELECT issue
-                    FROM collectionItem
+                    FROM userdb.collectionItem
                     WHERE userCollection = ?)
                     """
                     )
@@ -167,7 +167,7 @@ abstract class SeriesDao : BaseDao<Series>("series") {
                     conditions.append(
                         """${connectWord()} ss.seriesId IN (
                     SELECT series
-                    FROM collectionItem
+                    FROM userdb.collectionItem
                     WHERE userCollection = ?) 
                 """
                     )

@@ -1,10 +1,7 @@
 package com.wtb.comiccollector.database
 
 import android.content.Context
-import androidx.room.Database
-import androidx.room.Room
-import androidx.room.RoomDatabase
-import androidx.room.TypeConverters
+import androidx.room.*
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.wtb.comiccollector.database.daos.*
@@ -12,7 +9,6 @@ import com.wtb.comiccollector.database.models.*
 import com.wtb.comiccollector.database.models.Issue
 import com.wtb.comiccollector.repository.DUMMY_ID
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import org.intellij.lang.annotations.Language
 import java.time.LocalDate
 import java.util.concurrent.Executors
 
@@ -24,7 +20,7 @@ private const val DATABASE_NAME = "issue-database"
         Publisher::class, Story::class, ExCredit::class, StoryType::class, NameDetail::class,
         Character::class, Appearance::class, SeriesBond::class, BondType::class,
         Brand::class],
-    version = 1,
+    version = 2,
 )
 @TypeConverters(IssueTypeConverters::class)
 abstract class IssueDatabase : RoomDatabase() {
@@ -56,36 +52,50 @@ abstract class IssueDatabase : RoomDatabase() {
                     context.applicationContext,
                     IssueDatabase::class.java,
                     DATABASE_NAME
-                ).addCallback(
-                    object : Callback() {
-                        override fun onCreate(db: SupportSQLiteDatabase) {
-                            super.onCreate(db)
-                            val publisher =
-                                Publisher(publisherId = DUMMY_ID, publisher = "Dummy Publisher")
-                            executor.execute {
-                                getInstance(context).publisherDao().upsert(
-                                    publisher,
-                                )
+                )
+                    .createFromAsset(DATABASE_NAME)
+                    .addCallback(
+                        object : Callback() {
+                            override fun onCreate(db: SupportSQLiteDatabase) {
+                                super.onCreate(db)
 
-                                getInstance(context).seriesDao().upsert(
-                                    Series(
-                                        seriesId = DUMMY_ID,
-                                        seriesName = "Dummy Series",
-                                        publisher = DUMMY_ID,
-                                        startDate = LocalDate.MIN,
-                                        endDate = LocalDate.MIN,
+                                executor.execute {
+                                    getInstance(context).publisherDao().upsert(
+                                        Publisher(
+                                            publisherId = DUMMY_ID,
+                                            publisher = "Dummy Publisher"
+                                        )
                                     )
+
+                                    getInstance(context).seriesDao().upsert(
+                                        Series(
+                                            seriesId = DUMMY_ID,
+                                            seriesName = "Dummy Series",
+                                            publisher = DUMMY_ID,
+                                            startDate = LocalDate.MIN,
+                                            endDate = LocalDate.MIN,
+                                        )
+                                    )
+                                }
+                            }
+
+                            override fun onOpen(db: SupportSQLiteDatabase) {
+                                super.onOpen(db)
+                                db.execSQL(
+                                    """
+                                ATTACH DATABASE '/data/data/com.wtb.comiccollector.free/databases/user-database'
+                                AS "userdb"
+                            """
                                 )
                             }
                         }
-                    }
-                )
-//                    .createFromAsset(DATABASE_NAME)
+                    )
                     .build().also {
                         INSTANCE = it
                     }
             }
         }
+
 
         /*
         I'm leaving these here as templates
