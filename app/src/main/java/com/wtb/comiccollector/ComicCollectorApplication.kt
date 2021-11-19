@@ -7,6 +7,8 @@ import android.app.Application
 import android.content.Context
 import android.content.SharedPreferences
 import android.util.Log
+import com.wtb.comiccollector.database.IssueDatabase
+import com.wtb.comiccollector.database.UserDatabase
 import com.wtb.comiccollector.network.RetrofitAPIClient
 import com.wtb.comiccollector.repository.*
 import com.wtb.comiccollector.repository.SHARED_PREFS
@@ -33,6 +35,8 @@ class ComicCollectorApplication: Application() {
         UpdateIssueCover.initialize(webservice, prefs, this)
         StaticUpdater.initialize(webservice, prefs)
         Expander.initialize(webservice, prefs)
+        UserDatabase.getInstance(this)
+        IssueDatabase.getInstance(this)
         Log.d(TAG, "DONE INITIALIZING")
     }
 }

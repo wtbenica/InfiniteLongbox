@@ -188,7 +188,8 @@ data class FullSeries(
     override val compareValue: String
         get() = series.sortName ?: series.seriesName
 
-    override fun toString(): String = "${series.seriesName} ${series.dateRange} | ${publisher.publisher}"
+    override fun toString(): String =
+        "${series.seriesName} ${series.dateRange} | ${publisher.publisher}"
 }
 
 // it might be tempting to remove SeriesAndPublisher and just use FullSeries, but S&P is

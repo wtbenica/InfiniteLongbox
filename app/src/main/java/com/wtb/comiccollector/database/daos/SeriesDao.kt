@@ -27,7 +27,11 @@ abstract class SeriesDao : BaseDao<Series>("series") {
     abstract fun getAll(): Flow<List<Series>>
 
     @Transaction
-    @Query("SELECT * FROM series WHERE seriesId=:seriesId")
+    @Query(
+        """SELECT * 
+            FROM series 
+            WHERE seriesId=:seriesId"""
+    )
     abstract fun getSeries(seriesId: Int): Flow<FullSeries?>
 
     // FLOW FUNCTIONS
@@ -69,9 +73,10 @@ abstract class SeriesDao : BaseDao<Series>("series") {
             fun connectWord(): String = if (conditions.isEmpty()) "WHERE" else "AND"
 
             table.append(
-                """SELECT DISTINCT ss.* 
+                """SELECT DISTINCT ss.*, cv.*
                         FROM series ss 
-                        """
+                        LEFT JOIN Cover cv ON cv.issue = ss.firstIssue
+                """
             )
 
             conditions.append("${connectWord()} ss.seriesId != $DUMMY_ID ")

@@ -86,7 +86,7 @@ class SeriesListFragment : ListFragment<FullSeries, SeriesListFragment.SeriesHol
         LayoutInflater.from(parent.context).inflate(R.layout.list_item_series, parent, false)
     ), View.OnClickListener {
 
-        private lateinit var item: FullSeries
+        private var item: FullSeries? = null
         private var coverJob: Job? = null
         private val seriesTextView: TextView =
             itemView.findViewById(R.id.list_item_series_name_text)
@@ -103,40 +103,42 @@ class SeriesListFragment : ListFragment<FullSeries, SeriesListFragment.SeriesHol
         }
 
         fun bind(item: FullSeries) {
-            this.item = item
-            coverJob?.cancel("New item to bind")
-            seriesTextView.text = this.item.series.seriesName
+            if (item != this.item) {
+                val defaultBgId: Int? = context?.getDrawableFromAttr(R.attr.listItemBackground)
+                val defaultBg: Drawable? =
+                    defaultBgId?.let { ResourcesCompat.getDrawable(resources, it, null) }
+                updateCoverView(null, defaultBg)
 
-            val firstIssueId = this.item.series.firstIssue
-            if (firstIssueId != null) {
-                viewModel.getIssue(firstIssueId,
-                    viewModel.filter.value?.mMyCollection?.let { !it } ?: true)
-            } else if (this.item.series.issueCount < 10) {
-                viewModel.updateIssuesBySeries(this@SeriesHolder.item)
-            }
+                this.item = item
+                this.item?.let {
+                    coverJob?.cancel("New item to bind")
+                    seriesTextView.text = it.series.seriesName
 
-            val firstIssue: FullIssue? = this.item.firstIssue
+                    val firstIssueId = it.series.firstIssue
+                    if (firstIssueId != null) {
+                        viewModel.getIssue(firstIssueId,
+                            viewModel.filter.value?.mMyCollection?.let { !it } ?: true)
+                    }
 
-            val defaultBgId: Int? = context?.getDrawableFromAttr(R.attr.listItemBackground)
-            val defaultBg: Drawable? =
-                defaultBgId?.let { ResourcesCompat.getDrawable(resources, it, null) }
+                    viewModel.updateIssuesBySeries(it)
 
-            updateCoverView(null, defaultBg)
+                    val firstIssue: FullIssue? = it.firstIssue
 
-            firstIssue?.let {
-                coverJob = CoroutineScope(Dispatchers.Default).launch {
-                    viewModel.getIssueCoverFlow(it.issue.issueId).collectLatest {
-                        it?.let { cover ->
-                            (context as MainActivity).runOnUiThread {
-                                updateCoverView(cover.coverUri, defaultBg)
+
+                    firstIssue?.let {
+                        coverJob = CoroutineScope(Dispatchers.Default).launch {
+                            viewModel.getIssueCoverFlow(it.issue.issueId).collectLatest {
+                                it?.let { cover ->
+                                    (context as MainActivity).runOnUiThread {
+                                        updateCoverView(cover.coverUri, defaultBg)
+                                    }
+                                }
                             }
                         }
                     }
-                }
-            }
 
-            seriesDateRangeTextView.text = this.item.series.dateRange
-            formatTextView.text = this.item.series.publishingFormat?.lowercase()
+                    seriesDateRangeTextView.text = it.series.dateRange
+                    formatTextView.text = it.series.publishingFormat?.lowercase()
 
 //            coverProgressBar.visibility =
 //                if (firstIssue == null || firstIssue.coverUri != null || firstIssue.cover != null) {
@@ -144,6 +146,8 @@ class SeriesListFragment : ListFragment<FullSeries, SeriesListFragment.SeriesHol
 //                } else {
 //                    View.VISIBLE
 //                }
+                }
+            }
         }
 
         private fun updateCoverView(uri: Uri?, defaultBg: Drawable?) {
@@ -157,7 +161,7 @@ class SeriesListFragment : ListFragment<FullSeries, SeriesListFragment.SeriesHol
         }
 
         override fun onClick(v: View?) {
-            (callback as SeriesListCallback?)?.onSeriesSelected(item)
+            (callback as SeriesListCallback?)?.onSeriesSelected(item!!)
         }
     }
 

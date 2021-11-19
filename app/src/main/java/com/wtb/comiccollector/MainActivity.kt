@@ -144,8 +144,6 @@ class MainActivity : AppCompatActivity(),
         initWindowInsets()
         initBottomSheet()
         initNetwork()
-        UserDatabase.getInstance(this)
-        IssueDatabase.getInstance(this)
         Repository.get().beginStaticUpdate(progressUpdate, this)
 
         filterViewModel.fragment.observe(

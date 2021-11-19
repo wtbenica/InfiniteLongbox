@@ -1,9 +1,14 @@
 package com.wtb.comiccollector.database
 
 import android.content.Context
-import androidx.room.*
+import android.util.Log
+import androidx.room.Database
+import androidx.room.Room
+import androidx.room.RoomDatabase
+import androidx.room.TypeConverters
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
+import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.database.daos.*
 import com.wtb.comiccollector.database.models.*
 import com.wtb.comiccollector.database.models.Issue
@@ -53,7 +58,6 @@ abstract class IssueDatabase : RoomDatabase() {
                     IssueDatabase::class.java,
                     DATABASE_NAME
                 )
-                    .createFromAsset(DATABASE_NAME)
                     .addCallback(
                         object : Callback() {
                             override fun onCreate(db: SupportSQLiteDatabase) {
@@ -80,16 +84,17 @@ abstract class IssueDatabase : RoomDatabase() {
                             }
 
                             override fun onOpen(db: SupportSQLiteDatabase) {
-                                super.onOpen(db)
                                 db.execSQL(
                                     """
-                                ATTACH DATABASE '/data/data/com.wtb.comiccollector.free/databases/user-database'
+                                ATTACH DATABASE "${context.dataDir.path}/databases/user-database"
                                 AS "userdb"
                             """
                                 )
+                                super.onOpen(db)
                             }
                         }
                     )
+                    .createFromAsset(DATABASE_NAME)
                     .build().also {
                         INSTANCE = it
                     }

@@ -60,6 +60,7 @@ abstract class UserDatabase : RoomDatabase() {
                         }
                     }
                 )
+                    .createFromAsset(USER_DATABASE_NAME)
                     .build().also {
                         INSTANCE = it
                     }
