@@ -49,6 +49,7 @@
         <entry key="app/src/main/res/drawable/fofof.xml" value="0.27692307692307694" />
         <entry key="app/src/main/res/drawable/ic_search_24.xml" value="0.27692307692307694" />
         <entry key="app/src/main/res/drawable/list_item_simple_name_bg.xml" value="0.3021367521367521" />
+        <entry key="app/src/main/res/drawable/logo_fg.xml" value="0.169" />
         <entry key="app/src/main/res/drawable/primary_border.xml" value="0.1111111111111111" />
         <entry key="app/src/main/res/drawable/primary_dark_border.xml" value="0.1111111111111111" />
         <entry key="app/src/main/res/drawable/primary_fade_to_top.xml" value="0.5" />
@@ -69,9 +70,11 @@
         <entry key="app/src/main/res/drawable/remove_wish_list.xml" value="0.1111111111111111" />
         <entry key="app/src/main/res/drawable/removed_from_wish_list_anim.xml" value="0.18717948717948718" />
         <entry key="app/src/main/res/drawable/shape_bg_bottom_sheet.xml" value="0.2675925925925926" />
-        <entry key="app/src/main/res/drawable/splash.xml" value="1.0" />
+        <entry key="app/src/main/res/drawable/splash.xml" value="0.3365" />
         <entry key="app/src/main/res/drawable/status_in_progress.xml" value="0.27341772151898736" />
         <entry key="app/src/main/res/drawable/waiting.xml" value="0.27692307692307694" />
+        <entry key="app/src/main/res/font/coda.xml" value="0.1425925925925926" />
+        <entry key="app/src/main/res/font/coda_extrabold.xml" value="0.1425925925925926" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.39166666666666666" />
         <entry key="app/src/main/res/layout/auto_complete_filter_item.xml" value="0.67" />
         <entry key="app/src/main/res/layout/dialog_fragment_cover.xml" value="0.52890625" />
@@ -105,7 +108,7 @@
       </map>
     </option>
   </component>
-  <component name="ProjectRootManager" version="2" languageLevel="JDK_X" default="true" project-jdk-name="16" project-jdk-type="JavaSDK">
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_X" project-jdk-name="16" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/build/classes" />
   </component>
   <component name="ProjectType">

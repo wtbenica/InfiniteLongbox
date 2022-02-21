@@ -28,7 +28,6 @@ abstract class BaseDao<T : DataModel>(private val tableName: String) {
         return getDataModelByQuery(query)
     }
 
-
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     abstract fun insert(obj: T): Long
 
@@ -72,7 +71,7 @@ abstract class BaseDao<T : DataModel>(private val tableName: String) {
     @Synchronized
     @Transaction
     open fun upsert(objList: List<T>) {
-
+        Log.d(TAG, "BOBOBO ${getLastUpdated()}")
         val objClass = if (objList.isNotEmpty()) {
             objList[0]::class.simpleName
         } else {
@@ -127,6 +126,16 @@ abstract class BaseDao<T : DataModel>(private val tableName: String) {
 
         return success
     }
+
+    val lastUpdatedQuery = SimpleSQLiteQuery(
+        """SELECT MAX(lastUpdated) 
+                FROM $tableName """
+    )
+
+    fun getLastUpdated(): String = getStringByQuery(lastUpdatedQuery)
+
+    @RawQuery
+    protected abstract fun getStringByQuery(query: SupportSQLiteQuery): String
 
     companion object {
         internal fun <T : DataModel> modelsToSqlIdString(models: Collection<T>) =

@@ -24,7 +24,7 @@ private const val DATABASE_NAME = "issue-database"
         Publisher::class, Story::class, ExCredit::class, StoryType::class, NameDetail::class,
         Character::class, Appearance::class, Cover::class, SeriesBond::class, BondType::class,
         Brand::class, UserCollection::class, CollectionItem::class],
-    version = 1,
+    version = 3,
 )
 @TypeConverters(IssueTypeConverters::class)
 abstract class IssueDatabase : RoomDatabase() {
@@ -95,10 +95,10 @@ abstract class IssueDatabase : RoomDatabase() {
                         }
                     }
                 )
-//                    .createFromAsset(DATABASE_NAME)
-//                    .addMigrations(
-//
-//                    )
+                    .createFromAsset(DATABASE_NAME)
+                    .addMigrations(
+                        migration_2_3
+                    )
                     .build().also {
                         INSTANCE = it
                     }
@@ -106,8 +106,8 @@ abstract class IssueDatabase : RoomDatabase() {
         }
 
         @Language("RoomSql")
-        val migration_3_4 = SimpleMigration(
-            3, 4,
+        val migration_2_3 = SimpleMigration(
+            2, 3,
             """CREATE TABLE 'CollectionItem' (
                             'collectionItemId' INTEGER NOT NULL,
                             'issue' INTEGER NOT NULL REFERENCES Issue(issueId) ON DELETE CASCADE,
@@ -118,17 +118,31 @@ abstract class IssueDatabase : RoomDatabase() {
                             PRIMARY KEY('collectionItemId')
                             )""",
             """CREATE TABLE 'UserCollection' (
-                            'userCollectionId' INTEGER NOT NULL,
-                            'name' TEXT NOT NULL,
-                            'permanent' INTEGER NOT NULL,
-                            'lastUpdated' TEXT NOT NULL,
-                            PRIMARY KEY('userCollectionId')
-                            )""",
+                        'userCollectionId' INTEGER NOT NULL,
+                        'name' TEXT NOT NULL,
+                        'permanent' INTEGER NOT NULL,
+                        'lastUpdated' TEXT NOT NULL,
+                        PRIMARY KEY('userCollectionId')
+                        )""",
+            """CREATE TABLE 'Cover'(
+                        coverId INTEGER NOT NULL,
+                        issue INTEGER NOT NULL REFERENCES Issue(issueId) ON DELETE CASCADE,
+                        coverUri TEXT,
+                        markedDelete INTEGER NOT NULL,
+                        lastUpdated TEXT NOT NULL,
+                        PRIMARY KEY('coverId')
+                        )""",
             """CREATE UNIQUE INDEX index_CollectionItem_issue_userCollection
                 ON CollectionItem(issue, userCollection)
             """,
             """CREATE INDEX index_CollectionItem_series
                 ON CollectionItem(series)
+            """,
+            """CREATE INDEX index_CollectionItem_userCollection
+                ON CollectionItem(userCollection)
+            """,
+            """CREATE UNIQUE INDEX index_Cover_issue
+                ON Cover(issue) 
             """,
             """INSERT INTO UserCollection(userCollectionId, name, permanent, lastUpdated)
                 VALUES (${BaseCollection.MY_COLL.id}, "My Collection", 0, DATETIME()),
