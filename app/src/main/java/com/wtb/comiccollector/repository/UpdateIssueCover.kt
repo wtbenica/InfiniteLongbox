@@ -38,7 +38,7 @@ class UpdateIssueCover private constructor(
 
             database.issueDao().getIssueSus(issueId)?.let { issue ->
                 val uriDNE = issue.coverUri == null &&
-                        issue.cover?.lastUpdated?.plusDays(7) ?: LocalDate.MIN < LocalDate.now()
+                        (issue.cover?.lastUpdated?.plusDays(7) ?: LocalDate.MIN) < LocalDate.now()
                 if (fileDNE || uriDNE || DEBUG) {
                     if (fileDNE) {
                         kotlin.runCatching {

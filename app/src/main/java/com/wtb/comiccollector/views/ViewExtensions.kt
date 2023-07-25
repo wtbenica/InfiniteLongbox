@@ -23,12 +23,12 @@ internal fun View.hide() {
     AnimatorSet().apply {
         duration = DURATION
         addListener(object : AnimatorListenerAdapter() {
-            override fun onAnimationStart(animation: Animator?, isReverse: Boolean) {
+            override fun onAnimationStart(animation: Animator, isReverse: Boolean) {
                 animateHeight(height, 0, DURATION)
                 animateMargins(this@hide.marginTop, 0, DURATION)
             }
 
-            override fun onAnimationEnd(animation: Animator?) {
+            override fun onAnimationEnd(animation: Animator) {
                 this@hide.visibility = GONE
             }
         })
@@ -65,7 +65,7 @@ internal fun View.show() {
         duration = DURATION
         interpolator = DecelerateInterpolator()
         addListener(object : AnimatorListenerAdapter() {
-            override fun onAnimationStart(animation: Animator?) {
+            override fun onAnimationStart(animation: Animator) {
                 animateMargins(0, MARGIN_DEFAULT, DURATION)
                 animateHeight(0, hh, DURATION)
             }
@@ -162,7 +162,7 @@ private fun View.animateHeight(startValue: Int, endValue: Int, duration: Long) {
 
     if (endValue == 0) {
         layoutHeightAnimator.addListener(object : AnimatorListenerAdapter() {
-            override fun onAnimationEnd(animation: Animator?) {
+            override fun onAnimationEnd(animation: Animator) {
                 this@animateHeight.visibility = GONE
             }
         })

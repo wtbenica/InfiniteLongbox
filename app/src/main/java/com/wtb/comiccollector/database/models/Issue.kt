@@ -2,7 +2,8 @@ package com.wtb.comiccollector.database.models
 
 import android.net.Uri
 import androidx.room.*
-import androidx.room.ForeignKey.CASCADE
+import androidx.room.ForeignKey.Companion.CASCADE
+import com.wtb.comiccollector.repository.BASE_URL
 import com.wtb.comiccollector.repository.DUMMY_ID
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import java.time.LocalDate
@@ -53,7 +54,7 @@ data class Issue(
         get() = "COVER_$issueId.jpg"
 
     val url: String
-        get() = "https://infinite-longbox.uc.r.appspot.com/db_query/issue/id/$id/cover"
+        get() = "${BASE_URL}db_query/issue/id/$id/cover"
 
     override val id: Int
         get() = issueId

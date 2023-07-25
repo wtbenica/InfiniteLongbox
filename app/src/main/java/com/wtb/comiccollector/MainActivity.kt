@@ -1,5 +1,6 @@
 package com.wtb.comiccollector
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.graphics.Point
@@ -297,6 +298,7 @@ class MainActivity : AppCompatActivity(),
             .commit()
 
         val tt = object : OnBackPressedCallback(true) {
+            @SuppressLint("WrongConstant")
             override fun handleOnBackPressed() {
                 resultFragmentContainer.updatePadding(bottom = PEEK_HEIGHT)
 

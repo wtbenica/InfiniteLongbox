@@ -19,18 +19,14 @@ class RetrofitAPIClient {
                     .writeTimeout(60, TimeUnit.SECONDS)
                     .build()
 
-                val retro = Retrofit.Builder()
+                retrofit = Retrofit.Builder()
                     .baseUrl(BASE_URL)
                     .client(client)
                     .addConverterFactory(GsonConverterFactory.create())
                     .build()
-
-                retrofit = retro
-
-                return retro
-            } else {
-                return retrofit!!
             }
+
+            return retrofit!!
         }
     }
 }
