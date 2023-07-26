@@ -26,6 +26,13 @@ import kotlin.reflect.KSuspendFunction1
 val BooleanArray.allTrue
     get() = this.all { it }
 
+/**
+ * Abstract class for updating local database from remote database. Contains helper functions
+ * for updating and retrieving data. Also contains helper functions for updating progress bars.
+ *
+ * @param webservice
+ * @param prefs
+ */
 @ExperimentalCoroutinesApi
 abstract class Updater(
     val webservice: Webservice,
@@ -230,8 +237,17 @@ abstract class Updater(
         }
 
     /**
-     * Get all paged - calls getItemsByPage , performs verifyForeignKeys on each page, then
-     * saves each page to dao
+     * Checks if stale, then retrieves items by page, verifies foreign keys and retrieves missing,
+     * then saves to dao. Also updates progress bar.
+     *
+     * @param prefs SharedPreferences to save progress to
+     * @param savePageTag key to use to save page progress
+     * @param saveTag key to use to save last update time
+     * @param getItemsByPage Function to retrieve items by page
+     * @param verifyForeignKeys Function to verify foreign keys
+     * @param dao Dao to save items to
+     * @param getNumPages Function to retrieve number of pages
+     * @param progressWrapper ProgressWrapper to update progress bar
      */
     internal suspend fun <ModelType : DataModel> refreshAllPaged(
         prefs: SharedPreferences,
@@ -261,8 +277,6 @@ abstract class Updater(
         val pagesComplete = BooleanArray(numPages)
         progressWrapper?.setMax(numPages)
 
-        // if the number of pages match, then it's the same data, so use PCS to update PC,
-        // otherwise, this has the effect of marking all pages as un-updated
         if (numPages == pagesCompleteSaved.length) {
             pagesCompleteSaved.forEachIndexed { index: Int, c: Char ->
                 pagesComplete[index] = (c == 't')
@@ -272,12 +286,18 @@ abstract class Updater(
         var numComplete = pagesComplete.count { it }
         progressWrapper?.setProgress(numComplete)
 
+        /**
+         * Saves boolean array to prefs as a string. 't' for true, 'f' for false
+         */
         fun BooleanArray.saveToPrefs(tag: String) {
             val tsAndFs = java.lang.StringBuilder()
             forEach { tsAndFs.append(if (it) 't' else 'f') }
             Repository.savePrefValue(prefs, tag, tsAndFs.toString())
         }
 
+        /**
+         * Increments numComplete, saves to prefs, and increments progress bar
+         */
         fun pageFinished() {
             synchronized(this) {
                 numComplete++
@@ -307,7 +327,6 @@ abstract class Updater(
                 }
             }
         }.let {
-
             // if every page has been updated, change saveTag time
             if (pagesComplete.allTrue) {
                 Repository.saveTime(prefs, saveTag)

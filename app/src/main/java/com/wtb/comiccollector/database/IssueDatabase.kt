@@ -18,6 +18,9 @@ import java.util.concurrent.Executors
 
 private const val DATABASE_NAME = "issue-database"
 
+/**
+ * The Room database for this app.
+ */
 @ExperimentalCoroutinesApi
 @Database(
     entities = [Issue::class, Series::class, Creator::class, Role::class, Credit::class,

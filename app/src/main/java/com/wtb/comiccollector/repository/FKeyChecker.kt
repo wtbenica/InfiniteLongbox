@@ -15,6 +15,9 @@ import kotlinx.coroutines.async
 import java.time.LocalDateTime
 import kotlin.reflect.KSuspendFunction1
 
+/**
+ * Foreign key checker - checks for missing foreign key models.
+ */
 @ExperimentalCoroutinesApi
 class FKeyChecker(val database: IssueDatabase, private val webservice: Webservice) {
 
@@ -83,7 +86,7 @@ class FKeyChecker(val database: IssueDatabase, private val webservice: Webservic
 
     internal suspend fun checkFKeysSeries(series: List<Series>): Deferred<Unit> =
         CoroutineScope(highPriorityDispatcher).async {
-            checkFKeysChunked(series, this@FKeyChecker::checkSeriesFkPublisher)
+            checkFKeysChunked(models = series, func = this@FKeyChecker::checkSeriesFkPublisher)
         }
 
     private suspend fun checkSeriesFkPublisher(series: List<Series>) =

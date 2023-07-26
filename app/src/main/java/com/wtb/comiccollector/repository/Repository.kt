@@ -43,16 +43,10 @@ const val DEBUG = false
 
 internal const val SHARED_PREFS = "CCPrefs"
 
-internal const val ISSUE_LIFETIME: Long = 30
-internal const val CREATOR_LIFETIME: Long = 7
 
-
-const val EXTERNAL = "http://24.176.172.169/"
-const val NIGHTWING = "http://192.168.0.141:8000/"
-const val SIGNAL = "http://192.168.12.167:8000/"
-const val ALFRED = "http://192.168.0.138:8000/"
-const val LONGBOX = "https://infinite-longbox.uc.r.appspot.com/"
-const val BASE_URL = SIGNAL
+const val LOCAL_SERVER = "http://192.168.12.167:8000/"
+const val REMOTE_SERVER = "https://infinite-longbox.uc.r.appspot.com/"
+const val BASE_URL = LOCAL_SERVER
 
 internal const val UPDATED_ROLES = "updated_roles"
 internal const val UPDATED_STORY_TYPES = "updated_story_types"

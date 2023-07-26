@@ -24,7 +24,9 @@ class StaticUpdater private constructor(
     prefs: SharedPreferences,
 ) : Updater(webservice, prefs) {
     /**
-     *  UpdateAsync - Updates publisher, series, role, and storytype tables
+     * Update static async - Checks remote database for updates to publishers, series, name details,
+     * characters, and series bonds.  If updates are found, they are downloaded and saved to the
+     * local database.
      */
     internal suspend fun updateStaticAsync(progressUpdate: ProgressUpdateCard) {
         Log.d(TAG, "updateStaticAsync Begin")
@@ -44,6 +46,9 @@ class StaticUpdater private constructor(
         }
     }
 
+    /**
+     * Checks for updates to publishers
+     */
     private suspend fun getAllPublishers(updateProgress: ProgressWrapper) {
         refreshAllPaged<Publisher>(
             prefs = prefs,
@@ -56,6 +61,9 @@ class StaticUpdater private constructor(
         )
     }
 
+    /**
+     * Checks for updates to series
+     */
     private suspend fun getAllSeries(updateProgress: ProgressWrapper) {
         refreshAllPaged<Series>(
             prefs = prefs,
