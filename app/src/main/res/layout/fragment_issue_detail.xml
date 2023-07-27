@@ -1,4 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2023. Wesley T. Benica
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -42,7 +57,7 @@
                     tools:scaleType="fitXY"
                     tools:src="@drawable/cover_sample" />
 
-                <com.wtb.comiccollector.views.IssueInfoBox
+                <dev.benica.infinite_longbox.views.IssueInfoBox
                     android:id="@+id/issue_info_box"
                     android:layout_width="0dp"
                     android:layout_height="0dp"
@@ -56,7 +71,7 @@
                     app:layout_constraintStart_toEndOf="@id/issue_cover"
                     app:layout_constraintTop_toTopOf="parent" />
 
-                <com.wtb.comiccollector.views.AddCollectionButton
+                <dev.benica.infinite_longbox.views.AddCollectionButton
                     android:id="@+id/collectionButton"
                     style="@style/AddCollectionButtonStyle"
                     android:layout_marginStart="@dimen/margin_wide"
@@ -79,7 +94,7 @@
                     app:layout_constraintEnd_toEndOf="@id/collectionButton"
                     app:layout_constraintStart_toStartOf="@id/collectionButton" />
 
-                <com.wtb.comiccollector.views.AddWishListButton
+                <dev.benica.infinite_longbox.views.AddWishListButton
                     android:id="@+id/issue_add_wish_btn"
                     style="@style/AddCollectionButtonStyle"
                     android:contentDescription="Add to wish list"
@@ -267,7 +282,7 @@
                 android:text="@string/goto_end" />
         </LinearLayout>
 
-        <com.wtb.comiccollector.views.ImageWebLink
+        <dev.benica.infinite_longbox.views.ImageWebLink
             android:id="@+id/cc_link"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -280,7 +295,7 @@
             wtb:img_src="@string/url_creative_commons_3_0_img"
             wtb:url_imageweblink="@string/url_creative_commons_3_0" />
 
-        <com.wtb.comiccollector.views.WebLink
+        <dev.benica.infinite_longbox.views.WebLink
             android:id="@+id/gcd_link"
             style="@style/IssueDetailGcdLinkButton"
             android:layout_width="wrap_content"

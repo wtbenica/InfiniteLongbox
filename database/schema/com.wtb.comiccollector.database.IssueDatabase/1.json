@@ -100,10 +100,10 @@
           }
         ],
         "primaryKey": {
+          "autoGenerate": true,
           "columnNames": [
             "issueId"
-          ],
-          "autoGenerate": true
+          ]
         },
         "indices": [
           {
@@ -113,6 +113,7 @@
               "series",
               "issueNum"
             ],
+            "orders": [],
             "createSql": "CREATE INDEX IF NOT EXISTS `index_Issue_series_issueNum` ON `${TABLE_NAME}` (`series`, `issueNum`)"
           },
           {
@@ -121,6 +122,7 @@
             "columnNames": [
               "variantOf"
             ],
+            "orders": [],
             "createSql": "CREATE INDEX IF NOT EXISTS `index_Issue_variantOf` ON `${TABLE_NAME}` (`variantOf`)"
           }
         ],
@@ -233,10 +235,10 @@
           }
         ],
         "primaryKey": {
+          "autoGenerate": true,
           "columnNames": [
             "seriesId"
-          ],
-          "autoGenerate": true
+          ]
         },
         "indices": [
           {
@@ -245,6 +247,7 @@
             "columnNames": [
               "seriesName"
             ],
+            "orders": [],
             "createSql": "CREATE INDEX IF NOT EXISTS `index_Series_seriesName` ON `${TABLE_NAME}` (`seriesName`)"
           },
           {
@@ -253,6 +256,7 @@
             "columnNames": [
               "publisher"
             ],
+            "orders": [],
             "createSql": "CREATE INDEX IF NOT EXISTS `index_Series_publisher` ON `${TABLE_NAME}` (`publisher`)"
           }
         ],
@@ -306,10 +310,10 @@
           }
         ],
         "primaryKey": {
+          "autoGenerate": true,
           "columnNames": [
             "creatorId"
-          ],
-          "autoGenerate": true
+          ]
         },
         "indices": [
           {
@@ -318,6 +322,7 @@
             "columnNames": [
               "name"
             ],
+            "orders": [],
             "createSql": "CREATE INDEX IF NOT EXISTS `index_Creator_name` ON `${TABLE_NAME}` (`name`)"
           },
           {
@@ -326,6 +331,7 @@
             "columnNames": [
               "sortName"
             ],
+            "orders": [],
             "createSql": "CREATE INDEX IF NOT EXISTS `index_Creator_sortName` ON `${TABLE_NAME}` (`sortName`)"
           }
         ],
@@ -361,10 +367,10 @@
           }
         ],
         "primaryKey": {
+          "autoGenerate": true,
           "columnNames": [
             "roleId"
-          ],
-          "autoGenerate": true
+          ]
         },
         "indices": [],
         "foreignKeys": []
@@ -417,10 +423,10 @@
           }
         ],
         "primaryKey": {
+          "autoGenerate": true,
           "columnNames": [
             "creditId"
-          ],
-          "autoGenerate": true
+          ]
         },
         "indices": [
           {
@@ -431,6 +437,7 @@
               "nameDetail",
               "role"
             ],
+            "orders": [],
             "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_Credit_story_nameDetail_role` ON `${TABLE_NAME}` (`story`, `nameDetail`, `role`)"
           },
           {
@@ -439,6 +446,7 @@
             "columnNames": [
               "story"
             ],
+            "orders": [],
             "createSql": "CREATE INDEX IF NOT EXISTS `index_Credit_story` ON `${TABLE_NAME}` (`story`)"
           },
           {
@@ -447,6 +455,7 @@
             "columnNames": [
               "nameDetail"
             ],
+            "orders": [],
             "createSql": "CREATE INDEX IF NOT EXISTS `index_Credit_nameDetail` ON `${TABLE_NAME}` (`nameDetail`)"
           },
           {
@@ -455,6 +464,7 @@
             "columnNames": [
               "role"
             ],
+            "orders": [],
             "createSql": "CREATE INDEX IF NOT EXISTS `index_Credit_role` ON `${TABLE_NAME}` (`role`)"
           },
           {
@@ -463,6 +473,7 @@
             "columnNames": [
               "issue"
             ],
+            "orders": [],
             "createSql": "CREATE INDEX IF NOT EXISTS `index_Credit_issue` ON `${TABLE_NAME}` (`issue`)"
           },
           {
@@ -471,6 +482,7 @@
             "columnNames": [
               "series"
             ],
+            "orders": [],
             "createSql": "CREATE INDEX IF NOT EXISTS `index_Credit_series` ON `${TABLE_NAME}` (`series`)"
           }
         ],
@@ -586,10 +598,10 @@
           }
         ],
         "primaryKey": {
+          "autoGenerate": true,
           "columnNames": [
             "publisherId"
-          ],
-          "autoGenerate": true
+          ]
         },
         "indices": [
           {
@@ -598,6 +610,7 @@
             "columnNames": [
               "publisher"
             ],
+            "orders": [],
             "createSql": "CREATE INDEX IF NOT EXISTS `index_Publisher_publisher` ON `${TABLE_NAME}` (`publisher`)"
           }
         ],
@@ -669,10 +682,10 @@
           }
         ],
         "primaryKey": {
+          "autoGenerate": true,
           "columnNames": [
             "storyId"
-          ],
-          "autoGenerate": true
+          ]
         },
         "indices": [
           {
@@ -681,6 +694,7 @@
             "columnNames": [
               "storyType"
             ],
+            "orders": [],
             "createSql": "CREATE INDEX IF NOT EXISTS `index_Story_storyType` ON `${TABLE_NAME}` (`storyType`)"
           },
           {
@@ -689,6 +703,7 @@
             "columnNames": [
               "issue"
             ],
+            "orders": [],
             "createSql": "CREATE INDEX IF NOT EXISTS `index_Story_issue` ON `${TABLE_NAME}` (`issue`)"
           }
         ],
@@ -765,10 +780,10 @@
           }
         ],
         "primaryKey": {
+          "autoGenerate": true,
           "columnNames": [
             "creditId"
-          ],
-          "autoGenerate": true
+          ]
         },
         "indices": [
           {
@@ -779,6 +794,7 @@
               "nameDetail",
               "role"
             ],
+            "orders": [],
             "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_ExCredit_story_nameDetail_role` ON `${TABLE_NAME}` (`story`, `nameDetail`, `role`)"
           },
           {
@@ -787,6 +803,7 @@
             "columnNames": [
               "story"
             ],
+            "orders": [],
             "createSql": "CREATE INDEX IF NOT EXISTS `index_ExCredit_story` ON `${TABLE_NAME}` (`story`)"
           },
           {
@@ -795,6 +812,7 @@
             "columnNames": [
               "nameDetail"
             ],
+            "orders": [],
             "createSql": "CREATE INDEX IF NOT EXISTS `index_ExCredit_nameDetail` ON `${TABLE_NAME}` (`nameDetail`)"
           },
           {
@@ -803,6 +821,7 @@
             "columnNames": [
               "role"
             ],
+            "orders": [],
             "createSql": "CREATE INDEX IF NOT EXISTS `index_ExCredit_role` ON `${TABLE_NAME}` (`role`)"
           },
           {
@@ -811,6 +830,7 @@
             "columnNames": [
               "issue"
             ],
+            "orders": [],
             "createSql": "CREATE INDEX IF NOT EXISTS `index_ExCredit_issue` ON `${TABLE_NAME}` (`issue`)"
           },
           {
@@ -819,6 +839,7 @@
             "columnNames": [
               "series"
             ],
+            "orders": [],
             "createSql": "CREATE INDEX IF NOT EXISTS `index_ExCredit_series` ON `${TABLE_NAME}` (`series`)"
           }
         ],
@@ -910,10 +931,10 @@
           }
         ],
         "primaryKey": {
+          "autoGenerate": true,
           "columnNames": [
             "storyTypeId"
-          ],
-          "autoGenerate": true
+          ]
         },
         "indices": [],
         "foreignKeys": []
@@ -954,10 +975,10 @@
           }
         ],
         "primaryKey": {
+          "autoGenerate": true,
           "columnNames": [
             "nameDetailId"
-          ],
-          "autoGenerate": true
+          ]
         },
         "indices": [
           {
@@ -966,6 +987,7 @@
             "columnNames": [
               "creator"
             ],
+            "orders": [],
             "createSql": "CREATE INDEX IF NOT EXISTS `index_NameDetail_creator` ON `${TABLE_NAME}` (`creator`)"
           },
           {
@@ -974,6 +996,7 @@
             "columnNames": [
               "name"
             ],
+            "orders": [],
             "createSql": "CREATE INDEX IF NOT EXISTS `index_NameDetail_name` ON `${TABLE_NAME}` (`name`)"
           },
           {
@@ -982,6 +1005,7 @@
             "columnNames": [
               "sortName"
             ],
+            "orders": [],
             "createSql": "CREATE INDEX IF NOT EXISTS `index_NameDetail_sortName` ON `${TABLE_NAME}` (`sortName`)"
           }
         ],
@@ -1035,10 +1059,10 @@
           }
         ],
         "primaryKey": {
+          "autoGenerate": true,
           "columnNames": [
             "characterId"
-          ],
-          "autoGenerate": true
+          ]
         },
         "indices": [
           {
@@ -1047,6 +1071,7 @@
             "columnNames": [
               "publisher"
             ],
+            "orders": [],
             "createSql": "CREATE INDEX IF NOT EXISTS `index_Character_publisher` ON `${TABLE_NAME}` (`publisher`)"
           },
           {
@@ -1055,6 +1080,7 @@
             "columnNames": [
               "name"
             ],
+            "orders": [],
             "createSql": "CREATE INDEX IF NOT EXISTS `index_Character_name` ON `${TABLE_NAME}` (`name`)"
           },
           {
@@ -1063,6 +1089,7 @@
             "columnNames": [
               "alterEgo"
             ],
+            "orders": [],
             "createSql": "CREATE INDEX IF NOT EXISTS `index_Character_alterEgo` ON `${TABLE_NAME}` (`alterEgo`)"
           }
         ],
@@ -1140,10 +1167,10 @@
           }
         ],
         "primaryKey": {
+          "autoGenerate": true,
           "columnNames": [
             "appearanceId"
-          ],
-          "autoGenerate": true
+          ]
         },
         "indices": [
           {
@@ -1152,6 +1179,7 @@
             "columnNames": [
               "story"
             ],
+            "orders": [],
             "createSql": "CREATE INDEX IF NOT EXISTS `index_Appearance_story` ON `${TABLE_NAME}` (`story`)"
           },
           {
@@ -1160,6 +1188,7 @@
             "columnNames": [
               "character"
             ],
+            "orders": [],
             "createSql": "CREATE INDEX IF NOT EXISTS `index_Appearance_character` ON `${TABLE_NAME}` (`character`)"
           },
           {
@@ -1168,6 +1197,7 @@
             "columnNames": [
               "issue"
             ],
+            "orders": [],
             "createSql": "CREATE INDEX IF NOT EXISTS `index_Appearance_issue` ON `${TABLE_NAME}` (`issue`)"
           },
           {
@@ -1176,6 +1206,7 @@
             "columnNames": [
               "series"
             ],
+            "orders": [],
             "createSql": "CREATE INDEX IF NOT EXISTS `index_Appearance_series` ON `${TABLE_NAME}` (`series`)"
           }
         ],
@@ -1262,10 +1293,10 @@
           }
         ],
         "primaryKey": {
+          "autoGenerate": true,
           "columnNames": [
             "coverId"
-          ],
-          "autoGenerate": true
+          ]
         },
         "indices": [
           {
@@ -1274,6 +1305,7 @@
             "columnNames": [
               "issue"
             ],
+            "orders": [],
             "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_Cover_issue` ON `${TABLE_NAME}` (`issue`)"
           }
         ],
@@ -1345,10 +1377,10 @@
           }
         ],
         "primaryKey": {
+          "autoGenerate": true,
           "columnNames": [
             "bondId"
-          ],
-          "autoGenerate": true
+          ]
         },
         "indices": [
           {
@@ -1357,6 +1389,7 @@
             "columnNames": [
               "origin"
             ],
+            "orders": [],
             "createSql": "CREATE INDEX IF NOT EXISTS `index_SeriesBond_origin` ON `${TABLE_NAME}` (`origin`)"
           },
           {
@@ -1365,6 +1398,7 @@
             "columnNames": [
               "target"
             ],
+            "orders": [],
             "createSql": "CREATE INDEX IF NOT EXISTS `index_SeriesBond_target` ON `${TABLE_NAME}` (`target`)"
           },
           {
@@ -1373,6 +1407,7 @@
             "columnNames": [
               "originIssue"
             ],
+            "orders": [],
             "createSql": "CREATE INDEX IF NOT EXISTS `index_SeriesBond_originIssue` ON `${TABLE_NAME}` (`originIssue`)"
           },
           {
@@ -1381,6 +1416,7 @@
             "columnNames": [
               "targetIssue"
             ],
+            "orders": [],
             "createSql": "CREATE INDEX IF NOT EXISTS `index_SeriesBond_targetIssue` ON `${TABLE_NAME}` (`targetIssue`)"
           },
           {
@@ -1389,6 +1425,7 @@
             "columnNames": [
               "bondType"
             ],
+            "orders": [],
             "createSql": "CREATE INDEX IF NOT EXISTS `index_SeriesBond_bondType` ON `${TABLE_NAME}` (`bondType`)"
           }
         ],
@@ -1486,10 +1523,10 @@
           }
         ],
         "primaryKey": {
+          "autoGenerate": true,
           "columnNames": [
             "bondTypeId"
-          ],
-          "autoGenerate": true
+          ]
         },
         "indices": [],
         "foreignKeys": []
@@ -1560,10 +1597,10 @@
           }
         ],
         "primaryKey": {
+          "autoGenerate": true,
           "columnNames": [
             "brandId"
-          ],
-          "autoGenerate": true
+          ]
         },
         "indices": [],
         "foreignKeys": []
@@ -1598,10 +1635,10 @@
           }
         ],
         "primaryKey": {
+          "autoGenerate": true,
           "columnNames": [
             "userCollectionId"
-          ],
-          "autoGenerate": true
+          ]
         },
         "indices": [],
         "foreignKeys": []
@@ -1642,10 +1679,10 @@
           }
         ],
         "primaryKey": {
+          "autoGenerate": true,
           "columnNames": [
             "collectionItemId"
-          ],
-          "autoGenerate": true
+          ]
         },
         "indices": [
           {
@@ -1655,6 +1692,7 @@
               "issue",
               "userCollection"
             ],
+            "orders": [],
             "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_CollectionItem_issue_userCollection` ON `${TABLE_NAME}` (`issue`, `userCollection`)"
           },
           {
@@ -1663,6 +1701,7 @@
             "columnNames": [
               "userCollection"
             ],
+            "orders": [],
             "createSql": "CREATE INDEX IF NOT EXISTS `index_CollectionItem_userCollection` ON `${TABLE_NAME}` (`userCollection`)"
           },
           {
@@ -1671,6 +1710,7 @@
             "columnNames": [
               "series"
             ],
+            "orders": [],
             "createSql": "CREATE INDEX IF NOT EXISTS `index_CollectionItem_series` ON `${TABLE_NAME}` (`series`)"
           }
         ],

@@ -1,4 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2023. Wesley T. Benica
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
 <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -52,7 +67,7 @@
                         android:labelFor="@id/chip_group_sort"
                         app:srcCompat="@drawable/filter_fragment_image_label_dates_icon" />
 
-                    <com.wtb.comiccollector.views.DateChipGroup
+                    <dev.benica.infinite_longbox.views.DateChipGroup
                         android:id="@+id/chip_group_dates"
                         style="@style/FilterCardChipGroup"
                         android:layout_weight="1" />
@@ -75,7 +90,7 @@
                         android:layout_weight="1"
                         android:scrollbars="none">
 
-                        <com.wtb.comiccollector.views.OptionChipGroup
+                        <dev.benica.infinite_longbox.views.OptionChipGroup
                             android:id="@+id/chip_group_option"
                             style="@style/FilterCardChipGroup">
 
@@ -83,7 +98,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="New Shoes" />
-                        </com.wtb.comiccollector.views.OptionChipGroup>
+                        </dev.benica.infinite_longbox.views.OptionChipGroup>
                     </HorizontalScrollView>
                 </LinearLayout>
 
@@ -104,7 +119,7 @@
                         android:layout_weight="1"
                         android:scrollbars="none">
 
-                        <com.wtb.comiccollector.views.SortChipGroup
+                        <dev.benica.infinite_longbox.views.SortChipGroup
                             android:id="@+id/chip_group_sort"
                             style="@style/FilterCardChipGroup"
                             android:layout_width="wrap_content"
@@ -127,7 +142,7 @@
                                 app:closeIcon="@drawable/icon_arrow_up"
                                 app:closeIconEnabled="true" />
 
-                        </com.wtb.comiccollector.views.SortChipGroup>
+                        </dev.benica.infinite_longbox.views.SortChipGroup>
                     </HorizontalScrollView>            <!--            </com.google.android.material.card.MaterialCardView>-->
                 </LinearLayout>
 
@@ -158,7 +173,7 @@
                             android:layout_weight="1"
                             android:scrollbars="none">
 
-                            <com.wtb.comiccollector.views.FilterChipGroup
+                            <dev.benica.infinite_longbox.views.FilterChipGroup
                                 android:id="@+id/chip_group_filter"
                                 style="@style/FilterCardChipGroup">
 
@@ -168,7 +183,7 @@
                                     android:text="@string/dummy_text"
                                     app:closeIconEnabled="true" />
 
-                            </com.wtb.comiccollector.views.FilterChipGroup>
+                            </dev.benica.infinite_longbox.views.FilterChipGroup>
                         </HorizontalScrollView>
                     </LinearLayout>
 
@@ -212,31 +227,31 @@
                         app:singleSelection="true"
                         tools:visibility="visible">
 
-                        <com.wtb.comiccollector.views.FilterTypeChip
+                        <dev.benica.infinite_longbox.views.FilterTypeChip
                             android:id="@+id/filter_chip_all"
                             style="@style/SearchFilterChip"
                             android:text="All"
                             app:closeIconEnabled="false" />
 
-                        <com.wtb.comiccollector.views.FilterTypeChip
+                        <dev.benica.infinite_longbox.views.FilterTypeChip
                             android:id="@+id/filter_chip_series"
                             style="@style/SearchFilterChip"
                             android:text="Series"
                             app:closeIconEnabled="false" />
 
-                        <com.wtb.comiccollector.views.FilterTypeChip
+                        <dev.benica.infinite_longbox.views.FilterTypeChip
                             android:id="@+id/filter_chip_creator"
                             style="@style/SearchFilterChip"
                             android:text="Creator"
                             app:closeIconEnabled="false" />
 
-                        <com.wtb.comiccollector.views.FilterTypeChip
+                        <dev.benica.infinite_longbox.views.FilterTypeChip
                             android:id="@+id/filter_chip_character"
                             style="@style/SearchFilterChip"
                             android:text="Character"
                             app:closeIconEnabled="false" />
 
-                        <com.wtb.comiccollector.views.FilterTypeChip
+                        <dev.benica.infinite_longbox.views.FilterTypeChip
                             android:id="@+id/filter_chip_publisher"
                             style="@style/SearchFilterChip"
                             android:text="Publisher"
@@ -254,7 +269,7 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:srcCompat="@drawable/ic_search_24" />
 
-                <com.wtb.comiccollector.views.SearchBar
+                <dev.benica.infinite_longbox.views.SearchBar
                     android:id="@+id/search_bar"
                     style="@style/SearchBarStyle"
                     android:dropDownAnchor="@id/filter_type_chip_group"
