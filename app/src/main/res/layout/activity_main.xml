@@ -46,7 +46,7 @@
                 style="@style/myActionBarStyle"
                 tools:title="Doom Patrol #9" />
 
-            <com.wtb.comiccollector.views.ProgressUpdateCard
+            <dev.benica.infinite_longbox.views.ProgressUpdateCard
                 android:id="@+id/progress_update_card"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -86,7 +86,7 @@
 
         <androidx.fragment.app.FragmentContainerView
             android:id="@+id/bottom_sheet"
-            android:name="com.wtb.comiccollector.fragments.FilterFragment"
+            android:name="dev.benica.infinite_longbox.fragments.FilterFragment"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:fitsSystemWindows="false"

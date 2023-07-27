@@ -5,13 +5,14 @@ plugins {
 }
 
 android {
-    compileSdk 34
+    compileSdk 33
     buildToolsVersion = '33.0.1'
 
     defaultConfig {
-        applicationId "com.wtb.comiccollector"
+        applicationId "dev.benica.infinite_longbox"
         minSdkVersion 24
-        targetSdkVersion 34
+        //noinspection OldTargetApi
+        targetSdkVersion 33
         versionCode 1
         versionName "1.0"
         multiDexEnabled true
@@ -54,7 +55,7 @@ android {
     buildFeatures {
         viewBinding true
     }
-    namespace 'com.wtb.comiccollector'
+    namespace 'dev.benica.infinite_longbox'
 }
 
 dependencies {

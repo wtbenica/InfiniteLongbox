@@ -16,7 +16,7 @@
 
 <resources>
 
-    <style name="Theme.ComicCollector" parent="BaseTheme">
+    <style name="Theme.InfiniteLongbox" parent="BaseTheme">
         <item name="android:enforceStatusBarContrast">false</item>
         <item name="android:enforceNavigationBarContrast">false</item>
     </style>

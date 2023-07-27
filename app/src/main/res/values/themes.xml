@@ -16,7 +16,7 @@
 
 <resources>
 
-    <style name="Theme.ComicCollector" parent="BaseTheme" />
+    <style name="Theme.InfiniteLongbox" parent="BaseTheme" />
 
     <style name="BaseTheme" parent="Theme.MaterialComponents.Light.NoActionBar">
         <!-- Primary brand color. -->

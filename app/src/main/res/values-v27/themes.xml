@@ -16,7 +16,7 @@
 
 <resources>
 
-    <style name="Theme.ComicCollector" parent="BaseTheme">
+    <style name="Theme.InfiniteLongbox" parent="BaseTheme">
         <item name="android:windowLightNavigationBar">true</item>
     </style>
 </resources>

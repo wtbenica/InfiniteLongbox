@@ -16,7 +16,7 @@
 
 <resources>
 
-    <style name="Theme.ComicCollector" parent="BaseTheme">
+    <style name="Theme.InfiniteLongbox" parent="BaseTheme">
         <!-- Status bar color. -->
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>

@@ -43,7 +43,7 @@
             app:layout_constraintTop_toTopOf="parent"
             tools:text="Cover" />
 
-        <com.wtb.comiccollector.views.ExpandButton
+        <dev.benica.infinite_longbox.views.ExpandButton
             android:id="@+id/story_dropdown_button"
             style="@style/StoryBoxDropdownButton"
             android:layout_width="wrap_content"

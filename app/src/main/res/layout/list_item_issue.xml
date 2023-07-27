@@ -117,7 +117,7 @@
                 app:layout_constraintTop_toBottomOf="@id/progress_bar_box"
                 tools:text="Ed McGuinness Cover" />
 
-            <com.wtb.comiccollector.views.AddCollectionButton
+            <dev.benica.infinite_longbox.views.AddCollectionButton
                 android:id="@+id/btn_issue_list_add_collection"
                 style="@style/AddCollectionButtonStyle"
                 android:padding="@dimen/margin_narrow"
@@ -126,7 +126,7 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/list_item_issue_variant_name" />
 
-            <com.wtb.comiccollector.views.AddWishListButton
+            <dev.benica.infinite_longbox.views.AddWishListButton
                 android:id="@+id/btn_issue_list_add_wish_list"
                 style="@style/AddCollectionButtonStyle"
                 android:padding="@dimen/margin_narrow"
