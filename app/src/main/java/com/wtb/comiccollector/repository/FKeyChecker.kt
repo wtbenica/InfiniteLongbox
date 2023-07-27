@@ -26,7 +26,9 @@ import com.wtb.comiccollector.repository.Updater.PriorityDispatcher.Companion.hi
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 import kotlin.reflect.KSuspendFunction1
 

@@ -41,7 +41,7 @@ class ProgressUpdateCard(context: Context, attributeSet: AttributeSet) :
         val view = inflate(context, R.layout.fragment_static_update, this)
         (view as CardView).cardElevation = 0f
         publisherStatus = view.findViewById(R.id.status_publisher)
-        publisherProgress = view.findViewById<ProgressBar>(R.id.progress_bar_publishers)
+        publisherProgress = view.findViewById(R.id.progress_bar_publishers)
 
         seriesStatus = view.findViewById(R.id.status_series)
         seriesProgress = view.findViewById(R.id.progress_bar_series)
@@ -50,7 +50,7 @@ class ProgressUpdateCard(context: Context, attributeSet: AttributeSet) :
         creatorProgress = view.findViewById(R.id.progress_bar_creators)
 
         characterStatus = view.findViewById(R.id.status_characters)
-        characterProgress = view.findViewById<ProgressBar>(R.id.progress_bar_characters)
+        characterProgress = view.findViewById(R.id.progress_bar_characters)
     }
 
     val publisherWrapper = ProgressWrapper(publisherProgress, publisherStatus, seriesStatus)

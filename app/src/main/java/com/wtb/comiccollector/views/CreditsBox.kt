@@ -212,7 +212,7 @@ class StoryBox(
 
     private fun updateCharacters(hasAddedInfo: Boolean): Boolean {
         var hasAddedInfo1 = hasAddedInfo
-        if (mAppearances.filter { it.appearance.story == mStory.storyId }.isNotEmpty()) {
+        if (mAppearances.any { it.appearance.story == mStory.storyId }) {
             hasAddedInfo1 = true
             charactersBox.visibility = VISIBLE
             val characters: TableLayout = findViewById(R.id.story_box_characters)

@@ -130,14 +130,13 @@ class FilterFragment : Fragment(),
         super.onViewCreated(view, savedInstanceState)
 
         viewModel.filter.observe(
-            viewLifecycleOwner,
-            { filter ->
-                currFilter = filter
-                sortChipGroup.update(filter)
-                optionsChipGroup.update(filter)
-                dateChipGroup.update(filter)
-            }
-        )
+            viewLifecycleOwner
+        ) { filter ->
+            currFilter = filter
+            sortChipGroup.update(filter)
+            optionsChipGroup.update(filter)
+            dateChipGroup.update(filter)
+        }
 
         viewModel.updateComplete.observe(viewLifecycleOwner) {
             callback?.setProgressBar(it)
@@ -163,7 +162,7 @@ class FilterFragment : Fragment(),
 
         sortChipGroup.setOnCheckedChangeListener { _, checkedId ->
             if (checkedId >= 0) {
-                view?.findViewById<SortChip>(checkedId)?.sortType?.let { it ->
+                view?.findViewById<SortChip>(checkedId)?.sortType?.let {
                     if (it != currFilter.mSortType) {
                         viewModel.setSortOption(it)
                     }
@@ -412,15 +411,15 @@ class FilterFragment : Fragment(),
         val reqKey = if (isStart) RESULT_DATE_PICKER_START else RESULT_DATE_PICKER_END
         parentFragmentManager.setFragmentResultListener(
             reqKey,
-            viewLifecycleOwner,
-            { _, result ->
-                val resultDate: LocalDate? = result.getSerializable(ARG_DATE) as LocalDate?
-                when (reqKey) {
-                    RESULT_DATE_PICKER_START -> resultDate?.let { dateChipGroup.setStartDate(it) }
-                    RESULT_DATE_PICKER_END -> resultDate?.let { dateChipGroup.setEndDate(it) }
-                    else -> Unit
-                }
-            })
+            viewLifecycleOwner
+        ) { _, result ->
+            val resultDate: LocalDate? = result.getSerializable(ARG_DATE) as LocalDate?
+            when (reqKey) {
+                RESULT_DATE_PICKER_START -> resultDate?.let { dateChipGroup.setStartDate(it) }
+                RESULT_DATE_PICKER_END -> resultDate?.let { dateChipGroup.setEndDate(it) }
+                else -> Unit
+            }
+        }
 
         val minDate = when (isStart) {
             true -> LocalDate.of(1900, 1, 1)

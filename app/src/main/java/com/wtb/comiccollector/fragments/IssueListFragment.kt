@@ -98,15 +98,14 @@ class IssueListFragment : ListFragment<FullIssue, IssueListFragment.IssueViewHol
         }
 
         viewModel.seriesLiveData.observe(
-            viewLifecycleOwner,
-            { fullSeries ->
-                fullSeries?.let {
-                    mSeries = fullSeries
-                    updateSeriesDetailFragment(it)
-                    callback?.setTitle(fullSeries.series.seriesName)
-                }
+            viewLifecycleOwner
+        ) { fullSeries ->
+            fullSeries?.let {
+                mSeries = fullSeries
+                updateSeriesDetailFragment(it)
+                callback?.setTitle(fullSeries.series.seriesName)
             }
-        )
+        }
     }
 
     override fun onResume() {

@@ -115,7 +115,7 @@ class SearchFilter(
         mViewOptionsIndex++
     }
 
-    fun isEmpty() = mCreators.isEmpty() && mSeries == null && mCharacter == null &&
+    private fun isEmpty() = mCreators.isEmpty() && mSeries == null && mCharacter == null &&
             !hasDateFilter() && mPublishers.isEmpty() && !mMyCollection && mTextFilter == null
 
     fun isNotEmpty() = !isEmpty()
@@ -288,7 +288,7 @@ class SearchFilter(
 class SortType(
     val tag: String,
     val sortColumn: String,
-    val table: String?,
+    private val table: String?,
     var order: SortOrder,
     private val sortColumn2: String? = null,
     private val table2: String? = null,

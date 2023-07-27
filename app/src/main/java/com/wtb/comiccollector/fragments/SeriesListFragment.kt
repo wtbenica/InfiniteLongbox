@@ -156,7 +156,7 @@ class SeriesListFragment : ListFragment<FullSeries, SeriesListFragment.SeriesHol
         }
     }
 
-    interface SeriesListCallback : ListFragment.ListFragmentCallback {
+    interface SeriesListCallback : ListFragmentCallback {
         fun onSeriesSelected(series: FullSeries)
     }
 

@@ -47,7 +47,7 @@ import kotlinx.coroutines.launch
 
 @ExperimentalCoroutinesApi
 abstract class ListFragment<T : ListItem, VH : RecyclerView.ViewHolder> : Fragment() {
-    private val PEEK_HEIGHT
+    private val peekHeight
         get() = resources.getDimension(R.dimen.peek_height).toInt()
 
     private val filterViewModel: FilterViewModel by viewModels({ requireActivity() })
@@ -110,7 +110,7 @@ abstract class ListFragment<T : ListItem, VH : RecyclerView.ViewHolder> : Fragme
     }
 
     protected fun updateBottomPadding(height: Int = 0) {
-        val bottom = PEEK_HEIGHT + height
+        val bottom = peekHeight + height
         listRecyclerView.updatePadding(bottom = bottom)
         view?.requestLayout()
     }
@@ -133,11 +133,10 @@ abstract class ListFragment<T : ListItem, VH : RecyclerView.ViewHolder> : Fragme
         }
 
         filterViewModel.filter.observe(
-            viewLifecycleOwner,
-            { filter ->
-                viewModel.setFilter(filter)
-            }
-        )
+            viewLifecycleOwner
+        ) { filter ->
+            viewModel.setFilter(filter)
+        }
     }
 
     protected abstract fun getLayoutManager(): RecyclerView.LayoutManager

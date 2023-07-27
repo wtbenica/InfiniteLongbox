@@ -20,19 +20,45 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
-import android.view.*
+import android.view.LayoutInflater
+import android.view.MotionEvent
+import android.view.View
+import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
-import android.widget.*
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
+import android.widget.Button
+import android.widget.FrameLayout
+import android.widget.ImageButton
+import android.widget.LinearLayout
+import android.widget.Spinner
+import android.widget.TableRow
 import androidx.appcompat.widget.AppCompatImageButton
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.google.android.material.appbar.AppBarLayout
-import com.wtb.comiccollector.*
-import com.wtb.comiccollector.database.models.*
+import com.wtb.comiccollector.APP
+import com.wtb.comiccollector.R
+import com.wtb.comiccollector.SearchFilter
+import com.wtb.comiccollector.database.models.AUTO_ID
+import com.wtb.comiccollector.database.models.BaseCollection
+import com.wtb.comiccollector.database.models.FullAppearance
+import com.wtb.comiccollector.database.models.FullCharacter
+import com.wtb.comiccollector.database.models.FullCredit
+import com.wtb.comiccollector.database.models.FullIssue
+import com.wtb.comiccollector.database.models.Issue
+import com.wtb.comiccollector.database.models.NameDetailAndCreator
+import com.wtb.comiccollector.database.models.Publisher
+import com.wtb.comiccollector.database.models.Series
+import com.wtb.comiccollector.database.models.SeriesAndPublisher
+import com.wtb.comiccollector.database.models.Story
 import com.wtb.comiccollector.fragments_view_models.IssueDetailViewModel
-import com.wtb.comiccollector.views.*
+import com.wtb.comiccollector.views.AddCollectionButton
+import com.wtb.comiccollector.views.AddWishListButton
+import com.wtb.comiccollector.views.CreditsBox
+import com.wtb.comiccollector.views.IssueInfoBox
+import com.wtb.comiccollector.views.WebLink
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import java.util.*
 
 // Bundle Argument Tags
 private const val ARG_ISSUE_ID = "issue_id"
@@ -193,137 +219,127 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback,
         super.onViewCreated(view, savedInstanceState)
 
         issueDetailViewModel.issueList.observe(
-            viewLifecycleOwner,
-            { issues ->
-                val issueIds = issues.map { it.issue.issueId }
-                if (issuesInSeries != issueIds) {
-                    issuesInSeries = issueIds
-                    this.currentPos = this.issuesInSeries.indexOf(this.fullIssue.issue.issueId)
-                    updateNavBar()
-                }
+            viewLifecycleOwner
+        ) { issues ->
+            val issueIds = issues.map { it.issue.issueId }
+            if (issuesInSeries != issueIds) {
+                issuesInSeries = issueIds
+                this.currentPos = this.issuesInSeries.indexOf(this.fullIssue.issue.issueId)
+                updateNavBar()
             }
-        )
+        }
 
         issueDetailViewModel.primaryIssue.observe(
-            viewLifecycleOwner,
-            {
-                it?.let { issue ->
-                    if (fullIssue != issue) {
-                        fullIssue = issue
-                        updateUI()
-                    }
+            viewLifecycleOwner
+        ) {
+            it?.let { issue ->
+                if (fullIssue != issue) {
+                    fullIssue = issue
+                    updateUI()
                 }
             }
-        )
+        }
 
         issueDetailViewModel.primaryCreditsLiveData.observe(
-            viewLifecycleOwner,
-            { credits: List<FullCredit>? ->
-                credits?.let {
-                    if (issueCredits != it) {
-                        issueCredits = it
-                        updateUI()
-                    }
+            viewLifecycleOwner
+        ) { credits: List<FullCredit>? ->
+            credits?.let {
+                if (issueCredits != it) {
+                    issueCredits = it
+                    updateUI()
                 }
             }
-        )
+        }
 
         issueDetailViewModel.primaryStoriesLiveData.observe(
-            viewLifecycleOwner,
-            { stories: List<Story>? ->
-                stories?.let {
-                    if (issueStories != it) {
-                        issueStories = it
-                        updateUI()
-                    }
+            viewLifecycleOwner
+        ) { stories: List<Story>? ->
+            stories?.let {
+                if (issueStories != it) {
+                    issueStories = it
+                    updateUI()
                 }
             }
-        )
+        }
 
         issueDetailViewModel.primaryAppearancesLiveData.observe(
-            viewLifecycleOwner,
-            { appearances: List<FullAppearance>? ->
-                appearances?.let {
-                    if (issueAppearances != it) {
-                        issueAppearances = it
-                        updateUI()
-                    }
+            viewLifecycleOwner
+        ) { appearances: List<FullAppearance>? ->
+            appearances?.let {
+                if (issueAppearances != it) {
+                    issueAppearances = it
+                    updateUI()
                 }
             }
-        )
+        }
 
         issueDetailViewModel.variantLiveData.observe(
-            viewLifecycleOwner,
-            {
-                it.let { variant ->
-                    if (fullVariant != variant) {
-                        isVariant = fullVariant?.issue?.issueId != AUTO_ID
-                        fullVariant = variant
-                        updateUI()
-                    }
+            viewLifecycleOwner
+        ) {
+            it.let { variant ->
+                if (fullVariant != variant) {
+                    isVariant = fullVariant?.issue?.issueId != AUTO_ID
+                    fullVariant = variant
+                    updateUI()
                 }
             }
-        )
+        }
 
         issueDetailViewModel.variantCreditsLiveData.observe(
-            viewLifecycleOwner,
-            { credits: List<FullCredit>? ->
-                credits?.let {
-                    if (variantCredits != it) {
-                        this.variantCredits = it
-                        updateUI()
-                    }
+            viewLifecycleOwner
+        ) { credits: List<FullCredit>? ->
+            credits?.let {
+                if (variantCredits != it) {
+                    this.variantCredits = it
+                    updateUI()
                 }
             }
-        )
+        }
 
         issueDetailViewModel.variantStoriesLiveData.observe(
-            viewLifecycleOwner,
-            { stories: List<Story> ->
-                stories.let {
-                    if (variantStories != it) {
-                        this.variantStories = it
-                        updateUI()
-                    }
+            viewLifecycleOwner
+        ) { stories: List<Story> ->
+            stories.let {
+                if (variantStories != it) {
+                    this.variantStories = it
+                    updateUI()
                 }
             }
-        )
+        }
 
         issueDetailViewModel.variantAppearancesLiveData.observe(
-            viewLifecycleOwner,
-            { appearances: List<FullAppearance>? ->
-                appearances?.let {
-                    if (variantAppearances != it) {
-                        this.variantAppearances = it
-                        updateUI()
-                    }
+            viewLifecycleOwner
+        ) { appearances: List<FullAppearance>? ->
+            appearances?.let {
+                if (variantAppearances != it) {
+                    this.variantAppearances = it
+                    updateUI()
                 }
             }
-        )
+        }
 
         issueDetailViewModel.variantsLiveData.observe(
-            viewLifecycleOwner,
-            { issues: List<Issue>? ->
-                issues?.let {
-                    if (issueVariants != it) {
-                        val adapter = ArrayAdapter(
-                            requireContext(),
-                            R.layout.spinner_item_variant,
-                            R.id.variant_name_text,
-                            it
-                        )
-                        this.issueVariants = it
-                        variantSpinner.adapter = adapter
-                        variantSpinnerHolder.visibility = if (it.size <= 1) {
-                            View.GONE
-                        } else {
-                            View.VISIBLE
-                        }
-                        updateUI()
+            viewLifecycleOwner
+        ) { issues: List<Issue>? ->
+            issues?.let {
+                if (issueVariants != it) {
+                    val adapter = ArrayAdapter(
+                        requireContext(),
+                        R.layout.spinner_item_variant,
+                        R.id.variant_name_text,
+                        it
+                    )
+                    this.issueVariants = it
+                    variantSpinner.adapter = adapter
+                    variantSpinnerHolder.visibility = if (it.size <= 1) {
+                        View.GONE
+                    } else {
+                        View.VISIBLE
                     }
+                    updateUI()
                 }
             }
-        )
+        }
 
 //        issueDetailViewModel.inCollectionLiveData.observe(
 //            viewLifecycleOwner,

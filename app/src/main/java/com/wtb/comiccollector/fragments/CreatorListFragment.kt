@@ -105,9 +105,9 @@ class CreatorListFragment : ListFragment<FullCreator, CreatorListFragment.Creato
             this.item = item
             nameTextView.text = this.item.creator.name
 //            alterEgoTextView.text = this.item.flatMap { it: FullCreator -> it.nameDetail.name }
-            val nameDetails = this.item.nameDetail.fold(String(), { acc, fullCreator ->
+            val nameDetails = this.item.nameDetail.fold(String()) { acc, fullCreator ->
                 acc + "${fullCreator.name}, "
-            })
+            }
             nameDetailTextView.text = nameDetails.removeSuffix(", ")
         }
 

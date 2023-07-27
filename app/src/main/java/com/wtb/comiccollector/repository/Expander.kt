@@ -16,11 +16,26 @@
 package com.wtb.comiccollector.repository
 
 import android.content.SharedPreferences
-import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.Webservice
-import com.wtb.comiccollector.database.models.*
+import com.wtb.comiccollector.database.models.Appearance
+import com.wtb.comiccollector.database.models.Character
+import com.wtb.comiccollector.database.models.Creator
+import com.wtb.comiccollector.database.models.Credit
+import com.wtb.comiccollector.database.models.CreditX
+import com.wtb.comiccollector.database.models.ExCredit
+import com.wtb.comiccollector.database.models.Issue
+import com.wtb.comiccollector.database.models.NameDetail
+import com.wtb.comiccollector.database.models.Series
+import com.wtb.comiccollector.database.models.Story
+import com.wtb.comiccollector.database.models.ids
 import com.wtb.comiccollector.repository.Updater.PriorityDispatcher.Companion.highPriorityDispatcher
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 @ExperimentalCoroutinesApi
 class Expander private constructor(webservice: Webservice, prefs: SharedPreferences) : Updater(
@@ -83,8 +98,8 @@ class Expander private constructor(webservice: Webservice, prefs: SharedPreferen
         /**
          * Updates issue model, then stories, credits, appearances, and cover
          */
-        internal fun expandIssueAsync(issues: List<Issue>): Deferred<Unit> =
-            CoroutineScope(highPriorityDispatcher).async {
+        internal fun expandIssueAsync(issues: List<Issue>): Job =
+            CoroutineScope(highPriorityDispatcher).launch {
                 val stories: List<Story> = updateIssuesStories(issues.ids)
                 expandStoryAsync(stories)
             }
@@ -104,8 +119,8 @@ class Expander private constructor(webservice: Webservice, prefs: SharedPreferen
     }
 
     inner class StoryExpander {
-        internal fun expandStoryAsync(stories: List<Story>): Deferred<Unit> =
-            CoroutineScope(highPriorityDispatcher).async {
+        internal fun expandStoryAsync(stories: List<Story>): Job =
+            CoroutineScope(highPriorityDispatcher).launch {
                 withContext(highPriorityDispatcher) {
                     updateStoriesCredits(stories.ids)
                     updateStoriesAppearances(stories.ids)
@@ -202,8 +217,6 @@ class Expander private constructor(webservice: Webservice, prefs: SharedPreferen
     }
 
     inner class CreatorExpander {
-        private val TAG = APP + "CreatorExpander"
-
         internal fun expandCreatorsAsync(creators: List<Creator>): Deferred<Unit> =
             CoroutineScope(highPriorityDispatcher).async {
                 val nameDetails: List<NameDetail> =

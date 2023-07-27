@@ -343,10 +343,10 @@ abstract class IssueDatabase : RoomDatabase() {
     }
 }
 
-class SimpleMigration(from_version: Int, to_version: Int, private vararg val sql: String) :
+class SimpleMigration(fromVersion: Int, toVersion: Int, private vararg val sql: String) :
     Migration(
-        from_version,
-        to_version
+        fromVersion,
+        toVersion
     ) {
     override fun migrate(database: SupportSQLiteDatabase) {
         sql.forEach {

@@ -147,7 +147,7 @@ class WebLink(
     context: Context,
     attrs: AttributeSet?,
 ) : AppCompatButton(context, attrs) {
-    val styledAttrs = context.theme.obtainStyledAttributes(attrs, R.styleable.ImageWebLink, 0, 0)
+    private val styledAttrs = context.theme.obtainStyledAttributes(attrs, R.styleable.ImageWebLink, 0, 0)
     var url: (() -> String?)? = null
 
     init {
@@ -170,8 +170,8 @@ class ImageWebLink(
     context: Context,
     attrs: AttributeSet?,
 ) : AppCompatImageButton(context, attrs) {
-    val styledAttrs = context.theme.obtainStyledAttributes(attrs, R.styleable.ImageWebLink, 0, 0)
-    var url: (() -> String?)? = null
+    private val styledAttrs = context.theme.obtainStyledAttributes(attrs, R.styleable.ImageWebLink, 0, 0)
+    private var url: (() -> String?)? = null
 
     init {
         styledAttrs.getString(R.styleable.AppCompatImageView_android_src) ?: styledAttrs

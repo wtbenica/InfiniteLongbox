@@ -23,6 +23,7 @@ import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.Filter
 import android.widget.TextView
+import androidx.annotation.LayoutRes
 import com.wtb.comiccollector.APP
 import com.wtb.comiccollector.R
 import com.wtb.comiccollector.database.models.Character
@@ -35,7 +36,7 @@ class FilterOptionsAdapter(context: Context, filterOptions: List<FilterModel>) :
     ArrayAdapter<FilterModel>(context, LAYOUT, filterOptions) {
 
     companion object {
-        private const val LAYOUT = R.layout.auto_complete_filter_item
+        @LayoutRes private val LAYOUT = R.layout.auto_complete_filter_item
         private const val TAG = APP + "FilterOptionsAdapter"
     }
 
@@ -87,7 +88,7 @@ class FilterOptionsAdapter(context: Context, filterOptions: List<FilterModel>) :
                 val query = constraint?.toString()?.lowercase()
 
                 val results = FilterResults()
-                results.values = if (query == null || query.isEmpty()) {
+                results.values = if (query.isNullOrEmpty()) {
                     allOptions
                 } else {
                     allOptions.filter { fm ->

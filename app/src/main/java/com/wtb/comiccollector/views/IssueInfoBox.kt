@@ -37,7 +37,7 @@ class IssueInfoBox(context: Context, attrs: AttributeSet? = null) : NestedScroll
     private var notes: String? = null
 
     val view: View = inflate(context, R.layout.issue_detail_issue_info_box, this)
-    val linearLayout: LinearLayout = view.findViewById(R.id.info_wrapper)
+    private val linearLayout: LinearLayout = view.findViewById(R.id.info_wrapper)
 
     fun update(releaseDate: LocalDate?, coverDate: LocalDate?, notes: String?) {
         if (this.releaseDate != releaseDate || this.coverDate != coverDate || this.notes != notes) {

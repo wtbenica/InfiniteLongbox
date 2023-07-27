@@ -220,7 +220,7 @@ abstract class Updater(
             return coroutineScope {
                 val items: List<ModelType>? = getItems(id)
 
-                if (items != null && items.isNotEmpty()) {
+                if (!items.isNullOrEmpty()) {
                     async {
                         followup(items)
                     }.await().let {
@@ -329,7 +329,7 @@ abstract class Updater(
                     val itemPage: List<ModelType>? = getItemsByPage(currPage)
 
                     // if request is successful, save and mark as updated
-                    if (itemPage != null && itemPage.isNotEmpty()) {
+                    if (!itemPage.isNullOrEmpty()) {
                         async {
                             verifyForeignKeys(itemPage)
                         }.await().let {
@@ -372,7 +372,7 @@ abstract class Updater(
             coroutineScope {
                 val items: List<ModelType>? = getItems()
 
-                if (items != null && items.isNotEmpty()) {
+                if (!items.isNullOrEmpty()) {
                     followup(items)
                     if (dao.upsertSus(items)) {
                         saveTag?.let { Repository.saveTime(prefs, it) }

@@ -57,7 +57,7 @@ class NewCreatorDialogFragment : DialogFragment() {
     private lateinit var cancelButton: Button
 
     private val issueDetailViewModel: IssueDetailViewModel by lazy {
-        ViewModelProvider(this).get(IssueDetailViewModel::class.java)
+        ViewModelProvider(this)[IssueDetailViewModel::class.java]
     }
 
     interface NewCreatorDialogCallback {

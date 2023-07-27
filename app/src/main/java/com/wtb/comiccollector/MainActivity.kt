@@ -77,7 +77,7 @@ class MainActivity : AppCompatActivity(),
     NewCreatorDialogFragment.NewCreatorDialogCallback,
     FilterFragment.FilterFragmentCallback {
 
-    internal val PEEK_HEIGHT
+    internal val peekHeight
         get() = resources.getDimension(R.dimen.peek_height).toInt()
 
     internal val screenSizeInDp: Point
@@ -160,11 +160,10 @@ class MainActivity : AppCompatActivity(),
         Repository.get().beginStaticUpdate(progressUpdate, this)
 
         filterViewModel.fragment.observe(
-            this,
-            { frag ->
-                frag?.let { setFragment(it) }
-            }
-        )
+            this
+        ) { frag ->
+            frag?.let { setFragment(it) }
+        }
     }
 
     override fun onStop() {
@@ -191,7 +190,7 @@ class MainActivity : AppCompatActivity(),
     private fun initBottomSheet() {
         bottomSheetBehavior = from(bottomSheet)
         bottomSheetBehavior.apply {
-            peekHeight = PEEK_HEIGHT
+            peekHeight = this@MainActivity.peekHeight
             isHideable = false
         }
 
@@ -315,12 +314,12 @@ class MainActivity : AppCompatActivity(),
         val tt = object : OnBackPressedCallback(true) {
             @SuppressLint("WrongConstant")
             override fun handleOnBackPressed() {
-                resultFragmentContainer.updatePadding(bottom = PEEK_HEIGHT)
+                resultFragmentContainer.updatePadding(bottom = peekHeight)
 
                 bottomSheetBehavior.apply {
                     isHideable = false
                     state = prevState
-                    peekHeight = PEEK_HEIGHT
+                    peekHeight = this@MainActivity.peekHeight
                 }
 
                 supportFragmentManager.popBackStack()

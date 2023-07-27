@@ -65,7 +65,7 @@ class StaticUpdater private constructor(
      * Checks for updates to publishers
      */
     private suspend fun getAllPublishers(updateProgress: ProgressWrapper) {
-        refreshAllPaged<Publisher>(
+        refreshAllPaged(
             prefs = prefs,
             savePageTag = UPDATED_PUBLISHERS_PAGE,
             saveTag = UPDATED_PUBLISHERS,
@@ -80,7 +80,7 @@ class StaticUpdater private constructor(
      * Checks for updates to series
      */
     private suspend fun getAllSeries(updateProgress: ProgressWrapper) {
-        refreshAllPaged<Series>(
+        refreshAllPaged(
             prefs = prefs,
             savePageTag = UPDATED_SERIES_PAGE,
             saveTag = UPDATED_SERIES,
@@ -93,7 +93,7 @@ class StaticUpdater private constructor(
     }
 
     private suspend fun getAllNameDetails(updateProgress: ProgressWrapper) {
-        refreshAllPaged<NameDetail>(
+        refreshAllPaged(
             prefs = prefs,
             savePageTag = UPDATED_NAME_DETAILS_PAGE,
             saveTag = UPDATED_NAME_DETAILS,
@@ -106,7 +106,7 @@ class StaticUpdater private constructor(
     }
 
     private suspend fun getAllCharacters(updateProgress: ProgressWrapper) {
-        refreshAllPaged<Character>(
+        refreshAllPaged(
             prefs = prefs,
             savePageTag = UPDATED_CHARACTERS_PAGE,
             saveTag = UPDATED_CHARACTERS,
@@ -118,7 +118,7 @@ class StaticUpdater private constructor(
     }
 
     private suspend fun getAllSeriesBonds() {
-        refreshAll<SeriesBond>(
+        refreshAll(
             prefs = prefs,
             saveTag = UPDATED_BONDS,
             getItems = this::getSeriesBonds,
@@ -155,8 +155,8 @@ class StaticUpdater private constructor(
     /**
      * Updates issue model, then stories, credits, appearances, and cover
      */
-    internal fun expandIssueAsync(issueId: Int, markedDelete: Boolean = true): Deferred<Unit> =
-        CoroutineScope(nowDispatcher).async {
+    internal fun expandIssueAsync(issueId: Int, markedDelete: Boolean = true): Job =
+        CoroutineScope(nowDispatcher).launch {
             withContext(Dispatchers.Default) {
                 updateIssueFromGcd(issueId)
                 updateIssueStoryDetails(issueId)

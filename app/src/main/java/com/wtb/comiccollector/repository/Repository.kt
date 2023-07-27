@@ -92,12 +92,12 @@ internal const val MONTHLY: Long = 30
 internal const val WEEKLY: Long = 7
 internal const val DAILY: Long = 1
 
-internal fun UPDATED_TAG(id: Int, type: String): String = "$type${id}_UPDATED"
+internal fun getUpdatedTag(id: Int, type: String): String = "$type${id}_UPDATED"
 
-internal fun seriesTag(id: Int): String = UPDATED_TAG(id, "SERIES_")
-internal fun issueTag(id: Int) = UPDATED_TAG(id, "ISSUE_")
-internal fun creatorTag(id: Int): String = UPDATED_TAG(id, "CREATOR_")
-internal fun characterTag(id: Int): String = UPDATED_TAG(id, "CHARACTER_")
+internal fun seriesTag(id: Int): String = getUpdatedTag(id, "SERIES_")
+internal fun issueTag(id: Int) = getUpdatedTag(id, "ISSUE_")
+internal fun creatorTag(id: Int): String = getUpdatedTag(id, "CREATOR_")
+internal fun characterTag(id: Int): String = getUpdatedTag(id, "CHARACTER_")
 
 @ExperimentalCoroutinesApi
 class Repository private constructor(val context: Context) {

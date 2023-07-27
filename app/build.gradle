@@ -1,7 +1,7 @@
 plugins {
     id 'com.android.application'
     id 'kotlin-android'
-    id 'kotlin-kapt'
+    id 'com.google.devtools.ksp'
 }
 
 android {
@@ -43,11 +43,10 @@ android {
         }
     }
 
-    kapt {
-        arguments {
-            arg("room.schemaLocation", "database/schema/")
-        }
+    ksp {
+        arg("room.schemaLocation", "database/schema/")
     }
+
     kotlinOptions {
         jvmTarget = '17'
     }
@@ -87,7 +86,7 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
     annotationProcessor 'androidx.room:room-compiler:2.5.2'
-    kapt 'androidx.room:room-compiler:2.5.2'
+    ksp 'androidx.room:room-compiler:2.5.2'
     coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.0.3'
     implementation 'org.jetbrains.kotlin:kotlin-reflect:1.9.0'
 }

@@ -13,8 +13,6 @@
  * limitations under the License.
  */
 
-@file:Suppress("unused")
-
 package com.wtb.comiccollector
 
 import android.annotation.SuppressLint
