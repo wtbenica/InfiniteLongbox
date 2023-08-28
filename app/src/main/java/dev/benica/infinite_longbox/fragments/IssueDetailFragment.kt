@@ -162,13 +162,16 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback,
         variantCredits = emptyList()
         variantStories = emptyList()
 
+        @Suppress("DEPRECATION")
         val issueId = if (VERSION.SDK_INT >= TIRAMISU) {
-            arguments?.getSerializable(ARG_ISSUE_ID, Int::class.java)!!
+            arguments?.getSerializable(ARG_ISSUE_ID, Integer::class.java)!!.toInt()
         } else {
             arguments?.getSerializable(ARG_ISSUE_ID) as Int
         }
+
+        @Suppress("DEPRECATION")
         val variantOf = if (VERSION.SDK_INT >= TIRAMISU) {
-            arguments?.getSerializable(ARG_VARIANT_OF, Int::class.java)
+            arguments?.getSerializable(ARG_VARIANT_OF, Integer::class.java)?.toInt()
         } else {
             arguments?.getSerializable(ARG_VARIANT_OF) as Int?
         }
