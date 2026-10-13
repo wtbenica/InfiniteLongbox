@@ -15,6 +15,7 @@
 
 package dev.benica.infinite_longbox.repository
 
+import dev.benica.infinite_longbox.InfiniteLongboxApplication.Companion.context
 import android.content.SharedPreferences
 import android.util.Log
 import dev.benica.infinite_longbox.APP
@@ -45,6 +46,7 @@ class StaticUpdater private constructor(
      */
     internal suspend fun updateStaticAsync(progressUpdate: ProgressUpdateCard) {
         Log.d(TAG, "updateStaticAsync Begin")
+        installSeedIfNeeded(progressUpdate)
         getAllPublishers(progressUpdate.publisherWrapper)
         database.transactionDao().upsertStatic(
             roles = getRoles(),
@@ -59,6 +61,19 @@ class StaticUpdater private constructor(
             getAllCharacters(progressUpdate.characterWrapper)
             getAllSeriesBonds()
         }
+    }
+
+    /**
+     * On a fresh install, imports the starter database from the server before the paged sync, so
+     * the paged sync has little left to do. Does nothing if there's no seed or the database
+     * isn't empty.
+     */
+    private suspend fun installSeedIfNeeded(progressUpdate: ProgressUpdateCard) {
+        SeedInstaller(webservice, prefs, database, context!!.cacheDir).installIfNeeded(
+            onStart = { progressUpdate.setTitle("Downloading starter database") },
+            onProgress = { done, total -> progressUpdate.setSeedProgress(done, total) },
+        )
+        progressUpdate.setTitle("Downloading database")
     }
 
     /**

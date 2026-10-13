@@ -19,6 +19,7 @@ import android.content.Context
 import android.util.AttributeSet
 import android.widget.ImageView
 import android.widget.ProgressBar
+import android.widget.TextView
 import androidx.cardview.widget.CardView
 import dev.benica.infinite_longbox.R
 
@@ -51,6 +52,19 @@ class ProgressUpdateCard(context: Context, attributeSet: AttributeSet) :
 
         characterStatus = view.findViewById(R.id.status_characters)
         characterProgress = view.findViewById(R.id.progress_bar_characters)
+    }
+
+    private val title: TextView = findViewById(R.id.update_title)
+
+    fun setTitle(text: String) {
+        title.post { title.text = text }
+    }
+
+    /** Shows the starter-database download on the first row. */
+    fun setSeedProgress(done: Long, total: Long) {
+        publisherWrapper.start()
+        publisherWrapper.setMax(100)
+        publisherWrapper.setProgress(if (total > 0) (done * 100 / total).toInt() else 0)
     }
 
     val publisherWrapper = ProgressWrapper(publisherProgress, publisherStatus)

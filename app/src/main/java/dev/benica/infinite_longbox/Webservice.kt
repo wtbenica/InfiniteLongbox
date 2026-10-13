@@ -18,11 +18,22 @@ package dev.benica.infinite_longbox
 import dev.benica.infinite_longbox.database.daos.Count
 import dev.benica.infinite_longbox.database.models.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import dev.benica.infinite_longbox.repository.SeedMeta
+import okhttp3.ResponseBody
 import retrofit2.http.GET
 import retrofit2.http.Path
+import retrofit2.http.Streaming
 
 @ExperimentalCoroutinesApi
 interface Webservice {
+    // Starter database (see SeedInstaller)
+    @GET("/db_query/seed/meta")
+    suspend fun getSeedMeta(): SeedMeta
+
+    @Streaming
+    @GET("/db_query/seed/db")
+    suspend fun getSeedDb(): ResponseBody
+
     // GET num pages
     @GET("/db_query/name_detail/page_count")
     suspend fun getNumNameDetailPages(): Count
