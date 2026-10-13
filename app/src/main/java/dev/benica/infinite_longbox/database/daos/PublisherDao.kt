@@ -37,7 +37,7 @@ abstract class PublisherDao : BaseDao<Publisher>("publisher") {
     abstract fun getAll(): Flow<List<Publisher>>
 
     @Query("SELECT * FROM publisher WHERE publisherId IN (:publisherIds)")
-    abstract fun getPublishers(publisherIds: List<Int>?): Flow<List<Publisher>?>
+    abstract fun getPublishers(publisherIds: List<Int>?): Flow<List<Publisher>>
 
     @RawQuery(
         observedEntities = [Publisher::class]
@@ -83,7 +83,8 @@ abstract class PublisherDao : BaseDao<Publisher>("publisher") {
         }
 
         if (filter.mMyCollection) {
-            tableJoinString.append("""JOIN mycollection mc ON mc.series = ss.seriesId 
+            tableJoinString.append("""JOIN collectionitem mc ON mc.series = ss.seriesId 
+                AND mc.userCollection = ${dev.benica.infinite_longbox.database.models.BaseCollection.MY_COLL.id}
             """)
         }
         

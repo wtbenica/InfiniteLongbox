@@ -43,7 +43,7 @@ abstract class CharacterDao : BaseDao<Character>("character") {
 
     @Transaction
     @Query("SELECT * FROM character WHERE characterId=:characterId")
-    abstract fun getCharacter(characterId: Int): Flow<List<FullCharacter>?>
+    abstract fun getCharacter(characterId: Int): Flow<List<FullCharacter>>
 
     // FLOW FUNCTIONS
     @RawQuery(observedEntities = [Character::class])
@@ -56,6 +56,7 @@ abstract class CharacterDao : BaseDao<Character>("character") {
     }
 
     // PAGING SOURCE FUNCTIONS
+    @Transaction
     @RawQuery(observedEntities = [Character::class])
     abstract fun getCharactersByQueryPagingSource(query: SupportSQLiteQuery): PagingSource<Int, FullCharacter>
 

@@ -66,16 +66,19 @@ class UpdateIssueCover private constructor(
                                     issue = issueId, coverUri = savedUri,
                                     markedDelete = markedDelete && issue.collectionItems == null
                                 )
-                                database.coverDao().upsertSus(listOf(cover))
+                                database.coverDao().setCover(cover)
                             } else {
-                                val cover = Cover(issue = issueId, coverUri = null)
-                                database.coverDao().upsertSus(cover)
+                                // No cover available. Record that once; rewriting an identical
+                                // row on every bind would keep re-triggering the list.
+                                if (issue.cover == null) {
+                                    database.coverDao().setCover(Cover(issue = issueId, coverUri = null))
+                                }
                             }
                         }
                     } else {
                         val cover =
                             Cover(issue = issueId, coverUri = Uri.parse(file.absolutePath))
-                        database.coverDao().upsertSus(listOf(cover))
+                        database.coverDao().setCover(cover)
                     }
                 }
             }

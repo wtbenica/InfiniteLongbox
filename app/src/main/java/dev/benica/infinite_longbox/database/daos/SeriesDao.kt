@@ -46,6 +46,7 @@ abstract class SeriesDao : BaseDao<Series>("series") {
     abstract fun getSeries(seriesId: Int): Flow<FullSeries?>
 
     // FLOW FUNCTIONS
+    @Transaction
     @RawQuery(observedEntities = [Series::class])
     abstract fun getSeriesByQuery(query: SupportSQLiteQuery): Flow<List<FullSeries>>
 
@@ -56,6 +57,7 @@ abstract class SeriesDao : BaseDao<Series>("series") {
     }
 
     // PAGING SOURCE FUNCTIONS
+    @Transaction
     @RawQuery(observedEntities = [FullSeries::class])
     abstract fun getSeriesByQueryPagingSource(query: SupportSQLiteQuery): PagingSource<Int, FullSeries>
 
@@ -66,6 +68,7 @@ abstract class SeriesDao : BaseDao<Series>("series") {
     }
 
     // SUSPEND FUNCTIONS
+    @Transaction
     @RawQuery(observedEntities = [FullSeries::class])
     abstract suspend fun getSeriesByQuerySus(query: SupportSQLiteQuery): List<FullSeries>
 

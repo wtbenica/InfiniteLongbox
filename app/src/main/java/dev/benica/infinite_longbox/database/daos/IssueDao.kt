@@ -41,6 +41,7 @@ private const val TAG = APP + "IssueDao"
 abstract class IssueDao : BaseDao<Issue>("issue") {
 
     // FLOW FUNCTIONS
+    @Transaction
     @RawQuery(observedEntities = [FullIssue::class])
     abstract fun getFullIssuesByQuery(query: SupportSQLiteQuery): Flow<List<FullIssue>>
 
@@ -51,6 +52,7 @@ abstract class IssueDao : BaseDao<Issue>("issue") {
     }
 
     // PAGING SOURCE FUNCTIONS
+    @Transaction
     @RawQuery(observedEntities = [FullIssue::class])
     abstract fun getFullIssuesByQueryPagingSource(query: SupportSQLiteQuery): PagingSource<Int, FullIssue>
 
@@ -61,6 +63,7 @@ abstract class IssueDao : BaseDao<Issue>("issue") {
     }
 
     // SUSPEND FUNCTIONS
+    @Transaction
     @RawQuery(observedEntities = [FullIssue::class])
     abstract suspend fun getFullIssuesByQuerySus(query: SupportSQLiteQuery): List<FullIssue>
 

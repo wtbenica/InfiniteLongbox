@@ -217,6 +217,12 @@ class IssueListFragment : ListFragment<FullIssue, IssueListFragment.IssueViewHol
                 }
                 animation.interpolator = AccelerateInterpolator()
                 animation.start()
+            } else if (this.fullIssue?.cover != null) {
+                // A cover was looked for and doesn't exist: stop the spinner, show the placeholder
+                coverImageView.setImageURI(null)
+                progressCover.visibility = GONE
+                bg.alpha = 1f
+                coverImageView.alpha = 0f
             } else {
                 coverImageView.setImageURI(null)
                 val animation = ValueAnimator.ofFloat(0F, 1F)

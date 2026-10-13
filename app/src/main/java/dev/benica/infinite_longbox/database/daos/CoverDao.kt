@@ -16,6 +16,8 @@
 package dev.benica.infinite_longbox.database.daos
 
 import androidx.room.Dao
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import dev.benica.infinite_longbox.database.models.Cover
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -25,6 +27,14 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 abstract class CoverDao : BaseDao<Cover>("cover") {
     @Query("""SELECT * FROM cover""")
     abstract suspend fun getAll(): List<Cover>
+
+    /**
+     * Saves a cover, replacing any existing cover for the same issue. The generic upsert can't
+     * do this: covers are unique by issue, but a new [Cover] has a fresh coverId, so
+     * insert-then-update never touched the existing row and a "not found" row stuck forever.
+     */
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    abstract suspend fun setCover(cover: Cover)
 
     @Query(
         """

@@ -20,6 +20,7 @@ import androidx.paging.PagingSource
 import androidx.room.Dao
 import androidx.room.Query
 import androidx.room.RawQuery
+import androidx.room.Transaction
 import androidx.sqlite.db.SimpleSQLiteQuery
 import androidx.sqlite.db.SupportSQLiteQuery
 import dev.benica.infinite_longbox.APP
@@ -49,6 +50,7 @@ abstract class CreatorDao : BaseDao<Creator>("creator") {
     }
 
     // PAGING SOURCE FUNCTIONS
+    @Transaction
     @RawQuery(observedEntities = [Character::class])
     abstract fun getCreatorsByQueryPagingSource(query: SupportSQLiteQuery): PagingSource<Int, FullCreator>
 
