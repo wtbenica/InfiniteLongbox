@@ -42,8 +42,8 @@
         <item name="colorOnSecondary">@color/amnesia_text</item>
 
         <!-- Fonts -->
-        <item name="fontRegular">@font/heebo_medium</item>
-        <item name="fontBlock">@font/archivo</item>
+        <item name="fontRegular">@string/font_condensed</item>
+        <item name="fontBlock">@string/font_condensed</item>
 
         <!-- Status bar color. -->
         <item name="android:statusBarColor">@android:color/transparent</item>
@@ -64,8 +64,8 @@
         <item name="android:textColor">?attr/textColorBody</item>
 
         <!-- CardView -->
-        <item name="cardElevation">0dp</item>
-        <item name="cardMaxElevation">0dp</item>
+        <item name="cardElevation">@dimen/card_elevation</item>
+        <item name="cardMaxElevation">@dimen/card_elevation</item>
         <item name="cardCornerRadius">@dimen/radius_default</item>
         <item name="cardUseCompatPadding">false</item>
 

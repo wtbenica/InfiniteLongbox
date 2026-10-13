@@ -16,25 +16,25 @@
 
 <resources>
 
-    <color name="fantasia">#c4f462</color>
+    <color name="fantasia">#ABED92</color>
     <color name="fantasia_transparent">#EDDCFFAD</color>
-    <color name="fantasia_light">#F5FFD9</color>
-    <color name="fantasia_variant">#DCFFAD</color>
-    <color name="fantasia_dark">#8ACD00</color>
+    <color name="fantasia_light">#DEFACF</color>
+    <color name="fantasia_variant">#ECFDE6</color>
+    <color name="fantasia_dark">#6AC947</color>
     <color name="fantasia_dark_dark">#28500C</color>
 
     <color name="fantasia_text">#D222</color>
 
     <color name="argonaut">#E8FDAD</color>
 
-    <color name="amnesia">#CFCFCA</color>
+    <color name="amnesia">#BACACA</color>
     <color name="amnesia_transparent">#DDFEFEFF</color>
-    <color name="amnesia_light">#FEFEFF</color>
-    <color name="amnesia_variant">#EEEEEE</color>
-    <color name="amnesia_dark">#979988</color>
+    <color name="amnesia_light">#CADADA</color>
+    <color name="amnesia_variant">#CADADA</color>
+    <color name="amnesia_dark">#889999</color>
     <color name="amnesia_dark_dark">#575948</color>
 
-    <color name="amnesia_text">#DFFF</color>
+    <color name="amnesia_text">#AAF6F6F6</color>
 
     <color name="text_series">#00FFFF</color>
     <color name="tag_creator">#22FF00FF</color>
@@ -44,4 +44,6 @@
 
     <color name="transparent_filter">#DFFF</color>
     <color name="transparent_filter_low">#aac4f462</color>
+    <color name="fantasia_light_light">#ECFDE6</color>
+    <color name="amnesia_light_light">#F3F3F3</color>
 </resources>
