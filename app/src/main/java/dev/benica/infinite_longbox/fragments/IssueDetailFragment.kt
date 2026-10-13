@@ -163,12 +163,12 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback,
         variantStories = emptyList()
 
         val issueId = if (VERSION.SDK_INT >= TIRAMISU) {
-            arguments?.getSerializable(ARG_ISSUE_ID, Int::class.java)!!
+            arguments?.getSerializable(ARG_ISSUE_ID, Int::class.javaObjectType)!!
         } else {
             arguments?.getSerializable(ARG_ISSUE_ID) as Int
         }
         val variantOf = if (VERSION.SDK_INT >= TIRAMISU) {
-            arguments?.getSerializable(ARG_VARIANT_OF, Int::class.java)
+            arguments?.getSerializable(ARG_VARIANT_OF, Int::class.javaObjectType)
         } else {
             arguments?.getSerializable(ARG_VARIANT_OF) as Int?
         }
