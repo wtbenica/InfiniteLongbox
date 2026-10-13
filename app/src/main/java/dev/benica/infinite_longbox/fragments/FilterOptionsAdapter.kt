@@ -16,6 +16,7 @@
 package dev.benica.infinite_longbox.fragments
 
 import android.content.Context
+import android.util.Log
 import android.view.View
 import android.view.View.GONE
 import android.view.View.VISIBLE
@@ -31,9 +32,16 @@ import dev.benica.infinite_longbox.database.models.FilterModel
 import dev.benica.infinite_longbox.database.models.FullSeries
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
+/**
+ * Adapter for the filter-box popup. It is created once; every keystroke (and every change of
+ * filter type) re-runs [search] on the Filter's worker thread, so the popup never holds more than
+ * a page of results.
+ *
+ * @param search returns the options matching the text typed so far
+ */
 @ExperimentalCoroutinesApi
-class FilterOptionsAdapter(context: Context, filterOptions: List<FilterModel>) :
-    ArrayAdapter<FilterModel>(context, LAYOUT, filterOptions) {
+class FilterOptionsAdapter(context: Context, private val search: (String) -> List<FilterModel>) :
+    ArrayAdapter<FilterModel>(context, LAYOUT, mutableListOf()) {
 
     companion object {
         @LayoutRes
@@ -41,8 +49,7 @@ class FilterOptionsAdapter(context: Context, filterOptions: List<FilterModel>) :
         private const val TAG = APP + "FilterOptionsAdapter"
     }
 
-    private var allOptions: List<FilterModel> = filterOptions
-    private var mOptions: List<FilterModel> = filterOptions
+    private var mOptions: List<FilterModel> = emptyList()
 
     override fun getCount(): Int = mOptions.size
 
@@ -88,36 +95,23 @@ class FilterOptionsAdapter(context: Context, filterOptions: List<FilterModel>) :
     override fun getFilter(): Filter {
         return object : Filter() {
             override fun performFiltering(constraint: CharSequence?): FilterResults {
-                val query = constraint?.toString()?.lowercase()
-
                 val results = FilterResults()
-                results.values = if (query.isNullOrEmpty()) {
-                    allOptions
-                } else {
-                    allOptions.filter { fm ->
-                        val newQs = query.split(' ')
-                        newQs.map { fm.compareValue.lowercase().contains(it) }
-                            .reduce { acc, b -> acc && b }
-                    }
+                // Runs on the Filter's own worker thread, so a blocking lookup is fine here.
+                val options = try {
+                    search(constraint?.toString().orEmpty())
+                } catch (e: Exception) {
+                    Log.e(TAG, "Couldn't load filter options", e)
+                    emptyList()
                 }
-
+                results.values = options
+                results.count = options.size
                 return results
             }
 
-            override fun publishResults(
-                constraint: CharSequence?,
-                results: FilterResults?,
-            ) {
-                val optionsList: MutableList<FilterModel> = mutableListOf()
-
-                for (item in (results?.values as List<*>)) {
-                    if (item is FilterModel) {
-                        optionsList.add(item)
-                    }
-                }
-
-                mOptions = optionsList
-                notifyDataSetChanged()
+            override fun publishResults(constraint: CharSequence?, results: FilterResults?) {
+                mOptions = (results?.values as? List<*>)?.filterIsInstance<FilterModel>()
+                    ?: emptyList()
+                if (mOptions.isEmpty()) notifyDataSetInvalidated() else notifyDataSetChanged()
             }
         }
     }

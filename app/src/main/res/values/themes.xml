@@ -43,7 +43,7 @@
 
         <!-- Fonts -->
         <item name="fontRegular">@font/heebo_medium</item>
-        <item name="fontBlock">@font/archivo_black</item>
+        <item name="fontBlock">@font/archivo</item>
 
         <!-- Status bar color. -->
         <item name="android:statusBarColor">@android:color/transparent</item>

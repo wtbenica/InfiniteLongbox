@@ -35,6 +35,8 @@ import dev.benica.infinite_longbox.*
 import dev.benica.infinite_longbox.database.models.*
 import dev.benica.infinite_longbox.fragments_view_models.FilterViewModel
 import dev.benica.infinite_longbox.views.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import java.time.LocalDate
 
@@ -111,18 +113,13 @@ class FilterFragment : Fragment(),
 
         view.clipToOutline = true
 
-        viewModel.filterOptions.observe(viewLifecycleOwner) { filterOptions ->
-            searchBar.setAdapter(
-                FilterOptionsAdapter(
-                    context = requireContext(),
-                    filterOptions = filterOptions
-                )
-            )
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                searchBar.refreshAutoCompleteResults()
+        // One adapter for the life of the view: it queries per keystroke instead of being
+        // replaced (and the popup disrupted) every time the underlying data changes.
+        searchBar.setAdapter(
+            FilterOptionsAdapter(requireContext()) { text ->
+                runBlocking(Dispatchers.IO) { viewModel.searchOptions(text) }
             }
-        }
+        )
 
         return view
     }
@@ -188,9 +185,7 @@ class FilterFragment : Fragment(),
                     filterChip.type?.let { type -> viewModel.setFilterType(type) }
                 }
 
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    searchBar.refreshAutoCompleteResults()
-                }
+                searchBar.refreshOptions()
             }
         }
     }

@@ -198,6 +198,20 @@ class Repository private constructor(val context: Context) {
         }
     }
 
+    // Bounded, one-shot lookups for the filter-box popup. The Flow versions above return every
+    // matching row, which is far too many (hundreds of thousands of characters) to hand to a popup.
+    suspend fun getFilterOptionsSeriesLimited(filter: SearchFilter, limit: Int): List<FullSeries> =
+        if (filter.mSeries == null) seriesDao.getSeriesOptions(filter, limit) else emptyList()
+
+    suspend fun getFilterOptionsCharacterLimited(filter: SearchFilter, limit: Int): List<Character> =
+        if (!filter.hasCharacter()) characterDao.getCharacterOptions(filter, limit) else emptyList()
+
+    suspend fun getFilterOptionsCreatorLimited(filter: SearchFilter, limit: Int): List<Creator> =
+        if (filter.mCreators.isEmpty()) creatorDao.getCreatorOptions(filter, limit) else emptyList()
+
+    suspend fun getFilterOptionsPublisherLimited(filter: SearchFilter, limit: Int): List<Publisher> =
+        if (filter.mPublishers.isEmpty()) publisherDao.getPublisherOptions(filter, limit) else emptyList()
+
     fun getFilterOptionsCharacter(filter: SearchFilter): Flow<List<Character>> =
         if (!filter.hasCharacter()) {
             characterDao.getCharacterFilterOptions(filter)

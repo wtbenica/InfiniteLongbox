@@ -49,6 +49,13 @@ abstract class CharacterDao : BaseDao<Character>("character") {
     @RawQuery(observedEntities = [Character::class])
     abstract fun getCharacterByQuery(query: SupportSQLiteQuery): Flow<List<Character>>
 
+    @RawQuery(observedEntities = [Character::class])
+    abstract suspend fun getCharactersByQuerySus(query: SupportSQLiteQuery): List<Character>
+
+    /** A bounded list of characters for the filter-box popup. */
+    suspend fun getCharacterOptions(filter: SearchFilter, limit: Int): List<Character> =
+        getCharactersByQuerySus(getCharacterQuery(filter, limit))
+
     fun getCharacterFilterOptions(filter: SearchFilter): Flow<List<Character>> {
         val query = getCharacterQuery(filter)
 
@@ -66,7 +73,7 @@ abstract class CharacterDao : BaseDao<Character>("character") {
         return getCharactersByQueryPagingSource(query)
     }
 
-    private fun getCharacterQuery(filter: SearchFilter): SimpleSQLiteQuery {
+    private fun getCharacterQuery(filter: SearchFilter, limit: Int? = null): SimpleSQLiteQuery {
         val tableJoinString = StringBuilder()
         val conditionsString = StringBuilder()
         val args: ArrayList<Any> = arrayListOf()
@@ -199,8 +206,12 @@ abstract class CharacterDao : BaseDao<Character>("character") {
             "ORDER BY $sortString"
         } ?: ""
 
+        val orderClause =
+            if (limit != null && sortClause.isEmpty()) "ORDER BY ch.name COLLATE NOCASE "
+            else sortClause
+        val limitClause = limit?.let { " LIMIT $it" } ?: ""
         val simpleSQLiteQuery = SimpleSQLiteQuery(
-            "$tableJoinString$conditionsString$sortClause", args.toArray()
+            "$tableJoinString$conditionsString$orderClause$limitClause", args.toArray()
         )
         Log.d(TAG, "XYZ ${simpleSQLiteQuery.sql}")
         return simpleSQLiteQuery

@@ -67,7 +67,7 @@
 
             <TextView
                 android:id="@+id/list_item_series_name_text"
-                style="@style/ListItemTitleText"
+                style="@style/ListItemTitleText.Series"
                 android:layout_width="match_parent"
                 android:layout_marginTop="@dimen/margin_narrow"
                 tools:text="Doom Patrol" />

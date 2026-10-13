@@ -48,42 +48,32 @@ class FilterViewModel : ViewModel() {
     private val filterType: LiveData<KClass<*>>
         get() = _filterType
 
-    private val seriesOptions: LiveData<List<FilterModel>> =
-        filter.switchMap { repository.getFilterOptionsSeries(it).asLiveData() }
+    /**
+     * Options for the filter-box popup: the first [OPTIONS_LIMIT] matches for [text] among the
+     * selected filter type, under the current filter. Queries the database per call instead of
+     * holding whole tables (hundreds of thousands of rows) in memory.
+     */
+    suspend fun searchOptions(text: String): List<FilterModel> {
+        val trimmed = text.trim()
+        val searchFilter = SearchFilter(_filter.value ?: SearchFilter()).apply {
+            mTextFilter = if (trimmed.isEmpty()) null else TextFilter(trimmed)
+        }
 
-    private val publisherOptions: LiveData<List<FilterModel>> =
-        filter.switchMap { repository.getFilterOptionsPublisher(it).asLiveData() }
-
-    private val creatorOptions: LiveData<List<FilterModel>> =
-        filter.switchMap { repository.getFilterOptionsCreator(it).asLiveData() }
-
-    private val characterOptions: LiveData<List<FilterModel>> =
-        filter.switchMap { repository.getFilterOptionsCharacter(it).asLiveData() }
-
-    private val allOptions: LiveData<List<FilterModel>> = combine(
-        seriesOptions.asFlow(),
-        creatorOptions.asFlow(),
-        publisherOptions.asFlow(),
-        characterOptions.asFlow()
-    )
-    {
-            series: List<FilterModel>,
-            creators: List<FilterModel>,
-            publishers: List<FilterModel>,
-            characters: List<FilterModel>,
-        ->
-        val res: List<FilterModel> = series + creators + publishers + characters
-        res.sorted()
-    }.asLiveData()
-
-    var filterOptions: LiveData<List<FilterModel>> = filterType.switchMap {
-        when (it) {
-            Series.Companion::class -> seriesOptions
-            Publisher.Companion::class -> publisherOptions
-            Character.Companion::class -> characterOptions
-            NameDetail.Companion::class -> creatorOptions
-            All.Companion::class -> allOptions
-            else -> throw IllegalStateException("filterOption can't be $it")
+        return when (_filterType.value) {
+            Series.Companion::class ->
+                repository.getFilterOptionsSeriesLimited(searchFilter, OPTIONS_LIMIT)
+            Publisher.Companion::class ->
+                repository.getFilterOptionsPublisherLimited(searchFilter, OPTIONS_LIMIT)
+            Character.Companion::class ->
+                repository.getFilterOptionsCharacterLimited(searchFilter, OPTIONS_LIMIT)
+            NameDetail.Companion::class ->
+                repository.getFilterOptionsCreatorLimited(searchFilter, OPTIONS_LIMIT)
+            else -> (
+                repository.getFilterOptionsSeriesLimited(searchFilter, OPTIONS_LIMIT) +
+                    repository.getFilterOptionsCreatorLimited(searchFilter, OPTIONS_LIMIT) +
+                    repository.getFilterOptionsPublisherLimited(searchFilter, OPTIONS_LIMIT) +
+                    repository.getFilterOptionsCharacterLimited(searchFilter, OPTIONS_LIMIT)
+                ).sorted()
         }
     }
 
@@ -235,6 +225,9 @@ class FilterViewModel : ViewModel() {
         }
 
     companion object {
+        /** Max rows per type shown in the filter-box popup. */
+        const val OPTIONS_LIMIT = 50
+
         val seriesListFragment: SeriesListFragment
             get() = SeriesListFragment.newInstance()
         val issueListFragment: IssueListFragment

@@ -72,6 +72,10 @@ abstract class SeriesDao : BaseDao<Series>("series") {
     @RawQuery(observedEntities = [FullSeries::class])
     abstract suspend fun getSeriesByQuerySus(query: SupportSQLiteQuery): List<FullSeries>
 
+    /** A bounded list of series for the filter-box popup. */
+    suspend fun getSeriesOptions(filter: SearchFilter, limit: Int): List<FullSeries> =
+        getSeriesByQuerySus(getSeriesQuery(filter, limit))
+
     suspend fun getSeriesByFilterSus(filter: SearchFilter): List<FullSeries> {
         val query = getSeriesQuery(filter)
 
@@ -79,7 +83,7 @@ abstract class SeriesDao : BaseDao<Series>("series") {
     }
 
     companion object {
-        private fun getSeriesQuery(filter: SearchFilter): SimpleSQLiteQuery {
+        private fun getSeriesQuery(filter: SearchFilter, limit: Int? = null): SimpleSQLiteQuery {
 
             val table = StringBuilder()
             val conditions = StringBuilder()
@@ -223,8 +227,13 @@ abstract class SeriesDao : BaseDao<Series>("series") {
                 "ORDER BY $sortString"
             } ?: ""
 
+            val orderClause =
+                if (limit != null && sortClause.isEmpty()) "ORDER BY ss.seriesName COLLATE NOCASE "
+                else sortClause
+            val limitClause = limit?.let { " LIMIT $it" } ?: ""
+
             return SimpleSQLiteQuery(
-                "$table$conditions$sortClause",
+                "$table$conditions$orderClause$limitClause",
                 args.toArray()
             )
         }

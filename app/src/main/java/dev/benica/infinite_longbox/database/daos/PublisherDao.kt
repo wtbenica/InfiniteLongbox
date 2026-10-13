@@ -44,7 +44,17 @@ abstract class PublisherDao : BaseDao<Publisher>("publisher") {
     )
     abstract fun getPublishersByQuery(query: SupportSQLiteQuery): Flow<List<Publisher>>
 
-    fun getPublishersByFilter(filter: SearchFilter): Flow<List<Publisher>> {
+    @RawQuery(observedEntities = [Publisher::class])
+    abstract suspend fun getPublishersByQuerySus(query: SupportSQLiteQuery): List<Publisher>
+
+    /** A bounded list of publishers for the filter-box popup. */
+    suspend fun getPublisherOptions(filter: SearchFilter, limit: Int): List<Publisher> =
+        getPublishersByQuerySus(getPublisherQuery(filter, limit))
+
+    fun getPublishersByFilter(filter: SearchFilter): Flow<List<Publisher>> =
+        getPublishersByQuery(getPublisherQuery(filter))
+
+    private fun getPublisherQuery(filter: SearchFilter, limit: Int? = null): SimpleSQLiteQuery {
         val mSeries = filter.mSeries
         val tableJoinString = StringBuilder()
         val conditionsString = StringBuilder()
@@ -97,11 +107,12 @@ abstract class PublisherDao : BaseDao<Publisher>("publisher") {
             args.add(text)
         }
 
-        val query = SimpleSQLiteQuery(
-            "$tableJoinString$conditionsString",
+        val orderClause = if (limit != null) "ORDER BY pr.publisher COLLATE NOCASE " else ""
+        val limitClause = limit?.let { " LIMIT $it" } ?: ""
+
+        return SimpleSQLiteQuery(
+            "$tableJoinString$conditionsString$orderClause$limitClause",
             args.toArray()
         )
-
-        return getPublishersByQuery(query)
     }
 }

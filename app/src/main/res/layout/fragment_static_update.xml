@@ -34,7 +34,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="@dimen/margin_default"
-                android:fontFamily="@font/archivo_black"
+                android:fontFamily="@font/archivo"
                 android:text="Downloading database" />
 
             <TableLayout

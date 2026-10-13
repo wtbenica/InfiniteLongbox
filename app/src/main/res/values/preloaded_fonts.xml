@@ -16,6 +16,7 @@
 
 <resources>
     <array name="preloaded_fonts" translatable="false">
+        <item>@font/archivo</item>
         <item>@font/coda</item>
         <item>@font/coda_extrabold</item>
         <item>@font/heebo_medium</item>

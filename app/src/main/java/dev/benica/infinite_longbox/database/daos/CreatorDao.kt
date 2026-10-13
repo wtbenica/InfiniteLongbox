@@ -42,6 +42,13 @@ abstract class CreatorDao : BaseDao<Creator>("creator") {
     @RawQuery(observedEntities = [Creator::class])
     abstract fun getCreatorsByQuery(query: SupportSQLiteQuery): Flow<List<Creator>>
 
+    @RawQuery(observedEntities = [Creator::class])
+    abstract suspend fun getCreatorsByQuerySus(query: SupportSQLiteQuery): List<Creator>
+
+    /** A bounded list of creators for the filter-box popup. */
+    suspend fun getCreatorOptions(filter: SearchFilter, limit: Int): List<Creator> =
+        getCreatorsByQuerySus(getCreatorQuery(filter, limit))
+
     fun getCreatorsByFilter(filter: SearchFilter): Flow<List<Creator>> {
 
         val query = getCreatorQuery(filter)
@@ -63,7 +70,7 @@ abstract class CreatorDao : BaseDao<Creator>("creator") {
     companion object {
         private const val TAG = APP + "CreatorDao"
 
-        private fun getCreatorQuery(filter: SearchFilter): SimpleSQLiteQuery {
+        private fun getCreatorQuery(filter: SearchFilter, limit: Int? = null): SimpleSQLiteQuery {
 
             val tableJoinString = StringBuilder()
             val conditionsString = StringBuilder()
@@ -189,6 +196,10 @@ abstract class CreatorDao : BaseDao<Creator>("creator") {
 
             val tableJoinString2 = sqlCreditToExCredit(tableJoinString)
             val conditionsString2 = sqlCreditToExCredit(conditionsString)
+            val orderClause =
+                if (limit != null && sortClause.isEmpty()) "ORDER BY sortName COLLATE NOCASE "
+                else sortClause
+            val limitClause = limit?.let { " LIMIT $it" } ?: ""
             val simpleSQLiteQuery = SimpleSQLiteQuery(
                 """
                     SELECT *
@@ -197,7 +208,7 @@ abstract class CreatorDao : BaseDao<Creator>("creator") {
                         UNION 
                         $tableJoinString2$conditionsString2
                     )
-                    $sortClause
+                    $orderClause$limitClause
                 """,
                 allArgs.toArray()
             )

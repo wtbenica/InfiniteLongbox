@@ -24,6 +24,7 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.inputmethod.EditorInfo.IME_ACTION_DONE
 import android.widget.AdapterView
+import android.widget.Filterable
 import com.google.android.material.chip.Chip
 import com.google.android.material.textfield.MaterialAutoCompleteTextView
 import dev.benica.infinite_longbox.APP
@@ -46,11 +47,12 @@ class SearchBar(context: Context, attributeSet: AttributeSet) :
 
     init {
         imeOptions = IME_ACTION_DONE
+        threshold = 1
         isSingleLine = true
         // show dropdown and show filter type chipgroup
         setOnFocusChangeListener { v, hasFocus ->
             if (hasFocus) {
-                this.showDropDown()
+                refreshOptions()
                 callbacks?.setFilterTypesVisibility(true)
             } else {
                 callbacks?.setFilterTypesVisibility(false)
@@ -87,7 +89,7 @@ class SearchBar(context: Context, attributeSet: AttributeSet) :
         setOnTouchListener(object : OnTouchListener {
             override fun onTouch(v: View?, event: MotionEvent?): Boolean {
                 if (event?.action == MotionEvent.ACTION_DOWN) {
-                    showDropDown()
+                    refreshOptions()
                     v?.performClick()
                     return false
                 }
@@ -112,6 +114,16 @@ class SearchBar(context: Context, attributeSet: AttributeSet) :
                 // Do Nothing
             }
         })
+    }
+
+    /**
+     * Re-runs the option lookup for the current text, then shows the popup (if this view still
+     * has focus). Call after changing the filter type or the filter.
+     */
+    fun refreshOptions() {
+        (adapter as? Filterable)?.filter?.filter(text) {
+            if (hasFocus()) showDropDown()
+        }
     }
 
     interface SearchTextViewCallback {
