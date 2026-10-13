@@ -39,6 +39,7 @@ import dev.benica.infinite_longbox.database.IssueDatabase
 import dev.benica.infinite_longbox.database.daos.REQUEST_LIMIT
 import dev.benica.infinite_longbox.database.models.*
 import dev.benica.infinite_longbox.views.ProgressUpdateCard
+import java.util.concurrent.atomic.AtomicBoolean
 import dev.benica.infinite_longbox.views.hide
 import dev.benica.infinite_longbox.views.show
 import kotlinx.coroutines.*
@@ -153,22 +154,29 @@ class Repository private constructor(val context: Context) {
     private fun checkConnectionStatus() =
         this.hasConnection && this.hasUnmeteredConnection
 
+    // Only one static update may run at a time. Without this, every connectivity callback (and
+    // every activity re-creation) started another loop that raced the others on saved progress.
+    private val staticUpdateRunning = AtomicBoolean(false)
+
     internal fun beginStaticUpdate(progressUpdate: ProgressUpdateCard, mainActivity: MainActivity) {
-        MainActivity.hasConnection.observeForever {
+        MainActivity.hasConnection.observe(mainActivity) {
             this.hasConnection = it
-            if (checkConnectionStatus()) {
-                // TODO: A lint inspection pointed out that update returns a Deferred, which
-                //  means that this is async async await. Look into
+            if (checkConnectionStatus() && staticUpdateRunning.compareAndSet(false, true)) {
                 MainActivity.activeJob =
                     CoroutineScope(Dispatchers.IO).async {
-                        withContext(Dispatchers.Default) {
-                            Log.d(TAG, "STARTING UPDATE")
-                            mainActivity.runOnUiThread {
-                                progressUpdate.show()
+                        try {
+                            withContext(Dispatchers.Default) {
+                                Log.d(TAG, "STARTING UPDATE")
+                                mainActivity.runOnUiThread {
+                                    progressUpdate.show()
+                                }
+                                updater.updateStaticAsync(progressUpdate)
                             }
-                            updater.updateStaticAsync(progressUpdate)
-                        }.let {
                             Log.d(TAG, "Static update done")
+                        } finally {
+                            // Hide the card however the update ended (done, failed, or the
+                            // network was lost and the job cancelled).
+                            staticUpdateRunning.set(false)
                             mainActivity.runOnUiThread {
                                 progressUpdate.hide()
                             }

@@ -84,6 +84,16 @@ internal fun View.show() {
                 animateMargins(0, MARGIN_DEFAULT, DURATION)
                 animateHeight(0, hh, DURATION)
             }
+
+            override fun onAnimationEnd(animation: Animator) {
+                // The measured height can be too small (e.g. rows whose bars are match_parent),
+                // which clipped the last row. Hand sizing back to the layout once shown.
+                this@show.post {
+                    val params = this@show.layoutParams
+                    params.height = WRAP_CONTENT
+                    this@show.layoutParams = params
+                }
+            }
         })
         play(fadeAnimation).with(growYAnimation).with(growXAnimation)
         start()

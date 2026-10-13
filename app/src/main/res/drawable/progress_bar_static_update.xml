@@ -19,11 +19,10 @@
         android:id="@android:id/background"
         android:gravity="center_vertical|fill_horizontal">
         <shape
-            android:shape="rectangle"
-            android:tint="?attr/colorOnSecondary">
+            android:shape="rectangle">
             <corners android:radius="@dimen/margin_wide" />
             <size android:height="@dimen/margin_default" />
-            <solid android:color="?attr/colorSecondaryLight" />
+            <solid android:color="#26000000" />
         </shape>
     </item>
     <item
@@ -46,8 +45,7 @@
             <shape android:shape="rectangle">
                 <corners android:radius="@dimen/margin_wide" />
                 <size android:height="@dimen/margin_default" />
-                <gradient android:endColor="?attr/colorPrimary"
-                    android:startColor="@color/fantasia_transparent"/>
+                <solid android:color="?attr/colorPrimary" />
                 <stroke
                     android:width="1dp"
                     android:color="?attr/colorPrimary" />

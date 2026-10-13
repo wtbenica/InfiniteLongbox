@@ -53,38 +53,64 @@ class ProgressUpdateCard(context: Context, attributeSet: AttributeSet) :
         characterProgress = view.findViewById(R.id.progress_bar_characters)
     }
 
-    val publisherWrapper = ProgressWrapper(publisherProgress, publisherStatus, seriesStatus)
-    val seriesWrapper = ProgressWrapper(seriesProgress, seriesStatus, creatorStatus)
-    val creatorWrapper = ProgressWrapper(creatorProgress, creatorStatus, characterStatus)
+    val publisherWrapper = ProgressWrapper(publisherProgress, publisherStatus)
+    val seriesWrapper = ProgressWrapper(seriesProgress, seriesStatus)
+    val creatorWrapper = ProgressWrapper(creatorProgress, creatorStatus)
     val characterWrapper = ProgressWrapper(characterProgress, characterStatus)
 
+    /**
+     * Drives one row of the card: a progress bar plus a status dot that is waiting (grey), in
+     * progress, or done. May be called from any thread; updates are posted to the UI thread.
+     */
     class ProgressWrapper(
         private val bar: ProgressBar,
         private val status: ImageView,
-        private val nextStatus: ImageView? = null,
     ) {
+        private var started = false
+
+        private fun updateStatus() {
+            status.setImageResource(
+                when {
+                    bar.max > 0 && bar.progress >= bar.max -> R.drawable.status_done
+                    started -> R.drawable.status_in_progress
+                    else -> R.drawable.status_waiting
+                }
+            )
+        }
+
+        /** Marks this row as the one currently downloading. */
+        fun start() {
+            bar.post {
+                started = true
+                updateStatus()
+            }
+        }
+
         fun setMax(max: Int) {
-            bar.max = max
+            bar.post {
+                bar.max = max
+                updateStatus()
+            }
         }
 
         fun setProgress(progress: Int) {
-            bar.progress = progress
+            bar.post {
+                bar.progress = progress
+                updateStatus()
+            }
         }
 
         fun incrementProgress() {
-            if (bar.progress == bar.max) {
-                status.setImageResource(R.drawable.status_done)
-                nextStatus?.setImageResource(R.drawable.status_in_progress)
+            bar.post {
+                bar.setProgress(bar.progress + 1, true)
+                updateStatus()
             }
-
-            bar.setProgress(bar.progress + 1, true)
         }
 
         fun isComplete(bool: Boolean) {
-            bar.progress = if (bool) {
-                bar.max
-            } else {
-                0
+            bar.post {
+                bar.progress = if (bool) bar.max else 0
+                updateStatus()
             }
         }
     }

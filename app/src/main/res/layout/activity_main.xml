@@ -48,6 +48,7 @@
 
             <dev.benica.infinite_longbox.views.ProgressUpdateCard
                 android:id="@+id/progress_update_card"
+                android:visibility="gone"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="@dimen/margin_default" />

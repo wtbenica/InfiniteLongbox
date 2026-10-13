@@ -269,7 +269,7 @@ abstract class Updater(
         savePageTag: String,
         saveTag: String,
         getItemsByPage: suspend (Int) -> List<ModelType>?,
-        verifyForeignKeys: suspend (List<ModelType>) -> Unit = {},
+        verifyForeignKeys: suspend (List<ModelType>) -> Deferred<Unit>? = { null },
         dao: BaseDao<ModelType>,
         getNumPages: suspend () -> Count,
         progressWrapper: ProgressWrapper? = null
@@ -282,8 +282,6 @@ abstract class Updater(
             if (checkIfStale(saveTag, WEEKLY, prefs)) {
                 progressWrapper?.isComplete(false)
                 Repository.savePrefValue(prefs, savePageTag, "")
-            } else {
-                progressWrapper?.setProgress(100)
             }
         }
 
@@ -300,6 +298,7 @@ abstract class Updater(
 
         var numComplete = pagesComplete.count { it }
         progressWrapper?.setProgress(numComplete)
+        if (numComplete < numPages) progressWrapper?.start()
 
         /**
          * Saves boolean array to prefs as a string. 't' for true, 'f' for false
@@ -330,13 +329,12 @@ abstract class Updater(
 
                     // if request is successful, save and mark as updated
                     if (!itemPage.isNullOrEmpty()) {
-                        async {
-                            verifyForeignKeys(itemPage)
-                        }.await().let {
-                            if (dao.upsertSus(itemPage)) {
-                                pagesComplete[currPage] = true
-                                pageFinished()
-                            }
+                        // The FK check hands back a Deferred; it must be awaited so the
+                        // foreign keys exist before the page is saved.
+                        verifyForeignKeys(itemPage)?.await()
+                        if (dao.upsertSus(itemPage)) {
+                            pagesComplete[currPage] = true
+                            pageFinished()
                         }
                     }
                 }
