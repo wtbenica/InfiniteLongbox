@@ -209,10 +209,10 @@ data class FullCredit(
     val story: Story,
 
     @Relation(parentColumn = "issue", entityColumn = "issueId")
-    val issue: Issue,
+    val issue: Issue?,
 
     @Relation(parentColumn = "series", entityColumn = "seriesId")
-    val series: Series,
+    val series: Series?,
 
     val sortCode: Int,
 ) : Comparable<FullCredit> {
