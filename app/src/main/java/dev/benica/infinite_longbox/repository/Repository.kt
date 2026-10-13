@@ -61,7 +61,8 @@ internal const val SHARED_PREFS = "CCPrefs"
 
 const val LOCAL_SERVER = "http://192.168.12.167:8000/"
 const val REMOTE_SERVER = "https://infinite-longbox.uc.r.appspot.com/"
-const val BASE_URL = LOCAL_SERVER
+const val ADB_REVERSE_SERVER = "http://localhost:8000/" // adb reverse tcp:8000 tcp:8000
+const val BASE_URL = ADB_REVERSE_SERVER
 
 internal const val UPDATED_ROLES = "updated_roles"
 internal const val UPDATED_STORY_TYPES = "updated_story_types"
