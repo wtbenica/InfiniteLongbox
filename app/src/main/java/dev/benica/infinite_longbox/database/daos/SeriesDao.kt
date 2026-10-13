@@ -228,7 +228,7 @@ abstract class SeriesDao : BaseDao<Series>("series") {
             } ?: ""
 
             val orderClause =
-                if (limit != null && sortClause.isEmpty()) "ORDER BY ss.seriesName COLLATE NOCASE "
+                if (limit != null && sortClause.isEmpty()) "ORDER BY ${SortType.nameSortKey("ss.seriesName")} "
                 else sortClause
             val limitClause = limit?.let { " LIMIT $it" } ?: ""
 

@@ -308,8 +308,10 @@ class SortType(
 
     val sortString: String
         get() {
+            val columnRef = "${if (table != null) "$table." else ""}$sortColumn"
             val primarySort =
-                """${if (table != null) "$table." else ""}$sortColumn ${order.option}"""
+                "${if (sortColumn == SORT_NAME_COLUMN) nameSortKey(columnRef) else columnRef} " +
+                        order.option
 
             val o2 = order2
             val secondarySort: String =
@@ -363,6 +365,20 @@ class SortType(
 
     @ExperimentalCoroutinesApi
     companion object {
+        private const val SORT_NAME_COLUMN = "sortName"
+
+        // Leading characters ignored when sorting names: quotes, apostrophes, brackets, dots and
+        // symbols. "...To Speak of God" files under T, "'Breed" under B, "@Large" under L.
+        private const val SORT_IGNORED_LEADING = " \"'.()[]#@!\u00A1\u00BF\u201C\u201D\u2018\u2019*-"
+
+        /**
+         * SQL expression for sorting by a name column: ignores leading punctuation and compares
+         * case-insensitively, so "iCandy" sorts with the I's, not after Z. Digits still sort
+         * ahead of letters, as their own group.
+         */
+        fun nameSortKey(columnRef: String): String =
+            "ltrim($columnRef, '${SORT_IGNORED_LEADING.replace("'", "''")}') COLLATE NOCASE"
+
         @SuppressLint("StaticFieldLeak")
 
         fun List<SortType>.containsSortType(elem: SortType): Boolean {
