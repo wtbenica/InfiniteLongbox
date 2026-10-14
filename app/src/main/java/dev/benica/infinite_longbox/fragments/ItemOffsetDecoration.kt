@@ -44,15 +44,48 @@ class ItemOffsetDecoration(itemOffset: Int, itemOffsetHorizontal: Int? = null, n
         val topDivisor = if (childAdapterPosition < mNumCols) 1 else 2
         val bottomDivisor = if (childAdapterPosition >= itemCount / mNumCols * mNumCols) 1 else 2
 
-        outRect.top = mItemOffset / topDivisor
-        outRect.bottom = mItemOffset / bottomDivisor
-        // Same outer margin and gap width (h) as before, but split so every item gets the same
-        // total horizontal offset, whatever the column count. Otherwise, with 3+ columns, the
-        // middle items get less offset, end up wider and (covers keep their aspect ratio)
-        // taller than their neighbours.
+        // Every item in a row must end up exactly the same width, or (covers keep their aspect
+        // ratio) the same row ends up with cards of different heights.
+        //
+        // GridLayoutManager splits the width into spans, giving the leftover pixels to some of
+        // them (see calculateItemBorders), and the offsets below are subtracted from each span.
+        // So: use the same total offset for every column (outer margin h, gaps ~h), then give the
+        // wider spans their extra pixel as extra offset.
         val h = mItemOffsetHorizontal ?: mItemOffset
         val column = if (childAdapterPosition >= 0) childAdapterPosition % mNumCols else 0
-        outRect.left = h - column * h / mNumCols
-        outRect.right = (column + 1) * h / mNumCols
+        val total = parent.width - parent.paddingLeft - parent.paddingRight
+        val step = h / mNumCols
+        val left = h - column * step
+
+        val right = if (total > 0) {
+            val spans = spanWidths(total, mNumCols)
+            val itemWidth = spans.min() - (h + step)
+            spans[column] - itemWidth - left
+        } else {
+            h + step - left
+        }
+
+        outRect.top = mItemOffset / topDivisor
+        outRect.bottom = mItemOffset / bottomDivisor
+        outRect.left = left
+        outRect.right = right
+    }
+
+    /** Span widths exactly as GridLayoutManager.calculateItemBorders computes them. */
+    private fun spanWidths(total: Int, spanCount: Int): IntArray {
+        val widths = IntArray(spanCount)
+        val perSpan = total / spanCount
+        val remainder = total % spanCount
+        var additional = 0
+        for (i in 0 until spanCount) {
+            var size = perSpan
+            additional += remainder
+            if (additional > 0 && spanCount - additional < remainder) {
+                size += 1
+                additional -= spanCount
+            }
+            widths[i] = size
+        }
+        return widths
     }
 }
