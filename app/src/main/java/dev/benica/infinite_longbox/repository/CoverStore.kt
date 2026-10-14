@@ -65,17 +65,48 @@ private fun decodeCover(context: Context, source: Uri): Bitmap {
         val input = resolver.openInputStream(source) ?: throw IOException("Couldn't open $source")
         input.use { stream -> temp.outputStream().use { stream.copyTo(it) } }
 
+        Log.d(
+            TAG,
+            "Picked image: type=${resolver.getType(source)} declared=$declaredLength " +
+                    "copied=${temp.length()} head=${temp.readHead(16)}"
+        )
+
         if (declaredLength > 0 && temp.length() != declaredLength) {
             throw IOException("Incomplete image: got ${temp.length()} of $declaredLength bytes")
         }
 
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-            decodeWithImageDecoder(temp)
-        } else {
-            decodeWithBitmapFactory(temp)
+        return try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                decodeWithImageDecoder(temp)
+            } else {
+                decodeWithBitmapFactory(temp)
+            }
+        } catch (e: Exception) {
+            keepFailedPick(context, temp)
+            throw e
         }
     } finally {
         temp.delete()
+    }
+}
+
+private fun File.readHead(count: Int): String =
+    inputStream().use { stream ->
+        ByteArray(count).let { buffer ->
+            val read = stream.read(buffer).coerceAtLeast(0)
+            buffer.take(read).joinToString(" ") { "%02x".format(it) }
+        }
+    }
+
+/** Debug builds keep an image that failed to decode, so it can be inspected (adb pull). */
+private fun keepFailedPick(context: Context, picked: File) {
+    if (!BuildConfig.DEBUG) return
+    try {
+        val dir = context.getExternalFilesDir(null) ?: return
+        picked.copyTo(File(dir, "failed_pick.bin"), overwrite = true)
+        Log.d(TAG, "Kept the failed image as ${dir.absolutePath}/failed_pick.bin")
+    } catch (e: Exception) {
+        Log.w(TAG, "Couldn't keep the failed image", e)
     }
 }
 
