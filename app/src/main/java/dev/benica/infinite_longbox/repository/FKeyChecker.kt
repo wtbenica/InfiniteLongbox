@@ -21,7 +21,7 @@ import dev.benica.infinite_longbox.Webservice
 import dev.benica.infinite_longbox.database.IssueDatabase
 import dev.benica.infinite_longbox.database.daos.BaseDao
 import dev.benica.infinite_longbox.database.models.*
-import dev.benica.infinite_longbox.repository.Updater.Companion.retrieveItemsByArgument
+import dev.benica.infinite_longbox.repository.Updater.Companion.retrieveItemsByList
 import dev.benica.infinite_longbox.repository.Updater.PriorityDispatcher.Companion.highPriorityDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
@@ -70,12 +70,9 @@ class FKeyChecker(val database: IssueDatabase, private val webservice: Webservic
         getFkItems: KSuspendFunction1<List<Int>, List<Item<FG, FM>>>,
         checkFkFks: (suspend (List<FM>) -> Deferred<Unit>)? = null,
     ) {
-        val fkIds: List<Int> = itemsToCheck.mapNotNull { getForeignKey(it) }
-        val missingIds: List<Int> = fkIds.toSet().mapNotNull {
-            val getItem = foreignKeyDao.get(it)
-            Log.d(TAG, "BOGW THE GOTTEN ITEM IS $getItem")
-            if (getItem == null) it else null
-        }
+        val fkIds: Set<Int> = itemsToCheck.mapNotNull { getForeignKey(it) }.toSet()
+        val existing: Set<Int> = foreignKeyDao.existingIds(fkIds)
+        val missingIds: List<Int> = fkIds.filter { it !in existing }
         val theTime = LocalDateTime.now()
         Log.d(
             TAG,
@@ -83,12 +80,7 @@ class FKeyChecker(val database: IssueDatabase, private val webservice: Webservic
         )
         val missingItems: MutableList<FM> = mutableListOf()
 
-        missingIds.chunked(20).forEach { ids ->
-            retrieveItemsByArgument(ids.toSet().toList(), getFkItems)?.let { items: List<FM> ->
-                Log.d(TAG, "UPDATING $theTime: adding ${items.size} to missingItems")
-                missingItems.addAll(items)
-            }
-        }
+        missingItems.addAll(retrieveItemsByList(missingIds, getFkItems))
 
         Log.d(TAG, "UPDATING $theTime: downloaded ${missingItems.size} items $getForeignKey")
 

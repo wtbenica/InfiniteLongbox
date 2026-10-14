@@ -34,6 +34,7 @@ import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -126,8 +127,11 @@ class Expander private constructor(webservice: Webservice, prefs: SharedPreferen
         internal fun expandStoryAsync(stories: List<Story>): Job =
             CoroutineScope(highPriorityDispatcher).launch {
                 withContext(highPriorityDispatcher) {
-                    updateStoriesCredits(stories.ids)
-                    updateStoriesAppearances(stories.ids)
+                    // Independent of each other, so fetch them side by side
+                    coroutineScope {
+                        launch { updateStoriesCredits(stories.ids) }
+                        launch { updateStoriesAppearances(stories.ids) }
+                    }
                 }
             }
 

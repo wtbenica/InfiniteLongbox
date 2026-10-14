@@ -30,6 +30,8 @@ import dev.benica.infinite_longbox.database.models.*
 import dev.benica.infinite_longbox.views.ProgressUpdateCard.ProgressWrapper
 import kotlinx.coroutines.*
 import kotlinx.coroutines.android.asCoroutineDispatcher
+import kotlinx.coroutines.sync.Semaphore
+import kotlinx.coroutines.sync.withPermit
 import retrofit2.HttpException
 import java.net.ConnectException
 import java.net.SocketTimeoutException
@@ -195,13 +197,19 @@ abstract class Updater(
             argList: List<ArgType>,
             apiCall: KSuspendFunction1<List<ArgType>, List<Item<GcdType, ModelType>>>,
         ): List<ModelType> {
-            val lists = argList.chunked(20)
-            val res = mutableListOf<ModelType>()
-            for (elem in lists) {
-                retrieveItemsByArgument(elem, apiCall)?.let { res.addAll(it) }
-            }
+            // Fewer, bigger requests, a few at a time: each request costs a round trip, which
+            // is what dominates on a phone, while the server answers in milliseconds.
+            val gate = Semaphore(PARALLEL_REQUESTS)
+            val res = coroutineScope {
+                argList.chunked(LIST_CHUNK_SIZE).map { elem ->
+                    async { gate.withPermit { retrieveItemsByArgument(elem, apiCall) } }
+                }.awaitAll()
+            }.filterNotNull().flatten()
             return res
         }
+
+        private const val LIST_CHUNK_SIZE = 200
+        private const val PARALLEL_REQUESTS = 4
 
         /**
          * Gets items, performs followup, then saves using dao

@@ -37,6 +37,20 @@ abstract class BaseDao<T : DataModel>(private val tableName: String) {
     @RawQuery
     protected abstract fun getDataModelByQuery(query: SupportSQLiteQuery): T?
 
+    @RawQuery
+    protected abstract fun getIdsByQuery(query: SupportSQLiteQuery): List<Int>
+
+    /** Which of [ids] already have a row: one query per batch instead of one per id. */
+    fun existingIds(ids: Collection<Int>): Set<Int> =
+        ids.chunked(500).flatMapTo(HashSet()) { batch ->
+            getIdsByQuery(
+                SimpleSQLiteQuery(
+                    "SELECT ${tableName}Id FROM $tableName " +
+                            "WHERE ${tableName}Id IN (${batch.joinToString(",")})"
+                )
+            )
+        }
+
     fun get(id: Int): T? {
         val query = SimpleSQLiteQuery("SELECT * FROM $tableName WHERE ${tableName + "Id"} = $id")
 
