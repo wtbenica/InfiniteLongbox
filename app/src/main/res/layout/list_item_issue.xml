@@ -40,7 +40,7 @@
 
         <!-- Fixed ratio so every card in a row is the same height whatever each cover's own
              aspect ratio; filled from the top, crops the bottom -->
-        <dev.benica.infinite_longbox.views.FitTopImageView
+        <dev.benica.infinite_longbox.views.CoverImageView
             android:id="@+id/list_item_cover"
             android:layout_width="0dp"
             android:layout_height="0dp"
@@ -59,27 +59,27 @@
             android:indeterminate="true"
             android:indeterminateOnly="true"
             android:indeterminateTint="?attr/colorSecondaryVariant"
-            app:layout_constraintBottom_toBottomOf="@id/list_item_cover"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
-        <!-- thin line between the cover and the number row, as before -->
+        <!-- thin line along the top of the label box, as before -->
         <View
             android:id="@+id/bottom_border_cover"
             android:layout_width="0dp"
             android:layout_height="1dp"
             android:background="?attr/colorOnPrimary"
+            app:layout_constraintBottom_toTopOf="@id/list_item_issue_box"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/list_item_cover" />
+            app:layout_constraintStart_toStartOf="parent" />
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/list_item_issue_box"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/bottom_border_cover">
+            app:layout_constraintStart_toStartOf="parent">
 
             <TextView
                 android:id="@+id/list_item_issue_variant_name"
