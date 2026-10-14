@@ -16,6 +16,8 @@
 package dev.benica.infinite_longbox.views
 
 import android.content.Context
+import android.net.Uri
+import java.io.File
 import android.util.AttributeSet
 
 
@@ -27,6 +29,19 @@ class FitTopImageView(
     init {
         scaleType = ScaleType.MATRIX
     }
+    private var shownUri: Uri? = null
+    private var shownFileStamp = 0L
+
+    override fun setImageURI(uri: Uri?) {
+        // See CoverImageView: a replaced cover keeps its file name, so force a reload
+        val stamp = uri?.path?.let { File(it).lastModified() } ?: 0L
+        if (uri != null && uri == shownUri && stamp != shownFileStamp) super.setImageURI(null)
+        shownUri = uri
+        shownFileStamp = stamp
+
+        super.setImageURI(uri)
+    }
+
     override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
         super.onLayout(changed, left, top, right, bottom)
         calculateMatrix()

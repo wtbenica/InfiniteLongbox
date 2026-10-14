@@ -606,6 +606,8 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback,
     private fun updateCover() {
         if (coverUri != null) {
             coverImageView.apply {
+                // A replaced cover keeps its file name; clear first so the new image is loaded
+                setImageURI(null)
                 setImageURI(coverUri)
                 isClickable = true
             }
