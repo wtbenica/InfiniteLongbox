@@ -62,7 +62,10 @@
     </style>
 
     <style name="OldSeriesOverlay">
-        <item name="android:padding">@dimen/margin_wide</item>
+        <item name="android:paddingEnd">@dimen/margin_wide</item>
+        <item name="android:paddingStart">@dimen/margin_wide</item>
+        <item name="android:paddingBottom">@dimen/margin_default</item>
+        <item name="android:paddingTop">@dimen/margin_default</item>
         <item name="android:background">@drawable/overlay_list_item_series_cover</item>
     </style>
 

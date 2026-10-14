@@ -23,6 +23,17 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
+        <ProgressBar
+            android:id="@+id/cover_progress_bar"
+            style="@style/ListItemSeriesProgressBar"
+            android:layout_width="match_parent"
+            android:layout_height="4dp"
+            android:indeterminateOnly="true"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            />
+
         <LinearLayout
             style="@style/OldSeriesOverlay"
             android:layout_width="0dp"
@@ -32,12 +43,9 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
-            <ProgressBar
-                android:id="@+id/cover_progress_bar"
-                style="@style/ListItemSeriesProgressBar"
-                android:layout_width="match_parent"
-                android:layout_height="4dp"
-                android:indeterminateOnly="true" />
+            <Space
+                android:layout_width="0dp"
+                android:layout_height="60dp" />
 
             <TextView
                 android:id="@+id/list_item_series_name_text"
