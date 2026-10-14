@@ -43,12 +43,16 @@ class ItemOffsetDecoration(itemOffset: Int, itemOffsetHorizontal: Int? = null, n
 
         val topDivisor = if (childAdapterPosition < mNumCols) 1 else 2
         val bottomDivisor = if (childAdapterPosition >= itemCount / mNumCols * mNumCols) 1 else 2
-        val leftDivisor = if (childAdapterPosition % mNumCols == 0) 1 else 2
-        val rightDivisor = if (childAdapterPosition % mNumCols == mNumCols - 1) 1 else 2
 
         outRect.top = mItemOffset / topDivisor
         outRect.bottom = mItemOffset / bottomDivisor
-        outRect.left = (mItemOffsetHorizontal ?: mItemOffset) / leftDivisor
-        outRect.right = (mItemOffsetHorizontal ?: mItemOffset) / rightDivisor
+        // Same outer margin and gap width (h) as before, but split so every item gets the same
+        // total horizontal offset, whatever the column count. Otherwise, with 3+ columns, the
+        // middle items get less offset, end up wider and (covers keep their aspect ratio)
+        // taller than their neighbours.
+        val h = mItemOffsetHorizontal ?: mItemOffset
+        val column = if (childAdapterPosition >= 0) childAdapterPosition % mNumCols else 0
+        outRect.left = h - column * h / mNumCols
+        outRect.right = (column + 1) * h / mNumCols
     }
 }
