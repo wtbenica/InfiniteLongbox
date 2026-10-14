@@ -102,13 +102,11 @@
     <string name="cover_saved">Cover saved</string>
     <string name="cover_not_saved">Couldn\'t read that image</string>
     <string name="cover_options_title">Cover</string>
-    <string name="cover_choose_image">Choose a different image…</string>
+    <string name="cover_replace">Replace this cover…</string>
     <string name="cover_remove">Remove this cover</string>
     <string name="cover_removed">Cover removed</string>
     <string name="cover_removed_here_only">Removed here, but the server still has it</string>
     <string name="cover_saved_here_only">Cover saved here, but the server wasn\'t updated</string>
     <string name="cover_incomplete">That image came through cut off. For a Google Photos item that isn\'t saved on this phone, open it in Photos, tap ⋮, choose Download, and pick it again</string>
-    <string name="cover_choose_photo">Choose from photos…</string>
-    <string name="cover_choose_file">Choose from files…</string>
     <string name="cover_saved_trimmed">Cover saved. The image file was cut off slightly at the bottom</string>
 </resources>
