@@ -107,4 +107,7 @@
     <string name="cover_removed_here_only">Removed here, but the server still has it</string>
     <string name="cover_saved_here_only">Cover saved here, but the server wasn\'t updated</string>
     <string name="cover_incomplete">That image didn\'t download completely. Try again</string>
+    <string name="cover_choose_photo">Choose from photos…</string>
+    <string name="cover_choose_file">Choose from files…</string>
+    <string name="cover_saved_trimmed">Cover saved. The image file was cut off slightly at the bottom</string>
 </resources>

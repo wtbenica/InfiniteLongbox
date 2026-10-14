@@ -57,7 +57,7 @@ private const val MAX_COVER_SIDE = 2400
  *
  * @throws java.io.IOException if the image is unreadable or incomplete
  */
-private fun decodeCover(context: Context, source: Uri): Bitmap {
+private fun decodeCover(context: Context, source: Uri): DecodedCover {
     val temp = File.createTempFile("picked_cover", null, context.cacheDir)
     try {
         val resolver = context.contentResolver
@@ -79,7 +79,7 @@ private fun decodeCover(context: Context, source: Uri): Bitmap {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                 decodeWithImageDecoder(temp)
             } else {
-                decodeWithBitmapFactory(temp)
+                DecodedCover(decodeWithBitmapFactory(temp), trimmed = false)
             }
         } catch (e: Exception) {
             keepFailedPick(context, temp)
@@ -110,15 +110,59 @@ private fun keepFailedPick(context: Context, picked: File) {
     }
 }
 
+/** A decoded cover. [trimmed] means the image file was cut off a little at the bottom. */
+private class DecodedCover(val bitmap: Bitmap, val trimmed: Boolean)
+
+/** Up to this fraction of a cover may be missing (blank) at the bottom and still be accepted. */
+private const val MAX_MISSING_FRACTION = 0.06f
+
 @RequiresApi(Build.VERSION_CODES.P)
-private fun decodeWithImageDecoder(file: File): Bitmap =
-    // With no OnPartialImageListener, an incomplete image throws instead of being returned partly
-    ImageDecoder.decodeBitmap(ImageDecoder.createSource(file)) { decoder, info, _ ->
+private fun decodeWithImageDecoder(file: File): DecodedCover {
+    var incomplete = false
+    val bitmap = ImageDecoder.decodeBitmap(ImageDecoder.createSource(file)) { decoder, info, _ ->
         decoder.allocator = ImageDecoder.ALLOCATOR_SOFTWARE // the bitmap gets compressed later
         var sample = 1
         while (max(info.size.width, info.size.height) / sample > MAX_COVER_SIDE) sample *= 2
         if (sample > 1) decoder.setTargetSampleSize(sample)
+
+        // The decoder calls this when the file ends early (e.g. a JPEG missing its last bytes, which
+        // viewers happily show). Keep the partial image and judge below how much is missing.
+        decoder.setOnPartialImageListener {
+            incomplete = true
+            true
+        }
     }
+
+    if (incomplete) {
+        val missing = missingTailFraction(bitmap)
+        Log.d(TAG, "Image file was incomplete; about ${(missing * 100).toInt()}% of it is blank")
+        if (missing > MAX_MISSING_FRACTION) {
+            throw IOException("Image is cut off: ${(missing * 100).toInt()}% of it is missing")
+        }
+    }
+    return DecodedCover(bitmap, trimmed = incomplete)
+}
+
+/**
+ * How much of the bottom of a partly decoded image is the blank fill the decoder leaves where data
+ * is missing: the fraction of rows, counted up from the bottom, that are one flat color matching
+ * the bottom-left pixel. Only used on images already known to be incomplete.
+ */
+private fun missingTailFraction(bitmap: Bitmap): Float {
+    val width = bitmap.width
+    val height = bitmap.height
+    val row = IntArray(width)
+    bitmap.getPixels(row, 0, width, 0, height - 1, width, 1)
+    val fill = row[0]
+
+    var blank = 0
+    for (y in height - 1 downTo 0) {
+        bitmap.getPixels(row, 0, width, 0, y, width, 1)
+        if (row.any { it != fill }) break
+        blank++
+    }
+    return blank.toFloat() / height
+}
 
 /** Fallback for Android 8: no rotation handling, but it still refuses truncated JPEGs. */
 private fun decodeWithBitmapFactory(file: File): Bitmap {
@@ -152,18 +196,20 @@ private fun decodeWithBitmapFactory(file: File): Bitmap {
 suspend fun pickedCoverToIssue(context: Context, issueId: Int, source: Uri): Int =
     withContext(Dispatchers.IO) {
         try {
-            val bitmap = decodeCover(context, source)
+            val decoded = decodeCover(context, source)
             val file = getFileHandle(context, coverFileName(issueId))
-            val savedUri = bitmap.saveToInternalStorage(file) ?: return@withContext R.string.cover_not_saved
+            val savedUri = decoded.bitmap.saveToInternalStorage(file)
+                ?: return@withContext R.string.cover_not_saved
 
             IssueDatabase.getInstance(context).coverDao().setCover(
                 Cover(issue = issueId, coverUri = savedUri, markedDelete = false)
             )
 
-            if (BuildConfig.DEBUG && !uploadCoverToServer(context, issueId)) {
-                R.string.cover_saved_here_only
-            } else {
-                R.string.cover_saved
+            when {
+                BuildConfig.DEBUG && !uploadCoverToServer(context, issueId) ->
+                    R.string.cover_saved_here_only
+                decoded.trimmed -> R.string.cover_saved_trimmed
+                else -> R.string.cover_saved
             }
         } catch (e: IOException) {
             Log.e(TAG, "Picked cover for issue $issueId was unreadable or incomplete", e)

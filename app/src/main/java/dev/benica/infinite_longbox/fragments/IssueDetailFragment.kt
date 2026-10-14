@@ -22,6 +22,7 @@ import kotlinx.coroutines.launch
 
 import androidx.lifecycle.lifecycleScope
 
+import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 
@@ -152,31 +153,46 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback,
 
     private val issueDetailViewModel: IssueDetailViewModel by viewModels()
 
-    // Lets the user choose an image from their phone to use as this issue's cover
-    private val pickCover =
-        registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
-            uri?.let { chosen ->
-                val issueId = currentIssue.issue.issueId
-                viewLifecycleOwner.lifecycleScope.launch {
-                    val message =
-                        pickedCoverToIssue(requireContext().applicationContext, issueId, chosen)
-                    Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
-                }
-            }
+    // Lets the user choose an image to use as this issue's cover. Two sources: the system photo
+    // picker (what gives the full image for Google Photos items; picking straight from the Photos
+    // app delivered some images cut off partway) and the file picker.
+    private val pickCoverPhoto =
+        registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri: Uri? ->
+            coverPicked(uri)
         }
+
+    private val pickCoverFile =
+        registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri: Uri? ->
+            coverPicked(uri)
+        }
+
+    private fun launchPhotoPicker() = pickCoverPhoto.launch(
+        PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+    )
+
+    private fun coverPicked(uri: Uri?) {
+        uri ?: return
+        val issueId = currentIssue.issue.issueId
+        viewLifecycleOwner.lifecycleScope.launch {
+            val message = pickedCoverToIssue(requireContext().applicationContext, issueId, uri)
+            Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
+        }
+    }
 
     /** Long-press on the cover: choose a different image, or remove the cover. */
     private fun showCoverOptions() {
         val issueId = currentIssue.issue.issueId
         val options = arrayOf(
-            getString(R.string.cover_choose_image),
+            getString(R.string.cover_choose_photo),
+            getString(R.string.cover_choose_file),
             getString(R.string.cover_remove),
         )
         AlertDialog.Builder(requireContext())
             .setTitle(R.string.cover_options_title)
             .setItems(options) { _, which ->
                 when (which) {
-                    0 -> pickCover.launch("image/*")
+                    0 -> launchPhotoPicker()
+                    1 -> pickCoverFile.launch(arrayOf("image/*"))
                     else -> viewLifecycleOwner.lifecycleScope.launch {
                         val message = removeCover(requireContext().applicationContext, issueId)
                         Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
@@ -245,7 +261,7 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback,
                         "cover_dialog"
                     )
                 } else {
-                    pickCover.launch("image/*")
+                    launchPhotoPicker()
                 }
             }
             setOnLongClickListener {
