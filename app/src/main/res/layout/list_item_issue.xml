@@ -32,10 +32,9 @@
         <ImageView
             style="@style/NoCover"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/list_item_issue_cover_spacing"
+            android:layout_height="0dp"
             android:importantForAccessibility="no"
-            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintBottom_toBottomOf="@id/list_item_cover"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -53,13 +52,15 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <ImageView
+        <!-- Fixed ratio, so every card in a row is the same height whatever each cover's own
+             aspect ratio. FitTopImageView fills the width from the top and crops the bottom,
+             which the label box below covers. -->
+        <dev.benica.infinite_longbox.views.FitTopImageView
             android:id="@+id/list_item_cover"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:adjustViewBounds="true"
+            android:layout_height="0dp"
             android:contentDescription="@string/description_issue_cover"
-            android:scaleType="fitStart"
+            app:layout_constraintDimensionRatio="H,13:20"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
