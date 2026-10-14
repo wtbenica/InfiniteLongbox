@@ -361,8 +361,8 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback,
         ) {
             it.let { variant ->
                 if (fullVariant != variant) {
-                    isVariant = fullVariant?.issue?.issueId != AUTO_ID
                     fullVariant = variant
+                    isVariant = (variant?.issue?.issueId ?: AUTO_ID) != AUTO_ID
                     updateUI()
                 }
             }
@@ -463,6 +463,8 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback,
 
     private fun jumpToIssue(skipNum: Int) {
         currentPos += skipNum
+        // The selected variant belongs to the issue being left; drop it so the new primary shows
+        issueDetailViewModel.clearVariant()
         issueDetailViewModel.loadIssue(this.issuesInSeries[currentPos])
         updateNavBar()
     }
