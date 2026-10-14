@@ -31,6 +31,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.SimpleItemAnimator
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.appbar.AppBarLayout.LayoutParams.SCROLL_FLAG_ENTER_ALWAYS
 import com.google.android.material.appbar.AppBarLayout.LayoutParams.SCROLL_FLAG_SCROLL
@@ -88,6 +89,11 @@ abstract class ListFragment<T : ListItem, VH : RecyclerView.ViewHolder> : Fragme
 
         listRecyclerView = view.findViewById(R.id.results_frame)
         listRecyclerView.layoutManager = getLayoutManager()
+
+        // Items update in place (a cover arrives, a collection button flips). The default
+        // cross-fade for that leaves a recycled view displaced or half-faded if it's scrolled away
+        // mid-animation, which showed up as a card sitting on top of the row above.
+        (listRecyclerView.itemAnimator as? SimpleItemAnimator)?.supportsChangeAnimations = false
 
         appBar = view.findViewById(R.id.app_bar)
 

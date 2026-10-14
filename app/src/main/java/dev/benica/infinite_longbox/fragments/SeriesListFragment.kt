@@ -115,6 +115,13 @@ class SeriesListFragment : ListFragment<FullSeries, SeriesListFragment.SeriesHol
         }
 
         fun bind(item: FullSeries) {
+            // A recycled view must start clean, whatever animation it was last part of
+            itemView.translationX = 0f
+            itemView.translationY = 0f
+            itemView.alpha = 1f
+            itemView.scaleX = 1f
+            itemView.scaleY = 1f
+
             this.item = item
 
             seriesTextView.text = this.item.series.seriesName
