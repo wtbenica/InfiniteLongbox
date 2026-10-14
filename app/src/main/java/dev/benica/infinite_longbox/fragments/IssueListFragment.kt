@@ -198,6 +198,13 @@ class IssueListFragment : ListFragment<FullIssue, IssueListFragment.IssueViewHol
         }
 
         fun bind(item: FullIssue?) {
+            // A recycled view must start clean, whatever animation it was last part of
+            itemView.translationX = 0f
+            itemView.translationY = 0f
+            itemView.alpha = 1f
+            itemView.scaleX = 1f
+            itemView.scaleY = 1f
+
             this.fullIssue = item
 
             this.fullIssue?.let { viewModel.updateIssueCover(it.issue.issueId) }
