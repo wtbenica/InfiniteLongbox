@@ -212,7 +212,7 @@
         android:id="@+id/bottom_stuff"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="?attr/colorUi"
+        android:background="@color/surface_raised"
         android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

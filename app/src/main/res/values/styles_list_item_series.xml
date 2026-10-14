@@ -69,13 +69,13 @@
     <style name="OldSeriesTitle" parent="TextAppearance.AppCompat.Light.SearchResult.Title">
         <item name="android:textStyle">bold</item>
         <item name="android:textSize">18sp</item>
-        <item name="android:textColor">?attr/colorOnPrimary</item>
+        <item name="android:textColor">?attr/textColorBody</item>
         <item name="fontFamily">@font/permanent_marker</item>
     </style>
 
     <style name="OldSeriesSubtitle" parent="TextAppearance.AppCompat.Light.SearchResult.Subtitle">
         <item name="android:textSize">14sp</item>
-        <item name="android:textColor">?attr/colorOnPrimary</item>
+        <item name="android:textColor">?attr/textColorBody</item>
         <item name="fontFamily">@font/permanent_marker</item>
     </style>
 </resources>

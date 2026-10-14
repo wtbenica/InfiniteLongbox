@@ -31,7 +31,7 @@
             android:layout_height="0dp"
             android:alpha="0"
             android:importantForAccessibility="no"
-            android:scaleType="matrix"
+            android:scaleType="centerCrop"
             android:src="?attr/listItemBackground"
             app:layout_constraintBottom_toBottomOf="@id/list_item_cover"
             app:layout_constraintEnd_toEndOf="parent"
@@ -58,7 +58,7 @@
             android:layout_height="4dp"
             android:indeterminate="true"
             android:indeterminateOnly="true"
-            android:indeterminateTint="?attr/colorSecondaryVariant"
+            android:indeterminateTint="@color/accent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -68,7 +68,7 @@
             android:id="@+id/bottom_border_cover"
             android:layout_width="0dp"
             android:layout_height="1dp"
-            android:background="?attr/colorOnPrimary"
+            android:background="@color/outline"
             app:layout_constraintBottom_toTopOf="@id/list_item_issue_box"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />

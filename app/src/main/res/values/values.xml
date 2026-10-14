@@ -16,15 +16,6 @@
 
 <resources>
     <!-- Colors -->
-    <attr name="colorSecondaryDark" format="reference" />
-    <attr name="colorSecondaryLight" format="reference" />
-    <attr name="colorPrimaryDarkDark" format="reference" />
-    <attr name="colorSecondaryDarkDark" format="reference" />
-    <attr name="colorPrimaryLight" format="reference" />
-    <attr name="colorTransparentFilter" format="reference" />
-    <attr name="colorTransparentFilterLow" format="reference" />
-    <attr name="colorPrimaryTransparent" format="color" />
-    <attr name="colorSecondaryTransparent" format="color" />
 
     <!-- Fonts -->
     <attr name="fontBlock" format="reference" />

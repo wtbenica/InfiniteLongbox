@@ -13,20 +13,30 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-
+<!--
+  Dark mode: the same ROLES as values/colors.xml, filled from other ramp shades. Dark surfaces are
+  the dark neutrals, and the accent steps up a shade so it still reads against them.
+-->
 <resources>
 
-    <color name="amnesia_transparent">#ee707070</color>
-    <color name="amnesia_light">#606666</color>
-    <color name="amnesia_variant">#505555</color>
-    <color name="amnesia">#404040</color>
-    <color name="amnesia_dark">#333636</color>
-    <color name="amnesia_dark_dark">#202929</color>
+    <color name="surface">@color/neutral_900</color>
+    <color name="surface_raised">@color/neutral_800</color>
+    <color name="surface_sunken">@color/neutral_950</color>
+    <color name="outline">@color/neutral_700</color>
 
-    <color name="amnesia_text">#ddf0f0f0</color>
+    <color name="text_primary">@color/neutral_50</color>
+    <color name="text_secondary">@color/neutral_400</color>
 
-    <color name="text_publisher">#F7F7F7</color>
+    <color name="accent">@color/accent_400</color>
+    <color name="accent_soft">@color/accent_800</color>
+    <color name="accent_strong">@color/accent_200</color>
+    <color name="on_accent">@color/neutral_950</color>
 
-    <color name="transparent_filter">#a001</color>
-    <color name="transparent_filter_low">#DD6A9D00</color>
+    <color name="scrim_surface">#D9232220</color>
+    <color name="scrim_surface_light">#8C232220</color>
+
+    <color name="placeholder_sky">@color/neutral_800</color>
+    <color name="placeholder_hill_far">@color/accent_800</color>
+    <color name="placeholder_hill_near">@color/accent_700</color>
+
 </resources>
