@@ -97,6 +97,7 @@
             <a href="http://docs.comics.org/wiki/How_To_Contribute_FAQ">Help index</a>\n
             <a href="https://www.comics.org/donate/">Donate to the GCD</a>
         </string>
+    <string name="font_condensed" translatable="false">sans-serif-condensed</string>
     <string name="menu_push_covers">Upload covers to server</string>
     <string name="cover_saved">Cover saved</string>
     <string name="cover_not_saved">Couldn\'t read that image</string>

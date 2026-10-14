@@ -22,7 +22,7 @@
             android:shape="rectangle">
             <corners android:radius="@dimen/margin_wide" />
             <size android:height="@dimen/margin_default" />
-            <solid android:color="#26000000" />
+            <solid android:color="@color/surface_sunken" />
         </shape>
     </item>
     <item
@@ -34,7 +34,7 @@
                 android:tint="?attr/colorControlActivated">
                 <corners android:radius="@dimen/margin_wide" />
                 <size android:height="@dimen/margin_default" />
-                <solid android:color="?attr/colorOnSecondary" />
+                <solid android:color="@color/accent_soft" />
             </shape>
         </scale>
     </item>

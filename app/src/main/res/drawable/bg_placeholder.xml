@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2023. Wesley T. Benica
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<!-- Placeholder art where a cover isn't available: two soft hills. Stretches to fill. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="360dp"
+    android:height="360dp"
+    android:viewportWidth="360"
+    android:viewportHeight="360">
+    <path
+        android:fillColor="@color/placeholder_sky"
+        android:pathData="M0,0h360v360h-360z" />
+    <path
+        android:fillColor="@color/placeholder_hill_far"
+        android:pathData="M80,330a180,180 0,1 0,360 0a180,180 0,1 0,-360 0z" />
+    <path
+        android:fillColor="@color/placeholder_hill_near"
+        android:pathData="M-110,380a200,200 0,1 0,400 0a200,200 0,1 0,-400 0z" />
+</vector>

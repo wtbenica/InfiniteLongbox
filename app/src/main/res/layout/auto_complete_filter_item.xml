@@ -13,65 +13,64 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-
-<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+<!-- One suggestion in the filter box's list. IDs are used by FilterOptionsAdapter. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    app:cardElevation="@dimen/margin_narrow"
-    app:cardUseCompatPadding="true">
+    android:orientation="vertical"
+    android:paddingStart="@dimen/margin_default"
+    android:paddingTop="10dp"
+    android:paddingEnd="@dimen/margin_default"
+    android:paddingBottom="10dp">
 
     <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <!-- What kind of thing this is: Series, Creator, Character, Publisher -->
+        <TextView
+            android:id="@+id/filter_option_type_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_chip_accent"
+            android:fontFamily="@font/archivo"
+            android:paddingStart="8dp"
+            android:paddingTop="2dp"
+            android:paddingEnd="8dp"
+            android:paddingBottom="2dp"
+            android:singleLine="true"
+            android:textAllCaps="true"
+            android:textColor="@color/accent_strong"
+            android:textSize="11sp"
+            tools:text="Series" />
+
+        <!-- e.g. "limited series" or the publishing format -->
+        <TextView
+            android:id="@+id/format_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="6dp"
+            android:fontFamily="@font/archivo"
+            android:paddingTop="2dp"
+            android:paddingBottom="2dp"
+            android:singleLine="true"
+            android:textAllCaps="true"
+            android:textColor="@color/text_secondary"
+            android:textSize="11sp"
+            tools:text="Graphic Novel" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/item_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:animateLayoutChanges="true"
-        android:background="?attr/colorOnPrimary"
-        android:orientation="vertical"
-        android:padding="@dimen/margin_default">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-            <TextView
-                android:id="@+id/filter_option_type_text"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:animateLayoutChanges="true"
-                android:background="?attr/colorSecondary"
-                android:fontFamily="@font/archivo"
-                android:padding="@dimen/margin_narrow"
-                android:singleLine="true"
-                android:textAllCaps="true"
-                android:textSize="12sp"
-                tools:text="Series"
-                tools:textColor="@color/text_series" />
-
-            <TextView
-                android:id="@+id/format_text"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="?attr/colorSecondaryLight"
-                android:fontFamily="@font/archivo"
-                android:padding="@dimen/margin_narrow"
-                android:text="@string/cancel"
-                android:textAllCaps="true"
-                android:textSize="12sp"
-                tools:text="Graphic Novel" />
-        </LinearLayout>
-
-        <TextView
-            android:id="@+id/item_text"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="?attr/colorOnSecondary"
-            android:ellipsize="marquee"
-            android:fontFamily="@font/archivo"
-            android:padding="@dimen/margin_narrow"
-            android:singleLine="true"
-            android:textAppearance="?android:attr/textAppearanceSmallPopupMenu"
-            tools:text="This is a really long title how will it ellipsize?" />
-    </LinearLayout>
-</androidx.cardview.widget.CardView>
+        android:layout_marginTop="4dp"
+        android:ellipsize="marquee"
+        android:fontFamily="@font/archivo"
+        android:singleLine="true"
+        android:textColor="@color/text_primary"
+        android:textSize="16sp"
+        tools:text="This is a really long title how will it ellipsize?" />
+</LinearLayout>

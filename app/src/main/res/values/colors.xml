@@ -13,35 +13,70 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
+<!--
+  The colors of the app, in two layers.
 
+  1. RAMPS: raw shades. One accent hue (a soft sage green) and one warm neutral grey. Nothing else
+     in the app is a color of its own: no cyan, no magenta, no lime.
+  2. ROLES: what a color is *for* (surface, text, accent, ...). Everything in the app, themes, styles,
+     layouts and drawables, refers to a ROLE, never to a ramp shade. Dark mode is the same roles
+     with different ramp shades (values-night/colors.xml); nothing else changes between modes.
+-->
 <resources>
 
-    <color name="fantasia">#c4f462</color>
-    <color name="fantasia_transparent">#EDDCFFAD</color>
-    <color name="fantasia_light">#F5FFD9</color>
-    <color name="fantasia_variant">#DCFFAD</color>
-    <color name="fantasia_dark">#8ACD00</color>
-    <color name="fantasia_dark_dark">#28500C</color>
+    <!-- ============================ RAMPS ============================ -->
 
-    <color name="fantasia_text">#D222</color>
+    <!-- Accent: sage green -->
+    <color name="accent_50">#F0F5F2</color>
+    <color name="accent_100">#DCEAE1</color>
+    <color name="accent_200">#BDD6C8</color>
+    <color name="accent_300">#98BDA8</color>
+    <color name="accent_400">#74A38A</color>
+    <color name="accent_500">#568870</color>
+    <color name="accent_600">#446F5A</color>
+    <color name="accent_700">#365947</color>
+    <color name="accent_800">#294436</color>
+    <color name="accent_900">#1D3126</color>
 
-    <color name="argonaut">#E8FDAD</color>
+    <!-- Neutral: warm grey -->
+    <color name="neutral_0">#FFFFFF</color>
+    <color name="neutral_50">#F7F6F3</color>
+    <color name="neutral_100">#EFEDE8</color>
+    <color name="neutral_200">#E1DED7</color>
+    <color name="neutral_300">#CBC7BE</color>
+    <color name="neutral_400">#A9A59C</color>
+    <color name="neutral_500">#86827A</color>
+    <color name="neutral_600">#67645E</color>
+    <color name="neutral_700">#4B4945</color>
+    <color name="neutral_800">#333230</color>
+    <color name="neutral_900">#232220</color>
+    <color name="neutral_950">#181716</color>
 
-    <color name="amnesia">#CFCFCA</color>
-    <color name="amnesia_transparent">#DDFEFEFF</color>
-    <color name="amnesia_light">#FEFEFF</color>
-    <color name="amnesia_variant">#EEEEEE</color>
-    <color name="amnesia_dark">#979988</color>
-    <color name="amnesia_dark_dark">#575948</color>
+    <!-- ============================ ROLES (light) ============================ -->
 
-    <color name="amnesia_text">#DFFF</color>
+    <!-- Surfaces -->
+    <color name="surface">@color/neutral_50</color>            <!-- screens: window and list background -->
+    <color name="surface_raised">@color/neutral_0</color>      <!-- cards, the app bar, sheets, popups, dialogs -->
+    <color name="surface_sunken">@color/neutral_100</color>    <!-- wells: tracks, inactive chips, inset panels -->
+    <color name="outline">@color/neutral_300</color>           <!-- borders and dividers -->
 
-    <color name="text_series">#00FFFF</color>
-    <color name="tag_creator">#22FF00FF</color>
-    <color name="text_creator">#FF00FF</color>
-    <color name="text_character">#FFFF00</color>
-    <color name="text_publisher">#555</color>
+    <!-- Text and icons -->
+    <color name="text_primary">@color/neutral_900</color>      <!-- body text, titles -->
+    <color name="text_secondary">@color/neutral_600</color>    <!-- meta text, hints, inactive icons -->
 
-    <color name="transparent_filter">#DFFF</color>
-    <color name="transparent_filter_low">#aac4f462</color>
+    <!-- The accent (the only hue) -->
+    <color name="accent">@color/accent_600</color>             <!-- solid elements: progress, selected, toggles -->
+    <color name="accent_soft">@color/accent_100</color>        <!-- tinted containers: headers, selected chips -->
+    <color name="accent_strong">@color/accent_800</color>      <!-- titles, links, text and icons on accent_soft -->
+    <color name="on_accent">@color/neutral_0</color>           <!-- text on a solid accent -->
+
+    <!-- Text laid over cover art needs a backing so it stays readable -->
+    <color name="scrim_surface">#D9F7F6F3</color>
+    <color name="scrim_surface_light">#8CF7F6F3</color>
+
+    <!-- Placeholder art shown where a cover isn't available -->
+    <color name="placeholder_sky">@color/neutral_100</color>
+    <color name="placeholder_hill_far">@color/accent_100</color>
+    <color name="placeholder_hill_near">@color/accent_200</color>
+
 </resources>

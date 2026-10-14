@@ -48,4 +48,34 @@
         <item name="android:indeterminateTint">?attr/listItemSeriesProgressBarIndeterminateTint
         </item>
     </style>
+
+    <!-- Pre-brutalist series card -->
+    <style name="OldSeriesCard" parent="Widget.MaterialComponents.CardView">
+        <item name="cardCornerRadius">@dimen/radius_list_item_series</item>
+        <item name="cardElevation">@dimen/margin_narrow</item>
+        <item name="cardMaxElevation">@dimen/margin_narrow</item>
+        <item name="cardUseCompatPadding">false</item>
+        <item name="android:layout_marginStart">@dimen/margin_default</item>
+        <item name="android:layout_marginEnd">@dimen/margin_default</item>
+        <item name="android:layout_marginTop">@dimen/margin_narrow</item>
+        <item name="android:layout_marginBottom">@dimen/margin_narrow</item>
+    </style>
+
+    <style name="OldSeriesOverlay">
+        <item name="android:padding">@dimen/margin_wide</item>
+        <item name="android:background">@drawable/overlay_list_item_series_cover</item>
+    </style>
+
+    <style name="OldSeriesTitle" parent="TextAppearance.AppCompat.Light.SearchResult.Title">
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">18sp</item>
+        <item name="android:textColor">?attr/textColorBody</item>
+        <item name="fontFamily">@font/permanent_marker</item>
+    </style>
+
+    <style name="OldSeriesSubtitle" parent="TextAppearance.AppCompat.Light.SearchResult.Subtitle">
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">?attr/textColorBody</item>
+        <item name="fontFamily">@font/permanent_marker</item>
+    </style>
 </resources>

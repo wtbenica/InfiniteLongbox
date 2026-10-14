@@ -48,7 +48,7 @@
         android:visibility="gone"
         android:layout_marginStart="@dimen/margin_narrow"
         android:layout_marginEnd="@dimen/margin_narrow"
-        android:background="?attr/colorPrimary"
+        android:background="@color/accent_soft"
         app:layout_constraintBottom_toBottomOf="@id/appearance_row_character"
         app:layout_constraintEnd_toStartOf="@id/appearance_row_details"
         app:layout_constraintStart_toEndOf="@id/appearance_row_notes"

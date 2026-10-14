@@ -1,23 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--
-  ~ Copyright (c) 2023. Wesley T. Benica
-  ~ Licensed under the Apache License, Version 2.0 (the "License");
-  ~ you may not use this file except in compliance with the License.
-  ~ You may obtain a copy of the License at
-  ~
-  ~     http://www.apache.org/licenses/LICENSE-2.0
-  ~
-  ~ Unless required by applicable law or agreed to in writing, software
-  ~ distributed under the License is distributed on an "AS IS" BASIS,
-  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  ~ See the License for the specific language governing permissions and
-  ~ limitations under the License.
-  -->
-
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    style="@style/ListItemIssue"
+    style="@style/OldIssueCard"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     tools:layout_width="wrap_content">
@@ -26,9 +11,10 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:animateLayoutChanges="true"
-        android:background="?attr/listItemIssueBg"
+        android:background="@drawable/list_item_card_background"
         tools:layout_width="200dp">
 
+        <!-- Placeholder art while there's no cover -->
         <ImageView
             style="@style/NoCover"
             android:layout_width="0dp"
@@ -45,16 +31,15 @@
             android:layout_height="0dp"
             android:alpha="0"
             android:importantForAccessibility="no"
-            android:scaleType="matrix"
+            android:scaleType="centerCrop"
             android:src="?attr/listItemBackground"
-            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintBottom_toBottomOf="@id/list_item_cover"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <!-- Fixed ratio, so every card in a row is the same height whatever each cover's own
-             aspect ratio. FitTopImageView fills the width from the top and crops the bottom,
-             which the label box below covers. -->
+        <!-- Fixed ratio so every card in a row is the same height whatever each cover's own
+             aspect ratio; filled from the top, crops the bottom -->
         <dev.benica.infinite_longbox.views.CoverImageView
             android:id="@+id/list_item_cover"
             android:layout_width="0dp"
@@ -66,40 +51,35 @@
             app:layout_constraintTop_toTopOf="parent"
             tools:src="@drawable/cover_sample" />
 
+        <ProgressBar
+            android:id="@+id/progress_cover_download"
+            style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+            android:layout_width="0dp"
+            android:layout_height="4dp"
+            android:indeterminate="true"
+            android:indeterminateOnly="true"
+            android:indeterminateTint="@color/accent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <!-- thin line along the top of the label box, as before -->
+        <View
+            android:id="@+id/bottom_border_cover"
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:background="@color/outline"
+            app:layout_constraintBottom_toTopOf="@id/list_item_issue_box"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/list_item_issue_box"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:background="?attr/listItemIssueBoxBgInCollection"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent">
-
-            <FrameLayout
-                android:id="@+id/progress_bar_box"
-                android:layout_width="0dp"
-                android:layout_height="2dp"
-                android:layout_marginTop="-1dp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                tools:visibility="gone">
-
-                <FrameLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="16dp"
-                    android:layout_gravity="center_vertical">
-
-                    <ProgressBar
-                        android:id="@+id/progress_cover_download"
-                        style="@style/Widget.AppCompat.ProgressBar.Horizontal"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:background="?attr/listItemIssueProgressBarBg"
-                        android:indeterminateOnly="true"
-                        android:indeterminateTint="?attr/listItemIssueProgressBarIndetTint" />
-                </FrameLayout>
-            </FrameLayout>
 
             <TextView
                 android:id="@+id/list_item_issue_variant_name"
@@ -109,13 +89,13 @@
                 android:layout_marginTop="@dimen/margin_narrow"
                 android:layout_marginEnd="@dimen/margin_narrow"
                 android:fontFamily="?attr/fontBlock"
-                android:gravity="end"
+                android:gravity="center_horizontal"
                 android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle2"
                 android:textColor="?attr/listItemIssueBoxTextColor"
                 android:textSize="@dimen/text_small"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/progress_bar_box"
+                app:layout_constraintTop_toTopOf="parent"
                 tools:text="Ed McGuinness Cover" />
 
             <dev.benica.infinite_longbox.views.AddCollectionButton
@@ -138,21 +118,17 @@
 
             <TextView
                 android:id="@+id/list_item_issue_number_text"
+                style="@style/OldIssueNumber"
                 android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_margin="@dimen/margin_default"
-                android:layout_weight="1"
+                android:layout_height="0dp"
+                android:layout_marginEnd="@dimen/margin_default"
                 android:fontFamily="?attr/fontBlock"
                 android:gravity="center_vertical|end"
-                android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle2"
-                android:textColor="?attr/listItemIssueBoxTextColor"
-                android:textSize="@dimen/text_large"
                 app:layout_constraintBottom_toBottomOf="@id/btn_issue_list_add_wish_list"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@id/btn_issue_list_add_wish_list"
                 app:layout_constraintTop_toTopOf="@id/btn_issue_list_add_wish_list"
                 tools:text="8" />
-
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.cardview.widget.CardView>

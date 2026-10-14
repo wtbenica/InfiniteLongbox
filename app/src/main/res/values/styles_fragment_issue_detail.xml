@@ -25,8 +25,8 @@
 
     <style name="IssueDetailVariantSpinner" parent="Widget.AppCompat.Spinner">
         <item name="android:layout_height">?attr/dropdownListPreferredItemHeight</item>
-        <item name="android:textColor">?attr/colorOnPrimary</item>
-        <item name="android:popupBackground">?attr/colorOnSecondary</item>
+        <item name="android:textColor">?attr/textColorBody</item>
+        <item name="android:popupBackground">@color/surface_raised</item>
     </style>
 
     <style name="IssueDetailButtonBar" parent="Widget.AppCompat.ButtonBar">
@@ -38,7 +38,7 @@
     </style>
 
     <style name="myButtonStyle" parent="Widget.MaterialComponents.Button.TextButton">
-        <item name="android:textColor">?attr/colorSecondaryDark</item>
+        <item name="android:textColor">@color/text_secondary</item>
         <item name="android:fontFamily">?attr/fontBlock</item>
     </style>
 

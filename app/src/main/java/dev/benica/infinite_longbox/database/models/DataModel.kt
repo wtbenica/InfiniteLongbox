@@ -57,15 +57,9 @@ sealed interface FilterModel : FilterItem, Comparable<FilterModel>, Serializable
     val tagName: String
     val compareValue: String
 
+    /** Color of the label that says what kind of thing this is. One color: the text says which. */
     val textColor: Int
-        get() = when (this) {
-            is FullSeries    -> context?.getColor(R.color.text_series)
-            is Creator,
-            is NameDetail,
-                         -> context?.getColor(R.color.text_creator)
-            is Publisher -> context?.getColor(R.color.text_publisher)
-            is Character -> context?.getColor(R.color.text_character)
-        } ?: 0xFF000000.toInt()
+        get() = context?.getColor(R.color.accent_strong) ?: 0xFF000000.toInt()
 
     override fun compareTo(other: FilterModel): Int =
         this.compareValue.compareTo(other.compareValue)
