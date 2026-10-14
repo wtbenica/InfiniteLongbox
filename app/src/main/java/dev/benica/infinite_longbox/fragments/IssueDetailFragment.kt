@@ -22,7 +22,6 @@ import kotlinx.coroutines.launch
 
 import androidx.lifecycle.lifecycleScope
 
-import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 
@@ -153,22 +152,11 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback,
 
     private val issueDetailViewModel: IssueDetailViewModel by viewModels()
 
-    // Lets the user choose an image to use as this issue's cover. Two sources: the system photo
-    // picker (what gives the full image for Google Photos items; picking straight from the Photos
-    // app delivered some images cut off partway) and the file picker.
-    private val pickCoverPhoto =
-        registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri: Uri? ->
-            coverPicked(uri)
-        }
-
+    // Lets the user choose an image file (from anywhere on the system) to use as this issue's cover
     private val pickCoverFile =
         registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri: Uri? ->
             coverPicked(uri)
         }
-
-    private fun launchPhotoPicker() = pickCoverPhoto.launch(
-        PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
-    )
 
     private fun coverPicked(uri: Uri?) {
         uri ?: return
@@ -179,20 +167,18 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback,
         }
     }
 
-    /** Long-press on the cover: choose a different image, or remove the cover. */
+    /** Long-press on an existing cover: replace it, or remove it. */
     private fun showCoverOptions() {
         val issueId = currentIssue.issue.issueId
         val options = arrayOf(
-            getString(R.string.cover_choose_photo),
-            getString(R.string.cover_choose_file),
+            getString(R.string.cover_replace),
             getString(R.string.cover_remove),
         )
         AlertDialog.Builder(requireContext())
             .setTitle(R.string.cover_options_title)
             .setItems(options) { _, which ->
                 when (which) {
-                    0 -> launchPhotoPicker()
-                    1 -> pickCoverFile.launch(arrayOf("image/*"))
+                    0 -> pickCoverFile.launch(arrayOf("image/*"))
                     else -> viewLifecycleOwner.lifecycleScope.launch {
                         val message = removeCover(requireContext().applicationContext, issueId)
                         Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
@@ -253,7 +239,7 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback,
         val view = inflater.inflate(R.layout.fragment_issue_detail, container, false)
 
         coverImageView = view.findViewById<ImageButton>(R.id.issue_cover).apply {
-            // Tap: view the cover, or add one if there isn't any. Long-press: swap or remove it.
+            // Tap: view the cover, or add one if there isn't any. Long-press (when there is one): replace or remove it.
             setOnClickListener {
                 if (coverUri != null) {
                     CoverDialogFragment(this.drawable, this@IssueDetailFragment.currentIssue).show(
@@ -261,12 +247,16 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback,
                         "cover_dialog"
                     )
                 } else {
-                    launchPhotoPicker()
+                    pickCoverFile.launch(arrayOf("image/*"))
                 }
             }
             setOnLongClickListener {
-                showCoverOptions()
-                true
+                if (coverUri != null) {
+                    showCoverOptions()
+                    true
+                } else {
+                    false
+                }
             }
         }
         issueCreditsFrame = view.findViewById(R.id.issue_credits_frame) as FrameLayout
