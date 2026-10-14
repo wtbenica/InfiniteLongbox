@@ -92,27 +92,25 @@ abstract class ListFragment<T : ListItem, VH : RecyclerView.ViewHolder> : Fragme
         appBar = view.findViewById(R.id.app_bar)
 
         details = view.findViewById(R.id.details)
-        details.viewTreeObserver.addOnGlobalLayoutListener(
-            object : ViewTreeObserver.OnGlobalLayoutListener {
-                var max = 0
-                override fun onGlobalLayout() {
-                    val height = details.height
-                    if (height > max) {
-                        updateBottomPadding(height)
-                        details.viewTreeObserver.removeOnGlobalLayoutListener(this)
-                        max = height
-                    }
-                }
-            }
-        )
+
+        // While the app bar is expanded the list is taller than its container by the app bar's
+        // scroll range, so its last rows sit below the bottom sheet unless the bottom padding
+        // covers that too. The app bar's content grows after the first layout (animated, and
+        // filled in once data arrives), so keep the padding in step with its current range
+        // instead of measuring once.
+        appBar.addOnLayoutChangeListener { _, _, _, _, _, _, _, _, _ ->
+            listRecyclerView.post { updateBottomPadding(appBar.totalScrollRange) }
+        }
 
         return view
     }
 
     protected fun updateBottomPadding(height: Int = 0) {
         val bottom = peekHeight + height
-        listRecyclerView.updatePadding(bottom = bottom)
-        view?.requestLayout()
+        if (listRecyclerView.paddingBottom != bottom) {
+            listRecyclerView.updatePadding(bottom = bottom)
+            view?.requestLayout()
+        }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
