@@ -15,13 +15,15 @@
 
 package dev.benica.infinite_longbox.fragments
 
-import dev.benica.infinite_longbox.repository.saveCoverFromUri
+import dev.benica.infinite_longbox.repository.pickedCoverToIssue
+import dev.benica.infinite_longbox.repository.removeCover
 
 import kotlinx.coroutines.launch
 
 import androidx.lifecycle.lifecycleScope
 
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AlertDialog
 
 import android.widget.Toast
 
@@ -156,15 +158,33 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback,
             uri?.let { chosen ->
                 val issueId = currentIssue.issue.issueId
                 viewLifecycleOwner.lifecycleScope.launch {
-                    val saved = saveCoverFromUri(requireContext().applicationContext, issueId, chosen)
-                    Toast.makeText(
-                        requireContext(),
-                        if (saved) R.string.cover_saved else R.string.cover_not_saved,
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    val message =
+                        pickedCoverToIssue(requireContext().applicationContext, issueId, chosen)
+                    Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
                 }
             }
         }
+
+    /** Long-press on the cover: choose a different image, or remove the cover. */
+    private fun showCoverOptions() {
+        val issueId = currentIssue.issue.issueId
+        val options = arrayOf(
+            getString(R.string.cover_choose_image),
+            getString(R.string.cover_remove),
+        )
+        AlertDialog.Builder(requireContext())
+            .setTitle(R.string.cover_options_title)
+            .setItems(options) { _, which ->
+                when (which) {
+                    0 -> pickCover.launch("image/*")
+                    else -> viewLifecycleOwner.lifecycleScope.launch {
+                        val message = removeCover(requireContext().applicationContext, issueId)
+                        Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+            .show()
+    }
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -217,7 +237,7 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback,
         val view = inflater.inflate(R.layout.fragment_issue_detail, container, false)
 
         coverImageView = view.findViewById<ImageButton>(R.id.issue_cover).apply {
-            // Tap: view the cover, or add one if there isn't any. Long-press: choose a different image.
+            // Tap: view the cover, or add one if there isn't any. Long-press: swap or remove it.
             setOnClickListener {
                 if (coverUri != null) {
                     CoverDialogFragment(this.drawable, this@IssueDetailFragment.currentIssue).show(
@@ -229,7 +249,7 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback,
                 }
             }
             setOnLongClickListener {
-                pickCover.launch("image/*")
+                showCoverOptions()
                 true
             }
         }

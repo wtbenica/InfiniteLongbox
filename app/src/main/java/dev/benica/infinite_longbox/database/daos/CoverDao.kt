@@ -36,6 +36,9 @@ abstract class CoverDao : BaseDao<Cover>("cover") {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     abstract suspend fun setCover(cover: Cover)
 
+    @Query("DELETE FROM cover WHERE issue = :issueId")
+    abstract suspend fun deleteForIssue(issueId: Int)
+
     @Query(
         """
        DELETE FROM cover

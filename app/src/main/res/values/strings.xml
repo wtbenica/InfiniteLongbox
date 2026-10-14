@@ -100,4 +100,11 @@
     <string name="menu_push_covers">Upload covers to server</string>
     <string name="cover_saved">Cover saved</string>
     <string name="cover_not_saved">Couldn\'t read that image</string>
+    <string name="cover_options_title">Cover</string>
+    <string name="cover_choose_image">Choose a different image…</string>
+    <string name="cover_remove">Remove this cover</string>
+    <string name="cover_removed">Cover removed</string>
+    <string name="cover_removed_here_only">Removed here, but the server still has it</string>
+    <string name="cover_saved_here_only">Cover saved here, but the server wasn\'t updated</string>
+    <string name="cover_incomplete">That image didn\'t download completely. Try again</string>
 </resources>

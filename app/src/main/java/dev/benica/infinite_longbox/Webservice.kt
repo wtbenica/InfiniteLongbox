@@ -48,6 +48,9 @@ interface Webservice {
         @Body image: RequestBody,
     ): Response<ResponseBody>
 
+    @POST("/db_query/issue/id/{id}/cover/remove")
+    suspend fun removeCover(@Path("id") issueId: Int): Response<ResponseBody>
+
     // GET num pages
     @GET("/db_query/name_detail/page_count")
     suspend fun getNumNameDetailPages(): Count
