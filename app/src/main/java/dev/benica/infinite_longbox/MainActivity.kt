@@ -32,6 +32,7 @@ import android.util.TypedValue
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import android.widget.ProgressBar
@@ -168,12 +169,9 @@ class MainActivity : AppCompatActivity(),
 
         scanFab = findViewById(R.id.scan_fab)
         scanFab.setOnClickListener { startBarcodeScan() }
-        // The scan button belongs to the lists, not to a single issue's page
-        supportFragmentManager.addOnBackStackChangedListener {
-            val onDetail =
-                supportFragmentManager.findFragmentById(R.id.fragment_container) is IssueDetailFragment
-            if (onDetail) scanFab.hide() else scanFab.show()
-        }
+        (scanFab.layoutParams as ViewGroup.MarginLayoutParams).bottomMargin =
+            peekHeight + resources.getDimensionPixelSize(R.dimen.margin_default)
+        supportFragmentManager.addOnBackStackChangedListener { updateScanFab() }
 
         initWindowInsets()
         initBottomSheet()
@@ -213,6 +211,15 @@ class MainActivity : AppCompatActivity(),
     }
 
     /** Uploads covers stored on this phone that the server doesn't have (debug builds). */
+    /** The scan button belongs to the lists: not on an issue's page, not over the open filter. */
+    private fun updateScanFab() {
+        val onDetail =
+            supportFragmentManager.findFragmentById(R.id.fragment_container) is IssueDetailFragment
+        val sheetOpen = bottomSheetBehavior.state == STATE_EXPANDED ||
+                bottomSheetBehavior.state == STATE_HALF_EXPANDED
+        if (onDetail || sheetOpen) scanFab.hide() else scanFab.show()
+    }
+
     private fun startBarcodeScan() {
         val options = GmsBarcodeScannerOptions.Builder()
             .setBarcodeFormats(Barcode.FORMAT_UPC_A, Barcode.FORMAT_EAN_13)
@@ -248,7 +255,7 @@ class MainActivity : AppCompatActivity(),
     private fun chooseScannedIssue(matches: List<FullIssue>) {
         AlertDialog.Builder(this)
             .setTitle(R.string.scan_choose_issue)
-            .setItems(matches.map { it.toString() }.toTypedArray()) { _, which ->
+            .setItems(matches.map { it.scanLabel() }.toTypedArray()) { _, which ->
                 addScannedIssue(matches[which])
             }
             .setNegativeButton(android.R.string.cancel, null)
@@ -258,12 +265,20 @@ class MainActivity : AppCompatActivity(),
     private fun addScannedIssue(issue: FullIssue) {
         Repository.get().addToCollection(issue, BaseCollection.MY_COLL.id)
 
-        Snackbar.make(mainLayout, getString(R.string.scan_added, issue.toString()), Snackbar.LENGTH_LONG)
+        Snackbar.make(mainLayout, getString(R.string.scan_added, issue.scanLabel()), Snackbar.LENGTH_LONG)
             .setAnchorView(scanFab)
             .setAction(R.string.scan_undo) {
                 Repository.get().removeFromCollection(issue.issue.issueId, BaseCollection.MY_COLL.id)
             }
             .show()
+    }
+
+    /** Series, number and variant, so the copies sharing one barcode can be told apart. */
+    private fun FullIssue.scanLabel(): String {
+        val variant = issue.variantName.ifBlank {
+            if (issue.variantOf == null) getString(R.string.scan_standard_edition) else ""
+        }
+        return if (variant.isBlank()) "$this" else "$this ($variant)"
     }
 
     private fun showScanMessage(message: String) {
@@ -288,6 +303,7 @@ class MainActivity : AppCompatActivity(),
         bottomSheetBehavior.addBottomSheetCallback(object : BottomSheetCallback() {
             override fun onStateChanged(bottomSheet: View, newState: Int) {
                 filterFragment?.visibleState = newState
+                updateScanFab()
             }
 
             override fun onSlide(bottomSheet: View, slideOffset: Float) {
@@ -394,7 +410,9 @@ class MainActivity : AppCompatActivity(),
             issueSelectedId = issue.issueId,
             variantOf = issue.variantOf
         )
-        val prevState = bottomSheetBehavior.state
+        // Only a resting state can be restored; DRAGGING/SETTLING would throw
+        val prevState = bottomSheetBehavior.state.takeIf { it == STATE_EXPANDED || it == STATE_COLLAPSED }
+            ?: STATE_COLLAPSED
         supportFragmentManager
             .beginTransaction()
             .setTransition(TRANSIT_FRAGMENT_FADE)
