@@ -120,6 +120,7 @@ class MainActivity : AppCompatActivity(),
     private lateinit var progressUpdate: ProgressUpdateCard
     private lateinit var progressBar: ProgressBar
     private lateinit var scanFab: FloatingActionButton
+    private var restoreNonHideable = false
 
     private fun setFragment(fragment: ListFragment<out ListItem, out RecyclerView.ViewHolder>) {
         supportFragmentManager.beginTransaction()
@@ -304,6 +305,12 @@ class MainActivity : AppCompatActivity(),
             override fun onStateChanged(bottomSheet: View, newState: Int) {
                 filterFragment?.visibleState = newState
                 updateScanFab()
+                if (restoreNonHideable &&
+                    (newState == STATE_COLLAPSED || newState == STATE_EXPANDED)
+                ) {
+                    restoreNonHideable = false
+                    bottomSheetBehavior.isHideable = false
+                }
             }
 
             override fun onSlide(bottomSheet: View, slideOffset: Float) {
@@ -425,8 +432,10 @@ class MainActivity : AppCompatActivity(),
             override fun handleOnBackPressed() {
                 resultFragmentContainer.updatePadding(bottom = peekHeight)
 
+                // Slide up from where it was hidden; making it non-hideable first would snap it
+                // somewhere else and animate from there. It becomes non-hideable once it settles.
+                restoreNonHideable = true
                 bottomSheetBehavior.apply {
-                    isHideable = false
                     state = prevState
                     peekHeight = this@MainActivity.peekHeight
                 }
