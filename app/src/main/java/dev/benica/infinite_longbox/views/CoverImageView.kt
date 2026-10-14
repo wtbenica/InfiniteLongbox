@@ -23,6 +23,7 @@ import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.util.AttributeSet
 import androidx.appcompat.widget.AppCompatImageView
+import java.io.File
 import kotlin.math.max
 
 /**
@@ -61,7 +62,17 @@ class CoverImageView(context: Context, attrs: AttributeSet) : AppCompatImageView
         updateMatrix()
     }
 
+    private var shownUri: Uri? = null
+    private var shownFileStamp = 0L
+
     override fun setImageURI(uri: Uri?) {
+        // A replaced cover is saved to the same file, so the URI doesn't change, and ImageView
+        // ignores a request to show the URI it already has. Clear it first when the file changed.
+        val stamp = uri?.path?.let { File(it).lastModified() } ?: 0L
+        if (uri != null && uri == shownUri && stamp != shownFileStamp) super.setImageURI(null)
+        shownUri = uri
+        shownFileStamp = stamp
+
         super.setImageURI(uri)
         updateMatrix()
     }
