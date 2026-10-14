@@ -197,7 +197,8 @@ abstract class CreatorDao : BaseDao<Creator>("creator") {
             val tableJoinString2 = sqlCreditToExCredit(tableJoinString)
             val conditionsString2 = sqlCreditToExCredit(conditionsString)
             val orderClause =
-                if (limit != null && sortClause.isEmpty()) "ORDER BY sortName COLLATE NOCASE "
+                if (limit != null && sortClause.isEmpty())
+                    SortType.optionsOrderBy("sortName", filter.mTextFilter?.text, allArgs)
                 else sortClause
             val limitClause = limit?.let { " LIMIT $it" } ?: ""
             val simpleSQLiteQuery = SimpleSQLiteQuery(
