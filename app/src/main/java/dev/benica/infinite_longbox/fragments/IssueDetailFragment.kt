@@ -15,6 +15,8 @@
 
 package dev.benica.infinite_longbox.fragments
 
+import android.app.Activity
+
 import dev.benica.infinite_longbox.repository.pickedCoverToIssue
 import dev.benica.infinite_longbox.repository.removeCover
 
@@ -152,11 +154,21 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback,
 
     private val issueDetailViewModel: IssueDetailViewModel by viewModels()
 
-    // Lets the user choose an image file (from anywhere on the system) to use as this issue's cover
-    private val pickCoverFile =
-        registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri: Uri? ->
-            coverPicked(uri)
+    // Lets the user choose an image from any app that can supply one (Files, Drive, Photos,
+    // Nextcloud, other file managers, ...): Android's GET_CONTENT chooser. Without the chooser,
+    // Android 13+ replaces a plain GET_CONTENT request with its photo picker.
+    private val pickCoverImage =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK) coverPicked(result.data?.data)
         }
+
+    private fun launchCoverPicker() {
+        val request = Intent(Intent.ACTION_GET_CONTENT).apply {
+            type = "image/*"
+            addCategory(Intent.CATEGORY_OPENABLE)
+        }
+        pickCoverImage.launch(Intent.createChooser(request, getString(R.string.cover_choose_title)))
+    }
 
     private fun coverPicked(uri: Uri?) {
         uri ?: return
@@ -178,7 +190,7 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback,
             .setTitle(R.string.cover_options_title)
             .setItems(options) { _, which ->
                 when (which) {
-                    0 -> pickCoverFile.launch(arrayOf("image/*"))
+                    0 -> launchCoverPicker()
                     else -> viewLifecycleOwner.lifecycleScope.launch {
                         val message = removeCover(requireContext().applicationContext, issueId)
                         Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
@@ -247,7 +259,7 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback,
                         "cover_dialog"
                     )
                 } else {
-                    pickCoverFile.launch(arrayOf("image/*"))
+                    launchCoverPicker()
                 }
             }
             setOnLongClickListener {
