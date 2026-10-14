@@ -54,6 +54,14 @@ import com.google.android.gms.ads.AdView
 import com.google.android.gms.ads.MobileAds
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.appbar.AppBarLayout.LayoutParams.SCROLL_FLAG_SCROLL
+import androidx.appcompat.app.AlertDialog
+import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.android.material.snackbar.Snackbar
+import com.google.mlkit.vision.barcode.common.Barcode
+import com.google.mlkit.vision.codescanner.GmsBarcodeScannerOptions
+import com.google.mlkit.vision.codescanner.GmsBarcodeScanning
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetBehavior.*
 import dev.benica.infinite_longbox.database.IssueDatabase
@@ -110,6 +118,7 @@ class MainActivity : AppCompatActivity(),
     private lateinit var mAdView: AdView
     private lateinit var progressUpdate: ProgressUpdateCard
     private lateinit var progressBar: ProgressBar
+    private lateinit var scanFab: FloatingActionButton
 
     private fun setFragment(fragment: ListFragment<out ListItem, out RecyclerView.ViewHolder>) {
         supportFragmentManager.beginTransaction()
@@ -157,6 +166,15 @@ class MainActivity : AppCompatActivity(),
         progressUpdate = findViewById(R.id.progress_update_card)
         progressBar = findViewById(R.id.progress_bar_item_list_update)
 
+        scanFab = findViewById(R.id.scan_fab)
+        scanFab.setOnClickListener { startBarcodeScan() }
+        // The scan button belongs to the lists, not to a single issue's page
+        supportFragmentManager.addOnBackStackChangedListener {
+            val onDetail =
+                supportFragmentManager.findFragmentById(R.id.fragment_container) is IssueDetailFragment
+            if (onDetail) scanFab.hide() else scanFab.show()
+        }
+
         initWindowInsets()
         initBottomSheet()
         initNetwork()
@@ -195,6 +213,63 @@ class MainActivity : AppCompatActivity(),
     }
 
     /** Uploads covers stored on this phone that the server doesn't have (debug builds). */
+    private fun startBarcodeScan() {
+        val options = GmsBarcodeScannerOptions.Builder()
+            .setBarcodeFormats(Barcode.FORMAT_UPC_A, Barcode.FORMAT_EAN_13)
+            .build()
+
+        GmsBarcodeScanning.getClient(this, options).startScan()
+            .addOnSuccessListener { barcode ->
+                barcode.rawValue?.let { onBarcodeScanned(it) }
+            }
+            .addOnFailureListener {
+                showScanMessage(getString(R.string.scan_failed, it.localizedMessage ?: ""))
+            }
+    }
+
+    private fun onBarcodeScanned(rawValue: String) {
+        // A UPC-A read as an EAN-13 comes with a leading zero
+        val upc = rawValue.filter { it.isDigit() }.let {
+            if (it.length == 13 && it.startsWith("0")) it.drop(1) else it
+        }
+
+        lifecycleScope.launch {
+            val matches = withContext(Dispatchers.IO) { Repository.get().getIssuesByUpc(upc) }
+            when {
+                matches == null -> showScanMessage(getString(R.string.scan_lookup_failed))
+                matches.isEmpty() -> showScanMessage(getString(R.string.scan_no_match, upc))
+                matches.size == 1 -> addScannedIssue(matches[0])
+                else -> chooseScannedIssue(matches)
+            }
+        }
+    }
+
+    /** The barcode alone doesn't always pin down the issue; ask which one it is. */
+    private fun chooseScannedIssue(matches: List<FullIssue>) {
+        AlertDialog.Builder(this)
+            .setTitle(R.string.scan_choose_issue)
+            .setItems(matches.map { it.toString() }.toTypedArray()) { _, which ->
+                addScannedIssue(matches[which])
+            }
+            .setNegativeButton(android.R.string.cancel, null)
+            .show()
+    }
+
+    private fun addScannedIssue(issue: FullIssue) {
+        Repository.get().addToCollection(issue, BaseCollection.MY_COLL.id)
+
+        Snackbar.make(mainLayout, getString(R.string.scan_added, issue.toString()), Snackbar.LENGTH_LONG)
+            .setAnchorView(scanFab)
+            .setAction(R.string.scan_undo) {
+                Repository.get().removeFromCollection(issue.issue.issueId, BaseCollection.MY_COLL.id)
+            }
+            .show()
+    }
+
+    private fun showScanMessage(message: String) {
+        Snackbar.make(mainLayout, message, Snackbar.LENGTH_LONG).setAnchorView(scanFab).show()
+    }
+
     private fun pushLocalCovers() {
         Toast.makeText(this, "Uploading covers…", Toast.LENGTH_SHORT).show()
         lifecycleScope.launch {

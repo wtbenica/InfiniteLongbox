@@ -84,6 +84,9 @@ interface Webservice {
     @GET("db_query/series/ids/{seriesIds}")
     suspend fun getSeriesByIds(@Path("seriesIds") seriesIds: List<Int>): List<Item<GcdSeries, Series>>
 
+    @GET("/db_query/issue/upc/{upc}")
+    suspend fun getIssuesByUpc(@Path("upc") upc: String): List<Item<GcdIssue, Issue>>
+
     @GET("/db_query/issue/ids/{issueIds}")
     suspend fun getIssuesByIds(@Path("issueIds") issueIds: List<Int>): List<Item<GcdIssue, Issue>>
 

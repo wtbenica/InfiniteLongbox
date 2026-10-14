@@ -94,6 +94,18 @@
             android:tag="@string/tag_filter_fragment"
             app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior"
             tools:layout="@layout/fragment_filter" />
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/scan_fab"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/margin_default"
+            android:contentDescription="@string/scan_barcode"
+            app:backgroundTint="@color/accent"
+            app:layout_anchor="@id/bottom_sheet"
+            app:layout_anchorGravity="top|end"
+            app:srcCompat="@drawable/ic_barcode_scan"
+            app:tint="@color/on_accent" />
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
     <com.google.android.gms.ads.AdView

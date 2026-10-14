@@ -274,6 +274,10 @@ class Repository private constructor(val context: Context) {
     }
 
     // ISSUE METHODS
+    /** The issues matching a scanned barcode, or null if the lookup failed. */
+    suspend fun getIssuesByUpc(upc: String): List<FullIssue>? =
+        updater.importIssuesByUpc(upc)?.mapNotNull { issueDao.getIssueSus(it) }
+
     fun getIssue(issueId: Int, markedDelete: Boolean = true): Flow<FullIssue?> {
         if (issueId != AUTO_ID) {
             CoroutineScope(Dispatchers.Default).launch {
