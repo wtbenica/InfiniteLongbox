@@ -21,6 +21,7 @@ import androidx.room.RawQuery
 import androidx.sqlite.db.SimpleSQLiteQuery
 import androidx.sqlite.db.SupportSQLiteQuery
 import dev.benica.infinite_longbox.SearchFilter
+import dev.benica.infinite_longbox.SortType
 import dev.benica.infinite_longbox.database.models.Publisher
 import dev.benica.infinite_longbox.repository.DUMMY_ID
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -107,7 +108,9 @@ abstract class PublisherDao : BaseDao<Publisher>("publisher") {
             args.add(text)
         }
 
-        val orderClause = if (limit != null) "ORDER BY pr.publisher COLLATE NOCASE " else ""
+        val orderClause = if (limit != null)
+            SortType.optionsOrderBy("pr.publisher", filter.mTextFilter?.text, args)
+        else ""
         val limitClause = limit?.let { " LIMIT $it" } ?: ""
 
         return SimpleSQLiteQuery(

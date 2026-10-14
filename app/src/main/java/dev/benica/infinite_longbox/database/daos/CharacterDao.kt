@@ -207,7 +207,8 @@ abstract class CharacterDao : BaseDao<Character>("character") {
         } ?: ""
 
         val orderClause =
-            if (limit != null && sortClause.isEmpty()) "ORDER BY ch.name COLLATE NOCASE "
+            if (limit != null && sortClause.isEmpty())
+                SortType.optionsOrderBy("ch.name", filter.mTextFilter?.text, args)
             else sortClause
         val limitClause = limit?.let { " LIMIT $it" } ?: ""
         val simpleSQLiteQuery = SimpleSQLiteQuery(

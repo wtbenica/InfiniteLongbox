@@ -379,6 +379,24 @@ class SortType(
         fun nameSortKey(columnRef: String): String =
             "ltrim($columnRef, '${SORT_IGNORED_LEADING.replace("'", "''")}') COLLATE NOCASE"
 
+        /**
+         * ORDER BY for the filter-box popup, which only shows the first few matches: names that
+         * start with the typed text come first, then the rest alphabetically. Without this,
+         * typing "x-men" listed "Civil War: X-Men" and friends and cut off before "X-Men" itself.
+         *
+         * @param args receives the LIKE argument when there is typed text
+         */
+        fun optionsOrderBy(columnRef: String, typed: String?, args: MutableList<Any>): String {
+            val key = nameSortKey(columnRef)
+            val text = typed?.trim().orEmpty()
+            return if (text.isEmpty()) {
+                "ORDER BY $key "
+            } else {
+                args.add("$text%")
+                "ORDER BY CASE WHEN $key LIKE ? THEN 0 ELSE 1 END, $key "
+            }
+        }
+
         @SuppressLint("StaticFieldLeak")
 
         fun List<SortType>.containsSortType(elem: SortType): Boolean {
