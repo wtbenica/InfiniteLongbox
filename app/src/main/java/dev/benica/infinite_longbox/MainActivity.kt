@@ -22,6 +22,10 @@ import android.graphics.Point
 import android.net.ConnectivityManager
 import android.net.Network
 import android.net.NetworkCapabilities
+import android.widget.Toast
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
+import dev.benica.infinite_longbox.repository.pushCoversToServer
 import android.os.Bundle
 import android.util.Log
 import android.util.TypedValue
@@ -175,6 +179,9 @@ class MainActivity : AppCompatActivity(),
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         super.onCreateOptionsMenu(menu)
         menuInflater.inflate(R.menu.activity_main, menu)
+        // pushing covers to the dev server is a development convenience
+        menu?.findItem(R.id.menu_main_push_covers)?.isVisible =
+            dev.benica.infinite_longbox.BuildConfig.DEBUG
         return true
     }
 
@@ -183,9 +190,19 @@ class MainActivity : AppCompatActivity(),
             R.id.app_about -> AboutDialogFragment().show(supportFragmentManager, "app_about")
             R.id.menu_main_clear_db -> IssueDatabase.getInstance(this).transactionDao()
                 .cleanDatabase()
+            R.id.menu_main_push_covers -> pushLocalCovers()
             else -> super.onOptionsItemSelected(item)
         }
         return true
+    }
+
+    /** Uploads covers stored on this phone that the server doesn't have (debug builds). */
+    private fun pushLocalCovers() {
+        Toast.makeText(this, "Uploading covers…", Toast.LENGTH_SHORT).show()
+        lifecycleScope.launch {
+            val result = pushCoversToServer(applicationContext)
+            Toast.makeText(this@MainActivity, result.toString(), Toast.LENGTH_LONG).show()
+        }
     }
 
     private fun initBottomSheet() {

@@ -19,7 +19,11 @@ import dev.benica.infinite_longbox.database.daos.Count
 import dev.benica.infinite_longbox.database.models.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import dev.benica.infinite_longbox.repository.SeedMeta
+import okhttp3.RequestBody
 import okhttp3.ResponseBody
+import retrofit2.Response
+import retrofit2.http.Body
+import retrofit2.http.POST
 import retrofit2.http.GET
 import retrofit2.http.Path
 import retrofit2.http.Streaming
@@ -33,6 +37,16 @@ interface Webservice {
     @Streaming
     @GET("/db_query/seed/db")
     suspend fun getSeedDb(): ResponseBody
+
+    // Covers kept on the server (see CoverStore)
+    @GET("/db_query/covers/have")
+    suspend fun getServerCoverIds(): List<Int>
+
+    @POST("/db_query/issue/id/{id}/cover/upload")
+    suspend fun uploadCover(
+        @Path("id") issueId: Int,
+        @Body image: RequestBody,
+    ): Response<ResponseBody>
 
     // GET num pages
     @GET("/db_query/name_detail/page_count")

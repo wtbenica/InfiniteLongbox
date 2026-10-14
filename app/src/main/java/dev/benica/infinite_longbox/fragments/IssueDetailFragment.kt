@@ -15,6 +15,16 @@
 
 package dev.benica.infinite_longbox.fragments
 
+import dev.benica.infinite_longbox.repository.saveCoverFromUri
+
+import kotlinx.coroutines.launch
+
+import androidx.lifecycle.lifecycleScope
+
+import androidx.activity.result.contract.ActivityResultContracts
+
+import android.widget.Toast
+
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -140,6 +150,22 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback,
 
     private val issueDetailViewModel: IssueDetailViewModel by viewModels()
 
+    // Lets the user choose an image from their phone to use as this issue's cover
+    private val pickCover =
+        registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+            uri?.let { chosen ->
+                val issueId = currentIssue.issue.issueId
+                viewLifecycleOwner.lifecycleScope.launch {
+                    val saved = saveCoverFromUri(requireContext().applicationContext, issueId, chosen)
+                    Toast.makeText(
+                        requireContext(),
+                        if (saved) R.string.cover_saved else R.string.cover_not_saved,
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+        }
+
     override fun onAttach(context: Context) {
         super.onAttach(context)
         listFragmentCallback = context as ListFragment.ListFragmentCallback?
@@ -191,11 +217,20 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback,
         val view = inflater.inflate(R.layout.fragment_issue_detail, container, false)
 
         coverImageView = view.findViewById<ImageButton>(R.id.issue_cover).apply {
+            // Tap: view the cover, or add one if there isn't any. Long-press: choose a different image.
             setOnClickListener {
-                CoverDialogFragment(this.drawable, this@IssueDetailFragment.currentIssue).show(
-                    childFragmentManager,
-                    "cover_dialog"
-                )
+                if (coverUri != null) {
+                    CoverDialogFragment(this.drawable, this@IssueDetailFragment.currentIssue).show(
+                        childFragmentManager,
+                        "cover_dialog"
+                    )
+                } else {
+                    pickCover.launch("image/*")
+                }
+            }
+            setOnLongClickListener {
+                pickCover.launch("image/*")
+                true
             }
         }
         issueCreditsFrame = view.findViewById(R.id.issue_credits_frame) as FrameLayout
@@ -557,7 +592,7 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback,
         } else {
             coverImageView.apply {
                 setImageResource(R.drawable.issue_cover_missing)
-                isClickable = false
+                isClickable = true
             }
         }
     }
