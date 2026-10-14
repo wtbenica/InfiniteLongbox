@@ -16,6 +16,7 @@
 
 package dev.benica.infinite_longbox.repository
 
+import android.content.ContentResolver
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -23,6 +24,7 @@ import android.graphics.ImageDecoder
 import android.net.Uri
 import android.os.Build
 import android.util.Log
+import android.os.ParcelFileDescriptor
 import androidx.annotation.RequiresApi
 import dev.benica.infinite_longbox.APP
 import dev.benica.infinite_longbox.BuildConfig
@@ -38,6 +40,7 @@ import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.File
 import java.io.IOException
+import java.io.InputStream
 import java.io.RandomAccessFile
 import kotlin.math.max
 
@@ -47,46 +50,131 @@ private const val TAG = APP + "CoverStore"
 private const val MAX_COVER_SIDE = 2400
 
 /**
- * Decodes an image the user picked. Never returns a partly decoded picture.
+ * Decodes an image the user picked. Never returns a partly decoded picture it hasn't judged.
  *
- * The picked image is copied to a temp file first. Reading straight from the picker's stream is
- * unreliable (a streamed source such as Google Photos can hand back incomplete data, and Android
- * then returns a bitmap with the unread rows black). The copy's length is checked against what the
- * source declares, and ImageDecoder is used because it fails on incomplete input instead of
- * returning half an image, and applies the photo's rotation.
+ * A picked image comes from another app (Files, Drive, Photos, ...) through a content URI, and
+ * the app that serves it can hand over less than the whole file: Google Photos does that for items
+ * that aren't saved on the phone. So the image is read through several different routes, each into
+ * a temp file that is decoded with ImageDecoder (which reports incomplete input instead of
+ * returning half an image, and applies the photo's rotation). The first route that yields a
+ * complete image wins. Each route's result is logged, which shows which routes work.
  *
- * @throws java.io.IOException if the image is unreadable or incomplete
+ * If no route is complete, a nearly complete one (see [MAX_MISSING_FRACTION]) is accepted.
+ *
+ * @throws java.io.IOException if no route gives a complete or nearly complete image
  */
 private fun decodeCover(context: Context, source: Uri): DecodedCover {
+    val resolver = context.contentResolver
+
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
+        val attempt = copyToTemp(context, resolver, source, readRoutes[0])
+        try {
+            return DecodedCover(decodeWithBitmapFactory(attempt.file), 0f)
+        } finally {
+            attempt.file.delete()
+        }
+    }
+
+    var best: DecodedCover? = null
+    var firstAttempt: File? = null
+    val temps = mutableListOf<File>()
+
+    try {
+        for (route in readRoutes) {
+            val attempt = try {
+                copyToTemp(context, resolver, source, route)
+            } catch (e: Exception) {
+                Log.d(TAG, "Route ${route.name}: failed to read (${e.javaClass.simpleName}: ${e.message})")
+                continue
+            }
+            temps.add(attempt.file)
+            if (firstAttempt == null) firstAttempt = attempt.file
+
+            if (attempt.declared > 0 && attempt.file.length() != attempt.declared) {
+                Log.d(TAG, "Route ${route.name}: got ${attempt.file.length()} of ${attempt.declared} bytes")
+                continue
+            }
+
+            val decoded = try {
+                decodeWithImageDecoder(attempt.file)
+            } catch (e: Exception) {
+                Log.d(TAG, "Route ${route.name}: can't decode (${e.javaClass.simpleName}: ${e.message})")
+                continue
+            }
+            Log.d(
+                TAG,
+                "Route ${route.name}: ${attempt.file.length()} bytes, type=${attempt.type}, " +
+                        if (decoded.incomplete) "incomplete, ${(decoded.missing * 100).toInt()}% blank"
+                        else "complete"
+            )
+            if (!decoded.incomplete) return decoded
+            if (best == null || decoded.missing < best.missing) best = decoded
+        }
+
+        // Last route: let ImageDecoder read the URI itself (it opens it differently again)
+        try {
+            val direct = ImageDecoder.decodeBitmap(ImageDecoder.createSource(resolver, source)) { decoder, info, _ ->
+                decoder.allocator = ImageDecoder.ALLOCATOR_SOFTWARE
+                var sample = 1
+                while (max(info.size.width, info.size.height) / sample > MAX_COVER_SIDE) sample *= 2
+                if (sample > 1) decoder.setTargetSampleSize(sample)
+            }
+            Log.d(TAG, "Route direct: complete")
+            return DecodedCover(direct, 0f)
+        } catch (e: Exception) {
+            Log.d(TAG, "Route direct: ${e.javaClass.simpleName}: ${e.message}")
+        }
+
+        best?.takeIf { it.missing <= MAX_MISSING_FRACTION }?.let { return it }
+
+        firstAttempt?.let { keepFailedPick(context, it) }
+        throw IOException(
+            best?.let { "Image is cut off: ${(it.missing * 100).toInt()}% of it is missing" }
+                ?: "No way of reading the image gave a usable result"
+        )
+    } finally {
+        temps.forEach { it.delete() }
+    }
+}
+
+/** One way of reading a content URI. */
+private class ReadRoute(val name: String, val open: (ContentResolver, Uri) -> InputStream?)
+
+private val readRoutes = listOf(
+    ReadRoute("stream") { resolver, uri -> resolver.openInputStream(uri) },
+    ReadRoute("fileDescriptor") { resolver, uri ->
+        resolver.openFileDescriptor(uri, "r")?.let { ParcelFileDescriptor.AutoCloseInputStream(it) }
+    },
+    ReadRoute("assetFileDescriptor") { resolver, uri ->
+        resolver.openAssetFileDescriptor(uri, "r")?.createInputStream()
+    },
+    // Ask the provider for a specific format; some serve a different version when asked
+    ReadRoute("typed image/jpeg") { resolver, uri ->
+        resolver.openTypedAssetFileDescriptor(uri, "image/jpeg", null)?.createInputStream()
+    },
+    ReadRoute("typed image/*") { resolver, uri ->
+        resolver.openTypedAssetFileDescriptor(uri, "image/*", null)?.createInputStream()
+    },
+)
+
+private class Attempt(val file: File, val declared: Long, val type: String?)
+
+/** Reads [source] through [route] into a temp file, noting the length the source declares. */
+private fun copyToTemp(context: Context, resolver: ContentResolver, source: Uri, route: ReadRoute): Attempt {
     val temp = File.createTempFile("picked_cover", null, context.cacheDir)
     try {
-        val resolver = context.contentResolver
-        val declaredLength = resolver.openAssetFileDescriptor(source, "r")?.use { it.length } ?: -1L
-        val input = resolver.openInputStream(source) ?: throw IOException("Couldn't open $source")
-        input.use { stream -> temp.outputStream().use { stream.copyTo(it) } }
-
-        Log.d(
-            TAG,
-            "Picked image: type=${resolver.getType(source)} declared=$declaredLength " +
-                    "copied=${temp.length()} head=${temp.readHead(16)}"
-        )
-
-        if (declaredLength > 0 && temp.length() != declaredLength) {
-            throw IOException("Incomplete image: got ${temp.length()} of $declaredLength bytes")
-        }
-
-        return try {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                decodeWithImageDecoder(temp)
-            } else {
-                DecodedCover(decodeWithBitmapFactory(temp), trimmed = false)
-            }
+        val declared = try {
+            resolver.openAssetFileDescriptor(source, "r")?.use { it.length } ?: -1L
         } catch (e: Exception) {
-            keepFailedPick(context, temp)
-            throw e
+            -1L
         }
-    } finally {
+        val input = route.open(resolver, source) ?: throw IOException("Couldn't open $source")
+        input.use { stream -> temp.outputStream().use { stream.copyTo(it) } }
+        Log.d(TAG, "Route ${route.name}: copied ${temp.length()} (declared $declared), head=${temp.readHead(8)}")
+        return Attempt(temp, declared, resolver.getType(source))
+    } catch (e: Exception) {
         temp.delete()
+        throw e
     }
 }
 
@@ -110,8 +198,13 @@ private fun keepFailedPick(context: Context, picked: File) {
     }
 }
 
-/** A decoded cover. [trimmed] means the image file was cut off a little at the bottom. */
-private class DecodedCover(val bitmap: Bitmap, val trimmed: Boolean)
+/**
+ * A decoded cover. [incomplete] means the file ended early; [missing] is then the fraction of the
+ * bottom that is blank. A complete cover has missing = 0.
+ */
+private class DecodedCover(val bitmap: Bitmap, val missing: Float, val incomplete: Boolean = missing > 0f) {
+    val trimmed: Boolean get() = incomplete
+}
 
 /** Up to this fraction of a cover may be missing (blank) at the bottom and still be accepted. */
 private const val MAX_MISSING_FRACTION = 0.06f
@@ -125,22 +218,15 @@ private fun decodeWithImageDecoder(file: File): DecodedCover {
         while (max(info.size.width, info.size.height) / sample > MAX_COVER_SIDE) sample *= 2
         if (sample > 1) decoder.setTargetSampleSize(sample)
 
-        // The decoder calls this when the file ends early (e.g. a JPEG missing its last bytes, which
-        // viewers happily show). Keep the partial image and judge below how much is missing.
+        // Called when the file ends early (e.g. a JPEG missing its last bytes). Keep the partial
+        // image; the caller decides whether enough of it is there.
         decoder.setOnPartialImageListener {
             incomplete = true
             true
         }
     }
-
-    if (incomplete) {
-        val missing = missingTailFraction(bitmap)
-        Log.d(TAG, "Image file was incomplete; about ${(missing * 100).toInt()}% of it is blank")
-        if (missing > MAX_MISSING_FRACTION) {
-            throw IOException("Image is cut off: ${(missing * 100).toInt()}% of it is missing")
-        }
-    }
-    return DecodedCover(bitmap, trimmed = incomplete)
+    return if (incomplete) DecodedCover(bitmap, missingTailFraction(bitmap), incomplete = true)
+    else DecodedCover(bitmap, 0f, incomplete = false)
 }
 
 /**
