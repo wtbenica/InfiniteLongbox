@@ -25,4 +25,18 @@
         <item name="android:scaleType">fitStart</item>
         <item name="android:src">@drawable/issue_cover_missing</item>
     </style>
+
+    <!-- Pre-brutalist issue card -->
+    <style name="OldIssueCard" parent="Widget.MaterialComponents.CardView">
+        <item name="cardCornerRadius">@dimen/radius_list_item_issue</item>
+        <item name="cardElevation">@dimen/margin_narrow</item>
+        <item name="cardMaxElevation">8dp</item>
+        <item name="cardUseCompatPadding">false</item>
+    </style>
+
+    <style name="OldIssueNumber" parent="TextAppearance.MaterialComponents.Subtitle2">
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">?attr/colorOnPrimary</item>
+    </style>
 </resources>
