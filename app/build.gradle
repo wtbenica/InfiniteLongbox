@@ -70,7 +70,6 @@ dependencies {
     implementation 'androidx.paging:paging-runtime-ktx:3.5.3'
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.11.0'
     implementation 'androidx.room:room-ktx:2.8.5'
-    implementation 'org.jsoup:jsoup:1.23.2'
     implementation 'androidx.cardview:cardview:1.0.0'
     implementation 'com.google.android.gms:play-services-ads:25.5.0'
     implementation 'androidx.room:room-paging:2.8.5'
