@@ -93,16 +93,32 @@ abstract class ListFragment<T : ListItem, VH : RecyclerView.ViewHolder> : Fragme
 
         details = view.findViewById(R.id.details)
 
-        // While the app bar is expanded the list is taller than its container by the app bar's
-        // scroll range, so its last rows sit below the bottom sheet unless the bottom padding
-        // covers that too. The app bar's content grows after the first layout (animated, and
-        // filled in once data arrives), so keep the padding in step with its current range
-        // instead of measuring once.
-        appBar.addOnLayoutChangeListener { _, _, _, _, _, _, _, _, _ ->
-            listRecyclerView.post { updateBottomPadding(appBar.totalScrollRange) }
-        }
+        // While an app bar is expanded, the view it scrolls with is taller than its container by
+        // that bar's scroll range. The list is affected twice: by this fragment's app bar, and
+        // (through the fragment container) by the activity's top bar. Unless the bottom padding
+        // covers both, the last rows sit below the bottom sheet. Both bars' content changes after
+        // the first layout (animated, filled in as data arrives), so keep the padding in step with
+        // their current ranges instead of measuring once.
+        appBar.addOnLayoutChangeListener(appBarLayoutListener)
+        activityAppBar?.addOnLayoutChangeListener(appBarLayoutListener)
 
         return view
+    }
+
+    private val activityAppBar: AppBarLayout?
+        get() = activity?.findViewById(R.id.app_bar_layout)
+
+    private val appBarLayoutListener =
+        View.OnLayoutChangeListener { _, _, _, _, _, _, _, _, _ ->
+            listRecyclerView.post {
+                updateBottomPadding(appBar.totalScrollRange + (activityAppBar?.totalScrollRange ?: 0))
+            }
+        }
+
+    override fun onDestroyView() {
+        appBar.removeOnLayoutChangeListener(appBarLayoutListener)
+        activityAppBar?.removeOnLayoutChangeListener(appBarLayoutListener)
+        super.onDestroyView()
     }
 
     protected fun updateBottomPadding(height: Int = 0) {
