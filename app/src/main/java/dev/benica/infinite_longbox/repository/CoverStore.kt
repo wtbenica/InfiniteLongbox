@@ -17,10 +17,16 @@
 package dev.benica.infinite_longbox.repository
 
 import android.content.Context
+import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.ImageDecoder
 import android.net.Uri
+import android.os.Build
 import android.util.Log
+import androidx.annotation.RequiresApi
 import dev.benica.infinite_longbox.APP
+import dev.benica.infinite_longbox.BuildConfig
+import dev.benica.infinite_longbox.R
 import dev.benica.infinite_longbox.Webservice
 import dev.benica.infinite_longbox.database.IssueDatabase
 import dev.benica.infinite_longbox.database.models.Cover
@@ -30,6 +36,9 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody.Companion.toRequestBody
+import java.io.File
+import java.io.IOException
+import java.io.RandomAccessFile
 import kotlin.math.max
 
 private const val TAG = APP + "CoverStore"
@@ -38,41 +47,141 @@ private const val TAG = APP + "CoverStore"
 private const val MAX_COVER_SIDE = 2400
 
 /**
- * Saves a cover the user picked (from their phone's gallery or downloads) as the cover for
- * [issueId]. The image is stored with the app, like a downloaded cover would be, and it is never
- * marked for cleanup. Replaces any existing cover.
+ * Decodes an image the user picked. Never returns a partly decoded picture.
  *
- * @return true if the image could be read and saved
+ * The picked image is copied to a temp file first. Reading straight from the picker's stream is
+ * unreliable (a streamed source such as Google Photos can hand back incomplete data, and Android
+ * then returns a bitmap with the unread rows black). The copy's length is checked against what the
+ * source declares, and ImageDecoder is used because it fails on incomplete input instead of
+ * returning half an image, and applies the photo's rotation.
+ *
+ * @throws java.io.IOException if the image is unreadable or incomplete
+ */
+private fun decodeCover(context: Context, source: Uri): Bitmap {
+    val temp = File.createTempFile("picked_cover", null, context.cacheDir)
+    try {
+        val resolver = context.contentResolver
+        val declaredLength = resolver.openAssetFileDescriptor(source, "r")?.use { it.length } ?: -1L
+        val input = resolver.openInputStream(source) ?: throw IOException("Couldn't open $source")
+        input.use { stream -> temp.outputStream().use { stream.copyTo(it) } }
+
+        if (declaredLength > 0 && temp.length() != declaredLength) {
+            throw IOException("Incomplete image: got ${temp.length()} of $declaredLength bytes")
+        }
+
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            decodeWithImageDecoder(temp)
+        } else {
+            decodeWithBitmapFactory(temp)
+        }
+    } finally {
+        temp.delete()
+    }
+}
+
+@RequiresApi(Build.VERSION_CODES.P)
+private fun decodeWithImageDecoder(file: File): Bitmap =
+    // With no OnPartialImageListener, an incomplete image throws instead of being returned partly
+    ImageDecoder.decodeBitmap(ImageDecoder.createSource(file)) { decoder, info, _ ->
+        decoder.allocator = ImageDecoder.ALLOCATOR_SOFTWARE // the bitmap gets compressed later
+        var sample = 1
+        while (max(info.size.width, info.size.height) / sample > MAX_COVER_SIDE) sample *= 2
+        if (sample > 1) decoder.setTargetSampleSize(sample)
+    }
+
+/** Fallback for Android 8: no rotation handling, but it still refuses truncated JPEGs. */
+private fun decodeWithBitmapFactory(file: File): Bitmap {
+    val bytes = file.length()
+    file.inputStream().use { stream ->
+        val head = ByteArray(2).also { stream.read(it) }
+        val isJpeg = head[0] == 0xFF.toByte() && head[1] == 0xD8.toByte()
+        if (isJpeg && bytes >= 2) {
+            RandomAccessFile(file, "r").use { raf ->
+                raf.seek(bytes - 2)
+                if (raf.readUnsignedShort() != 0xFFD9) throw IOException("Truncated JPEG")
+            }
+        }
+    }
+    val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+    BitmapFactory.decodeFile(file.path, bounds)
+    var sample = 1
+    while (max(bounds.outWidth, bounds.outHeight) / sample > MAX_COVER_SIDE) sample *= 2
+    return BitmapFactory.decodeFile(file.path, BitmapFactory.Options().apply { inSampleSize = sample })
+        ?: throw IOException("Couldn't decode the image")
+}
+
+/**
+ * Saves a picked image as the cover for [issueId], replacing any existing cover. In debug builds
+ * it also replaces the dev server's copy, so a swapped cover isn't undone the next time the
+ * phone syncs with the server.
+ *
+ * @return the message to show the user
  */
 @ExperimentalCoroutinesApi
-suspend fun saveCoverFromUri(context: Context, issueId: Int, source: Uri): Boolean =
+suspend fun pickedCoverToIssue(context: Context, issueId: Int, source: Uri): Int =
     withContext(Dispatchers.IO) {
         try {
-            val resolver = context.contentResolver
-
-            val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
-            resolver.openInputStream(source)?.use { BitmapFactory.decodeStream(it, null, bounds) }
-            if (bounds.outWidth <= 0 || bounds.outHeight <= 0) return@withContext false
-
-            var sample = 1
-            while (max(bounds.outWidth, bounds.outHeight) / sample > MAX_COVER_SIDE) sample *= 2
-            val options = BitmapFactory.Options().apply { inSampleSize = sample }
-            val bitmap = resolver.openInputStream(source)
-                ?.use { BitmapFactory.decodeStream(it, null, options) }
-                ?: return@withContext false
-
+            val bitmap = decodeCover(context, source)
             val file = getFileHandle(context, coverFileName(issueId))
-            val savedUri = bitmap.saveToInternalStorage(file) ?: return@withContext false
+            val savedUri = bitmap.saveToInternalStorage(file) ?: return@withContext R.string.cover_not_saved
 
             IssueDatabase.getInstance(context).coverDao().setCover(
                 Cover(issue = issueId, coverUri = savedUri, markedDelete = false)
             )
-            true
+
+            if (BuildConfig.DEBUG && !uploadCoverToServer(context, issueId)) {
+                R.string.cover_saved_here_only
+            } else {
+                R.string.cover_saved
+            }
+        } catch (e: IOException) {
+            Log.e(TAG, "Picked cover for issue $issueId was unreadable or incomplete", e)
+            R.string.cover_incomplete
         } catch (e: Exception) {
             Log.e(TAG, "Couldn't save picked cover for issue $issueId", e)
-            false
+            R.string.cover_not_saved
         }
     }
+
+/**
+ * Removes the cover for [issueId] from this phone and (debug builds) from the dev server. Without
+ * the server part the cover would simply be downloaded again.
+ *
+ * @return the message to show the user
+ */
+@ExperimentalCoroutinesApi
+suspend fun removeCover(context: Context, issueId: Int): Int = withContext(Dispatchers.IO) {
+    getFileHandle(context, coverFileName(issueId)).delete()
+    IssueDatabase.getInstance(context).coverDao().deleteForIssue(issueId)
+
+    if (BuildConfig.DEBUG && !removeCoverFromServer(issueId)) {
+        R.string.cover_removed_here_only
+    } else {
+        R.string.cover_removed
+    }
+}
+
+private fun webservice(): Webservice =
+    RetrofitAPIClient.getRetrofitClient().create(Webservice::class.java)
+
+/** Replaces the server's cover for [issueId] with the one stored on this phone. */
+@ExperimentalCoroutinesApi
+private suspend fun uploadCoverToServer(context: Context, issueId: Int): Boolean = try {
+    val file = getFileHandle(context, coverFileName(issueId))
+    webservice().uploadCover(issueId, file.readBytes().toRequestBody("image/jpeg".toMediaType()))
+        .isSuccessful
+} catch (e: Exception) {
+    Log.e(TAG, "Couldn't upload cover for issue $issueId", e)
+    false
+}
+
+@ExperimentalCoroutinesApi
+private suspend fun removeCoverFromServer(issueId: Int): Boolean = try {
+    webservice().removeCover(issueId).isSuccessful
+} catch (e: Exception) {
+    Log.e(TAG, "Couldn't remove cover for issue $issueId from the server", e)
+    false
+}
 
 /** How a push of local covers to the server went. [error] is set if it couldn't even start. */
 data class CoverPushResult(

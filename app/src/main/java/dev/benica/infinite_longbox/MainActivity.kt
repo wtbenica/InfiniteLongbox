@@ -56,7 +56,6 @@ import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.appbar.AppBarLayout.LayoutParams.SCROLL_FLAG_SCROLL
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetBehavior.*
-import com.squareup.picasso.BuildConfig
 import dev.benica.infinite_longbox.database.IssueDatabase
 import dev.benica.infinite_longbox.database.models.*
 import dev.benica.infinite_longbox.fragments.*
@@ -180,8 +179,7 @@ class MainActivity : AppCompatActivity(),
         super.onCreateOptionsMenu(menu)
         menuInflater.inflate(R.menu.activity_main, menu)
         // pushing covers to the dev server is a development convenience
-        menu?.findItem(R.id.menu_main_push_covers)?.isVisible =
-            dev.benica.infinite_longbox.BuildConfig.DEBUG
+        menu?.findItem(R.id.menu_main_push_covers)?.isVisible = BuildConfig.DEBUG
         return true
     }
 
