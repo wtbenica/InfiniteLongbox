@@ -86,16 +86,9 @@ class IssueListFragment : ListFragment<FullIssue, IssueListFragment.IssueViewHol
 
         listRecyclerView.addItemDecoration(itemDecoration)
 
-        val adapter = getAdapter()
-        listRecyclerView.adapter = adapter
-
-        lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.itemList.collectLatest { pagingData ->
-                    adapter.submitData(pagingData)
-                }
-            }
-        }
+        // The adapter and paging collection are set up by ListFragment. A second adapter here
+        // would be collected too, and its scroll hints (always at the top) made refreshes after
+        // a collection change reload from the top.
 
         viewModel.seriesLiveData.observe(
             viewLifecycleOwner
