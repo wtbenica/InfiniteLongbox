@@ -29,6 +29,7 @@ import dev.benica.infinite_longbox.repository.pushCoversToServer
 import android.os.Bundle
 import android.util.Log
 import android.util.TypedValue
+import android.content.Intent
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -55,12 +56,10 @@ import com.google.android.gms.ads.AdView
 import com.google.android.gms.ads.MobileAds
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.appbar.AppBarLayout.LayoutParams.SCROLL_FLAG_SCROLL
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
-import com.google.mlkit.vision.barcode.common.Barcode
-import com.google.mlkit.vision.codescanner.GmsBarcodeScannerOptions
-import com.google.mlkit.vision.codescanner.GmsBarcodeScanning
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import com.google.android.material.bottomsheet.BottomSheetBehavior
@@ -221,35 +220,84 @@ class MainActivity : AppCompatActivity(),
         if (onDetail || sheetOpen) scanFab.hide() else scanFab.show()
     }
 
-    private fun startBarcodeScan() {
-        val options = GmsBarcodeScannerOptions.Builder()
-            .setBarcodeFormats(Barcode.FORMAT_UPC_A, Barcode.FORMAT_EAN_13)
-            .build()
-
-        GmsBarcodeScanning.getClient(this, options).startScan()
-            .addOnSuccessListener { barcode ->
-                barcode.rawValue?.let { onBarcodeScanned(it) }
-            }
-            .addOnFailureListener {
-                showScanMessage(getString(R.string.scan_failed, it.localizedMessage ?: ""))
-            }
-    }
-
-    private fun onBarcodeScanned(rawValue: String) {
-        // A UPC-A read as an EAN-13 comes with a leading zero
-        val upc = rawValue.filter { it.isDigit() }.let {
-            if (it.length == 13 && it.startsWith("0")) it.drop(1) else it
+    private val scanLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            result.data?.getStringExtra(ScanActivity.EXTRA_UPC)?.let { onBarcodeScanned(it) }
         }
 
+    private fun startBarcodeScan() {
+        scanLauncher.launch(Intent(this, ScanActivity::class.java))
+    }
+
+    /**
+     * [code] is the UPC (12 digits) followed by the add-on (5 digits) if it was read. The add-on
+     * says which issue, cover and printing, so with it there's normally exactly one match.
+     */
+    private fun onBarcodeScanned(code: String) {
+        val digits = code.filter { it.isDigit() }
+        val upc = digits.take(12)
+        val addOn = digits.drop(12).takeIf { it.length == 5 }
+
         lifecycleScope.launch {
-            val matches = withContext(Dispatchers.IO) { Repository.get().getIssuesByUpc(upc) }
+            if (addOn == null) {
+                // Only the UPC was read, so it covers the whole series: don't list a slice of it,
+                // ask for the issue number (checking first whether it's actually one issue).
+                val probe = lookUpScan(upc, limit = 2)
+                when {
+                    probe == null -> showScanMessage(getString(R.string.scan_lookup_failed))
+                    probe.isEmpty() -> showScanMessage(getString(R.string.scan_no_match, upc))
+                    probe.size == 1 -> addScannedIssue(probe[0])
+                    else -> askIssueNumber(upc)
+                }
+                return@launch
+            }
+
+            // Exact barcode first
+            var matches = lookUpScan(digits, limit = 30)
+
+            // The add-on isn't always recorded the same way; fall back to the series and the
+            // issue number (the first 3 digits of the add-on for most publishers)
+            if (matches != null && matches.isEmpty()) {
+                val number = addOn.take(3).trimStart('0').ifEmpty { null }
+                if (number != null) matches = lookUpScan(upc, number)
+            }
+
             when {
                 matches == null -> showScanMessage(getString(R.string.scan_lookup_failed))
-                matches.isEmpty() -> showScanMessage(getString(R.string.scan_no_match, upc))
+                matches.isEmpty() -> showScanMessage(getString(R.string.scan_no_match, digits))
                 matches.size == 1 -> addScannedIssue(matches[0])
                 else -> chooseScannedIssue(matches)
             }
         }
+    }
+
+    private suspend fun lookUpScan(upc: String, number: String? = null, limit: Int? = null) =
+        withContext(Dispatchers.IO) { Repository.get().getIssuesByUpc(upc, number, limit) }
+
+    private fun askIssueNumber(upc: String) {
+        val input = android.widget.EditText(this).apply {
+            inputType = android.text.InputType.TYPE_CLASS_NUMBER
+            hint = getString(R.string.scan_issue_number_hint)
+        }
+        AlertDialog.Builder(this)
+            .setTitle(R.string.scan_which_number)
+            .setMessage(R.string.scan_which_number_message)
+            .setView(input)
+            .setPositiveButton(android.R.string.ok) { _, _ ->
+                val number = input.text.toString().trim().trimStart('0')
+                lifecycleScope.launch {
+                    val matches = lookUpScan(upc, number.ifEmpty { null })
+                    when {
+                        matches == null -> showScanMessage(getString(R.string.scan_lookup_failed))
+                        matches.isEmpty() ->
+                            showScanMessage(getString(R.string.scan_no_match_number, number))
+                        matches.size == 1 -> addScannedIssue(matches[0])
+                        else -> chooseScannedIssue(matches)
+                    }
+                }
+            }
+            .setNegativeButton(android.R.string.cancel, null)
+            .show()
     }
 
     /** The barcode alone doesn't always pin down the issue; ask which one it is. */
@@ -266,8 +314,10 @@ class MainActivity : AppCompatActivity(),
     private fun addScannedIssue(issue: FullIssue) {
         Repository.get().addToCollection(issue, BaseCollection.MY_COLL.id)
 
+        // Show what was just added; the snackbar stays on the issue's page for Undo
+        onIssueSelected(issue.issue)
+
         Snackbar.make(mainLayout, getString(R.string.scan_added, issue.scanLabel()), Snackbar.LENGTH_LONG)
-            .setAnchorView(scanFab)
             .setAction(R.string.scan_undo) {
                 Repository.get().removeFromCollection(issue.issue.issueId, BaseCollection.MY_COLL.id)
             }

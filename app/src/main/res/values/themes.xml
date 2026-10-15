@@ -20,6 +20,22 @@
 <resources>
     <style name="Theme.InfiniteLongbox" parent="BaseTheme" />
 
+    <!-- The Light parent hard-codes a light dialog surface; follow the role colors instead -->
+    <style name="AppAlertDialog" parent="Theme.MaterialComponents.Light.Dialog.Alert">
+        <item name="colorPrimary">@color/accent</item>
+        <item name="colorAccent">@color/accent</item>
+        <item name="colorSurface">@color/surface_raised</item>
+        <item name="colorOnSurface">@color/text_primary</item>
+        <item name="colorBackgroundFloating">@color/surface_raised</item>
+        <item name="android:colorBackground">@color/surface_raised</item>
+        <item name="android:textColorPrimary">@color/text_primary</item>
+        <item name="android:textColorSecondary">@color/text_secondary</item>
+        <item name="android:textColorHint">@color/text_secondary</item>
+        <item name="android:windowBackground">@color/surface_raised</item>
+        <item name="colorControlNormal">@color/text_secondary</item>
+        <item name="colorControlActivated">@color/accent</item>
+    </style>
+
     <style name="BaseTheme" parent="Theme.MaterialComponents.Light.NoActionBar">
         <item name="colorPrimaryVariant">@color/accent_strong</item>
         <item name="colorPrimary">@color/accent</item>
@@ -133,6 +149,11 @@
         <item name="colorSurface">@color/surface_raised</item>
         <item name="colorOnSurface">@color/text_primary</item>
         <item name="android:colorBackground">@color/surface</item>
+        <item name="colorBackgroundFloating">@color/surface_raised</item>
+        <item name="android:colorBackgroundFloating">@color/surface_raised</item>
+        <item name="colorButtonNormal">@color/surface_sunken</item>
+        <item name="alertDialogTheme">@style/AppAlertDialog</item>
+        <item name="materialAlertDialogTheme">@style/AppAlertDialog</item>
         <item name="android:textColorSecondary">@color/text_secondary</item>
         <item name="android:textColorHint">@color/text_secondary</item>
         <item name="colorControlNormal">@color/text_secondary</item>

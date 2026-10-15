@@ -254,8 +254,20 @@ class StaticUpdater private constructor(
      * series), so they can be added to the collection even if the series was never browsed.
      * @return the ids of the matching issues, or null if the lookup failed (e.g. offline)
      */
-    internal suspend fun importIssuesByUpc(upc: String): List<Int>? {
-        val issues = retrieveItemsByArgument(upc, webservice::getIssuesByUpc) ?: return null
+    internal suspend fun importIssuesByUpc(
+        upc: String,
+        number: String? = null,
+        limit: Int? = null,
+    ): List<Int>? {
+        val issues = try {
+            webservice.getIssuesByUpc(upc, number, limit).models
+        } catch (e: java.io.IOException) {
+            Log.d(TAG, "importIssuesByUpc $e")
+            return null
+        } catch (e: retrofit2.HttpException) {
+            Log.d(TAG, "importIssuesByUpc $e")
+            return null
+        }
         fKeyChecker.checkFKeysIssue(issues).await()
         database.issueDao().upsertSus(issues)
         return issues.map { it.issueId }
