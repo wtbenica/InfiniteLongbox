@@ -15,8 +15,8 @@
 
 package dev.benica.infinite_longbox.ui
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -34,9 +34,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
@@ -71,12 +68,12 @@ fun SeriesListItem(state: SeriesCardState, onClick: () -> Unit, modifier: Modifi
         modifier = modifier
             .fillMaxWidth()
             .padding(
-                horizontal = dimensionResource(R.dimen.margin_default),
-                vertical = dimensionResource(R.dimen.margin_narrow)
+                dimensionResource(R.dimen.margin_narrow)
             ),
         shape = shape,
         elevation = CardDefaults.cardElevation(defaultElevation = dimensionResource(R.dimen.margin_narrow)),
         colors = CardDefaults.cardColors(containerColor = colorResource(R.color.surface_raised)),
+        border = BorderStroke(4.dp, MaterialTheme.colorScheme.onBackground),
     ) {
         Box {
             Cover(state, Modifier.matchParentSize())
@@ -85,58 +82,44 @@ fun SeriesListItem(state: SeriesCardState, onClick: () -> Unit, modifier: Modifi
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(
-                        Brush.verticalGradient(
-                            listOf(
-                                colorResource(R.color.scrim_surface),
-                                colorResource(R.color.scrim_surface_light),
-                            )
-                        )
-                    )
             ) {
-                Spacer(Modifier.height(120.dp))
+                Spacer(Modifier.height(150.dp))
 
-                Row(
-                    modifier = Modifier
-                        .clip(
-                            RoundedCornerShape(
-                                topStart = dimensionResource(
-                                    R.dimen.margin_default
-                                ), topEnd = dimensionResource(R.dimen.margin_default)
+                FolderTabPanel(
+                    fill = MaterialTheme.colorScheme.background,
+                    stroke = MaterialTheme.colorScheme.onBackground,
+                    strokeWidth = 4.dp,
+                    cornerRadius = dimensionResource(R.dimen.margin_wide),
+                    tab = {
+                        Text(
+                            text = state.name,
+                            modifier = Modifier.padding(
+                                start = dimensionResource(R.dimen.margin_wide),
+                                end = dimensionResource(R.dimen.margin_wide),
+                                top = dimensionResource(R.dimen.margin_default),
+                            ),
+                            color = MaterialTheme.colorScheme.onSurface,
+                            fontFamily = PermanentMarker,
+                            fontSize = 20.sp,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                        )
+                    },
+                    body = {
+                        Row(
+                            modifier = Modifier.padding(
+                                start = dimensionResource(R.dimen.margin_wide),
+                                end = dimensionResource(R.dimen.margin_wide),
+                                top = dimensionResource(R.dimen.margin_default),
+                                bottom = dimensionResource(R.dimen.margin_default),
                             )
-                        )
-                        .background(Color.White)
-                        .padding(
-                            start = dimensionResource(R.dimen.margin_wide),
-                            end = dimensionResource(R.dimen.margin_wide),
-                            top = dimensionResource(R.dimen.margin_narrow),
-                        )
-                ) {
-                    Text(
-                        text = state.name,
-                        color = MaterialTheme.colorScheme.onSurface,
-                        fontFamily = PermanentMarker,
-                        fontSize = 20.sp,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                    )
-                }
-
-                Row(
-                    modifier = Modifier
-                        .background(Color.White)
-                        .fillMaxWidth()
-                        .padding(
-                            start = dimensionResource(R.dimen.margin_wide),
-                            end = dimensionResource(R.dimen.margin_wide),
-                            top = dimensionResource(R.dimen.margin_narrow),
-                            bottom = dimensionResource(R.dimen.margin_default),
-                        )
-                ) {
-                    Subtitle(state.dateRange)
-                    Spacer(Modifier.width(dimensionResource(R.dimen.margin_default)))
-                    Subtitle(state.format)
-                }
+                        ) {
+                            Subtitle(state.dateRange)
+                            Spacer(Modifier.width(dimensionResource(R.dimen.margin_default)))
+                            Subtitle(state.format)
+                        }
+                    }
+                )
             }
 
             if (state.loadingCover) {
