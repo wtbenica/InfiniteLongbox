@@ -22,10 +22,12 @@ import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ProgressBar
-import android.widget.TextView
 import androidx.annotation.AttrRes
-import androidx.core.content.res.ResourcesCompat
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.fragment.app.viewModels
 import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
@@ -36,7 +38,10 @@ import dev.benica.infinite_longbox.R
 import dev.benica.infinite_longbox.database.models.FullIssue
 import dev.benica.infinite_longbox.database.models.FullSeries
 import dev.benica.infinite_longbox.fragments_view_models.SeriesListViewModel
-import dev.benica.infinite_longbox.views.FitTopImageView
+import dev.benica.infinite_longbox.ui.InfiniteLongboxTheme
+import dev.benica.infinite_longbox.ui.SeriesCardState
+import dev.benica.infinite_longbox.ui.SeriesListItem
+import java.io.File
 import kotlinx.coroutines.*
 
 private const val TAG = APP + "SeriesListFragment"
@@ -95,23 +100,29 @@ class SeriesListFragment : ListFragment<FullSeries, SeriesListFragment.SeriesHol
     }
 
     inner class SeriesHolder(parent: ViewGroup) : RecyclerView.ViewHolder(
-        LayoutInflater.from(parent.context).inflate(R.layout.list_item_series, parent, false)
-    ), View.OnClickListener {
+        ComposeView(parent.context).apply {
+            layoutParams = ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+            )
+            // Recycled holders: drop the composition when the view leaves the pool or window
+            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+        }
+    ) {
 
-        private lateinit var item: FullSeries
-
-        private val seriesTextView: TextView =
-            itemView.findViewById(R.id.list_item_series_name_text)
-        private val seriesImageView: FitTopImageView = itemView.findViewById(R.id.series_imageview)
-        private val seriesDateRangeTextView: TextView =
-            itemView.findViewById(R.id.list_item_pub_dates)
-        private val formatTextView: TextView =
-            itemView.findViewById(R.id.list_item_series_format)
-        private val coverProgressBar: ProgressBar =
-            itemView.findViewById(R.id.cover_progress_bar)
+        private var item: FullSeries? = null
+        private var card by mutableStateOf<SeriesCardState?>(null)
 
         init {
-            itemView.setOnClickListener(this)
+            (itemView as ComposeView).setContent {
+                InfiniteLongboxTheme {
+                    card?.let { state ->
+                        SeriesListItem(state, onClick = {
+                            item?.let { (callback as SeriesListCallback?)?.onSeriesSelected(it) }
+                        })
+                    }
+                }
+            }
         }
 
         fun bind(item: FullSeries) {
@@ -124,42 +135,24 @@ class SeriesListFragment : ListFragment<FullSeries, SeriesListFragment.SeriesHol
 
             this.item = item
 
-            seriesTextView.text = this.item.series.seriesName
-
-            val firstIssueId = this.item.series.firstIssue
+            val firstIssueId = item.series.firstIssue
             if (firstIssueId != null) {
                 viewModel.getIssue(firstIssueId,
                     viewModel.filter.value?.mMyCollection?.let { !it } ?: true)
-            } else if (this.item.series.issueCount < 10) {
-                viewModel.updateIssuesBySeries(this@SeriesHolder.item)
+            } else if (item.series.issueCount < 10) {
+                viewModel.updateIssuesBySeries(item)
             }
 
-            val firstIssue: FullIssue? = this.item.firstIssue
+            val firstIssue: FullIssue? = item.firstIssue
+            val coverUri = firstIssue?.coverUri
 
-            val draw: Int? = context?.getDrawableFromAttr(R.attr.listItemBackground)
-            val draw2: Drawable? = draw?.let { ResourcesCompat.getDrawable(resources, it, null) }
-
-            firstIssue?.coverUri.let {
-                if (it != null) {
-                    seriesImageView.setImageURI(it)
-                } else {
-                    seriesImageView.setImageDrawable(draw2)
-                }
-            }
-
-            seriesDateRangeTextView.text = this.item.series.dateRange
-            formatTextView.text = this.item.series.publishingFormat?.lowercase()
-
-            coverProgressBar.visibility =
-                if (firstIssue == null || firstIssue.coverUri != null || firstIssue.cover != null) {
-                    View.GONE
-                } else {
-                    View.VISIBLE
-                }
-        }
-
-        override fun onClick(v: View?) {
-            (callback as SeriesListCallback?)?.onSeriesSelected(item)
+            card = SeriesCardState(
+                name = item.series.seriesName,
+                dateRange = item.series.dateRange,
+                format = item.series.publishingFormat?.lowercase().orEmpty(),
+                cover = coverUri?.path?.let { File(it) },
+                loadingCover = !(firstIssue == null || coverUri != null || firstIssue.cover != null),
+            )
         }
     }
 

@@ -71,8 +71,8 @@
     <color name="on_accent">@color/neutral_0</color>           <!-- text on a solid accent -->
 
     <!-- Text laid over cover art needs a backing so it stays readable -->
-    <color name="scrim_surface">#D9F7F6F3</color>
-    <color name="scrim_surface_light">#8CF7F6F3</color>
+    <color name="scrim_surface">#49F7F6F3</color>
+    <color name="scrim_surface_light">#30F7F6F3</color>
 
     <!-- Placeholder art shown where a cover isn't available -->
     <color name="placeholder_sky">@color/neutral_100</color>
