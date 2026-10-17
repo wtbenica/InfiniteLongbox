@@ -109,7 +109,6 @@
     <attr name="colorStoryBoxTitle" format="reference" />
     <attr name="colorStoryBoxSubtitle" format="reference" />
     <attr name="styleLinkTextView" format="reference" />
-    <attr name="styleAddCollectionButton" format="reference" />
 
     <!-- CoverDialogFragment -->
     <attr name="dialogFragmentCoverLayoutBackground" format="reference" />

@@ -234,38 +234,6 @@ fun IssueListItem(
 }
 
 /**
- * The plus that morphs into a check. Flips at once when tapped, without waiting for the database
- * to catch up; the real state then takes over.
- */
-@Composable
-private fun MorphButton(
-    image: AnimatedImageVector,
-    on: Boolean,
-    description: String,
-    onClick: () -> Unit,
-) {
-    var shown by remember(on) { mutableStateOf(on) }
-    val painter = rememberAnimatedVectorPainter(image, atEnd = shown)
-
-    Box(
-        modifier = Modifier
-            .size(40.dp)
-            .clickable(role = Role.Button, onClickLabel = description) {
-                shown = !shown
-                onClick()
-            },
-        contentAlignment = Alignment.Center,
-    ) {
-        Image(
-            painter = painter,
-            contentDescription = description,
-            modifier = Modifier.size(24.dp),
-            colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurface),
-        )
-    }
-}
-
-/**
  * Placeholder art underneath, the cover on top (fading in). Portrait covers are centered and
  * top-aligned; wider-than-tall ones (wraparound, gatefold) are aligned right to show the front.
  */

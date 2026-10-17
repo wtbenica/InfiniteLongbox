@@ -77,8 +77,8 @@ import dev.benica.infinite_longbox.database.models.Series
 import dev.benica.infinite_longbox.database.models.SeriesAndPublisher
 import dev.benica.infinite_longbox.database.models.Story
 import dev.benica.infinite_longbox.fragments_view_models.IssueDetailViewModel
-import dev.benica.infinite_longbox.views.AddCollectionButton
-import dev.benica.infinite_longbox.views.AddWishListButton
+import dev.benica.infinite_longbox.ui.IssueActionBar
+import dev.benica.infinite_longbox.ui.IssueActionState
 import dev.benica.infinite_longbox.views.CreditsBox
 import dev.benica.infinite_longbox.ui.IssueInfoBox
 import dev.benica.infinite_longbox.ui.IssueInfoState
@@ -113,8 +113,7 @@ private const val ADD_SERIES_ID = -2
  */
 // TODO: Do I need a separate fragment for editing vs viewing or can I do it all in this one?
 @ExperimentalCoroutinesApi
-class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback,
-    AddCollectionButton.AddCollectionCallback {
+class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback {
 
     private var numUpdates = 0
     private var listFragmentCallback: ListFragment.ListFragmentCallback? = null
@@ -132,9 +131,7 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback,
     private var issueVariants: List<Issue> = emptyList()
 
     private lateinit var coverImageView: ImageButton
-    private lateinit var ebayButton: AppCompatImageButton
-    private lateinit var collectionButton: AddCollectionButton
-    private lateinit var wishListButton: AddWishListButton
+    private var actionState by mutableStateOf(IssueActionState())
     private lateinit var variantSpinnerHolder: LinearLayout
     private lateinit var variantSpinner: Spinner
     private var isVariant: Boolean = false
@@ -281,15 +278,23 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback,
             setContent { InfiniteLongboxTheme { IssueInfoBox(infoState) } }
         }
         gcdLinkButton = view.findViewById(R.id.gcd_link)
-        ebayButton = view.findViewById(R.id.ebayButton)
-        collectionButton =
-            (view.findViewById(R.id.collectionButton) as AddCollectionButton).apply {
-                callback = this@IssueDetailFragment
+        view.findViewById<ComposeView>(R.id.issue_actions).apply {
+            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+            setContent {
+                InfiniteLongboxTheme {
+                    IssueActionBar(
+                        state = actionState,
+                        onToggleCollection = {
+                            toggleCollection(BaseCollection.MY_COLL.id, actionState.inCollection)
+                        },
+                        onToggleWishList = {
+                            toggleCollection(BaseCollection.WISH_LIST.id, actionState.inWishList)
+                        },
+                        onSearchEbay = ::searchEbay,
+                    )
+                }
             }
-        wishListButton =
-            (view.findViewById(R.id.issue_add_wish_btn) as AddWishListButton).apply {
-                callback = this@IssueDetailFragment
-            }
+        }
         variantSpinnerHolder = view.findViewById(R.id.variant_spinner_holder)
         variantSpinner = view.findViewById(R.id.variant_spinner) as Spinner
         creditsBox = CreditsBox(requireContext(), this@IssueDetailFragment)
@@ -470,25 +475,25 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback,
         updateNavBar()
     }
 
+    private fun searchEbay() {
+        val category = 259104
+        val url =
+            "https://www.ebay.com/sch/?_sacat=$category&_nkw=${
+                currentIssue.series.seriesName.replace(' ', '+')
+            }+${currentIssue.issue.issueNumRaw}+${currentIssue.issue.variantName}+${
+                currentIssue.series.startDate?.year ?: ""
+            }"
+
+        context?.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
+    }
+
+    private fun toggleCollection(collId: Int, isIn: Boolean) {
+        if (isIn) removeFromCollection(collId) else addToCollection(collId)
+    }
+
     override fun onStart() {
         super.onStart()
         gcdLinkButton.url = { "https://www.comics.org/issue/${currentIssue.issue.issueId}" }
-
-        ebayButton.setOnClickListener {
-            val category = 259104
-            val url =
-                "https://www.ebay.com/sch/?_sacat=$category&_nkw=${
-                    currentIssue.series.seriesName.replace(' ', '+')
-                }+${currentIssue.issue.issueNumRaw}+${currentIssue.issue.variantName}+${
-                    currentIssue.series.startDate?.year ?: ""
-                }"
-
-            val intent = Intent().apply {
-                action = Intent.ACTION_VIEW
-                data = Uri.parse(url)
-            }
-            context?.startActivity(intent)
-        }
 
 //         TODO: This is for editing. n/a anymore?
 //        releaseDateTextView.setOnClickListener {
@@ -579,8 +584,11 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback,
 
             infoState = IssueInfoState(issue.releaseDate, issue.coverDate, issue.notes)
             val collectionIds: List<Int> = currentIssue.collectionItems.map { it.userCollection }
-            collectionButton.inCollection = collectionIds.contains(BaseCollection.MY_COLL.id)
-            wishListButton.inCollection = collectionIds.contains(BaseCollection.WISH_LIST.id)
+            actionState = IssueActionState(
+                issueId = issue.issueId,
+                inCollection = collectionIds.contains(BaseCollection.MY_COLL.id),
+                inWishList = collectionIds.contains(BaseCollection.WISH_LIST.id),
+            )
 
             creditsBox.update(
                 issueStories = issueStories,
@@ -648,9 +656,9 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback,
         private const val TAG = APP + "IssueDetailFragment"
     }
 
-    override fun addToCollection(collId: Int) = issueDetailViewModel.addToCollection(collId)
+    private fun addToCollection(collId: Int) = issueDetailViewModel.addToCollection(collId)
 
-    override fun removeFromCollection(collId: Int) {
+    private fun removeFromCollection(collId: Int) {
         Log.d(TAG, "REMOVING FROM COLLECTION $fullIssue $fullVariant")
         issueDetailViewModel.removeFromCollection(collId)
     }

@@ -141,7 +141,6 @@
         <item name="android:buttonBarStyle">@style/IssueDetailButtonBar</item>
         <item name="cardViewStyle">@style/myCardView</item>
         <item name="styleLinkTextView">@style/LinkTextView</item>
-        <item name="styleAddCollectionButton">@style/AddCollectionButtonStyle</item>
         <item name="colorSurface">@color/surface_raised</item>
         <item name="colorOnSurface">@color/text_primary</item>
         <item name="android:colorBackground">@color/surface</item>

@@ -130,4 +130,8 @@
     <string name="description_remove_from_collection">Remove from my collection</string>
     <string name="description_add_to_wish_list">Add to wish list</string>
     <string name="description_remove_from_wish_list">Remove from wish list</string>
+    <string name="label_have">have</string>
+    <string name="label_want">want</string>
+    <string name="label_find">find</string>
+    <string name="description_search_ebay">Search eBay</string>
 </resources>
