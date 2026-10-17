@@ -82,12 +82,14 @@ import dev.benica.infinite_longbox.database.models.Series
 import dev.benica.infinite_longbox.database.models.SeriesAndPublisher
 import dev.benica.infinite_longbox.database.models.Story
 import dev.benica.infinite_longbox.fragments_view_models.IssueDetailViewModel
+import dev.benica.infinite_longbox.ui.AttributionBar
+import dev.benica.infinite_longbox.ui.CreditsBox
+import dev.benica.infinite_longbox.ui.StoryUi
+import dev.benica.infinite_longbox.ui.buildStoryUi
 import dev.benica.infinite_longbox.ui.IssueActionBar
 import dev.benica.infinite_longbox.ui.IssueActionState
-import dev.benica.infinite_longbox.views.CreditsBox
 import dev.benica.infinite_longbox.ui.IssueInfoBox
 import dev.benica.infinite_longbox.ui.IssueInfoState
-import dev.benica.infinite_longbox.views.WebLink
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 // Bundle Argument Tags
@@ -118,7 +120,7 @@ private const val ADD_SERIES_ID = -2
  */
 // TODO: Do I need a separate fragment for editing vs viewing or can I do it all in this one?
 @ExperimentalCoroutinesApi
-class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback {
+class IssueDetailFragment : Fragment() {
 
     private var numUpdates = 0
     private var listFragmentCallback: ListFragment.ListFragmentCallback? = null
@@ -140,14 +142,14 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback {
     private var variantState by mutableStateOf(VariantSelectorState())
     private var isVariant: Boolean = false
 
-    private lateinit var issueCreditsFrame: FrameLayout
-    private lateinit var creditsBox: CreditsBox
+    private var stories by mutableStateOf<List<StoryUi>>(emptyList())
+    private var expandedStories by mutableStateOf<Set<Int>>(emptySet())
+    private var gcdIssueId by mutableStateOf(0)
 
     private var infoState by mutableStateOf(IssueInfoState())
 
     private var jumpBarState by mutableStateOf(JumpBarState())
 
-    private lateinit var gcdLinkButton: WebLink
 
     private val currentIssue: FullIssue
         get() = fullVariant ?: fullIssue
@@ -263,12 +265,14 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback {
                 }
             }
         }
-        issueCreditsFrame = view.findViewById(R.id.issue_credits_frame) as FrameLayout
         view.findViewById<ComposeView>(R.id.issue_info_box).apply {
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
             setContent { InfiniteLongboxTheme { IssueInfoBox(infoState) } }
         }
-        gcdLinkButton = view.findViewById(R.id.gcd_link)
+        view.findViewById<ComposeView>(R.id.attribution).apply {
+            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+            setContent { InfiniteLongboxTheme { AttributionBar(gcdIssueId) } }
+        }
         view.findViewById<ComposeView>(R.id.issue_actions).apply {
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
             setContent {
@@ -290,8 +294,23 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback {
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
             setContent { InfiniteLongboxTheme { VariantSelector(variantState, ::onVariantSelected) } }
         }
-        creditsBox = CreditsBox(requireContext(), this@IssueDetailFragment)
-        issueCreditsFrame.addView(creditsBox)
+        view.findViewById<ComposeView>(R.id.credits_box).apply {
+            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+            setContent {
+                InfiniteLongboxTheme {
+                    CreditsBox(
+                        stories = stories,
+                        expanded = expandedStories,
+                        onToggle = { id ->
+                            expandedStories =
+                                if (id in expandedStories) expandedStories - id else expandedStories + id
+                        },
+                        onCharacterClick = ::characterClicked,
+                        onCreatorClick = ::creatorClicked,
+                    )
+                }
+            }
+        }
 
         view.findViewById<ComposeView>(R.id.jump_bar).apply {
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
@@ -484,7 +503,6 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback {
 
     override fun onStart() {
         super.onStart()
-        gcdLinkButton.url = { "https://www.comics.org/issue/${currentIssue.issue.issueId}" }
 
 //         TODO: This is for editing. n/a anymore?
 //        releaseDateTextView.setOnClickListener {
@@ -537,14 +555,11 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback {
                 inWishList = collectionIds.contains(BaseCollection.WISH_LIST.id),
             )
 
-            creditsBox.update(
-                issueStories = issueStories,
-                variantStories = variantStories,
-                issueCredits = issueCredits,
-                variantCredits = variantCredits,
-                issueAppearances = issueAppearances,
-                variantAppearances = variantAppearances
+            stories = buildStoryUi(
+                issueStories, variantStories, issueCredits, variantCredits,
+                issueAppearances, variantAppearances
             )
+            gcdIssueId = issue.issueId
 
             variantState = VariantSelectorState(issueVariants, issue.issueId)
 
@@ -565,7 +580,7 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback {
         }
     }
 
-    override fun characterClicked(character: FullCharacter) {
+    private fun characterClicked(character: FullCharacter) {
         val filter = SearchFilter(
             character = character.character, myCollection = false,
             showVariants = true
@@ -573,7 +588,7 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback {
         listFragmentCallback?.updateFilter(filter)
     }
 
-    override fun creatorClicked(creator: NameDetailAndCreator) {
+    private fun creatorClicked(creator: NameDetailAndCreator) {
         val filter = SearchFilter(
             creators = setOf(creator.creator), myCollection = false,
             showVariants = true
@@ -604,23 +619,4 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback {
         issueDetailViewModel.removeFromCollection(collId)
     }
 
-}
-
-class RoleNameTextView(context: Context) :
-    androidx.appcompat.widget.AppCompatTextView(context) {
-
-    constructor(context: Context, role: String = "") : this(context) {
-        text = role.replaceFirstChar { it.uppercase() }
-    }
-
-    init {
-        layoutParams = TableRow.LayoutParams(WRAP_CONTENT, WRAP_CONTENT)
-        setPaddingRelative(
-            resources.getDimension(R.dimen.margin_wide).toInt(),
-            resources.getDimension(R.dimen.margin_narrow).toInt(),
-            resources.getDimension(R.dimen.margin_wide).toInt(),
-            resources.getDimension(R.dimen.margin_narrow).toInt()
-        )
-        setTextAppearance(R.style.RoleNameText)
-    }
 }

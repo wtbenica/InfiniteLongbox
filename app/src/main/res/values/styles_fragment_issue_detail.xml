@@ -23,13 +23,8 @@
         <item name="android:textStyle">bold</item>
     </style>
 
-
     <style name="IssueDetailButtonBar" parent="Widget.AppCompat.ButtonBar">
 
-    </style>
-
-    <style name="IssueDetailGcdLinkButton" parent="myButtonStyle">
-        <item name="android:textColor">?attr/colorUiInterface</item>
     </style>
 
     <style name="myButtonStyle" parent="Widget.MaterialComponents.Button.TextButton">

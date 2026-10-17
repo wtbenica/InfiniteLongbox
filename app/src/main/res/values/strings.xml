@@ -41,7 +41,7 @@
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hint_volume">Volume</string>
     <string name="search">Add Filter</string>
-    <string name="grand_comic_database_tm">Grand Comic Database\u2122</string>
+    <string name="grand_comic_database_tm">Grand Comics Database\u2122</string>
     <string name="goto_start">First</string>
     <string name="goto_skip_back">-10</string>
     <string name="goto_one_back">-1</string>
@@ -75,15 +75,14 @@
     <string name="filter_type_all">All</string>
     <string name="label_variants">Variants</string>
     <string name="bottom_sheet_handle_description">Expand filter/sort options</string>
-    <string name="content_desc_issue_display_gcd_link">Link to issue at Grand Comic Database</string>
+    <string name="content_desc_issue_display_gcd_link">Link to issue at the Grand Comics Database</string>
 
     <!--     Fragment Series Detail-->
     <string name="series_detail_notes">Notes</string>
     <string name="series_detail_tracking_notes">Tracking notes</string>
     <string name="label_cover_date">Cover Date</string>
     <string name="label_notes">Notes</string>
-    <string name="url_creative_commons_3_0">http://creativecommons.org/licenses/by/3.0/</string>
-    <string name="url_creative_commons_3_0_img">https://i.creativecommons.org/l/by/3.0/88x31.png</string>
+    <string name="url_cc_by_sa_4_0">https://creativecommons.org/licenses/by-sa/4.0/</string>
     <string name="text_gcd_cc_credit">Data courtesy of the
         <a href="https://www.comics.org">Grand Comics Database\u2122</a> under the
         <a href="https://creativecommons.org/licenses/by-sa/4.0/">Creative Commons
@@ -135,4 +134,6 @@
     <string name="label_find">find</string>
     <string name="description_search_ebay">Search eBay</string>
     <string name="description_select_variant">Select variant</string>
+    <string name="description_license_badge">Creative Commons Attribution-ShareAlike 4.0 license</string>
+    <string name="description_open_link">Opens in your browser</string>
 </resources>
