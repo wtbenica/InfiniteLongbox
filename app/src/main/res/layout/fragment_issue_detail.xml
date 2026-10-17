@@ -39,23 +39,15 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
-                <ImageButton
+                <androidx.compose.ui.platform.ComposeView
                     android:id="@+id/issue_cover"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_margin="@dimen/margin_narrow"
-                    android:layout_weight="1"
-                    android:adjustViewBounds="true"
-                    android:background="@android:color/transparent"
-                    android:contentDescription="@string/description_issue_cover"
                     android:elevation="1dp"
-                    android:padding="0dp"
-                    android:scaleType="fitStart"
                     app:layout_constraintEnd_toStartOf="@id/issue_info_box"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    tools:scaleType="fitXY"
-                    tools:src="@drawable/cover_sample" />
+                    app:layout_constraintTop_toTopOf="parent" />
 
                 <androidx.compose.ui.platform.ComposeView
                     android:id="@+id/issue_info_box"

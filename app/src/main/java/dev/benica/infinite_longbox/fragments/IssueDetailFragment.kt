@@ -50,12 +50,15 @@ import android.widget.LinearLayout
 import android.widget.Spinner
 import android.widget.TableRow
 import androidx.appcompat.widget.AppCompatImageButton
+import java.io.File
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import dev.benica.infinite_longbox.ui.InfiniteLongboxTheme
+import dev.benica.infinite_longbox.ui.IssueCover
+import dev.benica.infinite_longbox.ui.IssueCoverState
 import dev.benica.infinite_longbox.ui.IssueJumpBar
 import dev.benica.infinite_longbox.ui.JumpBarState
 import dev.benica.infinite_longbox.ui.VariantSelector
@@ -132,7 +135,7 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback {
     private var variantAppearances: List<FullAppearance> = emptyList()
     private var issueVariants: List<Issue> = emptyList()
 
-    private lateinit var coverImageView: ImageButton
+    private var coverState by mutableStateOf(IssueCoverState())
     private var actionState by mutableStateOf(IssueActionState())
     private var variantState by mutableStateOf(VariantSelectorState())
     private var isVariant: Boolean = false
@@ -252,24 +255,11 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback {
 
         val view = inflater.inflate(R.layout.fragment_issue_detail, container, false)
 
-        coverImageView = view.findViewById<ImageButton>(R.id.issue_cover).apply {
-            // Tap: view the cover, or add one if there isn't any. Long-press (when there is one): replace or remove it.
-            setOnClickListener {
-                if (coverUri != null) {
-                    CoverDialogFragment(this.drawable, this@IssueDetailFragment.currentIssue).show(
-                        childFragmentManager,
-                        "cover_dialog"
-                    )
-                } else {
-                    launchCoverPicker()
-                }
-            }
-            setOnLongClickListener {
-                if (coverUri != null) {
-                    showCoverOptions()
-                    true
-                } else {
-                    false
+        view.findViewById<ComposeView>(R.id.issue_cover).apply {
+            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+            setContent {
+                InfiniteLongboxTheme {
+                    IssueCover(coverState, onClick = ::onCoverClicked, onLongClick = ::showCoverOptions)
                 }
             }
         }
@@ -563,18 +553,15 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback {
     }
 
     private fun updateCover() {
-        if (coverUri != null) {
-            coverImageView.apply {
-                // A replaced cover keeps its file name; clear first so the new image is loaded
-                setImageURI(null)
-                setImageURI(coverUri)
-                isClickable = true
-            }
+        coverState = IssueCoverState(coverUri?.path?.let { File(it) })
+    }
+
+    private fun onCoverClicked() {
+        val uri = coverUri
+        if (uri != null) {
+            CoverDialogFragment(uri, currentIssue).show(childFragmentManager, "cover_dialog")
         } else {
-            coverImageView.apply {
-                setImageResource(R.drawable.placeholder)
-                isClickable = true
-            }
+            launchCoverPicker()
         }
     }
 

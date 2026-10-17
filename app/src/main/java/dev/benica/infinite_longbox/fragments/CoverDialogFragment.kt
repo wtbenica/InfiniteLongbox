@@ -17,7 +17,7 @@ package dev.benica.infinite_longbox.fragments
 
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
-import android.graphics.drawable.Drawable
+import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -31,7 +31,7 @@ import dev.benica.infinite_longbox.database.models.FullIssue
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 @ExperimentalCoroutinesApi
-class CoverDialogFragment(private val draw: Drawable, private val currentIssue: FullIssue) :
+class CoverDialogFragment(private val coverUri: Uri, private val currentIssue: FullIssue) :
     DialogFragment(R.layout.dialog_fragment_cover) {
 
     private var coverView: ImageView? = null
@@ -65,7 +65,7 @@ class CoverDialogFragment(private val draw: Drawable, private val currentIssue: 
         }
 
         coverView = view?.findViewById<ImageView>(R.id.cover_view).apply {
-            this?.setImageDrawable(draw)
+            this?.setImageURI(coverUri)
         }
 
         coverTextView = view?.findViewById<TextView>(R.id.tv_issue).apply {
