@@ -45,10 +45,6 @@
     <attr name="fragmentIssueDetailBgColor" format="reference" />
 
     <!-- IssueDetailFragment Variant Spinner -->
-    <attr name="fragmentIssueDetailVariantSpinnerBgColor" format="reference" />
-    <attr name="fragmentIssueDetailVariantSpinnerTextBg" format="reference" />
-    <attr name="fragmentIssueDetailVariantSpinnerTextColor" format="reference" />
-    <attr name="fragmentIssueDetailVariantSpinnerBgTint" format="color|reference" />
 
     <!-- SeriesDetailBox Theme Values -->
     <attr name="styleSeriesDetail" format="reference" />

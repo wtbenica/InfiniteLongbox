@@ -23,11 +23,6 @@
         <item name="android:textStyle">bold</item>
     </style>
 
-    <style name="IssueDetailVariantSpinner" parent="Widget.AppCompat.Spinner">
-        <item name="android:layout_height">?attr/dropdownListPreferredItemHeight</item>
-        <item name="android:textColor">?attr/textColorBody</item>
-        <item name="android:popupBackground">@color/surface_raised</item>
-    </style>
 
     <style name="IssueDetailButtonBar" parent="Widget.AppCompat.ButtonBar">
 

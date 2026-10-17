@@ -58,6 +58,8 @@ import androidx.compose.ui.platform.ViewCompositionStrategy
 import dev.benica.infinite_longbox.ui.InfiniteLongboxTheme
 import dev.benica.infinite_longbox.ui.IssueJumpBar
 import dev.benica.infinite_longbox.ui.JumpBarState
+import dev.benica.infinite_longbox.ui.VariantSelector
+import dev.benica.infinite_longbox.ui.VariantSelectorState
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.google.android.material.appbar.AppBarLayout
@@ -132,8 +134,7 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback {
 
     private lateinit var coverImageView: ImageButton
     private var actionState by mutableStateOf(IssueActionState())
-    private lateinit var variantSpinnerHolder: LinearLayout
-    private lateinit var variantSpinner: Spinner
+    private var variantState by mutableStateOf(VariantSelectorState())
     private var isVariant: Boolean = false
 
     private lateinit var issueCreditsFrame: FrameLayout
@@ -295,8 +296,10 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback {
                 }
             }
         }
-        variantSpinnerHolder = view.findViewById(R.id.variant_spinner_holder)
-        variantSpinner = view.findViewById(R.id.variant_spinner) as Spinner
+        view.findViewById<ComposeView>(R.id.variant_selector).apply {
+            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+            setContent { InfiniteLongboxTheme { VariantSelector(variantState, ::onVariantSelected) } }
+        }
         creditsBox = CreditsBox(requireContext(), this@IssueDetailFragment)
         issueCreditsFrame.addView(creditsBox)
 
@@ -420,19 +423,7 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback {
         ) { issues: List<Issue>? ->
             issues?.let {
                 if (issueVariants != it) {
-                    val adapter = ArrayAdapter(
-                        requireContext(),
-                        R.layout.spinner_item_variant,
-                        R.id.variant_name_text,
-                        it
-                    )
                     this.issueVariants = it
-                    variantSpinner.adapter = adapter
-                    variantSpinnerHolder.visibility = if (it.size <= 1) {
-                        View.GONE
-                    } else {
-                        View.VISIBLE
-                    }
                     updateUI()
                 }
             }
@@ -475,6 +466,16 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback {
         updateNavBar()
     }
 
+    private fun onVariantSelected(selected: Issue) {
+        if (selected.issueId != issueDetailViewModel.primaryId.value) {
+            issueDetailViewModel.loadVariant(selected.issueId)
+        } else {
+            issueDetailViewModel.clearVariant()
+        }
+
+        updateCover()
+    }
+
     private fun searchEbay() {
         val category = 259104
         val url =
@@ -503,50 +504,6 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback {
 //            }
 //        }
 //
-
-        val touchSelectListener =
-            object : AdapterView.OnItemSelectedListener, View.OnTouchListener {
-
-                private var userSelect = false
-
-                override fun onItemSelected(
-                    parent: AdapterView<*>?,
-                    view: View?,
-                    position: Int,
-                    id: Long,
-                ) {
-                    if (userSelect) {
-                        parent?.let {
-                            val selectedIssueId =
-                                (it.getItemAtPosition(position) as Issue).issueId
-
-                            val selectionIsVariant =
-                                selectedIssueId != issueDetailViewModel.primaryId.value
-
-                            if (selectionIsVariant) {
-                                issueDetailViewModel.loadVariant(selectedIssueId)
-                            } else {
-                                issueDetailViewModel.clearVariant()
-                            }
-
-                            updateCover()
-                        }
-
-                        userSelect = false
-                    }
-                }
-
-                override fun onNothingSelected(parent: AdapterView<*>?) {
-
-                }
-
-                override fun onTouch(v: View?, event: MotionEvent?): Boolean {
-                    userSelect = true
-                    return false
-                }
-            }
-        variantSpinner.onItemSelectedListener = touchSelectListener
-        variantSpinner.setOnTouchListener(touchSelectListener)
     }
 
     ////    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -599,10 +556,7 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback {
                 variantAppearances = variantAppearances
             )
 
-            issue.let {
-                val indexOf = issueVariants.indexOf(it)
-                variantSpinner.setSelection(indexOf)
-            }
+            variantState = VariantSelectorState(issueVariants, issue.issueId)
 
             updateCover()
         }
