@@ -1,0 +1,123 @@
+/*
+ * Copyright (c) 2023. Wesley T. Benica
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package dev.benica.infinite_longbox.ui
+
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.text.BasicText
+import androidx.compose.foundation.text.TextAutoSize
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.googlefonts.Font
+import androidx.compose.ui.text.googlefonts.GoogleFont
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import dev.benica.infinite_longbox.R
+
+private val fontProvider = GoogleFont.Provider(
+    providerAuthority = "com.google.android.gms.fonts",
+    providerPackage = "com.google.android.gms",
+    certificates = R.array.com_google_android_gms_fonts_certs,
+)
+
+/** Newer than the font service's catalog on some phones, so these two ship with the app. */
+private val bundledFonts = mapOf(
+    "BBH Bogle" to FontFamily(androidx.compose.ui.text.font.Font(R.font.bbh_bogle)),
+)
+
+/** The faces a title can be set in. Their order matters: it decides which series gets which. */
+private val titleFonts: List<FontFamily> = listOf(
+    "Bangers", "BBH Bogle", "Racing Sans One", "Unica One",
+    "Syncopate", "Pompiere",
+).map { bundledFonts[it] ?: FontFamily(Font(GoogleFont(it), fontProvider)) }
+
+/** The same name always gets the same face (String.hashCode is defined, not per-run). */
+fun titleFontFor(name: String): FontFamily =
+    titleFonts[Math.floorMod(name.trim().lowercase().hashCode(), titleFonts.size)]
+
+// Where the blank masthead sits in placeholder_blank.jpg (800 x 1234), as fractions of its size
+private const val IMAGE_HEIGHT_PER_WIDTH = 1234f / 800f
+private const val MASTHEAD_LEFT = 0.0325f
+private const val MASTHEAD_RIGHT = 0.969f
+private const val MASTHEAD_TOP = 0.0194f
+private const val MASTHEAD_BOTTOM = 0.172f
+
+/** Dark enough for the masthead's light gray in either theme */
+private val MASTHEAD_INK = Color(0xFF111111)
+
+/** Stands in for a missing series cover: the blank cover with the series title in its masthead. */
+@Composable
+fun TitlePlaceholder(name: String, modifier: Modifier = Modifier) {
+    BoxWithConstraints(modifier.clipToBounds()) {
+        val width = maxWidth
+        val imageHeight = width * IMAGE_HEIGHT_PER_WIDTH
+
+        Image(
+            painter = painterResource(R.drawable.placeholder_blank),
+            contentDescription = null,
+            modifier = Modifier.fillMaxWidth(),
+            contentScale = ContentScale.FillWidth,
+            alignment = Alignment.TopStart,
+        )
+
+        Box(
+            modifier = Modifier
+                .offset(x = width * MASTHEAD_LEFT, y = imageHeight * MASTHEAD_TOP)
+                .size(
+                    width = width * (MASTHEAD_RIGHT - MASTHEAD_LEFT),
+                    height = imageHeight * (MASTHEAD_BOTTOM - MASTHEAD_TOP),
+                )
+                .padding(horizontal = 12.dp, vertical = 6.dp),
+            contentAlignment = Alignment.Center,
+        ) {
+            BasicText(
+                text = name,
+                style = TextStyle(
+                    fontFamily = titleFontFor(name),
+                    color = MASTHEAD_INK,
+                    textAlign = TextAlign.Center,
+                ),
+                maxLines = 3,
+                overflow = TextOverflow.Ellipsis,
+                autoSize = TextAutoSize.StepBased(minFontSize = 14.sp, maxFontSize = 40.sp),
+            )
+        }
+    }
+}
+
+@Preview(showBackground = true, widthDp = 360)
+@Composable
+private fun TitlePlaceholderPreview() {
+    InfiniteLongboxTheme {
+        TitlePlaceholder("Doom Patrol", Modifier.fillMaxSize())
+    }
+}

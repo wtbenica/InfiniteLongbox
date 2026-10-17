@@ -55,9 +55,7 @@ data class SeriesCardState(
     val name: String,
     val dateRange: String,
     val format: String,
-    /** The first issue's cover, or null to show the placeholder */
     val cover: File?,
-    /** True while the cover is still being looked for */
     val loadingCover: Boolean,
 )
 
@@ -85,7 +83,7 @@ fun SeriesListItem(state: SeriesCardState, onClick: () -> Unit, modifier: Modifi
                 modifier = Modifier
                     .fillMaxWidth()
             ) {
-                Spacer(Modifier.height(150.dp))
+                Spacer(Modifier.height(COVER_WINDOW))
 
                 FolderTabPanel(
                     fill = MaterialTheme.colorScheme.background,
@@ -148,18 +146,15 @@ private fun Subtitle(text: String) {
     )
 }
 
+/** The part of the card above the title tab, where the cover (or its stand-in) shows. */
+private val COVER_WINDOW = 150.dp
+
 /** Fills the card, scaled to cover; which part shows is picked by [CoverFocus]. */
 @Composable
 private fun Cover(state: SeriesCardState, modifier: Modifier) {
     val file = state.cover
     if (file == null) {
-        Image(
-            painter = painterResource(R.drawable.placeholder_gray),
-            contentDescription = null,
-            modifier = modifier,
-            contentScale = ContentScale.Crop,
-            alignment = Alignment.TopStart,
-        )
+        TitlePlaceholder(state.name, modifier)
     } else {
         // The file name stays the same when a cover is replaced, so key on its modified time
         val request = ImageRequest.Builder(LocalContext.current)

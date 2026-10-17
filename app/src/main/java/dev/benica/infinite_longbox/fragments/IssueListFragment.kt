@@ -51,6 +51,9 @@ class IssueListFragment : ListFragment<FullIssue, IssueListFragment.IssueViewHol
 
     override val viewModel: IssueListViewModel by viewModels()
     override val minColSizeDp = 300
+
+    // Issues are in number order, not alphabetical
+    override val showsLetterBubble = false
     private var mSeries: FullSeries? = null
     private var seriesDetailBox: SeriesDetailBox? = null
 

@@ -18,10 +18,12 @@ package dev.benica.infinite_longbox.fragments
 import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
 import android.widget.FrameLayout
+import android.widget.TextView
 import androidx.core.view.updatePadding
 import androidx.core.widget.NestedScrollView
 import androidx.fragment.app.Fragment
@@ -30,6 +32,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.paging.PagingDataAdapter
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.SimpleItemAnimator
 import com.google.android.material.appbar.AppBarLayout
@@ -39,6 +42,8 @@ import dev.benica.infinite_longbox.APP
 import dev.benica.infinite_longbox.MainActivity
 import dev.benica.infinite_longbox.R
 import dev.benica.infinite_longbox.SearchFilter
+import dev.benica.infinite_longbox.SortType
+import dev.benica.infinite_longbox.database.models.FilterModel
 import dev.benica.infinite_longbox.database.models.ListItem
 import dev.benica.infinite_longbox.fragments_view_models.FilterViewModel
 import dev.benica.infinite_longbox.fragments_view_models.ListViewModel
@@ -58,6 +63,11 @@ abstract class ListFragment<T : ListItem, VH : RecyclerView.ViewHolder> : Fragme
     protected lateinit var listRecyclerView: RecyclerView
     private lateinit var appBar: AppBarLayout
     protected lateinit var details: FrameLayout
+    private lateinit var fastScrollBubble: TextView
+    private var draggingFastScroll = false
+
+    /** Whether dragging the scroll handle shows the first letter of the name it's at. */
+    protected open val showsLetterBubble: Boolean = true
 
     protected var callback: ListFragmentCallback? = null
 
@@ -95,6 +105,9 @@ abstract class ListFragment<T : ListItem, VH : RecyclerView.ViewHolder> : Fragme
         // mid-animation, which showed up as a card sitting on top of the row above.
         (listRecyclerView.itemAnimator as? SimpleItemAnimator)?.supportsChangeAnimations = false
 
+        fastScrollBubble = view.findViewById(R.id.fast_scroll_bubble)
+        setUpFastScrollBubble()
+
         appBar = view.findViewById(R.id.app_bar)
 
         details = view.findViewById(R.id.details)
@@ -109,6 +122,50 @@ abstract class ListFragment<T : ListItem, VH : RecyclerView.ViewHolder> : Fragme
         activityAppBar?.addOnLayoutChangeListener(appBarLayoutListener)
 
         return view
+    }
+
+    /** The list's own fast scroller does the dragging; this only watches for it, to label it. */
+    private fun setUpFastScrollBubble() {
+        if (!showsLetterBubble) return
+        val handleWidth = resources.displayMetrics.density * FAST_SCROLL_EDGE_DP
+
+        listRecyclerView.addOnItemTouchListener(object : RecyclerView.SimpleOnItemTouchListener() {
+            override fun onInterceptTouchEvent(rv: RecyclerView, e: MotionEvent): Boolean {
+                when (e.actionMasked) {
+                    MotionEvent.ACTION_DOWN ->
+                        draggingFastScroll = e.x > rv.width - handleWidth
+                    MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+                        draggingFastScroll = false
+                        rv.postDelayed({ if (!draggingFastScroll) fastScrollBubble.visibility = View.GONE }, 400)
+                    }
+                }
+                return false
+            }
+        })
+
+        listRecyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(rv: RecyclerView, dx: Int, dy: Int) {
+                if (!draggingFastScroll || !sortedByName()) return
+                val letter = firstVisibleLetter() ?: return
+                fastScrollBubble.text = letter
+                fastScrollBubble.visibility = View.VISIBLE
+            }
+        })
+    }
+
+    private fun sortedByName(): Boolean =
+        filterViewModel.filter.value?.mSortType?.sortColumn?.contains("name", ignoreCase = true) == true
+
+    /** First letter of the first visible item's name, "#" for numbers; null while it isn't loaded. */
+    private fun firstVisibleLetter(): String? {
+        val layoutManager = listRecyclerView.layoutManager as? LinearLayoutManager ?: return null
+        val position = layoutManager.findFirstVisibleItemPosition()
+        if (position < 0) return null
+
+        val item = (listRecyclerView.adapter as? PagingDataAdapter<*, *>)?.peek(position)
+        val name = (item as? FilterModel)?.compareValue ?: return null
+        val first = SortType.sortKeyOf(name).firstOrNull() ?: return null
+        return if (first.isLetter()) first.uppercase() else "#"
     }
 
     private val activityAppBar: AppBarLayout?
@@ -175,5 +232,8 @@ abstract class ListFragment<T : ListItem, VH : RecyclerView.ViewHolder> : Fragme
 
     companion object {
         private const val TAG = APP + "ListFragment"
+
+        /** How far in from the right edge a touch counts as grabbing the fast-scroll handle. */
+        private const val FAST_SCROLL_EDGE_DP = 40
     }
 }
