@@ -50,6 +50,14 @@ import android.widget.LinearLayout
 import android.widget.Spinner
 import android.widget.TableRow
 import androidx.appcompat.widget.AppCompatImageButton
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.ViewCompositionStrategy
+import dev.benica.infinite_longbox.ui.InfiniteLongboxTheme
+import dev.benica.infinite_longbox.ui.IssueJumpBar
+import dev.benica.infinite_longbox.ui.JumpBarState
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.google.android.material.appbar.AppBarLayout
@@ -135,12 +143,7 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback,
 
     private lateinit var infoBox: IssueInfoBox
 
-    private lateinit var gotoStartButton: Button
-    private lateinit var gotoSkipBackButton: Button
-    private lateinit var gotoPreviousButton: Button
-    private lateinit var gotoNextButton: Button
-    private lateinit var gotoSkipForwardButton: Button
-    private lateinit var gotoEndButton: Button
+    private var jumpBarState by mutableStateOf(JumpBarState())
 
     private lateinit var gcdLinkButton: WebLink
 
@@ -288,12 +291,14 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback,
         creditsBox = CreditsBox(requireContext(), this@IssueDetailFragment)
         issueCreditsFrame.addView(creditsBox)
 
-        gotoStartButton = view.findViewById(R.id.goto_start_button) as Button
-        gotoSkipBackButton = view.findViewById(R.id.goto_skip_back_button) as Button
-        gotoPreviousButton = view.findViewById(R.id.goto_previous_button) as Button
-        gotoNextButton = view.findViewById(R.id.goto_next_button) as Button
-        gotoSkipForwardButton = view.findViewById(R.id.goto_skip_forward_button) as Button
-        gotoEndButton = view.findViewById(R.id.goto_end_button) as Button
+        view.findViewById<ComposeView>(R.id.jump_bar).apply {
+            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+            setContent {
+                InfiniteLongboxTheme {
+                    IssueJumpBar(jumpBarState, onJump = ::jumpToIssue)
+                }
+            }
+        }
 
         return view
     }
@@ -450,15 +455,7 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback,
     }
 
     private fun updateNavBar() {
-        val found = currentPos >= 0 && issuesInSeries.isNotEmpty()
-
-        this.gotoStartButton.isEnabled = (currentPos > 0) && found
-        this.gotoSkipBackButton.isEnabled = (currentPos >= 10) && found
-        this.gotoPreviousButton.isEnabled = (currentPos > 0) && found
-        this.gotoNextButton.isEnabled = (currentPos < this.issuesInSeries.size - 1) && found
-        this.gotoSkipForwardButton.isEnabled =
-            (currentPos <= this.issuesInSeries.size - 11) && found
-        this.gotoEndButton.isEnabled = (currentPos < this.issuesInSeries.size - 1) && found
+        jumpBarState = JumpBarState(currentPos, issuesInSeries.size)
     }
 
     private fun jumpToIssue(skipNum: Int) {
@@ -487,30 +484,6 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback,
                 data = Uri.parse(url)
             }
             context?.startActivity(intent)
-        }
-
-        gotoStartButton.setOnClickListener {
-            jumpToIssue(-currentPos)
-        }
-
-        gotoSkipBackButton.setOnClickListener {
-            jumpToIssue(-10)
-        }
-
-        gotoPreviousButton.setOnClickListener {
-            jumpToIssue(-1)
-        }
-
-        gotoNextButton.setOnClickListener {
-            jumpToIssue(1)
-        }
-
-        gotoSkipForwardButton.setOnClickListener {
-            jumpToIssue(10)
-        }
-
-        gotoEndButton.setOnClickListener {
-            jumpToIssue(issuesInSeries.size - currentPos - 1)
         }
 
 //         TODO: This is for editing. n/a anymore?
@@ -633,7 +606,7 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback,
             }
         } else {
             coverImageView.apply {
-                setImageResource(R.drawable.issue_cover_missing)
+                setImageResource(R.drawable.placeholder)
                 isClickable = true
             }
         }

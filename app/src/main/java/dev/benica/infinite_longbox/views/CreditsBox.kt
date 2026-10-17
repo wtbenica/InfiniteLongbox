@@ -27,6 +27,7 @@ import android.widget.TableRow
 import android.widget.TextView
 import dev.benica.infinite_longbox.APP
 import dev.benica.infinite_longbox.R
+import dev.benica.infinite_longbox.SortType
 import dev.benica.infinite_longbox.database.models.FullAppearance
 import dev.benica.infinite_longbox.database.models.FullCredit
 import dev.benica.infinite_longbox.database.models.Story
@@ -217,11 +218,10 @@ class StoryBox(
             charactersBox.visibility = VISIBLE
             val characters: TableLayout = findViewById(R.id.story_box_characters)
 
-            mAppearances.forEach { appearance ->
-                if (appearance.appearance.story == mStory.storyId) {
-                    characters.addView(AppearanceRow(context, appearance, cb))
-                }
-            }
+            mAppearances
+                .filter { it.appearance.story == mStory.storyId }
+                .sortedBy { SortType.sortKeyOf(it.character.character.name) }
+                .forEach { characters.addView(AppearanceRow(context, it, cb)) }
         } else {
             charactersBox.visibility = GONE
         }

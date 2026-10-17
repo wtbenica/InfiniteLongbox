@@ -152,7 +152,7 @@ private fun Cover(state: SeriesCardState, modifier: Modifier) {
     val file = state.cover
     if (file == null) {
         Image(
-            painter = painterResource(R.drawable.bg_placeholder),
+            painter = painterResource(R.drawable.placeholder),
             contentDescription = null,
             modifier = modifier,
             contentScale = ContentScale.Crop,

@@ -379,6 +379,10 @@ class SortType(
         fun nameSortKey(columnRef: String): String =
             "ltrim($columnRef, '${SORT_IGNORED_LEADING.replace("'", "''")}') COLLATE NOCASE"
 
+        /** In-memory counterpart of [nameSortKey], for lists sorted in code */
+        fun sortKeyOf(name: String): String =
+            name.trimStart { it in SORT_IGNORED_LEADING }.lowercase()
+
         /**
          * ORDER BY for the filter-box popup, which only shows the first few matches: names that
          * start with the typed text come first, then the rest alphabetically. Without this,
