@@ -18,6 +18,7 @@
 package dev.benica.infinite_longbox.repository
 
 //import android.util.Log
+import android.net.Uri
 import android.annotation.SuppressLint
 import android.app.Dialog
 import android.content.Context
@@ -331,6 +332,8 @@ class Repository private constructor(val context: Context) {
         } else {
             flow { emit(emptyList<Publisher>()) }
         }
+
+    suspend fun getEarliestCoverUri(seriesId: Int): Uri? = coverDao.getEarliestCoverUri(seriesId)
 
     fun updateIssueCover(issueId: Int) {
         if (hasConnection) {

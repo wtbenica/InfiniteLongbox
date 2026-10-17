@@ -50,11 +50,6 @@
     <attr name="fragmentIssueDetailVariantSpinnerTextColor" format="reference" />
     <attr name="fragmentIssueDetailVariantSpinnerBgTint" format="color|reference" />
 
-    <!-- IssueInfoRow -->
-    <attr name="fragmentIssueDetailInfoRowLabelBg" format="reference" />
-    <attr name="fragmentIssueDetailInfoRowLabelBgColor" format="reference" />
-    <attr name="fragmentIssueDetailInfoRowLabelTextColor" format="reference" />
-
     <!-- SeriesDetailBox Theme Values -->
     <attr name="styleSeriesDetail" format="reference" />
     <attr name="seriesDetailBackground" format="reference" />
@@ -114,7 +109,6 @@
     <attr name="colorStoryBoxTitle" format="reference" />
     <attr name="colorStoryBoxSubtitle" format="reference" />
     <attr name="styleLinkTextView" format="reference" />
-    <attr name="styleIssueInfoBox" format="reference" />
     <attr name="styleAddCollectionButton" format="reference" />
 
     <!-- CoverDialogFragment -->

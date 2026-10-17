@@ -15,6 +15,7 @@
 
 package dev.benica.infinite_longbox.fragments_view_models
 
+import android.net.Uri
 import androidx.lifecycle.asFlow
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.switchMap
@@ -31,6 +32,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 @ExperimentalCoroutinesApi
 class SeriesListViewModel : ListViewModel<FullSeries>() {
@@ -40,6 +42,13 @@ class SeriesListViewModel : ListViewModel<FullSeries>() {
     }.asFlow().cachedIn(viewModelScope)
 
     internal fun getIssue(issueId: Int, markedDelete: Boolean = true): Flow<FullIssue?> = repository.getIssue(issueId, markedDelete)
+
+    /** Looks up the series' earliest existing cover off the main thread; [onResult] gets null if none. */
+    internal fun loadEarliestCover(seriesId: Int, onResult: (Uri?) -> Unit) {
+        viewModelScope.launch {
+            onResult(withContext(Dispatchers.IO) { repository.getEarliestCoverUri(seriesId) })
+        }
+    }
 
     private fun getIssueBySeries(series: FullSeries) =
         repository.getIssuesByFilter(SearchFilter(series = series))

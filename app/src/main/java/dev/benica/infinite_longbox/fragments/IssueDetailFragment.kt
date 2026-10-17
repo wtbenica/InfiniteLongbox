@@ -80,7 +80,8 @@ import dev.benica.infinite_longbox.fragments_view_models.IssueDetailViewModel
 import dev.benica.infinite_longbox.views.AddCollectionButton
 import dev.benica.infinite_longbox.views.AddWishListButton
 import dev.benica.infinite_longbox.views.CreditsBox
-import dev.benica.infinite_longbox.views.IssueInfoBox
+import dev.benica.infinite_longbox.ui.IssueInfoBox
+import dev.benica.infinite_longbox.ui.IssueInfoState
 import dev.benica.infinite_longbox.views.WebLink
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
@@ -141,7 +142,7 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback,
     private lateinit var issueCreditsFrame: FrameLayout
     private lateinit var creditsBox: CreditsBox
 
-    private lateinit var infoBox: IssueInfoBox
+    private var infoState by mutableStateOf(IssueInfoState())
 
     private var jumpBarState by mutableStateOf(JumpBarState())
 
@@ -275,7 +276,10 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback,
             }
         }
         issueCreditsFrame = view.findViewById(R.id.issue_credits_frame) as FrameLayout
-        infoBox = view.findViewById(R.id.issue_info_box)
+        view.findViewById<ComposeView>(R.id.issue_info_box).apply {
+            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+            setContent { InfiniteLongboxTheme { IssueInfoBox(infoState) } }
+        }
         gcdLinkButton = view.findViewById(R.id.gcd_link)
         ebayButton = view.findViewById(R.id.ebayButton)
         collectionButton =
@@ -573,7 +577,7 @@ class IssueDetailFragment : Fragment(), CreditsBox.CreditsBoxCallback,
                 Unit
             }
 
-            infoBox.update(issue.releaseDate, issue.coverDate, issue.notes)
+            infoState = IssueInfoState(issue.releaseDate, issue.coverDate, issue.notes)
             val collectionIds: List<Int> = currentIssue.collectionItems.map { it.userCollection }
             collectionButton.inCollection = collectionIds.contains(BaseCollection.MY_COLL.id)
             wishListButton.inCollection = collectionIds.contains(BaseCollection.WISH_LIST.id)

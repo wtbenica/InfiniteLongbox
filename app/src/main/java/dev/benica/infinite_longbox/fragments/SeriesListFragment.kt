@@ -153,6 +153,17 @@ class SeriesListFragment : ListFragment<FullSeries, SeriesListFragment.SeriesHol
                 cover = coverUri?.path?.let { File(it) },
                 loadingCover = !(firstIssue == null || coverUri != null || firstIssue.cover != null),
             )
+
+            // No cover for the first issue: use the series' earliest one that has a cover
+            if (coverUri == null) {
+                val seriesId = item.series.seriesId
+                viewModel.loadEarliestCover(seriesId) { uri ->
+                    val path = uri?.path ?: return@loadEarliestCover
+                    if (this.item?.series?.seriesId == seriesId) {
+                        card = card?.copy(cover = File(path), loadingCover = false)
+                    }
+                }
+            }
         }
     }
 

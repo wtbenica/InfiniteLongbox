@@ -57,7 +57,7 @@
                     tools:scaleType="fitXY"
                     tools:src="@drawable/cover_sample" />
 
-                <dev.benica.infinite_longbox.views.IssueInfoBox
+                <androidx.compose.ui.platform.ComposeView
                     android:id="@+id/issue_info_box"
                     android:layout_width="0dp"
                     android:layout_height="0dp"

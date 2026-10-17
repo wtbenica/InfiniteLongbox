@@ -86,9 +86,6 @@
         <item name="fragmentIssueDetailVariantSpinnerTextBg">@drawable/bg_fragment_issue_detail_variant_spinner</item>
         <item name="fragmentIssueDetailVariantSpinnerTextColor">@color/text_primary</item>
         <item name="fragmentIssueDetailVariantSpinnerBgTint">@color/text_secondary</item>
-        <item name="fragmentIssueDetailInfoRowLabelBg">@drawable/bg_story_box_title_bar</item>
-        <item name="fragmentIssueDetailInfoRowLabelBgColor">@color/accent_soft</item>
-        <item name="fragmentIssueDetailInfoRowLabelTextColor">@color/accent_strong</item>
         <item name="styleSeriesDetail">@style/SeriesDetailBackground</item>
         <item name="seriesDetailBackground">@color/accent_soft</item>
         <item name="seriesDetailLabelColor">@color/accent_strong</item>
@@ -145,7 +142,6 @@
         <item name="cardViewStyle">@style/myCardView</item>
         <item name="styleLinkTextView">@style/LinkTextView</item>
         <item name="styleAddCollectionButton">@style/AddCollectionButtonStyle</item>
-        <item name="styleIssueInfoBox">@style/IssueInfoBox</item>
         <item name="colorSurface">@color/surface_raised</item>
         <item name="colorOnSurface">@color/text_primary</item>
         <item name="android:colorBackground">@color/surface</item>
