@@ -60,7 +60,7 @@ fun IssueCover(
 
     if (file == null) {
         Image(
-            painter = painterResource(R.drawable.placeholder),
+            painter = painterResource(R.drawable.placeholder_gray),
             contentDescription = description,
             modifier = clickable,
             contentScale = ContentScale.FillWidth,
@@ -77,7 +77,7 @@ fun IssueCover(
             contentDescription = stringResource(R.string.description_issue_cover_set),
             modifier = clickable,
             contentScale = ContentScale.FillWidth,
-            placeholder = painterResource(R.drawable.placeholder),
+            placeholder = painterResource(R.drawable.placeholder_gray),
         )
     }
 }

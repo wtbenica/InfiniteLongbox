@@ -33,16 +33,6 @@
         <item name="android:fontFamily">?attr/fontBlock</item>
     </style>
 
-    <!-- Series titles in the series list: Permanent Marker (single weight, so no bold) -->
-    <style name="ListItemTitleText.Series">
-        <item name="android:fontFamily">@font/permanent_marker</item>
-        <item name="android:textStyle">normal</item>
-    </style>
-
-    <style name="ListItemSeriesTitleCard">
-        <item name="android:background">?attr/listItemSeriesTitleCardBackground</item>
-    </style>
-
     <style name="ListItemSeriesProgressBar" parent="Widget.AppCompat.ProgressBar.Horizontal">
         <item name="android:background">?attr/listItemSeriesProgressBarBackground</item>
         <item name="android:indeterminateTint">?attr/listItemSeriesProgressBarIndeterminateTint

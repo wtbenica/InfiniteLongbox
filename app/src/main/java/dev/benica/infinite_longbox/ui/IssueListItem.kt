@@ -240,7 +240,7 @@ fun IssueListItem(
 @Composable
 private fun Cover(state: IssueCardState, modifier: Modifier) {
     Image(
-        painter = painterResource(R.drawable.placeholder),
+        painter = painterResource(R.drawable.placeholder_gray),
         contentDescription = null,
         modifier = modifier,
         contentScale = ContentScale.Crop,

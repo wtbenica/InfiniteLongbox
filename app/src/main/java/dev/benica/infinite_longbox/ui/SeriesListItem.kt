@@ -32,6 +32,8 @@ import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.produceState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
@@ -146,13 +148,13 @@ private fun Subtitle(text: String) {
     )
 }
 
-/** Fills the card, scaled to cover and aligned top-left like the old FitTopImageView. */
+/** Fills the card, scaled to cover; which part shows is picked by [CoverFocus]. */
 @Composable
 private fun Cover(state: SeriesCardState, modifier: Modifier) {
     val file = state.cover
     if (file == null) {
         Image(
-            painter = painterResource(R.drawable.placeholder),
+            painter = painterResource(R.drawable.placeholder_gray),
             contentDescription = null,
             modifier = modifier,
             contentScale = ContentScale.Crop,
@@ -164,12 +166,15 @@ private fun Cover(state: SeriesCardState, modifier: Modifier) {
             .data(file)
             .memoryCacheKey("${file.path}@${file.lastModified()}")
             .build()
+        val alignment by produceState<Alignment>(Alignment.TopStart, file) {
+            value = CoverFocus.alignmentFor(file)
+        }
         AsyncImage(
             model = request,
             contentDescription = stringResourceCoverDescription(),
             modifier = modifier,
             contentScale = ContentScale.Crop,
-            alignment = Alignment.TopStart,
+            alignment = alignment,
         )
     }
 }
@@ -187,7 +192,7 @@ private fun SeriesListItemPreview() {
                 name = "Doom Patrol",
                 dateRange = "(1990-2005)",
                 format = "ongoing series",
-                cover = File("43418.jpg"),
+                cover = null,
                 loadingCover = true,
             ),
             onClick = {}

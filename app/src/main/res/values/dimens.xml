@@ -34,7 +34,6 @@
     <dimen name="item_offset_horz_list_item_series">@dimen/margin_default</dimen>
 
     <!-- ListItemIssue -->
-    <dimen name="list_item_issue_cover_spacing">@dimen/margin_default</dimen>
     <dimen name="item_offset_vert_list_item_issue">@dimen/margin_default</dimen>
     <dimen name="item_offset_horz_list_item_issue">@dimen/margin_default</dimen>
 
