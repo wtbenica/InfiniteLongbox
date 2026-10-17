@@ -64,14 +64,25 @@ private val titleFonts: List<FontFamily> = listOf(
 fun titleFontFor(name: String): FontFamily =
     titleFonts[Math.floorMod(name.trim().lowercase().hashCode(), titleFonts.size)]
 
-// Where the blank masthead sits in placeholder_blank.jpg (800 x 1234), as fractions of its size
+/** The blank cover in each of its colors; every series gets one, always the same. */
+private val artwork = listOf(
+    R.drawable.placeholder_cyan,
+    R.drawable.placeholder_yellow,
+    R.drawable.placeholder_magenta,
+)
+
+/** From a different part of the name's hash than the font, so the two don't line up. */
+private fun artworkFor(name: String): Int =
+    artwork[Math.floorMod(name.trim().lowercase().hashCode() / titleFonts.size, artwork.size)]
+
+// Where the blank masthead sits in the placeholder images (800 x 1234), as fractions of its size
 private const val IMAGE_HEIGHT_PER_WIDTH = 1234f / 800f
 private const val MASTHEAD_LEFT = 0.0325f
 private const val MASTHEAD_RIGHT = 0.969f
 private const val MASTHEAD_TOP = 0.0194f
 private const val MASTHEAD_BOTTOM = 0.172f
 
-/** Dark enough for the masthead's light gray in either theme */
+/** Dark ink for the pale masthead, whatever the theme */
 private val MASTHEAD_INK = Color(0xFF111111)
 
 /** Stands in for a missing series cover: the blank cover with the series title in its masthead. */
@@ -82,7 +93,7 @@ fun TitlePlaceholder(name: String, modifier: Modifier = Modifier) {
         val imageHeight = width * IMAGE_HEIGHT_PER_WIDTH
 
         Image(
-            painter = painterResource(R.drawable.placeholder_blank),
+            painter = painterResource(artworkFor(name)),
             contentDescription = null,
             modifier = Modifier.fillMaxWidth(),
             contentScale = ContentScale.FillWidth,
