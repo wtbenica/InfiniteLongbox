@@ -15,16 +15,13 @@
 
 package dev.benica.infinite_longbox.fragments
 
-import android.animation.ValueAnimator
 import android.os.Bundle
 import android.view.*
-import android.view.View.GONE
-import android.view.View.VISIBLE
-import android.view.animation.AccelerateInterpolator
-import android.widget.ImageView
-import android.widget.ProgressBar
-import android.widget.TextView
-import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -40,9 +37,11 @@ import dev.benica.infinite_longbox.database.models.FullIssue
 import dev.benica.infinite_longbox.database.models.FullSeries
 import dev.benica.infinite_longbox.database.models.Issue
 import dev.benica.infinite_longbox.fragments_view_models.IssueListViewModel
-import dev.benica.infinite_longbox.views.AddCollectionButton
-import dev.benica.infinite_longbox.views.AddWishListButton
+import dev.benica.infinite_longbox.ui.InfiniteLongboxTheme
+import dev.benica.infinite_longbox.ui.IssueCardState
+import dev.benica.infinite_longbox.ui.IssueListItem
 import dev.benica.infinite_longbox.views.SeriesDetailBox
+import java.io.File
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -51,7 +50,7 @@ import kotlinx.coroutines.launch
 class IssueListFragment : ListFragment<FullIssue, IssueListFragment.IssueViewHolder>() {
 
     override val viewModel: IssueListViewModel by viewModels()
-    override val minColSizeDp = 250
+    override val minColSizeDp = 300
     private var mSeries: FullSeries? = null
     private var seriesDetailBox: SeriesDetailBox? = null
 
@@ -111,6 +110,7 @@ class IssueListFragment : ListFragment<FullIssue, IssueListFragment.IssueViewHol
 
     override fun getAdapter(): IssueAdapter = IssueAdapter()
 
+    @Deprecated("Deprecated in Java")
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
         inflater.inflate(R.menu.fragment_issue_list, menu)
@@ -147,47 +147,41 @@ class IssueListFragment : ListFragment<FullIssue, IssueListFragment.IssueViewHol
     }
 
     inner class IssueViewHolder(val parent: ViewGroup) : RecyclerView.ViewHolder(
-        LayoutInflater.from(parent.context).inflate(R.layout.list_item_issue, parent, false)
-    ), View.OnClickListener, AddCollectionButton.AddCollectionCallback {
+        ComposeView(parent.context).apply {
+            layoutParams = ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+            )
+            // Recycled holders: drop the composition when the view leaves the pool or window
+            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+        }
+    ) {
         private var fullIssue: FullIssue? = null
-        private val progressCover: ProgressBar = itemView.findViewById(R.id.progress_cover_download)
-        private val bg: ImageView = itemView.findViewById(R.id.list_item_issue_bg)
-        private val coverImageView: ImageView = itemView.findViewById(R.id.list_item_cover)
-        private val issueNameBox: ConstraintLayout =
-            itemView.findViewById(R.id.list_item_issue_box)
-        private val issueNumTextView: TextView =
-            itemView.findViewById(R.id.list_item_issue_number_text)
-        private val addCollectionButton: AddCollectionButton =
-            itemView.findViewById(R.id.btn_issue_list_add_collection)
-        private val addWishListButton: AddWishListButton =
-            itemView.findViewById(R.id.btn_issue_list_add_wish_list)
-        private val issueVariantName: TextView =
-            itemView.findViewById(R.id.list_item_issue_variant_name)
-
+        private var card by mutableStateOf<IssueCardState?>(null)
 
         init {
-            itemView.setOnClickListener(this)
-            addCollectionButton.callback = this
-            addWishListButton.callback = this
-        }
-
-
-        override fun onClick(v: View?) {
-            val issue = fullIssue?.issue
-            issue?.let { (callback as IssueListCallback?)?.onIssueSelected(it) }
-        }
-
-        override fun addToCollection(collId: Int) {
-            this.fullIssue?.let { (callback as IssueListCallback?)?.addToCollection(it, collId) }
-        }
-
-        override fun removeFromCollection(collId: Int) {
-            this.fullIssue?.let {
-                (callback as IssueListCallback?)?.removeFromCollection(
-                    it,
-                    collId
-                )
+            (itemView as ComposeView).setContent {
+                InfiniteLongboxTheme {
+                    card?.let { state ->
+                        IssueListItem(
+                            state = state,
+                            onClick = {
+                                fullIssue?.issue?.let {
+                                    (callback as IssueListCallback?)?.onIssueSelected(it)
+                                }
+                            },
+                            onToggleCollection = { toggle(BaseCollection.MY_COLL.id, state.inCollection) },
+                            onToggleWishList = { toggle(BaseCollection.WISH_LIST.id, state.inWishList) },
+                        )
+                    }
+                }
             }
+        }
+
+        private fun toggle(collId: Int, isIn: Boolean) {
+            val issue = fullIssue ?: return
+            val cb = callback as? IssueListCallback? ?: return
+            if (isIn) cb.removeFromCollection(issue, collId) else cb.addToCollection(issue, collId)
         }
 
         fun bind(item: FullIssue?) {
@@ -198,68 +192,28 @@ class IssueListFragment : ListFragment<FullIssue, IssueListFragment.IssueViewHol
             itemView.scaleX = 1f
             itemView.scaleY = 1f
 
-            this.fullIssue = item
-
-            this.fullIssue?.let { viewModel.updateIssueCover(it.issue.issueId) }
-            val coverUri = this.fullIssue?.coverUri
-
-            if (coverUri != null) {
-                coverImageView.setImageURI(coverUri)
-                val animation = ValueAnimator.ofFloat(0F, 1F)
-                animation.addUpdateListener {
-                    val value = it.animatedValue as Float
-                    progressCover.alpha = 1 - value
-                    bg.alpha = 1 - value
-                    coverImageView.alpha = value
-                    if (value == 1f) {
-                        progressCover.visibility = GONE
-                    }
-                }
-                animation.interpolator = AccelerateInterpolator()
-                animation.start()
-            } else if (this.fullIssue?.cover != null) {
-                // A cover was looked for and doesn't exist: stop the spinner, show the placeholder
-                coverImageView.setImageURI(null)
-                progressCover.visibility = GONE
-                bg.alpha = 1f
-                coverImageView.alpha = 0f
-            } else {
-                coverImageView.setImageURI(null)
-                val animation = ValueAnimator.ofFloat(0F, 1F)
-                animation.addUpdateListener {
-                    val value = it.animatedValue as Float
-                    progressCover.alpha = value
-                    bg.alpha = value
-                    coverImageView.alpha = 1 - value
-                    if (value == 0f) {
-                        progressCover.visibility = VISIBLE
-                    }
-                }
-                animation.interpolator = AccelerateInterpolator()
-                animation.start()
+            fullIssue = item
+            if (item == null) {
+                card = null
+                return
             }
 
-            val collectionIds =
-                this.fullIssue?.collectionItems?.map { it.userCollection } ?: emptyList()
-            addCollectionButton.inCollection = BaseCollection.MY_COLL.id in collectionIds
-            addWishListButton.inCollection = BaseCollection.WISH_LIST.id in collectionIds
+            viewModel.updateIssueCover(item.issue.issueId)
 
-            val issue = this.fullIssue?.issue
-            if (issue?.variantName?.isNotEmpty() == true && issue.variantOf != null) {
-                issueVariantName.text = issue.variantName
-                issueVariantName.visibility = VISIBLE
-            } else {
-                issueVariantName.visibility = GONE
-            }
+            val coverUri = item.coverUri
+            val collectionIds = item.collectionItems.map { it.userCollection }
+            val issue = item.issue
 
-            issueNameBox.setBackgroundResource(
-                if (addCollectionButton.inCollection)
-                    R.drawable.issue_list_item_in_collection_bg
-                else
-                    R.drawable.issue_list_item_not_in_collection_bg
+            card = IssueCardState(
+                issueId = issue.issueId,
+                number = issue.issueNumRaw.orEmpty(),
+                variantName = issue.variantName.takeIf { it.isNotEmpty() && issue.variantOf != null },
+                cover = coverUri?.path?.let { File(it) },
+                // Not found yet (still looking) vs looked for and missing
+                loadingCover = coverUri == null && item.cover == null,
+                inCollection = BaseCollection.MY_COLL.id in collectionIds,
+                inWishList = BaseCollection.WISH_LIST.id in collectionIds,
             )
-
-            issueNumTextView.text = this.fullIssue?.issue?.issueNumRaw
         }
     }
 

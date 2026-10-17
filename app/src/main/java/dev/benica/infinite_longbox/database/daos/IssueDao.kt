@@ -218,7 +218,10 @@ abstract class IssueDao : BaseDao<Issue>("issue") {
                 args.add(BaseCollection.MY_COLL.id)
             }
 
-            if (!filter.mShowVariants) {
+            // Variants in my collection always show. The Variants option is hidden while My
+            // Collection is on, so the flag alone left them out whenever it hadn't been toggled
+            // (the default filter has My Collection on and Variants off).
+            if (!filter.mShowVariants && !filter.mMyCollection) {
                 conditionsString.append(
                     "${connectword()} ie.variantOf IS NULL "
                 )

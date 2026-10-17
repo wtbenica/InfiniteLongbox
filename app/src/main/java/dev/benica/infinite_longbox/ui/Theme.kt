@@ -15,6 +15,7 @@
 
 package dev.benica.infinite_longbox.ui
 
+import android.graphics.Typeface
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
@@ -24,6 +25,9 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import dev.benica.infinite_longbox.R
+
+/** The condensed face used for small labels (the theme's fontBlock) */
+val CondensedBlock = FontFamily(Typeface.create("sans-serif-condensed", Typeface.NORMAL))
 
 /** The series-title typeface */
 val PermanentMarker = FontFamily(Font(R.font.permanent_marker))

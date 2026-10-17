@@ -66,7 +66,7 @@
 
     <!-- The accent (the only hue) -->
     <color name="accent">@color/accent_600</color>             <!-- solid elements: progress, selected, toggles -->
-    <color name="accent_soft">@color/accent_100</color>        <!-- tinted containers: headers, selected chips -->
+    <color name="accent_soft">@color/accent_200</color>        <!-- tinted containers: headers, selected chips -->
     <color name="accent_strong">@color/accent_800</color>      <!-- titles, links, text and icons on accent_soft -->
     <color name="on_accent">@color/neutral_0</color>           <!-- text on a solid accent -->
 

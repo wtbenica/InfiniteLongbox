@@ -43,6 +43,6 @@
     <dimen name="item_offset_horz_list_item_simple">@dimen/margin_default</dimen>
 
     <dimen name="card_elevation">1dp</dimen>
-    <dimen name="radius_list_item_issue">8dp</dimen>
-    <dimen name="radius_list_item_series">8dp</dimen>
+    <dimen name="radius_list_item_issue">16dp</dimen>
+    <dimen name="radius_list_item_series">16dp</dimen>
 </resources>

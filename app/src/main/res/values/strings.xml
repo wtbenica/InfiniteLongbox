@@ -126,4 +126,8 @@
     <string name="scan_hint">Hold the comic so the barcode and the small 5-digit code beside it are both in view</string>
     <string name="scan_camera_denied">The camera is needed to scan barcodes</string>
     <string name="scan_light">Light</string>
+    <string name="description_add_to_collection">Add to my collection</string>
+    <string name="description_remove_from_collection">Remove from my collection</string>
+    <string name="description_add_to_wish_list">Add to wish list</string>
+    <string name="description_remove_from_wish_list">Remove from wish list</string>
 </resources>

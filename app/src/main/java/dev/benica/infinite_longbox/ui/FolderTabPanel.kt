@@ -34,8 +34,8 @@ import androidx.compose.ui.unit.IntSize
 /**
  * A panel with a tab on its top-left, like a folder: [tab] sits above [body], and the outline
  * runs up the tab's side, across its top, down the other side and then out along the panel's top
- * edge, so the tab "blocks" the border and flows into it with rounded corners (convex on the tab,
- * a concave fillet where it meets the panel) instead of sharp turns.
+ * edge to the far end, so the tab "blocks" the border and flows into it with rounded corners
+ * (convex on the tab, a concave fillet where it meets the panel) instead of sharp turns.
  *
  * One path is both the fill and the stroke, so there's nothing to line up. Only the contour that
  * faces the cover is stroked; the left, right and bottom edges are left to whatever frames the
@@ -66,11 +66,12 @@ fun FolderTabPanel(
             val s = strokeWidth.toPx()
             val inset = s / 2f
             val r = cornerRadius.toPx()
-            val f = filletRadius.toPx()
             val tabW = tabSize.width.toFloat()
             val tabH = tabSize.height.toFloat()
             val w = size.width
             val h = size.height
+            // A long title can leave less room right of the tab than the fillet needs
+            val f = minOf(filletRadius.toPx(), w - (tabW - inset)).coerceAtLeast(0f)
             // Stroke centered on a line inset by half its width, so it lies inside the bounds
             val panelTop = tabH + inset
 
@@ -84,12 +85,15 @@ fun FolderTabPanel(
                     270f, 90f, false
                 ) // tab top-right
                 lineTo(tabW - inset, panelTop - f)
-                arcTo(
-                    Rect(tabW - inset, panelTop - 2 * f, tabW - inset + 2 * f, panelTop),
-                    180f, -90f, false
-                ) // concave fillet into the panel's top edge
-                lineTo(w - r, panelTop)
-                arcTo(Rect(w - 2 * r, panelTop, w, panelTop + 2 * r), 270f, 90f, false)
+                if (f > 0f) {
+                    arcTo(
+                        Rect(tabW - inset, panelTop - 2 * f, tabW - inset + 2 * f, panelTop),
+                        180f, -90f, false
+                    ) // concave fillet into the panel's top edge
+                }
+                // Square at the far end: it runs into the card's own border, so a curve there
+                // would leave a gap when the tab reaches that far
+                lineTo(w, panelTop)
                 lineTo(w, h)
                 close()
             }
