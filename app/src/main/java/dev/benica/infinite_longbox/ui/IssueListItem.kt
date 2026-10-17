@@ -272,7 +272,7 @@ private fun MorphButton(
 @Composable
 private fun Cover(state: IssueCardState, modifier: Modifier) {
     Image(
-        painter = painterResource(R.drawable.bg_placeholder),
+        painter = painterResource(R.drawable.placeholder),
         contentDescription = null,
         modifier = modifier,
         contentScale = ContentScale.Crop,

@@ -33,6 +33,7 @@ import kotlinx.coroutines.android.asCoroutineDispatcher
 import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withPermit
 import retrofit2.HttpException
+import java.io.IOException
 import java.net.ConnectException
 import java.net.SocketTimeoutException
 import java.time.Instant
@@ -99,7 +100,12 @@ abstract class Updater(
                 Log.d(TAG, "$name $e")
                 null
             } catch (e: HttpException) {
-                // do i need to check for others?
+                Log.d(TAG, "$name $e")
+                null
+            } catch (e: IOException) {
+                // Any other dropped or refused connection, e.g. the server closed it mid-response
+                if (doRetry)
+                    retrySafely(name, arg, queryFunction)
                 Log.d(TAG, "$name $e")
                 null
             }
@@ -140,6 +146,9 @@ abstract class Updater(
                 Log.d(TAG, "$name $e")
                 null
             } catch (e: HttpException) {
+                Log.d(TAG, "$name $e")
+                null
+            } catch (e: IOException) {
                 Log.d(TAG, "$name $e")
                 null
             }
