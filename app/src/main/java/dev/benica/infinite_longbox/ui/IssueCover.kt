@@ -78,7 +78,7 @@ fun IssueCover(
                 contentScale = ContentScale.FillWidth,
                 contentDescription = description,
             )
-            AddCoverBadge(Modifier.align(Alignment.BottomStart).padding(8.dp))
+            AddCoverBadge(state.placeholderKey, Modifier.align(Alignment.BottomStart).padding(8.dp))
         }
     } else {
         // The file name stays the same when a cover is replaced, so key on its modified time
@@ -99,12 +99,12 @@ fun IssueCover(
 
 /** Says the empty cover can be tapped to add one. */
 @Composable
-private fun AddCoverBadge(modifier: Modifier = Modifier) {
+private fun AddCoverBadge(placeholderKey: String, modifier: Modifier = Modifier) {
     Column(modifier, horizontalAlignment = Alignment.CenterHorizontally) {
         Box(
             modifier = Modifier
                 .size(56.dp)
-                .background(colorResource(R.color.accent), CircleShape)
+                .background(placeholderColorFor(placeholderKey), CircleShape)
                 .border(3.dp, colorResource(R.color.card_border), CircleShape),
             contentAlignment = Alignment.Center,
         ) {
@@ -112,7 +112,7 @@ private fun AddCoverBadge(modifier: Modifier = Modifier) {
                 painter = painterResource(R.drawable.ic_add_photo),
                 contentDescription = null,
                 modifier = Modifier.size(28.dp),
-                tint = colorResource(R.color.on_accent),
+                tint = colorResource(R.color.card_border),
             )
         }
         Text(

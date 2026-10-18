@@ -59,6 +59,13 @@ private val artwork = listOf(
     R.drawable.placeholder_magenta,
 )
 
+/** The main color of each blank cover image (cyan, yellow, magenta), in the same order as [artwork] */
+private val artworkColors = listOf(Color(0xFF68AEAE), Color(0xFFAEAE68), Color(0xFFAE68AE))
+
+/** The color of the blank cover [placeholderArtworkFor] picks for [key]. */
+fun placeholderColorFor(key: String): Color =
+    artworkColors[Math.floorMod(key.trim().lowercase().hashCode(), artworkColors.size)]
+
 /** The blank cover for [key]: the same key always gets the same one, others spread across all three. */
 fun placeholderArtworkFor(key: String): Int =
     artwork[Math.floorMod(key.trim().lowercase().hashCode(), artwork.size)]
