@@ -233,6 +233,10 @@ class FilterViewModel : ViewModel() {
         return id
     }
 
+    /** False in a view model that has handed out no screens: a new one, after the process died. */
+    val hasScreens: Boolean
+        get() = lastScreenId > 0
+
     /** The filter [registerScreen] was given for [screenId], once. */
     fun takeScreenFilter(screenId: Int): SearchFilter? = screenFilters.remove(screenId)
 

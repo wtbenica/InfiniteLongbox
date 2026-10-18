@@ -43,6 +43,7 @@ import androidx.core.view.updateLayoutParams
 import androidx.core.view.updatePadding
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentContainerView
 import androidx.fragment.app.FragmentTransaction.TRANSIT_FRAGMENT_FADE
 import androidx.lifecycle.MutableLiveData
@@ -180,6 +181,16 @@ class MainActivity : AppCompatActivity(),
         }
     }
 
+    /** Drops the restored screens for a fresh default list. */
+    private fun startOver() {
+        Log.d(TAG, "Restored without the screens' filters; starting over")
+        supportFragmentManager.popBackStackImmediate(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
+        supportFragmentManager.beginTransaction()
+            .replace(R.id.fragment_container, newListFor(SearchFilter()))
+            .commitNow()
+        backStackSize = 0
+    }
+
     private var backStackSize = 0
     private var sheetStateBeforeDetail = STATE_COLLAPSED
 
@@ -253,11 +264,18 @@ class MainActivity : AppCompatActivity(),
 
         Repository.get().beginStaticUpdate(progressUpdate, this)
 
-        // A restored screen knows its filter; the sheet starts from that one
         if (savedInstanceState != null) {
-            (currentScreen as? ListFragment<*, *>)?.currentFilter
-                ?.let { filterViewModel.setFilter(it) }
-            backStackSize = supportFragmentManager.backStackEntryCount
+            if (filterViewModel.hasScreens) {
+                // Only the activity was recreated: its screens still know their filters, and the
+                // sheet starts from the visible one
+                (currentScreen as? ListFragment<*, *>)?.currentFilter
+                    ?.let { filterViewModel.setFilter(it) }
+                backStackSize = supportFragmentManager.backStackEntryCount
+            } else {
+                // The process was killed in the background. Android brought the screens back, but
+                // their filters were only in memory, so they'd show unfiltered lists.
+                startOver()
+            }
         }
 
         filterViewModel.filter.observe(this) { filter -> showFilter(filter) }
