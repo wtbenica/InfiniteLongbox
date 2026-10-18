@@ -118,6 +118,19 @@ internal fun getUpdatedTag(id: Int, type: String): String = "$type${id}_UPDATED"
 
 internal fun seriesTag(id: Int): String = getUpdatedTag(id, "SERIES_")
 internal fun issueTag(id: Int) = getUpdatedTag(id, "ISSUE_")
+/**
+ * How the long lists page. Placeholders give the scroll handle a whole-list length to work with;
+ * a jump (dragging that handle, a big fling) then reloads at the new position instead of paging
+ * through everything in between, and only a handful of pages are kept in memory, not every page
+ * the user has ever scrolled past.
+ */
+private fun pagingConfig(pageSize: Int) = PagingConfig(
+    pageSize = pageSize,
+    enablePlaceholders = true,
+    jumpThreshold = pageSize * 3,
+    maxSize = pageSize * 10,
+)
+
 @ExperimentalCoroutinesApi
 class Repository private constructor(val context: Context) {
 
@@ -234,10 +247,7 @@ class Repository private constructor(val context: Context) {
         val newFilter = SearchFilter(filter)
 
         return Pager(
-            config = PagingConfig(
-                pageSize = REQUEST_LIMIT,
-                enablePlaceholders = true
-            ),
+            config = pagingConfig(REQUEST_LIMIT),
             pagingSourceFactory = {
                 seriesDao.getSeriesByFilterPagingSource(newFilter)
             }
@@ -249,10 +259,7 @@ class Repository private constructor(val context: Context) {
         val newFilter = SearchFilter(filter)
 
         return Pager(
-            config = PagingConfig(
-                pageSize = REQUEST_LIMIT * 4,
-                enablePlaceholders = true
-            ),
+            config = pagingConfig(REQUEST_LIMIT * 4),
             pagingSourceFactory = { characterDao.getCharactersByFilterPagingSource(newFilter) }
         ).flow
     }
@@ -265,10 +272,7 @@ class Repository private constructor(val context: Context) {
         val newFilter = SearchFilter(filter)
 
         return Pager(
-            config = PagingConfig(
-                pageSize = REQUEST_LIMIT * 4,
-                enablePlaceholders = true
-            ),
+            config = pagingConfig(REQUEST_LIMIT * 4),
             pagingSourceFactory = { creatorDao.getCreatorsByFilterPagingSource(newFilter) }
         ).flow
     }
@@ -301,10 +305,7 @@ class Repository private constructor(val context: Context) {
 
     fun getIssuesByFilterPaged(filter: SearchFilter): Flow<PagingData<FullIssue>> {
         return Pager(
-            config = PagingConfig(
-                pageSize = REQUEST_LIMIT,
-                enablePlaceholders = true
-            ),
+            config = pagingConfig(REQUEST_LIMIT),
             pagingSourceFactory = {
                 issueDao.getIssuesByFilterPagingSource(filter = filter)
             }
