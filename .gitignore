@@ -22,3 +22,5 @@ local.properties
 /.idea/kotlinc.xml
 /.idea/jarRepositories.xml
 /.idea/AndroidProjectSystem.xml
+
+/.idea/inspectionProfiles/
