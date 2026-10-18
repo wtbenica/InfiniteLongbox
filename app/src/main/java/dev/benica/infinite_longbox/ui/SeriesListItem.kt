@@ -172,7 +172,7 @@ private fun SeriesCard(state: SeriesCardState?, onClick: () -> Unit, modifier: M
 }
 
 @Composable
-private fun Bar(modifier: Modifier) {
+internal fun Bar(modifier: Modifier) {
     Box(
         modifier
             .clip(RoundedCornerShape(4.dp))
@@ -181,7 +181,7 @@ private fun Bar(modifier: Modifier) {
 }
 
 @Composable
-private fun Subtitle(text: String, modifier: Modifier = Modifier) {
+internal fun Subtitle(text: String, modifier: Modifier = Modifier) {
     Text(
         text = text,
         modifier = modifier,
@@ -194,7 +194,7 @@ private fun Subtitle(text: String, modifier: Modifier = Modifier) {
 }
 
 /** The part of the card above the title tab, where the cover (or its stand-in) shows. */
-private val COVER_WINDOW = 150.dp
+internal val COVER_WINDOW = 150.dp
 
 /** Fills the card, scaled to cover; which part shows is picked by [CoverFocus]. */
 @Composable

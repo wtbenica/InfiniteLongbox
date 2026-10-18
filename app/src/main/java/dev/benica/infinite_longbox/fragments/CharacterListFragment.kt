@@ -19,7 +19,11 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.fragment.app.viewModels
 import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
@@ -30,6 +34,9 @@ import dev.benica.infinite_longbox.R
 import dev.benica.infinite_longbox.database.models.Character
 import dev.benica.infinite_longbox.database.models.FullCharacter
 import dev.benica.infinite_longbox.fragments_view_models.CharacterListViewModel
+import dev.benica.infinite_longbox.ui.InfiniteLongboxTheme
+import dev.benica.infinite_longbox.ui.NameCardState
+import dev.benica.infinite_longbox.ui.NameListItem
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 private const val TAG = APP + "CharacterListFragment"
@@ -78,41 +85,45 @@ class CharacterListFragment : ListFragment<FullCharacter, CharacterListFragment.
             CharacterHolder(parent)
 
         override fun onBindViewHolder(holder: CharacterHolder, position: Int) {
-            getItem(position)?.let { holder.bind(it) }
+            holder.bind(getItem(position))
         }
     }
 
     inner class CharacterHolder(parent: ViewGroup) : RecyclerView.ViewHolder(
-        LayoutInflater.from(parent.context).inflate(R.layout.list_item_simple, parent, false)
-    ), View.OnClickListener {
+        ComposeView(parent.context).apply {
+            layoutParams = ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+            )
+            // Recycled holders: drop the composition when the view leaves the pool or window
+            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnDetachedFromWindowOrReleasedFromPool)
+        }
+    ) {
 
-        private lateinit var item: FullCharacter
-        private val nameTextView: TextView =
-            itemView.findViewById(R.id.list_item_simple_name)
-        private val alterEgoTextView: TextView = itemView.findViewById(R.id.list_item_simple_meta_1)
-        private val publisherTextView: TextView =
-            itemView.findViewById(R.id.list_item_simple_meta_2)
-        private val div: View = itemView.findViewById(R.id.divider_list_item_meta)
+        private var item: FullCharacter? = null
+        private var card by mutableStateOf<NameCardState?>(null)
 
         init {
-            itemView.setOnClickListener(this)
-        }
-
-        fun bind(item: FullCharacter) {
-            this.item = item
-            nameTextView.text = this.item.character.name
-            alterEgoTextView.text = this.item.character.alterEgo
-            publisherTextView.text = this.item.publisher.publisher
-            div.visibility =
-                if (alterEgoTextView.text.isBlank() || publisherTextView.text.isBlank()) {
-                    View.GONE
-                } else {
-                    View.VISIBLE
+            (itemView as ComposeView).setContent {
+                InfiniteLongboxTheme {
+                    val state = card
+                    if (state != null) {
+                        NameListItem(state, onClick = {
+                            item?.let { (callback as CharacterListCallback?)?.onCharacterSelected(it.character) }
+                        })
+                    }
                 }
+            }
         }
 
-        override fun onClick(v: View?) {
-            (callback as CharacterListCallback?)?.onCharacterSelected(item.character)
+        fun bind(item: FullCharacter?) {
+            this.item = item
+            card = item?.let {
+            NameCardState(
+                name = item.character.name,
+                details = listOf(item.character.alterEgo.orEmpty(), item.publisher.publisher),
+            )
+            }
         }
     }
 

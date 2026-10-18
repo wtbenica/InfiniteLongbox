@@ -19,7 +19,11 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.fragment.app.viewModels
 import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
@@ -30,6 +34,9 @@ import dev.benica.infinite_longbox.R
 import dev.benica.infinite_longbox.database.models.Creator
 import dev.benica.infinite_longbox.database.models.FullCreator
 import dev.benica.infinite_longbox.fragments_view_models.CreatorListViewModel
+import dev.benica.infinite_longbox.ui.InfiniteLongboxTheme
+import dev.benica.infinite_longbox.ui.NameCardState
+import dev.benica.infinite_longbox.ui.NameListItem
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 private const val TAG = APP + "CreatorListFragment"
@@ -79,40 +86,45 @@ class CreatorListFragment : ListFragment<FullCreator, CreatorListFragment.Creato
             CreatorHolder(parent)
 
         override fun onBindViewHolder(holder: CreatorHolder, position: Int) {
-            getItem(position)?.let { holder.bind(it) }
+            holder.bind(getItem(position))
         }
     }
 
     inner class CreatorHolder(parent: ViewGroup) : RecyclerView.ViewHolder(
-        LayoutInflater.from(parent.context).inflate(R.layout.list_item_simple, parent, false)
-    ), View.OnClickListener {
+        ComposeView(parent.context).apply {
+            layoutParams = ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+            )
+            // Recycled holders: drop the composition when the view leaves the pool or window
+            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnDetachedFromWindowOrReleasedFromPool)
+        }
+    ) {
 
-        private lateinit var item: FullCreator
-        private val nameTextView: TextView =
-            itemView.findViewById(R.id.list_item_simple_name)
-        private val nameDetailTextView: TextView =
-            itemView.findViewById(R.id.list_item_simple_meta_1)
-
-        //        private val bg: ImageView = itemView.findViewById(R.id.list_item_simple_bg)
-        private val div: View = itemView.findViewById(R.id.divider_list_item_meta)
+        private var item: FullCreator? = null
+        private var card by mutableStateOf<NameCardState?>(null)
 
         init {
-            itemView.setOnClickListener(this)
-            div.visibility = View.GONE
-        }
-
-        fun bind(item: FullCreator) {
-            this.item = item
-            nameTextView.text = this.item.creator.name
-//            alterEgoTextView.text = this.item.flatMap { it: FullCreator -> it.nameDetail.name }
-            val nameDetails = this.item.nameDetail.fold(String()) { acc, fullCreator ->
-                acc + "${fullCreator.name}, "
+            (itemView as ComposeView).setContent {
+                InfiniteLongboxTheme {
+                    val state = card
+                    if (state != null) {
+                        NameListItem(state, onClick = {
+                            item?.let { (callback as CreatorListCallback?)?.onCreatorSelected(it.creator) }
+                        })
+                    }
+                }
             }
-            nameDetailTextView.text = nameDetails.removeSuffix(", ")
         }
 
-        override fun onClick(v: View?) {
-            (callback as CreatorListCallback?)?.onCreatorSelected(item.creator)
+        fun bind(item: FullCreator?) {
+            this.item = item
+            card = item?.let {
+            NameCardState(
+                name = item.creator.name,
+                details = listOf(item.nameDetail.joinToString(", ") { it.name }),
+            )
+            }
         }
     }
 
