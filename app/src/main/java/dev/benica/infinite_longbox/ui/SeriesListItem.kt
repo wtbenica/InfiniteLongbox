@@ -16,7 +16,7 @@
 package dev.benica.infinite_longbox.ui
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -36,15 +36,16 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.produceState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.unit.times
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import dev.benica.infinite_longbox.R
@@ -78,48 +79,57 @@ fun SeriesListItem(state: SeriesCardState, onClick: () -> Unit, modifier: Modifi
         Box {
             Cover(state, Modifier.matchParentSize())
 
-            // Title block over a scrim; its height sets the card's height
-            Column(
+            Box(
                 modifier = Modifier
+                    .background(Color(0xAAFFFFFF))
                     .fillMaxWidth()
-            ) {
-                Spacer(Modifier.height(COVER_WINDOW))
+                    .height(COVER_WINDOW + 2 * dimensionResource(R.dimen.margin_wide))
+            ) {}
 
-                FolderTabPanel(
-                    fill = colorResource(R.color.card_tab),
-                    stroke = colorResource(R.color.card_border),
-                    strokeWidth = 4.dp,
-                    cornerRadius = dimensionResource(R.dimen.margin_wide),
-                    tab = {
-                        Text(
-                            text = state.name,
-                            modifier = Modifier.padding(
-                                start = dimensionResource(R.dimen.margin_wide),
-                                end = dimensionResource(R.dimen.margin_wide),
-                                top = dimensionResource(R.dimen.margin_default),
-                            ),
-                            color = MaterialTheme.colorScheme.onSurface,
-                            fontFamily = PermanentMarker,
-                            fontSize = 20.sp,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                        )
-                    },
-                    body = {
-                        Row(
-                            modifier = Modifier.padding(
-                                start = dimensionResource(R.dimen.margin_wide),
-                                end = dimensionResource(R.dimen.margin_wide),
-                                top = dimensionResource(R.dimen.margin_default),
-                                bottom = dimensionResource(R.dimen.margin_default),
+            // Title block over a scrim; its height sets the card's height
+            Box {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                ) {
+                    Spacer(modifier = Modifier.height(COVER_WINDOW))
+
+                    FolderTabPanel(
+                        fill = colorResource(R.color.card_tab),
+                        stroke = colorResource(R.color.card_border),
+                        strokeWidth = 4.dp,
+                        cornerRadius = dimensionResource(R.dimen.margin_wide),
+                        tab = {
+                            Text(
+                                text = state.name,
+                                modifier = Modifier.padding(
+                                    start = dimensionResource(R.dimen.margin_wide),
+                                    end = dimensionResource(R.dimen.margin_wide),
+                                    top = dimensionResource(R.dimen.margin_default),
+                                ),
+                                color = MaterialTheme.colorScheme.onSurface,
+                                fontFamily = PermanentMarker,
+                                fontSize = 20.sp,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
                             )
-                        ) {
-                            Subtitle(state.dateRange)
-                            Spacer(Modifier.width(dimensionResource(R.dimen.margin_default)))
-                            Subtitle(state.format)
+                        },
+                        body = {
+                            Row(
+                                modifier = Modifier.padding(
+                                    start = dimensionResource(R.dimen.margin_wide),
+                                    end = dimensionResource(R.dimen.margin_wide),
+                                    top = dimensionResource(R.dimen.margin_default),
+                                    bottom = dimensionResource(R.dimen.margin_default),
+                                )
+                            ) {
+                                Subtitle(state.dateRange)
+                                Spacer(Modifier.width(dimensionResource(R.dimen.margin_default)))
+                                Subtitle(state.format)
+                            }
                         }
-                    }
-                )
+                    )
+                }
             }
 
             if (state.loadingCover) {
