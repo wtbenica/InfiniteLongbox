@@ -37,6 +37,7 @@ import dev.benica.infinite_longbox.fragments_view_models.SeriesListViewModel
 import dev.benica.infinite_longbox.ui.InfiniteLongboxTheme
 import dev.benica.infinite_longbox.ui.SeriesCardState
 import dev.benica.infinite_longbox.ui.SeriesListItem
+import dev.benica.infinite_longbox.ui.SeriesListItemSkeleton
 import java.io.File
 import kotlinx.coroutines.*
 
@@ -84,7 +85,7 @@ class SeriesListFragment : ListFragment<FullSeries, SeriesListFragment.SeriesHol
             SeriesHolder(parent)
 
         override fun onBindViewHolder(holder: SeriesHolder, position: Int) {
-            getItem(position)?.let { holder.bind(it) }
+            holder.bind(getItem(position))
         }
     }
 
@@ -95,7 +96,7 @@ class SeriesListFragment : ListFragment<FullSeries, SeriesListFragment.SeriesHol
                 ViewGroup.LayoutParams.WRAP_CONTENT
             )
             // Recycled holders: drop the composition when the view leaves the pool or window
-            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnDetachedFromWindowOrReleasedFromPool)
         }
     ) {
 
@@ -105,7 +106,10 @@ class SeriesListFragment : ListFragment<FullSeries, SeriesListFragment.SeriesHol
         init {
             (itemView as ComposeView).setContent {
                 InfiniteLongboxTheme {
-                    card?.let { state ->
+                    val state = card
+                    if (state == null) {
+                        SeriesListItemSkeleton()
+                    } else {
                         SeriesListItem(state, onClick = {
                             item?.let { (callback as SeriesListCallback?)?.onSeriesSelected(it) }
                         })
@@ -114,7 +118,7 @@ class SeriesListFragment : ListFragment<FullSeries, SeriesListFragment.SeriesHol
             }
         }
 
-        fun bind(item: FullSeries) {
+        fun bind(item: FullSeries?) {
             // A recycled view must start clean, whatever animation it was last part of
             itemView.translationX = 0f
             itemView.translationY = 0f
@@ -123,6 +127,10 @@ class SeriesListFragment : ListFragment<FullSeries, SeriesListFragment.SeriesHol
             itemView.scaleY = 1f
 
             this.item = item
+            if (item == null) {
+                card = null
+                return
+            }
 
             val firstIssueId = item.series.firstIssue
             if (firstIssueId != null) {

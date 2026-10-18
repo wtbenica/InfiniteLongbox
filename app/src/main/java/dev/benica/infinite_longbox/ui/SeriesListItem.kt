@@ -16,6 +16,7 @@
 package dev.benica.infinite_longbox.ui
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -35,6 +36,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.produceState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
@@ -60,7 +62,15 @@ data class SeriesCardState(
 )
 
 @Composable
-fun SeriesListItem(state: SeriesCardState, onClick: () -> Unit, modifier: Modifier = Modifier) {
+fun SeriesListItem(state: SeriesCardState, onClick: () -> Unit, modifier: Modifier = Modifier) =
+    SeriesCard(state, onClick, modifier)
+
+/** The card laid out like a real one, with bars where the text goes, for a series still loading. */
+@Composable
+fun SeriesListItemSkeleton(modifier: Modifier = Modifier) = SeriesCard(null, {}, modifier)
+
+@Composable
+private fun SeriesCard(state: SeriesCardState?, onClick: () -> Unit, modifier: Modifier) {
     val shape = RoundedCornerShape(dimensionResource(R.dimen.radius_list_item_series))
 
     Card(
@@ -76,7 +86,11 @@ fun SeriesListItem(state: SeriesCardState, onClick: () -> Unit, modifier: Modifi
         border = BorderStroke(4.dp, colorResource(R.color.card_border)),
     ) {
         Box {
-            Cover(state, Modifier.matchParentSize())
+            if (state == null) {
+                Box(Modifier.matchParentSize().background(colorResource(R.color.card_tab)))
+            } else {
+                Cover(state, Modifier.matchParentSize())
+            }
 
             // On every series card, cover or not
             Box(
@@ -100,6 +114,9 @@ fun SeriesListItem(state: SeriesCardState, onClick: () -> Unit, modifier: Modifi
                         strokeWidth = 4.dp,
                         cornerRadius = dimensionResource(R.dimen.margin_wide),
                         tab = {
+                            if (state == null) {
+                                Bar(Modifier.padding(horizontal = dimensionResource(R.dimen.margin_wide), vertical = dimensionResource(R.dimen.margin_default)).width(140.dp).height(20.dp))
+                            } else {
                             Text(
                                 text = state.name,
                                 modifier = Modifier.padding(
@@ -113,6 +130,7 @@ fun SeriesListItem(state: SeriesCardState, onClick: () -> Unit, modifier: Modifi
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis,
                             )
+                            }
                         },
                         body = {
                             Row(
@@ -124,6 +142,10 @@ fun SeriesListItem(state: SeriesCardState, onClick: () -> Unit, modifier: Modifi
                                 )
                             ) {
                                 val gap = dimensionResource(R.dimen.margin_default)
+                                if (state == null) {
+                                    Bar(Modifier.width(200.dp).height(16.dp))
+                                    return@Row
+                                }
                                 Subtitle(state.publisher, Modifier.weight(1f, fill = false))
                                 Spacer(Modifier.width(gap))
                                 Subtitle(state.dateRange)
@@ -135,7 +157,7 @@ fun SeriesListItem(state: SeriesCardState, onClick: () -> Unit, modifier: Modifi
                 }
             }
 
-            if (state.loadingCover) {
+            if (state != null && state.loadingCover) {
                 LinearProgressIndicator(
                     modifier = Modifier
                         .align(Alignment.BottomStart)
@@ -147,6 +169,15 @@ fun SeriesListItem(state: SeriesCardState, onClick: () -> Unit, modifier: Modifi
             }
         }
     }
+}
+
+@Composable
+private fun Bar(modifier: Modifier) {
+    Box(
+        modifier
+            .clip(RoundedCornerShape(4.dp))
+            .background(colorResource(R.color.card_border).copy(alpha = 0.35f))
+    )
 }
 
 @Composable

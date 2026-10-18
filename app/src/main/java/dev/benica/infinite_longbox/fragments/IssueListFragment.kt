@@ -150,7 +150,7 @@ class IssueListFragment : ListFragment<FullIssue, IssueListFragment.IssueViewHol
                 ViewGroup.LayoutParams.WRAP_CONTENT
             )
             // Recycled holders: drop the composition when the view leaves the pool or window
-            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnDetachedFromWindowOrReleasedFromPool)
         }
     ) {
         private var fullIssue: FullIssue? = null
