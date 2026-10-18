@@ -75,7 +75,6 @@
 
     <!-- Text laid over cover art needs a backing so it stays readable -->
     <color name="scrim_surface">#49F7F6F3</color>
-    <color name="scrim_surface_light">#30F7F6F3</color>
 
     <!-- Placeholder art shown where a cover isn't available -->
     <color name="placeholder_sky">@color/neutral_100</color>

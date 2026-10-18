@@ -15,14 +15,10 @@
 
 package dev.benica.infinite_longbox.fragments
 
-import android.content.Context
-import android.graphics.drawable.Drawable
 import android.os.Bundle
-import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.annotation.AttrRes
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -74,13 +70,6 @@ class SeriesListFragment : ListFragment<FullSeries, SeriesListFragment.SeriesHol
             itemOffset = resources.getDimension(R.dimen.item_offset_vert_list_item_series).toInt(),
             itemOffsetHorizontal = resources.getDimension(R.dimen.item_offset_horz_list_item_series)
                 .toInt()
-        )
-
-        val itemOffsetDecoration2 = ItemOffsetDecoration(
-            itemOffset = resources.getDimension(R.dimen.item_offset_vert_list_item_series).toInt(),
-            itemOffsetHorizontal = resources.getDimension(R.dimen.item_offset_horz_list_item_series)
-                .toInt(),
-            numCols = numCols
         )
 
         listRecyclerView.addItemDecoration(itemOffsetDecoration)
@@ -184,13 +173,4 @@ class SeriesListFragment : ListFragment<FullSeries, SeriesListFragment.SeriesHol
                 oldItem == newItem
         }
     }
-}
-
-fun Context.getDrawableFromAttr(
-    @AttrRes attrDrawable: Int,
-    typedValue: TypedValue = TypedValue(),
-    resolveRefs: Boolean = true
-): Int {
-    theme.resolveAttribute(attrDrawable, typedValue, resolveRefs)
-    return typedValue.resourceId
 }

@@ -23,9 +23,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
 import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.GridLayoutManager
@@ -43,8 +40,6 @@ import dev.benica.infinite_longbox.ui.IssueListItem
 import dev.benica.infinite_longbox.views.SeriesDetailBox
 import java.io.File
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.launch
 
 @ExperimentalCoroutinesApi
 class IssueListFragment : ListFragment<FullIssue, IssueListFragment.IssueViewHolder>() {

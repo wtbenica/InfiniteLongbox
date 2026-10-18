@@ -214,7 +214,6 @@ abstract class CharacterDao : BaseDao<Character>("character") {
         val simpleSQLiteQuery = SimpleSQLiteQuery(
             "$tableJoinString$conditionsString$orderClause$limitClause", args.toArray()
         )
-        Log.d(TAG, "XYZ ${simpleSQLiteQuery.sql}")
         return simpleSQLiteQuery
     }
 

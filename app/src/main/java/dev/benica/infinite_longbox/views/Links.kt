@@ -43,7 +43,6 @@ class SeriesLink(
     }
 
     override fun onClick(v: View?) {
-        Log.d(TAG, "Creator Clicked!!!!!")
         series?.let { callback?.seriesClicked(it) }
     }
 

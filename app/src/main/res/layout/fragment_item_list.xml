@@ -48,8 +48,7 @@
         app:fastScrollHorizontalTrackDrawable="@drawable/fast_scroll_track"
         app:fastScrollVerticalThumbDrawable="@drawable/fast_scroll_thumb"
         app:fastScrollVerticalTrackDrawable="@drawable/fast_scroll_track"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior"
-        tools:listitem="@layout/list_item_series" />
+        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
     <!-- The letter shown while the fast-scroll handle is dragged -->
     <TextView

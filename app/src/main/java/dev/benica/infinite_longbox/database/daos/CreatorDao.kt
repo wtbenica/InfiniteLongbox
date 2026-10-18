@@ -213,7 +213,6 @@ abstract class CreatorDao : BaseDao<Creator>("creator") {
                 """,
                 allArgs.toArray()
             )
-            Log.d(TAG, "XYZ ${simpleSQLiteQuery.sql}")
             return simpleSQLiteQuery
         }
 

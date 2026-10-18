@@ -29,7 +29,6 @@
     <attr name="mainActivityProgressBarBgColor" format="reference" />
 
     <!-- FilterFragment Theme Values -->
-    <attr name="imageLabelBackground" format="reference" />
     <attr name="imageLabelBackgroundColor" format="reference" />
     <attr name="imageLabelTint" format="reference" />
     <attr name="searchBarTextColorHint" format="reference|color" />
@@ -37,11 +36,9 @@
     <attr name="searchBarBackground" format="reference" />
     <attr name="searchBarPopupBackground" format="reference" />
     <attr name="filterChipGroupBackground" format="reference" />
-    <attr name="filterSectionBackground" format="reference" />
     <attr name="filterSectionBackgroundColor" format="reference|color" />
 
     <!-- IssueDetailFragment -->
-    <attr name="fragmentIssueDetailButtonColor" format="reference" />
     <attr name="fragmentIssueDetailBgColor" format="reference" />
 
     <!-- IssueDetailFragment Variant Spinner -->
@@ -54,28 +51,15 @@
     <attr name="seriesDetailDropdownButtonTint" format="reference|color" />
 
     <!-- ListItem -->
-    <attr name="listItemTitleTextColor" format="reference" />
     <attr name="listItemBackground" format="reference" />
     <attr name="listItemBackgroundBase" format="reference" />
-    <attr name="listItemBackgroundFilter" format="reference|color" />
     <attr name="listItemTitleTextSize" format="reference" />
 
     <!-- ListItemSeries -->
-    <attr name="listItemSeriesBg" format="reference|color" />
     <attr name="listItemSeriesLayoutHeight" format="reference|dimension" />
-    <attr name="listItemSeriesTitleCardBackground" format="reference" />
-    <attr name="listItemSeriesProgressBarBackground" format="reference" />
-    <attr name="listItemSeriesProgressBarIndeterminateTint" format="reference" />
     <attr name="listItemSeriesMetaTextSize" format="reference|dimension" />
 
     <!-- ListItemIssue -->
-    <attr name="listItemIssueBg" format="reference" />
-    <attr name="listItemIssueBoxBgInCollection" format="reference" />
-    <attr name="listItemIssueBoxBgColorInCollection" format="reference" />
-    <attr name="listItemIssueBoxBgColorNotInCollection" format="reference" />
-    <attr name="listItemIssueProgressBarBg" format="reference" />
-    <attr name="listItemIssueProgressBarIndetTint" format="reference" />
-    <attr name="listItemIssueBoxTextColor" format="reference" />
 
     <!-- ListItemSimple -->
     <attr name="listItemSimpleTitleTextBackground" format="reference" />
@@ -87,23 +71,10 @@
     <attr name="listItemSimpleMetaTextColor" format="reference|color" />
 
     <!-- StoryBox -->
-    <attr name="storyBoxTitleBarBg" format="reference" />
-    <attr name="storyBoxTitleBarBgColor" format="reference" />
-    <attr name="storyBoxTitleBarTextColor" format="reference" />
-    <attr name="storyBoxTitleDropdownButtonBg" format="reference" />
-    <attr name="storyBoxTitleDropdownButtonTint" format="reference|color" />
 
-    <attr name="storyBoxSubtitleTextBg" format="reference" />
-    <attr name="storyBoxSubtitleTextBgColor" format="reference|color" />
-    <attr name="storyBoxSubtitleTextColor" format="reference|color" />
-    <attr name="storyBoxRoleNameTextBg" format="reference" />
     <attr name="storyBoxLinkTextColor" format="reference" />
     <attr name="storyBoxCreatorNameTextColor" format="reference" />
-    <attr name="storyBoxRoleNameTextColor" format="reference" />
-    <attr name="storyBoxContentBoxTextColor" format="reference" />
 
-    <attr name="colorStoryBoxTitle" format="reference" />
-    <attr name="colorStoryBoxSubtitle" format="reference" />
     <attr name="styleLinkTextView" format="reference" />
 
     <!-- CoverDialogFragment -->

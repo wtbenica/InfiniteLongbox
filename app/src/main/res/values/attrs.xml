@@ -19,9 +19,6 @@
         <attr name="expanded" format="boolean" />
     </declare-styleable>
 
-    <declare-styleable name="IssueNameBox">
-        <attr name="in_collection" format="boolean" />
-    </declare-styleable>
 
 
 </resources>

@@ -227,16 +227,7 @@ abstract class IssueDao : BaseDao<Issue>("issue") {
                 )
             }
 
-            // TODO: what does a text filter mean in an issue list?
-            filter.mTextFilter?.let { textFilter ->
-                Log.d(TAG, "*************************************************************")
-                Log.d(TAG, "*************************************************************")
-                Log.d(TAG, "*************************************************************")
-                Log.d(TAG, "SERIOUS TODO, BUT STILL WANT IT TO RUN FOR THE MOMENT!")
-                Log.d(TAG, "*************************************************************")
-                Log.d(TAG, "*************************************************************")
-                Log.d(TAG, "*************************************************************")
-            }
+            // TODO: a text filter means nothing in an issue list yet
 
             val sortClause: String = filter.mSortType?.let {
                 val isValid =
