@@ -78,7 +78,7 @@ fun IssueCover(
                 contentScale = ContentScale.FillWidth,
                 contentDescription = description,
             )
-            AddCoverBadge(Modifier.align(Alignment.Center))
+            AddCoverBadge(Modifier.align(Alignment.BottomStart).padding(8.dp))
         }
     } else {
         // The file name stays the same when a cover is replaced, so key on its modified time
