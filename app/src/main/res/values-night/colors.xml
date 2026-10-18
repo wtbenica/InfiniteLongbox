@@ -23,6 +23,8 @@
     <color name="surface_raised">@color/neutral_800</color>
     <color name="surface_sunken">@color/neutral_950</color>
     <color name="outline">@color/neutral_700</color>
+    <color name="card_border">@color/neutral_1000</color>
+    <color name="card_tab">@color/neutral_800</color>
 
     <color name="text_primary">@color/neutral_50</color>
     <color name="text_secondary">@color/neutral_400</color>

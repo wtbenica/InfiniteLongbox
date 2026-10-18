@@ -73,7 +73,7 @@ fun SeriesListItem(state: SeriesCardState, onClick: () -> Unit, modifier: Modifi
         shape = shape,
         elevation = CardDefaults.cardElevation(defaultElevation = dimensionResource(R.dimen.margin_narrow)),
         colors = CardDefaults.cardColors(containerColor = colorResource(R.color.surface_raised)),
-        border = BorderStroke(4.dp, MaterialTheme.colorScheme.onBackground),
+        border = BorderStroke(4.dp, colorResource(R.color.card_border)),
     ) {
         Box {
             Cover(state, Modifier.matchParentSize())
@@ -86,8 +86,8 @@ fun SeriesListItem(state: SeriesCardState, onClick: () -> Unit, modifier: Modifi
                 Spacer(Modifier.height(COVER_WINDOW))
 
                 FolderTabPanel(
-                    fill = MaterialTheme.colorScheme.background,
-                    stroke = MaterialTheme.colorScheme.onBackground,
+                    fill = colorResource(R.color.card_tab),
+                    stroke = colorResource(R.color.card_border),
                     strokeWidth = 4.dp,
                     cornerRadius = dimensionResource(R.dimen.margin_wide),
                     tab = {

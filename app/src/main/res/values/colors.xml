@@ -51,6 +51,7 @@
     <color name="neutral_800">#333230</color>
     <color name="neutral_900">#232220</color>
     <color name="neutral_950">#181716</color>
+    <color name="neutral_1000">#000000</color>
 
     <!-- ============================ ROLES (light) ============================ -->
 
@@ -59,6 +60,8 @@
     <color name="surface_raised">@color/neutral_0</color>      <!-- cards, the app bar, sheets, popups, dialogs -->
     <color name="surface_sunken">@color/neutral_100</color>    <!-- wells: tracks, inactive chips, inset panels -->
     <color name="outline">@color/neutral_300</color>           <!-- borders and dividers -->
+    <color name="card_border">@color/neutral_900</color>       <!-- the heavy outline of the series cards -->
+    <color name="card_tab">@color/neutral_50</color>           <!-- the series card's title tab and panel -->
 
     <!-- Text and icons -->
     <color name="text_primary">@color/neutral_900</color>      <!-- body text, titles -->

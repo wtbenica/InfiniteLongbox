@@ -102,7 +102,7 @@ fun IssueListItem(
     )
 
     val cardShape = RoundedCornerShape(dimensionResource(R.dimen.radius_list_item_issue))
-    val borderColor = MaterialTheme.colorScheme.onBackground
+    val borderColor = colorResource(R.color.card_border)
 
     Card(
         onClick = onClick,
@@ -139,7 +139,7 @@ fun IssueListItem(
                             modifier = Modifier
                                 .align(Alignment.BottomCenter)
                                 .fillMaxWidth()
-                                .background(MaterialTheme.colorScheme.background.copy(alpha = 0.8f))
+                                .background(colorResource(R.color.card_tab).copy(alpha = 0.8f))
                                 .padding(
                                     horizontal = dimensionResource(R.dimen.margin_default),
                                     vertical = dimensionResource(R.dimen.margin_narrow),
@@ -154,16 +154,11 @@ fun IssueListItem(
                     }
                 }
 
-                HorizontalDivider(
-                    thickness = 4.dp,
-                    color = MaterialTheme.colorScheme
-                        .onBackground
-                )
+                HorizontalDivider(thickness = 4.dp, color = borderColor)
 
                 Row(
                     modifier = Modifier
-                        .background(MaterialTheme.colorScheme.background)
-
+                        .background(colorResource(R.color.card_tab))
                         .padding(
                             start = dimensionResource(R.dimen.margin_narrow),
                             bottom = dimensionResource(R.dimen.margin_narrow)
