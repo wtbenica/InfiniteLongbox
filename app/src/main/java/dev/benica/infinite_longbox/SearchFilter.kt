@@ -165,7 +165,7 @@ class SearchFilter(
         if (oldOptions != newOptions) {
             mSortType = newOptions[0]
         }
-        if (this.mViewOption == NameDetailAndCreator::class) {
+        if (this.mViewOption == FullCreator::class) {
             this.mViewOptionsIndex = 0
         }
 
