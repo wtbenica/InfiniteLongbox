@@ -181,20 +181,36 @@ class MainActivity : AppCompatActivity(),
         }
     }
 
+    private var awaitingRestore = false
+
     /** Drops the restored screens for a fresh default list. */
     private fun startOver() {
-        Log.d(TAG, "Restored without the screens' filters; starting over")
+        Log.d(TAG, "Couldn't rebuild a restored screen's filter; starting over")
+        awaitingRestore = false
         supportFragmentManager.popBackStackImmediate(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
         supportFragmentManager.beginTransaction()
             .replace(R.id.fragment_container, newListFor(SearchFilter()))
             .commitNow()
         backStackSize = 0
+        filterViewModel.setFilter(SearchFilter())
+    }
+
+    override fun onFilterRestored(list: Fragment, filter: SearchFilter) {
+        awaitingRestore = false
+        if (list === currentScreen && filterViewModel.filter.value != filter) {
+            filterViewModel.setFilter(filter)
+        }
+    }
+
+    override fun onRestoreFailed() {
+        if (awaitingRestore || supportFragmentManager.backStackEntryCount > 0) startOver()
     }
 
     private var backStackSize = 0
     private var sheetStateBeforeDetail = STATE_COLLAPSED
 
     private fun onBackStackChanged() {
+        awaitingRestore = false
         val size = supportFragmentManager.backStackEntryCount
         val popped = size < backStackSize
         backStackSize = size
@@ -265,20 +281,23 @@ class MainActivity : AppCompatActivity(),
         Repository.get().beginStaticUpdate(progressUpdate, this)
 
         if (savedInstanceState != null) {
+            backStackSize = supportFragmentManager.backStackEntryCount
             if (filterViewModel.hasScreens) {
                 // Only the activity was recreated: its screens still know their filters, and the
                 // sheet starts from the visible one
                 (currentScreen as? ListFragment<*, *>)?.currentFilter
                     ?.let { filterViewModel.setFilter(it) }
-                backStackSize = supportFragmentManager.backStackEntryCount
             } else {
-                // The process was killed in the background. Android brought the screens back, but
-                // their filters were only in memory, so they'd show unfiltered lists.
-                startOver()
+                // The process was killed. The screens came back and are rebuilding their filters
+                // from what they saved; until the visible one reports in, the filter sheet's
+                // default must not start a new screen.
+                awaitingRestore = true
             }
         }
 
-        filterViewModel.filter.observe(this) { filter -> showFilter(filter) }
+        filterViewModel.filter.observe(this) { filter ->
+            if (!awaitingRestore) showFilter(filter)
+        }
     }
 
     override fun onStop() {

@@ -223,6 +223,13 @@ class Repository private constructor(val context: Context) {
     // SERIES METHODS
     fun getSeries(seriesId: Int): Flow<FullSeries?> = seriesDao.getSeries(seriesId)
 
+    // For rebuilding a saved filter (see FilterSnapshot)
+    suspend fun getCreatorById(id: Int): Creator? = withContext(Dispatchers.IO) { creatorDao.get(id) }
+    suspend fun getPublisherById(id: Int): Publisher? =
+        withContext(Dispatchers.IO) { publisherDao.get(id) }
+    suspend fun getCharacterById(id: Int): Character? =
+        withContext(Dispatchers.IO) { characterDao.get(id) }
+
     fun getSeriesByFilterPaged(filter: SearchFilter): Flow<PagingData<FullSeries>> {
         val newFilter = SearchFilter(filter)
 

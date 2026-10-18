@@ -111,6 +111,10 @@ class SearchFilter(
     val mViewOption: KClass<out ListItem>
         get() = mViewOptions[mViewOptionsIndex]
 
+    /** Which of the view options is chosen, for saving the filter (see [FilterSnapshot]). */
+    val viewOptionIndex: Int
+        get() = mViewOptionsIndex
+
     fun nextViewOption() {
         mViewOptionsIndex++
     }

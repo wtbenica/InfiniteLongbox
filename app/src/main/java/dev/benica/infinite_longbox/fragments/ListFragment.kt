@@ -39,6 +39,7 @@ import com.google.android.material.appbar.AppBarLayout.LayoutParams.SCROLL_FLAG_
 import dev.benica.infinite_longbox.APP
 import dev.benica.infinite_longbox.MainActivity
 import dev.benica.infinite_longbox.R
+import dev.benica.infinite_longbox.FilterSnapshot
 import dev.benica.infinite_longbox.SearchFilter
 import dev.benica.infinite_longbox.SortType
 import dev.benica.infinite_longbox.database.models.FilterModel
@@ -69,6 +70,8 @@ abstract class ListFragment<T : ListItem, VH : RecyclerView.ViewHolder> : Fragme
 
     protected var callback: ListFragmentCallback? = null
 
+    private var restoringFilter = false
+
     protected var numCols: Int = 1
     abstract val minColSizeDp: Int
 
@@ -92,12 +95,27 @@ abstract class ListFragment<T : ListItem, VH : RecyclerView.ViewHolder> : Fragme
         // A list is created for one filter and keeps it, so coming back to it from further down
         // the back stack finds it as it was
         if (!viewModel.hasFilter) {
-            arguments?.getInt(ARG_SCREEN)
+            val registered = arguments?.getInt(ARG_SCREEN)
                 ?.let { filterViewModel.takeScreenFilter(it) }
-                ?.let { viewModel.setFilter(it) }
+            val saved = savedInstanceState?.getString(KEY_FILTER)
+
+            when {
+                registered != null -> viewModel.setFilter(registered)
+                // The app was killed and this screen came back: rebuild its filter from the ids
+                // that were saved with it
+                saved != null -> {
+                    restoringFilter = true
+                    viewModel.restoreFilter(saved) { callback?.onRestoreFailed() }
+                }
+            }
         }
 
         numCols = (context as MainActivity).screenSizeInDp.x / minColSizeDp + 1
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        currentFilter?.let { outState.putString(KEY_FILTER, FilterSnapshot.save(it)) }
     }
 
     override fun onResume() {
@@ -211,6 +229,16 @@ abstract class ListFragment<T : ListItem, VH : RecyclerView.ViewHolder> : Fragme
 
         listRecyclerView.adapter = adapter
 
+        if (restoringFilter) {
+            // Tell the activity once the rebuilt filter arrives, so the filter sheet can show it
+            viewModel.filter.observe(viewLifecycleOwner) { filter ->
+                if (restoringFilter && filter != null) {
+                    restoringFilter = false
+                    callback?.onFilterRestored(this, filter)
+                }
+            }
+        }
+
         // Tied to the view, not the fragment: a list on the back stack keeps its fragment but
         // loses its view, and the next view needs its own collector feeding its own adapter
         viewLifecycleOwner.lifecycleScope.launch {
@@ -234,11 +262,18 @@ abstract class ListFragment<T : ListItem, VH : RecyclerView.ViewHolder> : Fragme
         fun setTitle(title: String? = null)
         fun setToolbarScrollFlags(flags: Int)
         fun updateFilter(filter: SearchFilter)
+
+        /** A restored list's filter was rebuilt after the app was killed. */
+        fun onFilterRestored(list: Fragment, filter: SearchFilter)
+
+        /** A restored list's filter couldn't be rebuilt. */
+        fun onRestoreFailed()
     }
 
     companion object {
         private const val TAG = APP + "ListFragment"
         private const val ARG_SCREEN = "screen"
+        private const val KEY_FILTER = "filter"
 
         /** Makes [this] list start with the filter registered for [screenId]. */
         fun <F : Fragment> F.forScreen(screenId: Int): F = apply {
