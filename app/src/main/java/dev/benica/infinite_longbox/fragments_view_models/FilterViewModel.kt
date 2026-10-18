@@ -20,8 +20,6 @@ import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.liveData
-import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
 import dev.benica.infinite_longbox.APP
 import dev.benica.infinite_longbox.SearchFilter
@@ -31,17 +29,10 @@ import dev.benica.infinite_longbox.database.models.Creator
 import dev.benica.infinite_longbox.database.models.FilterItem
 import dev.benica.infinite_longbox.database.models.FilterModel
 import dev.benica.infinite_longbox.database.models.FilterType
-import dev.benica.infinite_longbox.database.models.FullCreator
-import dev.benica.infinite_longbox.database.models.FullIssue
-import dev.benica.infinite_longbox.database.models.FullSeries
 import dev.benica.infinite_longbox.database.models.NameDetail
 import dev.benica.infinite_longbox.database.models.Publisher
 import dev.benica.infinite_longbox.database.models.Series
 import dev.benica.infinite_longbox.database.models.TextFilter
-import dev.benica.infinite_longbox.fragments.CharacterListFragment
-import dev.benica.infinite_longbox.fragments.CreatorListFragment
-import dev.benica.infinite_longbox.fragments.IssueListFragment
-import dev.benica.infinite_longbox.fragments.SeriesListFragment
 import dev.benica.infinite_longbox.repository.Repository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -74,6 +65,9 @@ class FilterViewModel : ViewModel() {
         val trimmed = text.trim()
         val searchFilter = SearchFilter(_filter.value ?: SearchFilter()).apply {
             mTextFilter = if (trimmed.isEmpty()) null else TextFilter(trimmed)
+            // The filter row is hidden while typing, so My Collection can't be seen or undone from
+            // here. Finding a series or creator shouldn't depend on already owning something.
+            mMyCollection = false
         }
 
         return when (_filterType.value) {
@@ -226,32 +220,25 @@ class FilterViewModel : ViewModel() {
         setFilter(newVal)
     }
 
-    val fragment =
-        filter.switchMap {
-            liveData {
-                emit(
-                    when (it.mViewOption) {
-                        FullIssue::class -> issueListFragment
-                        Character::class -> characterListFragment
-                        FullSeries::class -> seriesListFragment
-                        FullCreator::class -> creatorListFragment
-                        else -> throw IllegalStateException("illegal viewOption: ${it.mViewOption}")
-                    }
-                )
-            }
-        }
+    private val screenFilters = mutableMapOf<Int, SearchFilter>()
+    private var lastScreenId = 0
+
+    /**
+     * Hands a new list screen the filter it starts with. The filter can't travel in the fragment's
+     * arguments (parts of it can't be saved in a bundle), so the screen gets a number to ask for it.
+     */
+    fun registerScreen(filter: SearchFilter): Int {
+        val id = ++lastScreenId
+        screenFilters[id] = filter
+        return id
+    }
+
+    /** The filter [registerScreen] was given for [screenId], once. */
+    fun takeScreenFilter(screenId: Int): SearchFilter? = screenFilters.remove(screenId)
 
     companion object {
         /** Max rows per type shown in the filter-box popup. */
         const val OPTIONS_LIMIT = 50
 
-        val seriesListFragment: SeriesListFragment
-            get() = SeriesListFragment.newInstance()
-        val issueListFragment: IssueListFragment
-            get() = IssueListFragment.newInstance()
-        val characterListFragment: CharacterListFragment
-            get() = CharacterListFragment.newInstance()
-        val creatorListFragment: CreatorListFragment
-            get() = CreatorListFragment.newInstance()
     }
 }

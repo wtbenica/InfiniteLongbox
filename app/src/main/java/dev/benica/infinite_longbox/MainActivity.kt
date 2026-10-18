@@ -15,7 +15,6 @@
 
 package dev.benica.infinite_longbox
 
-import android.annotation.SuppressLint
 import android.content.Intent
 import android.graphics.Point
 import android.net.ConnectivityManager
@@ -31,7 +30,6 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import android.widget.ProgressBar
 import android.widget.Toast
-import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
@@ -44,11 +42,11 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updateLayoutParams
 import androidx.core.view.updatePadding
 import androidx.fragment.app.DialogFragment
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentContainerView
 import androidx.fragment.app.FragmentTransaction.TRANSIT_FRAGMENT_FADE
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.appbar.AppBarLayout.LayoutParams.SCROLL_FLAG_SCROLL
 import com.google.android.material.bottomsheet.BottomSheetBehavior
@@ -64,10 +62,10 @@ import dev.benica.infinite_longbox.database.IssueDatabase
 import dev.benica.infinite_longbox.database.models.BaseCollection
 import dev.benica.infinite_longbox.database.models.Character
 import dev.benica.infinite_longbox.database.models.Creator
+import dev.benica.infinite_longbox.database.models.FullCreator
 import dev.benica.infinite_longbox.database.models.FullIssue
 import dev.benica.infinite_longbox.database.models.FullSeries
 import dev.benica.infinite_longbox.database.models.Issue
-import dev.benica.infinite_longbox.database.models.ListItem
 import dev.benica.infinite_longbox.fragments.AboutDialogFragment
 import dev.benica.infinite_longbox.fragments.CharacterListFragment
 import dev.benica.infinite_longbox.fragments.CreatorListFragment
@@ -75,6 +73,7 @@ import dev.benica.infinite_longbox.fragments.FilterFragment
 import dev.benica.infinite_longbox.fragments.IssueDetailFragment
 import dev.benica.infinite_longbox.fragments.IssueListFragment
 import dev.benica.infinite_longbox.fragments.ListFragment
+import dev.benica.infinite_longbox.fragments.ListFragment.Companion.forScreen
 import dev.benica.infinite_longbox.fragments.SeriesListFragment
 import dev.benica.infinite_longbox.fragments_view_models.FilterViewModel
 import dev.benica.infinite_longbox.repository.Repository
@@ -86,6 +85,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlin.reflect.KClass
 
 const val APP = "CC_"
 private const val TAG = APP + "MainActivity"
@@ -133,23 +133,95 @@ class MainActivity : AppCompatActivity(),
     private lateinit var scanFab: FloatingActionButton
     private var restoreNonHideable = false
 
-    private fun setFragment(fragment: ListFragment<out ListItem, out RecyclerView.ViewHolder>) {
-        supportFragmentManager.beginTransaction()
-            .setTransition(TRANSIT_FRAGMENT_FADE)
-            .replace(R.id.fragment_container, fragment)
-            .addToBackStack(null)
-            .commit()
+    /**
+     * Each list screen is its own fragment on the back stack and carries the filter it shows; Back
+     * just pops to the previous screen, which still has its filter and its scroll position.
+     * Editing the filter in the sheet changes the list on screen. Changing what's listed (series,
+     * issues, creators, characters) or leaving the issue page opens a new screen.
+     */
+    private fun listClassFor(filter: SearchFilter): KClass<*> = when (filter.mViewOption) {
+        FullIssue::class -> IssueListFragment::class
+        Character::class -> CharacterListFragment::class
+        FullSeries::class -> SeriesListFragment::class
+        FullCreator::class -> CreatorListFragment::class
+        else -> throw IllegalStateException("illegal view option: ${filter.mViewOption.simpleName}")
+    }
 
-        val tt = object : OnBackPressedCallback(true) {
-            override fun handleOnBackPressed() {
-                filterFragment?.onBackPressed()
+    private fun newListFor(filter: SearchFilter): Fragment = when (listClassFor(filter)) {
+        IssueListFragment::class -> IssueListFragment.newInstance()
+        CharacterListFragment::class -> CharacterListFragment.newInstance()
+        SeriesListFragment::class -> SeriesListFragment.newInstance()
+        else -> CreatorListFragment.newInstance()
+    }.forScreen(filterViewModel.registerScreen(filter))
+
+    private val currentScreen: Fragment?
+        get() = supportFragmentManager.findFragmentById(R.id.fragment_container)
+
+    /** Puts what [filter] asks for on screen: the list already showing, or a new screen. */
+    private fun showFilter(filter: SearchFilter) {
+        val top = currentScreen
+        when {
+            top == null -> supportFragmentManager.beginTransaction()
+                .replace(R.id.fragment_container, newListFor(filter))
+                .commitNow()
+
+            top is ListFragment<*, *> && top::class == listClassFor(filter) ->
+                top.applyFilter(filter)
+
+            else -> {
+                supportFragmentManager.beginTransaction()
+                    .setTransition(TRANSIT_FRAGMENT_FADE)
+                    .replace(R.id.fragment_container, newListFor(filter))
+                    .addToBackStack(null)
+                    .commit()
+                // So the next filter change finds this screen, not the one being replaced
+                supportFragmentManager.executePendingTransactions()
+            }
+        }
+    }
+
+    private var backStackSize = 0
+    private var sheetStateBeforeDetail = STATE_COLLAPSED
+
+    private fun onBackStackChanged() {
+        val size = supportFragmentManager.backStackEntryCount
+        val popped = size < backStackSize
+        backStackSize = size
+
+        val top = currentScreen
+        if (popped && top is ListFragment<*, *>) {
+            // Back to a list: the filter sheet follows the filter that list was showing
+            top.currentFilter?.let {
+                if (filterViewModel.filter.value != it) filterViewModel.setFilter(it)
             }
         }
 
-        onBackPressedDispatcher.addCallback(fragment, tt)
+        syncSheet(top)
+        updateScanFab()
+    }
 
-        if (this@MainActivity.bottomSheetBehavior.state == STATE_HIDDEN) {
-            this@MainActivity.bottomSheetBehavior.state = STATE_COLLAPSED
+    /** The filter sheet covers the lists, not an issue's page. */
+    private fun syncSheet(top: Fragment?) {
+        if (top is IssueDetailFragment) {
+            if (bottomSheetBehavior.state != STATE_HIDDEN) {
+                // Only a resting state can be restored; DRAGGING/SETTLING would throw
+                sheetStateBeforeDetail = bottomSheetBehavior.state
+                    .takeIf { it == STATE_EXPANDED || it == STATE_COLLAPSED } ?: STATE_COLLAPSED
+            }
+            resultFragmentContainer.updatePadding(bottom = 0)
+            bottomSheetBehavior.apply {
+                isHideable = true
+                state = STATE_HIDDEN
+            }
+        } else if (bottomSheetBehavior.state == STATE_HIDDEN) {
+            resultFragmentContainer.updatePadding(bottom = peekHeight)
+            // Slide up from where it was hidden; making it non-hideable first would snap it
+            // somewhere else and animate from there. It becomes non-hideable once it settles.
+            restoreNonHideable = true
+            bottomSheetBehavior.apply {
+                state = sheetStateBeforeDetail
+                peekHeight = this@MainActivity.peekHeight
+            }
         }
     }
 
@@ -173,7 +245,7 @@ class MainActivity : AppCompatActivity(),
         scanFab.setOnClickListener { startBarcodeScan() }
         (scanFab.layoutParams as ViewGroup.MarginLayoutParams).bottomMargin =
             peekHeight + resources.getDimensionPixelSize(R.dimen.margin_default)
-        supportFragmentManager.addOnBackStackChangedListener { updateScanFab() }
+        supportFragmentManager.addOnBackStackChangedListener { onBackStackChanged() }
 
         initWindowInsets()
         initBottomSheet()
@@ -181,11 +253,14 @@ class MainActivity : AppCompatActivity(),
 
         Repository.get().beginStaticUpdate(progressUpdate, this)
 
-        filterViewModel.fragment.observe(
-            this
-        ) { frag ->
-            frag?.let { setFragment(it) }
+        // A restored screen knows its filter; the sheet starts from that one
+        if (savedInstanceState != null) {
+            (currentScreen as? ListFragment<*, *>)?.currentFilter
+                ?.let { filterViewModel.setFilter(it) }
+            backStackSize = supportFragmentManager.backStackEntryCount
         }
+
+        filterViewModel.filter.observe(this) { filter -> showFilter(filter) }
     }
 
     override fun onStop() {
@@ -430,7 +505,7 @@ class MainActivity : AppCompatActivity(),
 
     // SeriesListFragment.SeriesListCallbacks
     override fun onSeriesSelected(series: FullSeries) {
-        filterFragment?.addFilterItem(series)
+        filterViewModel.addFilterItem(series)
     }
 
     // CharacterListFragment.CharacterListCallbacks
@@ -472,57 +547,19 @@ class MainActivity : AppCompatActivity(),
 
     // IssueListFragment.IssueListCallback
     override fun onIssueSelected(issue: Issue) {
-        val fragment = IssueDetailFragment.newInstance(
-            issueSelectedId = issue.issueId,
-            variantOf = issue.variantOf
-        )
-        // Only a resting state can be restored; DRAGGING/SETTLING would throw
-        val prevState =
-            bottomSheetBehavior.state.takeIf { it == STATE_EXPANDED || it == STATE_COLLAPSED }
-                ?: STATE_COLLAPSED
-        supportFragmentManager
-            .beginTransaction()
+        openIssue(IssueDetailFragment.newInstance(issue.issueId, issue.variantOf))
+    }
+
+    private fun openIssue(fragment: IssueDetailFragment) {
+        supportFragmentManager.beginTransaction()
             .setTransition(TRANSIT_FRAGMENT_FADE)
             .replace(R.id.fragment_container, fragment)
             .addToBackStack(null)
             .commit()
-
-        val tt = object : OnBackPressedCallback(true) {
-            @SuppressLint("WrongConstant")
-            override fun handleOnBackPressed() {
-                resultFragmentContainer.updatePadding(bottom = peekHeight)
-
-                // Slide up from where it was hidden; making it non-hideable first would snap it
-                // somewhere else and animate from there. It becomes non-hideable once it settles.
-                restoreNonHideable = true
-                bottomSheetBehavior.apply {
-                    state = prevState
-                    peekHeight = this@MainActivity.peekHeight
-                }
-
-                supportFragmentManager.popBackStack()
-            }
-        }
-
-        this.onBackPressedDispatcher.addCallback(fragment, tt)
-
-        bottomSheetBehavior.apply {
-            isHideable = true
-            state = STATE_HIDDEN
-        }
-
-        resultFragmentContainer.updatePadding(bottom = 0)
     }
 
     override fun onNewIssue(issueId: Int) {
-        val fragment = IssueDetailFragment.newInstance(issueId)
-
-        supportFragmentManager
-            .beginTransaction()
-            .setTransition(TRANSIT_FRAGMENT_FADE)
-            .replace(R.id.fragment_container, fragment)
-            .addToBackStack(null)
-            .commit()
+        openIssue(IssueDetailFragment.newInstance(issueId))
     }
 
     //    // SeriesInfoDialogCallback

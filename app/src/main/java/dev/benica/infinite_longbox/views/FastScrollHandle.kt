@@ -95,12 +95,6 @@ class FastScrollHandle(context: Context, attrs: AttributeSet? = null) : View(con
         recyclerView.addOnScrollListener(scrollListener)
     }
 
-    fun detach() {
-        recycler?.removeOnScrollListener(scrollListener)
-        recycler = null
-        removeCallbacks(hide)
-    }
-
     private fun show() {
         removeCallbacks(hide)
         animate().cancel()

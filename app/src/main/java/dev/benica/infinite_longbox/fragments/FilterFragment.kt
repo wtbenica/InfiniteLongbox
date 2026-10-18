@@ -51,7 +51,6 @@ class FilterFragment : Fragment(),
     private lateinit var sections: LinearLayout
     private val viewModel: FilterViewModel by viewModels({ requireActivity() })
     private var callback: FilterFragmentCallback? = null
-    private val undoQueue = ArrayDeque<Undo<*>>()
     private val disabledFilterChips = mutableSetOf<FilterChip>()
 
     internal var visibleState: Int = BottomSheetBehavior.STATE_EXPANDED
@@ -59,11 +58,7 @@ class FilterFragment : Fragment(),
             field = onVisibleStateUpdated(value)
         }
 
-    private var prevFilter: SearchFilter = SearchFilter()
     private var currFilter: SearchFilter = SearchFilter()
-        set(value) {
-            field = onFilterUpdate(value)
-        }
 
     // Views
     private lateinit var filterView: FrameLayout
@@ -131,6 +126,7 @@ class FilterFragment : Fragment(),
             viewLifecycleOwner
         ) { filter ->
             currFilter = filter
+            updateFilterCard(filter)
             sortChipGroup.update(filter)
             optionsChipGroup.update(filter)
             dateChipGroup.update(filter)
@@ -271,21 +267,6 @@ class FilterFragment : Fragment(),
         }
     }
 
-    private fun onFilterUpdate(value: SearchFilter): SearchFilter {
-        if (prevFilter != value) {
-            undoQueue.add(
-                Undo(function = { viewModel.setFilter(it) }, item = SearchFilter(prevFilter))
-            )
-            prevFilter = currFilter
-        } else {
-            undoQueue.removeLastOrNull()
-        }
-
-        updateFilterCard(value)
-
-        return value
-    }
-
     private fun onVisibleStateUpdated(value: Int): Int {
         if (value == BottomSheetBehavior.STATE_EXPANDED) {
             handleBox.visibility = GONE
@@ -304,6 +285,10 @@ class FilterFragment : Fragment(),
 
     private fun updateFilterCard(value: SearchFilter) {
         val newFilters: Set<FilterItem> = value.getAll()
+
+        // An item that's active again (typed in again, or re-added from somewhere else) replaces
+        // its switched-off chip instead of sitting next to it as a duplicate
+        disabledFilterChips.removeAll { it.item in newFilters }
 
         filterChipGroup.removeAllViews()
         newFilters.forEach { addChip(it) }
@@ -335,11 +320,6 @@ class FilterFragment : Fragment(),
 
     private fun collapseFilterCard() {
         filterSection.visibility = GONE
-    }
-
-    fun onBackPressed() {
-        val undo = undoQueue.removeLastOrNull()
-        undo?.evaluate()
     }
 
     // SearchTextViewCallback
@@ -440,9 +420,4 @@ class FilterFragment : Fragment(),
     override fun setDate(date: LocalDate, isStart: Boolean) {
         viewModel.addFilterItem(DateFilter(date, isStart))
     }
-}
-
-
-data class Undo<T>(private val function: (T) -> Unit, private val item: T) {
-    fun evaluate() = function(item)
 }

@@ -35,7 +35,12 @@ abstract class ListViewModel<T : ListItem> : ViewModel() {
     val filter: LiveData<SearchFilter>
         get() = _filter
 
+    /** False until the list has been given its filter (when it's first created). */
+    var hasFilter = false
+        private set
+
     open fun setFilter(filter: SearchFilter) {
+        hasFilter = true
         _filter.value = filter
     }
 

@@ -55,8 +55,8 @@ abstract class ListFragment<T : ListItem, VH : RecyclerView.ViewHolder> : Fragme
     private val peekHeight
         get() = resources.getDimension(R.dimen.peek_height).toInt()
 
-    private val filterViewModel: FilterViewModel by viewModels({ requireActivity() })
     protected abstract val viewModel: ListViewModel<T>
+    private val filterViewModel: FilterViewModel by viewModels({ requireActivity() })
 
     protected lateinit var outerScrollView: NestedScrollView
     protected lateinit var listRecyclerView: RecyclerView
@@ -77,8 +77,25 @@ abstract class ListFragment<T : ListItem, VH : RecyclerView.ViewHolder> : Fragme
         callback = context as ListFragmentCallback
     }
 
+    /** The filter this list is showing: it is kept for when the list is returned to. */
+    val currentFilter: SearchFilter?
+        get() = viewModel.filter.value?.takeIf { viewModel.hasFilter }
+
+    /** Edits made while this list is on screen (the filter sheet); MainActivity passes them on. */
+    fun applyFilter(filter: SearchFilter) {
+        if (filter != currentFilter) viewModel.setFilter(filter)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // A list is created for one filter and keeps it, so coming back to it from further down
+        // the back stack finds it as it was
+        if (!viewModel.hasFilter) {
+            arguments?.getInt(ARG_SCREEN)
+                ?.let { filterViewModel.takeScreenFilter(it) }
+                ?.let { viewModel.setFilter(it) }
+        }
 
         numCols = (context as MainActivity).screenSizeInDp.x / minColSizeDp + 1
     }
@@ -147,7 +164,7 @@ abstract class ListFragment<T : ListItem, VH : RecyclerView.ViewHolder> : Fragme
     }
 
     private fun sortedByName(): Boolean =
-        filterViewModel.filter.value?.mSortType?.sortColumn?.contains("name", ignoreCase = true) == true
+        viewModel.filter.value?.mSortType?.sortColumn?.contains("name", ignoreCase = true) == true
 
     /** First letter of the first visible item's name, "#" for numbers; null while it isn't loaded. */
     private fun firstVisibleLetter(): String? {
@@ -194,18 +211,14 @@ abstract class ListFragment<T : ListItem, VH : RecyclerView.ViewHolder> : Fragme
 
         listRecyclerView.adapter = adapter
 
-        lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
+        // Tied to the view, not the fragment: a list on the back stack keeps its fragment but
+        // loses its view, and the next view needs its own collector feeding its own adapter
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.itemList.collectLatest {
                     adapter.submitData(it)
                 }
             }
-        }
-
-        filterViewModel.filter.observe(
-            viewLifecycleOwner
-        ) { filter ->
-            viewModel.setFilter(filter)
         }
     }
 
@@ -225,5 +238,11 @@ abstract class ListFragment<T : ListItem, VH : RecyclerView.ViewHolder> : Fragme
 
     companion object {
         private const val TAG = APP + "ListFragment"
+        private const val ARG_SCREEN = "screen"
+
+        /** Makes [this] list start with the filter registered for [screenId]. */
+        fun <F : Fragment> F.forScreen(screenId: Int): F = apply {
+            arguments = Bundle().apply { putInt(ARG_SCREEN, screenId) }
+        }
     }
 }
