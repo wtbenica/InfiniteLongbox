@@ -194,11 +194,6 @@ class StaticUpdater private constructor(
         updateStoriesAppearances(stories.ids)
     }
 
-    private val appearanceCollector = Collector.appearanceCollector()
-    private val creditCollector = Collector.creditCollector()
-    private val exCreditCollector = Collector.exCreditCollector()
-    private val storyCollector = Collector.storyCollector()
-
     private suspend fun updateStoriesAppearances(storyIds: List<Int>): List<Appearance> =
         updateById(
             prefs,
@@ -206,7 +201,7 @@ class StaticUpdater private constructor(
             ::getAppearancesByStoryIds,
             storyIds,
             fKeyChecker::checkFKeysAppearance,
-            appearanceCollector
+            database.appearanceDao()
         )
 
     private suspend fun updateStoriesCredits(storyIds: List<Int>): List<CreditX> =
@@ -216,7 +211,7 @@ class StaticUpdater private constructor(
             ::getCreditsByStoryIds,
             storyIds,
             fKeyChecker::checkFKeysCredit,
-            creditCollector
+            database.creditDao()
         ) +
                 updateById(
                     prefs,
@@ -224,7 +219,7 @@ class StaticUpdater private constructor(
                     ::getExCreditsByStoryIds,
                     storyIds,
                     fKeyChecker::checkFKeysCredit,
-                    exCreditCollector
+                    database.exCreditDao()
                 )
 
     private suspend fun updateIssuesStories(issueIds: List<Int>): List<Story> =
@@ -234,7 +229,7 @@ class StaticUpdater private constructor(
             ::getStoriesByIssueIds,
             issueIds,
             fKeyChecker::checkFKeysStory,
-            storyCollector
+            database.storyDao()
         )
 
     private suspend fun getAppearancesByStoryIds(storyIds: List<Int>): List<Appearance> =

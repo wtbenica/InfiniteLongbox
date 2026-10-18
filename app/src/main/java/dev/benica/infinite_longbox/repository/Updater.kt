@@ -63,7 +63,6 @@ abstract class Updater(
         get() = FKeyChecker(database, webservice)
 
     init {
-        Collector.initialize(database)
     }
 
     @ExperimentalCoroutinesApi
@@ -223,7 +222,7 @@ abstract class Updater(
         /**
          * Gets items, performs followup, then saves using dao
          * usually: [getItems] for [id], checks foreign keys for [followup], saves items to
-         * [collector]
+         * [dao]
          * then saves update time to [saveTag] in [prefs]
          */
         internal suspend fun <ModelType : DataModel, T : Any> updateById(
@@ -232,7 +231,7 @@ abstract class Updater(
             getItems: suspend (T) -> List<ModelType>?,
             id: T,
             followup: suspend (List<ModelType>) -> Unit = {},
-            collector: Collector<ModelType>,
+            dao: BaseDao<ModelType>,
         ): List<ModelType> {
             return coroutineScope {
                 val items: List<ModelType>? = getItems(id)
@@ -241,7 +240,7 @@ abstract class Updater(
                     async {
                         followup(items)
                     }.await().let {
-                        collector.dao.upsertSus(items)
+                        dao.upsertSus(items)
                     }
                 }
                 return@coroutineScope items ?: emptyList()

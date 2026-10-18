@@ -171,7 +171,7 @@ private fun Cover(state: SeriesCardState, modifier: Modifier) {
             .data(file)
             .memoryCacheKey("${file.path}@${file.lastModified()}")
             .build()
-        val alignment by produceState<Alignment>(Alignment.TopStart, file) {
+        val alignment by produceState(Alignment.TopStart, file) {
             value = CoverFocus.alignmentFor(file)
         }
         AsyncImage(

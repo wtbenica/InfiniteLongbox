@@ -124,7 +124,7 @@ abstract class BaseDao<T : DataModel>(private val tableName: String) {
                 }
             } catch (sqlEx: SQLiteConstraintException) {
                 if (objClass == "Issue")
-                    Log.d(APP + "BaseDao", "UGH!: $objClass $s $sqlEx")
+                    Log.d(TAG, "Skipped $objClass that violates a constraint: $s ($sqlEx)")
             }
         }
     }
@@ -148,7 +148,7 @@ abstract class BaseDao<T : DataModel>(private val tableName: String) {
                 if (objClass == "Issue")
                     Log.d(
                         TAG,
-                        "UGH SUS: $objClass $obj $sqlEx ${sqlEx.stackTrace} ${sqlEx.message}"
+                        "Skipped $objClass that violates a constraint: $obj (${sqlEx.message})"
                     )
                 success = false
             }

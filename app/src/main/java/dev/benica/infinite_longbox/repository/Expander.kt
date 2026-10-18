@@ -91,7 +91,7 @@ class Expander private constructor(webservice: Webservice, prefs: SharedPreferen
                 getItems = ::getIssuesBySeriesId,
                 id = seriesId,
                 followup = fKeyChecker::checkFKeysIssue,
-                collector = Collector.issueCollector()
+                dao = database.issueDao()
             )
 
         private suspend fun getIssuesBySeriesId(seriesId: Int): List<Issue>? =
@@ -115,7 +115,7 @@ class Expander private constructor(webservice: Webservice, prefs: SharedPreferen
                 getItems = ::getStoriesByIssueIds,
                 id = issueIds,
                 followup = fKeyChecker::checkFKeysStory,
-                collector = Collector.storyCollector()
+                dao = database.storyDao()
             )
 
         private suspend fun getStoriesByIssueIds(issueIds: List<Int>): List<Story> =
@@ -141,7 +141,7 @@ class Expander private constructor(webservice: Webservice, prefs: SharedPreferen
                 getItems = ::getCreditsByStoryIds,
                 id = storyIds,
                 followup = fKeyChecker::checkFKeysCredit,
-                collector = Collector.creditCollector()
+                dao = database.creditDao()
             ) +
                     updateById(
                         prefs = prefs,
@@ -149,7 +149,7 @@ class Expander private constructor(webservice: Webservice, prefs: SharedPreferen
                         getItems = ::getExCreditsByStoryIds,
                         id = storyIds,
                         followup = fKeyChecker::checkFKeysCredit,
-                        collector = Collector.exCreditCollector()
+                        dao = database.exCreditDao()
                     )
 
         private suspend fun updateStoriesAppearances(storyIds: List<Int>): List<Appearance> =
@@ -159,7 +159,7 @@ class Expander private constructor(webservice: Webservice, prefs: SharedPreferen
                 getItems = ::getAppearancesByStoryIds,
                 id = storyIds,
                 followup = fKeyChecker::checkFKeysAppearance,
-                collector = Collector.appearanceCollector()
+                dao = database.appearanceDao()
             )
 
         private suspend fun getCreditsByStoryIds(storyIds: List<Int>): List<Credit> =

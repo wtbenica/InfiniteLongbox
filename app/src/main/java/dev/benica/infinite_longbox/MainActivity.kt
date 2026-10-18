@@ -47,9 +47,6 @@ import androidx.fragment.app.FragmentContainerView
 import androidx.fragment.app.FragmentTransaction.TRANSIT_FRAGMENT_FADE
 import androidx.lifecycle.MutableLiveData
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.gms.ads.AdRequest
-import com.google.android.gms.ads.AdView
-import com.google.android.gms.ads.MobileAds
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.appbar.AppBarLayout.LayoutParams.SCROLL_FLAG_SCROLL
 import androidx.activity.result.contract.ActivityResultContracts
@@ -111,7 +108,6 @@ class MainActivity : AppCompatActivity(),
     private lateinit var resultFragmentContainer: FragmentContainerView
     private lateinit var bottomSheet: FragmentContainerView
     private lateinit var bottomSheetBehavior: BottomSheetBehavior<*>
-    private lateinit var mAdView: AdView
     private lateinit var progressUpdate: ProgressUpdateCard
     private lateinit var progressBar: ProgressBar
     private lateinit var scanFab: FloatingActionButton
@@ -142,16 +138,6 @@ class MainActivity : AppCompatActivity(),
         WindowCompat.setDecorFitsSystemWindows(window, false)
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        Log.d(TAG, "Flavor: ${BuildConfig.FLAVOR}")
-        if (BuildConfig.FLAVOR == "free") {
-            MobileAds.initialize(this)
-
-            mAdView = findViewById(R.id.ad_view)
-            val adRequest = AdRequest.Builder().build()
-            mAdView.loadAd(adRequest)
-            mAdView.visibility = View.VISIBLE
-        }
-
         filterFragment =
             supportFragmentManager.findFragmentByTag(resources.getString(R.string.tag_filter_fragment)) as FilterFragment?
         mainLayout = findViewById(R.id.main_activity)
