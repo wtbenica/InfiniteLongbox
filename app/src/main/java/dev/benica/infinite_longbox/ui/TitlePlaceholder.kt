@@ -23,8 +23,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.TextAutoSize
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -100,27 +102,39 @@ fun TitlePlaceholder(name: String, modifier: Modifier = Modifier) {
             alignment = Alignment.TopStart,
         )
 
+        val mastheadHeight = imageHeight * (MASTHEAD_BOTTOM - MASTHEAD_TOP)
+
         Box(
             modifier = Modifier
                 .offset(x = width * MASTHEAD_LEFT, y = imageHeight * MASTHEAD_TOP)
                 .size(
                     width = width * (MASTHEAD_RIGHT - MASTHEAD_LEFT),
-                    height = imageHeight * (MASTHEAD_BOTTOM - MASTHEAD_TOP),
+                    height = mastheadHeight,
                 )
                 .padding(horizontal = 12.dp, vertical = 6.dp),
             contentAlignment = Alignment.Center,
         ) {
-            BasicText(
-                text = name,
-                style = TextStyle(
-                    fontFamily = titleFontFor(name),
-                    color = MASTHEAD_INK,
-                    textAlign = TextAlign.Center,
-                ),
-                maxLines = 3,
-                overflow = TextOverflow.Ellipsis,
-                autoSize = TextAutoSize.StepBased(minFontSize = 14.sp, maxFontSize = 40.sp),
-            )
+            Surface(
+                color = Color(0xCCEEEEEE),
+                shape = RoundedCornerShape(mastheadHeight / 6)
+            ) {
+                Box(
+                    modifier = Modifier
+                        .padding(vertical = 4.dp, horizontal = 8.dp),
+                ) {
+                    BasicText(
+                        text = name,
+                        style = TextStyle(
+                            fontFamily = titleFontFor(name),
+                            color = MASTHEAD_INK,
+                            textAlign = TextAlign.Center,
+                        ),
+                        maxLines = 3,
+                        overflow = TextOverflow.Ellipsis,
+                        autoSize = TextAutoSize.StepBased(minFontSize = 14.sp, maxFontSize = 40.sp),
+                    )
+                }
+            }
         }
     }
 }
