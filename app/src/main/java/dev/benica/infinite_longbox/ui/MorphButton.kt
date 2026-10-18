@@ -15,7 +15,6 @@
 
 package dev.benica.infinite_longbox.ui
 
-import androidx.compose.animation.graphics.ExperimentalAnimationGraphicsApi
 import androidx.compose.animation.graphics.res.rememberAnimatedVectorPainter
 import androidx.compose.animation.graphics.vector.AnimatedImageVector
 import androidx.compose.foundation.Image
@@ -39,7 +38,6 @@ import androidx.compose.ui.unit.dp
  * The plus that morphs into a check. Flips at once when tapped, without waiting for the database
  * to catch up; the real state then takes over.
  */
-@OptIn(ExperimentalAnimationGraphicsApi::class)
 @Composable
 fun MorphButton(
     image: AnimatedImageVector,

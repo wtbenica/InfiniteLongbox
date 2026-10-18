@@ -27,6 +27,7 @@ import androidx.core.view.updateMargins
 import dev.benica.infinite_longbox.MainActivity
 import dev.benica.infinite_longbox.R
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import androidx.core.view.isVisible
 
 private const val DURATION = 200L
 
@@ -143,7 +144,7 @@ private fun View.animateHeight(startValue: Int, endValue: Int, duration: Long) {
 
 @ExperimentalCoroutinesApi
 internal fun View.toggleVisibility(): Boolean {
-    val isExpanded = this.visibility == View.VISIBLE
+    val isExpanded = this.isVisible
     if (isExpanded) {
         this.hide()
     } else {

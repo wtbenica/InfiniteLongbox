@@ -92,8 +92,8 @@ class IssueDetailViewModel : ViewModel() {
                     series = FullSeries(it.series),
                     myCollection = false,
                     sortType = SortType(
-                        dev.benica.infinite_longbox.InfiniteLongboxApplication.context!!.getString(R.string.sort_type_issue_number),
-                        dev.benica.infinite_longbox.InfiniteLongboxApplication.context!!.getString(R.string.column_issue_num),
+                        InfiniteLongboxApplication.context!!.getString(R.string.sort_type_issue_number),
+                        InfiniteLongboxApplication.context!!.getString(R.string.column_issue_num),
                         "ie",
                         SortType.SortOrder.ASC
                     )

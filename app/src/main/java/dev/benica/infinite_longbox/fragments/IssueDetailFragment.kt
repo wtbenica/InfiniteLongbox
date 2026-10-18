@@ -16,19 +16,6 @@
 package dev.benica.infinite_longbox.fragments
 
 import android.app.Activity
-
-import dev.benica.infinite_longbox.repository.pickedCoverToIssue
-import dev.benica.infinite_longbox.repository.removeCover
-
-import kotlinx.coroutines.launch
-
-import androidx.lifecycle.lifecycleScope
-
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.AlertDialog
-
-import android.widget.Toast
-
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -39,21 +26,19 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import java.io.File
+import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AlertDialog
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
-import dev.benica.infinite_longbox.ui.InfiniteLongboxTheme
-import dev.benica.infinite_longbox.ui.IssueCover
-import dev.benica.infinite_longbox.ui.IssueCoverState
-import dev.benica.infinite_longbox.ui.IssueJumpBar
-import dev.benica.infinite_longbox.ui.JumpBarState
-import dev.benica.infinite_longbox.ui.VariantSelector
-import dev.benica.infinite_longbox.ui.VariantSelectorState
+import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import com.google.android.material.appbar.AppBarLayout
 import dev.benica.infinite_longbox.APP
 import dev.benica.infinite_longbox.R
@@ -71,47 +56,43 @@ import dev.benica.infinite_longbox.database.models.Series
 import dev.benica.infinite_longbox.database.models.SeriesAndPublisher
 import dev.benica.infinite_longbox.database.models.Story
 import dev.benica.infinite_longbox.fragments_view_models.IssueDetailViewModel
+import dev.benica.infinite_longbox.repository.pickedCoverToIssue
+import dev.benica.infinite_longbox.repository.removeCover
 import dev.benica.infinite_longbox.ui.AttributionBar
 import dev.benica.infinite_longbox.ui.CreditsBox
-import dev.benica.infinite_longbox.ui.StoryUi
-import dev.benica.infinite_longbox.ui.buildStoryUi
+import dev.benica.infinite_longbox.ui.InfiniteLongboxTheme
 import dev.benica.infinite_longbox.ui.IssueActionBar
 import dev.benica.infinite_longbox.ui.IssueActionState
+import dev.benica.infinite_longbox.ui.IssueCover
+import dev.benica.infinite_longbox.ui.IssueCoverState
 import dev.benica.infinite_longbox.ui.IssueInfoBox
 import dev.benica.infinite_longbox.ui.IssueInfoState
+import dev.benica.infinite_longbox.ui.IssueJumpBar
+import dev.benica.infinite_longbox.ui.JumpBarState
+import dev.benica.infinite_longbox.ui.StoryUi
+import dev.benica.infinite_longbox.ui.VariantSelector
+import dev.benica.infinite_longbox.ui.VariantSelectorState
+import dev.benica.infinite_longbox.ui.buildStoryUi
+import dev.benica.infinite_longbox.ui.placeholderKey
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.launch
+import java.io.File
 
 // Bundle Argument Tags
 private const val ARG_ISSUE_ID = "issue_id"
-private const val ARG_EDITABLE = "open_as_editable"
 private const val ARG_VARIANT_OF = "variant_of"
 
-// onActivityResult Request Codes
-private const val PICK_COVER_IMAGE = 0
 internal const val RESULT_DATE_PICKER_END = "result_date_picker_start"
 internal const val RESULT_DATE_PICKER_START = "result_date_picker_end"
-private const val RESULT_SERIES_DETAIL = 108
-private const val RESULT_NEW_WRITER = 109
-private const val RESULT_NEW_PENCILLER = 110
-private const val RESULT_NEW_INKER = 111
-
-// Fragment Tags
-private const val DIALOG_SERIES_DETAIL = "DialogNewSeries"
-private const val DIALOG_NEW_CREATOR = "DialogNewCreator"
 internal const val DIALOG_DATE = "DialogDate"
-
-private const val ADD_SERIES_ID = -2
 
 /**
  * A simple [Fragment] subclass.
  * Use the [IssueDetailFragment.newInstance] factory method to
  * create an instance of this fragment.
  */
-// TODO: Do I need a separate fragment for editing vs viewing or can I do it all in this one?
 @ExperimentalCoroutinesApi
 class IssueDetailFragment : Fragment() {
-
-    private var numUpdates = 0
     private var listFragmentCallback: ListFragment.ListFragmentCallback? = null
 
     private var fullIssue: FullIssue = FullIssue.getEmptyFullIssue()
@@ -133,7 +114,7 @@ class IssueDetailFragment : Fragment() {
 
     private var stories by mutableStateOf<List<StoryUi>>(emptyList())
     private var expandedStories by mutableStateOf<Set<Int>>(emptySet())
-    private var gcdIssueId by mutableStateOf(0)
+    private var gcdIssueId by mutableIntStateOf(0)
 
     private var infoState by mutableStateOf(IssueInfoState())
 
@@ -145,13 +126,8 @@ class IssueDetailFragment : Fragment() {
     private val coverUri: Uri?
         get() = currentIssue.coverUri
 
-    private var saveIssue = true
-
     private val issueDetailViewModel: IssueDetailViewModel by viewModels()
 
-    // Lets the user choose an image from any app that can supply one (Files, Drive, Photos,
-    // Nextcloud, other file managers, ...): Android's GET_CONTENT chooser. Without the chooser,
-    // Android 13+ replaces a plain GET_CONTENT request with its photo picker.
     private val pickCoverImage =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == Activity.RESULT_OK) coverPicked(result.data?.data)
@@ -207,7 +183,6 @@ class IssueDetailFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
 
         fullIssue =
             FullIssue(Issue(issueNumRaw = null), SeriesAndPublisher(Series(), Publisher()), null)
@@ -220,11 +195,14 @@ class IssueDetailFragment : Fragment() {
         val issueId = if (VERSION.SDK_INT >= TIRAMISU) {
             arguments?.getSerializable(ARG_ISSUE_ID, Int::class.javaObjectType)!!
         } else {
+            @Suppress("DEPRECATION")
             arguments?.getSerializable(ARG_ISSUE_ID) as Int
         }
+
         val variantOf = if (VERSION.SDK_INT >= TIRAMISU) {
             arguments?.getSerializable(ARG_VARIANT_OF, Int::class.javaObjectType)
         } else {
+            @Suppress("DEPRECATION")
             arguments?.getSerializable(ARG_VARIANT_OF) as Int?
         }
 
@@ -249,7 +227,11 @@ class IssueDetailFragment : Fragment() {
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
             setContent {
                 InfiniteLongboxTheme {
-                    IssueCover(coverState, onClick = ::onCoverClicked, onLongClick = ::showCoverOptions)
+                    IssueCover(
+                        coverState,
+                        onClick = ::onCoverClicked,
+                        onLongClick = ::showCoverOptions
+                    )
                 }
             }
         }
@@ -280,7 +262,14 @@ class IssueDetailFragment : Fragment() {
         }
         view.findViewById<ComposeView>(R.id.variant_selector).apply {
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
-            setContent { InfiniteLongboxTheme { VariantSelector(variantState, ::onVariantSelected) } }
+            setContent {
+                InfiniteLongboxTheme {
+                    VariantSelector(
+                        variantState,
+                        ::onVariantSelected
+                    )
+                }
+            }
         }
         view.findViewById<ComposeView>(R.id.credits_box).apply {
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
@@ -470,38 +459,17 @@ class IssueDetailFragment : Fragment() {
                 currentIssue.series.startDate?.year ?: ""
             }"
 
-        context?.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
+        context?.startActivity(Intent(Intent.ACTION_VIEW, url.toUri()))
     }
 
     private fun toggleCollection(collId: Int, isIn: Boolean) {
         if (isIn) removeFromCollection(collId) else addToCollection(collId)
     }
 
-    override fun onStart() {
-        super.onStart()
-
-//         TODO: This is for editing. n/a anymore?
-//
-    }
-
-////
-//                true
-//
-    private var i = 0
-
     private fun updateUI() {
         val issue: Issue = currentIssue.issue
         if (issue.issueId != AUTO_ID) {
             listFragmentCallback?.setTitle("$currentIssue")
-
-            // TODO: Marked for deletion: 10/22/21
-            if ((!isVariant && (issueStories.isEmpty() || issueCredits.isEmpty() || issueAppearances.isEmpty())) ||
-                (isVariant && (variantStories.isEmpty() || variantCredits.isEmpty() || variantAppearances.isEmpty()))
-            ) {
-                // Not sure whether my intention was to give some sort of indication that there
-                // was no info or whether this was before I had implemented progress bars
-                Unit
-            }
 
             infoState = IssueInfoState(issue.releaseDate, issue.coverDate, issue.notes)
             val collectionIds: List<Int> = currentIssue.collectionItems.map { it.userCollection }
@@ -524,7 +492,8 @@ class IssueDetailFragment : Fragment() {
     }
 
     private fun updateCover() {
-        coverState = IssueCoverState(coverUri?.path?.let { File(it) })
+        coverState =
+            IssueCoverState(coverUri?.path?.let { File(it) }, currentIssue.placeholderKey())
     }
 
     private fun onCoverClicked() {

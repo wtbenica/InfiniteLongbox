@@ -15,11 +15,29 @@
 
 package dev.benica.infinite_longbox.fragments_view_models
 
-import androidx.lifecycle.*
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MediatorLiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.liveData
+import androidx.lifecycle.switchMap
+import androidx.lifecycle.viewModelScope
 import dev.benica.infinite_longbox.APP
 import dev.benica.infinite_longbox.SearchFilter
 import dev.benica.infinite_longbox.SortType
-import dev.benica.infinite_longbox.database.models.*
+import dev.benica.infinite_longbox.database.models.Character
+import dev.benica.infinite_longbox.database.models.Creator
+import dev.benica.infinite_longbox.database.models.FilterItem
+import dev.benica.infinite_longbox.database.models.FilterModel
+import dev.benica.infinite_longbox.database.models.FilterType
+import dev.benica.infinite_longbox.database.models.FullCreator
+import dev.benica.infinite_longbox.database.models.FullIssue
+import dev.benica.infinite_longbox.database.models.FullSeries
+import dev.benica.infinite_longbox.database.models.NameDetail
+import dev.benica.infinite_longbox.database.models.Publisher
+import dev.benica.infinite_longbox.database.models.Series
+import dev.benica.infinite_longbox.database.models.TextFilter
 import dev.benica.infinite_longbox.fragments.CharacterListFragment
 import dev.benica.infinite_longbox.fragments.CreatorListFragment
 import dev.benica.infinite_longbox.fragments.IssueListFragment
@@ -27,7 +45,6 @@ import dev.benica.infinite_longbox.fragments.SeriesListFragment
 import dev.benica.infinite_longbox.repository.Repository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlin.reflect.KClass
@@ -115,11 +132,11 @@ class FilterViewModel : ViewModel() {
             }
         }
 
-        override fun <S : Any?> addSource(source: LiveData<S>, onChanged: Observer<in S>) {
+        override fun <S> addSource(source: LiveData<S>, onChanged: Observer<in S>) {
             throw UnsupportedOperationException()
         }
 
-        override fun <S : Any?> removeSource(toRemote: LiveData<S>) {
+        override fun <S> removeSource(toRemote: LiveData<S>) {
             throw UnsupportedOperationException()
         }
     }

@@ -16,7 +16,6 @@
 package dev.benica.infinite_longbox.ui
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -36,7 +35,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.produceState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
@@ -54,6 +52,7 @@ import java.io.File
 /** Everything a series card shows, so the card itself holds no logic. */
 data class SeriesCardState(
     val name: String,
+    val publisher: String,
     val dateRange: String,
     val format: String,
     val cover: File?,
@@ -79,12 +78,13 @@ fun SeriesListItem(state: SeriesCardState, onClick: () -> Unit, modifier: Modifi
         Box {
             Cover(state, Modifier.matchParentSize())
 
+            // On every series card, cover or not
             Box(
                 modifier = Modifier
-                    .background(Color(0xAAFFFFFF))
                     .fillMaxWidth()
                     .height(COVER_WINDOW + 2 * dimensionResource(R.dimen.margin_wide))
-            ) {}
+                    .scrim()
+            )
 
             // Title block over a scrim; its height sets the card's height
             Box {
@@ -123,9 +123,12 @@ fun SeriesListItem(state: SeriesCardState, onClick: () -> Unit, modifier: Modifi
                                     bottom = dimensionResource(R.dimen.margin_default),
                                 )
                             ) {
+                                val gap = dimensionResource(R.dimen.margin_default)
+                                Subtitle(state.publisher, Modifier.weight(1f, fill = false))
+                                Spacer(Modifier.width(gap))
                                 Subtitle(state.dateRange)
-                                Spacer(Modifier.width(dimensionResource(R.dimen.margin_default)))
-                                Subtitle(state.format)
+                                Spacer(Modifier.width(gap))
+                                Subtitle(state.format, Modifier.weight(1f, fill = false))
                             }
                         }
                     )
@@ -147,9 +150,12 @@ fun SeriesListItem(state: SeriesCardState, onClick: () -> Unit, modifier: Modifi
 }
 
 @Composable
-private fun Subtitle(text: String) {
+private fun Subtitle(text: String, modifier: Modifier = Modifier) {
     Text(
         text = text,
+        modifier = modifier,
+        maxLines = 1,
+        overflow = TextOverflow.Ellipsis,
         color = MaterialTheme.colorScheme.onSurface,
         fontFamily = PermanentMarker,
         fontSize = 16.sp,
@@ -195,6 +201,7 @@ private fun SeriesListItemPreview() {
         SeriesListItem(
             state = SeriesCardState(
                 name = "Doom Patrol",
+                publisher = "DC Comics",
                 dateRange = "(1990-2005)",
                 format = "ongoing series",
                 cover = null,

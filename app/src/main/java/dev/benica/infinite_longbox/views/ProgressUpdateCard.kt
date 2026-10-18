@@ -73,7 +73,7 @@ class ProgressUpdateCard(context: Context, attributeSet: AttributeSet) :
     val characterWrapper = ProgressWrapper(characterProgress, characterStatus)
 
     /**
-     * Drives one row of the card: a progress bar plus a status dot that is waiting (grey), in
+     * Drives one row of the card: a progress bar plus a status dot that is waiting (gray), in
      * progress, or done. May be called from any thread; updates are posted to the UI thread.
      */
     class ProgressWrapper(

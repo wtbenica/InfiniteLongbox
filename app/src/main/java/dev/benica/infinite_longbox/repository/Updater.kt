@@ -40,6 +40,7 @@ import java.time.Instant
 import java.time.LocalDate
 import kotlin.reflect.KSuspendFunction0
 import kotlin.reflect.KSuspendFunction1
+import kotlin.time.Duration.Companion.milliseconds
 
 val BooleanArray.allTrue
     get() = this.all { it }
@@ -61,9 +62,6 @@ abstract class Updater(
 
     val fKeyChecker
         get() = FKeyChecker(database, webservice)
-
-    init {
-    }
 
     @ExperimentalCoroutinesApi
     companion object {
@@ -117,7 +115,7 @@ abstract class Updater(
         ) {
             withContext(Dispatchers.IO) {
                 launch {
-                    delay(5000)
+                    delay(5000.milliseconds)
                     runSafely(name, arg, queryFunction, true)
                 }
             }
@@ -338,7 +336,7 @@ abstract class Updater(
 
         // for each page in PC, if not complete, then try to update again
         // if request is successful, save and mark as updated
-        withContext(CoroutineScope(Dispatchers.IO).coroutineContext) {
+        withContext(Dispatchers.IO) {
             pagesComplete.forEachIndexed { currPage: Int, isComplete: Boolean ->
                 if (!isComplete) {
                     val itemPage: List<ModelType>? = getItemsByPage(currPage)

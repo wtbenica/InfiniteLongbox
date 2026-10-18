@@ -149,10 +149,8 @@ class ScanActivity : AppCompatActivity() {
                 .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
                 .build()
             analysis.setAnalyzer(analysisExecutor) { image ->
-                try {
-                    if (!finished) reader.read(image).forEach { onRead(it.text.orEmpty()) }
-                } finally {
-                    image.close()
+                image.use {
+                    if (!finished) reader.read(it).forEach { result -> onRead(result.text.orEmpty()) }
                 }
             }
 
@@ -169,11 +167,11 @@ class ScanActivity : AppCompatActivity() {
      */
     private fun onRead(text: String) {
         val digits = text.filter { it.isDigit() }
-        val code = when {
-            digits.length == 17 -> digits
-            digits.length == 18 && digits.startsWith("0") -> digits.drop(1)
-            digits.length == 12 -> digits
-            digits.length == 13 && digits.startsWith("0") -> digits.drop(1)
+        val code = when (digits.length) {
+            17 -> digits
+            18 if digits.startsWith("0") -> digits.drop(1)
+            12 -> digits
+            13 if digits.startsWith("0") -> digits.drop(1)
             else -> return
         }
 

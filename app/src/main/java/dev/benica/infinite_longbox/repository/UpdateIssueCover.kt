@@ -64,7 +64,7 @@ class UpdateIssueCover private constructor(
 
                                 val cover = Cover(
                                     issue = issueId, coverUri = savedUri,
-                                    markedDelete = markedDelete && issue.collectionItems == null
+                                    markedDelete = markedDelete && issue.collectionItems.isEmpty()
                                 )
                                 database.coverDao().setCover(cover)
                             } else {

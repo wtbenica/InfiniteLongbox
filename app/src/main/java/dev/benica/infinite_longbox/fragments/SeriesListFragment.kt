@@ -126,8 +126,10 @@ class SeriesListFragment : ListFragment<FullSeries, SeriesListFragment.SeriesHol
 
             val firstIssueId = item.series.firstIssue
             if (firstIssueId != null) {
-                viewModel.getIssue(firstIssueId,
-                    viewModel.filter.value?.mMyCollection?.let { !it } ?: true)
+                viewModel.updateIssue(
+                    firstIssueId,
+                    viewModel.filter.value?.mMyCollection?.let { !it } ?: true
+                )
             } else if (item.series.issueCount < 10) {
                 viewModel.updateIssuesBySeries(item)
             }
@@ -137,6 +139,7 @@ class SeriesListFragment : ListFragment<FullSeries, SeriesListFragment.SeriesHol
 
             card = SeriesCardState(
                 name = item.series.seriesName,
+                publisher = item.publisher.publisher,
                 dateRange = item.series.dateRange,
                 format = item.series.publishingFormat?.lowercase().orEmpty(),
                 cover = coverUri?.path?.let { File(it) },

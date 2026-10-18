@@ -29,6 +29,7 @@ import java.io.File
 import java.io.FileOutputStream
 import java.time.LocalDate
 import java.util.zip.GZIPInputStream
+import androidx.core.content.edit
 
 private const val TAG = APP + "SeedInstaller"
 
@@ -175,10 +176,10 @@ class SeedInstaller(
     private fun restoreMarkers(meta: SeedMeta) {
         val today = LocalDate.now().toString()
         val dateFormat = Regex("""\d{4}-\d{2}-\d{2}""")
-        prefs.edit().apply {
+        prefs.edit {
             meta.prefs.forEach { (key, value) ->
                 putString(key, if (dateFormat.matches(value)) today else value)
             }
-        }.commit()
+        }
     }
 }

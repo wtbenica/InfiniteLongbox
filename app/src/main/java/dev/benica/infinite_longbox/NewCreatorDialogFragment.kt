@@ -84,13 +84,13 @@ class NewCreatorDialogFragment : DialogFragment() {
         firstNameEditText = view.findViewById(R.id.first_name)
         middleNameEditText = view.findViewById(R.id.middle_name)
         lastNameEditText = view.findViewById(R.id.last_name)
-        suffixSpinner = view.findViewById(R.id.suffix_spinner) as Spinner
+        suffixSpinner = view.findViewById(R.id.suffix_spinner)
         /***
          * Future implementation
          *         startDateEditText = view.findViewById(R.id.start_date_text_view) as TextView
          *         endDateEditText = view.findViewById(R.id.end_date_text_view) as TextView
          */
-        okayButton = view.findViewById(R.id.button2) as Button
+        okayButton = view.findViewById(R.id.button2)
         cancelButton = view.findViewById(R.id.button)
 
         ArrayAdapter.createFromResource(

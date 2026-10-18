@@ -30,7 +30,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        tools:src="@drawable/cover_sample" />
+        tools:src="@drawable/bg_placeholder" />
 
     <androidx.cardview.widget.CardView
         android:id="@+id/dialog_fragment_cover_info_card"

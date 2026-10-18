@@ -15,7 +15,6 @@
 
 package dev.benica.infinite_longbox.ui
 
-import androidx.compose.animation.graphics.ExperimentalAnimationGraphicsApi
 import androidx.compose.animation.graphics.res.animatedVectorResource
 import androidx.compose.animation.graphics.vector.AnimatedImageVector
 import androidx.compose.foundation.Image
@@ -50,7 +49,6 @@ data class IssueActionState(
 )
 
 /** Have / want / find, each an icon over a small label. */
-@OptIn(ExperimentalAnimationGraphicsApi::class)
 @Composable
 fun IssueActionBar(
     state: IssueActionState,

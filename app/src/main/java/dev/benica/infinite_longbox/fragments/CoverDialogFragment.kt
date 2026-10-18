@@ -16,7 +16,6 @@
 package dev.benica.infinite_longbox.fragments
 
 import android.graphics.Color
-import android.graphics.drawable.ColorDrawable
 import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -25,6 +24,7 @@ import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.core.graphics.drawable.toDrawable
 import androidx.fragment.app.DialogFragment
 import dev.benica.infinite_longbox.R
 import dev.benica.infinite_longbox.database.models.FullIssue
@@ -49,7 +49,7 @@ class CoverDialogFragment(private val coverUri: Uri, private val currentIssue: F
             val layoutParams = window.attributes
             layoutParams.width = w
             layoutParams.height = h
-            window.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+            window.setBackgroundDrawable(Color.TRANSPARENT.toDrawable())
         }
     }
 

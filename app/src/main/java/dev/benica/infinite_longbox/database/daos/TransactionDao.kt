@@ -67,7 +67,7 @@ abstract class TransactionDao {
             context?.getSharedPreferences(SHARED_PREFS, Context.MODE_PRIVATE)?.let {
                 Repository.removePrefs(
                     prefs = it,
-                    keyPattern = "^((?!_page).)*\$"
+                    keyPattern = "^((?!_page).)*$"
                 )
             }
         }

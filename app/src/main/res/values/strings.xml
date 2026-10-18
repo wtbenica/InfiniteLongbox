@@ -132,4 +132,5 @@
     <string name="description_select_variant">Select variant</string>
     <string name="description_license_badge">Creative Commons Attribution-ShareAlike 4.0 license</string>
     <string name="description_open_link">Opens in your browser</string>
+    <string name="cover_add_hint">Add cover</string>
 </resources>

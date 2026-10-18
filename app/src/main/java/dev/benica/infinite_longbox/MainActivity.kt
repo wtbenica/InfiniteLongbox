@@ -16,18 +16,13 @@
 package dev.benica.infinite_longbox
 
 import android.annotation.SuppressLint
-import android.app.Activity
+import android.content.Intent
 import android.graphics.Point
 import android.net.ConnectivityManager
 import android.net.Network
 import android.net.NetworkCapabilities
-import android.widget.Toast
-import androidx.lifecycle.lifecycleScope
-import kotlinx.coroutines.launch
-import dev.benica.infinite_longbox.repository.pushCoversToServer
 import android.os.Bundle
 import android.util.Log
-import android.content.Intent
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -35,37 +30,62 @@ import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import android.widget.ProgressBar
+import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.ContentFrameLayout
 import androidx.appcompat.widget.Toolbar
 import androidx.coordinatorlayout.widget.CoordinatorLayout
-import androidx.core.view.*
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updateLayoutParams
+import androidx.core.view.updatePadding
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentContainerView
 import androidx.fragment.app.FragmentTransaction.TRANSIT_FRAGMENT_FADE
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.appbar.AppBarLayout.LayoutParams.SCROLL_FLAG_SCROLL
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.AlertDialog
+import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.google.android.material.bottomsheet.BottomSheetBehavior.BottomSheetCallback
+import com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_COLLAPSED
+import com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_EXPANDED
+import com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_HALF_EXPANDED
+import com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_HIDDEN
+import com.google.android.material.bottomsheet.BottomSheetBehavior.from
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import com.google.android.material.bottomsheet.BottomSheetBehavior
-import com.google.android.material.bottomsheet.BottomSheetBehavior.*
 import dev.benica.infinite_longbox.database.IssueDatabase
-import dev.benica.infinite_longbox.database.models.*
-import dev.benica.infinite_longbox.fragments.*
+import dev.benica.infinite_longbox.database.models.BaseCollection
+import dev.benica.infinite_longbox.database.models.Character
+import dev.benica.infinite_longbox.database.models.Creator
+import dev.benica.infinite_longbox.database.models.FullIssue
+import dev.benica.infinite_longbox.database.models.FullSeries
+import dev.benica.infinite_longbox.database.models.Issue
+import dev.benica.infinite_longbox.database.models.ListItem
+import dev.benica.infinite_longbox.fragments.AboutDialogFragment
+import dev.benica.infinite_longbox.fragments.CharacterListFragment
+import dev.benica.infinite_longbox.fragments.CreatorListFragment
+import dev.benica.infinite_longbox.fragments.FilterFragment
+import dev.benica.infinite_longbox.fragments.IssueDetailFragment
+import dev.benica.infinite_longbox.fragments.IssueListFragment
+import dev.benica.infinite_longbox.fragments.ListFragment
+import dev.benica.infinite_longbox.fragments.SeriesListFragment
 import dev.benica.infinite_longbox.fragments_view_models.FilterViewModel
 import dev.benica.infinite_longbox.repository.Repository
+import dev.benica.infinite_longbox.repository.pushCoversToServer
 import dev.benica.infinite_longbox.views.ProgressUpdateCard
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 const val APP = "CC_"
 private const val TAG = APP + "MainActivity"
@@ -186,6 +206,7 @@ class MainActivity : AppCompatActivity(),
             R.id.app_about -> AboutDialogFragment().show(supportFragmentManager, "app_about")
             R.id.menu_main_clear_db -> IssueDatabase.getInstance(this).transactionDao()
                 .cleanDatabase()
+
             R.id.menu_main_push_covers -> pushLocalCovers()
             else -> super.onOptionsItemSelected(item)
         }
@@ -257,7 +278,7 @@ class MainActivity : AppCompatActivity(),
         withContext(Dispatchers.IO) { Repository.get().getIssuesByUpc(upc, number, limit) }
 
     private fun askIssueNumber(upc: String) {
-        val input = android.widget.EditText(this).apply {
+        val input = EditText(this).apply {
             inputType = android.text.InputType.TYPE_CLASS_NUMBER
             hint = getString(R.string.scan_issue_number_hint)
         }
@@ -273,6 +294,7 @@ class MainActivity : AppCompatActivity(),
                         matches == null -> showScanMessage(getString(R.string.scan_lookup_failed))
                         matches.isEmpty() ->
                             showScanMessage(getString(R.string.scan_no_match_number, number))
+
                         matches.size == 1 -> addScannedIssue(matches[0])
                         else -> chooseScannedIssue(matches)
                     }
@@ -299,9 +321,14 @@ class MainActivity : AppCompatActivity(),
         // Show what was just added; the snackbar stays on the issue's page for Undo
         onIssueSelected(issue.issue)
 
-        Snackbar.make(mainLayout, getString(R.string.scan_added, issue.scanLabel()), Snackbar.LENGTH_LONG)
+        Snackbar.make(
+            mainLayout,
+            getString(R.string.scan_added, issue.scanLabel()),
+            Snackbar.LENGTH_LONG
+        )
             .setAction(R.string.scan_undo) {
-                Repository.get().removeFromCollection(issue.issue.issueId, BaseCollection.MY_COLL.id)
+                Repository.get()
+                    .removeFromCollection(issue.issue.issueId, BaseCollection.MY_COLL.id)
             }
             .show()
     }
@@ -425,15 +452,15 @@ class MainActivity : AppCompatActivity(),
     }
 
     override fun hideKeyboard() {
-        val view = this.findViewById(android.R.id.content) as ContentFrameLayout
+        val view: View? = this.findViewById(android.R.id.content)
         val inputMethodManager =
-            getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
-        inputMethodManager.hideSoftInputFromWindow(view.windowToken, 0)
+            getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
+        view?.let { inputMethodManager.hideSoftInputFromWindow(it.windowToken, 0) }
     }
 
     override fun showKeyboard(focus: EditText) {
         val inputMethodManager =
-            getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
+            getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
         inputMethodManager.showSoftInput(focus, 0)
     }
 
@@ -450,8 +477,9 @@ class MainActivity : AppCompatActivity(),
             variantOf = issue.variantOf
         )
         // Only a resting state can be restored; DRAGGING/SETTLING would throw
-        val prevState = bottomSheetBehavior.state.takeIf { it == STATE_EXPANDED || it == STATE_COLLAPSED }
-            ?: STATE_COLLAPSED
+        val prevState =
+            bottomSheetBehavior.state.takeIf { it == STATE_EXPANDED || it == STATE_COLLAPSED }
+                ?: STATE_COLLAPSED
         supportFragmentManager
             .beginTransaction()
             .setTransition(TRANSIT_FRAGMENT_FADE)

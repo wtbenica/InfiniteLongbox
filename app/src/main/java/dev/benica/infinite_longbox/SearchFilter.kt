@@ -264,15 +264,15 @@ class SearchFilter(
     override fun hashCode(): Int {
         var result = mShowIssues.hashCode()
         result = 31 * result + mCreators.hashCode()
-        result = 31 * result + (mSeries?.hashCode() ?: 0)
+        result = 31 * result + mSeries.hashCode()
         result = 31 * result + mPublishers.hashCode()
         result = 31 * result + mStartDate.hashCode()
         result = 31 * result + mEndDate.hashCode()
         result = 31 * result + mMyCollection.hashCode()
-        result = 31 * result + (mSortType?.hashCode() ?: 0)
-        result = 31 * result + (mTextFilter?.hashCode() ?: 0)
+        result = 31 * result + mSortType.hashCode()
+        result = 31 * result + mTextFilter.hashCode()
         result = 31 * result + mShowVariants.hashCode()
-        result = 31 * result + (mCharacter?.hashCode() ?: 0)
+        result = 31 * result + mCharacter.hashCode()
         result = 31 * result + mViewOptionsIndex
         result = 31 * result + mViewOptions.hashCode()
         result = 31 * result + mViewOption.hashCode()
@@ -352,8 +352,8 @@ class SortType(
         result = 31 * result + sortColumn.hashCode()
         result = 31 * result + table.hashCode()
         result = 31 * result + order.hashCode()
-        result = 31 * result + (table2?.hashCode() ?: 0)
-        result = 31 * result + (order2?.hashCode() ?: 0)
+        result = 31 * result + table2.hashCode()
+        result = 31 * result + order2.hashCode()
         return result
     }
 

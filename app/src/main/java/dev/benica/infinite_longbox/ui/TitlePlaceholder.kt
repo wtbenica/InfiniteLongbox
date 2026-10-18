@@ -15,7 +15,6 @@
 
 package dev.benica.infinite_longbox.ui
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.fillMaxSize
@@ -33,7 +32,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.googlefonts.Font
@@ -44,6 +42,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import dev.benica.infinite_longbox.R
+import dev.benica.infinite_longbox.database.models.FullIssue
 
 private val fontProvider = GoogleFont.Provider(
     providerAuthority = "com.google.android.gms.fonts",
@@ -51,31 +50,25 @@ private val fontProvider = GoogleFont.Provider(
     certificates = R.array.com_google_android_gms_fonts_certs,
 )
 
-/** Newer than the font service's catalog on some phones, so these two ship with the app. */
-private val bundledFonts = mapOf(
-    "BBH Bogle" to FontFamily(androidx.compose.ui.text.font.Font(R.font.bbh_bogle)),
-)
+private val shareTech = FontFamily(Font(GoogleFont("Share Tech"), fontProvider))
 
-/** The faces a title can be set in. Their order matters: it decides which series gets which. */
-private val titleFonts: List<FontFamily> = listOf(
-    "Bangers", "BBH Bogle", "Racing Sans One", "Unica One",
-    "Syncopate", "Pompiere",
-).map { bundledFonts[it] ?: FontFamily(Font(GoogleFont(it), fontProvider)) }
-
-/** The same name always gets the same face (String.hashCode is defined, not per-run). */
-fun titleFontFor(name: String): FontFamily =
-    titleFonts[Math.floorMod(name.trim().lowercase().hashCode(), titleFonts.size)]
-
-/** The blank cover in each of its colors; every series gets one, always the same. */
+/** The blank cover in each of its colors */
 private val artwork = listOf(
     R.drawable.placeholder_cyan,
     R.drawable.placeholder_yellow,
     R.drawable.placeholder_magenta,
 )
 
-/** From a different part of the name's hash than the font, so the two don't line up. */
-private fun artworkFor(name: String): Int =
-    artwork[Math.floorMod(name.trim().lowercase().hashCode() / titleFonts.size, artwork.size)]
+/** The blank cover for [key]: the same key always gets the same one, others spread across all three. */
+fun placeholderArtworkFor(key: String): Int =
+    artwork[Math.floorMod(key.trim().lowercase().hashCode(), artwork.size)]
+
+/**
+ * What an issue's placeholder color is chosen from: series, number, cover date and variant, so
+ * the issues of a series rotate through the colors instead of all matching their series.
+ */
+fun FullIssue.placeholderKey(): String =
+    "${series.seriesName}|${issue.issueNumRaw}|${issue.coverDateLong ?: issue.coverDate}|${issue.variantName}"
 
 // Where the blank masthead sits in the placeholder images (800 x 1234), as fractions of its size
 private const val IMAGE_HEIGHT_PER_WIDTH = 1234f / 800f
@@ -94,12 +87,12 @@ fun TitlePlaceholder(name: String, modifier: Modifier = Modifier) {
         val width = maxWidth
         val imageHeight = width * IMAGE_HEIGHT_PER_WIDTH
 
-        Image(
-            painter = painterResource(artworkFor(name)),
-            contentDescription = null,
+        // The series card washes its own cover area, so no second wash here
+        PlaceholderCover(
+            key = name,
             modifier = Modifier.fillMaxWidth(),
             contentScale = ContentScale.FillWidth,
-            alignment = Alignment.TopStart,
+            scrim = false,
         )
 
         val mastheadHeight = imageHeight * (MASTHEAD_BOTTOM - MASTHEAD_TOP)
@@ -125,7 +118,7 @@ fun TitlePlaceholder(name: String, modifier: Modifier = Modifier) {
                     BasicText(
                         text = name,
                         style = TextStyle(
-                            fontFamily = titleFontFor(name),
+                            fontFamily = shareTech,
                             color = MASTHEAD_INK,
                             textAlign = TextAlign.Center,
                         ),

@@ -40,15 +40,15 @@ class InfiniteLongboxApplication: Application() {
 
     override fun onCreate() {
         super.onCreate()
-        dev.benica.infinite_longbox.InfiniteLongboxApplication.Companion.context = this
+        context = this
         val retrofit = RetrofitAPIClient.getRetrofitClient()
-        val webservice: dev.benica.infinite_longbox.Webservice = retrofit.create(dev.benica.infinite_longbox.Webservice::class.java)
-        val prefs: SharedPreferences = getSharedPreferences(SHARED_PREFS, Context.MODE_PRIVATE)
+        val webservice: Webservice = retrofit.create(Webservice::class.java)
+        val prefs: SharedPreferences = getSharedPreferences(SHARED_PREFS, MODE_PRIVATE)
 
         Repository.initialize(this)
         UpdateIssueCover.initialize(webservice, prefs, this)
         StaticUpdater.initialize(webservice, prefs)
         Expander.initialize(webservice, prefs)
-        Log.d(dev.benica.infinite_longbox.InfiniteLongboxApplication.Companion.TAG, "DONE INITIALIZING")
+        Log.d(TAG, "DONE INITIALIZING")
     }
 }

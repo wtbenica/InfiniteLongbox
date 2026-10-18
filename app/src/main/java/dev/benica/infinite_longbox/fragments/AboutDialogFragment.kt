@@ -16,13 +16,13 @@
 package dev.benica.infinite_longbox.fragments
 
 import android.graphics.Color
-import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.text.method.LinkMovementMethod
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.core.graphics.drawable.toDrawable
 import androidx.fragment.app.DialogFragment
 import dev.benica.infinite_longbox.R
 
@@ -40,7 +40,7 @@ class AboutDialogFragment : DialogFragment(R.layout.dialog_fragment_about) {
             val layoutParams = window.attributes
             layoutParams.width = w
             layoutParams.height = h
-            window.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+            window.setBackgroundDrawable(Color.TRANSPARENT.toDrawable())
         }
     }
 

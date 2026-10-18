@@ -20,7 +20,6 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.graphics.res.animatedVectorResource
 import androidx.compose.animation.graphics.vector.AnimatedImageVector
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
@@ -55,7 +54,6 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -71,6 +69,8 @@ import java.io.File
 /** Everything an issue card shows, so the card itself holds no logic. */
 data class IssueCardState(
     val issueId: Int,
+    /** Chooses the placeholder color; see [placeholderKey] */
+    val placeholderKey: String,
     val number: String,
     /** Set only for a variant that has its own name */
     val variantName: String?,
@@ -230,13 +230,7 @@ fun IssueListItem(
  */
 @Composable
 private fun Cover(state: IssueCardState, modifier: Modifier) {
-    Image(
-        painter = painterResource(R.drawable.placeholder_gray),
-        contentDescription = null,
-        modifier = modifier,
-        contentScale = ContentScale.Crop,
-        alignment = Alignment.TopStart,
-    )
+    PlaceholderCover(state.placeholderKey, modifier)
 
     val file = state.cover ?: return
     var wide by remember(file) { mutableStateOf(false) }
@@ -269,6 +263,7 @@ private fun IssueListItemPreview() {
         IssueListItem(
             state = IssueCardState(
                 issueId = 1,
+                placeholderKey = "Doom Patrol|8",
                 number = "8",
                 variantName = "Ed McGuinness Cover",
                 cover = null,

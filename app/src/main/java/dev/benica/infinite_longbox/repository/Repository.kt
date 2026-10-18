@@ -13,22 +13,21 @@
  * limitations under the License.
  */
 
-@file:Suppress("RemoveExplicitTypeArguments")
-
 package dev.benica.infinite_longbox.repository
 
 //import android.util.Log
-import android.net.Uri
 import android.annotation.SuppressLint
 import android.app.Dialog
 import android.content.Context
 import android.content.DialogInterface
 import android.content.SharedPreferences
 import android.database.sqlite.SQLiteConstraintException
+import android.net.Uri
 import android.os.Bundle
 import android.os.Parcelable
 import android.util.Log
 import androidx.appcompat.app.AlertDialog
+import androidx.core.content.edit
 import androidx.fragment.app.DialogFragment
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
@@ -38,18 +37,39 @@ import dev.benica.infinite_longbox.MainActivity
 import dev.benica.infinite_longbox.SearchFilter
 import dev.benica.infinite_longbox.database.IssueDatabase
 import dev.benica.infinite_longbox.database.daos.REQUEST_LIMIT
-import dev.benica.infinite_longbox.database.models.*
+import dev.benica.infinite_longbox.database.models.AUTO_ID
+import dev.benica.infinite_longbox.database.models.Character
+import dev.benica.infinite_longbox.database.models.CollectionItem
+import dev.benica.infinite_longbox.database.models.Cover
+import dev.benica.infinite_longbox.database.models.Creator
+import dev.benica.infinite_longbox.database.models.Credit
+import dev.benica.infinite_longbox.database.models.FullAppearance
+import dev.benica.infinite_longbox.database.models.FullCharacter
+import dev.benica.infinite_longbox.database.models.FullCreator
+import dev.benica.infinite_longbox.database.models.FullCredit
+import dev.benica.infinite_longbox.database.models.FullIssue
+import dev.benica.infinite_longbox.database.models.FullSeries
+import dev.benica.infinite_longbox.database.models.Issue
+import dev.benica.infinite_longbox.database.models.Publisher
+import dev.benica.infinite_longbox.database.models.Role
+import dev.benica.infinite_longbox.database.models.Series
+import dev.benica.infinite_longbox.database.models.Story
 import dev.benica.infinite_longbox.views.ProgressUpdateCard
-import java.util.concurrent.atomic.AtomicBoolean
 import dev.benica.infinite_longbox.views.hide
 import dev.benica.infinite_longbox.views.show
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.time.LocalDate
 import java.util.Collections.sort
 import java.util.concurrent.Executors
+import java.util.concurrent.atomic.AtomicBoolean
 
 
 const val DUMMY_ID = Int.MAX_VALUE
@@ -172,7 +192,7 @@ class Repository private constructor(val context: Context) {
                             Log.d(TAG, "Static update done")
                         } finally {
                             // Hide the card however the update ended (done, failed, or the
-                            // network was lost and the job cancelled).
+                            // network was lost and the job canceled).
                             staticUpdateRunning.set(false)
                             mainActivity.runOnUiThread {
                                 progressUpdate.hide()
@@ -255,13 +275,16 @@ class Repository private constructor(val context: Context) {
     ): List<FullIssue>? =
         updater.importIssuesByUpc(upc, number, limit)?.mapNotNull { issueDao.getIssueSus(it) }
 
-    fun getIssue(issueId: Int, markedDelete: Boolean = true): Flow<FullIssue?> {
+    fun updateIssue(issueId: Int, markedDelete: Boolean = true) {
         if (issueId != AUTO_ID) {
             CoroutineScope(Dispatchers.Default).launch {
                 updater.expandIssueAsync(issueId, markedDelete)
             }
         }
+    }
 
+    fun getIssue(issueId: Int, markedDelete: Boolean = true): Flow<FullIssue?> {
+        updateIssue(issueId, markedDelete)
         return issueDao.getFullIssue(issueId)
     }
 
@@ -339,29 +362,29 @@ class Repository private constructor(val context: Context) {
         }
 
         fun removePrefs(prefs: SharedPreferences, keyPattern: String) {
-            val editor = prefs.edit()
-            val allPrefs = prefs.all
-            for (kv in allPrefs) {
-                if (Regex(keyPattern).matches(kv.key)) {
-                    editor.remove(kv.key)
+            prefs.edit {
+                val allPrefs = prefs.all
+                for ((key) in allPrefs) {
+                    if (Regex(keyPattern).matches(key)) {
+                        remove(key)
+                    }
                 }
             }
-            editor.apply()
         }
 
         fun savePrefValue(prefs: SharedPreferences, key: String, value: Any) {
-            val editor = prefs.edit()
-            when (value) {
-                is String -> editor.putString(key, value)
-                is Int -> editor.putInt(key, value)
-                is Boolean -> editor.putBoolean(key, value)
-                is Float -> editor.putFloat(key, value)
-                is Long -> editor.putLong(key, value)
-                else -> throw IllegalArgumentException(
-                    "savePrefValue: Yeah, it says Any, but it really wants String, Int, Boolean, Float, or Long"
-                )
+            prefs.edit {
+                when (value) {
+                    is String -> putString(key, value)
+                    is Int -> putInt(key, value)
+                    is Boolean -> putBoolean(key, value)
+                    is Float -> putFloat(key, value)
+                    is Long -> putLong(key, value)
+                    else -> throw IllegalArgumentException(
+                        "savePrefValue: Yeah, it says Any, but it really wants String, Int, Boolean, Float, or Long"
+                    )
+                }
             }
-            editor.apply()
         }
 
         fun saveTime(prefs: SharedPreferences, key: String) {

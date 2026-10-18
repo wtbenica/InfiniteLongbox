@@ -24,9 +24,7 @@ import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import dev.benica.infinite_longbox.APP
 import dev.benica.infinite_longbox.SearchFilter
-import dev.benica.infinite_longbox.database.models.FullIssue
 import dev.benica.infinite_longbox.database.models.FullSeries
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -41,7 +39,9 @@ class SeriesListViewModel : ListViewModel<FullSeries>() {
         repository.getSeriesByFilterPaged(it).asLiveData()
     }.asFlow().cachedIn(viewModelScope)
 
-    internal fun getIssue(issueId: Int, markedDelete: Boolean = true): Flow<FullIssue?> = repository.getIssue(issueId, markedDelete)
+    internal fun updateIssue(issueId: Int, markedDelete: Boolean = true) {
+        repository.updateIssue(issueId, markedDelete)
+    }
 
     /** Looks up the series' earliest existing cover off the main thread; [onResult] gets null if none. */
     internal fun loadEarliestCover(seriesId: Int, onResult: (Uri?) -> Unit) {
@@ -54,9 +54,9 @@ class SeriesListViewModel : ListViewModel<FullSeries>() {
         repository.getIssuesByFilter(SearchFilter(series = series))
 
     internal fun updateIssuesBySeries(series: FullSeries) {
-        CoroutineScope(Dispatchers.Default).launch {
+        viewModelScope.launch(Dispatchers.Default) {
             getIssueBySeries(series).collectLatest { issues ->
-                issues.forEach { getIssue(it.issue.issueId) }
+                issues.forEach { updateIssue(it.issue.issueId) }
             }
         }
     }

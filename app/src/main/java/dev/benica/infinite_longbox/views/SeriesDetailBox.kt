@@ -114,9 +114,9 @@ class SeriesDetailBox(context: Context, attrs: AttributeSet?) :
         series?.series?.description.let {
             if (it != null && it != "") {
                 trackingNotesTextView.text = it
-                trackingNotesHeader.visibility = TextView.VISIBLE
+                trackingNotesHeader.visibility = VISIBLE
             } else {
-                trackingNotesHeader.visibility = TextView.GONE
+                trackingNotesHeader.visibility = GONE
             }
         }
 
@@ -124,9 +124,9 @@ class SeriesDetailBox(context: Context, attrs: AttributeSet?) :
             if (it != null && it != "") {
                 notesTextView.text = it
                 Log.d(TAG, "FUBUWMO $it")
-                notesLabelHeader.visibility = TextView.VISIBLE
+                notesLabelHeader.visibility = VISIBLE
             } else {
-                notesLabelHeader.visibility = TextView.GONE
+                notesLabelHeader.visibility = GONE
             }
         }
 

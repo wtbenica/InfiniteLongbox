@@ -65,7 +65,7 @@ abstract class PublisherDao : BaseDao<Publisher>("publisher") {
                     JOIN nameDetail nd ON ct.nameDetail = nd.nameDetailId 
                     JOIN creator cr ON cr.creatorId = nd.creator """)
 
-            val creatorIds = Companion.modelsToSqlIdString(filter.mCreators)
+            val creatorIds = modelsToSqlIdString(filter.mCreators)
 
             conditionsString.append(
                 """AND cr.creatorId IN $creatorIds """)

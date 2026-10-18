@@ -17,6 +17,9 @@ package dev.benica.infinite_longbox.fragments
 
 import android.os.Bundle
 import android.view.*
+import androidx.core.view.MenuHost
+import androidx.core.view.MenuProvider
+import androidx.lifecycle.Lifecycle
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -37,6 +40,7 @@ import dev.benica.infinite_longbox.fragments_view_models.IssueListViewModel
 import dev.benica.infinite_longbox.ui.InfiniteLongboxTheme
 import dev.benica.infinite_longbox.ui.IssueCardState
 import dev.benica.infinite_longbox.ui.IssueListItem
+import dev.benica.infinite_longbox.ui.placeholderKey
 import dev.benica.infinite_longbox.views.SeriesDetailBox
 import java.io.File
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -96,6 +100,15 @@ class IssueListFragment : ListFragment<FullIssue, IssueListFragment.IssueViewHol
                 callback?.setTitle(fullSeries.series.seriesName)
             }
         }
+
+        val menuHost: MenuHost = requireActivity()
+        menuHost.addMenuProvider(object : MenuProvider {
+            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                menuInflater.inflate(R.menu.fragment_issue_list, menu)
+            }
+
+            override fun onMenuItemSelected(menuItem: MenuItem): Boolean = false
+        }, viewLifecycleOwner, Lifecycle.State.RESUMED)
     }
 
     override fun onResume() {
@@ -107,12 +120,6 @@ class IssueListFragment : ListFragment<FullIssue, IssueListFragment.IssueViewHol
     }
 
     override fun getAdapter(): IssueAdapter = IssueAdapter()
-
-    @Deprecated("Deprecated in Java")
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        super.onCreateOptionsMenu(menu, inflater)
-        inflater.inflate(R.menu.fragment_issue_list, menu)
-    }
 
     override fun onDestroyView() {
         viewModel.saveIssueListState(listRecyclerView.layoutManager?.onSaveInstanceState())
@@ -196,6 +203,7 @@ class IssueListFragment : ListFragment<FullIssue, IssueListFragment.IssueViewHol
 
             card = IssueCardState(
                 issueId = issue.issueId,
+                placeholderKey = item.placeholderKey(),
                 number = issue.issueNumRaw.orEmpty(),
                 variantName = issue.variantName.takeIf { it.isNotEmpty() && issue.variantOf != null },
                 cover = coverUri?.path?.let { File(it) },

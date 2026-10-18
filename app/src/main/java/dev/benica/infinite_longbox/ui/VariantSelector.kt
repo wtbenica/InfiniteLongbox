@@ -31,6 +31,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -47,6 +48,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import dev.benica.infinite_longbox.R
 import dev.benica.infinite_longbox.database.models.Issue
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 data class VariantSelectorState(
     val variants: List<Issue> = emptyList(),
@@ -54,6 +56,7 @@ data class VariantSelectorState(
 )
 
 /** A titled drop-down of the issue's variants; shown only when there's more than one. */
+@OptIn(ExperimentalCoroutinesApi::class)
 @Composable
 fun VariantSelector(
     state: VariantSelectorState,
@@ -65,7 +68,7 @@ fun VariantSelector(
     val narrow = dimensionResource(R.dimen.margin_narrow)
     val shape = RoundedCornerShape(dimensionResource(R.dimen.margin_default))
     // Switches at once on a pick, ahead of the data catching up
-    var selectedId by remember(state.selectedId) { mutableStateOf(state.selectedId) }
+    var selectedId by remember(state.selectedId) { mutableIntStateOf(state.selectedId) }
     var open by remember { mutableStateOf(false) }
     val selected = state.variants.firstOrNull { it.issueId == selectedId }
 
@@ -138,8 +141,11 @@ private fun Issue.label(): String =
 @Composable
 private fun VariantSelectorPreview() {
     val regular = Issue(issueId = 1, issueNumRaw = "34")
-    val variant = Issue(issueId = 2, issueNumRaw = "34", variantName = "Mitch Gerads Variant", variantOf = 1)
+    val variant =
+        Issue(issueId = 2, issueNumRaw = "34", variantName = "Mitch Gerads Variant", variantOf = 1)
     InfiniteLongboxTheme {
-        VariantSelector(VariantSelectorState(listOf(regular, variant), selectedId = 2), onSelect = {})
+        VariantSelector(
+            VariantSelectorState(listOf(regular, variant), selectedId = 2),
+            onSelect = {})
     }
 }

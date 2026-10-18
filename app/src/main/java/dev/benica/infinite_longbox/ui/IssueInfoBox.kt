@@ -95,7 +95,7 @@ private fun IssueInfoBoxPreview() {
             IssueInfoState(
                 releaseDate = LocalDate.of(2021, 5, 6),
                 coverDate = LocalDate.of(2021, 8, 1),
-                notes = "Cover price \$3.99",
+                notes = $$"Cover price $3.99",
             )
         )
     }

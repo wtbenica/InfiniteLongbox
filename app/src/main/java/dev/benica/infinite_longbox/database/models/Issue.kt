@@ -113,17 +113,17 @@ data class Issue(
         var result = issueId
         result = 31 * result + series
         result = 31 * result + issueNum
-        result = 31 * result + (releaseDate?.hashCode() ?: 0)
-        result = 31 * result + (upc?.hashCode() ?: 0)
+        result = 31 * result + releaseDate.hashCode()
+        result = 31 * result + upc.hashCode()
         result = 31 * result + variantName.hashCode()
         result = 31 * result + (variantOf ?: 0)
         result = 31 * result + sortCode
-        result = 31 * result + (coverDateLong?.hashCode() ?: 0)
+        result = 31 * result + coverDateLong.hashCode()
         result = 31 * result + onSaleDateUncertain.hashCode()
-        result = 31 * result + (coverDate?.hashCode() ?: 0)
-        result = 31 * result + (notes?.hashCode() ?: 0)
+        result = 31 * result + coverDate.hashCode()
+        result = 31 * result + notes.hashCode()
         result = 31 * result + (brandId ?: 0)
-        result = 31 * result + (issueNumRaw?.hashCode() ?: 0)
+        result = 31 * result + issueNumRaw.hashCode()
         result = 31 * result + coverFileName.hashCode()
         result = 31 * result + url.hashCode()
         result = 31 * result + id
@@ -214,11 +214,11 @@ data class FullIssue @ExperimentalCoroutinesApi constructor(
     override fun hashCode(): Int {
         var result = issue.hashCode()
         result = 31 * result + seriesAndPublisher.hashCode()
-        result = 31 * result + (cover?.hashCode() ?: 0)
+        result = 31 * result + cover.hashCode()
         result = 31 * result + collectionItems.hashCode()
         result = 31 * result + series.hashCode()
         result = 31 * result + publisher.hashCode()
-        result = 31 * result + (coverUri?.hashCode() ?: 0)
+        result = 31 * result + coverUri.hashCode()
         return result
     }
 
@@ -269,7 +269,7 @@ data class Cover(
     override fun hashCode(): Int {
         var result = coverId
         result = 31 * result + issue
-        result = 31 * result + (coverUri?.hashCode() ?: 0)
+        result = 31 * result + coverUri.hashCode()
         result = 31 * result + id
         return result
     }

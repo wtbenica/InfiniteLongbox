@@ -16,7 +16,6 @@
 package dev.benica.infinite_longbox.ui
 
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
@@ -45,7 +44,11 @@ fun IssueJumpBar(state: JumpBarState, onJump: (Int) -> Unit, modifier: Modifier 
         JumpButton(R.string.goto_skip_back, state.canSkipBack, Modifier.weight(1f)) { onJump(-10) }
         JumpButton(R.string.goto_one_back, state.canGoBack, Modifier.weight(1f)) { onJump(-1) }
         JumpButton(R.string.goto_one_forward, state.canGoForward, Modifier.weight(1f)) { onJump(1) }
-        JumpButton(R.string.goto_skip_forward, state.canSkipForward, Modifier.weight(1f)) { onJump(10) }
+        JumpButton(R.string.goto_skip_forward, state.canSkipForward, Modifier.weight(1f)) {
+            onJump(
+                10
+            )
+        }
         JumpButton(R.string.goto_end, state.canGoForward, Modifier) {
             onJump(state.count - state.position - 1)
         }
@@ -53,7 +56,7 @@ fun IssueJumpBar(state: JumpBarState, onJump: (Int) -> Unit, modifier: Modifier 
 }
 
 @Composable
-private fun RowScope.JumpButton(
+private fun JumpButton(
     label: Int,
     enabled: Boolean,
     modifier: Modifier,

@@ -50,7 +50,7 @@ class Expander private constructor(webservice: Webservice, prefs: SharedPreferen
 
     fun expandIssueAsync(issues: List<Issue>) = issueExpander.expandIssueAsync(issues)
     fun expandStoryAsync(stories: List<Story>) = storyExpander.expandStoryAsync(stories)
-    fun expandCharacterAsync(characters: List<dev.benica.infinite_longbox.database.models.Character>) =
+    fun expandCharacterAsync(characters: List<Character>) =
         characterExpander.expandCharacter2Async(characters)
 
     private val seriesExpander
@@ -191,7 +191,7 @@ class Expander private constructor(webservice: Webservice, prefs: SharedPreferen
                     argList = issueIds,
                     apiCall = webservice::getIssuesByIds
                 )
-                fKeyChecker.checkFKeysIssue(issues)
+                fKeyChecker.checkFKeysIssue(issues).await()
 
                 database.issueDao().upsert(issues)
                 database.storyDao().upsert(stories)
@@ -235,15 +235,12 @@ class Expander private constructor(webservice: Webservice, prefs: SharedPreferen
                     argList = issueIds,
                     apiCall = webservice::getIssuesByIds
                 )
-                async {
-                    fKeyChecker.checkFKeysIssue(issues)
-                }.await().let {
-                    database.issueDao().upsert(issues)
-                    database.storyDao().upsert(stories)
-                    database.creditDao().upsert(credits)
-                    database.exCreditDao().upsert(extracts)
-                    expandStoryAsync(stories)
-                }
+                fKeyChecker.checkFKeysIssue(issues).await()
+                database.issueDao().upsert(issues)
+                database.storyDao().upsert(stories)
+                database.creditDao().upsert(credits)
+                database.exCreditDao().upsert(extracts)
+                expandStoryAsync(stories)
             }
     }
 
