@@ -30,7 +30,6 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.ComposeView
@@ -58,19 +57,14 @@ import dev.benica.infinite_longbox.database.models.Story
 import dev.benica.infinite_longbox.fragments_view_models.IssueDetailViewModel
 import dev.benica.infinite_longbox.repository.pickedCoverToIssue
 import dev.benica.infinite_longbox.repository.removeCover
-import dev.benica.infinite_longbox.ui.AttributionBar
-import dev.benica.infinite_longbox.ui.CreditsBox
 import dev.benica.infinite_longbox.ui.InfiniteLongboxTheme
-import dev.benica.infinite_longbox.ui.IssueActionBar
 import dev.benica.infinite_longbox.ui.IssueActionState
-import dev.benica.infinite_longbox.ui.IssueCover
+import dev.benica.infinite_longbox.ui.IssueDetailActions
+import dev.benica.infinite_longbox.ui.IssueDetailScreen
+import dev.benica.infinite_longbox.ui.IssueDetailUiState
 import dev.benica.infinite_longbox.ui.IssueCoverState
-import dev.benica.infinite_longbox.ui.IssueInfoBox
 import dev.benica.infinite_longbox.ui.IssueInfoState
-import dev.benica.infinite_longbox.ui.IssueJumpBar
 import dev.benica.infinite_longbox.ui.JumpBarState
-import dev.benica.infinite_longbox.ui.StoryUi
-import dev.benica.infinite_longbox.ui.VariantSelector
 import dev.benica.infinite_longbox.ui.VariantSelectorState
 import dev.benica.infinite_longbox.ui.buildStoryUi
 import dev.benica.infinite_longbox.ui.placeholderKey
@@ -107,18 +101,8 @@ class IssueDetailFragment : Fragment() {
     private var variantAppearances: List<FullAppearance> = emptyList()
     private var issueVariants: List<Issue> = emptyList()
 
-    private var coverState by mutableStateOf(IssueCoverState())
-    private var actionState by mutableStateOf(IssueActionState())
-    private var variantState by mutableStateOf(VariantSelectorState())
+    private var uiState by mutableStateOf(IssueDetailUiState())
     private var isVariant: Boolean = false
-
-    private var stories by mutableStateOf<List<StoryUi>>(emptyList())
-    private var expandedStories by mutableStateOf<Set<Int>>(emptySet())
-    private var gcdIssueId by mutableIntStateOf(0)
-
-    private var infoState by mutableStateOf(IssueInfoState())
-
-    private var jumpBarState by mutableStateOf(JumpBarState())
 
     private val currentIssue: FullIssue
         get() = fullVariant ?: fullIssue
@@ -221,84 +205,31 @@ class IssueDetailFragment : Fragment() {
         savedInstanceState: Bundle?,
     ): View? {
 
-        val view = inflater.inflate(R.layout.fragment_issue_detail, container, false)
-
-        view.findViewById<ComposeView>(R.id.issue_cover).apply {
+        return ComposeView(requireContext()).apply {
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
             setContent {
                 InfiniteLongboxTheme {
-                    IssueCover(
-                        coverState,
-                        onClick = ::onCoverClicked,
-                        onLongClick = ::showCoverOptions
+                    IssueDetailScreen(
+                        state = uiState,
+                        actions = IssueDetailActions(
+                            onCoverClick = ::onCoverClicked,
+                            onCoverLongClick = ::showCoverOptions,
+                            onToggleCollection = {
+                                toggleCollection(BaseCollection.MY_COLL.id, uiState.actions.inCollection)
+                            },
+                            onToggleWishList = {
+                                toggleCollection(BaseCollection.WISH_LIST.id, uiState.actions.inWishList)
+                            },
+                            onSearchEbay = ::searchEbay,
+                            onVariantSelected = ::onVariantSelected,
+                            onCharacterClick = ::characterClicked,
+                            onCreatorClick = ::creatorClicked,
+                            onJump = ::jumpToIssue,
+                        ),
                     )
                 }
             }
         }
-        view.findViewById<ComposeView>(R.id.issue_info_box).apply {
-            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
-            setContent { InfiniteLongboxTheme { IssueInfoBox(infoState) } }
-        }
-        view.findViewById<ComposeView>(R.id.attribution).apply {
-            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
-            setContent { InfiniteLongboxTheme { AttributionBar(gcdIssueId) } }
-        }
-        view.findViewById<ComposeView>(R.id.issue_actions).apply {
-            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
-            setContent {
-                InfiniteLongboxTheme {
-                    IssueActionBar(
-                        state = actionState,
-                        onToggleCollection = {
-                            toggleCollection(BaseCollection.MY_COLL.id, actionState.inCollection)
-                        },
-                        onToggleWishList = {
-                            toggleCollection(BaseCollection.WISH_LIST.id, actionState.inWishList)
-                        },
-                        onSearchEbay = ::searchEbay,
-                    )
-                }
-            }
-        }
-        view.findViewById<ComposeView>(R.id.variant_selector).apply {
-            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
-            setContent {
-                InfiniteLongboxTheme {
-                    VariantSelector(
-                        variantState,
-                        ::onVariantSelected
-                    )
-                }
-            }
-        }
-        view.findViewById<ComposeView>(R.id.credits_box).apply {
-            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
-            setContent {
-                InfiniteLongboxTheme {
-                    CreditsBox(
-                        stories = stories,
-                        expanded = expandedStories,
-                        onToggle = { id ->
-                            expandedStories =
-                                if (id in expandedStories) expandedStories - id else expandedStories + id
-                        },
-                        onCharacterClick = ::characterClicked,
-                        onCreatorClick = ::creatorClicked,
-                    )
-                }
-            }
-        }
-
-        view.findViewById<ComposeView>(R.id.jump_bar).apply {
-            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
-            setContent {
-                InfiniteLongboxTheme {
-                    IssueJumpBar(jumpBarState, onJump = ::jumpToIssue)
-                }
-            }
-        }
-
-        return view
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -429,7 +360,7 @@ class IssueDetailFragment : Fragment() {
     }
 
     private fun updateNavBar() {
-        jumpBarState = JumpBarState(currentPos, issuesInSeries.size)
+        uiState = uiState.copy(jumpBar = JumpBarState(currentPos, issuesInSeries.size))
     }
 
     private fun jumpToIssue(skipNum: Int) {
@@ -471,29 +402,30 @@ class IssueDetailFragment : Fragment() {
         if (issue.issueId != AUTO_ID) {
             listFragmentCallback?.setTitle("$currentIssue")
 
-            infoState = IssueInfoState(issue.releaseDate, issue.coverDate, issue.notes)
             val collectionIds: List<Int> = currentIssue.collectionItems.map { it.userCollection }
-            actionState = IssueActionState(
-                issueId = issue.issueId,
-                inCollection = collectionIds.contains(BaseCollection.MY_COLL.id),
-                inWishList = collectionIds.contains(BaseCollection.WISH_LIST.id),
+            uiState = uiState.copy(
+                info = IssueInfoState(issue.releaseDate, issue.coverDate, issue.notes),
+                actions = IssueActionState(
+                    issueId = issue.issueId,
+                    inCollection = collectionIds.contains(BaseCollection.MY_COLL.id),
+                    inWishList = collectionIds.contains(BaseCollection.WISH_LIST.id),
+                ),
+                stories = buildStoryUi(
+                    issueStories, variantStories, issueCredits, variantCredits,
+                    issueAppearances, variantAppearances
+                ),
+                gcdIssueId = issue.issueId,
+                variants = VariantSelectorState(issueVariants, issue.issueId),
             )
-
-            stories = buildStoryUi(
-                issueStories, variantStories, issueCredits, variantCredits,
-                issueAppearances, variantAppearances
-            )
-            gcdIssueId = issue.issueId
-
-            variantState = VariantSelectorState(issueVariants, issue.issueId)
 
             updateCover()
         }
     }
 
     private fun updateCover() {
-        coverState =
-            IssueCoverState(coverUri?.path?.let { File(it) }, currentIssue.placeholderKey())
+        uiState = uiState.copy(
+            cover = IssueCoverState(coverUri?.path?.let { File(it) }, currentIssue.placeholderKey())
+        )
     }
 
     private fun onCoverClicked() {

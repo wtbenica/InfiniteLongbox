@@ -39,7 +39,6 @@
     <attr name="filterSectionBackgroundColor" format="reference|color" />
 
     <!-- IssueDetailFragment -->
-    <attr name="fragmentIssueDetailBgColor" format="reference" />
 
     <!-- IssueDetailFragment Variant Spinner -->
 

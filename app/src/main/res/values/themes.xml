@@ -78,7 +78,6 @@
         <item name="chipInactiveStrokeColor">@color/outline</item>
         <item name="chipTextColor">@color/text_primary</item>
         <item name="chipIconSize">20dp</item>
-        <item name="fragmentIssueDetailBgColor">@color/surface</item>
         <item name="styleSeriesDetail">@style/SeriesDetailBackground</item>
         <item name="seriesDetailBackground">@color/accent_soft</item>
         <item name="seriesDetailLabelColor">@color/accent_strong</item>
