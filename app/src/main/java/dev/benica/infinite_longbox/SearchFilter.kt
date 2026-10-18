@@ -374,14 +374,16 @@ class SortType(
         /**
          * SQL expression for sorting by a name column: ignores leading punctuation and compares
          * case-insensitively, so "iCandy" sorts with the I's, not after Z. Digits still sort
-         * ahead of letters, as their own group.
+         * ahead of letters, as their own group. A hyphen counts as a space, so "All-New X-Men"
+         * files with "All New ..." instead of after all of them.
          */
         fun nameSortKey(columnRef: String): String =
-            "ltrim($columnRef, '${SORT_IGNORED_LEADING.replace("'", "''")}') COLLATE NOCASE"
+            "replace(ltrim($columnRef, '${SORT_IGNORED_LEADING.replace("'", "''")}'), '-', ' ') " +
+                    "COLLATE NOCASE"
 
         /** In-memory counterpart of [nameSortKey], for lists sorted in code */
         fun sortKeyOf(name: String): String =
-            name.trimStart { it in SORT_IGNORED_LEADING }.lowercase()
+            name.trimStart { it in SORT_IGNORED_LEADING }.replace('-', ' ').lowercase()
 
         /**
          * ORDER BY for the filter-box popup, which only shows the first few matches: names that
@@ -396,7 +398,8 @@ class SortType(
             return if (text.isEmpty()) {
                 "ORDER BY $key "
             } else {
-                args.add("$text%")
+                // The key has no hyphens, so the typed text mustn't either
+                args.add("${text.replace('-', ' ')}%")
                 "ORDER BY CASE WHEN $key LIKE ? THEN 0 ELSE 1 END, $key "
             }
         }
