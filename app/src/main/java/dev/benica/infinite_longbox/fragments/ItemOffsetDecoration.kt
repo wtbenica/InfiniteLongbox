@@ -33,11 +33,6 @@ class ItemOffsetDecoration(itemOffset: Int, itemOffsetHorizontal: Int? = null, n
     ) {
         super.getItemOffsets(outRect, view, parent, state)
 
-//        outRect.top = mItemOffset
-//        outRect.bottom = mItemOffset
-//        outRect.left = mItemOffsetHorizontal ?: mItemOffset
-//        outRect.right = mItemOffsetHorizontal ?: mItemOffset
-
         val childAdapterPosition = parent.getChildAdapterPosition(view)
         val itemCount = parent.adapter?.itemCount ?: 1
 

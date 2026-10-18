@@ -15,7 +15,6 @@
 
 package dev.benica.infinite_longbox.database.daos
 
-import android.util.Log
 import androidx.paging.PagingSource
 import androidx.room.Dao
 import androidx.room.Query
@@ -38,23 +37,12 @@ abstract class CreatorDao : BaseDao<Creator>("creator") {
     @Query("SELECT * FROM creator ORDER BY sortName ASC")
     abstract fun getAll(): Flow<List<Creator>>
 
-    // FLOW FUNCTIONS
-    @RawQuery(observedEntities = [Creator::class])
-    abstract fun getCreatorsByQuery(query: SupportSQLiteQuery): Flow<List<Creator>>
-
     @RawQuery(observedEntities = [Creator::class])
     abstract suspend fun getCreatorsByQuerySus(query: SupportSQLiteQuery): List<Creator>
 
     /** A bounded list of creators for the filter-box popup. */
     suspend fun getCreatorOptions(filter: SearchFilter, limit: Int): List<Creator> =
         getCreatorsByQuerySus(getCreatorQuery(filter, limit))
-
-    fun getCreatorsByFilter(filter: SearchFilter): Flow<List<Creator>> {
-
-        val query = getCreatorQuery(filter)
-
-        return getCreatorsByQuery(query)
-    }
 
     // PAGING SOURCE FUNCTIONS
     @Transaction

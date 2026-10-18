@@ -31,19 +31,8 @@ import java.util.*
 @ExperimentalCoroutinesApi
 @Dao
 abstract class PublisherDao : BaseDao<Publisher>("publisher") {
-    @Query("SELECT * FROM publisher WHERE publisherId = :publisherId")
-    abstract fun getPublisher(publisherId: Int): Flow<Publisher?>
-
     @Query("SELECT * FROM publisher WHERE publisherId != $DUMMY_ID ORDER BY publisher ASC")
     abstract fun getAll(): Flow<List<Publisher>>
-
-    @Query("SELECT * FROM publisher WHERE publisherId IN (:publisherIds)")
-    abstract fun getPublishers(publisherIds: List<Int>?): Flow<List<Publisher>>
-
-    @RawQuery(
-        observedEntities = [Publisher::class]
-    )
-    abstract fun getPublishersByQuery(query: SupportSQLiteQuery): Flow<List<Publisher>>
 
     @RawQuery(observedEntities = [Publisher::class])
     abstract suspend fun getPublishersByQuerySus(query: SupportSQLiteQuery): List<Publisher>
@@ -51,9 +40,6 @@ abstract class PublisherDao : BaseDao<Publisher>("publisher") {
     /** A bounded list of publishers for the filter-box popup. */
     suspend fun getPublisherOptions(filter: SearchFilter, limit: Int): List<Publisher> =
         getPublishersByQuerySus(getPublisherQuery(filter, limit))
-
-    fun getPublishersByFilter(filter: SearchFilter): Flow<List<Publisher>> =
-        getPublishersByQuery(getPublisherQuery(filter))
 
     private fun getPublisherQuery(filter: SearchFilter, limit: Int? = null): SimpleSQLiteQuery {
         val mSeries = filter.mSeries

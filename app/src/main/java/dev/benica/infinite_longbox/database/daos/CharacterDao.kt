@@ -15,7 +15,6 @@
 
 package dev.benica.infinite_longbox.database.daos
 
-import android.util.Log
 import androidx.paging.PagingSource
 import androidx.room.Dao
 import androidx.room.Query
@@ -41,26 +40,12 @@ abstract class CharacterDao : BaseDao<Character>("character") {
     @Query("SELECT * FROM character ORDER BY name ASC")
     abstract fun getAll(): Flow<List<Character>>
 
-    @Transaction
-    @Query("SELECT * FROM character WHERE characterId=:characterId")
-    abstract fun getCharacter(characterId: Int): Flow<List<FullCharacter>>
-
-    // FLOW FUNCTIONS
-    @RawQuery(observedEntities = [Character::class])
-    abstract fun getCharacterByQuery(query: SupportSQLiteQuery): Flow<List<Character>>
-
     @RawQuery(observedEntities = [Character::class])
     abstract suspend fun getCharactersByQuerySus(query: SupportSQLiteQuery): List<Character>
 
     /** A bounded list of characters for the filter-box popup. */
     suspend fun getCharacterOptions(filter: SearchFilter, limit: Int): List<Character> =
         getCharactersByQuerySus(getCharacterQuery(filter, limit))
-
-    fun getCharacterFilterOptions(filter: SearchFilter): Flow<List<Character>> {
-        val query = getCharacterQuery(filter)
-
-        return getCharacterByQuery(query)
-    }
 
     // PAGING SOURCE FUNCTIONS
     @Transaction

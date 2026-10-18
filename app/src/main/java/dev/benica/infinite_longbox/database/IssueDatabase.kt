@@ -228,19 +228,6 @@ abstract class IssueDatabase : RoomDatabase() {
         //                    'targetIssueId' INTEGER,
         //                    'bondTypeId' INTEGER NOT NULL,
         //                    'notes' TEXT,
-        //                    PRIMARY KEY ('bondId'),
-        //                    FOREIGN KEY ('originId') REFERENCES 'Series'('seriesId') ON DELETE CASCADE,
-        //                    FOREIGN KEY ('targetId') REFERENCES 'Series'('seriesId') ON DELETE CASCADE,
-        //                    FOREIGN KEY ('originIssueId') REFERENCES 'Issue'('issueId') ON DELETE CASCADE,
-        //                    FOREIGN KEY ('targetIssueId') REFERENCES 'Issue'('issueId') ON DELETE CASCADE,
-        //                    FOREIGN KEY ('bondTypeId') REFERENCES 'BondType'('bondTypeId') ON DELETE RESTRICT
-        //                )""",
-        //            """CREATE INDEX IF NOT EXISTS 'index_SeriesBond_targetIssueId' ON 'SeriesBond'('targetIssueId')""",
-        //            """CREATE INDEX IF NOT EXISTS 'index_SeriesBond_originId' ON 'SeriesBond'('originId')""",
-        //            """CREATE INDEX IF NOT EXISTS 'index_SeriesBond_targetId' ON 'SeriesBond'('targetId')""",
-        //            """CREATE INDEX IF NOT EXISTS 'index_SeriesBond_originIssueId' ON 'SeriesBond'('originIssueId')""",
-        //            """CREATE INDEX IF NOT EXISTS 'index_SeriesBond_bondTypeId' ON 'SeriesBond'('bondTypeId')""",
-        //        )
         //
         //        @Language("RoomSql")
         //        val migration_7_8 = SimpleMigration(
@@ -281,11 +268,6 @@ abstract class IssueDatabase : RoomDatabase() {
         //                    alterEgo TEXT,
         //                    publisher INTEGER NOT NULL,
         //                    lastUpdated TEXT NOT NULL,
-        //                    PRIMARY KEY (characterId),
-        //                    FOREIGN KEY (publisher) REFERENCES Publisher(publisherId) ON DELETE CASCADE
-        //                )""",
-        //            """CREATE INDEX IF NOT EXISTS index_Character_publisher ON Character(publisher)""",
-        //            """CREATE TABLE Appearance (
         //                    appearanceId INTEGER NOT NULL,
         //                    story INTEGER NOT NULL,
         //                    character INTEGER NOT NULL,
@@ -293,24 +275,10 @@ abstract class IssueDatabase : RoomDatabase() {
         //                    notes TEXT,
         //                    membership TEXT,
         //                    lastUpdated TEXT NOT NULL,
-        //                    PRIMARY KEY (appearanceId),
-        //                    FOREIGN KEY (story) REFERENCES Story(storyId) ON DELETE CASCADE,
-        //                    FOREIGN KEY (character) REFERENCES Character(characterId) ON DELETE CASCADE
-        //                )""",
-        //            """CREATE INDEX IF NOT EXISTS index_Appearance_story ON Appearance(story)""",
-        //            """CREATE INDEX IF NOT EXISTS index_Appearance_character ON Appearance(character)""",
-        //        )
         //
         //        @Language("RoomSql")
         //        val migration_10_11 = SimpleMigration(
         //            10, 11,
-        //            """CREATE INDEX IF NOT EXISTS index_Character_name ON Character(name)""",
-        //            """CREATE INDEX IF NOT EXISTS index_Character_alterEgo ON Character(alterEgo)""",
-        //            """CREATE INDEX IF NOT EXISTS index_Creator_name ON Creator(name)""",
-        //            """CREATE INDEX IF NOT EXISTS index_Creator_alterEgo ON Creator(sortName)""",
-        //            """CREATE INDEX IF NOT EXISTS index_NameDetail_name ON NameDetail(name)""",
-        //            """CREATE INDEX IF NOT EXISTS index_NameDetail_sortName ON NameDetail(sortName)""",
-        //        )
         //
         //        val migration_11_12 = SimpleMigration(
         //            11, 12,
@@ -332,13 +300,6 @@ abstract class IssueDatabase : RoomDatabase() {
         //            """ALTER TABLE appearance
         //                ADD COLUMN series INTEGER REFERENCES Series(seriesId) ON DELETE CASCADE
         //            """,
-        //            """CREATE INDEX IF NOT EXISTS index_Credit_series ON Credit(series)""",
-        //            """CREATE INDEX IF NOT EXISTS index_Credit_issue ON Credit(issue)""",
-        //            """CREATE INDEX IF NOT EXISTS index_ExCredit_series ON ExCredit(series)""",
-        //            """CREATE INDEX IF NOT EXISTS index_ExCredit_issue ON ExCredit(issue)""",
-        //            """CREATE INDEX IF NOT EXISTS index_Appearance_series ON Appearance(series)""",
-        //            """CREATE INDEX IF NOT EXISTS index_Appearance_issue ON Appearance(issue)""",
-        //        )
         //
     }
 }

@@ -62,17 +62,6 @@ abstract class IssueDao : BaseDao<Issue>("issue") {
         return getFullIssuesByQueryPagingSource(query)
     }
 
-    // SUSPEND FUNCTIONS
-    @Transaction
-    @RawQuery(observedEntities = [FullIssue::class])
-    abstract suspend fun getFullIssuesByQuerySus(query: SupportSQLiteQuery): List<FullIssue>
-
-    suspend fun getIssuesByFilterSus(filter: SearchFilter): List<FullIssue> {
-        val query = createIssueQuery(filter)
-
-        return getFullIssuesByQuerySus(query)
-    }
-
     @Query(
         """SELECT ie.* 
             FROM issue ie

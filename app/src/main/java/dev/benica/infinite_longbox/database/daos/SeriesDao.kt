@@ -45,17 +45,6 @@ abstract class SeriesDao : BaseDao<Series>("series") {
     @Query("SELECT * FROM series WHERE seriesId=:seriesId")
     abstract fun getSeries(seriesId: Int): Flow<FullSeries?>
 
-    // FLOW FUNCTIONS
-    @Transaction
-    @RawQuery(observedEntities = [Series::class])
-    abstract fun getSeriesByQuery(query: SupportSQLiteQuery): Flow<List<FullSeries>>
-
-    fun getSeriesByFilter(filter: SearchFilter): Flow<List<FullSeries>> {
-        val query = getSeriesQuery(filter)
-
-        return getSeriesByQuery(query)
-    }
-
     // PAGING SOURCE FUNCTIONS
     @Transaction
     @RawQuery(observedEntities = [FullSeries::class])
@@ -75,12 +64,6 @@ abstract class SeriesDao : BaseDao<Series>("series") {
     /** A bounded list of series for the filter-box popup. */
     suspend fun getSeriesOptions(filter: SearchFilter, limit: Int): List<FullSeries> =
         getSeriesByQuerySus(getSeriesQuery(filter, limit))
-
-    suspend fun getSeriesByFilterSus(filter: SearchFilter): List<FullSeries> {
-        val query = getSeriesQuery(filter)
-
-        return getSeriesByQuerySus(query)
-    }
 
     companion object {
         private fun getSeriesQuery(filter: SearchFilter, limit: Int? = null): SimpleSQLiteQuery {
@@ -239,35 +222,6 @@ abstract class SeriesDao : BaseDao<Series>("series") {
             )
         }
 
-        private fun addTypeFilterElse(
-            lookup: List<String?>?,
-            textFilter: TextFilter,
-            conditions: StringBuilder,
-        ) {
-            var first = true
-            lookup?.forEach {
-                addTextFilterCondition(
-                    it,
-                    first,
-                    conditions,
-                    textFilter
-                )
-                    .also { first = false }
-            }
-        }
-
-        private fun addTextFilterCondition(
-            column: String?,
-            first: Boolean,
-            conditions: StringBuilder,
-            textFilter: TextFilter,
-        ) {
-            if (!first) {
-                conditions.append("""OR """)
-            }
-
-            conditions.append("""$column like '%${textFilter.text}%' """)
-        }
     }
 }
 

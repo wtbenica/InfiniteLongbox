@@ -139,7 +139,6 @@ class IssueDetailFragment : Fragment() {
 
     private var jumpBarState by mutableStateOf(JumpBarState())
 
-
     private val currentIssue: FullIssue
         get() = fullVariant ?: fullIssue
 
@@ -429,21 +428,9 @@ class IssueDetailFragment : Fragment() {
 
 //        issueDetailViewModel.inCollectionLiveData.observe(
 //            viewLifecycleOwner,
-//            { count ->
-//                if (!isVariant) {
-//                    setCollectionButton(count)
-//                }
-//            }
-//        )
 //
 //        issueDetailViewModel.variantInCollectionLiveData.observe(
 //            viewLifecycleOwner,
-//            { count ->
-//                if (isVariant) {
-//                    setCollectionButton(count)
-//                }
-//            }
-//        )
     }
 
     override fun onDetach() {
@@ -494,31 +481,11 @@ class IssueDetailFragment : Fragment() {
         super.onStart()
 
 //         TODO: This is for editing. n/a anymore?
-//        releaseDateTextView.setOnClickListener {
-//            DatePickerFragment.newInstance(fullIssue.issue.releaseDate).apply {
-//                setTargetFragment(this@IssueDetailFragment, RESULT_DATE_PICKER)
-//                show(this@IssueDetailFragment.parentFragmentManager, DIALOG_DATE)
-//            }
-//        }
 //
     }
 
-    ////    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-////        super.onCreateOptionsMenu(menu, inflater)
-////        inflater.inflate(R.menu.fragment_issue, menu)
-////    }
 ////
-//    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-//        return when (item.itemId) {
-//            R.id.delete_issue -> {
-//                saveIssue = false
-//                issueDetailViewModel.delete(fullIssue.issue)
-//                requireActivity().onBackPressed()
 //                true
-//            }
-//            else -> super.onOptionsItemSelected(item)
-//        }
-//    }
 //
     private var i = 0
 

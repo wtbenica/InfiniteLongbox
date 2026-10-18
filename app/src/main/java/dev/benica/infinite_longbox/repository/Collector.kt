@@ -15,62 +15,14 @@
 
 package dev.benica.infinite_longbox.repository
 
-import android.util.Log
-import dev.benica.infinite_longbox.APP
 import dev.benica.infinite_longbox.database.IssueDatabase
 import dev.benica.infinite_longbox.database.daos.BaseDao
 import dev.benica.infinite_longbox.database.models.*
-import dev.benica.infinite_longbox.repository.Updater.PriorityDispatcher.Companion.lowPriorityDispatcher
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import java.time.Instant
 
 @ExperimentalCoroutinesApi
 abstract class Collector<ModelType : DataModel>(val dao: BaseDao<ModelType>) {
-    private var count: Int = 0
-    private var startTime: Instant? = null
-    private var itemList = mutableListOf<ModelType>()
-
-    @Synchronized
-    fun collect(result: List<ModelType>?) {
-        if (startTime == null) {
-            startTime = Instant.now()
-        }
-        result?.let { itemList.addAll(it) }
-
-        val currentTime = Instant.now()
-
-        saveList()
-
-        CoroutineScope(lowPriorityDispatcher).launch {
-            delay(3000)
-            if (currentTime > (startTime?.plusSeconds(UPSERT_WAIT) ?: Instant.MIN) &&
-                itemList.isNotEmpty()
-            ) {
-                Log.d(
-                    TAG,
-                    "Time's up. Saving the list. ${itemList.size} ${itemList[0]::class}"
-                )
-                saveList()
-            }
-        }
-    }
-
-    @Synchronized
-    private fun saveList() {
-        Log.d(TAG, "Saving items from collector ${itemList.size}")
-        dao.upsert(itemList)
-        itemList.clear()
-        count = 0
-    }
-
     companion object {
-        private const val TAG = APP + "Collector"
-        private const val BUFFER_SIZE = 10
-        private const val UPSERT_WAIT: Long = 1
-
         fun initialize(database: IssueDatabase) {
             DATABASE = database
         }
@@ -95,9 +47,6 @@ abstract class Collector<ModelType : DataModel>(val dao: BaseDao<ModelType>) {
 
         @Volatile
         private var ISS_COLL: IssueCollector? = null
-
-        @Volatile
-        private var NMD_COLL: NameDetailCollector? = null
 
         fun appearanceCollector(): AppearanceCollector {
             return synchronized(this) {
@@ -139,14 +88,6 @@ abstract class Collector<ModelType : DataModel>(val dao: BaseDao<ModelType>) {
             }
         }
 
-        fun nameDetailCollector(): NameDetailCollector {
-            return synchronized(this) {
-                NMD_COLL ?: NameDetailCollector(database).also {
-                    NMD_COLL = it
-                }
-            }
-        }
-
         class AppearanceCollector(database: IssueDatabase) :
             Collector<Appearance>(database.appearanceDao())
 
@@ -156,7 +97,5 @@ abstract class Collector<ModelType : DataModel>(val dao: BaseDao<ModelType>) {
 
         class StoryCollector(database: IssueDatabase) : Collector<Story>(database.storyDao())
         class IssueCollector(database: IssueDatabase) : Collector<Issue>(database.issueDao())
-        class NameDetailCollector(database: IssueDatabase) :
-            Collector<NameDetail>(database.nameDetailDao())
     }
 }

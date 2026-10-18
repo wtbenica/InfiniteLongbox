@@ -119,19 +119,11 @@ class IssueListFragment : ListFragment<FullIssue, IssueListFragment.IssueViewHol
         super.onDestroyView()
     }
 
-    //    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-//        return when (item.itemId) {
-//            R.id.new_issue -> {
-//                // TODO: Find solution to this. If issueNum is default (1), if there already
 //                //  exists an issue number 1, then violates unique series/issue restraint in db
 //                val issue = filter.mSeries?.let { Issue(seriesId = it.seriesId) } ?: Issue()
 //                issueListViewModel.addIssue(issue)
 //                issueListCallback?.onNewIssue(issue.issueId)
 //                true
-//            }
-//            else           -> super.onOptionsItemSelected(item)
-//        }
-//    }
 //
     inner class IssueAdapter :
         PagingDataAdapter<FullIssue, IssueViewHolder>(DIFF_CALLBACK) {

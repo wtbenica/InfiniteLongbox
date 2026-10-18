@@ -30,16 +30,6 @@ abstract class NameDetailDao : BaseDao<NameDetail>("namedetail") {
     @RawQuery(observedEntities = [NameDetailAndCreator::class])
     abstract suspend fun getNameDetailsRaw(query: SupportSQLiteQuery): List<NameDetail>
 
-    suspend fun getNameDetailsByCreatorId(creatorId: Int): List<NameDetail> {
-        val query = SimpleSQLiteQuery(
-            """SELECT *
-                FROM namedetail nd
-                WHERE nd.creator = $creatorId """
-        )
-
-        return getNameDetailsRaw(query)
-    }
-
     suspend fun getNameDetailsByCreatorIds(creatorIds: List<Int>): List<NameDetail> {
         val query = SimpleSQLiteQuery(
             """SELECT *

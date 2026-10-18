@@ -17,7 +17,6 @@ package dev.benica.infinite_longbox
 
 import android.annotation.SuppressLint
 import android.app.Activity
-import android.content.Context
 import android.graphics.Point
 import android.net.ConnectivityManager
 import android.net.Network
@@ -28,7 +27,6 @@ import kotlinx.coroutines.launch
 import dev.benica.infinite_longbox.repository.pushCoversToServer
 import android.os.Bundle
 import android.util.Log
-import android.util.TypedValue
 import android.content.Intent
 import android.view.Menu
 import android.view.MenuItem
@@ -39,8 +37,6 @@ import android.widget.EditText
 import android.widget.ProgressBar
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.viewModels
-import androidx.annotation.AttrRes
-import androidx.annotation.ColorInt
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.ContentFrameLayout
 import androidx.appcompat.widget.Toolbar
@@ -556,16 +552,6 @@ class MainActivity : AppCompatActivity(),
             }
         }
 
-        @ColorInt
-        fun Context.getColorFromAttr(
-            @AttrRes attrColor: Int,
-            resolveRefs: Boolean = true
-        ): Int {
-            TypedValue().let {
-                theme.resolveAttribute(attrColor, it, resolveRefs)
-                return it.data
-            }
-        }
     }
 
     override fun updateFilter(filter: SearchFilter) {

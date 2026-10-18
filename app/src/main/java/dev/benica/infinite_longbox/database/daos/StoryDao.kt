@@ -29,9 +29,6 @@ abstract class StoryDao : BaseDao<Story>("Story") {
     @Query(query)
     abstract fun getStoriesFlow(issueId: Int): Flow<List<Story>>
 
-    @Query(query)
-    abstract suspend fun getStories(issueId: Int): List<Story>
-
     @Query(
         """
             DELETE FROM story

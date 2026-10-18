@@ -46,7 +46,6 @@ import dev.benica.infinite_longbox.views.show
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flow
 import java.time.LocalDate
 import java.util.Collections.sort
@@ -99,9 +98,6 @@ internal fun getUpdatedTag(id: Int, type: String): String = "$type${id}_UPDATED"
 
 internal fun seriesTag(id: Int): String = getUpdatedTag(id, "SERIES_")
 internal fun issueTag(id: Int) = getUpdatedTag(id, "ISSUE_")
-internal fun creatorTag(id: Int): String = getUpdatedTag(id, "CREATOR_")
-internal fun characterTag(id: Int): String = getUpdatedTag(id, "CHARACTER_")
-
 @ExperimentalCoroutinesApi
 class Repository private constructor(val context: Context) {
 
@@ -190,15 +186,6 @@ class Repository private constructor(val context: Context) {
     // Static Items
     val allPublishers: Flow<List<Publisher>> = publisherDao.getAll()
 
-    // FILTER OPTIONS
-    fun getFilterOptionsSeries(filter: SearchFilter): Flow<List<FullSeries>> {
-        return if (filter.mSeries == null) {
-            seriesDao.getSeriesByFilter(filter)
-        } else {
-            emptyFlow()
-        }
-    }
-
     // Bounded, one-shot lookups for the filter-box popup. The Flow versions above return every
     // matching row, which is far too many (hundreds of thousands of characters) to hand to a popup.
     suspend fun getFilterOptionsSeriesLimited(filter: SearchFilter, limit: Int): List<FullSeries> =
@@ -212,21 +199,6 @@ class Repository private constructor(val context: Context) {
 
     suspend fun getFilterOptionsPublisherLimited(filter: SearchFilter, limit: Int): List<Publisher> =
         if (filter.mPublishers.isEmpty()) publisherDao.getPublisherOptions(filter, limit) else emptyList()
-
-    fun getFilterOptionsCharacter(filter: SearchFilter): Flow<List<Character>> =
-        if (!filter.hasCharacter()) {
-            characterDao.getCharacterFilterOptions(filter)
-        } else {
-            emptyFlow()
-        }
-
-    // TODO: This looks incorrect. it should filter to creators who have shared credits
-    fun getFilterOptionsCreator(filter: SearchFilter): Flow<List<Creator>> =
-        if (filter.mCreators.isEmpty()) {
-            creatorDao.getCreatorsByFilter(filter)
-        } else {
-            flow { emit(emptyList<Creator>()) }
-        }
 
     // SERIES METHODS
     fun getSeries(seriesId: Int): Flow<FullSeries?> = seriesDao.getSeries(seriesId)
@@ -324,14 +296,6 @@ class Repository private constructor(val context: Context) {
         sort(res)
         res
     }
-
-    // PUBLISHER METHODS
-    fun getFilterOptionsPublisher(filter: SearchFilter): Flow<List<Publisher>> =
-        if (filter.mPublishers.isEmpty()) {
-            publisherDao.getPublishersByFilter(filter)
-        } else {
-            flow { emit(emptyList<Publisher>()) }
-        }
 
     suspend fun getEarliestCoverUri(seriesId: Int): Uri? = coverDao.getEarliestCoverUri(seriesId)
 
@@ -435,16 +399,6 @@ class Repository private constructor(val context: Context) {
         }
     }
 
-    fun saveStory(vararg story: Story) {
-        executor.execute {
-            try {
-                storyDao.upsert(story.asList())
-            } catch (e: SQLiteConstraintException) {
-                Log.d(TAG, "addStory: $e")
-            }
-        }
-    }
-
     fun saveCreator(vararg creator: Creator) {
         executor.execute {
             try {
@@ -465,21 +419,9 @@ class Repository private constructor(val context: Context) {
         }
     }
 
-    fun deleteSeries(series: Series) {
-        executor.execute {
-            seriesDao.delete(series)
-        }
-    }
-
     fun deleteIssue(issue: Issue) {
         executor.execute {
             issueDao.delete(issue)
-        }
-    }
-
-    fun deleteCredit(credit: Credit) {
-        executor.execute {
-            creditDao.delete(credit)
         }
     }
 
@@ -543,6 +485,5 @@ class Repository private constructor(val context: Context) {
 
 /*
     FUTURE IMPLEMENTATION
-    fun getCoverImage(issue: Issue): File = File(filesDir, issue.coverFileName)
 */
 }

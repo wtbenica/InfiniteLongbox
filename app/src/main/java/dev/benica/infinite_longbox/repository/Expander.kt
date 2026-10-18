@@ -81,7 +81,6 @@ class Expander private constructor(webservice: Webservice, prefs: SharedPreferen
                 }
             }
 
-
         /**
          * Gets series issues, adds missing foreign key models
          */
@@ -200,25 +199,10 @@ class Expander private constructor(webservice: Webservice, prefs: SharedPreferen
                 expandStoryAsync(stories)
             }
 
-//        internal fun expandCharacterAsync(characters: List<Character>): Deferred<Unit> =
-//            CoroutineScope(highPriorityDispatcher).async {
-//                withContext(highPriorityDispatcher) {
-//                    characters.ids.forEach { updateCharacterAppearances(it) }
-//                }
-//            }
 //
 //        /**
 //         * Gets character appearances, adds missing foreign key models
 //         */
-//        private suspend fun updateCharacterAppearances(characterId: Int) =
-//            updateById(
-//                prefs = prefs,
-//                saveTag = ::characterTag,
-//                getItems = ::getAppearancesByCharacterId,
-//                id = characterId,
-//                followup = fKeyChecker::checkFKeysAppearance,
-//                collector = Collector.appearanceCollector()
-//            )
 //
 //        private suspend fun getAppearancesByCharacterId(characterId: Int): List<Appearance>? =
 //            retrieveItemsByArgument(characterId, webservice::getAppearancesByCharacterIds)

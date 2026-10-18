@@ -17,7 +17,6 @@ package dev.benica.infinite_longbox.views
 
 import android.content.Context
 import android.util.AttributeSet
-import android.util.Log
 import android.view.View
 import androidx.appcompat.widget.AppCompatTextView
 import dev.benica.infinite_longbox.R
