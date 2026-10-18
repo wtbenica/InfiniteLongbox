@@ -396,69 +396,23 @@ abstract class Updater(
 
     class PriorityDispatcher {
         companion object {
-            @Volatile
-            private var NOW_INSTANCE: CoroutineDispatcher? = null
+            // One thread each, started on first use
+            private fun dispatcher(name: String, priority: Int): CoroutineDispatcher {
+                val thread = HandlerThread(name, priority).also { it.start() }
+                return Handler(thread.looper).asCoroutineDispatcher(name)
+            }
 
-            @Volatile
-            private var HP_INSTANCE: CoroutineDispatcher? = null
+            val nowDispatcher: CoroutineDispatcher by lazy {
+                dispatcher("nowThread", Process.THREAD_PRIORITY_DISPLAY)
+            }
 
-            @Volatile
-            private var LP_INSTANCE: CoroutineDispatcher? = null
+            val highPriorityDispatcher: CoroutineDispatcher by lazy {
+                dispatcher("highPriorityThread", Process.THREAD_PRIORITY_MORE_FAVORABLE)
+            }
 
-            val nowDispatcher: CoroutineDispatcher
-                get() {
-                    synchronized(this) {
-                        val thread = HandlerThread(
-                            "nowThread",
-                            Process.THREAD_PRIORITY_DISPLAY
-                        ).also {
-                            it.start()
-                        }
-                        val res = NOW_INSTANCE
-                            ?: Handler(thread.looper).asCoroutineDispatcher("nowDispatcher")
-                        if (NOW_INSTANCE == null) {
-                            NOW_INSTANCE = res
-                        }
-                        return NOW_INSTANCE!!
-                    }
-                }
-
-            val highPriorityDispatcher: CoroutineDispatcher
-                get() {
-                    synchronized(this)
-                    {
-                        val thread = HandlerThread(
-                            "highPriorityThread",
-                            Process.THREAD_PRIORITY_MORE_FAVORABLE
-                        ).also {
-                            it.start()
-                        }
-                        val res = HP_INSTANCE
-                            ?: Handler(thread.looper).asCoroutineDispatcher("highPriorityDispatcher")
-                        if (HP_INSTANCE == null) {
-                            HP_INSTANCE = res
-                        }
-                        return HP_INSTANCE!!
-                    }
-                }
-
-            val lowPriorityDispatcher: CoroutineDispatcher
-                get() {
-                    synchronized(this) {
-                        val thread = HandlerThread(
-                            "lowPriorityThread",
-                            Process.THREAD_PRIORITY_BACKGROUND
-                        ).also {
-                            it.start()
-                        }
-                        val res = LP_INSTANCE
-                            ?: Handler(thread.looper).asCoroutineDispatcher("lowPriorityDispatcher")
-                        if (LP_INSTANCE == null) {
-                            LP_INSTANCE = res
-                        }
-                        return LP_INSTANCE!!
-                    }
-                }
+            val lowPriorityDispatcher: CoroutineDispatcher by lazy {
+                dispatcher("lowPriorityThread", Process.THREAD_PRIORITY_BACKGROUND)
+            }
         }
     }
 }
