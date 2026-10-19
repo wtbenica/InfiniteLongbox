@@ -17,8 +17,11 @@
 package dev.benica.infinite_longbox.repository
 
 import android.content.SharedPreferences
+import android.database.Cursor
+import android.database.sqlite.SQLiteDatabase
 import android.util.Log
 import androidx.sqlite.db.SimpleSQLiteQuery
+import androidx.sqlite.db.SupportSQLiteDatabase
 import dev.benica.infinite_longbox.APP
 import dev.benica.infinite_longbox.Webservice
 import dev.benica.infinite_longbox.database.IssueDatabase
@@ -138,35 +141,7 @@ class SeedInstaller(
         }
     }
 
-    /**
-     * Copies every table from the seed into the live database in one transaction. Rows that
-     * already exist are left alone.
-     */
-    private fun importSeed(seedDb: File) {
-        val db = database.openHelper.writableDatabase
-        db.execSQL("ATTACH DATABASE '${seedDb.absolutePath.replace("'", "''")}' AS seed")
-        try {
-            val tables = mutableListOf<String>()
-            db.query(
-                SimpleSQLiteQuery(
-                    "SELECT name FROM seed.sqlite_master WHERE type = 'table' AND name NOT LIKE " +
-                            "'sqlite_%' AND name NOT IN ('android_metadata', 'room_master_table')"
-                )
-            ).use { while (it.moveToNext()) tables.add(it.getString(0)) }
-
-            db.beginTransaction()
-            try {
-                // Foreign keys are checked at commit, so table order doesn't matter
-                db.execSQL("PRAGMA defer_foreign_keys = ON")
-                tables.forEach { db.execSQL("INSERT OR IGNORE INTO main.`$it` SELECT * FROM seed.`$it`") }
-                db.setTransactionSuccessful()
-            } finally {
-                db.endTransaction()
-            }
-        } finally {
-            db.execSQL("DETACH DATABASE seed")
-        }
-    }
+    private fun importSeed(seedDb: File) = importSeedFile(database, seedDb)
 
     /**
      * The sync-progress markers say which pages are already downloaded. Update dates are set to
@@ -180,6 +155,61 @@ class SeedInstaller(
             meta.prefs.forEach { (key, value) ->
                 putString(key, if (dateFormat.matches(value)) today else value)
             }
+        }
+    }
+}
+
+/**
+ * Copies every table from the seed file into [database] in one transaction. Rows that already
+ * exist are left alone.
+ *
+ * It must not ATTACH the seed to the live database: attaching makes Android switch the database
+ * out of write-ahead logging and reopen its connections, which destroys the temporary table
+ * Room's change tracking keeps on its connection. Lists would never hear about a change again
+ * until the app was restarted. So the seed is read through a connection of its own, and the rows
+ * are written inside a Room transaction, which also tells the lists when it is done.
+ */
+@ExperimentalCoroutinesApi
+internal fun importSeedFile(database: IssueDatabase, seedFile: File) {
+    val seed = SQLiteDatabase.openDatabase(seedFile.absolutePath, null, SQLiteDatabase.OPEN_READONLY)
+    try {
+        val tables = seed.rawQuery(
+            "SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%' " +
+                    "AND name NOT IN ('android_metadata', 'room_master_table')", null
+        ).use { cursor -> generateSequence { if (cursor.moveToNext()) cursor.getString(0) else null }.toList() }
+
+        database.runInTransaction {
+            val live = database.openHelper.writableDatabase
+            // Foreign keys are checked at commit, so table order doesn't matter
+            live.execSQL("PRAGMA defer_foreign_keys = ON")
+            tables.forEach { table -> copyTable(seed, live, table) }
+        }
+    } finally {
+        seed.close()
+    }
+}
+
+private fun copyTable(from: SQLiteDatabase, to: SupportSQLiteDatabase, table: String) {
+    from.rawQuery("SELECT * FROM `$table`", null).use { cursor ->
+        val columns = cursor.columnNames.joinToString { "`$it`" }
+        val placeholders = cursor.columnNames.joinToString { "?" }
+        val insert = to.compileStatement("INSERT OR IGNORE INTO `$table` ($columns) VALUES ($placeholders)")
+        try {
+            while (cursor.moveToNext()) {
+                insert.clearBindings()
+                for (i in 0 until cursor.columnCount) {
+                    when (cursor.getType(i)) {
+                        Cursor.FIELD_TYPE_NULL -> insert.bindNull(i + 1)
+                        Cursor.FIELD_TYPE_INTEGER -> insert.bindLong(i + 1, cursor.getLong(i))
+                        Cursor.FIELD_TYPE_FLOAT -> insert.bindDouble(i + 1, cursor.getDouble(i))
+                        Cursor.FIELD_TYPE_BLOB -> insert.bindBlob(i + 1, cursor.getBlob(i))
+                        else -> insert.bindString(i + 1, cursor.getString(i))
+                    }
+                }
+                insert.executeInsert()
+            }
+        } finally {
+            insert.close()
         }
     }
 }
