@@ -313,9 +313,15 @@ class SortType(
     val sortString: String
         get() {
             val columnRef = "${if (table != null) "$table." else ""}$sortColumn"
-            val primarySort =
-                "${if (sortColumn in NAME_SORT_COLUMNS) nameSortKey(columnRef) else columnRef} " +
-                        order.option
+            val primaryKey = when {
+                sortColumn in NAME_SORT_COLUMNS -> nameSortKey(columnRef)
+                // An issue with no cover date falls back to the series' start date, instead of
+                // sorting a series whose issues are undated apart from every dated one
+                sortColumn == "coverDate" && sortColumn2 != null && table2 != null ->
+                    "COALESCE($columnRef, $table2.$sortColumn2)"
+                else -> columnRef
+            }
+            val primarySort = "$primaryKey ${order.option}"
 
             val o2 = order2
             val secondarySort: String =
