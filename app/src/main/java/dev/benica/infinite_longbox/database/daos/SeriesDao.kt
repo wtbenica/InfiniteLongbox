@@ -23,6 +23,8 @@ import androidx.room.Transaction
 import androidx.sqlite.db.SimpleSQLiteQuery
 import androidx.sqlite.db.SupportSQLiteQuery
 import dev.benica.infinite_longbox.APP
+import dev.benica.infinite_longbox.LetterBucket
+import dev.benica.infinite_longbox.LetterIndex
 import dev.benica.infinite_longbox.SearchFilter
 import dev.benica.infinite_longbox.SortType
 import dev.benica.infinite_longbox.SortType.Companion.containsSortType
@@ -61,12 +63,25 @@ abstract class SeriesDao : BaseDao<Series>("series") {
     @RawQuery(observedEntities = [FullSeries::class])
     abstract suspend fun getSeriesByQuerySus(query: SupportSQLiteQuery): List<FullSeries>
 
+    @RawQuery
+    abstract suspend fun getLetterBuckets(query: SupportSQLiteQuery): List<LetterBucket>
+
+    /** Where each letter starts in the list [filter] gives, for the letter strip. */
+    suspend fun getLetterIndex(filter: SearchFilter): LetterIndex = LetterIndex(
+        getLetterBuckets(getSeriesQuery(filter, letterBuckets = true)),
+        descending = filter.mSortType?.order == SortType.SortOrder.DESC
+    )
+
     /** A bounded list of series for the filter-box popup. */
     suspend fun getSeriesOptions(filter: SearchFilter, limit: Int): List<FullSeries> =
         getSeriesByQuerySus(getSeriesQuery(filter, limit))
 
     companion object {
-        private fun getSeriesQuery(filter: SearchFilter, limit: Int? = null): SimpleSQLiteQuery {
+        private fun getSeriesQuery(
+            filter: SearchFilter,
+            limit: Int? = null,
+            letterBuckets: Boolean = false,
+        ): SimpleSQLiteQuery {
 
             val table = StringBuilder()
             val conditions = StringBuilder()
@@ -190,6 +205,15 @@ abstract class SeriesDao : BaseDao<Series>("series") {
                 )
 
                 args.add(text)
+            }
+
+            if (letterBuckets) {
+                // The same rows as the list, counted by what letter they start with
+                val buckets = SortType.letterBucketSql("sortName").format("($table$conditions)")
+                return SimpleSQLiteQuery(
+                    "SELECT bucket, COUNT(*) AS n FROM ($buckets) GROUP BY bucket",
+                    args.toArray()
+                )
             }
 
             val sortClause: String = filter.mSortType?.let {

@@ -33,6 +33,7 @@ import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import dev.benica.infinite_longbox.APP
+import dev.benica.infinite_longbox.LetterIndex
 import dev.benica.infinite_longbox.MainActivity
 import dev.benica.infinite_longbox.SearchFilter
 import dev.benica.infinite_longbox.database.IssueDatabase
@@ -254,6 +255,9 @@ class Repository private constructor(val context: Context) {
             }
         ).flow
     }
+
+    suspend fun getSeriesLetterIndex(filter: SearchFilter): LetterIndex =
+        seriesDao.getLetterIndex(SearchFilter(filter))
 
     // CHARACTER METHODS
     fun getCharactersByFilterPaged(filter: SearchFilter): Flow<PagingData<FullCharacter>> {

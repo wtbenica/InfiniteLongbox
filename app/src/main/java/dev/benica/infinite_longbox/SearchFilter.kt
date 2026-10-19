@@ -382,9 +382,22 @@ class SortType(
          * ahead of letters, as their own group. A hyphen counts as a space, so "All-New X-Men"
          * files with "All New ..." instead of after all of them.
          */
-        fun nameSortKey(columnRef: String): String =
-            "replace(ltrim($columnRef, '${SORT_IGNORED_LEADING.replace("'", "''")}'), '-', ' ') " +
-                    "COLLATE NOCASE"
+        fun nameSortKey(columnRef: String): String = "${plainNameKey(columnRef)} COLLATE NOCASE"
+
+        private fun plainNameKey(columnRef: String): String =
+            "replace(ltrim($columnRef, '${SORT_IGNORED_LEADING.replace("'", "''")}'), '-', ' ')"
+
+        /**
+         * SQL expression that files a name under '#' (sorts before 'a'), a letter 'a'..'z', or
+         * '~' (sorts after 'z'): the bucket [nameSortKey] puts it in. Names with no sort name
+         * count as empty, which is where ORDER BY puts them too.
+         */
+        fun letterBucketSql(columnRef: String): String {
+            val k = "COALESCE(${plainNameKey(columnRef)}, '') COLLATE NOCASE"
+            val cases = ('a'..'z').joinToString(" ") { "WHEN k < '${it + 1}' THEN '$it'" }
+            return "SELECT CASE WHEN k < 'a' THEN '#' $cases ELSE '~' END AS bucket FROM " +
+                    "(SELECT $k AS k FROM %s)"
+        }
 
         /** In-memory counterpart of [nameSortKey], for lists sorted in code */
         fun sortKeyOf(name: String): String =

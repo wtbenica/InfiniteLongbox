@@ -23,6 +23,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import dev.benica.infinite_longbox.APP
+import dev.benica.infinite_longbox.LetterIndex
 import dev.benica.infinite_longbox.SearchFilter
 import dev.benica.infinite_longbox.database.models.FullSeries
 import kotlinx.coroutines.Dispatchers
@@ -38,6 +39,9 @@ class SeriesListViewModel : ListViewModel<FullSeries>() {
     override val itemList: Flow<PagingData<FullSeries>> = filter.switchMap {
         repository.getSeriesByFilterPaged(it).asLiveData()
     }.asFlow().cachedIn(viewModelScope)
+
+    override suspend fun letterIndex(filter: SearchFilter): LetterIndex? =
+        withContext(Dispatchers.IO) { repository.getSeriesLetterIndex(filter) }
 
     internal fun updateIssue(issueId: Int, markedDelete: Boolean = true) {
         repository.updateIssue(issueId, markedDelete)

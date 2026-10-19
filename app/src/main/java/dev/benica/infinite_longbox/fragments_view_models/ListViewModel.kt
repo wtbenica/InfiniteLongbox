@@ -22,6 +22,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import dev.benica.infinite_longbox.APP
 import dev.benica.infinite_longbox.FilterSnapshot
+import dev.benica.infinite_longbox.LetterIndex
 import dev.benica.infinite_longbox.SearchFilter
 import dev.benica.infinite_longbox.database.models.ListItem
 import dev.benica.infinite_longbox.repository.Repository
@@ -50,6 +51,9 @@ abstract class ListViewModel<T : ListItem> : ViewModel() {
         hasFilter = true
         _filter.value = filter
     }
+
+    /** Where each letter starts in this list under [filter], for lists that have a letter strip. */
+    open suspend fun letterIndex(filter: SearchFilter): LetterIndex? = null
 
     /**
      * Gives the list the filter saved by [FilterSnapshot], once its records have been looked up

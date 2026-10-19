@@ -59,6 +59,16 @@ class FastScrollHandle(context: Context, attrs: AttributeSet? = null) : View(con
     var isDragging = false
         private set
 
+    /** Off while a letter strip does this list's job. */
+    var isActive = true
+        set(value) {
+            field = value
+            if (!value) {
+                removeCallbacks(hide)
+                alpha = 0f
+            }
+        }
+
     private var recycler: RecyclerView? = null
     private var fraction = 0f
 
@@ -86,7 +96,7 @@ class FastScrollHandle(context: Context, attrs: AttributeSet? = null) : View(con
 
     private val scrollListener = object : RecyclerView.OnScrollListener() {
         override fun onScrolled(rv: RecyclerView, dx: Int, dy: Int) {
-            if (isDragging) return
+            if (isDragging || !isActive) return
             val layoutManager = rv.layoutManager as? LinearLayoutManager ?: return
             val total = rv.adapter?.itemCount ?: return
             val first = layoutManager.findFirstVisibleItemPosition()
@@ -125,7 +135,7 @@ class FastScrollHandle(context: Context, attrs: AttributeSet? = null) : View(con
         when (event.actionMasked) {
             MotionEvent.ACTION_DOWN -> {
                 // Only the handle itself is grabbed; everything else falls through to the list
-                val onHandle = alpha > 0f && event.x >= width - touchWidth &&
+                val onHandle = isActive && alpha > 0f && event.x >= width - touchWidth &&
                         event.y in (thumbTop - GRAB_SLOP * density)..(thumbTop + thumbHeight + GRAB_SLOP * density)
                 if (!onHandle) return false
                 isDragging = true

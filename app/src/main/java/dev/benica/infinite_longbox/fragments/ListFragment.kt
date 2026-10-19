@@ -43,11 +43,13 @@ import dev.benica.infinite_longbox.FilterSnapshot
 import dev.benica.infinite_longbox.SearchFilter
 import dev.benica.infinite_longbox.SortType
 import dev.benica.infinite_longbox.database.models.FilterModel
+import dev.benica.infinite_longbox.database.models.FullIssue
 import dev.benica.infinite_longbox.database.models.FullSeries
 import dev.benica.infinite_longbox.database.models.ListItem
 import dev.benica.infinite_longbox.fragments_view_models.FilterViewModel
 import dev.benica.infinite_longbox.fragments_view_models.ListViewModel
 import dev.benica.infinite_longbox.views.FastScrollHandle
+import dev.benica.infinite_longbox.views.LetterStrip
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -66,8 +68,10 @@ abstract class ListFragment<T : ListItem, VH : RecyclerView.ViewHolder> : Fragme
     private lateinit var appBar: AppBarLayout
     protected lateinit var details: FrameLayout
     private lateinit var fastScrollBubble: TextView
+    private lateinit var fastScrollHandle: FastScrollHandle
+    private lateinit var letterStrip: LetterStrip
 
-    /** Whether dragging the scroll handle shows the first letter of the name it's at. */
+    /** Whether the scroll handle is labeled with the letter or date it's at. */
     protected open val showsLetterBubble: Boolean = true
 
     protected var callback: ListFragmentCallback? = null
@@ -162,31 +166,76 @@ abstract class ListFragment<T : ListItem, VH : RecyclerView.ViewHolder> : Fragme
     /** Hooks the scroll handle to the list, and labels it with the letter or date it's at. */
     private fun setUpFastScrollHandle(view: View) {
         val handle = view.findViewById<FastScrollHandle>(R.id.fast_scroll_handle)
+        fastScrollHandle = handle
         handle.attach(listRecyclerView)
+
+        letterStrip = view.findViewById(R.id.letter_strip)
+        letterStrip.attach(listRecyclerView)
+        letterStrip.listener = object : LetterStrip.Listener {
+            override fun onLetter(letter: Char, position: Int) {
+                (listRecyclerView.layoutManager as? LinearLayoutManager)
+                    ?.scrollToPositionWithOffset(position, 0)
+                // Say where the finger is, not where the list has got to
+                showBubble(letter.toString()) { letterStrip.letterCenterY(letter) }
+            }
+
+            override fun onHide() = hideBubble()
+        }
+        listRecyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(rv: RecyclerView, dx: Int, dy: Int) {
+                if (letterStrip.index != null && !letterStrip.isDragging) {
+                    letterStrip.current = scrollLabel()?.firstOrNull()
+                }
+            }
+        })
         if (!showsLetterBubble) return
 
         handle.listener = object : FastScrollHandle.Listener {
-            override fun onDrag(position: Int) = showBubble(handle)
+            override fun onDrag(position: Int) = showBubble { handle.thumbCenterY }
 
-            override fun onScroll(position: Int) = showBubble(handle)
+            override fun onScroll(position: Int) = showBubble { handle.thumbCenterY }
 
-            override fun onHide() {
-                fastScrollBubble.animate().alpha(0f).setDuration(200)
-                    .withEndAction { fastScrollBubble.visibility = View.GONE }.start()
-            }
+            override fun onHide() = hideBubble()
         }
     }
 
-    private fun showBubble(handle: FastScrollHandle) {
-        // The list moves on the next frame; read the label once it has
-        listRecyclerView.post {
-            val label = scrollLabel() ?: return@post
+    private fun updateLetterStrip(filter: SearchFilter?) {
+        letterStrip.index = null
+        fastScrollHandle.isActive = true
+        if (filter == null || !sortedByName()) return
+        viewLifecycleOwner.lifecycleScope.launch {
+            val index = viewModel.letterIndex(filter) ?: return@launch
+            // The list may have been given another filter while this was looked up
+            if (viewModel.filter.value != filter) return@launch
+            letterStrip.index = index
+            fastScrollHandle.isActive = false
+        }
+    }
+
+    private fun hideBubble() {
+        fastScrollBubble.animate().alpha(0f).setDuration(200)
+            .withEndAction { fastScrollBubble.visibility = View.GONE }.start()
+    }
+
+    /**
+     * Shows a label by the handle or strip; [centerY] says where, in the list area's
+     * coordinates. Without a [fixedLabel] it is what the list is at once it has scrolled.
+     */
+    private fun showBubble(fixedLabel: String? = null, centerY: () -> Float) {
+        fun show(label: String) {
             fastScrollBubble.animate().cancel()
             fastScrollBubble.text = label
             fastScrollBubble.textSize = if (label.length > 1) 20f else 32f
-            fastScrollBubble.translationY = handle.thumbCenterY - handle.height / 2f
+            fastScrollBubble.translationY = centerY() - listRecyclerView.height / 2f
             fastScrollBubble.alpha = 1f
             fastScrollBubble.visibility = View.VISIBLE
+        }
+
+        // A label that is given needs no wait; one read from the list does, as it moves next frame
+        if (fixedLabel != null) {
+            show(fixedLabel)
+        } else {
+            listRecyclerView.post { scrollLabel()?.let(::show) }
         }
     }
 
@@ -207,8 +256,12 @@ abstract class ListFragment<T : ListItem, VH : RecyclerView.ViewHolder> : Fragme
 
         val item = (listRecyclerView.adapter as? PagingDataAdapter<*, *>)?.peek(position)
         return when {
-            sortedByDate() ->
-                (item as? FullSeries)?.series?.startDate?.format(MONTH_YEAR)
+            // A series only knows the year it began; an issue knows its month
+            sortedByDate() -> when (item) {
+                is FullSeries -> item.series.startDate?.year?.toString()
+                is FullIssue -> (item.issue.releaseDate ?: item.issue.coverDate)?.format(MONTH_YEAR)
+                else -> null
+            }
 
             sortedByName() -> {
                 val name = (item as? FilterModel)?.compareValue ?: return null
@@ -240,6 +293,8 @@ abstract class ListFragment<T : ListItem, VH : RecyclerView.ViewHolder> : Fragme
         val bottom = peekHeight + height
         if (listRecyclerView.paddingBottom != bottom) {
             listRecyclerView.updatePadding(bottom = bottom)
+            // The scan button floats over the bottom corner: keep the last letters clear of it
+            letterStrip.updatePadding(bottom = bottom + (72 * resources.displayMetrics.density).toInt())
             view?.requestLayout()
         }
     }
@@ -262,6 +317,9 @@ abstract class ListFragment<T : ListItem, VH : RecyclerView.ViewHolder> : Fragme
                 }
             }
         }
+
+        // A list sorted by name gets a letter strip, once the database says where letters start
+        viewModel.filter.observe(viewLifecycleOwner) { updateLetterStrip(it) }
 
         // Tied to the view, not the fragment: a list on the back stack keeps its fragment but
         // loses its view, and the next view needs its own collector feeding its own adapter
