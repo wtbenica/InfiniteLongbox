@@ -70,57 +70,63 @@ abstract class IssueDatabase : RoomDatabase() {
         @Volatile
         private var INSTANCE: IssueDatabase? = null
 
-        fun getInstance(context: Context): IssueDatabase {
-            return INSTANCE ?: synchronized(this) {
-                val executor = Executors.newSingleThreadExecutor()
-                return Room.databaseBuilder(
-                    context.applicationContext,
-                    IssueDatabase::class.java,
-                    DATABASE_NAME
-                ).addCallback(
-                    object : Callback() {
-                        override fun onCreate(db: SupportSQLiteDatabase) {
-                            super.onCreate(db)
-                            val publisher =
-                                Publisher(publisherId = DUMMY_ID, publisher = "Dummy Publisher")
-                            executor.execute {
-                                getInstance(context).publisherDao().upsert(
-                                    publisher,
-                                )
+        /**
+         * The one database. Room tells a list about changes made through the same instance only,
+         * so a second instance on the file (two threads asking at once, the lock not checked
+         * again once held) means lists that never hear about writes made through the other.
+         */
+        fun getInstance(context: Context): IssueDatabase =
+            INSTANCE ?: synchronized(this) {
+                INSTANCE ?: build(context).also { INSTANCE = it }
+            }
 
-                                getInstance(context).seriesDao().upsert(
-                                    Series(
-                                        seriesId = DUMMY_ID,
-                                        seriesName = "Dummy Series",
-                                        publisher = DUMMY_ID,
-                                        startDate = LocalDate.MIN,
-                                        endDate = LocalDate.MIN,
-                                    )
-                                )
-                            }
-
-                            val myCollection =
-                                UserCollection(BaseCollection.MY_COLL.id, "My Collection", true)
-                            val wishList = UserCollection(
-                                BaseCollection.WISH_LIST.id, "Wish List", true
+        private fun build(context: Context): IssueDatabase {
+            val executor = Executors.newSingleThreadExecutor()
+            return Room.databaseBuilder(
+                context.applicationContext,
+                IssueDatabase::class.java,
+                DATABASE_NAME
+            ).addCallback(
+                object : Callback() {
+                    override fun onCreate(db: SupportSQLiteDatabase) {
+                        super.onCreate(db)
+                        val publisher =
+                            Publisher(publisherId = DUMMY_ID, publisher = "Dummy Publisher")
+                        executor.execute {
+                            getInstance(context).publisherDao().upsert(
+                                publisher,
                             )
 
-                            executor.execute {
-                                getInstance(context).userCollectionDao().upsert(
-                                    listOf(myCollection, wishList)
+                            getInstance(context).seriesDao().upsert(
+                                Series(
+                                    seriesId = DUMMY_ID,
+                                    seriesName = "Dummy Series",
+                                    publisher = DUMMY_ID,
+                                    startDate = LocalDate.MIN,
+                                    endDate = LocalDate.MIN,
                                 )
-                            }
+                            )
+                        }
+
+                        val myCollection =
+                            UserCollection(BaseCollection.MY_COLL.id, "My Collection", true)
+                        val wishList = UserCollection(
+                            BaseCollection.WISH_LIST.id, "Wish List", true
+                        )
+
+                        executor.execute {
+                            getInstance(context).userCollectionDao().upsert(
+                                listOf(myCollection, wishList)
+                            )
                         }
                     }
-                )
+                }
+            )
 //                    .createFromAsset(DATABASE_NAME)
 //                    .addMigrations(
 //
 //                    )
-                    .build().also {
-                        INSTANCE = it
-                    }
-            }
+                .build()
         }
 
         @Language("RoomSql")
