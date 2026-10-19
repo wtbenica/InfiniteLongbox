@@ -52,6 +52,10 @@ interface Webservice {
     @POST("/db_query/issue/id/{id}/cover/remove")
     suspend fun removeCover(@Path("id") issueId: Int): Response<ResponseBody>
 
+    /** Everything the server knows about a character, for its page. */
+    @GET("/db_query/character/{id}/info")
+    suspend fun getCharacterInfo(@Path("id") id: Int): dev.benica.infinite_longbox.repository.CharacterInfo
+
     /** What version each page of the paged models is, so only changed pages are fetched again. */
     @GET("/db_query/manifest")
     suspend fun getManifest(): Map<String, Manifest>

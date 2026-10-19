@@ -110,6 +110,8 @@ class CharacterListFragment : ListFragment<FullCharacter, CharacterListFragment.
                     if (state != null) {
                         NameListItem(state, onClick = {
                             item?.let { (callback as CharacterListCallback?)?.onCharacterSelected(it.character) }
+                        }, onInfo = {
+                            item?.let { (callback as CharacterListCallback?)?.onCharacterInfo(it.character) }
                         })
                     }
                 }
@@ -129,6 +131,9 @@ class CharacterListFragment : ListFragment<FullCharacter, CharacterListFragment.
 
     interface CharacterListCallback : ListFragmentCallback {
         fun onCharacterSelected(character: Character)
+
+        /** The info button: open the character's page rather than filter by it. */
+        fun onCharacterInfo(character: Character)
     }
 
     companion object {

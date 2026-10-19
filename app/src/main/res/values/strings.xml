@@ -139,4 +139,20 @@
     <string name="description_license_badge">Creative Commons Attribution-ShareAlike 4.0 license</string>
     <string name="description_open_link">Opens in your browser</string>
     <string name="cover_add_hint">Add cover</string>
+
+    <!-- Character page -->
+    <string name="character_filter_by">Show issues with this character</string>
+    <string name="character_info_description">Character details</string>
+    <string name="character_also_known_as">Also known as</string>
+    <string name="character_related">Related characters</string>
+    <string name="character_teams">Teams</string>
+    <string name="character_appearances">Appearances</string>
+    <string name="character_first_appearance">First appearance</string>
+    <string name="character_origin">Origin</string>
+    <string name="character_death">Death</string>
+    <string name="character_about">About</string>
+    <string name="character_first_year">First published %1$d</string>
+    <string name="character_load_failed">Couldn\'t load this character\'s details.</string>
+    <string name="character_retry">Try again</string>
+    <string name="character_no_details">Nothing more is known about this character yet.</string>
 </resources>

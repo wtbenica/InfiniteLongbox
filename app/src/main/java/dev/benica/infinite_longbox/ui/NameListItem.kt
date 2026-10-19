@@ -16,6 +16,7 @@
 package dev.benica.infinite_longbox.ui
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -23,16 +24,22 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -48,7 +55,13 @@ data class NameCardState(
 
 /** Same card as a series, with a blank cover for decoration behind the name tab. */
 @Composable
-fun NameListItem(state: NameCardState, onClick: () -> Unit, modifier: Modifier = Modifier) {
+fun NameListItem(
+    state: NameCardState,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    /** When given, an info button opens the item's page; a tap on the card still filters. */
+    onInfo: (() -> Unit)? = null,
+) {
     Card(
         onClick = onClick,
         modifier = modifier
@@ -101,22 +114,41 @@ fun NameListItem(state: NameCardState, onClick: () -> Unit, modifier: Modifier =
                                     end = dimensionResource(R.dimen.margin_wide),
                                     top = dimensionResource(R.dimen.margin_default),
                                     bottom = dimensionResource(R.dimen.margin_default),
-                                )
+                                ),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween
                         ) {
                             val shown = state.details.filter { it.isNotBlank() }
-                            if (shown.isEmpty()) {
-                                Spacer(Modifier.height(20.dp))
-                            }
-                            shown.forEachIndexed { i, detail ->
-                                if (i > 0) {
-                                    Spacer(Modifier.width(dimensionResource(R.dimen.margin_default)))
 
-                                    Text("|")
+//                            if (shown.isEmpty()) {
+//                                Spacer(Modifier.height(20.dp))
+//                            }
+//
+                            Row {
+                                shown.forEachIndexed { i, detail ->
+                                    if (i > 0) {
+                                        Spacer(Modifier.width(dimensionResource(R.dimen.margin_default)))
 
-                                    Spacer(Modifier.width(dimensionResource(R.dimen.margin_default)))
+                                        Text("|")
+
+                                        Spacer(Modifier.width(dimensionResource(R.dimen.margin_default)))
+                                    }
+
+                                    Subtitle(detail, Modifier.weight(1f, fill = false))
                                 }
+                            }
 
-                                Subtitle(detail, Modifier.weight(1f, fill = false))
+                            onInfo?.let { info ->
+                                IconButton(
+                                    onClick = info,
+                                    modifier = Modifier.size(NAME_COVER_WINDOW)
+                                ) {
+                                    Icon(
+                                        painter = painterResource(R.drawable.ic_info_outline),
+                                        contentDescription = stringResource(R.string.character_info_description),
+                                        tint = colorResource(R.color.card_border),
+                                    )
+                                }
                             }
                         }
                     }
@@ -136,6 +168,7 @@ private fun NameListItemPreview() {
         NameListItem(
             state = NameCardState("Negative Man", listOf("Larry Trainor", "DC")),
             onClick = {},
+            onInfo = {},
         )
     }
 }

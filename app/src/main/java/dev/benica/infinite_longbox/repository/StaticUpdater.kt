@@ -322,6 +322,17 @@ class StaticUpdater private constructor(
      * issues until the series is opened, so this asks the server which of them have one, and
      * fetches the earliest. The card refreshes when the cover is saved.
      */
+    /** A character's page data, or null when the server can't be reached. */
+    internal suspend fun characterInfo(characterId: Int): CharacterInfo? = try {
+        webservice.getCharacterInfo(characterId)
+    } catch (e: java.io.IOException) {
+        Log.d(TAG, "characterInfo $e")
+        null
+    } catch (e: retrofit2.HttpException) {
+        Log.d(TAG, "characterInfo $e")
+        null
+    }
+
     internal fun requestSeriesCover(seriesId: Int) = seriesCovers.request(seriesId)
 
     private val seriesCovers = RequestBatcher<Int>(CoroutineScope(Dispatchers.IO), CARD_BATCH_MS) { ids ->

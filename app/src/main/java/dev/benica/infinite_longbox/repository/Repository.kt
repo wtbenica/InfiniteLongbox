@@ -253,6 +253,8 @@ class Repository private constructor(val context: Context) {
     suspend fun getCharacterById(id: Int): Character? =
         withContext(Dispatchers.IO) { characterDao.get(id) }
 
+    suspend fun getCharacterInfo(id: Int): CharacterInfo? = updater.characterInfo(id)
+
     fun getSeriesByFilterPaged(filter: SearchFilter): Flow<PagingData<FullSeries>> {
         val newFilter = SearchFilter(filter)
 

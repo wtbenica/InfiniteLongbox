@@ -71,6 +71,7 @@ import dev.benica.infinite_longbox.database.models.FullIssue
 import dev.benica.infinite_longbox.database.models.FullSeries
 import dev.benica.infinite_longbox.database.models.Issue
 import dev.benica.infinite_longbox.fragments.AboutDialogFragment
+import dev.benica.infinite_longbox.fragments.CharacterDetailFragment
 import dev.benica.infinite_longbox.fragments.CharacterListFragment
 import dev.benica.infinite_longbox.fragments.CreatorListFragment
 import dev.benica.infinite_longbox.fragments.FilterFragment
@@ -106,6 +107,7 @@ class MainActivity : AppCompatActivity(),
     SeriesListFragment.SeriesListCallback,
     IssueListFragment.IssueListCallback,
     CharacterListFragment.CharacterListCallback,
+    CharacterDetailFragment.CharacterDetailCallback,
     CreatorListFragment.CreatorListCallback,
     NewCreatorDialogFragment.NewCreatorDialogCallback,
     FilterFragment.FilterFragmentCallback {
@@ -234,9 +236,11 @@ class MainActivity : AppCompatActivity(),
         updateScanFab()
     }
 
-    /** The filter sheet covers the lists, not an issue's page. */
+    private fun Fragment?.isDetailPage() = this is IssueDetailFragment || this is CharacterDetailFragment
+
+    /** The filter sheet covers the lists, not an issue's or a character's page. */
     private fun syncSheet(top: Fragment?) {
-        if (top is IssueDetailFragment) {
+        if (top.isDetailPage()) {
             if (bottomSheetBehavior.state != STATE_HIDDEN) {
                 // Only a resting state can be restored; DRAGGING/SETTLING would throw
                 sheetStateBeforeDetail = bottomSheetBehavior.state
@@ -348,8 +352,7 @@ class MainActivity : AppCompatActivity(),
     /** Uploads covers stored on this phone that the server doesn't have (debug builds). */
     /** The scan button belongs to the lists: not on an issue's page, not over the open filter. */
     private fun updateScanFab() {
-        val onDetail =
-            supportFragmentManager.findFragmentById(R.id.fragment_container) is IssueDetailFragment
+        val onDetail = currentScreen.isDetailPage()
         val sheetOpen = bottomSheetBehavior.state == STATE_EXPANDED ||
                 bottomSheetBehavior.state == STATE_HALF_EXPANDED
         if (onDetail || sheetOpen) scanFab.hide() else scanFab.show()
@@ -629,6 +632,25 @@ class MainActivity : AppCompatActivity(),
 //        updateFilter(SearchFilter(character = character, myCollection = false))
     }
 
+    override fun onCharacterInfo(character: Character) {
+        openCharacter(character.characterId)
+    }
+
+    // CharacterDetailFragment.CharacterDetailCallback
+    override fun openCharacter(characterId: Int) {
+        openScreen(CharacterDetailFragment.newInstance(characterId))
+    }
+
+    override fun openIssue(issueId: Int) {
+        openIssue(IssueDetailFragment.newInstance(issueId))
+    }
+
+    override fun filterByCharacter(character: Character) {
+        // Back to the list the character page was opened from, then add it to that list's filter
+        while (currentScreen is CharacterDetailFragment && supportFragmentManager.popBackStackImmediate()) Unit
+        filterViewModel.addFilterItem(character)
+    }
+
     override fun onCreatorSelected(creator: Creator) {
         filterViewModel.addFilterItem(creator)
 //        updateFilter(SearchFilter(creators = setOf(creator), myCollection = false))
@@ -674,7 +696,10 @@ class MainActivity : AppCompatActivity(),
         openIssue(IssueDetailFragment.newInstance(issue.issueId, issue.variantOf))
     }
 
-    private fun openIssue(fragment: IssueDetailFragment) {
+    private fun openIssue(fragment: IssueDetailFragment) = openScreen(fragment)
+
+    /** A page that covers the lists: an issue's or a character's. */
+    private fun openScreen(fragment: Fragment) {
         supportFragmentManager.beginTransaction()
             .setTransition(TRANSIT_FRAGMENT_FADE)
             .replace(R.id.fragment_container, fragment)
