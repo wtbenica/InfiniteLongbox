@@ -15,15 +15,12 @@
 
 package dev.benica.infinite_longbox.ui
 
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.draw.drawWithCache
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.core.rememberInfiniteTransition
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -44,6 +41,8 @@ import androidx.compose.runtime.produceState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawWithCache
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
@@ -78,7 +77,12 @@ fun SeriesListItemSkeleton(modifier: Modifier = Modifier, placeholderKey: String
     SeriesCard(null, {}, modifier, placeholderKey)
 
 @Composable
-private fun SeriesCard(state: SeriesCardState?, onClick: () -> Unit, modifier: Modifier, skeletonKey: String = "") {
+private fun SeriesCard(
+    state: SeriesCardState?,
+    onClick: () -> Unit,
+    modifier: Modifier,
+    skeletonKey: String = ""
+) {
     val shape = RoundedCornerShape(dimensionResource(R.dimen.radius_list_item_series))
 
     Card(
@@ -124,21 +128,29 @@ private fun SeriesCard(state: SeriesCardState?, onClick: () -> Unit, modifier: M
                         cornerRadius = dimensionResource(R.dimen.margin_wide),
                         tab = {
                             if (state == null) {
-                                Bar(Modifier.padding(horizontal = dimensionResource(R.dimen.margin_wide), vertical = dimensionResource(R.dimen.margin_default)).width(140.dp).height(20.dp))
+                                Bar(
+                                    Modifier
+                                        .padding(
+                                            horizontal = dimensionResource(R.dimen.margin_wide),
+                                            vertical = dimensionResource(R.dimen.margin_default)
+                                        )
+                                        .width(140.dp)
+                                        .height(20.dp)
+                                )
                             } else {
-                            Text(
-                                text = state.name,
-                                modifier = Modifier.padding(
-                                    start = dimensionResource(R.dimen.margin_wide),
-                                    end = dimensionResource(R.dimen.margin_wide),
-                                    top = dimensionResource(R.dimen.margin_default),
-                                ),
-                                color = MaterialTheme.colorScheme.onSurface,
-                                fontFamily = PermanentMarker,
-                                fontSize = 20.sp,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis,
-                            )
+                                Text(
+                                    text = state.name,
+                                    modifier = Modifier.padding(
+                                        start = dimensionResource(R.dimen.margin_wide),
+                                        end = dimensionResource(R.dimen.margin_wide),
+                                        top = dimensionResource(R.dimen.margin_default),
+                                    ),
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                    fontFamily = PermanentMarker,
+                                    fontSize = 20.sp,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis,
+                                )
                             }
                         },
                         body = {
@@ -152,14 +164,36 @@ private fun SeriesCard(state: SeriesCardState?, onClick: () -> Unit, modifier: M
                             ) {
                                 val gap = dimensionResource(R.dimen.margin_default)
                                 if (state == null) {
-                                    Bar(Modifier.width(200.dp).height(16.dp))
+                                    Bar(
+                                        Modifier
+                                            .width(200.dp)
+                                            .height(16.dp)
+                                    )
                                     return@Row
                                 }
-                                Subtitle(state.publisher, Modifier.weight(1f, fill = false))
-                                Spacer(Modifier.width(gap))
+
                                 Subtitle(state.dateRange)
-                                Spacer(Modifier.width(gap))
-                                Subtitle(state.format, Modifier.weight(1f, fill = false))
+
+                                if (state.publisher != "") {
+                                    Spacer(Modifier.width(gap))
+
+                                    Text("|")
+
+                                    Spacer(Modifier.width(gap))
+                                }
+
+                                Subtitle(state.publisher)
+
+                                if (state.format != "") {
+                                    Spacer(Modifier.width(gap))
+
+                                    Text("|")
+
+                                    Spacer(Modifier.width(gap))
+                                }
+
+
+                                Subtitle(state.format)
                             }
                         }
                     )
@@ -264,7 +298,7 @@ private fun SeriesListItemPreview() {
             state = SeriesCardState(
                 name = "Doom Patrol",
                 publisher = "DC Comics",
-                dateRange = "(1990-2005)",
+                dateRange = "1990-2005",
                 format = "ongoing series",
                 cover = null,
                 loadingCover = true,

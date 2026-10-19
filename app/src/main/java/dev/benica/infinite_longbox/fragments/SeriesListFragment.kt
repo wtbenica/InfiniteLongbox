@@ -20,6 +20,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.ComposeView
@@ -102,7 +103,7 @@ class SeriesListFragment : ListFragment<FullSeries, SeriesListFragment.SeriesHol
 
         private var item: FullSeries? = null
         private var card by mutableStateOf<SeriesCardState?>(null)
-        private var slot by mutableStateOf(0)
+        private var slot by mutableIntStateOf(0)
 
         init {
             (itemView as ComposeView).setContent {

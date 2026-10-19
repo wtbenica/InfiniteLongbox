@@ -16,7 +16,12 @@
 package dev.benica.infinite_longbox.database.models
 
 import android.net.Uri
-import androidx.room.*
+import androidx.room.Embedded
+import androidx.room.Entity
+import androidx.room.ForeignKey
+import androidx.room.Index
+import androidx.room.PrimaryKey
+import androidx.room.Relation
 import dev.benica.infinite_longbox.InfiniteLongboxApplication.Companion.context
 import dev.benica.infinite_longbox.R
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -65,11 +70,11 @@ data class Series(
 
     val dateRange: String
         get() = startDate?.let {
-            "(${it.format(DateTimeFormatter.ofPattern("yyyy"))} - ${
+            "${it.format(DateTimeFormatter.ofPattern("yyyy"))} - ${
                 endDate?.format(
                     DateTimeFormatter.ofPattern("yyyy")
                 ) ?: " "
-            })"
+            }"
         } ?: ""
 
     companion object : FilterType {
@@ -210,7 +215,8 @@ data class FullSeries(
     override val compareValue: String
         get() = series.sortName ?: series.seriesName
 
-    override fun toString(): String = "${series.seriesName} ${series.dateRange} | ${publisher.publisher}"
+    override fun toString(): String =
+        "${series.seriesName} ${series.dateRange} | ${publisher.publisher}"
 }
 
 // it might be tempting to remove SeriesAndPublisher and just use FullSeries, but S&P is

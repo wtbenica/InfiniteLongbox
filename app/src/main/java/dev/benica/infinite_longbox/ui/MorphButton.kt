@@ -51,7 +51,7 @@ fun MorphButton(
 
     Box(
         modifier = Modifier
-            .size(40.dp)
+            .size(48.dp)
             .clickable(role = Role.Button, onClickLabel = description) {
                 shown = !shown
                 onClick()
@@ -61,7 +61,7 @@ fun MorphButton(
         Image(
             painter = painter,
             contentDescription = description,
-            modifier = Modifier.size(24.dp),
+            modifier = Modifier.size(40.dp),
             colorFilter = ColorFilter.tint(tint),
         )
     }

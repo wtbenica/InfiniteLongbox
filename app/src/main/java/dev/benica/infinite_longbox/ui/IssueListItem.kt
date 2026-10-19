@@ -22,6 +22,7 @@ import androidx.compose.animation.graphics.vector.AnimatedImageVector
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -91,7 +92,9 @@ fun IssueListItemSkeleton(modifier: Modifier = Modifier, placeholderKey: String 
         elevation = CardDefaults.cardElevation(defaultElevation = dimensionResource(R.dimen.margin_narrow)),
         colors = CardDefaults.cardColors(containerColor = colorResource(R.color.surface_raised)),
     ) {
-        Box(Modifier.fillMaxWidth().aspectRatio(13f / 20f)) {
+        Box(Modifier
+            .fillMaxWidth()
+            .aspectRatio(13f / 20f)) {
             PlaceholderCover(placeholderKey, Modifier.fillMaxSize())
         }
     }
@@ -171,10 +174,11 @@ fun IssueListItem(
                     modifier = Modifier
                         .background(colorResource(R.color.card_tab))
                         .padding(
-                            start = dimensionResource(R.dimen.margin_narrow),
+                            start = dimensionResource(R.dimen.margin_default),
                             bottom = dimensionResource(R.dimen.margin_narrow)
                         ),
-                    verticalAlignment = Alignment.CenterVertically
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.margin_narrow))
                 ) {
                     // Keyed by issue, so a recycled holder showing another issue starts at its
                     // resting icon instead of animating from the previous one
@@ -191,6 +195,7 @@ fun IssueListItem(
                             ),
                             onClick = onToggleCollection,
                         )
+
                         MorphButton(
                             image = AnimatedImageVector.animatedVectorResource(R.drawable.issue_added_to_wish_list),
                             on = state.inWishList,
@@ -211,7 +216,7 @@ fun IssueListItem(
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
                     .offset(x = 12.dp, y = 12.dp)
-                    .size(72.dp),
+                    .size(80.dp),
                 shape = CircleShape,
                 color = boxColor,
                 border = BorderStroke(4.dp, borderColor)
@@ -223,7 +228,7 @@ fun IssueListItem(
                         modifier = Modifier.offset(x = (-4).dp, y = (-4).dp),
                         color = MaterialTheme.colorScheme.onSurface,
                         fontFamily = PermanentMarker,
-                        fontSize = 22.sp,
+                        fontSize = 32.sp,
                         maxLines = 1,
                     )
                 }
