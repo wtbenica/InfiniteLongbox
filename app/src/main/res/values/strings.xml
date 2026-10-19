@@ -96,6 +96,12 @@
         </string>
     <string name="font_condensed" translatable="false">sans-serif-condensed</string>
     <string name="menu_push_covers">Upload covers to server</string>
+    <string name="menu_export_collection">Export collection</string>
+    <string name="menu_import_collection">Import collection</string>
+    <string name="collection_export_done">Collection saved</string>
+    <string name="collection_export_failed">Could not save the collection</string>
+    <string name="collection_import_working">Importing the collection…</string>
+    <string name="collection_import_failed">Could not read that file</string>
     <string name="cover_saved">Cover saved</string>
     <string name="cover_not_saved">Couldn\'t read that image</string>
     <string name="cover_options_title">Cover</string>

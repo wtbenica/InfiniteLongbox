@@ -40,6 +40,11 @@ import dev.benica.infinite_longbox.database.IssueDatabase
 import dev.benica.infinite_longbox.database.daos.REQUEST_LIMIT
 import dev.benica.infinite_longbox.database.models.AUTO_ID
 import dev.benica.infinite_longbox.database.models.Character
+import dev.benica.infinite_longbox.BackupCollection
+import dev.benica.infinite_longbox.BackupEntry
+import dev.benica.infinite_longbox.CollectionBackup
+import dev.benica.infinite_longbox.ImportResult
+import dev.benica.infinite_longbox.database.models.BaseCollection
 import dev.benica.infinite_longbox.database.models.CollectionItem
 import dev.benica.infinite_longbox.database.models.Cover
 import dev.benica.infinite_longbox.database.models.Creator
@@ -177,6 +182,8 @@ class Repository private constructor(val context: Context) {
         get() = issueDatabase.appearanceDao()
     private val collectionItemDao
         get() = issueDatabase.collectionItemDao()
+    private val userCollectionDao
+        get() = issueDatabase.userCollectionDao()
     private val coverDao
         get() = issueDatabase.coverDao()
 
@@ -353,6 +360,64 @@ class Repository private constructor(val context: Context) {
         }
     }
 
+    /** My Collection and the Wish List as the text of a backup file. */
+    suspend fun exportCollections(exportedAt: String): String = withContext(Dispatchers.IO) {
+        val rows = collectionItemDao.exportRows()
+        val names = userCollectionDao.names().associate { it.userCollectionId to it.name }
+        CollectionBackup.toJson(
+            collections = listOf(BaseCollection.MY_COLL.id, BaseCollection.WISH_LIST.id).map { id ->
+                BackupCollection(
+                    id = id,
+                    name = names[id] ?: if (id == BaseCollection.MY_COLL.id) "My Collection" else "Wish List",
+                    issues = rows.filter { it.collectionId == id }
+                        .map { BackupEntry(it.issueId, it.seriesId, it.series, it.number) }
+                )
+            },
+            exportedAt = exportedAt
+        )
+    }
+
+    /**
+     * Puts the issues in [collections] into the collections they came from. Issues the phone does
+     * not have are fetched from the server first; the series they belong to must have been
+     * synced or can be fetched along with them. Adding is the only thing it does, so importing
+     * the same file twice changes nothing.
+     */
+    suspend fun importCollections(collections: List<BackupCollection>): ImportResult =
+        withContext(Dispatchers.IO) {
+            val wanted = collections.flatMap { collection -> collection.issues.map { collection.id to it } }
+            val ids = wanted.map { it.second.issueId }.distinct()
+
+            suspend fun present(): Map<Int, Int> = ids.chunked(IMPORT_CHUNK).flatMap {
+                issueDao.issueSeries(it)
+            }.associate { it.issueId to it.series }
+
+            var have = present()
+            val missing = ids.filter { it !in have }
+            if (missing.isNotEmpty()) {
+                updater.importIssuesById(missing)
+                have = present()
+            }
+
+            var added = 0
+            var alreadyThere = 0
+            val unavailable = mutableListOf<BackupEntry>()
+            wanted.forEach { (collectionId, entry) ->
+                val series = have[entry.issueId]
+                if (series == null) {
+                    if (unavailable.none { it.issueId == entry.issueId }) unavailable.add(entry)
+                } else if (collectionItemDao.insertSus(
+                        CollectionItem(issue = entry.issueId, series = series, userCollection = collectionId)
+                    ) == -1L
+                ) {
+                    alreadyThere++
+                } else {
+                    added++
+                }
+            }
+            ImportResult(added, alreadyThere, unavailable)
+        }
+
     fun removeFromCollection(issueId: Int, collId: Int) {
         executor.execute {
             collectionItemDao.deleteById(issueId, collId)
@@ -360,6 +425,9 @@ class Repository private constructor(val context: Context) {
     }
 
     companion object {
+        /** Issues looked up at a time on import: SQLite allows 999 variables in a query. */
+        private const val IMPORT_CHUNK = 500
+
         @SuppressLint("StaticFieldLeak")
         private var INSTANCE: Repository? = null
 

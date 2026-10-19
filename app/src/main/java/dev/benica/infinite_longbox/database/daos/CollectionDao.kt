@@ -31,6 +31,9 @@ private const val TAG = APP + "CollectionDao"
 @Dao
 abstract class UserCollectionDao : BaseDao<UserCollection>("userCollection") {
 
+    @Query("SELECT userCollectionId, name FROM userCollection")
+    abstract suspend fun names(): List<CollectionName>
+
     @Query(
         """
             DELETE FROM collectionitem
@@ -69,7 +72,33 @@ abstract class CollectionItemDao : BaseDao<CollectionItem>("collectionItem") {
         """
     )
     abstract fun dropAll()
+
+    /** Everything in the collections, in the order a person would read it. */
+    @Query(
+        """
+            SELECT ci.userCollection AS collectionId,
+                   ci.issue AS issueId,
+                   ci.series AS seriesId,
+                   ss.seriesName AS series,
+                   IFNULL(ie.issueNumRaw, '') AS number
+            FROM collectionItem ci
+            JOIN issue ie ON ie.issueId = ci.issue
+            JOIN series ss ON ss.seriesId = ci.series
+            ORDER BY ci.userCollection, ss.sortName COLLATE NOCASE, ss.startDate, ie.issueNumRaw
+        """
+    )
+    abstract suspend fun exportRows(): List<CollectionExportRow>
 }
+
+data class CollectionExportRow(
+    val collectionId: Int,
+    val issueId: Int,
+    val seriesId: Int,
+    val series: String,
+    val number: String,
+)
+
+data class CollectionName(val userCollectionId: Int, val name: String)
 
 data class Count(
     @SerializedName("count")

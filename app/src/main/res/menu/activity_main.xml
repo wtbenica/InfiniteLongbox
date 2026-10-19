@@ -27,6 +27,14 @@
         android:title="Clear DB"
         app:showAsAction="withText" />
     <item
+        android:id="@+id/menu_main_export_collection"
+        android:title="@string/menu_export_collection"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/menu_main_import_collection"
+        android:title="@string/menu_import_collection"
+        app:showAsAction="never" />
+    <item
         android:id="@+id/menu_main_push_covers"
         android:title="@string/menu_push_covers"
         app:showAsAction="never" />

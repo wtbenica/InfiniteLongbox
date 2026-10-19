@@ -89,6 +89,10 @@ abstract class IssueDao : BaseDao<Issue>("issue") {
     )
     abstract suspend fun getIssueSus(issueId: Int): FullIssue?
 
+    /** Which of these issues the phone has, with their series. */
+    @Query("SELECT issueId, series FROM issue WHERE issueId IN (:issueIds)")
+    abstract suspend fun issueSeries(issueIds: List<Int>): List<IssueSeries>
+
     @Query(
         """
             DELETE FROM issue
@@ -237,3 +241,5 @@ abstract class IssueDao : BaseDao<Issue>("issue") {
         }
     }
 }
+
+data class IssueSeries(val issueId: Int, val series: Int)

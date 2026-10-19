@@ -21,6 +21,7 @@ import android.net.ConnectivityManager
 import android.net.Network
 import android.net.NetworkCapabilities
 import android.os.Bundle
+import android.net.Uri
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
@@ -86,6 +87,9 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.io.IOException
+import java.time.Instant
+import java.time.LocalDate
 import kotlin.reflect.KClass
 
 const val APP = "CC_"
@@ -319,6 +323,10 @@ class MainActivity : AppCompatActivity(),
             R.id.menu_main_clear_db -> IssueDatabase.getInstance(this).transactionDao()
                 .cleanDatabase()
 
+            R.id.menu_main_export_collection -> exportCollection.launch(collectionFileName())
+            R.id.menu_main_import_collection ->
+                importCollection.launch(arrayOf("application/json", "text/plain", "*/*"))
+
             R.id.menu_main_push_covers -> pushLocalCovers()
             else -> super.onOptionsItemSelected(item)
         }
@@ -455,6 +463,64 @@ class MainActivity : AppCompatActivity(),
 
     private fun showScanMessage(message: String) {
         Snackbar.make(mainLayout, message, Snackbar.LENGTH_LONG).setAnchorView(scanFab).show()
+    }
+
+    private val exportCollection =
+        registerForActivityResult(ActivityResultContracts.CreateDocument("application/json")) { uri ->
+            uri?.let { writeCollection(it) }
+        }
+
+    private val importCollection =
+        registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+            uri?.let { readCollection(it) }
+        }
+
+    private fun collectionFileName() = "infinite-longbox-collection-${LocalDate.now()}.json"
+
+    /** Saves My Collection and the Wish List to the file the person picked. */
+    private fun writeCollection(uri: Uri) {
+        lifecycleScope.launch {
+            val saved = try {
+                val json = Repository.get().exportCollections(Instant.now().toString())
+                withContext(Dispatchers.IO) {
+                    contentResolver.openOutputStream(uri, "wt")?.use { it.write(json.toByteArray()) }
+                        ?: throw IOException("could not open $uri")
+                }
+                true
+            } catch (e: IOException) {
+                Log.e(TAG, "export collection", e)
+                false
+            }
+            Toast.makeText(
+                this@MainActivity,
+                if (saved) R.string.collection_export_done else R.string.collection_export_failed,
+                Toast.LENGTH_LONG
+            ).show()
+        }
+    }
+
+    /** Puts what is in the file the person picked into My Collection and the Wish List. */
+    private fun readCollection(uri: Uri) {
+        lifecycleScope.launch {
+            val text = try {
+                withContext(Dispatchers.IO) {
+                    contentResolver.openInputStream(uri)?.use { it.readBytes().decodeToString() }
+                }
+            } catch (e: IOException) {
+                Log.e(TAG, "read collection", e)
+                null
+            }
+            val parsed = text?.let { CollectionBackup.parse(it) }
+            if (parsed !is CollectionBackup.Parsed.Ok) {
+                val reason = (parsed as? CollectionBackup.Parsed.Unreadable)?.reason
+                    ?: getString(R.string.collection_import_failed)
+                Toast.makeText(this@MainActivity, reason, Toast.LENGTH_LONG).show()
+                return@launch
+            }
+            Toast.makeText(this@MainActivity, R.string.collection_import_working, Toast.LENGTH_SHORT).show()
+            val result = Repository.get().importCollections(parsed.collections)
+            Toast.makeText(this@MainActivity, result.summary(), Toast.LENGTH_LONG).show()
+        }
     }
 
     private fun pushLocalCovers() {

@@ -268,6 +268,17 @@ class StaticUpdater private constructor(
         return issues.map { it.issueId }
     }
 
+    /**
+     * Fetches these issues from the server, with the series and variant parents they need, and
+     * saves them. Whatever the server does not have, or cannot be reached for, is left out.
+     */
+    internal suspend fun importIssuesById(issueIds: List<Int>) {
+        val issues = retrieveItemsByList(issueIds, webservice::getIssuesByIds)
+        if (issues.isEmpty()) return
+        fKeyChecker.checkFKeysIssue(issues).await()
+        database.issueDao().upsertSus(issues)
+    }
+
     private suspend fun updateIssueFromGcd(issueId: Int) {
         if (checkIfStale(issueTag(issueId), WEEKLY, prefs)) {
             retrieveItemsByArgument(listOf(issueId), webservice::getIssuesByIds)
