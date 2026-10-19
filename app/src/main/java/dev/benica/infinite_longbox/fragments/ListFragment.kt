@@ -52,6 +52,7 @@ import dev.benica.infinite_longbox.views.FastScrollHandle
 import dev.benica.infinite_longbox.views.LetterStrip
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import java.time.format.DateTimeFormatter
 
@@ -199,15 +200,24 @@ abstract class ListFragment<T : ListItem, VH : RecyclerView.ViewHolder> : Fragme
         }
     }
 
+    private var letterJob: Job? = null
+
     private fun updateLetterStrip(filter: SearchFilter?) {
+        letterJob?.cancel()
         letterStrip.index = null
         fastScrollHandle.isActive = true
+        refreshLetterStrip(filter)
+    }
+
+    /** Asks the database again where the letters start; rows arrive while a list is being filled. */
+    private fun refreshLetterStrip(filter: SearchFilter? = viewModel.filter.value) {
         if (filter == null || !sortedByName()) return
-        viewLifecycleOwner.lifecycleScope.launch {
+        letterJob?.cancel()
+        letterJob = viewLifecycleOwner.lifecycleScope.launch {
             val index = viewModel.letterIndex(filter) ?: return@launch
             // The list may have been given another filter while this was looked up
             if (viewModel.filter.value != filter) return@launch
-            letterStrip.index = index
+            if (index != letterStrip.index) letterStrip.index = index
             fastScrollHandle.isActive = false
         }
     }
@@ -320,6 +330,13 @@ abstract class ListFragment<T : ListItem, VH : RecyclerView.ViewHolder> : Fragme
 
         // A list sorted by name gets a letter strip, once the database says where letters start
         viewModel.filter.observe(viewLifecycleOwner) { updateLetterStrip(it) }
+
+        // New rows (credits still downloading, a sync) move where letters start
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                adapter.onPagesUpdatedFlow.collect { refreshLetterStrip() }
+            }
+        }
 
         // Tied to the view, not the fragment: a list on the back stack keeps its fragment but
         // loses its view, and the next view needs its own collector feeding its own adapter

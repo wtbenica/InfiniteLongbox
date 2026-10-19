@@ -19,7 +19,7 @@ package dev.benica.infinite_longbox
 data class LetterBucket(val bucket: String, val n: Int)
 
 /** Where each letter starts in a name-sorted list, so a letter strip can jump to it. */
-class LetterIndex(buckets: List<LetterBucket>, descending: Boolean) {
+class LetterIndex(buckets: List<LetterBucket>, private val descending: Boolean) {
     private val counts = buckets.associate { it.bucket to it.n }
     private val starts = HashMap<String, Int>()
 
@@ -36,6 +36,12 @@ class LetterIndex(buckets: List<LetterBucket>, descending: Boolean) {
 
     /** The list position of the first name under [letter], or null if there is none. */
     fun positionOf(letter: Char): Int? = if (has(letter)) starts[key(letter)] else null
+
+    // Equal when the same letters start in the same places, so a refresh that found nothing new is skipped
+    override fun equals(other: Any?) =
+        other is LetterIndex && other.descending == descending && other.counts == counts
+
+    override fun hashCode() = 31 * counts.hashCode() + descending.hashCode()
 
     private fun key(letter: Char) = if (letter == '#') "#" else letter.lowercaseChar().toString()
 
