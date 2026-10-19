@@ -43,7 +43,7 @@ class SeriesListViewModel : ListViewModel<FullSeries>() {
         withContext(Dispatchers.IO) { repository.getSeriesLetterIndex(filter) }
 
     internal fun updateIssue(issueId: Int, markedDelete: Boolean = true) {
-        repository.updateIssue(issueId, markedDelete)
+        repository.requestIssue(issueId, markedDelete)
     }
 
     /** Fetches a cover for a series whose first issue has none, from one of its other issues. */

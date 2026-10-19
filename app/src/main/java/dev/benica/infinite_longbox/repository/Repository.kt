@@ -125,6 +125,7 @@ internal fun getUpdatedTag(id: Int, type: String): String = "$type${id}_UPDATED"
 
 internal fun seriesTag(id: Int): String = getUpdatedTag(id, "SERIES_")
 internal fun issueTag(id: Int) = getUpdatedTag(id, "ISSUE_")
+internal fun issueDetailsTag(id: Int) = getUpdatedTag(id, "ISSUE_DETAILS_")
 /**
  * How the long lists page. Placeholders give the scroll handle a whole-list length to work with;
  * a jump (dragging that handle, a big fling) then reloads at the new position instead of paging
@@ -306,6 +307,11 @@ class Repository private constructor(val context: Context) {
         }
     }
 
+    /** A list card's issue and cover: not the issue's stories and credits, which the page needs. */
+    fun requestIssue(issueId: Int, markedDelete: Boolean = true) {
+        if (issueId != AUTO_ID) updater.requestIssueAndCover(issueId, markedDelete)
+    }
+
     private val seriesCoverRequested = java.util.concurrent.ConcurrentHashMap.newKeySet<Int>()
 
     /**
@@ -314,7 +320,7 @@ class Repository private constructor(val context: Context) {
      */
     fun fetchSeriesCover(seriesId: Int) {
         if (hasConnection && seriesCoverRequested.add(seriesId)) {
-            CoroutineScope(Dispatchers.IO).launch { updater.fetchSeriesCover(seriesId) }
+            updater.requestSeriesCover(seriesId)
         }
     }
 
@@ -547,22 +553,20 @@ class Repository private constructor(val context: Context) {
     fun updateCreatorsAsync(creators: List<Creator>): Deferred<Unit> =
         Expander.get().expandCreatorsAsync(creators)
 
+    /**
+     * Keeps the covers of what was only browsed to the newest [CoverPlan.KEEP_BROWSED]: they
+     * used to all go every time the app stopped, to be fetched again on the next visit. Covers
+     * of the collection stay, and so does the record that an issue has no cover.
+     */
     fun cleanUpImages(seriesId: Int? = null) {
         CoroutineScope(Dispatchers.Default).launch {
-            val covers: List<Cover> = coverDao.getAll()
-            Log.d(TAG, "There are ${covers.size} covers to cleanup")
-            covers.forEach { cover ->
-                if (cover.markedDelete) {
-                    Log.d("${APP}CLEANUP", "STARTING")
-                    val f = getFileHandle(context, coverFileName(cover.issue))
-                    if (f.exists()) {
-                        Log.d("${APP}CLEANUP", "Deleting")
-                        f.delete()
-                    }
-                    coverDao.delete(cover)
-                } else {
-                    Log.d("${APP}CLEANUP", "Saving")
-                }
+            val browsed = coverDao.getAll().filter { it.markedDelete && it.coverUri != null }
+            val trim = CoverPlan.oldestBeyond(browsed, CoverPlan.KEEP_BROWSED) { it.lastUpdated }
+            Log.d(TAG, "There are ${browsed.size} browsed covers; removing ${trim.size}")
+            trim.forEach { cover ->
+                val f = getFileHandle(context, coverFileName(cover.issue))
+                if (f.exists()) f.delete()
+                coverDao.delete(cover)
             }
         }
     }

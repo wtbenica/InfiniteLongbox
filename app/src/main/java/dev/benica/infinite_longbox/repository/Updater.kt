@@ -82,7 +82,7 @@ abstract class Updater(
 
             return try {
                 if (arg !is List<*> || arg.isNotEmpty()) {
-                    queryFunction(arg).await()
+                    LoadTracker.track { queryFunction(arg).await() }
                 } else {
                     null
                 }
@@ -135,7 +135,7 @@ abstract class Updater(
         ): ResultType? {
 
             return try {
-                queryFunction().await()
+                LoadTracker.track { queryFunction().await() }
             } catch (e: SocketTimeoutException) {
                 Log.d(TAG, "$name $e")
                 null
@@ -286,19 +286,30 @@ abstract class Updater(
         verifyForeignKeys: suspend (List<ModelType>) -> Deferred<Unit>? = { null },
         dao: BaseDao<ModelType>,
         getNumPages: suspend () -> Count,
-        progressWrapper: ProgressWrapper? = null
+        progressWrapper: ProgressWrapper? = null,
+        manifestKey: String? = null,
     ) {
         progressWrapper?.start()
 
-        // savePageTag's value is a string of whether each page has been updated, e.g. "tfffttttftt"
-        val pagesCompleteSaved: String = prefs.getString(savePageTag, "") ?: ""
+        // savePageTag's value is a string of whether each page has been updated, e.g. "tfffttttftt";
+        // hashTag's is the version (fingerprint) of each page the phone has
+        val hashTag = "${savePageTag}_hashes"
+        var pagesCompleteSaved: String = prefs.getString(savePageTag, "") ?: ""
+        var manifest: List<String>? = null
 
-        if (!pagesCompleteSaved.contains('f')) {
-            // If it's been a week, mark all pages as stale
-            if (checkIfStale(saveTag, WEEKLY, prefs)) {
+        if (!pagesCompleteSaved.contains('f') && checkIfStale(saveTag, WEEKLY, prefs)) {
+            // It's been a week. Ask which pages changed and fetch only those; with no answer, fetch
+            // everything again next time, as before.
+            manifest = manifestKey?.let { fetchManifest(it) }
+            if (manifest != null) {
+                pagesCompleteSaved = PageDiff.stalePages(
+                    pagesCompleteSaved, PageDiff.parse(prefs.getString(hashTag, "")), manifest
+                )
+            } else {
                 progressWrapper?.isComplete(false)
-                Repository.savePrefValue(prefs, savePageTag, "")
+                pagesCompleteSaved = ""
             }
+            Repository.savePrefValue(prefs, savePageTag, pagesCompleteSaved)
         }
 
         // make an array for whether each page has been updated
@@ -315,6 +326,13 @@ abstract class Updater(
         var numComplete = pagesComplete.count { it }
         progressWrapper?.setProgress(numComplete)
         if (numComplete < numPages) progressWrapper?.start()
+
+        // Pages are about to be fetched: say what version each is, to remember with it
+        if (manifest == null && manifestKey != null && numComplete < numPages) {
+            manifest = fetchManifest(manifestKey)
+        }
+        val fetchedVersions = java.util.concurrent.ConcurrentHashMap<Int, String>()
+        val versions = manifest?.takeIf { it.size == numPages }
 
         /**
          * Saves boolean array to prefs as a string. 't' for true, 'f' for false
@@ -350,6 +368,7 @@ abstract class Updater(
                         verifyForeignKeys(itemPage)?.await()
                         if (dao.upsertSus(itemPage)) {
                             pagesComplete[currPage] = true
+                            versions?.let { fetchedVersions[currPage] = it[currPage] }
                             pageFinished()
                         }
                     }
@@ -368,8 +387,20 @@ abstract class Updater(
             }
 
             Repository.savePrefValue(prefs, savePageTag, sb.toString())
+
+            if (versions != null) {
+                Repository.savePrefValue(
+                    prefs, hashTag,
+                    PageDiff.format(PageDiff.remember(PageDiff.parse(prefs.getString(hashTag, "")), numPages, fetchedVersions))
+                )
+            }
         }
     }
+
+    /** The version of each page of [key]'s model, or null if the server can't say. */
+    private suspend fun fetchManifest(key: String): List<String>? =
+        runSafely("getManifest") { CoroutineScope(Dispatchers.IO).async { webservice.getManifest() } }
+            ?.get(key)?.hashes
 
 
     /**

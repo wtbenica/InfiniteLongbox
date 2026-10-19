@@ -52,6 +52,10 @@ interface Webservice {
     @POST("/db_query/issue/id/{id}/cover/remove")
     suspend fun removeCover(@Path("id") issueId: Int): Response<ResponseBody>
 
+    /** What version each page of the paged models is, so only changed pages are fetched again. */
+    @GET("/db_query/manifest")
+    suspend fun getManifest(): Map<String, Manifest>
+
     // GET num pages
     @GET("/db_query/name_detail/page_count")
     suspend fun getNumNameDetailPages(): Count
@@ -162,3 +166,5 @@ interface Webservice {
     }
 }
 
+/** One paged model's pages, each as a short fingerprint of its content. */
+data class Manifest(val pages: Int, val hashes: List<String>)

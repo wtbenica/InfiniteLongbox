@@ -87,7 +87,8 @@ class StaticUpdater private constructor(
             getItemsByPage = ::getPublishersByPage,
             dao = database.publisherDao(),
             getNumPages = webservice::getNumPublisherPages,
-            progressWrapper = updateProgress
+            progressWrapper = updateProgress,
+            manifestKey = "publisher"
         )
     }
 
@@ -103,7 +104,8 @@ class StaticUpdater private constructor(
             verifyForeignKeys = fKeyChecker::checkFKeysSeries,
             dao = database.seriesDao(),
             getNumPages = webservice::getNumSeriesPages,
-            progressWrapper = updateProgress
+            progressWrapper = updateProgress,
+            manifestKey = "series"
         )
     }
 
@@ -116,7 +118,8 @@ class StaticUpdater private constructor(
             verifyForeignKeys = fKeyChecker::checkFKeysNameDetail,
             dao = database.nameDetailDao(),
             getNumPages = webservice::getNumNameDetailPages,
-            progressWrapper = updateProgress
+            progressWrapper = updateProgress,
+            manifestKey = "name_detail"
         )
     }
 
@@ -128,7 +131,8 @@ class StaticUpdater private constructor(
             getItemsByPage = ::getCharactersByPage,
             dao = database.characterDao(),
             getNumPages = webservice::getNumCharacterPages,
-            progressWrapper = updateProgress
+            progressWrapper = updateProgress,
+            manifestKey = "character"
         )
     }
 
@@ -174,24 +178,57 @@ class StaticUpdater private constructor(
         CoroutineScope(nowDispatcher).launch {
             withContext(Dispatchers.Default) {
                 updateIssueFromGcd(issueId)
-                updateIssueStoryDetails(issueId)
+                // Stories, credits and appearances are four requests; once a week is often enough
+                if (checkIfStale(issueDetailsTag(issueId), WEEKLY, prefs)) {
+                    if (updateIssueStoryDetails(issueId).isNotEmpty()) {
+                        Repository.saveTime(prefs, issueDetailsTag(issueId))
+                    }
+                }
                 UpdateIssueCover.get().update(issueId, markedDelete)
             }.let {
                 Repository.saveTime(prefs, issueTag(issueId))
             }
         }
 
+    private val cardIssueMarkedDelete = java.util.concurrent.ConcurrentHashMap<Int, Boolean>()
+
+    private val cardIssues = RequestBatcher<Int>(CoroutineScope(Dispatchers.IO), CARD_BATCH_MS) { ids ->
+        fetchCardIssues(ids)
+    }
+
+    /**
+     * A card on a list needs its issue and cover, not the issue's stories, credits and
+     * appearances (those are for the page that opens). Cards that bind together are fetched in one
+     * request.
+     */
+    internal fun requestIssueAndCover(issueId: Int, markedDelete: Boolean = true) {
+        cardIssueMarkedDelete[issueId] = markedDelete
+        cardIssues.request(issueId)
+    }
+
+    private suspend fun fetchCardIssues(ids: Set<Int>) {
+        val have = ids.chunked(500).flatMap { database.issueDao().issueSeries(it) }.map { it.issueId }.toSet()
+        // issues the phone lacks, and ones not refreshed for a week
+        val fetch = ids.filter { it !in have || checkIfStale(issueTag(it), WEEKLY, prefs) }
+        if (fetch.isNotEmpty()) {
+            importIssuesById(fetch)
+            val now = fetch.chunked(500).flatMap { database.issueDao().issueSeries(it) }.map { it.issueId }
+            now.forEach { Repository.saveTime(prefs, issueTag(it)) }
+        }
+        ids.forEach { UpdateIssueCover.get().update(it, cardIssueMarkedDelete.remove(it) ?: true) }
+    }
 
     /**
      * Updates stories, credits, and appearances for this issue
      */
-    private suspend fun updateIssueStoryDetails(issueId: Int) =
+    private suspend fun updateIssueStoryDetails(issueId: Int): List<Story> =
         updateIssuesStoryDetails(listOf(issueId))
 
-    private suspend fun updateIssuesStoryDetails(issueIds: List<Int>) {
+    private suspend fun updateIssuesStoryDetails(issueIds: List<Int>): List<Story> {
         val stories: List<Story> = updateIssuesStories(issueIds)
         updateStoriesCredits(stories.ids)
         updateStoriesAppearances(stories.ids)
+        return stories
     }
 
     private suspend fun updateStoriesAppearances(storyIds: List<Int>): List<Appearance> =
@@ -285,28 +322,39 @@ class StaticUpdater private constructor(
      * issues until the series is opened, so this asks the server which of them have one, and
      * fetches the earliest. The card refreshes when the cover is saved.
      */
-    internal suspend fun fetchSeriesCover(seriesId: Int) {
-        val issueId = try {
-            webservice.getSeriesCovers(listOf(seriesId))[seriesId.toString()]?.firstOrNull()
+    internal fun requestSeriesCover(seriesId: Int) = seriesCovers.request(seriesId)
+
+    private val seriesCovers = RequestBatcher<Int>(CoroutineScope(Dispatchers.IO), CARD_BATCH_MS) { ids ->
+        fetchSeriesCovers(ids)
+    }
+
+    private suspend fun fetchSeriesCovers(seriesIds: Set<Int>) {
+        val covers = try {
+            seriesIds.chunked(100).map { webservice.getSeriesCovers(it) }.fold(emptyMap<String, List<Int>>()) { a, m -> a + m }
         } catch (e: java.io.IOException) {
-            Log.d(TAG, "fetchSeriesCover $e")
-            null
+            Log.d(TAG, "fetchSeriesCovers $e")
+            return
         } catch (e: retrofit2.HttpException) {
-            Log.d(TAG, "fetchSeriesCover $e")
-            null
-        } ?: return
-        if (database.issueDao().getIssueSus(issueId) == null) importIssuesById(listOf(issueId))
-        UpdateIssueCover.get().update(issueId)
+            Log.d(TAG, "fetchSeriesCovers $e")
+            return
+        }
+        val issueIds = covers.values.mapNotNull { it.firstOrNull() }
+        val missing = issueIds.filter { database.issueDao().getIssueSus(it) == null }
+        if (missing.isNotEmpty()) importIssuesById(missing)
+        issueIds.forEach { UpdateIssueCover.get().update(it) }
     }
 
     private suspend fun updateIssueFromGcd(issueId: Int) {
         if (checkIfStale(issueTag(issueId), WEEKLY, prefs)) {
-            retrieveItemsByArgument(listOf(issueId), webservice::getIssuesByIds)
+            importIssuesById(listOf(issueId))
         }
     }
 
     companion object {
         internal const val TAG = APP + "StaticUpdater"
+
+        /** How long cards that bind together are gathered before their issues are fetched. */
+        private const val CARD_BATCH_MS = 150L
 
         private var INSTANCE: StaticUpdater? = null
 

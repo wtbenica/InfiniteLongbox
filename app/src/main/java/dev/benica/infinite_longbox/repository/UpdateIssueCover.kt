@@ -21,24 +21,45 @@ import android.content.SharedPreferences
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
+import android.util.Log
 import dev.benica.infinite_longbox.APP
 import dev.benica.infinite_longbox.Webservice
 import dev.benica.infinite_longbox.database.models.Cover
+import dev.benica.infinite_longbox.network.RetrofitAPIClient
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import okhttp3.Request
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
-import java.net.HttpURLConnection
-import java.net.URL
+import java.time.Instant
 import java.time.LocalDate
+import java.time.ZoneOffset
+import java.time.format.DateTimeFormatter
+import java.util.concurrent.ConcurrentHashMap
 
 
 private const val TAG = APP + "UpdateIssueCover"
 
 fun coverFileName(issueId: Int): String = "COVER_$issueId.jpg"
+
+/** What asking the server for a cover came to. */
+private sealed class CoverFetch {
+    /** The image was saved to the file. */
+    object Saved : CoverFetch()
+
+    /** The server has not changed the image since the phone's copy. */
+    object NotModified : CoverFetch()
+
+    /** The server has no cover for the issue. */
+    object None : CoverFetch()
+
+    /** The server could not be asked (offline, an error): nothing is known. */
+    object Failed : CoverFetch()
+}
 
 @ExperimentalCoroutinesApi
 class UpdateIssueCover private constructor(
@@ -46,43 +67,93 @@ class UpdateIssueCover private constructor(
     prefs: SharedPreferences,
     val context: Context,
 ) : Updater(webservice, prefs) {
-    internal fun update(issueId: Int, markedDelete: Boolean = true) =
-        CoroutineScope(Dispatchers.IO).launch {
-            val file = getFileHandle(context, coverFileName(issueId))
-            val fileDNE = !file.exists()
+    private val inFlight = ConcurrentHashMap.newKeySet<Int>()
 
-            database.issueDao().getIssueSus(issueId)?.let { issue ->
-                val uriDNE = issue.coverUri == null &&
-                        (issue.cover?.lastUpdated?.plusDays(7) ?: LocalDate.MIN) < LocalDate.now()
-                if (fileDNE || uriDNE || DEBUG) {
-                    if (fileDNE) {
-                        kotlin.runCatching {
-                            val url = URL(issue.issue.url)
-                            val image = url.toBitmap()
-                            if (image != null) {
-                                val savedUri: Uri? = image.saveToInternalStorage(file)
+    /**
+     * Brings an issue's cover up to date (see [CoverPlan]). Covers are looked at each time a card
+     * binds, so an issue already being worked on is left to the one doing it.
+     */
+    internal fun update(issueId: Int, markedDelete: Boolean = true): Job {
+        if (!inFlight.add(issueId)) return Job().apply { complete() }
+        return CoroutineScope(Dispatchers.IO).launch {
+            try {
+                refresh(issueId, markedDelete)
+            } finally {
+                inFlight.remove(issueId)
+            }
+        }
+    }
 
-                                val cover = Cover(
-                                    issue = issueId, coverUri = savedUri,
-                                    markedDelete = markedDelete && issue.collectionItems.isEmpty()
-                                )
-                                database.coverDao().setCover(cover)
-                            } else {
-                                // No cover available. Record that once; rewriting an identical
-                                // row on every bind would keep re-triggering the list.
-                                if (issue.cover == null) {
-                                    database.coverDao().setCover(Cover(issue = issueId, coverUri = null))
-                                }
-                            }
-                        }
-                    } else {
-                        val cover =
-                            Cover(issue = issueId, coverUri = Uri.parse(file.absolutePath))
-                        database.coverDao().setCover(cover)
+    private suspend fun refresh(issueId: Int, markedDelete: Boolean) {
+        val file = getFileHandle(context, coverFileName(issueId))
+        val issue = database.issueDao().getIssueSus(issueId) ?: return
+        val row = issue.cover?.let { CoverRow(it.coverUri != null, it.lastUpdated) }
+        val marked = markedDelete && issue.collectionItems.isEmpty()
+        val uri = Uri.parse(file.absolutePath)
+
+        when (CoverPlan.decide(file.exists(), row, LocalDate.now())) {
+            CoverPlan.NOTHING -> Unit
+            CoverPlan.LINK -> database.coverDao().setCover(Cover(issue = issueId, coverUri = uri, markedDelete = marked))
+            CoverPlan.DOWNLOAD, CoverPlan.RECHECK -> {
+                val since = file.takeIf { it.exists() }?.lastModified()
+                when (LoadTracker.track { fetchCover(issue.issue.url, file, since) }) {
+                    CoverFetch.Saved, CoverFetch.NotModified ->
+                        database.coverDao().setCover(Cover(issue = issueId, coverUri = uri, markedDelete = marked))
+                    CoverFetch.None -> {
+                        file.delete()
+                        database.coverDao().setCover(Cover(issue = issueId, coverUri = null, markedDelete = marked))
                     }
+                    CoverFetch.Failed -> Unit
                 }
             }
         }
+    }
+
+    /**
+     * Asks for the cover once and keeps the bytes as they came, so the image is not decoded and
+     * compressed again. With [since] (the time of the copy on the phone) the server sends nothing
+     * if its image has not changed.
+     */
+    private fun fetchCover(url: String, file: File, since: Long?): CoverFetch {
+        val request = Request.Builder().url(url).apply {
+            if (since != null && since > 0) header("If-Modified-Since", httpDate(since))
+        }.build()
+        return try {
+            RetrofitAPIClient.httpClient.newCall(request).execute().use { response ->
+                when {
+                    response.code == 304 -> CoverFetch.NotModified
+                    response.code == 404 -> CoverFetch.None
+                    !response.isSuccessful -> CoverFetch.Failed
+                    else -> {
+                        val body = response.body ?: return@use CoverFetch.Failed
+                        val part = File(file.parentFile, file.name + ".part")
+                        body.byteStream().use { input ->
+                            FileOutputStream(part).use { input.copyTo(it) }
+                        }
+                        if (!isImage(part)) {
+                            part.delete()
+                            CoverFetch.Failed
+                        } else {
+                            response.headers.getDate("Last-Modified")?.let { part.setLastModified(it.time) }
+                            if (part.renameTo(file)) CoverFetch.Saved else CoverFetch.Failed
+                        }
+                    }
+                }
+            }
+        } catch (e: IOException) {
+            Log.d(TAG, "cover $url: $e")
+            CoverFetch.Failed
+        }
+    }
+
+    private fun isImage(file: File): Boolean {
+        val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+        BitmapFactory.decodeFile(file.absolutePath, bounds)
+        return bounds.outWidth > 0 && bounds.outHeight > 0
+    }
+
+    private fun httpDate(millis: Long): String =
+        DateTimeFormatter.RFC_1123_DATE_TIME.format(Instant.ofEpochMilli(millis).atZone(ZoneOffset.UTC))
 
     companion object {
         private var INSTANCE: UpdateIssueCover? = null
@@ -103,20 +174,6 @@ class UpdateIssueCover private constructor(
         }
     }
 
-}
-
-fun URL.toBitmap(): Bitmap? {
-    return try {
-        val connection: HttpURLConnection = this.openConnection() as HttpURLConnection
-        connection.requestMethod = "GET"
-        connection.connect()
-        return if (connection.responseCode == 200)
-            BitmapFactory.decodeStream(this.openStream())
-        else
-            null
-    } catch (e: IOException) {
-        null
-    }
 }
 
 fun Bitmap.saveToInternalStorage(file: File): Uri? {

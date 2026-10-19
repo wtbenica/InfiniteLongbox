@@ -25,18 +25,21 @@ class RetrofitAPIClient {
     companion object {
         private var retrofit: Retrofit? = null
 
+        /** The one HTTP client, so the sync and the cover downloads share connections (HTTP/2). */
+        val httpClient: OkHttpClient by lazy {
+            OkHttpClient.Builder()
+                .connectTimeout(60, TimeUnit.SECONDS)
+                .readTimeout(60, TimeUnit.SECONDS)
+                .writeTimeout(60, TimeUnit.SECONDS)
+                .build()
+        }
+
         fun getRetrofitClient(): Retrofit {
 
             if (retrofit == null) {
-                val client = OkHttpClient.Builder()
-                    .connectTimeout(60, TimeUnit.SECONDS)
-                    .readTimeout(60, TimeUnit.SECONDS)
-                    .writeTimeout(60, TimeUnit.SECONDS)
-                    .build()
-
                 retrofit = Retrofit.Builder()
                     .baseUrl(BASE_URL)
-                    .client(client)
+                    .client(httpClient)
                     .addConverterFactory(GsonConverterFactory.create())
                     .build()
             }

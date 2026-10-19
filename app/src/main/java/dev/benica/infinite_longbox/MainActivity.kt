@@ -48,6 +48,8 @@ import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentContainerView
 import androidx.fragment.app.FragmentTransaction.TRANSIT_FRAGMENT_FADE
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.appbar.AppBarLayout.LayoutParams.SCROLL_FLAG_SCROLL
@@ -78,6 +80,7 @@ import dev.benica.infinite_longbox.fragments.ListFragment
 import dev.benica.infinite_longbox.fragments.ListFragment.Companion.forScreen
 import dev.benica.infinite_longbox.fragments.SeriesListFragment
 import dev.benica.infinite_longbox.fragments_view_models.FilterViewModel
+import dev.benica.infinite_longbox.repository.LoadTracker
 import dev.benica.infinite_longbox.repository.Repository
 import dev.benica.infinite_longbox.repository.pushCoversToServer
 import dev.benica.infinite_longbox.views.ProgressUpdateCard
@@ -271,6 +274,15 @@ class MainActivity : AppCompatActivity(),
         bottomSheet = findViewById(R.id.bottom_sheet)
         progressUpdate = findViewById(R.id.progress_update_card)
         progressBar = findViewById(R.id.progress_bar_item_list_update)
+        // Anything being fetched from the server shows in the bar, once it has taken a moment
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                LoadTracker.busy().collect {
+                    fetching = it
+                    showProgress()
+                }
+            }
+        }
 
         scanFab = findViewById(R.id.scan_fab)
         scanFab.setOnClickListener { startBarcodeScan() }
@@ -642,9 +654,18 @@ class MainActivity : AppCompatActivity(),
         inputMethodManager.showSoftInput(focus, 0)
     }
 
+    private var filterUpdating = false
+    private var fetching = false
+
+    /** The bar shows while the filter's items are being updated or anything is being fetched. */
+    private fun showProgress() {
+        progressBar.visibility = if (filterUpdating || fetching) View.VISIBLE else View.GONE
+    }
+
     override fun setProgressBar(isHidden: Boolean) {
         runOnUiThread {
-            progressBar.visibility = if (isHidden) View.GONE else View.VISIBLE
+            filterUpdating = !isHidden
+            showProgress()
         }
     }
 
