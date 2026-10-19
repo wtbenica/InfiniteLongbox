@@ -56,6 +56,10 @@ interface Webservice {
     @GET("/db_query/character/{id}/info")
     suspend fun getCharacterInfo(@Path("id") id: Int): dev.benica.infinite_longbox.repository.CharacterInfo
 
+    /** Everything the server knows about a creator, for their page. */
+    @GET("/db_query/creator/{id}/info")
+    suspend fun getCreatorInfo(@Path("id") id: Int): dev.benica.infinite_longbox.repository.CreatorInfo
+
     /** What version each page of the paged models is, so only changed pages are fetched again. */
     @GET("/db_query/manifest")
     suspend fun getManifest(): Map<String, Manifest>

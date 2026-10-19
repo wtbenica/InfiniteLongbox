@@ -61,6 +61,7 @@ fun NameListItem(
     modifier: Modifier = Modifier,
     /** When given, an info button opens the item's page; a tap on the card still filters. */
     onInfo: (() -> Unit)? = null,
+    infoDescription: String = stringResource(R.string.character_info_description),
 ) {
     Card(
         onClick = onClick,
@@ -124,7 +125,8 @@ fun NameListItem(
 //                                Spacer(Modifier.height(20.dp))
 //                            }
 //
-                            Row {
+                            // Takes what the info button leaves, so long text can't push it off the card
+                            Row(Modifier.weight(1f)) {
                                 shown.forEachIndexed { i, detail ->
                                     if (i > 0) {
                                         Spacer(Modifier.width(dimensionResource(R.dimen.margin_default)))
@@ -145,7 +147,7 @@ fun NameListItem(
                                 ) {
                                     Icon(
                                         painter = painterResource(R.drawable.ic_info_outline),
-                                        contentDescription = stringResource(R.string.character_info_description),
+                                        contentDescription = infoDescription,
                                         tint = colorResource(R.color.card_border),
                                     )
                                 }

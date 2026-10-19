@@ -49,4 +49,10 @@ class CharacterInfoTextTest {
         assertEquals("2,270 appearances in 1,320 issues", CharacterInfoText.appearances(2270, 1320, us))
         assertEquals("1 appearance in 1 issue", CharacterInfoText.appearances(1, 1, us))
     }
+
+    @Test
+    fun creditCountsAreGroupedAndPluralised() {
+        assertEquals("18,400 credits in 9,200 issues", CharacterInfoText.credits(18400, 9200, us))
+        assertEquals("1 credit in 1 issue", CharacterInfoText.credits(1, 1, us))
+    }
 }

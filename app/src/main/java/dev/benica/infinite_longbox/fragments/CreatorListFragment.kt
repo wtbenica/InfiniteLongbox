@@ -24,6 +24,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
+import androidx.compose.ui.res.stringResource
 import androidx.fragment.app.viewModels
 import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
@@ -111,6 +112,8 @@ class CreatorListFragment : ListFragment<FullCreator, CreatorListFragment.Creato
                     if (state != null) {
                         NameListItem(state, onClick = {
                             item?.let { (callback as CreatorListCallback?)?.onCreatorSelected(it.creator) }
+                        }, infoDescription = stringResource(R.string.creator_info_description), onInfo = {
+                            item?.let { (callback as CreatorListCallback?)?.onCreatorInfo(it.creator) }
                         })
                     }
                 }
@@ -130,6 +133,9 @@ class CreatorListFragment : ListFragment<FullCreator, CreatorListFragment.Creato
 
     interface CreatorListCallback : ListFragmentCallback {
         fun onCreatorSelected(creator: Creator)
+
+        /** The info button: open the creator's page rather than filter by them. */
+        fun onCreatorInfo(creator: Creator)
     }
 
     companion object {

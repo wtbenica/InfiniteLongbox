@@ -333,6 +333,17 @@ class StaticUpdater private constructor(
         null
     }
 
+    /** A creator's page data, or null when the server can't be reached. */
+    internal suspend fun creatorInfo(creatorId: Int): CreatorInfo? = try {
+        webservice.getCreatorInfo(creatorId)
+    } catch (e: java.io.IOException) {
+        Log.d(TAG, "creatorInfo $e")
+        null
+    } catch (e: retrofit2.HttpException) {
+        Log.d(TAG, "creatorInfo $e")
+        null
+    }
+
     internal fun requestSeriesCover(seriesId: Int) = seriesCovers.request(seriesId)
 
     private val seriesCovers = RequestBatcher<Int>(CoroutineScope(Dispatchers.IO), CARD_BATCH_MS) { ids ->

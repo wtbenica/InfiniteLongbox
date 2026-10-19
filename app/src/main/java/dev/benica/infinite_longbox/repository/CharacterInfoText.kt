@@ -54,4 +54,11 @@ object CharacterInfoText {
         val i = String.format(locale, "%,d", issues)
         return "$a appearance${if (appearances == 1) "" else "s"} in $i issue${if (issues == 1) "" else "s"}"
     }
+
+    /** "18,400 credits in 9,200 issues". */
+    fun credits(credits: Int, issues: Int, locale: Locale = Locale.getDefault()): String {
+        val c = String.format(locale, "%,d", credits)
+        val i = String.format(locale, "%,d", issues)
+        return "$c credit${if (credits == 1) "" else "s"} in $i issue${if (issues == 1) "" else "s"}"
+    }
 }

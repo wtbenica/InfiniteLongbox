@@ -155,4 +155,20 @@
     <string name="character_load_failed">Couldn\'t load this character\'s details.</string>
     <string name="character_retry">Try again</string>
     <string name="character_no_details">Nothing more is known about this character yet.</string>
+
+    <!-- Creator page -->
+    <string name="creator_filter_by">Show issues by this creator</string>
+    <string name="creator_info_description">Creator details</string>
+    <string name="creator_other_names">Also credited as</string>
+    <string name="creator_life">Life</string>
+    <string name="creator_born">Born</string>
+    <string name="creator_died">Died</string>
+    <string name="creator_credits">Credits</string>
+    <string name="creator_active">Active</string>
+    <string name="creator_first_credit">First credit</string>
+    <string name="creator_latest_credit">Latest credit</string>
+    <string name="creator_most_credits">Most issues in</string>
+    <string name="creator_about">About</string>
+    <string name="creator_load_failed">Couldn\'t load this creator\'s details.</string>
+    <string name="creator_no_details">Nothing more is known about this creator yet.</string>
 </resources>

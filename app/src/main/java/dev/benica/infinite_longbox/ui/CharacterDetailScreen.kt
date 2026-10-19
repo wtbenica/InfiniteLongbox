@@ -94,7 +94,8 @@ fun CharacterDetailScreen(
 
         when (state) {
             is CharacterDetailState.Loading -> LinearProgressIndicator(Modifier.fillMaxWidth())
-            is CharacterDetailState.Failed -> Failed(actions.onRetry)
+            is CharacterDetailState.Failed ->
+                LoadFailed(stringResource(R.string.character_load_failed), actions.onRetry)
             is CharacterDetailState.Loaded -> Details(state.info, actions)
         }
     }
@@ -126,10 +127,10 @@ private fun Header(name: String, alterEgo: String, publisher: String, firstYear:
 }
 
 @Composable
-private fun Failed(onRetry: () -> Unit) {
+internal fun LoadFailed(message: String, onRetry: () -> Unit) {
     Column(verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.margin_default))) {
         Text(
-            stringResource(R.string.character_load_failed),
+            message,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             fontFamily = CondensedBlock,
         )
@@ -180,7 +181,7 @@ private fun Details(info: CharacterInfo, actions: CharacterDetailActions) {
 
 /** A heading in the same chip the issue page uses, over what it heads. */
 @Composable
-private fun Section(title: String, content: @Composable () -> Unit) {
+internal fun Section(title: String, content: @Composable () -> Unit) {
     val margin = dimensionResource(R.dimen.margin_narrow)
     Column(verticalArrangement = Arrangement.spacedBy(margin)) {
         Text(
@@ -201,7 +202,7 @@ private fun Section(title: String, content: @Composable () -> Unit) {
 }
 
 @Composable
-private fun Body(text: String) {
+internal fun Body(text: String) {
     Text(
         text = text,
         modifier = Modifier.padding(horizontal = dimensionResource(R.dimen.margin_default)),
@@ -213,7 +214,7 @@ private fun Body(text: String) {
 
 /** A line with a label to the left and what it says, opening something when [onClick] is given. */
 @Composable
-private fun LinkRow(label: String, text: String, onClick: (() -> Unit)?) {
+internal fun LinkRow(label: String, text: String, onClick: (() -> Unit)?) {
     val pad = dimensionResource(R.dimen.margin_default)
     Row(
         modifier = Modifier

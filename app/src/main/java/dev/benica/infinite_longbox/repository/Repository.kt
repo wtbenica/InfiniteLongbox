@@ -255,6 +255,8 @@ class Repository private constructor(val context: Context) {
 
     suspend fun getCharacterInfo(id: Int): CharacterInfo? = updater.characterInfo(id)
 
+    suspend fun getCreatorInfo(id: Int): CreatorInfo? = updater.creatorInfo(id)
+
     fun getSeriesByFilterPaged(filter: SearchFilter): Flow<PagingData<FullSeries>> {
         val newFilter = SearchFilter(filter)
 

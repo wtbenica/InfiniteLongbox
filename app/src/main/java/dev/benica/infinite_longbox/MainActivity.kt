@@ -73,6 +73,7 @@ import dev.benica.infinite_longbox.database.models.Issue
 import dev.benica.infinite_longbox.fragments.AboutDialogFragment
 import dev.benica.infinite_longbox.fragments.CharacterDetailFragment
 import dev.benica.infinite_longbox.fragments.CharacterListFragment
+import dev.benica.infinite_longbox.fragments.CreatorDetailFragment
 import dev.benica.infinite_longbox.fragments.CreatorListFragment
 import dev.benica.infinite_longbox.fragments.FilterFragment
 import dev.benica.infinite_longbox.fragments.IssueDetailFragment
@@ -108,6 +109,7 @@ class MainActivity : AppCompatActivity(),
     IssueListFragment.IssueListCallback,
     CharacterListFragment.CharacterListCallback,
     CharacterDetailFragment.CharacterDetailCallback,
+    CreatorDetailFragment.CreatorDetailCallback,
     CreatorListFragment.CreatorListCallback,
     NewCreatorDialogFragment.NewCreatorDialogCallback,
     FilterFragment.FilterFragmentCallback {
@@ -236,7 +238,8 @@ class MainActivity : AppCompatActivity(),
         updateScanFab()
     }
 
-    private fun Fragment?.isDetailPage() = this is IssueDetailFragment || this is CharacterDetailFragment
+    private fun Fragment?.isDetailPage() = this is IssueDetailFragment || this is CharacterDetailFragment ||
+            this is CreatorDetailFragment
 
     /** The filter sheet covers the lists, not an issue's or a character's page. */
     private fun syncSheet(top: Fragment?) {
@@ -649,6 +652,17 @@ class MainActivity : AppCompatActivity(),
         // Back to the list the character page was opened from, then add it to that list's filter
         while (currentScreen is CharacterDetailFragment && supportFragmentManager.popBackStackImmediate()) Unit
         filterViewModel.addFilterItem(character)
+    }
+
+    override fun onCreatorInfo(creator: Creator) {
+        openScreen(CreatorDetailFragment.newInstance(creator.creatorId))
+    }
+
+    // CreatorDetailFragment.CreatorDetailCallback
+    override fun filterByCreator(creator: Creator) {
+        // Back to the list the creator page was opened from, then add them to that list's filter
+        while (currentScreen is CreatorDetailFragment && supportFragmentManager.popBackStackImmediate()) Unit
+        filterViewModel.addFilterItem(creator)
     }
 
     override fun onCreatorSelected(creator: Creator) {
