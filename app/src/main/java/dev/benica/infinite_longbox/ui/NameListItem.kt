@@ -16,7 +16,6 @@
 package dev.benica.infinite_longbox.ui
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -109,7 +108,14 @@ fun NameListItem(state: NameCardState, onClick: () -> Unit, modifier: Modifier =
                                 Spacer(Modifier.height(20.dp))
                             }
                             shown.forEachIndexed { i, detail ->
-                                if (i > 0) Spacer(Modifier.width(dimensionResource(R.dimen.margin_default)))
+                                if (i > 0) {
+                                    Spacer(Modifier.width(dimensionResource(R.dimen.margin_default)))
+
+                                    Text("|")
+
+                                    Spacer(Modifier.width(dimensionResource(R.dimen.margin_default)))
+                                }
+
                                 Subtitle(detail, Modifier.weight(1f, fill = false))
                             }
                         }
