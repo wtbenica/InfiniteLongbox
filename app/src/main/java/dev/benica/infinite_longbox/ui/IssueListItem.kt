@@ -82,6 +82,21 @@ data class IssueCardState(
     val inWishList: Boolean,
 )
 
+/** A card for an issue still loading: the placeholder cover, in the shape of a real card. */
+@Composable
+fun IssueListItemSkeleton(modifier: Modifier = Modifier, placeholderKey: String = "") {
+    Card(
+        modifier = modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(dimensionResource(R.dimen.radius_list_item_issue)),
+        elevation = CardDefaults.cardElevation(defaultElevation = dimensionResource(R.dimen.margin_narrow)),
+        colors = CardDefaults.cardColors(containerColor = colorResource(R.color.surface_raised)),
+    ) {
+        Box(Modifier.fillMaxWidth().aspectRatio(13f / 20f)) {
+            PlaceholderCover(placeholderKey, Modifier.fillMaxSize())
+        }
+    }
+}
+
 @Composable
 fun IssueListItem(
     state: IssueCardState,
@@ -276,4 +291,10 @@ private fun IssueListItemPreview() {
             onToggleWishList = {},
         )
     }
+}
+
+@Preview(showBackground = true, widthDp = 200)
+@Composable
+private fun IssueListItemSkeletonPreview() {
+    InfiniteLongboxTheme { IssueListItemSkeleton(placeholderKey = "issue|3") }
 }

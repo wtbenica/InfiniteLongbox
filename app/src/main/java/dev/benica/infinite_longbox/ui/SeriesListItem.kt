@@ -17,6 +17,13 @@ package dev.benica.infinite_longbox.ui
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.draw.drawWithCache
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.LinearEasing
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -67,10 +74,11 @@ fun SeriesListItem(state: SeriesCardState, onClick: () -> Unit, modifier: Modifi
 
 /** The card laid out like a real one, with bars where the text goes, for a series still loading. */
 @Composable
-fun SeriesListItemSkeleton(modifier: Modifier = Modifier) = SeriesCard(null, {}, modifier)
+fun SeriesListItemSkeleton(modifier: Modifier = Modifier, placeholderKey: String = "") =
+    SeriesCard(null, {}, modifier, placeholderKey)
 
 @Composable
-private fun SeriesCard(state: SeriesCardState?, onClick: () -> Unit, modifier: Modifier) {
+private fun SeriesCard(state: SeriesCardState?, onClick: () -> Unit, modifier: Modifier, skeletonKey: String = "") {
     val shape = RoundedCornerShape(dimensionResource(R.dimen.radius_list_item_series))
 
     Card(
@@ -87,7 +95,8 @@ private fun SeriesCard(state: SeriesCardState?, onClick: () -> Unit, modifier: M
     ) {
         Box {
             if (state == null) {
-                Box(Modifier.matchParentSize().background(colorResource(R.color.card_tab)))
+                // The scrim below washes it, as it does a real placeholder
+                PlaceholderCover(skeletonKey, Modifier.matchParentSize(), scrim = false)
             } else {
                 Cover(state, Modifier.matchParentSize())
             }
@@ -171,12 +180,34 @@ private fun SeriesCard(state: SeriesCardState?, onClick: () -> Unit, modifier: M
     }
 }
 
+/** A stand-in for a line of text still loading: a glow sweeps across it, like a loading indicator. */
 @Composable
 internal fun Bar(modifier: Modifier) {
+    val base = colorResource(R.color.card_border).copy(alpha = 0.35f)
+    val glow = colorResource(R.color.text_secondary).copy(alpha = 0.35f)
+    val sweep by rememberInfiniteTransition(label = "barGlow").animateFloat(
+        initialValue = 0f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(tween(1200, easing = LinearEasing)),
+        label = "barGlowSweep",
+    )
     Box(
         modifier
             .clip(RoundedCornerShape(4.dp))
-            .background(colorResource(R.color.card_border).copy(alpha = 0.35f))
+            .drawWithCache {
+                // A soft band wider than the bar, moving from off the left edge to off the right
+                val band = size.width * 0.6f
+                val x = -band + (size.width + band) * sweep
+                val brush = Brush.horizontalGradient(
+                    colors = listOf(base, glow, base),
+                    startX = x,
+                    endX = x + band,
+                )
+                onDrawBehind {
+                    drawRect(base)
+                    drawRect(brush)
+                }
+            }
     )
 }
 
@@ -241,4 +272,10 @@ private fun SeriesListItemPreview() {
             onClick = {}
         )
     }
+}
+
+@Preview(showBackground = true, widthDp = 360)
+@Composable
+private fun SeriesListItemSkeletonPreview() {
+    InfiniteLongboxTheme { SeriesListItemSkeleton(placeholderKey = "series|3") }
 }

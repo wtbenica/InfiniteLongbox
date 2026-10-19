@@ -40,6 +40,7 @@ import dev.benica.infinite_longbox.fragments_view_models.IssueListViewModel
 import dev.benica.infinite_longbox.ui.InfiniteLongboxTheme
 import dev.benica.infinite_longbox.ui.IssueCardState
 import dev.benica.infinite_longbox.ui.IssueListItem
+import dev.benica.infinite_longbox.ui.IssueListItemSkeleton
 import dev.benica.infinite_longbox.ui.placeholderKey
 import dev.benica.infinite_longbox.views.SeriesDetailBox
 import java.io.File
@@ -137,7 +138,7 @@ class IssueListFragment : ListFragment<FullIssue, IssueListFragment.IssueViewHol
             IssueViewHolder(parent)
 
         override fun onBindViewHolder(holder: IssueViewHolder, position: Int) {
-            holder.bind(getItem(position))
+            holder.bind(getItem(position), position)
         }
     }
 
@@ -153,11 +154,15 @@ class IssueListFragment : ListFragment<FullIssue, IssueListFragment.IssueViewHol
     ) {
         private var fullIssue: FullIssue? = null
         private var card by mutableStateOf<IssueCardState?>(null)
+        private var slot by mutableStateOf(0)
 
         init {
             (itemView as ComposeView).setContent {
                 InfiniteLongboxTheme {
-                    card?.let { state ->
+                    val state = card
+                    if (state == null) {
+                        IssueListItemSkeleton(placeholderKey = "issue|$slot")
+                    } else {
                         IssueListItem(
                             state = state,
                             onClick = {
@@ -179,7 +184,7 @@ class IssueListFragment : ListFragment<FullIssue, IssueListFragment.IssueViewHol
             if (isIn) cb.removeFromCollection(issue, collId) else cb.addToCollection(issue, collId)
         }
 
-        fun bind(item: FullIssue?) {
+        fun bind(item: FullIssue?, position: Int) {
             // A recycled view must start clean, whatever animation it was last part of
             itemView.translationX = 0f
             itemView.translationY = 0f
@@ -188,6 +193,7 @@ class IssueListFragment : ListFragment<FullIssue, IssueListFragment.IssueViewHol
             itemView.scaleY = 1f
 
             fullIssue = item
+            this.slot = position
             if (item == null) {
                 card = null
                 return

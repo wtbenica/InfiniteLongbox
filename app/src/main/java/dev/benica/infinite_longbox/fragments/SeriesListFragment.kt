@@ -85,7 +85,7 @@ class SeriesListFragment : ListFragment<FullSeries, SeriesListFragment.SeriesHol
             SeriesHolder(parent)
 
         override fun onBindViewHolder(holder: SeriesHolder, position: Int) {
-            holder.bind(getItem(position))
+            holder.bind(getItem(position), position)
         }
     }
 
@@ -102,13 +102,14 @@ class SeriesListFragment : ListFragment<FullSeries, SeriesListFragment.SeriesHol
 
         private var item: FullSeries? = null
         private var card by mutableStateOf<SeriesCardState?>(null)
+        private var slot by mutableStateOf(0)
 
         init {
             (itemView as ComposeView).setContent {
                 InfiniteLongboxTheme {
                     val state = card
                     if (state == null) {
-                        SeriesListItemSkeleton()
+                        SeriesListItemSkeleton(placeholderKey = "series|$slot")
                     } else {
                         SeriesListItem(state, onClick = {
                             item?.let { (callback as SeriesListCallback?)?.onSeriesSelected(it) }
@@ -118,7 +119,7 @@ class SeriesListFragment : ListFragment<FullSeries, SeriesListFragment.SeriesHol
             }
         }
 
-        fun bind(item: FullSeries?) {
+        fun bind(item: FullSeries?, position: Int) {
             // A recycled view must start clean, whatever animation it was last part of
             itemView.translationX = 0f
             itemView.translationY = 0f
@@ -127,6 +128,7 @@ class SeriesListFragment : ListFragment<FullSeries, SeriesListFragment.SeriesHol
             itemView.scaleY = 1f
 
             this.item = item
+            this.slot = position
             if (item == null) {
                 card = null
                 return
