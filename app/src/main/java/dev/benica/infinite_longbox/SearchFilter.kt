@@ -314,7 +314,7 @@ class SortType(
         get() {
             val columnRef = "${if (table != null) "$table." else ""}$sortColumn"
             val primarySort =
-                "${if (sortColumn == SORT_NAME_COLUMN) nameSortKey(columnRef) else columnRef} " +
+                "${if (sortColumn in NAME_SORT_COLUMNS) nameSortKey(columnRef) else columnRef} " +
                         order.option
 
             val o2 = order2
@@ -369,7 +369,8 @@ class SortType(
 
     @ExperimentalCoroutinesApi
     companion object {
-        private const val SORT_NAME_COLUMN = "sortName"
+        // Series and creators-in-lists sort on a prepared name; characters and creators on their name
+        private val NAME_SORT_COLUMNS = setOf("sortName", "name")
 
         // Leading characters ignored when sorting names: quotes, apostrophes, brackets, dots and
         // symbols. "...To Speak of God" files under T, "'Breed" under B, "@Large" under L.
