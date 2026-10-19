@@ -17,115 +17,74 @@ package dev.benica.infinite_longbox.views
 
 import android.content.Context
 import android.util.AttributeSet
-import android.widget.ImageView
-import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.cardview.widget.CardView
 import dev.benica.infinite_longbox.R
 
+/**
+ * One line telling what the database update is doing: "Updating database…" on the left, and on
+ * the right which part (publishers, series, creators, characters) is being fetched now.
+ */
 class ProgressUpdateCard(context: Context, attributeSet: AttributeSet) :
     CardView(context, attributeSet) {
 
-    private val publisherStatus: ImageView
-    private val publisherProgress: ProgressBar
-
-    private val seriesStatus: ImageView
-    private val seriesProgress: ProgressBar
-
-    private val creatorStatus: ImageView
-    private val creatorProgress: ProgressBar
-
-    private val characterStatus: ImageView
-    private val characterProgress: ProgressBar
+    private val title: TextView
+    private val stage: TextView
 
     init {
         val view = inflate(context, R.layout.fragment_static_update, this)
         (view as CardView).cardElevation = 0f
-        publisherStatus = view.findViewById(R.id.status_publisher)
-        publisherProgress = view.findViewById(R.id.progress_bar_publishers)
-
-        seriesStatus = view.findViewById(R.id.status_series)
-        seriesProgress = view.findViewById(R.id.progress_bar_series)
-
-        creatorStatus = view.findViewById(R.id.status_creators)
-        creatorProgress = view.findViewById(R.id.progress_bar_creators)
-
-        characterStatus = view.findViewById(R.id.status_characters)
-        characterProgress = view.findViewById(R.id.progress_bar_characters)
+        title = view.findViewById(R.id.update_title)
+        stage = view.findViewById(R.id.update_stage)
     }
 
-    private val title: TextView = findViewById(R.id.update_title)
+    val publisherWrapper = ProgressWrapper("Publishers")
+    val seriesWrapper = ProgressWrapper("Series")
+    val creatorWrapper = ProgressWrapper("Creators")
+    val characterWrapper = ProgressWrapper("Characters")
 
     fun setTitle(text: String) {
-        title.post { title.text = text }
+        title.post { title.text = "$text…" }
     }
 
-    /** Shows the starter-database download on the first row. */
-    fun setSeedProgress(done: Long, total: Long) {
-        publisherWrapper.start()
-        publisherWrapper.setMax(100)
-        publisherWrapper.setProgress(if (total > 0) (done * 100 / total).toInt() else 0)
-    }
+    /** The starter-database download is the publishers' turn. */
+    fun setSeedProgress(done: Long, total: Long) = publisherWrapper.start()
 
-    val publisherWrapper = ProgressWrapper(publisherProgress, publisherStatus)
-    val seriesWrapper = ProgressWrapper(seriesProgress, seriesStatus)
-    val creatorWrapper = ProgressWrapper(creatorProgress, creatorStatus)
-    val characterWrapper = ProgressWrapper(characterProgress, characterStatus)
+    private fun showStage(name: String) {
+        stage.post {
+            if (stage.text.toString() == name) return@post
+            stage.animate().cancel()
+            if (stage.text.isEmpty()) {
+                stage.text = name
+                stage.animate().alpha(1f).setDuration(FADE_MS).start()
+            } else {
+                // Fade the old part out, then the new one in
+                stage.animate().alpha(0f).setDuration(FADE_MS).withEndAction {
+                    stage.text = name
+                    stage.animate().alpha(1f).setDuration(FADE_MS).start()
+                }.start()
+            }
+        }
+    }
 
     /**
-     * Drives one row of the card: a progress bar plus a status dot that is waiting (gray), in
-     * progress, or done. May be called from any thread; updates are posted to the UI thread.
+     * One part of the update. May be called from any thread. The updates arrive a page at a time
+     * and finish too quickly to draw a bar for, so a part only announces that it is under way.
      */
-    class ProgressWrapper(
-        private val bar: ProgressBar,
-        private val status: ImageView,
-    ) {
-        private var started = false
+    inner class ProgressWrapper(private val name: String) {
+        /** This part is the one being fetched now. */
+        fun start() = showStage(name)
 
-        private fun updateStatus() {
-            status.setImageResource(
-                when {
-                    bar.max > 0 && bar.progress >= bar.max -> R.drawable.status_done
-                    started -> R.drawable.status_in_progress
-                    else -> R.drawable.status_waiting
-                }
-            )
-        }
+        fun setMax(max: Int) = Unit
 
-        /** Marks this row as the one currently downloading. */
-        fun start() {
-            bar.post {
-                started = true
-                updateStatus()
-            }
-        }
+        fun setProgress(progress: Int) = Unit
 
-        fun setMax(max: Int) {
-            bar.post {
-                bar.max = max
-                updateStatus()
-            }
-        }
+        fun incrementProgress() = showStage(name)
 
-        fun setProgress(progress: Int) {
-            bar.post {
-                bar.progress = progress
-                updateStatus()
-            }
-        }
+        fun isComplete(bool: Boolean) = Unit
+    }
 
-        fun incrementProgress() {
-            bar.post {
-                bar.setProgress(bar.progress + 1, true)
-                updateStatus()
-            }
-        }
-
-        fun isComplete(bool: Boolean) {
-            bar.post {
-                bar.progress = if (bool) bar.max else 0
-                updateStatus()
-            }
-        }
+    private companion object {
+        const val FADE_MS = 180L
     }
 }

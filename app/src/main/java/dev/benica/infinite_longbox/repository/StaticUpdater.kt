@@ -73,7 +73,7 @@ class StaticUpdater private constructor(
             onStart = { progressUpdate.setTitle("Downloading starter database") },
             onProgress = { done, total -> progressUpdate.setSeedProgress(done, total) },
         )
-        progressUpdate.setTitle("Downloading database")
+        progressUpdate.setTitle("Updating database")
     }
 
     /**

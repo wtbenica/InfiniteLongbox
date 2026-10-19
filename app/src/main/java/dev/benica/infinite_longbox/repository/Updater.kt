@@ -288,6 +288,8 @@ abstract class Updater(
         getNumPages: suspend () -> Count,
         progressWrapper: ProgressWrapper? = null
     ) {
+        progressWrapper?.start()
+
         // savePageTag's value is a string of whether each page has been updated, e.g. "tfffttttftt"
         val pagesCompleteSaved: String = prefs.getString(savePageTag, "") ?: ""
 
