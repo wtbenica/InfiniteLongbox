@@ -43,6 +43,7 @@ import dev.benica.infinite_longbox.FilterSnapshot
 import dev.benica.infinite_longbox.SearchFilter
 import dev.benica.infinite_longbox.SortType
 import dev.benica.infinite_longbox.database.models.FilterModel
+import dev.benica.infinite_longbox.database.models.FullSeries
 import dev.benica.infinite_longbox.database.models.ListItem
 import dev.benica.infinite_longbox.fragments_view_models.FilterViewModel
 import dev.benica.infinite_longbox.fragments_view_models.ListViewModel
@@ -50,6 +51,7 @@ import dev.benica.infinite_longbox.views.FastScrollHandle
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import java.time.format.DateTimeFormatter
 
 @ExperimentalCoroutinesApi
 abstract class ListFragment<T : ListItem, VH : RecyclerView.ViewHolder> : Fragment() {
@@ -157,43 +159,65 @@ abstract class ListFragment<T : ListItem, VH : RecyclerView.ViewHolder> : Fragme
         return view
     }
 
-    /** Hooks the scroll handle to the list, and labels it with a letter while it's dragged. */
+    /** Hooks the scroll handle to the list, and labels it with the letter or date it's at. */
     private fun setUpFastScrollHandle(view: View) {
         val handle = view.findViewById<FastScrollHandle>(R.id.fast_scroll_handle)
         handle.attach(listRecyclerView)
         if (!showsLetterBubble) return
 
         handle.listener = object : FastScrollHandle.Listener {
-            override fun onDrag(position: Int) {
-                if (!sortedByName()) return
-                // The list moves on the next frame; read the letter once it has
-                listRecyclerView.post {
-                    val letter = firstVisibleLetter() ?: return@post
-                    fastScrollBubble.text = letter
-                    fastScrollBubble.translationY = handle.thumbCenterY - handle.height / 2f
-                    fastScrollBubble.visibility = View.VISIBLE
-                }
-            }
+            override fun onDrag(position: Int) = showBubble(handle)
 
-            override fun onDragEnd() {
-                fastScrollBubble.postDelayed({ fastScrollBubble.visibility = View.GONE }, 400)
+            override fun onScroll(position: Int) = showBubble(handle)
+
+            override fun onHide() {
+                fastScrollBubble.animate().alpha(0f).setDuration(200)
+                    .withEndAction { fastScrollBubble.visibility = View.GONE }.start()
             }
+        }
+    }
+
+    private fun showBubble(handle: FastScrollHandle) {
+        // The list moves on the next frame; read the label once it has
+        listRecyclerView.post {
+            val label = scrollLabel() ?: return@post
+            fastScrollBubble.animate().cancel()
+            fastScrollBubble.text = label
+            fastScrollBubble.textSize = if (label.length > 1) 20f else 32f
+            fastScrollBubble.translationY = handle.thumbCenterY - handle.height / 2f
+            fastScrollBubble.alpha = 1f
+            fastScrollBubble.visibility = View.VISIBLE
         }
     }
 
     private fun sortedByName(): Boolean =
         viewModel.filter.value?.mSortType?.sortColumn?.contains("name", ignoreCase = true) == true
 
-    /** First letter of the first visible item's name, "#" for numbers; null while it isn't loaded. */
-    private fun firstVisibleLetter(): String? {
+    private fun sortedByDate(): Boolean =
+        viewModel.filter.value?.mSortType?.sortColumn?.contains("date", ignoreCase = true) == true
+
+    /**
+     * What the handle says: the first visible item's initial ("#" for numbers) or, in a list
+     * sorted by date, its month and year. Null while that item isn't loaded.
+     */
+    private fun scrollLabel(): String? {
         val layoutManager = listRecyclerView.layoutManager as? LinearLayoutManager ?: return null
         val position = layoutManager.findFirstVisibleItemPosition()
         if (position < 0) return null
 
         val item = (listRecyclerView.adapter as? PagingDataAdapter<*, *>)?.peek(position)
-        val name = (item as? FilterModel)?.compareValue ?: return null
-        val first = SortType.sortKeyOf(name).firstOrNull() ?: return null
-        return if (first.isLetter()) first.uppercase() else "#"
+        return when {
+            sortedByDate() ->
+                (item as? FullSeries)?.series?.startDate?.format(MONTH_YEAR)
+
+            sortedByName() -> {
+                val name = (item as? FilterModel)?.compareValue ?: return null
+                val first = SortType.sortKeyOf(name).firstOrNull() ?: return null
+                if (first.isLetter()) first.uppercase() else "#"
+            }
+
+            else -> null
+        }
     }
 
     private val activityAppBar: AppBarLayout?
@@ -274,6 +298,7 @@ abstract class ListFragment<T : ListItem, VH : RecyclerView.ViewHolder> : Fragme
         private const val TAG = APP + "ListFragment"
         private const val ARG_SCREEN = "screen"
         private const val KEY_FILTER = "filter"
+        private val MONTH_YEAR: DateTimeFormatter = DateTimeFormatter.ofPattern("MMM yyyy")
 
         /** Makes [this] list start with the filter registered for [screenId]. */
         fun <F : Fragment> F.forScreen(screenId: Int): F = apply {

@@ -52,11 +52,13 @@
         android:layout_height="match_parent"
         app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
-    <!-- The letter shown while the fast-scroll handle is dragged -->
+    <!-- The letter or date the fast-scroll handle is at, shown while the handle is -->
     <TextView
         android:id="@+id/fast_scroll_bubble"
-        android:layout_width="64dp"
+        android:layout_width="wrap_content"
         android:layout_height="64dp"
+        android:minWidth="64dp"
+        android:paddingHorizontal="16dp"
         android:layout_gravity="center_vertical|end"
         android:layout_marginEnd="40dp"
         android:background="@drawable/fast_scroll_bubble"

@@ -40,7 +40,14 @@ class FastScrollHandle(context: Context, attrs: AttributeSet? = null) : View(con
     interface Listener {
         /** The handle was dragged to [position]; the list is scrolling there. */
         fun onDrag(position: Int)
-        fun onDragEnd()
+
+        /** The list scrolled by itself (not dragged) and the handle is showing at [position]. */
+        fun onScroll(position: Int) {}
+
+        /** The handle faded away. */
+        fun onHide() {}
+
+        fun onDragEnd() {}
     }
 
     var listener: Listener? = null
@@ -65,7 +72,10 @@ class FastScrollHandle(context: Context, attrs: AttributeSet? = null) : View(con
     private val restColor = ContextCompat.getColor(context, R.color.accent)
     private val dragColor = ContextCompat.getColor(context, R.color.accent_strong)
 
-    private val hide = Runnable { animate().alpha(0f).setDuration(200).start() }
+    private val hide = Runnable {
+        animate().alpha(0f).setDuration(200).start()
+        listener?.onHide()
+    }
 
     init {
         alpha = 0f
@@ -86,6 +96,7 @@ class FastScrollHandle(context: Context, attrs: AttributeSet? = null) : View(con
             fraction = (first.toFloat() / (total - visible)).coerceIn(0f, 1f)
             show()
             invalidate()
+            listener?.onScroll(first)
         }
     }
 
