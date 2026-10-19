@@ -234,4 +234,52 @@ class CollectionListRefreshTest {
         }
         assertEquals("the series should have appeared once its issue was in the collection", true, appeared)
     }
+
+    /**
+     * A series card whose first issue has no cover falls back to the earliest cover of its other
+     * issues. When that cover arrives the row must change, or the card is never redrawn.
+     */
+    @Test
+    fun aCoverThatArrivesForAnotherIssueOfTheSeriesChangesTheRowSoTheCardIsRedrawn() {
+        runBlocking {
+            db.issueDao().upsertSus(
+                listOf(
+                    Issue(issueId = 100, series = 10, sortCode = 1, issueNumRaw = "1"),
+                    Issue(issueId = 101, series = 10, sortCode = 2, issueNumRaw = "2"),
+                    Issue(issueId = 102, series = 10, sortCode = 3, issueNumRaw = "3"),
+                )
+            )
+            db.collectionItemDao().insertSus(CollectionItem(issue = 101, series = 10, userCollection = 1))
+            // the first issue was looked for and has no cover
+            db.coverDao().setCover(dev.benica.infinite_longbox.database.models.Cover(issue = 100, coverUri = null))
+        }
+        assertEquals(true, showsWithin(1, 5))
+        assertEquals(null, runBlocking(Dispatchers.Main) { differ.getItem(0)?.earliestCoverUri })
+
+        runBlocking {
+            db.coverDao().setCover(
+                dev.benica.infinite_longbox.database.models.Cover(
+                    issue = 102, coverUri = android.net.Uri.parse("/images/COVER_102.jpg")
+                )
+            )
+        }
+        assertEquals("the later issue's cover shows", true, coverShowsWithin("/images/COVER_102.jpg", 5))
+
+        // an earlier issue's cover wins once it is there
+        runBlocking {
+            db.coverDao().setCover(
+                dev.benica.infinite_longbox.database.models.Cover(
+                    issue = 101, coverUri = android.net.Uri.parse("/images/COVER_101.jpg")
+                )
+            )
+        }
+        assertEquals("the earlier issue's cover replaces it", true, coverShowsWithin("/images/COVER_101.jpg", 5))
+    }
+
+    private fun coverShowsWithin(path: String, seconds: Int): Boolean = runBlocking {
+        withTimeoutOrNull(seconds * 1000L) {
+            while (runBlocking(Dispatchers.Main) { differ.getItem(0)?.earliestCoverUri?.path } != path) delay(100)
+            true
+        } ?: false
+    }
 }

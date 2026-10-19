@@ -88,8 +88,18 @@ abstract class SeriesDao : BaseDao<Series>("series") {
             val args: ArrayList<Any> = arrayListOf()
             fun connectWord(): String = if (conditions.isEmpty()) "WHERE" else "AND"
 
+            // The cover a card falls back to is part of the row, so that when it arrives the row
+            // has changed and the list redraws it. The letter counts do not need it.
+            val fallbackCover = if (letterBuckets) "" else """, (
+                        SELECT cv.coverUri
+                        FROM cover cv
+                        JOIN issue ce ON ce.issueId = cv.issue
+                        WHERE ce.series = ss.seriesId AND cv.coverUri IS NOT NULL
+                        ORDER BY (ce.variantOf IS NOT NULL), ce.sortCode
+                        LIMIT 1
+                    ) AS earliestCoverUri"""
             table.append(
-                """SELECT DISTINCT ss.* 
+                """SELECT DISTINCT ss.*$fallbackCover
                         FROM series ss 
                         """
             )

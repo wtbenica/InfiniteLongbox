@@ -15,6 +15,7 @@
 
 package dev.benica.infinite_longbox.database.models
 
+import android.net.Uri
 import androidx.room.*
 import dev.benica.infinite_longbox.InfiniteLongboxApplication.Companion.context
 import dev.benica.infinite_longbox.R
@@ -195,7 +196,13 @@ data class FullSeries(
     val seriesBondFrom: Bond? = null,
 
     @Relation(parentColumn = "firstIssue", entityColumn = "issue", entity = Cover::class)
-    val firstIssueCover: Cover? = null
+    val firstIssueCover: Cover? = null,
+
+    /**
+     * The earliest cover the phone has for any issue of the series (regular issues before
+     * variants), for a card whose first issue has none. Only the series list's query fills it in.
+     */
+    val earliestCoverUri: Uri? = null,
 ) : ListItem, FilterModel {
     override val tagName: String
         get() = "Series"

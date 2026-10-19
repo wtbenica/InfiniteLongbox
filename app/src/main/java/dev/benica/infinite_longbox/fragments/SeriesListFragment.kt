@@ -143,7 +143,7 @@ class SeriesListFragment : ListFragment<FullSeries, SeriesListFragment.SeriesHol
             }
 
             val firstIssue: FullIssue? = item.firstIssue
-            val coverUri = firstIssue?.coverUri
+            val coverUri = firstIssue?.coverUri ?: item.earliestCoverUri
 
             card = SeriesCardState(
                 name = item.series.seriesName,
@@ -154,15 +154,12 @@ class SeriesListFragment : ListFragment<FullSeries, SeriesListFragment.SeriesHol
                 loadingCover = !(firstIssue == null || coverUri != null || firstIssue.cover != null),
             )
 
-            // No cover for the first issue: use the series' earliest one that has a cover
-            if (coverUri == null) {
-                val seriesId = item.series.seriesId
-                viewModel.loadEarliestCover(seriesId) { uri ->
-                    val path = uri?.path ?: return@loadEarliestCover
-                    if (this.item?.series?.seriesId == seriesId) {
-                        card = card?.copy(cover = File(path), loadingCover = false)
-                    }
-                }
+            // No cover for the first issue: the card falls back to the series' earliest cover
+            // (item.earliestCoverUri), and goes and gets one if the phone has none
+            if (coverUri == null &&
+                shouldFetchSeriesCover(false, firstIssue != null, firstIssue?.cover != null)
+            ) {
+                viewModel.fetchSeriesCover(item.series.seriesId)
             }
         }
     }

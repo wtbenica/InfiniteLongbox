@@ -279,6 +279,26 @@ class StaticUpdater private constructor(
         database.issueDao().upsertSus(issues)
     }
 
+    /**
+     * A series card shows its first issue's cover, and when that issue has none, the earliest
+     * cover the phone has for any issue of the series. Nothing fetches covers for the other
+     * issues until the series is opened, so this asks the server which of them have one, and
+     * fetches the earliest. The card refreshes when the cover is saved.
+     */
+    internal suspend fun fetchSeriesCover(seriesId: Int) {
+        val issueId = try {
+            webservice.getSeriesCovers(listOf(seriesId))[seriesId.toString()]?.firstOrNull()
+        } catch (e: java.io.IOException) {
+            Log.d(TAG, "fetchSeriesCover $e")
+            null
+        } catch (e: retrofit2.HttpException) {
+            Log.d(TAG, "fetchSeriesCover $e")
+            null
+        } ?: return
+        if (database.issueDao().getIssueSus(issueId) == null) importIssuesById(listOf(issueId))
+        UpdateIssueCover.get().update(issueId)
+    }
+
     private suspend fun updateIssueFromGcd(issueId: Int) {
         if (checkIfStale(issueTag(issueId), WEEKLY, prefs)) {
             retrieveItemsByArgument(listOf(issueId), webservice::getIssuesByIds)

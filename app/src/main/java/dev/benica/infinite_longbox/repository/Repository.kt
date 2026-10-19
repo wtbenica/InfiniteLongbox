@@ -306,6 +306,18 @@ class Repository private constructor(val context: Context) {
         }
     }
 
+    private val seriesCoverRequested = java.util.concurrent.ConcurrentHashMap.newKeySet<Int>()
+
+    /**
+     * Fetches a cover for a series whose first issue has none (see [StaticUpdater.fetchSeriesCover]).
+     * Asked once per series while the app runs: a card binds again each time it scrolls into view.
+     */
+    fun fetchSeriesCover(seriesId: Int) {
+        if (hasConnection && seriesCoverRequested.add(seriesId)) {
+            CoroutineScope(Dispatchers.IO).launch { updater.fetchSeriesCover(seriesId) }
+        }
+    }
+
     fun getIssue(issueId: Int, markedDelete: Boolean = true): Flow<FullIssue?> {
         updateIssue(issueId, markedDelete)
         return issueDao.getFullIssue(issueId)
@@ -339,8 +351,6 @@ class Repository private constructor(val context: Context) {
         sort(res)
         res
     }
-
-    suspend fun getEarliestCoverUri(seriesId: Int): Uri? = coverDao.getEarliestCoverUri(seriesId)
 
     fun updateIssueCover(issueId: Int) {
         if (hasConnection) {

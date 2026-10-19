@@ -92,6 +92,10 @@ interface Webservice {
         @Query("limit") limit: Int? = null,
     ): List<Item<GcdIssue, Issue>>
 
+    /** For each series, the earliest of its issues that have a cover on the server. */
+    @GET("/db_query/series/covers/{seriesIds}")
+    suspend fun getSeriesCovers(@Path("seriesIds") seriesIds: List<Int>): Map<String, List<Int>>
+
     @GET("/db_query/issue/ids/{issueIds}")
     suspend fun getIssuesByIds(@Path("issueIds") issueIds: List<Int>): List<Item<GcdIssue, Issue>>
 

@@ -15,7 +15,6 @@
 
 package dev.benica.infinite_longbox.fragments_view_models
 
-import android.net.Uri
 import androidx.lifecycle.asFlow
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.switchMap
@@ -47,12 +46,8 @@ class SeriesListViewModel : ListViewModel<FullSeries>() {
         repository.updateIssue(issueId, markedDelete)
     }
 
-    /** Looks up the series' earliest existing cover off the main thread; [onResult] gets null if none. */
-    internal fun loadEarliestCover(seriesId: Int, onResult: (Uri?) -> Unit) {
-        viewModelScope.launch {
-            onResult(withContext(Dispatchers.IO) { repository.getEarliestCoverUri(seriesId) })
-        }
-    }
+    /** Fetches a cover for a series whose first issue has none, from one of its other issues. */
+    internal fun fetchSeriesCover(seriesId: Int) = repository.fetchSeriesCover(seriesId)
 
     private fun getIssueBySeries(series: FullSeries) =
         repository.getIssuesByFilter(SearchFilter(series = series))

@@ -37,19 +37,6 @@ abstract class CoverDao : BaseDao<Cover>("cover") {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     abstract suspend fun setCover(cover: Cover)
 
-    /** The series' earliest cover that exists, regular issues before variants. */
-    @Query(
-        """
-        SELECT cv.coverUri
-        FROM cover cv
-        JOIN issue ie ON ie.issueId = cv.issue
-        WHERE ie.series = :seriesId AND cv.coverUri IS NOT NULL
-        ORDER BY (ie.variantOf IS NOT NULL), ie.sortCode
-        LIMIT 1
-        """
-    )
-    abstract suspend fun getEarliestCoverUri(seriesId: Int): Uri?
-
     @Query("DELETE FROM cover WHERE issue = :issueId")
     abstract suspend fun deleteForIssue(issueId: Int)
 
