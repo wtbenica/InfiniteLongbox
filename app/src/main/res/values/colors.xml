@@ -78,6 +78,9 @@
 
     <!-- The wash over covers and blank covers, and the title chip that sits on a blank cover -->
     <color name="cover_wash">#AAFFFFFF</color>
+
+    <!-- What cards and covers cast: a shadow by day, a glow by night -->
+    <color name="card_shadow">@color/neutral_900</color>
     <color name="masthead_chip">#CCEEEEEE</color>
     <color name="masthead_ink">#111111</color>
 

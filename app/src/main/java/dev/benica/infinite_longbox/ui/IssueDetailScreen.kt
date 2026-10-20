@@ -37,8 +37,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.dropShadow
-import androidx.compose.ui.graphics.shadow.Shadow
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
@@ -112,13 +110,7 @@ fun IssueDetailScreen(
                                 .padding(
                                     dimensionResource(R.dimen.margin_default)
                                 )
-                                .dropShadow(
-                                    shape = RoundedCornerShape(8.dp),
-                                    shadow = Shadow(
-                                        radius = 6.dp,
-                                        color = colorResource(R.color.card_border),
-                                    )
-                                ),
+                                .cardShadow(RoundedCornerShape(8.dp)),
                             border = BorderStroke(4.dp, colorResource(R.color.card_border)),
                             shape = RoundedCornerShape(8.dp),
                         ) {

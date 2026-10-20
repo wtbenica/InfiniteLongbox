@@ -36,8 +36,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.dropShadow
-import androidx.compose.ui.graphics.shadow.Shadow
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
@@ -67,16 +65,7 @@ fun NameListItem(
 ) {
     Card(
         onClick = onClick,
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(dimensionResource(R.dimen.margin_narrow))
-            .dropShadow(
-                shape = RoundedCornerShape(dimensionResource(R.dimen.radius_list_item_series)),
-                shadow = Shadow(
-                    radius = 6.dp,
-                    color = colorResource(R.color.card_border),
-                )
-            ),
+        modifier = modifier.listCardFrame(RoundedCornerShape(dimensionResource(R.dimen.radius_list_item_series))),
         shape = RoundedCornerShape(dimensionResource(R.dimen.radius_list_item_series)),
         colors = CardDefaults.cardColors(containerColor = colorResource(R.color.surface_raised)),
         border = BorderStroke(4.dp, colorResource(R.color.card_border)),

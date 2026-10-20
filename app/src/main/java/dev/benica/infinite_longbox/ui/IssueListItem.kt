@@ -51,8 +51,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.dropShadow
-import androidx.compose.ui.graphics.shadow.Shadow
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
@@ -85,25 +83,12 @@ data class IssueCardState(
     val inWishList: Boolean,
 )
 
-/** The card's room around it, so its shadow shows, and the shadow; the skeleton has the same. */
-@Composable
-private fun Modifier.issueCardFrame(shape: RoundedCornerShape): Modifier = this
-    .fillMaxWidth()
-    .padding(dimensionResource(R.dimen.margin_default))
-    .dropShadow(
-        shape = shape,
-        shadow = Shadow(
-            radius = 6.dp,
-            color = colorResource(R.color.card_border)
-        ),
-    )
-
 /** A card for an issue still loading: the placeholder cover, in the shape of a real card. */
 @Composable
 fun IssueListItemSkeleton(modifier: Modifier = Modifier, placeholderKey: String = "") {
     val cardShape = RoundedCornerShape(dimensionResource(R.dimen.radius_list_item_issue))
     Card(
-        modifier = modifier.issueCardFrame(cardShape),
+        modifier = modifier.listCardFrame(cardShape),
         shape = cardShape,
         colors = CardDefaults.cardColors(containerColor = colorResource(R.color.surface_raised)),
     ) {
@@ -137,7 +122,7 @@ fun IssueListItem(
 
     Card(
         onClick = onClick,
-        modifier = modifier.issueCardFrame(cardShape),
+        modifier = modifier.listCardFrame(cardShape),
         shape = cardShape,
         colors = CardDefaults.cardColors(containerColor = colorResource(R.color.surface_raised)),
     ) {

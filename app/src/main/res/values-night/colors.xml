@@ -38,6 +38,7 @@
 
     <!-- Dark: the wash darkens covers instead of fading them to white -->
     <color name="cover_wash">#99181716</color>
+    <color name="card_shadow">#99A9A59E</color>
     <color name="masthead_chip">#CC333230</color>
     <color name="masthead_ink">@color/neutral_50</color>
 

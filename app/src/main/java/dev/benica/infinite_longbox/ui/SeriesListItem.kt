@@ -42,9 +42,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithCache
-import androidx.compose.ui.draw.dropShadow
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.shadow.Shadow
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
@@ -90,18 +88,7 @@ private fun SeriesCard(
 
     Card(
         onClick = onClick,
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(
-                dimensionResource(R.dimen.margin_default)
-            )
-            .dropShadow(
-                shape = shape,
-                shadow = Shadow(
-                    radius = 6.dp,
-                    color = colorResource(R.color.card_border),
-                )
-            ),
+        modifier = modifier.listCardFrame(shape),
         shape = shape,
         colors = CardDefaults.cardColors(containerColor = colorResource(R.color.surface_raised)),
         border = BorderStroke(4.dp, colorResource(R.color.card_border)),
