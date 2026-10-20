@@ -76,6 +76,11 @@
     <!-- Text laid over cover art needs a backing so it stays readable -->
     <color name="scrim_surface">#49F7F6F3</color>
 
+    <!-- The wash over covers and blank covers, and the title chip that sits on a blank cover -->
+    <color name="cover_wash">#AAFFFFFF</color>
+    <color name="masthead_chip">#CCEEEEEE</color>
+    <color name="masthead_ink">#111111</color>
+
     <!-- Placeholder art shown where a cover isn't available -->
     <color name="placeholder_sky">@color/neutral_100</color>
     <color name="placeholder_hill_far">@color/accent_100</color>

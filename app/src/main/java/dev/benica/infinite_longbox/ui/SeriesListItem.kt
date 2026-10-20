@@ -122,6 +122,10 @@ private fun SeriesCard(
                     .scrim()
             )
 
+            if (state != null && state.cover == null) {
+                TitlePlaceholder(state.name, Modifier.matchParentSize(), showArt = false)
+            }
+
             // Title block over a scrim; its height sets the card's height
             Box {
                 Column(
@@ -281,7 +285,8 @@ internal val COVER_WINDOW = 150.dp
 private fun Cover(state: SeriesCardState, modifier: Modifier) {
     val file = state.cover
     if (file == null) {
-        TitlePlaceholder(state.name, modifier)
+        // The card's wash goes between the art and the title, so the title isn't washed
+        TitlePlaceholder(state.name, modifier, showTitle = false)
     } else {
         // The file name stays the same when a cover is replaced, so key on its modified time
         val request = ImageRequest.Builder(LocalContext.current)

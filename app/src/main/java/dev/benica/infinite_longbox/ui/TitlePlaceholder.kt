@@ -41,6 +41,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.colorResource
 import dev.benica.infinite_longbox.R
 import dev.benica.infinite_longbox.database.models.FullIssue
 
@@ -84,23 +85,33 @@ private const val MASTHEAD_RIGHT = 0.969f
 private const val MASTHEAD_TOP = 0.0194f
 private const val MASTHEAD_BOTTOM = 0.172f
 
-/** Dark ink for the pale masthead, whatever the theme */
-private val MASTHEAD_INK = Color(0xFF111111)
-
-/** Stands in for a missing series cover: the blank cover with the series title in its masthead. */
+/**
+ * Stands in for a missing series cover: the blank cover with the series title in its masthead.
+ *
+ * The two halves can be drawn apart ([showArt], [showTitle]) so a card can put its wash between
+ * them: the art is washed and the title stays crisp over it.
+ */
 @Composable
-fun TitlePlaceholder(name: String, modifier: Modifier = Modifier) {
+fun TitlePlaceholder(
+    name: String,
+    modifier: Modifier = Modifier,
+    showArt: Boolean = true,
+    showTitle: Boolean = true,
+) {
     BoxWithConstraints(modifier.clipToBounds()) {
         val width = maxWidth
         val imageHeight = width * IMAGE_HEIGHT_PER_WIDTH
 
         // The series card washes its own cover area, so no second wash here
-        PlaceholderCover(
-            key = name,
-            modifier = Modifier.fillMaxWidth(),
-            contentScale = ContentScale.FillWidth,
-            scrim = false,
-        )
+        if (showArt) {
+            PlaceholderCover(
+                key = name,
+                modifier = Modifier.fillMaxWidth(),
+                contentScale = ContentScale.FillWidth,
+                scrim = false,
+            )
+        }
+        if (!showTitle) return@BoxWithConstraints
 
         val mastheadHeight = imageHeight * (MASTHEAD_BOTTOM - MASTHEAD_TOP)
 
@@ -115,7 +126,7 @@ fun TitlePlaceholder(name: String, modifier: Modifier = Modifier) {
             contentAlignment = Alignment.Center,
         ) {
             Surface(
-                color = Color(0xCCEEEEEE),
+                color = colorResource(R.color.masthead_chip),
                 shape = RoundedCornerShape(mastheadHeight / 6)
             ) {
                 Box(
@@ -126,7 +137,7 @@ fun TitlePlaceholder(name: String, modifier: Modifier = Modifier) {
                         text = name,
                         style = TextStyle(
                             fontFamily = shareTech,
-                            color = MASTHEAD_INK,
+                            color = colorResource(R.color.masthead_ink),
                             textAlign = TextAlign.Center,
                         ),
                         maxLines = 3,

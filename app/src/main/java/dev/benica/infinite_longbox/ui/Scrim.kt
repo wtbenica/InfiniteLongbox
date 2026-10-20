@@ -20,23 +20,27 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
+import dev.benica.infinite_longbox.R
 
 /**
- * The one place overlays on covers are defined: a whitewash that fades the artwork so text and
- * controls read over it.
+ * The one place overlays on covers are defined: a wash (white, or dark in dark mode) that fades
+ * the artwork so text and controls read over it.
  * - Every missing-cover placeholder gets it, via [PlaceholderCover].
  * - Every series card gets it behind its title tab, whether it has a cover (see
  *   SeriesListItem), so a series placeholder doesn't use [PlaceholderCover]'s own.
  */
-private val ScrimColor = Color(0xAAFFFFFF)
-
 /** Washes whatever this element draws; an empty, sized element becomes a plain band. */
-fun Modifier.scrim(): Modifier = drawWithContent {
-    drawContent()
-    drawRect(ScrimColor)
+@Composable
+fun Modifier.scrim(): Modifier {
+    // A whitewash by day; by night it darkens instead, so covers don't glare
+    val wash = colorResource(R.color.cover_wash)
+    return drawWithContent {
+        drawContent()
+        drawRect(wash)
+    }
 }
 
 /**

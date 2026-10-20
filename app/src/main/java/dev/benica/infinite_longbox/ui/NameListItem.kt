@@ -156,7 +156,7 @@ fun NameListItem(
                                     Icon(
                                         painter = painterResource(R.drawable.ic_info_outline),
                                         contentDescription = infoDescription,
-                                        tint = colorResource(R.color.card_border),
+                                        tint = colorResource(R.color.text_primary),
                                     )
                                 }
                             }
