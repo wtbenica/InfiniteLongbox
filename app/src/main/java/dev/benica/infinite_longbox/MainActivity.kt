@@ -743,9 +743,10 @@ class MainActivity : AppCompatActivity(),
     }
 
     // ListFragmentCallback
-    override fun setTitle(title: String?) {
+    override fun setTitle(title: String?, subtitle: String?) {
         val actual = title ?: applicationInfo.loadLabel(packageManager)
         toolbar.title = actual
+        toolbar.subtitle = subtitle
     }
 
     override fun setToolbarScrollFlags(flags: Int) {

@@ -15,31 +15,44 @@
 
 package dev.benica.infinite_longbox.ui
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Surface
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.sp
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.dropShadow
+import androidx.compose.ui.graphics.shadow.Shadow
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.dp
 import dev.benica.infinite_longbox.R
 import dev.benica.infinite_longbox.database.models.FullCharacter
 import dev.benica.infinite_longbox.database.models.Issue
 import dev.benica.infinite_longbox.database.models.NameDetailAndCreator
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 /** Everything the issue detail screen shows, gathered in one place. */
+@OptIn(ExperimentalCoroutinesApi::class)
 data class IssueDetailUiState(
     val cover: IssueCoverState = IssueCoverState(),
     val info: IssueInfoState = IssueInfoState(),
@@ -51,6 +64,7 @@ data class IssueDetailUiState(
 )
 
 /** What the screen can ask for; the fragment decides what each one does. */
+@OptIn(ExperimentalCoroutinesApi::class)
 @Immutable
 class IssueDetailActions(
     val onCoverClick: () -> Unit,
@@ -68,6 +82,7 @@ class IssueDetailActions(
  * The whole issue detail page: the cover beside its info and actions, the variant selector and
  * the credits scroll together; the jump bar and the attribution links stay at the bottom.
  */
+@OptIn(ExperimentalCoroutinesApi::class)
 @Composable
 fun IssueDetailScreen(
     state: IssueDetailUiState,
@@ -89,12 +104,31 @@ fun IssueDetailScreen(
         ) {
             CoverBeside(
                 cover = {
-                    IssueCover(
-                        state = state.cover,
-                        onClick = actions.onCoverClick,
-                        onLongClick = actions.onCoverLongClick,
-                        modifier = Modifier.padding(narrow),
-                    )
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Surface(
+                            modifier = Modifier
+                                .padding(
+                                    dimensionResource(R.dimen.margin_default)
+                                )
+                                .dropShadow(
+                                    shape = RoundedCornerShape(8.dp),
+                                    shadow = Shadow(
+                                        radius = 6.dp,
+                                        color = colorResource(R.color.card_border),
+                                    )
+                                ),
+                            border = BorderStroke(4.dp, colorResource(R.color.card_border)),
+                            shape = RoundedCornerShape(8.dp),
+                        ) {
+                            IssueCover(
+                                state = state.cover,
+                                onClick = actions.onCoverClick,
+                                onLongClick = actions.onCoverLongClick,
+                            )
+                        }
+                    }
                 },
                 beside = {
                     Column(Modifier.fillMaxSize()) {
@@ -166,6 +200,7 @@ private fun CoverBeside(
     }
 }
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @Preview(showBackground = true)
 @Composable
 private fun IssueDetailScreenPreview() {

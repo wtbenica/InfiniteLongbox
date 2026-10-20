@@ -47,7 +47,9 @@ private val coverFormat = DateTimeFormatter.ofPattern("MMM yyyy")
 
 @Composable
 fun IssueInfoBox(state: IssueInfoState, modifier: Modifier = Modifier) {
-    Column(modifier = modifier.fillMaxWidth().verticalScroll(rememberScrollState())) {
+    Column(modifier = modifier
+        .fillMaxWidth()
+        .verticalScroll(rememberScrollState())) {
         state.releaseDate?.let {
             InfoRow(stringResource(R.string.label_release_date), it.format(releaseFormat))
         }

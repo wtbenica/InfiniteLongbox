@@ -29,9 +29,13 @@
 
     <style name="myActionBarStyle" parent="Widget.AppCompat.ActionBar.Solid">
         <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">?attr/actionBarSize</item>
+        <!-- Grows when there is a subtitle, so it isn't cut off -->
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:minHeight">?attr/actionBarSize</item>
         <item name="titleTextColor">?attr/textColorTitleBar</item>
         <item name="titleTextAppearance">@style/myActionBarText</item>
+        <item name="subtitleTextColor">?attr/textColorTitleBar</item>
+        <item name="subtitleTextAppearance">@style/myActionBarSubtitle</item>
         <item name="layout_scrollFlags">scroll|enterAlways</item>
     </style>
 
@@ -39,6 +43,11 @@
         <item name="android:textSize">24sp</item>
         <item name="android:textStyle">bold</item>
         <item name="textAllCaps">true</item>
+        <item name="android:fontFamily">?attr/fontBlock</item>
+    </style>
+
+    <style name="myActionBarSubtitle" parent="TextAppearance.AppCompat.Widget.ActionBar.Subtitle">
+        <item name="android:textSize">14sp</item>
         <item name="android:fontFamily">?attr/fontBlock</item>
     </style>
 

@@ -59,11 +59,12 @@ import dev.benica.infinite_longbox.repository.pickedCoverToIssue
 import dev.benica.infinite_longbox.repository.removeCover
 import dev.benica.infinite_longbox.ui.InfiniteLongboxTheme
 import dev.benica.infinite_longbox.ui.IssueActionState
+import dev.benica.infinite_longbox.ui.IssueCoverState
 import dev.benica.infinite_longbox.ui.IssueDetailActions
 import dev.benica.infinite_longbox.ui.IssueDetailScreen
 import dev.benica.infinite_longbox.ui.IssueDetailUiState
-import dev.benica.infinite_longbox.ui.IssueCoverState
 import dev.benica.infinite_longbox.ui.IssueInfoState
+import dev.benica.infinite_longbox.ui.IssueNumberText
 import dev.benica.infinite_longbox.ui.JumpBarState
 import dev.benica.infinite_longbox.ui.VariantSelectorState
 import dev.benica.infinite_longbox.ui.buildStoryUi
@@ -203,7 +204,7 @@ class IssueDetailFragment : Fragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?,
-    ): View? {
+    ): View {
 
         return ComposeView(requireContext()).apply {
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
@@ -215,10 +216,16 @@ class IssueDetailFragment : Fragment() {
                             onCoverClick = ::onCoverClicked,
                             onCoverLongClick = ::showCoverOptions,
                             onToggleCollection = {
-                                toggleCollection(BaseCollection.MY_COLL.id, uiState.actions.inCollection)
+                                toggleCollection(
+                                    BaseCollection.MY_COLL.id,
+                                    uiState.actions.inCollection
+                                )
                             },
                             onToggleWishList = {
-                                toggleCollection(BaseCollection.WISH_LIST.id, uiState.actions.inWishList)
+                                toggleCollection(
+                                    BaseCollection.WISH_LIST.id,
+                                    uiState.actions.inWishList
+                                )
                             },
                             onSearchEbay = ::searchEbay,
                             onVariantSelected = ::onVariantSelected,
@@ -400,11 +407,21 @@ class IssueDetailFragment : Fragment() {
     private fun updateUI() {
         val issue: Issue = currentIssue.issue
         if (issue.issueId != AUTO_ID) {
-            listFragmentCallback?.setTitle("$currentIssue")
+            val series = currentIssue.series
+            listFragmentCallback?.setTitle(
+                series.seriesName,
+                IssueNumberText.subtitle(
+                    issue.issueNumRaw, series.publishingFormat, series.issueCount, series.endDate != null
+                ),
+            )
 
             val collectionIds: List<Int> = currentIssue.collectionItems.map { it.userCollection }
             uiState = uiState.copy(
-                info = IssueInfoState(issue.releaseDate, issue.coverDate, issue.notes),
+                info = IssueInfoState(
+                    releaseDate = issue.releaseDate,
+                    coverDate = issue.coverDate,
+                    notes = issue.notes
+                ),
                 actions = IssueActionState(
                     issueId = issue.issueId,
                     inCollection = collectionIds.contains(BaseCollection.MY_COLL.id),

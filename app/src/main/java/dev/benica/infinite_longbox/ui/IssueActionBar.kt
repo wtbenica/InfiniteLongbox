@@ -96,14 +96,14 @@ fun IssueActionBar(
         Action(R.string.label_find) {
             Box(
                 modifier = Modifier
-                    .size(40.dp)
+                    .size(48.dp)
                     .clickable(role = Role.Button, onClick = onSearchEbay),
                 contentAlignment = Alignment.Center,
             ) {
                 Image(
                     painter = painterResource(R.drawable.ic_search_24),
                     contentDescription = stringResource(R.string.description_search_ebay),
-                    modifier = Modifier.size(24.dp),
+                    modifier = Modifier.size(40.dp),
                     colorFilter = ColorFilter.tint(tint),
                 )
             }

@@ -358,7 +358,8 @@ abstract class ListFragment<T : ListItem, VH : RecyclerView.ViewHolder> : Fragme
     }
 
     interface ListFragmentCallback {
-        fun setTitle(title: String? = null)
+        /** [subtitle] is the smaller line under the title; every call sets both, so it clears. */
+        fun setTitle(title: String? = null, subtitle: String? = null)
         fun setToolbarScrollFlags(flags: Int)
         fun updateFilter(filter: SearchFilter)
 
