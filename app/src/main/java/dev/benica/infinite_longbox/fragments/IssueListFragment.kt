@@ -16,16 +16,21 @@
 package dev.benica.infinite_longbox.fragments
 
 import android.os.Bundle
-import android.view.*
-import androidx.core.view.MenuHost
-import androidx.core.view.MenuProvider
-import androidx.lifecycle.Lifecycle
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
+import android.view.View
+import android.view.ViewGroup
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
+import androidx.core.view.MenuHost
+import androidx.core.view.MenuProvider
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
 import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.GridLayoutManager
@@ -43,8 +48,8 @@ import dev.benica.infinite_longbox.ui.IssueListItem
 import dev.benica.infinite_longbox.ui.IssueListItemSkeleton
 import dev.benica.infinite_longbox.ui.placeholderKey
 import dev.benica.infinite_longbox.views.SeriesDetailBox
-import java.io.File
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import java.io.File
 
 @ExperimentalCoroutinesApi
 class IssueListFragment : ListFragment<FullIssue, IssueListFragment.IssueViewHolder>() {
@@ -125,7 +130,7 @@ class IssueListFragment : ListFragment<FullIssue, IssueListFragment.IssueViewHol
         super.onDestroyView()
     }
 
-//                //  exists an issue number 1, then violates unique series/issue restraint in db
+    //                //  exists an issue number 1, then violates unique series/issue restraint in db
 //                val issue = filter.mSeries?.let { Issue(seriesId = it.seriesId) } ?: Issue()
 //                issueListViewModel.addIssue(issue)
 //                issueListCallback?.onNewIssue(issue.issueId)
@@ -154,7 +159,7 @@ class IssueListFragment : ListFragment<FullIssue, IssueListFragment.IssueViewHol
     ) {
         private var fullIssue: FullIssue? = null
         private var card by mutableStateOf<IssueCardState?>(null)
-        private var slot by mutableStateOf(0)
+        private var slot by mutableIntStateOf(0)
 
         init {
             (itemView as ComposeView).setContent {
@@ -170,8 +175,18 @@ class IssueListFragment : ListFragment<FullIssue, IssueListFragment.IssueViewHol
                                     (callback as IssueListCallback?)?.onIssueSelected(it)
                                 }
                             },
-                            onToggleCollection = { toggle(BaseCollection.MY_COLL.id, state.inCollection) },
-                            onToggleWishList = { toggle(BaseCollection.WISH_LIST.id, state.inWishList) },
+                            onToggleCollection = {
+                                toggle(
+                                    BaseCollection.MY_COLL.id,
+                                    state.inCollection
+                                )
+                            },
+                            onToggleWishList = {
+                                toggle(
+                                    BaseCollection.WISH_LIST.id,
+                                    state.inWishList
+                                )
+                            },
                         )
                     }
                 }

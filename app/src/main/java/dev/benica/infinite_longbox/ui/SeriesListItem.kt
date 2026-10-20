@@ -42,11 +42,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithCache
+import androidx.compose.ui.draw.dropShadow
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.shadow.Shadow
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -90,10 +93,16 @@ private fun SeriesCard(
         modifier = modifier
             .fillMaxWidth()
             .padding(
-                dimensionResource(R.dimen.margin_narrow)
+                dimensionResource(R.dimen.margin_default)
+            )
+            .dropShadow(
+                shape = shape,
+                shadow = Shadow(
+                    radius = 6.dp,
+                    color = colorResource(R.color.card_border),
+                )
             ),
         shape = shape,
-        elevation = CardDefaults.cardElevation(defaultElevation = dimensionResource(R.dimen.margin_narrow)),
         colors = CardDefaults.cardColors(containerColor = colorResource(R.color.surface_raised)),
         border = BorderStroke(4.dp, colorResource(R.color.card_border)),
     ) {
@@ -246,11 +255,17 @@ internal fun Bar(modifier: Modifier) {
 }
 
 @Composable
-internal fun Subtitle(text: String, modifier: Modifier = Modifier) {
+internal fun Subtitle(
+    text: String,
+    modifier: Modifier = Modifier,
+    maxLines: Int = 1,
+    textAlign: TextAlign? = null,
+) {
     Text(
         text = text,
         modifier = modifier,
-        maxLines = 1,
+        textAlign = textAlign,
+        maxLines = maxLines,
         overflow = TextOverflow.Ellipsis,
         color = MaterialTheme.colorScheme.onSurface,
         fontFamily = PermanentMarker,
