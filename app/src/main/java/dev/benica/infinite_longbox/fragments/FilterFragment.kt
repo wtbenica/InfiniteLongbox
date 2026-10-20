@@ -26,6 +26,13 @@ import android.view.View.*
 import android.view.ViewGroup
 import android.widget.*
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.ViewCompositionStrategy
+import dev.benica.infinite_longbox.ui.FilterSheetHeader
+import dev.benica.infinite_longbox.ui.InfiniteLongboxTheme
 import androidx.core.view.*
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -63,7 +70,7 @@ class FilterFragment : Fragment(),
     // Views
     private lateinit var filterView: FrameLayout
     private lateinit var handleBox: FrameLayout
-    private lateinit var handleImage: ImageView
+    private var handleSummary by mutableStateOf("")
 
     private lateinit var chipSections: LinearLayout
 
@@ -126,6 +133,7 @@ class FilterFragment : Fragment(),
             viewLifecycleOwner
         ) { filter ->
             currFilter = filter
+            showSummary(filter)
             updateFilterCard(filter)
             sortChipGroup.update(filter)
             optionsChipGroup.update(filter)
@@ -150,8 +158,13 @@ class FilterFragment : Fragment(),
             insets
         }
 
-        handleImage.setOnClickListener {
-            callback?.onHandleClick()
+        handleBox.findViewById<ComposeView>(R.id.handle_compose).apply {
+            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+            setContent {
+                InfiniteLongboxTheme {
+                    FilterSheetHeader(handleSummary, onClick = { callback?.onHandleClick() })
+                }
+            }
         }
 
         sortChipGroup.setOnCheckedChangeListener { _, checkedId ->
@@ -189,7 +202,6 @@ class FilterFragment : Fragment(),
     private fun onCreateViewFindViews(view: View) {
         filterView = view.findViewById(R.id.layout_filter_fragment)
         handleBox = view.findViewById(R.id.layout_filter_fragment_handle)
-        handleImage = view.findViewById(R.id.handle_handle)
 
         sections = view.findViewById(R.id.sections)
         chipSections = view.findViewById(R.id.chip_sections)
@@ -247,6 +259,24 @@ class FilterFragment : Fragment(),
             .apply {
                 type = Publisher.Companion::class
             }
+    }
+
+    /** The collapsed sheet's line saying what the list is filtered by. */
+    private fun showSummary(filter: SearchFilter) {
+        val text = FilterSummary.of(
+            myCollection = filter.mMyCollection,
+            myCollectionLabel = getString(R.string.filter_summary_my_collection),
+            series = filter.mSeries?.series?.seriesName,
+            character = filter.mCharacter?.name,
+            creators = filter.mCreators.map { it.name },
+            publishers = filter.mPublishers.map { it.publisher },
+            startYear = filter.mStartDate.takeIf { it != SearchFilter.MIN_DATE }?.year,
+            endYear = filter.mEndDate.takeIf { it != SearchFilter.MAX_DATE }?.year,
+            text = filter.mTextFilter?.text,
+            creatorsLabel = { resources.getQuantityString(R.plurals.filter_summary_creators, it, it) },
+            publishersLabel = { resources.getQuantityString(R.plurals.filter_summary_publishers, it, it) },
+        )
+        handleSummary = text
     }
 
     internal fun onSlide(slideOffset: Float) {

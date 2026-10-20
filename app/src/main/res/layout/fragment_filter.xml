@@ -33,11 +33,11 @@
             style="@style/HandleFrameLayout"
             android:elevation="1dp">
 
-            <ImageView
-                android:id="@+id/handle_handle"
-                style="@style/Handle"
+            <!-- The arrow and what the list is filtered by: Compose, and all of it opens the sheet -->
+            <androidx.compose.ui.platform.ComposeView
+                android:id="@+id/handle_compose"
                 android:layout_width="match_parent"
-                android:contentDescription="@string/bottom_sheet_handle_description" />
+                android:layout_height="@dimen/peek_height" />
         </FrameLayout>
 
         <LinearLayout

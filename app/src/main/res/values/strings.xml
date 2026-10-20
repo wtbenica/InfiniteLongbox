@@ -171,4 +171,15 @@
     <string name="creator_about">About</string>
     <string name="creator_load_failed">Couldn\'t load this creator\'s details.</string>
     <string name="creator_no_details">Nothing more is known about this creator yet.</string>
+
+    <!-- Filter summary on the collapsed sheet -->
+    <string name="filter_summary_my_collection">My Collection</string>
+    <plurals name="filter_summary_creators">
+        <item quantity="one">%d creator</item>
+        <item quantity="other">%d creators</item>
+    </plurals>
+    <plurals name="filter_summary_publishers">
+        <item quantity="one">%d publisher</item>
+        <item quantity="other">%d publishers</item>
+    </plurals>
 </resources>
