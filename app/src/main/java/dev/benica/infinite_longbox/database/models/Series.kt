@@ -69,13 +69,7 @@ data class Series(
         get() = "$seriesName vol. $volume $dateRange".removeSuffix(" ")
 
     val dateRange: String
-        get() = startDate?.let {
-            "${it.format(DateTimeFormatter.ofPattern("yyyy"))} - ${
-                endDate?.format(
-                    DateTimeFormatter.ofPattern("yyyy")
-                ) ?: " "
-            }"
-        } ?: ""
+        get() = SeriesDates.range(startDate, endDate, publishingFormat)
 
     companion object : FilterType {
         override var displayName: String = context!!.getString(R.string.filter_type_series)

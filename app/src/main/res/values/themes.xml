@@ -31,6 +31,9 @@
         <item name="android:textColorPrimary">@color/text_primary</item>
         <item name="android:textColorSecondary">@color/text_secondary</item>
         <item name="android:textColorHint">@color/text_secondary</item>
+        <!-- The list in setItems dialogs (Replace / Remove cover) -->
+        <item name="textColorAlertDialogListItem">@color/text_primary</item>
+        <item name="android:textColorAlertDialogListItem">@color/text_primary</item>
         <item name="android:windowBackground">@color/surface_raised</item>
         <item name="colorControlNormal">@color/text_secondary</item>
         <item name="colorControlActivated">@color/accent</item>
