@@ -194,6 +194,9 @@ class MainActivity : AppCompatActivity(),
 
     private var awaitingRestore = false
 
+    /** The activity came back on a detail page: the filter's first delivery is not a request for a list. */
+    private var ignoreFilterReplay = false
+
     /** Drops the restored screens for a fresh default list. */
     private fun startOver() {
         Log.d(TAG, "Couldn't rebuild a restored screen's filter; starting over")
@@ -305,6 +308,13 @@ class MainActivity : AppCompatActivity(),
 
         if (savedInstanceState != null) {
             backStackSize = supportFragmentManager.backStackEntryCount
+            if (currentScreen.isDetailPage()) {
+                // The page itself is what comes back. The filter is replayed to the observer below,
+                // and would otherwise open a new list on top of the page.
+                syncSheet(currentScreen)
+                updateScanFab()
+                ignoreFilterReplay = filterViewModel.filter.value != null
+            }
             if (filterViewModel.hasScreens) {
                 // Only the activity was recreated: its screens still know their filters, and the
                 // sheet starts from the visible one
@@ -319,6 +329,10 @@ class MainActivity : AppCompatActivity(),
         }
 
         filterViewModel.filter.observe(this) { filter ->
+            if (ignoreFilterReplay) {
+                ignoreFilterReplay = false
+                return@observe
+            }
             if (!awaitingRestore) showFilter(filter)
         }
     }
@@ -554,6 +568,9 @@ class MainActivity : AppCompatActivity(),
         bottomSheetBehavior.apply {
             peekHeight = this@MainActivity.peekHeight
             isHideable = false
+            // It restores its state (HIDDEN, on an issue's page) after this runs; a sheet that is
+            // HIDDEN but not hideable matches no place to sit and is left at the top of the screen
+            saveFlags = BottomSheetBehavior.SAVE_HIDEABLE
         }
 
         bottomSheetBehavior.addBottomSheetCallback(object : BottomSheetCallback() {
