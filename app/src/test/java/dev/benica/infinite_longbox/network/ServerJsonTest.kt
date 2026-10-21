@@ -2,7 +2,8 @@ package dev.benica.infinite_longbox.network
 
 import dev.benica.infinite_longbox.Manifest
 import dev.benica.infinite_longbox.database.models.GcdSeries
-import dev.benica.infinite_longbox.database.models.Item
+import dev.benica.infinite_longbox.CollectionBackup
+import dev.benica.infinite_longbox.database.daos.Count
 import dev.benica.infinite_longbox.repository.CharacterInfo
 import dev.benica.infinite_longbox.repository.CreatorInfo
 import dev.benica.infinite_longbox.repository.RelatedCharacter
@@ -29,11 +30,13 @@ class ServerJsonTest {
     }
 
     @Test
-    fun theResponseClassesAreReadWithKotlinxAndTheSyncClassesStayWithGson() {
-        listOf(CharacterInfo::class.java, CreatorInfo::class.java, Manifest::class.java, SeedMeta::class.java)
-            .forEach { assertTrue(it.simpleName, ServerJson.usesKotlinx(it)) }
-        assertFalse(ServerJson.usesKotlinx(GcdSeries::class.java))
-        assertFalse(ServerJson.usesKotlinx(Item::class.java))
+    fun everyResponseClassIsReadWithKotlinx() {
+        listOf(
+            CharacterInfo::class.java, CreatorInfo::class.java, Manifest::class.java,
+            SeedMeta::class.java, GcdSeries::class.java, Count::class.java,
+        ).forEach { assertTrue(it.simpleName, ServerJson.usesKotlinx(it)) }
+        // not a class the server sends
+        assertFalse(ServerJson.usesKotlinx(CollectionBackup::class.java))
     }
 
     @Test

@@ -1,0 +1,58 @@
+[
+ {
+  "model": "db_query.gcdpublisher",
+  "pk": 54,
+  "fields": {
+   "name": "DC",
+   "country": [
+    "United States",
+    "225"
+   ],
+   "year_began": 1935,
+   "year_ended": null,
+   "notes": "The company commonly referred to as \"DC\" has a somewhat complex beginning.  Its earliest predecessor was founded by Major Malcolm Wheeler-Nicholson as National Allied Publications, Inc.  Eventually, circumstances led Wheeler-Nicholson to form a partnership with printer Harry Donenfeld and eventually accountant Jack Liebowitz to produce his third title, Detective Comics.  This partnership was Detective Comics, Inc. and was the first direct corporate predecessor of today's DC.\r\n\r\nBy 1938 mounting debts forced Wheeler-Nicholson to sell his share of Detective Comics, Inc. and then to declare bankruptcy, losing control of his own Nicholson Publishing Co., Inc., the final direct successor to National Allied.  Donenfeld, Liebowitz and Donenfeld's silent partner Paul Sampliner promptly bought Nicholson Publishing's two titles at bankruptcy auction and transferred them over to Detective Comics, Inc.\r\n\r\nLater, Max Charles Gaines would partner with Liebowitz to start up All-American Comics, sharing distribution and staff with Donenfeld's operation.  Except for issues cover-dated 1945, All-American books would share the same logos and branding as Detective Comics, Inc. and its corporate siblings.  For 1945, All-American behaved more as a separate publisher.  Also during that year, Gaines published his first title using Educational Comics, Inc. as the publishing company with an \"EC\" logo.  By the end of the year Gaines sold his share of All-American back to Liebowitz and Donenfeld and went on to build EC into a separate company.\r\n\r\nEventually, Donenfeld and Liebowitz consolidated all of their companies, including those from All-American, into National Comics Publications, Inc.  Prior to that consolidation the companies group as follows:\r\n\r\nOwned solely by Major Malcolm Wheeler-Nicholson:\r\n\r\n - National Allied Publications, Inc. (1935)\r\n - National Allied Newspaper Syndicate, Inc. (1935 - 1936)\r\n - More Fun Magazine, Inc. (1936)\r\n - Nicholson Publishing Co., Inc. (1936 - 1938)\r\n\r\nA few issues were published by \"A.I. Menin, rec. Nicholson Publishing Co., Inc.\" during the bankruptcy proceedings in 1938.\r\n\r\nOwned by Donenfeld, Liebowitz and/or Sampliner (Detective Comics, Inc. was initially co-owned by Wheeler-Nicholson and Liebowitz but the former was forced out in 1938):\r\n\r\n - Detective Comics, Inc. (1937 - 1947)\r\n - Superman, Inc. (1940 - 1947)\r\n - World's Best Comic Company (1941 - 1947)\r\n - Tilsam Publications (1943 - 1948)\r\n\r\nAll-American companies under M. C. Gaines and Jack Liebowitz:\r\n\r\n - All-American Comics, Inc. (1939 - 1946)\r\n - Jolaine Publications, Inc. (1941 - 1946)\r\n - J. R. Publishing Co. (1941 - 1947)\r\n - Gainlee Publishing Co. (1942 - 1946)\r\n - Wonder Woman Publishing Co., Inc. (1942 - 1947)",
+   "url": "http://www.dccomics.com/",
+   "brand_count": 28,
+   "indicia_publisher_count": 53,
+   "series_count": 10631,
+   "created": "1999-06-15T00:00:00Z",
+   "modified": "2026-10-10T12:54:26Z",
+   "issue_count": 58218,
+   "deleted": 0,
+   "year_began_uncertain": 0,
+   "year_ended_uncertain": 0,
+   "year_overall_began": 1935,
+   "year_overall_began_uncertain": 0,
+   "year_overall_ended": null,
+   "year_overall_ended_uncertain": 0
+  }
+ },
+ {
+  "model": "db_query.gcdpublisher",
+  "pk": 78,
+  "fields": {
+   "name": "Marvel",
+   "country": [
+    "United States",
+    "225"
+   ],
+   "year_began": 1939,
+   "year_ended": null,
+   "notes": "Marvel was started in 1939 by Martin Goodman under a number of corporation and imprint names that have collectively become known as Timely, and by 1951 had generally become known as Atlas. The \"Marvel era\" began in 1961, the year that the company launched The Fantastic Four and other superhero titles created by Stan Lee, Jack Kirby, Steve Ditko and many others. The Marvel brand, which had been used over the years, was solidified as the company's primary brand.\r\n\r\nMarvel counts among its characters such well-known superheroes as Spider-Man, Iron Man, the Hulk, Thor, Captain America, Ant-Man, the Wasp, Black Widow, Wolverine, Captain Marvel, Black Panther, Doctor Strange, Ghost Rider, Blade, Daredevil, the Punisher and Deadpool. Superhero teams exist such as the Avengers, the X-Men, the Fantastic Four and the Guardians of the Galaxy as well as supervillains including Doctor Doom, Magneto, Thanos, Loki, Green Goblin, Kingpin, Red Skull, Ultron, the Mandarin, MODOK, Doctor Octopus, Kang, Dormammu, Annihilus and Galactus. Most of Marvel's fictional characters operate in a single reality known as the Marvel Universe, with most locations mirroring real-life places; many major characters are based in New York City. Additionally, Marvel has published several licensed properties from other companies. This includes Star Wars comics twice from 1977 to 1986 and again since 2015.\r\n\r\nDistribution variants:\r\n\r\nWhitman: For issues cover dated February 1977 to around May 1979, Marvel produced non-newsstand editions that were sold mainly in packages. Some, but not all of these, were sold by Western and, because of the branding on the similar DC and Gold Key comics, are generally known as Whitman variants. For the most part they have a square diamond price and either a barcode or a white space where the barcode should be. Some issues from this time have the narrower diamond but it is not currently known if this means they were distributed differently or if it was simply because of the design of the original cover. There is definitely uncertainty between the end of the Whitman comics and the beginning of the Direct comics.\r\n\r\nSpeculation has it that in June 1977, Marvel Comics wanted to test the market to see if comic buyers would accept a five cent price increase. Marvel released a 35 cent variant for every 30 cent comic they produced from June to October 1977. This was a total of 184 different comics. These 35 cent variants were printed in much smaller numbers than the normal 30 cent counterpart and were believed to have been shipped to only six distribution locations to be sold in those specific areas. (Mark Gordon 2010-02-16, revised by Ramon Schenk 2013-02-27).\r\n\r\nDirect: Starting with issues cover dated around April 1979, Marvel started producing non-newsstand editions to be sold in the direct market. For the most part they have a narrower diamond price and the barcode has a line through it (until February 1980 when they started putting a Spider-Man head and eventually other artwork in the UPC box area).\r\n\r\nDirect Edition: In July 1993, Marvel started putting a barcode on the issues sold to the Direct market. They included the words \"Direct Edition\" in the barcode box.",
+   "url": "http://marvel.com",
+   "brand_count": 37,
+   "indicia_publisher_count": 124,
+   "series_count": 13411,
+   "created": "1999-06-15T00:00:00Z",
+   "modified": "2026-10-10T13:02:31Z",
+   "issue_count": 61674,
+   "deleted": 0,
+   "year_began_uncertain": 0,
+   "year_ended_uncertain": 0,
+   "year_overall_began": 1939,
+   "year_overall_began_uncertain": 0,
+   "year_overall_ended": null,
+   "year_overall_ended_uncertain": 0
+  }
+ }
+]

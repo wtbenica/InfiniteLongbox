@@ -1,0 +1,26 @@
+[
+    {
+        "model": "db_query.gcdpublisher",
+        "pk": 54,
+        "fields": {
+            "name": "DC",
+            "year_began": 1935,
+            "year_began_uncertain": 0,
+            "year_ended": null,
+            "year_ended_uncertain": 0,
+            "url": "http://www.dccomics.com/"
+        }
+    },
+    {
+        "model": "db_query.gcdpublisher",
+        "pk": 78,
+        "fields": {
+            "name": "Marvel",
+            "year_began": 1939,
+            "year_began_uncertain": 0,
+            "year_ended": null,
+            "year_ended_uncertain": 0,
+            "url": "http://marvel.com"
+        }
+    }
+]

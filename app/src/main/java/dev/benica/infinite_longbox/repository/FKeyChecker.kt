@@ -67,7 +67,7 @@ class FKeyChecker(val database: IssueDatabase, private val webservice: Webservic
         itemsToCheck: List<M>,
         getForeignKey: (M) -> Int?,
         foreignKeyDao: BaseDao<FM>,
-        getFkItems: KSuspendFunction1<List<Int>, List<Item<FG, FM>>>,
+        getFkItems: KSuspendFunction1<List<Int>, List<Item<FG>>>,
         checkFkFks: (suspend (List<FM>) -> Deferred<Unit>)? = null,
     ) {
         val fkIds: Set<Int> = itemsToCheck.mapNotNull { getForeignKey(it) }.toSet()

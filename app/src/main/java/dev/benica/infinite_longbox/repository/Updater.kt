@@ -186,7 +186,7 @@ abstract class Updater(
         internal suspend fun <GcdType : GcdJson<ModelType>, ModelType : DataModel, ArgType : Any>
                 retrieveItemsByArgument(
             arg: ArgType,
-            apiCall: KSuspendFunction1<ArgType, List<Item<GcdType, ModelType>>>,
+            apiCall: KSuspendFunction1<ArgType, List<Item<GcdType>>>,
         ): List<ModelType>? =
             supervisorScope {
                 runSafely(
@@ -204,7 +204,7 @@ abstract class Updater(
         suspend fun <GcdType : GcdJson<ModelType>, ModelType : DataModel, ArgType : Any>
                 retrieveItemsByList(
             argList: List<ArgType>,
-            apiCall: KSuspendFunction1<List<ArgType>, List<Item<GcdType, ModelType>>>,
+            apiCall: KSuspendFunction1<List<ArgType>, List<Item<GcdType>>>,
         ): List<ModelType> {
             // Fewer, bigger requests, a few at a time: each request costs a round trip, which
             // is what dominates on a phone, while the server answers in milliseconds.
@@ -255,7 +255,7 @@ abstract class Updater(
      */
     internal suspend fun <GcdType : GcdJson<ModelType>, ModelType : DataModel> getItems(
         prefs: SharedPreferences,
-        apiCall: KSuspendFunction0<List<Item<GcdType, ModelType>>>,
+        apiCall: KSuspendFunction0<List<Item<GcdType>>>,
         saveTag: String,
     ): List<ModelType>? =
         supervisorScope {

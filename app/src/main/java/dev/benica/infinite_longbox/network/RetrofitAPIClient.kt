@@ -18,7 +18,6 @@ package dev.benica.infinite_longbox.network
 import dev.benica.infinite_longbox.repository.BASE_URL
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
 
 class RetrofitAPIClient {
@@ -40,9 +39,9 @@ class RetrofitAPIClient {
                 retrofit = Retrofit.Builder()
                     .baseUrl(BASE_URL)
                     .client(httpClient)
-                    // The types kotlinx.serialization can read first; Gson takes the rest
+                    // Every answer is read with kotlinx.serialization (ServerJson); a type it
+                    // can't read fails when the call is made, rather than being read loosely
                     .addConverterFactory(ServerJson.converterFactory())
-                    .addConverterFactory(GsonConverterFactory.create())
                     .build()
             }
 

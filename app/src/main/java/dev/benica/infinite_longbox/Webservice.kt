@@ -80,95 +80,95 @@ interface Webservice {
 
     // GET by page
     @GET("/db_query/publisher/page/{page}")
-    suspend fun getPublisherByPage(@Path("page") page: Int): List<Item<GcdPublisher, Publisher>>
+    suspend fun getPublisherByPage(@Path("page") page: Int): List<Item<GcdPublisher>>
 
     @GET("/db_query/series/page/{page}")
-    suspend fun getSeriesByPage(@Path("page") page: Int): List<Item<GcdSeries, Series>>
+    suspend fun getSeriesByPage(@Path("page") page: Int): List<Item<GcdSeries>>
 
     @GET("/db_query/name_detail/page/{page}")
-    suspend fun getNameDetailsByPage(@Path("page") page: Int): List<Item<GcdNameDetail, NameDetail>>
+    suspend fun getNameDetailsByPage(@Path("page") page: Int): List<Item<GcdNameDetail>>
 
     @GET("db_query/character/page/{page}")
-    suspend fun getCharactersByPage(@Path("page") page: Int): List<Item<GcdCharacter, Character>>
+    suspend fun getCharactersByPage(@Path("page") page: Int): List<Item<GcdCharacter>>
 
     // GET By IDs list
     @GET("db_query/publisher/ids/{ids}")
-    suspend fun getPublishersByIds(@Path("ids") ids: List<Int>): List<Item<GcdPublisher, Publisher>>
+    suspend fun getPublishersByIds(@Path("ids") ids: List<Int>): List<Item<GcdPublisher>>
 
     @GET("db_query/series/ids/{seriesIds}")
-    suspend fun getSeriesByIds(@Path("seriesIds") seriesIds: List<Int>): List<Item<GcdSeries, Series>>
+    suspend fun getSeriesByIds(@Path("seriesIds") seriesIds: List<Int>): List<Item<GcdSeries>>
 
     @GET("/db_query/issue/upc/{upc}")
     suspend fun getIssuesByUpc(
         @Path("upc") upc: String,
         @Query("number") number: String? = null,
         @Query("limit") limit: Int? = null,
-    ): List<Item<GcdIssue, Issue>>
+    ): List<Item<GcdIssue>>
 
     /** For each series, the earliest of its issues that have a cover on the server. */
     @GET("/db_query/series/covers/{seriesIds}")
     suspend fun getSeriesCovers(@Path("seriesIds") seriesIds: List<Int>): Map<String, List<Int>>
 
     @GET("/db_query/issue/ids/{issueIds}")
-    suspend fun getIssuesByIds(@Path("issueIds") issueIds: List<Int>): List<Item<GcdIssue, Issue>>
+    suspend fun getIssuesByIds(@Path("issueIds") issueIds: List<Int>): List<Item<GcdIssue>>
 
     @GET("/db_query/story/ids/{storyIds}")
-    suspend fun getStoriesByIds(@Path("storyIds") storyIds: List<Int>): List<Item<GcdStory, Story>>
+    suspend fun getStoriesByIds(@Path("storyIds") storyIds: List<Int>): List<Item<GcdStory>>
 
     @GET("/db_query/creator/ids/{creatorIds}")
-    suspend fun getCreatorsByIds(@Path("creatorIds") creatorIds: List<Int>): List<Item<GcdCreator, Creator>>
+    suspend fun getCreatorsByIds(@Path("creatorIds") creatorIds: List<Int>): List<Item<GcdCreator>>
 
     @GET("/db_query/name_detail/ids/{nameDetailIds}")
-    suspend fun getNameDetailsByIds(@Path("nameDetailIds") nameDetailIds: List<Int>): List<Item<GcdNameDetail, NameDetail>>
+    suspend fun getNameDetailsByIds(@Path("nameDetailIds") nameDetailIds: List<Int>): List<Item<GcdNameDetail>>
 
     @GET("db_query/character/ids/{ids}")
-    suspend fun getCharactersByIds(@Path("ids") ids: List<Int>): List<Item<GcdCharacter, Character>>
+    suspend fun getCharactersByIds(@Path("ids") ids: List<Int>): List<Item<GcdCharacter>>
 
     // GET _ by Series
     @GET("/db_query/series/id/{seriesId}/issues")
-    suspend fun getIssuesBySeries(@Path("seriesId") seriesId: Int): List<Item<GcdIssue, Issue>>
+    suspend fun getIssuesBySeries(@Path("seriesId") seriesId: Int): List<Item<GcdIssue>>
 
     // GET _ by Issues
     @GET("/db_query/issue/ids/{issueIds}/stories")
-    suspend fun getStoriesByIssueIds(@Path("issueIds") issueIds: List<Int>): List<Item<GcdStory, Story>>
+    suspend fun getStoriesByIssueIds(@Path("issueIds") issueIds: List<Int>): List<Item<GcdStory>>
 
     // GET _ by Stories
     @GET("/db_query/story/ids/{storyIds}/credits")
-    suspend fun getCreditsByStoryIds(@Path("storyIds") storyId: List<Int>): List<Item<GcdCredit, Credit>>
+    suspend fun getCreditsByStoryIds(@Path("storyIds") storyId: List<Int>): List<Item<GcdCredit>>
 
     @GET("/db_query/story/ids/{storyIds}/extracts")
-    suspend fun getExCreditsByStoryIds(@Path("storyIds") storyIds: List<Int>): List<Item<GcdExCredit, ExCredit>>
+    suspend fun getExCreditsByStoryIds(@Path("storyIds") storyIds: List<Int>): List<Item<GcdExCredit>>
 
     @GET("db_query/story/ids/{storyIds}/appearances")
     suspend fun getAppearancesByStoryIds(@Path("storyIds") storyIds: List<Int>):
-            List<Item<GcdCharacterAppearance, Appearance>>
+            List<Item<GcdCharacterAppearance>>
 
     // GET _ by NameDetail
     @GET("/db_query/name_detail/ids/{nameDetailIds}/credits")
-    suspend fun getCreditsByNameDetail(@Path("nameDetailIds") nameDetailIds: List<Int>): List<Item<GcdCredit, Credit>>
+    suspend fun getCreditsByNameDetail(@Path("nameDetailIds") nameDetailIds: List<Int>): List<Item<GcdCredit>>
 
     @GET("/db_query/name_detail/ids/{nameDetailIds}/extracts")
-    suspend fun getExCreditsByNameDetail(@Path("nameDetailIds") nameDetailIds: List<Int>): List<Item<GcdExCredit, ExCredit>>
+    suspend fun getExCreditsByNameDetail(@Path("nameDetailIds") nameDetailIds: List<Int>): List<Item<GcdExCredit>>
 
     // GET _ by Characters
     @GET("db_query/character/ids/{characterIds}/appearances")
-    suspend fun getAppearancesByCharacterIds(@Path("characterIds") characterId: List<Int>): List<Item<GcdCharacterAppearance, Appearance>>
+    suspend fun getAppearancesByCharacterIds(@Path("characterIds") characterId: List<Int>): List<Item<GcdCharacterAppearance>>
 
     // GET Roles
     @GET("/db_query/role/all")
-    suspend fun getRoles(): List<Item<GcdRole, Role>>
+    suspend fun getRoles(): List<Item<GcdRole>>
 
     // GET Story Types
     @GET("/db_query/story_type/all")
-    suspend fun getStoryTypes(): List<Item<GcdStoryType, StoryType>>
+    suspend fun getStoryTypes(): List<Item<GcdStoryType>>
 
     // GET Series Bonds
     @GET("db_query/series_bond/all")
-    suspend fun getSeriesBonds(): List<Item<GcdSeriesBond, SeriesBond>>
+    suspend fun getSeriesBonds(): List<Item<GcdSeriesBond>>
 
     // GET bond types
     @GET("db_query/series_bond_type/all")
-    suspend fun getBondTypes(): List<Item<GcdBondType, BondType>>
+    suspend fun getBondTypes(): List<Item<GcdBondType>>
 
     companion object {
         private const val TAG = "Webservice"

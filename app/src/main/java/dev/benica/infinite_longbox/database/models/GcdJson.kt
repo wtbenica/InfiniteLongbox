@@ -15,36 +15,30 @@
 
 package dev.benica.infinite_longbox.database.models
 
-import com.google.gson.annotations.Expose
-import com.google.gson.annotations.SerializedName
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 import java.time.LocalDate
 
 private const val TAG = "GcdJson"
 
-// TODO: do all these val need to be nullable?
-class Item<G : GcdJson<M>, M : DataModel>(
-    @SerializedName("model")
-    @Expose
-    val model: String?,
-    @SerializedName("pk")
-    @Expose
+/**
+ * One record as the server sends it: Django's serialization of a model, with the key in [pk] and
+ * the model's columns in [fields]. Only the columns [G] names are read.
+ */
+@Serializable
+class Item<G : GcdJson<*>>(
+    val model: String? = null,
     val pk: Int,
-    @SerializedName("fields")
-    @Expose
     val fields: G,
 ) {
     override fun toString(): String {
         return "$pk $fields"
     }
-
-    fun toRoomModel(): M {
-        return fields.toRoomModel(this.pk)
-    }
 }
 
-val <G : GcdJson<M>, M : DataModel> List<Item<G, M>>.models: List<M>
-    get() = this.map { it.toRoomModel() }
+val <G : GcdJson<M>, M : DataModel> List<Item<G>>.models: List<M>
+    get() = this.map { it.fields.toRoomModel(it.pk) }
 
 val <M : DataModel> Collection<M>.ids: List<Int>
     get() = this.map { it.id }
@@ -59,45 +53,33 @@ interface GcdJson<M : DataModel> {
 }
 
 @ExperimentalCoroutinesApi
+@Serializable
 class GcdSeries(
-    @SerializedName("name")
-    @Expose
+    @SerialName("name")
     val name: String,
-    @SerializedName("sort_name")
-    @Expose
+    @SerialName("sort_name")
     val sortName: String,
-    @SerializedName("year_began")
-    @Expose
+    @SerialName("year_began")
     val yearBegan: Int?,
-    @SerializedName("year_began_uncertain")
-    @Expose
+    @SerialName("year_began_uncertain")
     val yearBeganUncertain: Int,
-    @SerializedName("year_ended")
-    @Expose
+    @SerialName("year_ended")
     val yearEnded: Int?,
-    @SerializedName("year_ended_uncertain")
-    @Expose
+    @SerialName("year_ended_uncertain")
     val yearEndedUncertain: Int,
-    @SerializedName("publication_dates")
-    @Expose
+    @SerialName("publication_dates")
     val publicationDates: String,
-    @SerializedName("publisher")
-    @Expose
+    @SerialName("publisher")
     val publisher: Int?,
-    @SerializedName("publishing_format")
-    @Expose
+    @SerialName("publishing_format")
     val publishingFormat: String,
-    @SerializedName("tracking_notes")
-    @Expose
+    @SerialName("tracking_notes")
     val trackingNotes: String,
-    @SerializedName("first_issue")
-    @Expose
+    @SerialName("first_issue")
     val firstIssueId: Int?,
-    @SerializedName("notes")
-    @Expose
+    @SerialName("notes")
     val notes: String,
-    @SerializedName("issue_count")
-    @Expose
+    @SerialName("issue_count")
     val issueCount: Int,
 ) : GcdJson<Series> {
     override fun toString(): String {
@@ -132,24 +114,19 @@ class GcdSeries(
 }
 
 @ExperimentalCoroutinesApi
+@Serializable
 class GcdPublisher(
-    @SerializedName("name")
-    @Expose
+    @SerialName("name")
     val name: String,
-    @SerializedName("year_began")
-    @Expose
+    @SerialName("year_began")
     val yearBegan: Int?,
-    @SerializedName("year_began_uncertain")
-    @Expose
+    @SerialName("year_began_uncertain")
     val yearBeganUncertain: Int,
-    @SerializedName("year_ended")
-    @Expose
+    @SerialName("year_ended")
     val yearEnded: Int?,
-    @SerializedName("year_ended_uncertain")
-    @Expose
+    @SerialName("year_ended_uncertain")
     val yearEndedUncertain: Int,
-    @SerializedName("url")
-    @Expose
+    @SerialName("url")
     var url: String,
 ) : GcdJson<Publisher> {
     override fun toRoomModel(pk: Int): Publisher {
@@ -187,12 +164,11 @@ class GcdPublisher(
     }
 }
 
+@Serializable
 class GcdRole(
-    @SerializedName("name")
-    @Expose
+    @SerialName("name")
     val name: String,
-    @SerializedName("sort_code")
-    @Expose
+    @SerialName("sort_code")
     val sortCode: Int,
 ) : GcdJson<Role> {
     override fun toRoomModel(pk: Int): Role {
@@ -205,45 +181,33 @@ class GcdRole(
 }
 
 @ExperimentalCoroutinesApi
+@Serializable
 class GcdIssue(
-    @SerializedName("number")
-    @Expose
+    @SerialName("number")
     val number: String,
-    @SerializedName("series")
-    @Expose
+    @SerialName("series")
     val seriesId: Int,
-    @SerializedName("sort_code")
-    @Expose
+    @SerialName("sort_code")
     val sortCode: Int,
-    @SerializedName("editing")
-    @Expose
+    @SerialName("editing")
     val editing: String,
-    @SerializedName("publication_date")
-    @Expose
+    @SerialName("publication_date")
     val publicationDate: String,
-    @SerializedName("on_sale_date")
-    @Expose
+    @SerialName("on_sale_date")
     val onSaleDate: String,
-    @SerializedName("on_sale_date_uncertain")
-    @Expose
+    @SerialName("on_sale_date_uncertain")
     val onSaleDateUncertain: Int,
-    @SerializedName("key_date")
-    @Expose
+    @SerialName("key_date")
     val keyDate: String,
-    @SerializedName("notes")
-    @Expose
+    @SerialName("notes")
     val notes: String,
-    @SerializedName("no_barcode")
-    @Expose
+    @SerialName("no_barcode")
     val noBarcode: Int,
-    @SerializedName("barcode")
-    @Expose
+    @SerialName("barcode")
     val barcode: String,
-    @SerializedName("variant_name")
-    @Expose
+    @SerialName("variant_name")
     val variantName: String,
-    @SerializedName("variant_of")
-    @Expose
+    @SerialName("variant_of")
     val variantOf: Int?,
 ) : GcdJson<Issue> {
     override fun toRoomModel(pk: Int): Issue {
@@ -272,21 +236,17 @@ class GcdIssue(
 }
 
 @ExperimentalCoroutinesApi
+@Serializable
 class GcdCredit(
-    @SerializedName("creator")
-    @Expose
+    @SerialName("creator")
     val nameDetailId: Int,
-    @SerializedName("credit_type")
-    @Expose
+    @SerialName("credit_type")
     val roleId: Int,
-    @SerializedName("story")
-    @Expose
+    @SerialName("story")
     val storyId: Int,
-    @SerializedName("issue")
-    @Expose
+    @SerialName("issue")
     val issue: Int,
-    @SerializedName("series")
-    @Expose
+    @SerialName("series")
     val series: Int,
 ) : GcdJson<Credit> {
     override fun toRoomModel(pk: Int): Credit {
@@ -302,21 +262,17 @@ class GcdCredit(
 }
 
 @ExperimentalCoroutinesApi
+@Serializable
 class GcdExCredit(
-    @SerializedName("creator")
-    @Expose
+    @SerialName("creator")
     val nameDetailId: Int,
-    @SerializedName("credit_type")
-    @Expose
+    @SerialName("credit_type")
     val roleId: Int,
-    @SerializedName("story")
-    @Expose
+    @SerialName("story")
     val storyId: Int,
-    @SerializedName("issue")
-    @Expose
+    @SerialName("issue")
     val issue: Int,
-    @SerializedName("series")
-    @Expose
+    @SerialName("series")
     val series: Int,
 ) : GcdJson<ExCredit> {
     override fun toRoomModel(pk: Int): ExCredit {
@@ -336,15 +292,13 @@ enum class RoleKey(val pos: Int) {
 }
 
 @ExperimentalCoroutinesApi
+@Serializable
 class GcdCreator(
-    @SerializedName("gcd_official_name")
-    @Expose
+    @SerialName("gcd_official_name")
     val name: String,
-    @SerializedName("sort_name")
-    @Expose
+    @SerialName("sort_name")
     val sortName: String,
-    @SerializedName("bio")
-    @Expose
+    @SerialName("bio")
     val bio: String,
 ) : GcdJson<Creator> {
     override fun toRoomModel(pk: Int): Creator {
@@ -361,48 +315,35 @@ enum class CreatorKey(val pos: Int) {
     ID(0), NAME(1), SORT_NAME(2)
 }
 
+@Serializable
 class GcdStory(
-    @SerializedName("title")
-    @Expose
+    @SerialName("title")
     val title: String,
-    @SerializedName("feature")
-    @Expose
+    @SerialName("feature")
     val feature: String,
-    @SerializedName("sequence_number")
-    @Expose
+    @SerialName("sequence_number")
     val sequenceNumber: Int,
-    @SerializedName("issue")
-    @Expose
+    @SerialName("issue")
     val issueId: Int,
-    @SerializedName("script")
-    @Expose
+    @SerialName("script")
     val script: String,
-    @SerializedName("pencils")
-    @Expose
+    @SerialName("pencils")
     val pencils: String,
-    @SerializedName("inks")
-    @Expose
+    @SerialName("inks")
     val inks: String,
-    @SerializedName("colors")
-    @Expose
+    @SerialName("colors")
     val colors: String,
-    @SerializedName("letters")
-    @Expose
+    @SerialName("letters")
     val letters: String,
-    @SerializedName("editing")
-    @Expose
+    @SerialName("editing")
     val editing: String,
-    @SerializedName("characters")
-    @Expose
+    @SerialName("characters")
     val characters: String,
-    @SerializedName("synopsis")
-    @Expose
+    @SerialName("synopsis")
     val synopsis: String,
-    @SerializedName("notes")
-    @Expose
+    @SerialName("notes")
     val notes: String,
-    @SerializedName("type")
-    @Expose
+    @SerialName("type")
     val typeId: Int,
 ) : GcdJson<Story> {
     override fun toRoomModel(pk: Int): Story {
@@ -420,12 +361,11 @@ class GcdStory(
     }
 }
 
+@Serializable
 class GcdStoryType(
-    @SerializedName("name")
-    @Expose
+    @SerialName("name")
     val name: String,
-    @SerializedName("sort_code")
-    @Expose
+    @SerialName("sort_code")
     val sortCode: Int,
 ) : GcdJson<StoryType> {
     override fun toRoomModel(pk: Int): StoryType {
@@ -438,15 +378,13 @@ class GcdStoryType(
 }
 
 @ExperimentalCoroutinesApi
+@Serializable
 class GcdNameDetail(
-    @SerializedName("creator")
-    @Expose
+    @SerialName("creator")
     val creatorId: Int,
-    @SerializedName("name")
-    @Expose
+    @SerialName("name")
     val name: String,
-    @SerializedName("sort_name")
-    @Expose
+    @SerialName("sort_name")
     val sortName: String,
 ) : GcdJson<NameDetail> {
     override fun toRoomModel(pk: Int): NameDetail {
@@ -459,15 +397,13 @@ class GcdNameDetail(
     }
 }
 
+@Serializable
 class GcdBondType(
-    @SerializedName("name")
-    @Expose
+    @SerialName("name")
     val name: String,
-    @SerializedName("description")
-    @Expose
+    @SerialName("description")
     val description: String,
-    @SerializedName("notes")
-    @Expose
+    @SerialName("notes")
     val notes: String,
 ) : GcdJson<BondType> {
     override fun toRoomModel(pk: Int): BondType {
@@ -481,24 +417,19 @@ class GcdBondType(
 }
 
 @ExperimentalCoroutinesApi
+@Serializable
 class GcdSeriesBond(
-    @SerializedName("origin")
-    @Expose
+    @SerialName("origin")
     val origin: Int,
-    @SerializedName("target")
-    @Expose
+    @SerialName("target")
     val target: Int,
-    @SerializedName("origin_issue")
-    @Expose
+    @SerialName("origin_issue")
     val originIssue: Int? = null,
-    @SerializedName("target_issue")
-    @Expose
+    @SerialName("target_issue")
     val targetIssue: Int? = null,
-    @SerializedName("bond_type")
-    @Expose
+    @SerialName("bond_type")
     val bondType: Int,
-    @SerializedName("notes")
-    @Expose
+    @SerialName("notes")
     val notes: String,
 ) : GcdJson<SeriesBond> {
     override fun toRoomModel(pk: Int): SeriesBond {
@@ -515,15 +446,13 @@ class GcdSeriesBond(
 }
 
 @ExperimentalCoroutinesApi
+@Serializable
 class GcdCharacter(
-    @SerializedName("name")
-    @Expose
+    @SerialName("name")
     val name: String,
-    @SerializedName("alter_ego")
-    @Expose
+    @SerialName("alter_ego")
     val alterEgo: String?,
-    @SerializedName("publisher")
-    @Expose
+    @SerialName("publisher")
     val publisherId: Int,
 ) : GcdJson<Character> {
     override fun toRoomModel(pk: Int): Character {
@@ -537,27 +466,21 @@ class GcdCharacter(
 }
 
 @ExperimentalCoroutinesApi
+@Serializable
 class GcdCharacterAppearance(
-    @SerializedName("details")
-    @Expose
+    @SerialName("details")
     val details: String?,
-    @SerializedName("character")
-    @Expose
+    @SerialName("character")
     val characterId: Int,
-    @SerializedName("story")
-    @Expose
+    @SerialName("story")
     val storyId: Int,
-    @SerializedName("notes")
-    @Expose
+    @SerialName("notes")
     val notes: String?,
-    @SerializedName("membership")
-    @Expose
+    @SerialName("membership")
     val membership: String?,
-    @SerializedName("issue")
-    @Expose
+    @SerialName("issue")
     val issue: Int,
-    @SerializedName("series")
-    @Expose
+    @SerialName("series")
     val series: Int,
 ) : GcdJson<Appearance> {
     override fun toRoomModel(pk: Int): Appearance {

@@ -15,10 +15,9 @@
 
 package dev.benica.infinite_longbox.database.daos
 
+import kotlinx.serialization.Serializable
 import androidx.room.Dao
 import androidx.room.Query
-import com.google.gson.annotations.Expose
-import com.google.gson.annotations.SerializedName
 import dev.benica.infinite_longbox.APP
 import dev.benica.infinite_longbox.database.models.CollectionItem
 import dev.benica.infinite_longbox.database.models.UserCollection
@@ -100,8 +99,7 @@ data class CollectionExportRow(
 
 data class CollectionName(val userCollectionId: Int, val name: String)
 
+@Serializable
 data class Count(
-    @SerializedName("count")
-    @Expose
     val count: Int
 )
