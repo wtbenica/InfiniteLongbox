@@ -25,6 +25,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 import dev.benica.infinite_longbox.APP
 import dev.benica.infinite_longbox.Webservice
 import dev.benica.infinite_longbox.database.IssueDatabase
+import kotlinx.serialization.Serializable
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.withContext
@@ -39,6 +40,7 @@ private const val TAG = APP + "SeedInstaller"
 /**
  * Describes the starter database served by the backend (see tools/build_seed.py there).
  */
+@Serializable
 data class SeedMeta(
     val version: String,
     val builtOn: String,

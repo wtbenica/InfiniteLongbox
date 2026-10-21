@@ -24,6 +24,7 @@ import okhttp3.ResponseBody
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.POST
+import kotlinx.serialization.Serializable
 import retrofit2.http.GET
 import retrofit2.http.Path
 import retrofit2.http.Query
@@ -175,4 +176,5 @@ interface Webservice {
 }
 
 /** One paged model's pages, each as a short fingerprint of its content. */
-data class Manifest(val pages: Int = 0, val hashes: List<String> = emptyList())
+@Serializable
+data class Manifest(val pages: Int, val hashes: List<String>)

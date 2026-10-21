@@ -148,6 +148,9 @@ abstract class Updater(
             } catch (e: IOException) {
                 Log.d(TAG, "$name $e")
                 null
+            } catch (e: kotlinx.serialization.SerializationException) {
+                Log.w(TAG, "$name: the server's answer was not what was expected: $e")
+                null
             }
         }
 

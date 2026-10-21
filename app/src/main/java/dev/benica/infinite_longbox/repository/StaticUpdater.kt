@@ -331,6 +331,9 @@ class StaticUpdater private constructor(
     } catch (e: retrofit2.HttpException) {
         Log.d(TAG, "characterInfo $e")
         null
+    } catch (e: kotlinx.serialization.SerializationException) {
+        Log.w(TAG, "characterInfo: the server's answer was not what was expected: $e")
+        null
     }
 
     /** A creator's page data, or null when the server can't be reached. */
@@ -341,6 +344,9 @@ class StaticUpdater private constructor(
         null
     } catch (e: retrofit2.HttpException) {
         Log.d(TAG, "creatorInfo $e")
+        null
+    } catch (e: kotlinx.serialization.SerializationException) {
+        Log.w(TAG, "creatorInfo: the server's answer was not what was expected: $e")
         null
     }
 
@@ -358,6 +364,9 @@ class StaticUpdater private constructor(
             return
         } catch (e: retrofit2.HttpException) {
             Log.d(TAG, "fetchSeriesCovers $e")
+            return
+        } catch (e: kotlinx.serialization.SerializationException) {
+            Log.w(TAG, "fetchSeriesCovers: the server's answer was not what was expected: $e")
             return
         }
         val issueIds = covers.values.mapNotNull { it.firstOrNull() }

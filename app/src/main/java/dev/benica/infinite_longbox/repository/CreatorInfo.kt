@@ -15,10 +15,13 @@
 
 package dev.benica.infinite_longbox.repository
 
+import kotlinx.serialization.Serializable
+
 /** What the server knows about a creator (see the backend's creator_info.py). */
+@Serializable
 data class CreatorInfo(
-    val creatorId: Int = 0,
-    val name: String = "",
+    val creatorId: Int,
+    val name: String,
     val disambiguation: String = "",
     val born: LifeEvent = LifeEvent(),
     val died: LifeEvent = LifeEvent(),
@@ -33,11 +36,15 @@ data class CreatorInfo(
 )
 
 /** A birth or a death: either part may be blank. */
+@Serializable
 data class LifeEvent(val date: String = "", val place: String = "")
 
 /** [kind] is "pen name", "birth name" and so on, or blank. */
-data class OtherName(val name: String = "", val kind: String = "")
+@Serializable
+data class OtherName(val name: String, val kind: String = "")
 
-data class RoleCount(val role: String = "", val count: Int = 0)
+@Serializable
+data class RoleCount(val role: String, val count: Int)
 
-data class SeriesCount(val seriesId: Int = 0, val seriesName: String = "", val issues: Int = 0)
+@Serializable
+data class SeriesCount(val seriesId: Int, val seriesName: String, val issues: Int)

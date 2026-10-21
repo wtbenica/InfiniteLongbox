@@ -40,6 +40,8 @@ class RetrofitAPIClient {
                 retrofit = Retrofit.Builder()
                     .baseUrl(BASE_URL)
                     .client(httpClient)
+                    // The types kotlinx.serialization can read first; Gson takes the rest
+                    .addConverterFactory(ServerJson.converterFactory())
                     .addConverterFactory(GsonConverterFactory.create())
                     .build()
             }

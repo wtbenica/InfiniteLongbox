@@ -1,6 +1,5 @@
 package dev.benica.infinite_longbox.network
 
-import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonParser
 import dev.benica.infinite_longbox.Webservice
@@ -27,7 +26,6 @@ import retrofit2.http.GET
  * files; -Dsnapshot.update=true rewrites them from the current reader.
  */
 class ServerContractTest {
-    private val reader = Gson()
     private val writer = GsonBuilder().setPrettyPrinting().serializeNulls().create()
 
     /** A suspend function's declared type is the type argument of its last, Continuation, parameter. */
@@ -59,7 +57,8 @@ class ServerContractTest {
 
         calls.forEach { method ->
             val sample = resource("${method.name}.json") ?: return@forEach
-            val read = reader.fromJson<Any>(sample.readText(), returnType(method))
+            // read the way the app reads it: kotlinx.serialization for its own classes, Gson for the rest
+            val read = ServerJson.decode<Any>(sample.readText(), returnType(method))
             val actual = writer.toJson(read)
             val expectedFile = File(dir, "${method.name}.expected.json")
 
