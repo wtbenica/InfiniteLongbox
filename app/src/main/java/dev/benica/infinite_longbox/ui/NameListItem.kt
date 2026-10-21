@@ -53,15 +53,24 @@ data class NameCardState(
     val details: List<String>,
 )
 
+/**
+ * A card for a row still loading. It has the height of a real one: a list that fills its screen
+ * with rows of no height asks for every row there is.
+ */
+@Composable
+fun NameListItemSkeleton(modifier: Modifier = Modifier, placeholderKey: String = "") =
+    NameListItem(state = null, onClick = {}, modifier = modifier, placeholderKey = placeholderKey)
+
 /** Same card as a series, with a blank cover for decoration behind the name tab. */
 @Composable
 fun NameListItem(
-    state: NameCardState,
+    state: NameCardState?,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     /** When given, an info button opens the item's page; a tap on the card still filters. */
     onInfo: (() -> Unit)? = null,
     infoDescription: String = stringResource(R.string.character_info_description),
+    placeholderKey: String = "",
 ) {
     Card(
         onClick = onClick,
@@ -71,7 +80,7 @@ fun NameListItem(
         border = BorderStroke(4.dp, colorResource(R.color.card_border)),
     ) {
         Box {
-            PlaceholderCover(key = state.name, modifier = Modifier.matchParentSize(), scrim = false)
+            PlaceholderCover(key = state?.name ?: placeholderKey, modifier = Modifier.matchParentSize(), scrim = false)
 
             Box(
                 modifier = Modifier
@@ -89,19 +98,31 @@ fun NameListItem(
                     strokeWidth = 4.dp,
                     cornerRadius = dimensionResource(R.dimen.margin_wide),
                     tab = {
-                        Text(
-                            text = state.name,
-                            modifier = Modifier.padding(
-                                start = dimensionResource(R.dimen.margin_wide),
-                                end = dimensionResource(R.dimen.margin_wide),
-                                top = dimensionResource(R.dimen.margin_default),
-                            ),
-                            color = MaterialTheme.colorScheme.onSurface,
-                            fontFamily = PermanentMarker,
-                            fontSize = 20.sp,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                        )
+                        if (state == null) {
+                            Bar(
+                                Modifier
+                                    .padding(
+                                        horizontal = dimensionResource(R.dimen.margin_wide),
+                                        vertical = dimensionResource(R.dimen.margin_default),
+                                    )
+                                    .width(140.dp)
+                                    .height(20.dp)
+                            )
+                        } else {
+                            Text(
+                                text = state.name,
+                                modifier = Modifier.padding(
+                                    start = dimensionResource(R.dimen.margin_wide),
+                                    end = dimensionResource(R.dimen.margin_wide),
+                                    top = dimensionResource(R.dimen.margin_default),
+                                ),
+                                color = MaterialTheme.colorScheme.onSurface,
+                                fontFamily = PermanentMarker,
+                                fontSize = 20.sp,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                            )
+                        }
                     },
                     body = {
                         Row(
@@ -116,7 +137,7 @@ fun NameListItem(
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
-                            val shown = state.details.filter { it.isNotBlank() }
+                            val shown = state?.details.orEmpty().filter { it.isNotBlank() }
 
 //                            if (shown.isEmpty()) {
 //                                Spacer(Modifier.height(20.dp))
@@ -124,6 +145,7 @@ fun NameListItem(
 //
                             // Takes what the info button leaves, so long text can't push it off the card
                             Row(Modifier.weight(1f)) {
+                                if (state == null) Bar(Modifier.width(200.dp).height(16.dp))
                                 shown.forEachIndexed { i, detail ->
                                     if (i > 0) {
                                         Spacer(Modifier.width(dimensionResource(R.dimen.margin_default)))
@@ -137,7 +159,7 @@ fun NameListItem(
                                 }
                             }
 
-                            onInfo?.let { info ->
+                            onInfo?.takeIf { state != null }?.let { info ->
                                 IconButton(
                                     onClick = info,
                                     modifier = Modifier.size(NAME_COVER_WINDOW)

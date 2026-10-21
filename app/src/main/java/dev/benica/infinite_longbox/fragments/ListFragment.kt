@@ -289,6 +289,8 @@ abstract class ListFragment<T : ListItem, VH : RecyclerView.ViewHolder> : Fragme
     private val appBarLayoutListener =
         View.OnLayoutChangeListener { _, _, _, _, _, _, _, _, _ ->
             listRecyclerView.post {
+                // Posted before the screen was replaced, it can run after it has gone
+                if (!isAdded || view == null) return@post
                 updateBottomPadding(appBar.totalScrollRange + (activityAppBar?.totalScrollRange ?: 0))
             }
         }

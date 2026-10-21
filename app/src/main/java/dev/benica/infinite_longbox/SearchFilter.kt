@@ -124,6 +124,17 @@ class SearchFilter(
 
     fun isNotEmpty() = !isEmpty()
 
+    /**
+     * Whether [other] filters by the same things, however each shows them: only the choice of
+     * Series, Characters or Creators (and the sort that goes with it) may differ.
+     */
+    fun sameItemsAs(other: SearchFilter): Boolean =
+        mCreators == other.mCreators && mSeries == other.mSeries &&
+                mPublishers == other.mPublishers && mStartDate == other.mStartDate &&
+                mEndDate == other.mEndDate && mMyCollection == other.mMyCollection &&
+                mTextFilter == other.mTextFilter && mShowVariants == other.mShowVariants &&
+                mCharacter == other.mCharacter
+
     fun hasCreator() = mCreators.isNotEmpty()
 
     fun hasPublisher() = mPublishers.isNotEmpty()

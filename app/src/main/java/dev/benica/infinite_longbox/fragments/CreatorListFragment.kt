@@ -20,6 +20,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.ComposeView
@@ -38,6 +39,7 @@ import dev.benica.infinite_longbox.fragments_view_models.CreatorListViewModel
 import dev.benica.infinite_longbox.ui.InfiniteLongboxTheme
 import dev.benica.infinite_longbox.ui.NameCardState
 import dev.benica.infinite_longbox.ui.NameListItem
+import dev.benica.infinite_longbox.ui.NameListItemSkeleton
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 private const val TAG = APP + "CreatorListFragment"
@@ -87,7 +89,7 @@ class CreatorListFragment : ListFragment<FullCreator, CreatorListFragment.Creato
             CreatorHolder(parent)
 
         override fun onBindViewHolder(holder: CreatorHolder, position: Int) {
-            holder.bind(getItem(position))
+            holder.bind(getItem(position), position)
         }
     }
 
@@ -104,12 +106,15 @@ class CreatorListFragment : ListFragment<FullCreator, CreatorListFragment.Creato
 
         private var item: FullCreator? = null
         private var card by mutableStateOf<NameCardState?>(null)
+        private var slot by mutableIntStateOf(0)
 
         init {
             (itemView as ComposeView).setContent {
                 InfiniteLongboxTheme {
                     val state = card
-                    if (state != null) {
+                    if (state == null) {
+                        NameListItemSkeleton(placeholderKey = "creator|$slot")
+                    } else {
                         NameListItem(state, onClick = {
                             item?.let { (callback as CreatorListCallback?)?.onCreatorSelected(it.creator) }
                         }, infoDescription = stringResource(R.string.creator_info_description), onInfo = {
@@ -120,7 +125,8 @@ class CreatorListFragment : ListFragment<FullCreator, CreatorListFragment.Creato
             }
         }
 
-        fun bind(item: FullCreator?) {
+        fun bind(item: FullCreator?, position: Int) {
+            this.slot = position
             this.item = item
             card = item?.let {
             NameCardState(

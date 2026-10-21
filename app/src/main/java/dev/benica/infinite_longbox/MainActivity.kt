@@ -180,6 +180,17 @@ class MainActivity : AppCompatActivity(),
             top is ListFragment<*, *> && top::class == listClassFor(filter) ->
                 top.applyFilter(filter)
 
+            // Only the view was switched (series, characters, creators): the same list seen another
+            // way, so it takes the place of the one showing. Keeping each in the back stack piles
+            // them up in memory for as long as the app runs.
+            top is ListFragment<*, *> && top.currentFilter?.sameItemsAs(filter) == true -> {
+                supportFragmentManager.beginTransaction()
+                    .setTransition(TRANSIT_FRAGMENT_FADE)
+                    .replace(R.id.fragment_container, newListFor(filter))
+                    .commit()
+                supportFragmentManager.executePendingTransactions()
+            }
+
             else -> {
                 supportFragmentManager.beginTransaction()
                     .setTransition(TRANSIT_FRAGMENT_FADE)
