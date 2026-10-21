@@ -165,7 +165,9 @@ fun IssueDetailScreen(
                 .background(colorResource(R.color.surface_raised))
         ) {
             IssueJumpBar(state.jumpBar, actions.onJump)
-            AttributionBar(state.gcdIssueId)
+            AttributionBar(
+                if (state.gcdIssueId > 0) "https://www.comics.org/issue/${state.gcdIssueId}/" else GCD_HOME_URL
+            )
         }
     }
 }

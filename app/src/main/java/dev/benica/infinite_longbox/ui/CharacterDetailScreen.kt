@@ -176,6 +176,8 @@ private fun Details(info: CharacterInfo, actions: CharacterDetailActions) {
         if (!info.linked && info.appearances == 0) {
             Body(stringResource(R.string.character_no_details))
         }
+
+        AttributionBar(info.gcdId?.let { "https://www.comics.org/character/$it/" } ?: GCD_HOME_URL)
     }
 }
 

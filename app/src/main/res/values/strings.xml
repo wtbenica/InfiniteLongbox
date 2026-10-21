@@ -89,7 +89,10 @@
         subset of its records and fields. Additionally, some creator credits and character
         appearances have been converted from text fields to database records.</string>
     <string name="gcd_thanks">This app wouldn\'t be possible without the efforts of the
-        volunteers of the Grand Comics Database\u2122 Project. If you want to help out, you can\n
+        volunteers of the Grand Comics Database\u2122 Project. If you spot a mistake or something missing,
+        the best fix is at the source, so it reaches everyone: become an indexer with
+        <a href="https://docs.comics.org/wiki/Indexing">Online Indexing</a>. If you want to help
+        out, you can\n
             <a href="https://www.comics.org/accounts/register/">Register an account</a>\n
             <a href="http://docs.comics.org/wiki/How_To_Contribute_FAQ">Help index</a>\n
             <a href="https://www.comics.org/donate/">Donate to the GCD</a>
@@ -136,7 +139,6 @@
     <string name="label_find">find</string>
     <string name="description_search_ebay">Search eBay</string>
     <string name="description_select_variant">Select variant</string>
-    <string name="description_license_badge">Creative Commons Attribution-ShareAlike 4.0 license</string>
     <string name="description_open_link">Opens in your browser</string>
     <string name="cover_add_hint">Add cover</string>
 
@@ -182,4 +184,8 @@
         <item quantity="one">%d publisher</item>
         <item quantity="other">%d publishers</item>
     </plurals>
+
+    <!-- Where a page's data comes from -->
+    <string name="attribution_data_from">Data from the</string>
+    <string name="attribution_license_name">CC BY-SA 4.0</string>
 </resources>

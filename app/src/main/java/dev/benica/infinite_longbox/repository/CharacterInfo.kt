@@ -27,6 +27,8 @@ data class CharacterInfo(
     val origin: IssueRef? = null,
     val death: IssueRef? = null,
     val linked: Boolean = false,
+    /** The GCD's own id for the character, when there is one; the page on comics.org uses it. */
+    val gcdId: Int? = null,
     val description: String = "",
     val firstYear: Int? = null,
     val alternateNames: List<String> = emptyList(),

@@ -148,6 +148,9 @@ private fun Details(info: CreatorInfo, actions: CreatorDetailActions) {
         if (info.credits == 0 && info.bio.isBlank() && info.otherNames.isEmpty()) {
             Body(stringResource(R.string.creator_no_details))
         }
+
+        // Creator ids are the GCD's own
+        AttributionBar("https://www.comics.org/creator/${info.creatorId}/")
     }
 }
 

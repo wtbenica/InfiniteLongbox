@@ -15,92 +15,72 @@
 
 package dev.benica.infinite_longbox.ui
 
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.platform.LocalUriHandler
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.LinkAnnotation
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextLinkStyles
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.withLink
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import dev.benica.infinite_longbox.R
 
-/** The data's license badge and a link to the issue on the Grand Comics Database. */
-@Composable
-fun AttributionBar(gcdIssueId: Int, modifier: Modifier = Modifier) {
-    val uri = LocalUriHandler.current
-    val licenseUrl = stringResource(R.string.url_cc_by_sa_4_0)
+/** Where the GCD's own site is, for a page that has no record of its own to link to. */
+const val GCD_HOME_URL = "https://www.comics.org/"
 
-    Row(
+/**
+ * Says where the data on a page comes from, as the GCD asks: credited to the Grand Comics
+ * Database™, linked to the page for [recordUrl] where there is one, with the license (CC BY-SA
+ * 4.0) linked as well. The About screen has the full notice.
+ */
+@Composable
+fun AttributionBar(recordUrl: String, modifier: Modifier = Modifier) {
+    val linkStyle = TextLinkStyles(
+        SpanStyle(
+            color = colorResource(R.color.accent_strong),
+            textDecoration = TextDecoration.Underline,
+        )
+    )
+    val licenseUrl = stringResource(R.string.url_cc_by_sa_4_0)
+    val prefix = stringResource(R.string.attribution_data_from)
+    val gcd = stringResource(R.string.grand_comic_database_tm)
+    val license = stringResource(R.string.attribution_license_name)
+
+    val text = buildAnnotatedString {
+        append(prefix)
+        append(" ")
+        withLink(LinkAnnotation.Url(recordUrl, linkStyle)) { append(gcd) }
+        append(" · ")
+        withLink(LinkAnnotation.Url(licenseUrl, linkStyle)) { append(license) }
+    }
+
+    Text(
+        text = text,
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = dimensionResource(R.dimen.margin_default)),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Image(
-            painter = painterResource(R.drawable.cc_by_sa),
-            contentDescription = stringResource(R.string.description_license_badge),
-            modifier = Modifier
-                .width(96.dp)
-                .clickable(role = Role.Button) { uri.openUri(licenseUrl) }
-                .padding(vertical = dimensionResource(R.dimen.margin_default)),
-        )
-        ExternalLink(stringResource(R.string.grand_comic_database_tm)) {
-            uri.openUri("https://www.comics.org/issue/$gcdIssueId")
-        }
-    }
-}
-
-/** Link text followed by the "opens elsewhere" icon. */
-@Composable
-private fun ExternalLink(text: String, onClick: () -> Unit) {
-    val color = colorResource(R.color.accent_strong)
-
-    Row(
-        modifier = Modifier
-            .clickable(role = Role.Button, onClick = onClick)
             .padding(
-                horizontal = dimensionResource(R.dimen.margin_narrow),
+                horizontal = dimensionResource(R.dimen.margin_wide),
                 vertical = dimensionResource(R.dimen.margin_default),
             ),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Text(
-            text = text,
-            color = color,
-            fontFamily = CondensedBlock,
-            fontWeight = FontWeight.Medium,
-            fontSize = 18.sp,
-        )
-        Image(
-            painter = painterResource(R.drawable.ic_open_in_new),
-            contentDescription = stringResource(R.string.description_open_link),
-            modifier = Modifier
-                .padding(start = dimensionResource(R.dimen.margin_narrow))
-                .size(18.dp),
-            colorFilter = ColorFilter.tint(color),
-        )
-    }
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        fontFamily = CondensedBlock,
+        fontSize = 14.sp,
+        textAlign = TextAlign.Center,
+    )
 }
 
 @Preview(showBackground = true, widthDp = 360)
 @Composable
 private fun AttributionBarPreview() {
-    InfiniteLongboxTheme { AttributionBar(gcdIssueId = 1) }
+    InfiniteLongboxTheme { AttributionBar(recordUrl = "https://www.comics.org/issue/1/") }
 }
