@@ -57,6 +57,9 @@ fun InfiniteLongboxTheme(content: @Composable () -> Unit) {
             onPrimaryContainer = colorResource(R.color.accent_strong),
             secondary = accent,
             onSecondary = onAccent,
+            // Chips and the like that are "selected" use these: the accent's soft shade, not the default purple
+            secondaryContainer = colorResource(R.color.accent_soft),
+            onSecondaryContainer = colorResource(R.color.accent_strong),
             background = surface,
             onBackground = textPrimary,
             surface = surface,
