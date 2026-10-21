@@ -15,6 +15,7 @@
 
 package dev.benica.infinite_longbox.repository
 
+import dev.benica.infinite_longbox.ui.IssueNumberText
 import java.time.Month
 import java.time.format.TextStyle
 import java.util.Locale
@@ -23,7 +24,10 @@ import java.util.Locale
 object CharacterInfoText {
     /** "Suicide Squad #23 (Jan 1989)"; the date as far as the issue has one. */
     fun issue(issue: IssueRef, locale: Locale = Locale.getDefault()): String {
-        val number = issue.number.takeIf { it.isNotBlank() }?.let { " #$it" }.orEmpty()
+        // "#27" for a number, the word for "Preview", nothing for an issue with no number
+        val number = IssueNumberText.of(issue.number)
+            .takeIf { it.main.isNotEmpty() && it.main != "Unnumbered" }
+            ?.let { " ${it.main}" }.orEmpty()
         val date = date(issue.keyDate, locale)
         return issue.seriesName + number + if (date.isEmpty()) "" else " ($date)"
     }

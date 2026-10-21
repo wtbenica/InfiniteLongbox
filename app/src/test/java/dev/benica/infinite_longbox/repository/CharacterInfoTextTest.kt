@@ -14,6 +14,12 @@ class CharacterInfoTextTest {
         assertEquals("Suicide Squad #23 (Jan 1989)", CharacterInfoText.issue(issue(), us))
 
     @Test
+    fun anUnnumberedIssueHasNoNumberAndAWordIsKept() {
+        assertEquals("Suicide Squad (Jan 1989)", CharacterInfoText.issue(issue(number = "[nn]"), us))
+        assertEquals("Suicide Squad Preview (Jan 1989)", CharacterInfoText.issue(issue(number = "Preview"), us))
+    }
+
+    @Test
     fun anIssueWithoutADateOrNumberIsJustItsSeries() =
         assertEquals("Suicide Squad", CharacterInfoText.issue(issue(number = "", keyDate = ""), us))
 
