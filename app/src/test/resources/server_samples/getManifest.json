@@ -1,0 +1,34 @@
+{
+ "publisher": {
+  "pages": 10,
+  "hashes": [
+   "78c507cc0cf6",
+   "9bac7599584b",
+   "d6784b9cda4c"
+  ]
+ },
+ "series": {
+  "pages": 135,
+  "hashes": [
+   "1087896be33a",
+   "e6dc01032d66",
+   "35743f3ff2c6"
+  ]
+ },
+ "name_detail": {
+  "pages": 106,
+  "hashes": [
+   "982e4811203e",
+   "b2902bd57a6e",
+   "9260c980fb85"
+  ]
+ },
+ "character": {
+  "pages": 1157,
+  "hashes": [
+   "56fc70f9f3b1",
+   "fe482403fc5d",
+   "5381bae9ea19"
+  ]
+ }
+}

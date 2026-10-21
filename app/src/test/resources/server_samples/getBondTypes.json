@@ -1,0 +1,29 @@
+[
+ {
+  "model": "db_query.gcdseriesbondtype",
+  "pk": 1,
+  "fields": {
+   "name": "minor_name_numbering_continues",
+   "description": "Tracks numbering from one series to another due to minor name changes.",
+   "notes": "Minor name changes include for example adding or dropping of leading articles."
+  }
+ },
+ {
+  "model": "db_query.gcdseriesbondtype",
+  "pk": 2,
+  "fields": {
+   "name": "major_name_numbering_continues",
+   "description": "Tracks numbering from one series to another due to major name changes.",
+   "notes": ""
+  }
+ },
+ {
+  "model": "db_query.gcdseriesbondtype",
+  "pk": 3,
+  "fields": {
+   "name": "publisher_numbering_continues",
+   "description": "Tracks numbering from one series to another due to publisher changes.",
+   "notes": ""
+  }
+ }
+]

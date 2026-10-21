@@ -1,0 +1,38 @@
+[
+  {
+    "model": "db_query.gcdpublisher",
+    "pk": 20,
+    "fields": {
+      "name": "McCormick Press",
+      "year_began": 1900,
+      "year_began_uncertain": 0,
+      "year_ended": null,
+      "year_ended_uncertain": 0,
+      "url": ""
+    }
+  },
+  {
+    "model": "db_query.gcdpublisher",
+    "pk": 22,
+    "fields": {
+      "name": "A.C. McClurg \u0026 Co.",
+      "year_began": 1903,
+      "year_began_uncertain": 0,
+      "year_ended": null,
+      "year_ended_uncertain": 0,
+      "url": ""
+    }
+  },
+  {
+    "model": "db_query.gcdpublisher",
+    "pk": 24,
+    "fields": {
+      "name": "Brown Shoe Co.",
+      "year_began": 1904,
+      "year_began_uncertain": 0,
+      "year_ended": null,
+      "year_ended_uncertain": 0,
+      "url": ""
+    }
+  }
+]

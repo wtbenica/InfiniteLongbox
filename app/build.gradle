@@ -40,6 +40,13 @@ android {
         compose true
         buildConfig true
     }
+    testOptions {
+        unitTests.all {
+            // ServerContractTest: -Dsnapshot.update=true rewrites the expected files it compares to
+            systemProperty "snapshot.update", System.getProperty("snapshot.update", "")
+            systemProperty "snapshot.dir", "${projectDir}/src/test/resources/server_samples"
+        }
+    }
     namespace 'dev.benica.infinite_longbox'
 }
 

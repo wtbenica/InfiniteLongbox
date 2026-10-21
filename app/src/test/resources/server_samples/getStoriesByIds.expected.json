@@ -1,0 +1,42 @@
+[
+  {
+    "model": "db_query.gcdstory",
+    "pk": 188119,
+    "fields": {
+      "title": "",
+      "feature": "",
+      "sequence_number": 0,
+      "issue": 29057,
+      "script": "",
+      "pencils": "",
+      "inks": "",
+      "colors": "",
+      "letters": "",
+      "editing": "",
+      "characters": "",
+      "synopsis": "",
+      "notes": "",
+      "type": 6
+    }
+  },
+  {
+    "model": "db_query.gcdstory",
+    "pk": 188120,
+    "fields": {
+      "title": "The Invaders",
+      "feature": "",
+      "sequence_number": 1,
+      "issue": 29057,
+      "script": "",
+      "pencils": "",
+      "inks": "",
+      "colors": "?",
+      "letters": "",
+      "editing": "",
+      "characters": "Kajo the Japanese champion of sumo; Yaku; Kao",
+      "synopsis": "Yang tries to stop Japanese invaders.  Sun Yang rescues Yaku and her father from being executed.",
+      "notes": "Story is divided into two parts. Part one is titled \"The Invaders\" and part two is titled \"To Die With Dignity....\".",
+      "type": 19
+    }
+  }
+]

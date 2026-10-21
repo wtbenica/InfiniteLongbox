@@ -1,0 +1,65 @@
+[
+ {
+  "model": "db_query.gcdextractedstorycredit",
+  "pk": 11,
+  "fields": {
+   "created": null,
+   "modified": null,
+   "deleted": 0,
+   "is_credited": 0,
+   "is_signed": 0,
+   "uncertain": 0,
+   "signed_as": "",
+   "credited_as": "",
+   "credit_name": "",
+   "creator": 16830,
+   "credit_type": 1,
+   "story": 359,
+   "signature": null,
+   "issue": 58,
+   "series": 54
+  }
+ },
+ {
+  "model": "db_query.gcdextractedstorycredit",
+  "pk": 12,
+  "fields": {
+   "created": null,
+   "modified": null,
+   "deleted": 0,
+   "is_credited": 0,
+   "is_signed": 0,
+   "uncertain": 0,
+   "signed_as": "",
+   "credited_as": "",
+   "credit_name": "",
+   "creator": 16830,
+   "credit_type": 2,
+   "story": 359,
+   "signature": null,
+   "issue": 58,
+   "series": 54
+  }
+ },
+ {
+  "model": "db_query.gcdextractedstorycredit",
+  "pk": 13,
+  "fields": {
+   "created": null,
+   "modified": null,
+   "deleted": 0,
+   "is_credited": 0,
+   "is_signed": 0,
+   "uncertain": 0,
+   "signed_as": "",
+   "credited_as": "",
+   "credit_name": "",
+   "creator": 16830,
+   "credit_type": 3,
+   "story": 359,
+   "signature": null,
+   "issue": 58,
+   "series": 54
+  }
+ }
+]

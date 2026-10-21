@@ -1,0 +1,76 @@
+{
+  "characterId": 150857,
+  "name": "Oracle",
+  "alterEgo": "Barbara Gordon",
+  "publisher": "DC",
+  "appearances": 2054,
+  "issues": 1257,
+  "firstAppearance": {
+    "issueId": 45712,
+    "seriesId": 3385,
+    "seriesName": "Suicide Squad",
+    "number": "23",
+    "keyDate": "1989-01-00",
+    "year": 1989
+  },
+  "origin": null,
+  "death": null,
+  "linked": true,
+  "gcdId": 4290,
+  "description": "",
+  "firstYear": 1989,
+  "alternateNames": [
+    "Orakel"
+  ],
+  "teams": [
+    {
+      "groupId": 808,
+      "name": "Suicide Squad",
+      "yearJoined": 1989,
+      "yearLeft": null,
+      "membership": "uncertain",
+      "notes": ""
+    },
+    {
+      "groupId": 2351,
+      "name": "Birds of Prey",
+      "yearJoined": 1996,
+      "yearLeft": null,
+      "membership": "formal",
+      "notes": ""
+    },
+    {
+      "groupId": 2,
+      "name": "Justice League of America",
+      "yearJoined": 1998,
+      "yearLeft": null,
+      "membership": "formal",
+      "notes": ""
+    },
+    {
+      "groupId": 653,
+      "name": "Batman Incorporated",
+      "yearJoined": 2011,
+      "yearLeft": null,
+      "membership": "formal",
+      "notes": ""
+    },
+    {
+      "groupId": 908,
+      "name": "The Resistance",
+      "yearJoined": 2021,
+      "yearLeft": null,
+      "membership": "uncertain",
+      "notes": "Seen as a member in Future State: Nightwing (DC, 2021 series) #2"
+    }
+  ],
+  "related": [
+    {
+      "relation": "alias of",
+      "characterId": 110957,
+      "name": "Barbara Gordon",
+      "alterEgo": "",
+      "detail": "Batgirl / Oracle"
+    }
+  ]
+}

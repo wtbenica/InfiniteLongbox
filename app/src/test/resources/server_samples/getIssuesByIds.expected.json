@@ -1,0 +1,40 @@
+[
+  {
+    "model": "db_query.gcdissue",
+    "pk": 14712,
+    "fields": {
+      "number": "17",
+      "series": 1194,
+      "sort_code": 34588,
+      "editing": "",
+      "publication_date": "November-December 1958",
+      "on_sale_date": "1958-09-18",
+      "on_sale_date_uncertain": 0,
+      "key_date": "1958-11-00",
+      "notes": "On-sale date from copyright registration.",
+      "no_barcode": 1,
+      "barcode": "",
+      "variant_name": "",
+      "variant_of": null
+    }
+  },
+  {
+    "model": "db_query.gcdissue",
+    "pk": 29057,
+    "fields": {
+      "number": "2",
+      "series": 2205,
+      "sort_code": 57526,
+      "editing": "",
+      "publication_date": "October 1975",
+      "on_sale_date": "",
+      "on_sale_date_uncertain": 0,
+      "key_date": "1975-10-00",
+      "notes": "",
+      "no_barcode": 0,
+      "barcode": "00123456789",
+      "variant_name": "",
+      "variant_of": null
+    }
+  }
+]

@@ -1,0 +1,62 @@
+[
+  {
+    "model": "db_query.gcdstory",
+    "pk": 119597,
+    "fields": {
+      "title": "The Planet and the Pendulum!",
+      "feature": "",
+      "sequence_number": 0,
+      "issue": 14712,
+      "script": "?",
+      "pencils": "",
+      "inks": "",
+      "colors": "?",
+      "letters": "",
+      "editing": "",
+      "characters": "Adam Strange",
+      "synopsis": "",
+      "notes": "",
+      "type": 6
+    }
+  },
+  {
+    "model": "db_query.gcdstory",
+    "pk": 119598,
+    "fields": {
+      "title": "Secret of the Eternal City!",
+      "feature": "",
+      "sequence_number": 2,
+      "issue": 14712,
+      "script": "",
+      "pencils": "",
+      "inks": "",
+      "colors": "?",
+      "letters": "",
+      "editing": "",
+      "characters": "Adam Strange (introduction, origin); Alanna [aka Allana] (introduction); Sardath (Alanna\u0027s father scientist, introduction); inhabitants of Samakand; The Eternals (villains, introduction for all)",
+      "synopsis": "An Earth archaeologist is caught by a \"zeta-beam\" and teleported to Rann near Alpha Centauri where he meets Alanna and Sardath. Alien invaders, called The Eternals, attack the planet while Adam and Alanna journey to the Brigadoon-like city of Samakand to locate a life-metal called \"vitatron.\" Adam tricks the aliens so they\u0027re stuck in Samakand, but then he fades away, returning to Earth, awaiting the next zeta-beam.",
+      "notes": "Adam wears his civilian work clothes throughout. The story length reflects that pages 8 and 15 of the story are only 2/3 of a page long, with an ad below on each of them.\r\n\r\nThough most sources have credited Sachs with the inks to this story, Gene Reed notes that Giacoia and Giella often co-inked stories and this is their work, not Sachs\u0027.  Bob Hughes also mentions that the first Adam Strange and Space Rangers stories were worked out in conference, so Ed Hamilton should be given co-plotting credit here. (Thanks to Victor Lim for bringing up this issue on the GCD Error Tracker.)",
+      "type": 19
+    }
+  },
+  {
+    "model": "db_query.gcdstory",
+    "pk": 119599,
+    "fields": {
+      "title": "The Planet and the Pendulum!",
+      "feature": "",
+      "sequence_number": 11,
+      "issue": 14712,
+      "script": "",
+      "pencils": "",
+      "inks": "",
+      "colors": "?",
+      "letters": "?",
+      "editing": "",
+      "characters": "New Ranagar citizens; barbarians of the tribe of Zoora from the city Yardana (villains); invaders from Morleen (villains)",
+      "synopsis": "Zapped by the zeta-beam, Adam is teleported to Rann, where he is captured by primitive tribesmen, who believe their “Rainbow Doom” device will execute him. However, the device is actually a teleporter which sends him to Rann’s sister planet Anthorann. He meets Alanna and Sardath, who had used knowledge from Samakand scientists to journey to Anthorann, but crashed.  Adam dons a Rann spacesuit from the wreckage and faces invaders from Morleen, who swing a \"diamondium\" pendulum to cut open the dome of New Ranagar. Adam ray-blasts the shaft, inducing the aliens to flee, then fades away to Earth.",
+      "notes": "The ending promises more in the next issue of \"Showcase\u0027s Adventures on Other Worlds!\"\r\n\r\nThough most sources have credited Sachs with the inks to this story, Gene Reed notes that Giacoia and Giella often co-inked stories and this is their work, not Sachs\u0027.  Bob Hughes also mentions that the first Adam Strange and Space Rangers stories were worked out in conference, so Hamilton should be given co-plotting credit here.  (Thanks to Victor Lim for bringing up this issue on the GCD Error Tracker.)",
+      "type": 19
+    }
+  }
+]

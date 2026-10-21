@@ -1,0 +1,40 @@
+[
+  {
+    "model": "db_query.gcdseries",
+    "pk": 2205,
+    "fields": {
+      "name": "House of Yang",
+      "sort_name": "House of Yang",
+      "year_began": 1975,
+      "year_began_uncertain": 0,
+      "year_ended": 1976,
+      "year_ended_uncertain": 0,
+      "publication_dates": "July 1975 - June 1976",
+      "publisher": 50,
+      "publishing_format": "Was ongoing",
+      "tracking_notes": "",
+      "first_issue": 28727,
+      "notes": "Spin-off featuring Yang\u0027s cousin Sun Yang, another martial artist, in 1890 China and environs.",
+      "issue_count": 6
+    }
+  },
+  {
+    "model": "db_query.gcdseries",
+    "pk": 3899,
+    "fields": {
+      "name": "Elementals",
+      "sort_name": "Elementals",
+      "year_began": 1989,
+      "year_began_uncertain": 0,
+      "year_ended": 1993,
+      "year_ended_uncertain": 0,
+      "publication_dates": "",
+      "publisher": 459,
+      "publishing_format": "was ongoing series",
+      "tracking_notes": "",
+      "first_issue": 45934,
+      "notes": "Second series.",
+      "issue_count": 26
+    }
+  }
+]

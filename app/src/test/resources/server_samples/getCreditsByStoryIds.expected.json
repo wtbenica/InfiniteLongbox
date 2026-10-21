@@ -1,0 +1,35 @@
+[
+  {
+    "model": "db_query.gcdstorycredit",
+    "pk": 9132600,
+    "fields": {
+      "creator": 11880,
+      "credit_type": 2,
+      "story": 188119,
+      "issue": 29057,
+      "series": 2205
+    }
+  },
+  {
+    "model": "db_query.gcdstorycredit",
+    "pk": 9132602,
+    "fields": {
+      "creator": 11880,
+      "credit_type": 3,
+      "story": 188119,
+      "issue": 29057,
+      "series": 2205
+    }
+  },
+  {
+    "model": "db_query.gcdstorycredit",
+    "pk": 9132604,
+    "fields": {
+      "creator": 11880,
+      "credit_type": 4,
+      "story": 188119,
+      "issue": 29057,
+      "series": 2205
+    }
+  }
+]

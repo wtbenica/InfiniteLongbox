@@ -1,0 +1,65 @@
+[
+ {
+  "model": "db_query.gcdstorycredit",
+  "pk": 9132600,
+  "fields": {
+   "created": "2025-01-05T08:31:53.121Z",
+   "modified": "2026-02-15T17:43:18.527Z",
+   "deleted": 0,
+   "is_credited": 0,
+   "is_signed": 1,
+   "uncertain": 0,
+   "signed_as": "",
+   "credited_as": "",
+   "credit_name": "painting",
+   "creator": 11880,
+   "credit_type": 2,
+   "story": 188119,
+   "signature": null,
+   "issue": 29057,
+   "series": 2205
+  }
+ },
+ {
+  "model": "db_query.gcdstorycredit",
+  "pk": 9132602,
+  "fields": {
+   "created": "2025-01-05T08:31:53.129Z",
+   "modified": "2026-02-15T17:43:18.541Z",
+   "deleted": 0,
+   "is_credited": 0,
+   "is_signed": 1,
+   "uncertain": 0,
+   "signed_as": "",
+   "credited_as": "",
+   "credit_name": "painting",
+   "creator": 11880,
+   "credit_type": 3,
+   "story": 188119,
+   "signature": null,
+   "issue": 29057,
+   "series": 2205
+  }
+ },
+ {
+  "model": "db_query.gcdstorycredit",
+  "pk": 9132604,
+  "fields": {
+   "created": "2025-01-05T08:31:53.139Z",
+   "modified": "2026-02-15T17:43:18.555Z",
+   "deleted": 0,
+   "is_credited": 0,
+   "is_signed": 1,
+   "uncertain": 0,
+   "signed_as": "",
+   "credited_as": "",
+   "credit_name": "painting",
+   "creator": 11880,
+   "credit_type": 4,
+   "story": 188119,
+   "signature": null,
+   "issue": 29057,
+   "series": 2205
+  }
+ }
+]

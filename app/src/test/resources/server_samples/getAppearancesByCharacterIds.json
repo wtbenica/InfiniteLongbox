@@ -1,0 +1,41 @@
+[
+ {
+  "model": "db_query.gcdcharacterappearance",
+  "pk": 401345,
+  "fields": {
+   "story": 252018,
+   "character": 150857,
+   "details": "Computer Screen Only",
+   "membership": null,
+   "notes": null,
+   "issue": 45844,
+   "series": 3385
+  }
+ },
+ {
+  "model": "db_query.gcdcharacterappearance",
+  "pk": 402506,
+  "fields": {
+   "story": 252923,
+   "character": 150857,
+   "details": "",
+   "membership": null,
+   "notes": null,
+   "issue": 46086,
+   "series": 3385
+  }
+ },
+ {
+  "model": "db_query.gcdcharacterappearance",
+  "pk": 405574,
+  "fields": {
+   "story": 254548,
+   "character": 150857,
+   "details": "",
+   "membership": null,
+   "notes": null,
+   "issue": 46573,
+   "series": 3385
+  }
+ }
+]

@@ -1,0 +1,90 @@
+[
+ {
+  "model": "db_query.gcdcreator",
+  "pk": 2,
+  "fields": {
+   "gcd_official_name": "Jack Kirby",
+   "whos_who": "http://bailsprojects.com/bio.aspx?Name=KIRBY%2C+JACK",
+   "birth_country_uncertain": 0,
+   "birth_province": "New York",
+   "birth_province_uncertain": 0,
+   "birth_city": "Lower East Side, Manhattan, New York City",
+   "birth_city_uncertain": 0,
+   "death_country_uncertain": 0,
+   "death_province": "California",
+   "death_province_uncertain": 0,
+   "death_city": "Thousand Oaks",
+   "death_city_uncertain": 0,
+   "bio": "American comic book artist, widely regarded as one of the medium's major innovators and one of its most prolific and influential creators. \r\n\r\nHe entered the nascent comics industry in the 1930s, drawing various comics features under different pen names. In 1940, he and writer-editor [gcd_link_creator](6805) created the highly successful superhero character [gcd_link_feature](1211) for what became [gcd_link_publisher](78). During the 1940s, Kirby regularly teamed with Simon, creating numerous characters for that company and for the predecessor of [gcd_link_publisher](54). \r\n\r\nAfter World War II, he and Simon created the genre of romance comics. Kirby was involved in  Atlas Comics, which in the next decade became Marvel. There, in the 1960s, Kirby co-created many of the company's major features, including [gcd_link_feature](1470), [gcd_link_feature](1132), [gcd_link_feature](1065), [gcd_link_feature](400), [gcd_link_feature](35), among many others. Kirby's titles garnered high sales and critical acclaim, but in 1970, feeling he had been treated unfairly, largely in the realm of authorship credit and creators' rights, Kirby left the company for rival [gcd_link_publisher](54). \r\n\r\nAt DC, Kirby created his Fourth World saga which spanned several comics titles. While these series proved commercially unsuccessful and were canceled, the Fourth World's [gcd_link_feature](5882) have continued as a significant part of the DC Universe. Kirby later ventured into television animation and independent comics. In his later years, Kirby, began receiving great recognition in the mainstream press for his career accomplishments, and in 1987 he was one of the three inaugural inductees of the Will Eisner Comic Book Hall of Fame.",
+   "notes": "A full list of works credited to Jack Kirby is at The Jack Kirby Digital Archive, https://kirbymuseum.org/oada/ .\r\n\r\nTo be confirmed against the Who's Who entry.\r\n\r\nJack Kirby signed 1978 Marvel covers with fellow creator Joe Sinnott as K/S. Jon Henri is a pen name with Joe Simon.",
+   "created": "2017-12-10T13:41:27Z",
+   "modified": "2025-11-09T18:47:23Z",
+   "deleted": 0,
+   "birth_country": [
+    "United States",
+    "225"
+   ],
+   "birth_date": [
+    "735018",
+    "1917",
+    "08",
+    "28"
+   ],
+   "death_country": [
+    "United States",
+    "225"
+   ],
+   "death_date": [
+    "735019",
+    "1994",
+    "02",
+    "06"
+   ],
+   "sort_name": "Kirby, Jack"
+  }
+ },
+ {
+  "model": "db_query.gcdcreator",
+  "pk": 1290,
+  "fields": {
+   "gcd_official_name": "Bill Ward",
+   "whos_who": "http://bailsprojects.com/bio.aspx?Name=WARD%2C+BILL",
+   "birth_country_uncertain": 0,
+   "birth_province": "New York",
+   "birth_province_uncertain": 0,
+   "birth_city": "Brooklyn, New York City",
+   "birth_city_uncertain": 0,
+   "death_country_uncertain": 0,
+   "death_province": "New Jersey",
+   "death_province_uncertain": 0,
+   "death_city": "",
+   "death_city_uncertain": 0,
+   "bio": "",
+   "notes": "To be confirmed against the Who's Who entry.",
+   "created": "2017-12-10T13:48:06Z",
+   "modified": "2026-01-21T05:29:17Z",
+   "deleted": 0,
+   "birth_country": [
+    "United States",
+    "225"
+   ],
+   "birth_date": [
+    "767014",
+    "1919",
+    "03",
+    "06"
+   ],
+   "death_country": [
+    "United States",
+    "225"
+   ],
+   "death_date": [
+    "767015",
+    "1998",
+    "11",
+    "17"
+   ],
+   "sort_name": "Ward, Bill"
+  }
+ }
+]

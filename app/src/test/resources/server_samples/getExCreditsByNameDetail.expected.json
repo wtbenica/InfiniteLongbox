@@ -1,0 +1,35 @@
+[
+  {
+    "model": "db_query.gcdextractedstorycredit",
+    "pk": 11,
+    "fields": {
+      "creator": 16830,
+      "credit_type": 1,
+      "story": 359,
+      "issue": 58,
+      "series": 54
+    }
+  },
+  {
+    "model": "db_query.gcdextractedstorycredit",
+    "pk": 12,
+    "fields": {
+      "creator": 16830,
+      "credit_type": 2,
+      "story": 359,
+      "issue": 58,
+      "series": 54
+    }
+  },
+  {
+    "model": "db_query.gcdextractedstorycredit",
+    "pk": 13,
+    "fields": {
+      "creator": 16830,
+      "credit_type": 3,
+      "story": 359,
+      "issue": 58,
+      "series": 54
+    }
+  }
+]

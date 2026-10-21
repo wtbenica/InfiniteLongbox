@@ -1,0 +1,26 @@
+[
+  {
+    "model": "db_query.gcdstorytype",
+    "pk": 1,
+    "fields": {
+      "name": "activity",
+      "sort_code": 24
+    }
+  },
+  {
+    "model": "db_query.gcdstorytype",
+    "pk": 2,
+    "fields": {
+      "name": "advertisement",
+      "sort_code": 21
+    }
+  },
+  {
+    "model": "db_query.gcdstorytype",
+    "pk": 3,
+    "fields": {
+      "name": "(backcovers) *do not use* / *please fix*",
+      "sort_code": 500
+    }
+  }
+]

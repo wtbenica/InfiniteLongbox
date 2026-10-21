@@ -1,0 +1,21 @@
+[
+  {
+    "model": "db_query.gcdissue",
+    "pk": 73858,
+    "fields": {
+      "number": "11",
+      "series": 7770,
+      "sort_code": 111906,
+      "editing": "",
+      "publication_date": "January 2001",
+      "on_sale_date": "2000-11-15",
+      "on_sale_date_uncertain": 0,
+      "key_date": "2001-01-00",
+      "notes": "Double-Size.",
+      "no_barcode": 0,
+      "barcode": "76194022177901111",
+      "variant_name": "Direct Sales",
+      "variant_of": null
+    }
+  }
+]

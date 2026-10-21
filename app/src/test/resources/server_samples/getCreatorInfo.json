@@ -1,0 +1,110 @@
+{
+ "creatorId": 1290,
+ "name": "Bill Ward",
+ "disambiguation": "American artist",
+ "born": {
+  "date": "Mar 6, 1919",
+  "place": "Brooklyn, New York City, New York, United States"
+ },
+ "died": {
+  "date": "Nov 17, 1998",
+  "place": "New Jersey, United States"
+ },
+ "bio": "",
+ "otherNames": [
+  {
+   "name": "Bill McCartney",
+   "kind": "pen name"
+  },
+  {
+   "name": "McCartney",
+   "kind": "pen name"
+  },
+  {
+   "name": "William Hess Ward",
+   "kind": "birth name"
+  }
+ ],
+ "credits": 2765,
+ "issues": 842,
+ "roles": [
+  {
+   "role": "Penciler",
+   "count": 1217
+  },
+  {
+   "role": "Inker",
+   "count": 1215
+  },
+  {
+   "role": "Writer",
+   "count": 316
+  },
+  {
+   "role": "Letterer",
+   "count": 13
+  },
+  {
+   "role": "Colorist",
+   "count": 4
+  }
+ ],
+ "firstCredit": {
+  "issueId": 1212,
+  "seriesId": 251,
+  "seriesName": "Spy Smasher",
+  "number": "2",
+  "keyDate": "1941-09-26",
+  "year": 1941
+ },
+ "latestCredit": {
+  "issueId": 2609161,
+  "seriesId": 208941,
+  "seriesName": "Bill Ward: The Fantagraphics Studio Edition",
+  "number": "[nn]",
+  "keyDate": "2023-10-00",
+  "year": 2023
+ },
+ "topSeries": [
+  {
+   "seriesId": 14478,
+   "seriesName": "Cracked",
+   "issues": 176
+  },
+  {
+   "seriesId": 344,
+   "seriesName": "Blackhawk",
+   "issues": 45
+  },
+  {
+   "seriesId": 35707,
+   "seriesName": "Popular Cartoons",
+   "issues": 43
+  },
+  {
+   "seriesId": 402,
+   "seriesName": "Modern Comics",
+   "issues": 38
+  },
+  {
+   "seriesId": 185,
+   "seriesName": "Master Comics",
+   "issues": 30
+  },
+  {
+   "seriesId": 72624,
+   "seriesName": "Comedy",
+   "issues": 28
+  },
+  {
+   "seriesId": 75376,
+   "seriesName": "Joker",
+   "issues": 26
+  },
+  {
+   "seriesId": 76190,
+   "seriesName": "Jest",
+   "issues": 23
+  }
+ ]
+}

@@ -1,0 +1,59 @@
+[
+  {
+    "model": "db_query.gcdseries",
+    "pk": 23,
+    "fields": {
+      "name": "The Courtship of Tags",
+      "sort_name": "Courtship of Tags",
+      "year_began": 1910,
+      "year_began_uncertain": 0,
+      "year_ended": 1910,
+      "year_ended_uncertain": 0,
+      "publication_dates": "",
+      "publisher": 20,
+      "publishing_format": "",
+      "tracking_notes": "",
+      "first_issue": 26,
+      "notes": "",
+      "issue_count": 1
+    }
+  },
+  {
+    "model": "db_query.gcdseries",
+    "pk": 25,
+    "fields": {
+      "name": "Cartoons by McCutcheon",
+      "sort_name": "Cartoons by McCutcheon",
+      "year_began": 1903,
+      "year_began_uncertain": 0,
+      "year_ended": 1903,
+      "year_ended_uncertain": 0,
+      "publication_dates": "",
+      "publisher": 22,
+      "publishing_format": "",
+      "tracking_notes": "",
+      "first_issue": 27,
+      "notes": "",
+      "issue_count": 1
+    }
+  },
+  {
+    "model": "db_query.gcdseries",
+    "pk": 27,
+    "fields": {
+      "name": "Bird Center Cartoons",
+      "sort_name": "Bird Center Cartoons",
+      "year_began": 1904,
+      "year_began_uncertain": 0,
+      "year_ended": 1904,
+      "year_ended_uncertain": 0,
+      "publication_dates": "",
+      "publisher": 22,
+      "publishing_format": "",
+      "tracking_notes": "",
+      "first_issue": 29,
+      "notes": "",
+      "issue_count": 1
+    }
+  }
+]

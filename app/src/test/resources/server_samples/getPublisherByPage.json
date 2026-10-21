@@ -1,0 +1,86 @@
+[
+ {
+  "model": "db_query.gcdpublisher",
+  "pk": 20,
+  "fields": {
+   "name": "McCormick Press",
+   "country": [
+    "United States",
+    "225"
+   ],
+   "year_began": 1900,
+   "year_ended": null,
+   "notes": "",
+   "url": "",
+   "brand_count": 0,
+   "indicia_publisher_count": 0,
+   "series_count": 1,
+   "created": "1999-06-15T00:00:00Z",
+   "modified": "2015-05-26T20:03:43Z",
+   "issue_count": 1,
+   "deleted": 0,
+   "year_began_uncertain": 0,
+   "year_ended_uncertain": 0,
+   "year_overall_began": null,
+   "year_overall_began_uncertain": 0,
+   "year_overall_ended": null,
+   "year_overall_ended_uncertain": 0
+  }
+ },
+ {
+  "model": "db_query.gcdpublisher",
+  "pk": 22,
+  "fields": {
+   "name": "A.C. McClurg & Co.",
+   "country": [
+    "United States",
+    "225"
+   ],
+   "year_began": 1903,
+   "year_ended": null,
+   "notes": "",
+   "url": "",
+   "brand_count": 0,
+   "indicia_publisher_count": 0,
+   "series_count": 2,
+   "created": "1999-06-15T00:00:00Z",
+   "modified": "2015-05-26T19:57:43Z",
+   "issue_count": 2,
+   "deleted": 0,
+   "year_began_uncertain": 0,
+   "year_ended_uncertain": 0,
+   "year_overall_began": null,
+   "year_overall_began_uncertain": 0,
+   "year_overall_ended": null,
+   "year_overall_ended_uncertain": 0
+  }
+ },
+ {
+  "model": "db_query.gcdpublisher",
+  "pk": 24,
+  "fields": {
+   "name": "Brown Shoe Co.",
+   "country": [
+    "United States",
+    "225"
+   ],
+   "year_began": 1904,
+   "year_ended": null,
+   "notes": "",
+   "url": "",
+   "brand_count": 1,
+   "indicia_publisher_count": 0,
+   "series_count": 9,
+   "created": "1999-06-15T00:00:00Z",
+   "modified": "2023-05-13T07:34:02Z",
+   "issue_count": 59,
+   "deleted": 0,
+   "year_began_uncertain": 0,
+   "year_ended_uncertain": 0,
+   "year_overall_began": null,
+   "year_overall_began_uncertain": 0,
+   "year_overall_ended": null,
+   "year_overall_ended_uncertain": 0
+  }
+ }
+]

@@ -1,0 +1,20 @@
+[
+  {
+    "model": "db_query.gcdcreator",
+    "pk": 2,
+    "fields": {
+      "gcd_official_name": "Jack Kirby",
+      "sort_name": "Kirby, Jack",
+      "bio": "American comic book artist, widely regarded as one of the medium\u0027s major innovators and one of its most prolific and influential creators. \r\n\r\nHe entered the nascent comics industry in the 1930s, drawing various comics features under different pen names. In 1940, he and writer-editor [gcd_link_creator](6805) created the highly successful superhero character [gcd_link_feature](1211) for what became [gcd_link_publisher](78). During the 1940s, Kirby regularly teamed with Simon, creating numerous characters for that company and for the predecessor of [gcd_link_publisher](54). \r\n\r\nAfter World War II, he and Simon created the genre of romance comics. Kirby was involved in  Atlas Comics, which in the next decade became Marvel. There, in the 1960s, Kirby co-created many of the company\u0027s major features, including [gcd_link_feature](1470), [gcd_link_feature](1132), [gcd_link_feature](1065), [gcd_link_feature](400), [gcd_link_feature](35), among many others. Kirby\u0027s titles garnered high sales and critical acclaim, but in 1970, feeling he had been treated unfairly, largely in the realm of authorship credit and creators\u0027 rights, Kirby left the company for rival [gcd_link_publisher](54). \r\n\r\nAt DC, Kirby created his Fourth World saga which spanned several comics titles. While these series proved commercially unsuccessful and were canceled, the Fourth World\u0027s [gcd_link_feature](5882) have continued as a significant part of the DC Universe. Kirby later ventured into television animation and independent comics. In his later years, Kirby, began receiving great recognition in the mainstream press for his career accomplishments, and in 1987 he was one of the three inaugural inductees of the Will Eisner Comic Book Hall of Fame."
+    }
+  },
+  {
+    "model": "db_query.gcdcreator",
+    "pk": 1290,
+    "fields": {
+      "gcd_official_name": "Bill Ward",
+      "sort_name": "Ward, Bill",
+      "bio": ""
+    }
+  }
+]

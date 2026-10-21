@@ -1,0 +1,41 @@
+[
+ {
+  "model": "db_query.gcdcharacterappearance",
+  "pk": 5393152,
+  "fields": {
+   "story": 188119,
+   "character": 711775,
+   "details": "",
+   "membership": null,
+   "notes": null,
+   "issue": 29057,
+   "series": 2205
+  }
+ },
+ {
+  "model": "db_query.gcdcharacterappearance",
+  "pk": 287114,
+  "fields": {
+   "story": 188120,
+   "character": 118596,
+   "details": "",
+   "membership": null,
+   "notes": null,
+   "issue": 29057,
+   "series": 2205
+  }
+ },
+ {
+  "model": "db_query.gcdcharacterappearance",
+  "pk": 287115,
+  "fields": {
+   "story": 188120,
+   "character": 118597,
+   "details": "",
+   "membership": null,
+   "notes": null,
+   "issue": 29057,
+   "series": 2205
+  }
+ }
+]

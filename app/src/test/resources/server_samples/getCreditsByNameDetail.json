@@ -1,0 +1,65 @@
+[
+ {
+  "model": "db_query.gcdstorycredit",
+  "pk": 4880,
+  "fields": {
+   "created": "2019-12-16T20:58:46.916Z",
+   "modified": "2024-03-22T23:17:46.108Z",
+   "deleted": 0,
+   "is_credited": 0,
+   "is_signed": 0,
+   "uncertain": 0,
+   "signed_as": "",
+   "credited_as": "",
+   "credit_name": "",
+   "creator": 6724,
+   "credit_type": 1,
+   "story": 109428,
+   "signature": null,
+   "issue": 13121,
+   "series": 1123
+  }
+ },
+ {
+  "model": "db_query.gcdstorycredit",
+  "pk": 4965,
+  "fields": {
+   "created": "2019-12-16T23:18:46.776Z",
+   "modified": "2024-03-22T23:37:45.481Z",
+   "deleted": 0,
+   "is_credited": 0,
+   "is_signed": 0,
+   "uncertain": 0,
+   "signed_as": "",
+   "credited_as": "",
+   "credit_name": "",
+   "creator": 6724,
+   "credit_type": 1,
+   "story": 105648,
+   "signature": null,
+   "issue": 12510,
+   "series": 1123
+  }
+ },
+ {
+  "model": "db_query.gcdstorycredit",
+  "pk": 6343,
+  "fields": {
+   "created": "2019-12-18T21:35:30.317Z",
+   "modified": "2025-02-23T04:37:35.605Z",
+   "deleted": 0,
+   "is_credited": 0,
+   "is_signed": 1,
+   "uncertain": 0,
+   "signed_as": "",
+   "credited_as": "",
+   "credit_name": "",
+   "creator": 6724,
+   "credit_type": 1,
+   "story": 446258,
+   "signature": 1951,
+   "issue": 171731,
+   "series": 2207
+  }
+ }
+]

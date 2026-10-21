@@ -1,0 +1,59 @@
+[
+  {
+    "model": "db_query.gcdissue",
+    "pk": 45934,
+    "fields": {
+      "number": "1",
+      "series": 3899,
+      "sort_code": 79411,
+      "editing": "",
+      "publication_date": "March 1989",
+      "on_sale_date": "1989-03-28",
+      "on_sale_date_uncertain": 0,
+      "key_date": "1989-03-28",
+      "notes": "",
+      "no_barcode": 1,
+      "barcode": "",
+      "variant_name": "",
+      "variant_of": null
+    }
+  },
+  {
+    "model": "db_query.gcdissue",
+    "pk": 46052,
+    "fields": {
+      "number": "2",
+      "series": 3899,
+      "sort_code": 79412,
+      "editing": "",
+      "publication_date": "April 1989",
+      "on_sale_date": "1989-04-25",
+      "on_sale_date_uncertain": 0,
+      "key_date": "1989-04-25",
+      "notes": "",
+      "no_barcode": 1,
+      "barcode": "",
+      "variant_name": "",
+      "variant_of": null
+    }
+  },
+  {
+    "model": "db_query.gcdissue",
+    "pk": 46178,
+    "fields": {
+      "number": "3",
+      "series": 3899,
+      "sort_code": 79413,
+      "editing": "",
+      "publication_date": "May 1989",
+      "on_sale_date": "1989-05-23",
+      "on_sale_date_uncertain": 0,
+      "key_date": "1989-05-23",
+      "notes": "",
+      "no_barcode": 1,
+      "barcode": "",
+      "variant_name": "",
+      "variant_of": null
+    }
+  }
+]

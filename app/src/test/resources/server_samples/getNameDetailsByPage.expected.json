@@ -1,0 +1,29 @@
+[
+  {
+    "model": "db_query.gcdcreatornamedetail",
+    "pk": 1,
+    "fields": {
+      "creator": 1,
+      "name": "Will Eisner",
+      "sort_name": "Eisner, Will"
+    }
+  },
+  {
+    "model": "db_query.gcdcreatornamedetail",
+    "pk": 2,
+    "fields": {
+      "creator": 2,
+      "name": "Jack Kirby",
+      "sort_name": "Kirby, Jack"
+    }
+  },
+  {
+    "model": "db_query.gcdcreatornamedetail",
+    "pk": 3,
+    "fields": {
+      "creator": 3,
+      "name": "Osamu Tezuka",
+      "sort_name": "Tezuka, Osamu"
+    }
+  }
+]

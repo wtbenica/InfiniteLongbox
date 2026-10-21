@@ -1,0 +1,26 @@
+[
+  {
+    "model": "db_query.gcdcredittype",
+    "pk": 1,
+    "fields": {
+      "name": "script",
+      "sort_code": 1
+    }
+  },
+  {
+    "model": "db_query.gcdcredittype",
+    "pk": 2,
+    "fields": {
+      "name": "pencils",
+      "sort_code": 10
+    }
+  },
+  {
+    "model": "db_query.gcdcredittype",
+    "pk": 3,
+    "fields": {
+      "name": "inks",
+      "sort_code": 20
+    }
+  }
+]

@@ -1,0 +1,20 @@
+[
+ {
+  "model": "db_query.gcdcharacter",
+  "pk": 145731,
+  "fields": {
+   "name": "Monolith",
+   "alter_ego": null,
+   "publisher": 459
+  }
+ },
+ {
+  "model": "db_query.gcdcharacter",
+  "pk": 150857,
+  "fields": {
+   "name": "Oracle",
+   "alter_ego": "Barbara Gordon",
+   "publisher": 54
+  }
+ }
+]

@@ -1,0 +1,29 @@
+[
+  {
+    "model": "db_query.gcdcharacter",
+    "pk": 1,
+    "fields": {
+      "name": "Daral",
+      "alter_ego": null,
+      "publisher": 405
+    }
+  },
+  {
+    "model": "db_query.gcdcharacter",
+    "pk": 2,
+    "fields": {
+      "name": "Elfa the Evil",
+      "alter_ego": null,
+      "publisher": 405
+    }
+  },
+  {
+    "model": "db_query.gcdcharacter",
+    "pk": 5,
+    "fields": {
+      "name": "Tags",
+      "alter_ego": null,
+      "publisher": 20
+    }
+  }
+]

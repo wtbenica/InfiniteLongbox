@@ -1,0 +1,38 @@
+[
+  {
+    "model": "db_query.gcdseriesbond",
+    "pk": 1,
+    "fields": {
+      "origin": 4613,
+      "target": 7124,
+      "origin_issue": 230288,
+      "target_issue": 64325,
+      "bond_type": 2,
+      "notes": ""
+    }
+  },
+  {
+    "model": "db_query.gcdseriesbond",
+    "pk": 7,
+    "fields": {
+      "origin": 16765,
+      "target": 16766,
+      "origin_issue": 275279,
+      "target_issue": 275280,
+      "bond_type": 2,
+      "notes": ""
+    }
+  },
+  {
+    "model": "db_query.gcdseriesbond",
+    "pk": 19,
+    "fields": {
+      "origin": 10795,
+      "target": 11247,
+      "origin_issue": 127058,
+      "target_issue": 136099,
+      "bond_type": 3,
+      "notes": ""
+    }
+  }
+]
