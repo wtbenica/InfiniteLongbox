@@ -225,7 +225,7 @@ class IssueListFragment : ListFragment<FullIssue, IssueListFragment.IssueViewHol
                 placeholderKey = item.placeholderKey(),
                 number = issue.issueNumRaw.orEmpty(),
                 variantName = issue.variantName.takeIf { it.isNotEmpty() && issue.variantOf != null },
-                cover = coverUri?.path?.let { File(it) },
+                cover = coverUri?.path?.let { File(it) }?.takeIf { it.exists() },
                 // Not found yet (still looking) vs looked for and missing
                 loadingCover = coverUri == null && item.cover == null,
                 inCollection = BaseCollection.MY_COLL.id in collectionIds,

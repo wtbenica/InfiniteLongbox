@@ -153,7 +153,7 @@ class SeriesListFragment : ListFragment<FullSeries, SeriesListFragment.SeriesHol
                 publisher = item.publisher.publisher,
                 dateRange = item.series.dateRange,
                 format = item.series.publishingFormat?.lowercase().orEmpty(),
-                cover = coverUri?.path?.let { File(it) },
+                cover = coverUri?.path?.let { File(it) }?.takeIf { it.exists() },
                 loadingCover = !(firstIssue == null || coverUri != null || firstIssue.cover != null),
             )
 
