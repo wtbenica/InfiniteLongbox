@@ -21,9 +21,7 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.ImageDecoder
 import android.net.Uri
-import android.os.Build
 import android.util.Log
-import androidx.annotation.RequiresApi
 import dev.benica.infinite_longbox.APP
 import dev.benica.infinite_longbox.BuildConfig
 import dev.benica.infinite_longbox.R
@@ -76,11 +74,7 @@ private fun decodeCover(context: Context, source: Uri): DecodedCover {
         }
 
         return try {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                decodeWithImageDecoder(temp)
-            } else {
-                DecodedCover(decodeWithBitmapFactory(temp), trimmed = false)
-            }
+            decodeWithImageDecoder(temp)
         } catch (e: Exception) {
             keepFailedPick(context, temp)
             throw e
@@ -116,7 +110,6 @@ private class DecodedCover(val bitmap: Bitmap, val trimmed: Boolean)
 /** Up to this fraction of a cover may be missing (blank) at the bottom and still be accepted. */
 private const val MAX_MISSING_FRACTION = 0.06f
 
-@RequiresApi(Build.VERSION_CODES.P)
 private fun decodeWithImageDecoder(file: File): DecodedCover {
     var incomplete = false
     val bitmap = ImageDecoder.decodeBitmap(ImageDecoder.createSource(file)) { decoder, info, _ ->
@@ -162,27 +155,6 @@ private fun missingTailFraction(bitmap: Bitmap): Float {
         blank++
     }
     return blank.toFloat() / height
-}
-
-/** Fallback for Android 8: no rotation handling, but it still refuses truncated JPEGs. */
-private fun decodeWithBitmapFactory(file: File): Bitmap {
-    val bytes = file.length()
-    file.inputStream().use { stream ->
-        val head = ByteArray(2).also { stream.read(it) }
-        val isJpeg = head[0] == 0xFF.toByte() && head[1] == 0xD8.toByte()
-        if (isJpeg && bytes >= 2) {
-            RandomAccessFile(file, "r").use { raf ->
-                raf.seek(bytes - 2)
-                if (raf.readUnsignedShort() != 0xFFD9) throw IOException("Truncated JPEG")
-            }
-        }
-    }
-    val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
-    BitmapFactory.decodeFile(file.path, bounds)
-    var sample = 1
-    while (max(bounds.outWidth, bounds.outHeight) / sample > MAX_COVER_SIDE) sample *= 2
-    return BitmapFactory.decodeFile(file.path, BitmapFactory.Options().apply { inSampleSize = sample })
-        ?: throw IOException("Couldn't decode the image")
 }
 
 /**

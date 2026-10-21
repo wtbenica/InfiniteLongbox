@@ -18,7 +18,11 @@
   (surface, text_primary, accent, ...). Light and dark are the same theme: only the role colors differ.
 -->
 <resources>
-    <style name="Theme.InfiniteLongbox" parent="BaseTheme" />
+    <style name="Theme.InfiniteLongbox" parent="BaseTheme">
+        <item name="android:windowLightNavigationBar">true</item>
+        <item name="android:enforceStatusBarContrast">false</item>
+        <item name="android:enforceNavigationBarContrast">false</item>
+    </style>
 
     <!-- The Light parent hard-codes a light dialog surface; follow the role colors instead -->
     <style name="AppAlertDialog" parent="Theme.MaterialComponents.Light.Dialog.Alert">
