@@ -95,10 +95,6 @@ class UpdateIssueCover private constructor(
             CoverPlan.NOTHING -> Unit
             CoverPlan.LINK -> database.coverDao().setCover(Cover(issue = issueId, coverUri = uri, markedDelete = marked))
             CoverPlan.DOWNLOAD, CoverPlan.RECHECK -> {
-                // A row pointing at a missing file changes when the file arrives, so the card redraws
-                if (row?.hasImage == true && !file.exists()) {
-                    database.coverDao().setCover(Cover(issue = issueId, coverUri = null, markedDelete = marked))
-                }
                 val since = file.takeIf { it.exists() }?.lastModified()
                 when (LoadTracker.track { fetchCover(issue.issue.url, file, since) }) {
                     CoverFetch.Saved, CoverFetch.NotModified ->

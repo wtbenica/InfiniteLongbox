@@ -316,16 +316,13 @@ class Repository private constructor(val context: Context) {
         if (issueId != AUTO_ID) updater.requestIssueAndCover(issueId, markedDelete)
     }
 
-    private val seriesCoverRequested = java.util.concurrent.ConcurrentHashMap.newKeySet<Int>()
-
     /**
      * Fetches a cover for a series whose first issue has none (see [StaticUpdater.fetchSeriesCover]).
-     * Asked once per series while the app runs: a card binds again each time it scrolls into view.
+     * Asked once per series while the app runs, unless the server could not be reached: a card
+     * binds again each time it scrolls into view.
      */
     fun fetchSeriesCover(seriesId: Int) {
-        if (hasConnection && seriesCoverRequested.add(seriesId)) {
-            updater.requestSeriesCover(seriesId)
-        }
+        if (hasConnection) updater.requestSeriesCover(seriesId)
     }
 
     fun getIssue(issueId: Int, markedDelete: Boolean = true): Flow<FullIssue?> {

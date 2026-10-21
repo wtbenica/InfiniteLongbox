@@ -350,7 +350,12 @@ class StaticUpdater private constructor(
         null
     }
 
-    internal fun requestSeriesCover(seriesId: Int) = seriesCovers.request(seriesId)
+    /** Series already asked about; one that could not be asked (offline, an error) is let go to be asked again. */
+    private val seriesCoverAsked = java.util.concurrent.ConcurrentHashMap.newKeySet<Int>()
+
+    internal fun requestSeriesCover(seriesId: Int) {
+        if (seriesCoverAsked.add(seriesId)) seriesCovers.request(seriesId)
+    }
 
     private val seriesCovers = RequestBatcher<Int>(CoroutineScope(Dispatchers.IO), CARD_BATCH_MS) { ids ->
         fetchSeriesCovers(ids)
@@ -361,12 +366,15 @@ class StaticUpdater private constructor(
             seriesIds.chunked(100).map { webservice.getSeriesCovers(it) }.fold(emptyMap<String, List<Int>>()) { a, m -> a + m }
         } catch (e: java.io.IOException) {
             Log.d(TAG, "fetchSeriesCovers $e")
+            seriesCoverAsked.removeAll(seriesIds)
             return
         } catch (e: retrofit2.HttpException) {
             Log.d(TAG, "fetchSeriesCovers $e")
+            seriesCoverAsked.removeAll(seriesIds)
             return
         } catch (e: kotlinx.serialization.SerializationException) {
             Log.w(TAG, "fetchSeriesCovers: the server's answer was not what was expected: $e")
+            seriesCoverAsked.removeAll(seriesIds)
             return
         }
         val issueIds = covers.values.mapNotNull { it.firstOrNull() }
