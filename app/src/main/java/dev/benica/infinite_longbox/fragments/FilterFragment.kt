@@ -360,8 +360,9 @@ class FilterFragment : Fragment(),
     }
 
     override fun setFilterTypesVisibility(isVisible: Boolean) {
+        // Only the row of types comes and goes: the other rows stay, so the collection, sort and
+        // date can be changed without closing the search first
         filterTypeScrollView.visibility = if (isVisible) VISIBLE else GONE
-        chipSections.visibility = if (isVisible) GONE else VISIBLE
     }
 
     // ChippyCallback
