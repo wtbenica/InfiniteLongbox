@@ -21,10 +21,6 @@ import android.content.pm.PackageManager
 import android.os.Bundle
 import android.os.SystemClock
 import android.util.Size
-import android.view.MotionEvent
-import android.view.View
-import android.view.ViewGroup
-import android.widget.CompoundButton
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
@@ -37,10 +33,15 @@ import androidx.camera.core.resolutionselector.ResolutionSelector
 import androidx.camera.core.resolutionselector.ResolutionStrategy
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.platform.ComposeView
 import androidx.core.content.ContextCompat
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.updatePadding
+import androidx.core.view.WindowCompat
+import dev.benica.infinite_longbox.ui.InfiniteLongboxTheme
+import dev.benica.infinite_longbox.ui.ScanScreen
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
@@ -55,7 +56,8 @@ import zxingcpp.BarcodeReader
  */
 class ScanActivity : AppCompatActivity() {
 
-    private lateinit var previewView: PreviewView
+    private var previewView: PreviewView? = null
+    private var torchOn by mutableStateOf(false)
     private var camera: Camera? = null
     private val analysisExecutor: ExecutorService = Executors.newSingleThreadExecutor()
 
@@ -86,40 +88,36 @@ class ScanActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_scan)
+        // The picture draws under the system bars; the hint and the light switch keep clear of them
+        WindowCompat.setDecorFitsSystemWindows(window, false)
 
-        previewView = findViewById(R.id.scan_preview)
-
-        // The window draws under the system bars; keep the hint and button clear of them
-        val hint = findViewById<View>(R.id.scan_hint)
-        val torch = findViewById<View>(R.id.scan_torch)
-        val hintPadding = hint.paddingTop
-        val torchMargin = (torch.layoutParams as ViewGroup.MarginLayoutParams).bottomMargin
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.scan_root)) { _, insets ->
-            val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            hint.updatePadding(top = hintPadding + bars.top)
-            (torch.layoutParams as ViewGroup.MarginLayoutParams).bottomMargin =
-                torchMargin + bars.bottom
-            torch.requestLayout()
-            insets
-        }
-        findViewById<CompoundButton>(R.id.scan_torch).setOnCheckedChangeListener { _, on ->
-            camera?.cameraControl?.enableTorch(on)
-        }
-        // Tap to focus on the barcode
-        previewView.setOnTouchListener { v, event ->
-            if (event.action == MotionEvent.ACTION_UP) {
-                val point = previewView.meteringPointFactory.createPoint(event.x, event.y)
-                camera?.cameraControl?.startFocusAndMetering(
-                    FocusMeteringAction.Builder(point).setAutoCancelDuration(3, TimeUnit.SECONDS)
-                        .build()
-                )
-                v.performClick()
+        setContentView(ComposeView(this).apply {
+            setContent {
+                InfiniteLongboxTheme {
+                    ScanScreen(
+                        torchOn = torchOn,
+                        onTorchChange = {
+                            torchOn = it
+                            camera?.cameraControl?.enableTorch(it)
+                        },
+                        onPreviewView = { view ->
+                            previewView = view
+                            if (hasCameraPermission()) startCamera()
+                            else requestCamera.launch(Manifest.permission.CAMERA)
+                        },
+                        onTapToFocus = ::focusAt,
+                    )
+                }
             }
-            true
-        }
+        })
+    }
 
-        if (hasCameraPermission()) startCamera() else requestCamera.launch(Manifest.permission.CAMERA)
+    /** Tap to focus on the barcode. */
+    private fun focusAt(view: PreviewView, point: Offset) {
+        val metering = view.meteringPointFactory.createPoint(point.x, point.y)
+        camera?.cameraControl?.startFocusAndMetering(
+            FocusMeteringAction.Builder(metering).setAutoCancelDuration(3, TimeUnit.SECONDS).build()
+        )
     }
 
     private fun hasCameraPermission() =
@@ -127,12 +125,13 @@ class ScanActivity : AppCompatActivity() {
                 PackageManager.PERMISSION_GRANTED
 
     private fun startCamera() {
+        if (previewView == null) return
         val providerFuture = ProcessCameraProvider.getInstance(this)
         providerFuture.addListener({
             val provider = providerFuture.get()
 
             val preview = Preview.Builder().build().also {
-                it.surfaceProvider = previewView.surfaceProvider
+                it.surfaceProvider = previewView?.surfaceProvider
             }
 
             // The add-on is small; ask for a high resolution so its bars are resolved
