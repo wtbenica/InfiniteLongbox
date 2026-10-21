@@ -175,4 +175,4 @@ interface Webservice {
 }
 
 /** One paged model's pages, each as a short fingerprint of its content. */
-data class Manifest(val pages: Int, val hashes: List<String>)
+data class Manifest(val pages: Int = 0, val hashes: List<String> = emptyList())

@@ -17,8 +17,8 @@ package dev.benica.infinite_longbox.repository
 
 /** What the server knows about a creator (see the backend's creator_info.py). */
 data class CreatorInfo(
-    val creatorId: Int,
-    val name: String,
+    val creatorId: Int = 0,
+    val name: String = "",
     val disambiguation: String = "",
     val born: LifeEvent = LifeEvent(),
     val died: LifeEvent = LifeEvent(),
@@ -36,8 +36,8 @@ data class CreatorInfo(
 data class LifeEvent(val date: String = "", val place: String = "")
 
 /** [kind] is "pen name", "birth name" and so on, or blank. */
-data class OtherName(val name: String, val kind: String = "")
+data class OtherName(val name: String = "", val kind: String = "")
 
-data class RoleCount(val role: String, val count: Int)
+data class RoleCount(val role: String = "", val count: Int = 0)
 
-data class SeriesCount(val seriesId: Int, val seriesName: String, val issues: Int)
+data class SeriesCount(val seriesId: Int = 0, val seriesName: String = "", val issues: Int = 0)

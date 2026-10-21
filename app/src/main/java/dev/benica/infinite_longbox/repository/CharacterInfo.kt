@@ -15,10 +15,16 @@
 
 package dev.benica.infinite_longbox.repository
 
-/** What the server knows about a character (see the backend's character_info.py). */
+/**
+ * What the server knows about a character (see the backend's character_info.py).
+ *
+ * Gson fills these in and ignores Kotlin's null rules and defaults unless the class has a no-arg
+ * constructor, which Kotlin makes only when every parameter has a default; so every parameter of
+ * the classes read from the server has one (ServerResponsesTest checks).
+ */
 data class CharacterInfo(
-    val characterId: Int,
-    val name: String,
+    val characterId: Int = 0,
+    val name: String = "",
     val alterEgo: String = "",
     val publisher: String = "",
     val appearances: Int = 0,
@@ -37,17 +43,17 @@ data class CharacterInfo(
 )
 
 data class IssueRef(
-    val issueId: Int,
-    val seriesId: Int,
-    val seriesName: String,
+    val issueId: Int = 0,
+    val seriesId: Int = 0,
+    val seriesName: String = "",
     val number: String = "",
     val keyDate: String = "",
     val year: Int? = null,
 )
 
 data class TeamRef(
-    val groupId: Int,
-    val name: String,
+    val groupId: Int = 0,
+    val name: String = "",
     val yearJoined: Int? = null,
     val yearLeft: Int? = null,
     val membership: String = "",
@@ -56,9 +62,9 @@ data class TeamRef(
 
 /** [characterId] is null for a character the phone has no row for, which can't be opened. */
 data class RelatedCharacter(
-    val relation: String,
-    val characterId: Int?,
-    val name: String,
+    val relation: String = "",
+    val characterId: Int? = null,
+    val name: String = "",
     val alterEgo: String = "",
     val detail: String = "",
 )
