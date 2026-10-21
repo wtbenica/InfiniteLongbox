@@ -24,18 +24,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
 import androidx.fragment.app.viewModels
+import dev.benica.infinite_longbox.R
 import dev.benica.infinite_longbox.database.models.Character
-import dev.benica.infinite_longbox.fragments_view_models.CharacterDetailState
 import dev.benica.infinite_longbox.fragments_view_models.CharacterDetailViewModel
 import dev.benica.infinite_longbox.ui.CharacterDetailActions
 import dev.benica.infinite_longbox.ui.CharacterDetailScreen
 import dev.benica.infinite_longbox.ui.InfiniteLongboxTheme
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.launch
 
 private const val ARG_CHARACTER_ID = "character_id"
 
@@ -76,21 +72,10 @@ class CharacterDetailFragment : Fragment() {
         }
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        // The title is the character's name, as soon as it is known
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.RESUMED) {
-                viewModel.state.collect { state ->
-                    val name = when (state) {
-                        is CharacterDetailState.Loaded -> state.info.name
-                        is CharacterDetailState.Loading -> state.character?.name
-                        is CharacterDetailState.Failed -> state.character?.name
-                    }
-                    (activity as? ListFragment.ListFragmentCallback)?.setTitle(name)
-                }
-            }
-        }
+    override fun onResume() {
+        super.onResume()
+        // The page's own heading is the name; the toolbar says what kind of page this is
+        (activity as? ListFragment.ListFragmentCallback)?.setTitle(getString(R.string.filter_type_character))
     }
 
     interface CharacterDetailCallback {

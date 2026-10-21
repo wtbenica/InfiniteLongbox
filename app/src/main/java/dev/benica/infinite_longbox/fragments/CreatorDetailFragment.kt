@@ -25,17 +25,13 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
+import dev.benica.infinite_longbox.R
 import dev.benica.infinite_longbox.database.models.Creator
-import dev.benica.infinite_longbox.fragments_view_models.CreatorDetailState
 import dev.benica.infinite_longbox.fragments_view_models.CreatorDetailViewModel
 import dev.benica.infinite_longbox.ui.CreatorDetailActions
 import dev.benica.infinite_longbox.ui.CreatorDetailScreen
 import dev.benica.infinite_longbox.ui.InfiniteLongboxTheme
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.launch
 
 private const val ARG_CREATOR_ID = "creator_id"
 
@@ -75,21 +71,10 @@ class CreatorDetailFragment : Fragment() {
         }
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        // The title is the creator's name, as soon as it is known
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.RESUMED) {
-                viewModel.state.collect { state ->
-                    val name = when (state) {
-                        is CreatorDetailState.Loaded -> state.info.name
-                        is CreatorDetailState.Loading -> state.creator?.name
-                        is CreatorDetailState.Failed -> state.creator?.name
-                    }
-                    (activity as? ListFragment.ListFragmentCallback)?.setTitle(name)
-                }
-            }
-        }
+    override fun onResume() {
+        super.onResume()
+        // The page's own heading is the name; the toolbar says what kind of page this is
+        (activity as? ListFragment.ListFragmentCallback)?.setTitle(getString(R.string.filter_type_creator))
     }
 
     interface CreatorDetailCallback {
