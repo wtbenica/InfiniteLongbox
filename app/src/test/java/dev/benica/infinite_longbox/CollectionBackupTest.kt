@@ -81,6 +81,18 @@ class CollectionBackupTest {
     }
 
     @Test
+    fun anEntryWithFieldsLeftOutStillReadsWithEmptyText() {
+        val json = """{"app": "InfiniteLongbox", "format": 1, "collections": [
+            {"id": 1, "name": "My Collection", "issues": [{"issueId": 5}]}]}"""
+        assertEquals(
+            CollectionBackup.Parsed.Ok(
+                listOf(BackupCollection(1, "My Collection", listOf(BackupEntry(5, 0, "", ""))))
+            ),
+            CollectionBackup.parse(json)
+        )
+    }
+
+    @Test
     fun theSummaryTellsWhatHappened() {
         assertEquals("Added 12", ImportResult(12, 0, emptyList()).summary())
         assertEquals("Added 3, 9 already there", ImportResult(3, 9, emptyList()).summary())

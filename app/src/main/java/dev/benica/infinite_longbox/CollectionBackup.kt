@@ -66,15 +66,38 @@ object CollectionBackup {
 
     private val gson: Gson = GsonBuilder().setPrettyPrinting().create()
 
-    private data class Backup(
+    /** What goes into the file. */
+    private data class Written(
+        val app: String,
+        val format: Int,
+        val exportedAt: String,
+        val collections: List<BackupCollection>,
+    )
+
+    // What comes out of one. Gson fills these in from the file and knows nothing of Kotlin's null
+    // rules: whatever the file leaves out is null, so every field is nullable here, and
+    // [parse] is the one place that turns them into the non-null types the rest of the app uses.
+    private data class Read(
         val app: String?,
         val format: Int?,
-        val exportedAt: String?,
-        val collections: List<BackupCollection>?,
+        val collections: List<ReadCollection>?,
+    )
+
+    private data class ReadCollection(
+        val id: Int?,
+        val name: String?,
+        val issues: List<ReadEntry>?,
+    )
+
+    private data class ReadEntry(
+        val issueId: Int?,
+        val seriesId: Int?,
+        val series: String?,
+        val number: String?,
     )
 
     fun toJson(collections: List<BackupCollection>, exportedAt: String): String =
-        gson.toJson(Backup(APP, FORMAT, exportedAt, collections))
+        gson.toJson(Written(APP, FORMAT, exportedAt, collections))
 
     /**
      * The collections in [json], or why it is not a backup this version can read. Entries
@@ -82,7 +105,7 @@ object CollectionBackup {
      */
     fun parse(json: String): Parsed {
         val backup = try {
-            gson.fromJson(json, Backup::class.java)
+            gson.fromJson(json, Read::class.java)
         } catch (e: JsonSyntaxException) {
             return Parsed.Unreadable("This is not a collection file")
         }
@@ -94,7 +117,20 @@ object CollectionBackup {
         val collections = backup.collections.orEmpty()
             .filter { it.id in KNOWN_COLLECTIONS }
             .map { collection ->
-                collection.copy(issues = collection.issues.filter { it.issueId > 0 })
+                BackupCollection(
+                    id = collection.id ?: 0,
+                    name = collection.name.orEmpty(),
+                    issues = collection.issues.orEmpty()
+                        .filter { (it.issueId ?: 0) > 0 }
+                        .map {
+                            BackupEntry(
+                                issueId = it.issueId ?: 0,
+                                seriesId = it.seriesId ?: 0,
+                                series = it.series.orEmpty(),
+                                number = it.number.orEmpty(),
+                            )
+                        },
+                )
             }
         return Parsed.Ok(collections)
     }
