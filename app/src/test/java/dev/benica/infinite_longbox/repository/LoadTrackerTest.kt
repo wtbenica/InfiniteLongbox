@@ -11,6 +11,7 @@ import kotlinx.coroutines.withTimeout
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import kotlin.time.Duration.Companion.milliseconds
 
 class LoadTrackerTest {
     @Test
@@ -18,7 +19,7 @@ class LoadTrackerTest {
         val before = LoadTracker.activeCount.value
         val hold = CompletableDeferred<Unit>()
         val job = async { LoadTracker.track { hold.await() } }
-        withTimeout(2000) { while (LoadTracker.activeCount.value != before + 1) delay(5) }
+        withTimeout(2000.milliseconds) { while (LoadTracker.activeCount.value != before + 1) delay(5.milliseconds) }
         hold.complete(Unit)
         job.await()
         assertEquals(before, LoadTracker.activeCount.value)
@@ -43,9 +44,9 @@ class LoadTrackerTest {
     fun aRequestThatFinishesAtOnceShowsNothing() = runBlocking {
         val seen = mutableListOf<Boolean>()
         val watcher = launch { LoadTracker.busy(showAfterMs = 150, hideAfterMs = 150).toList(seen) }
-        delay(50)
-        LoadTracker.track { delay(20) }
-        delay(500)
+        delay(50.milliseconds)
+        LoadTracker.track { delay(20.milliseconds) }
+        delay(500.milliseconds)
         watcher.cancel()
         assertTrue("shown for a request that took 20 ms: $seen", true !in seen)
     }
@@ -54,9 +55,9 @@ class LoadTrackerTest {
     fun aLongRequestShowsThenHides() = runBlocking {
         val seen = mutableListOf<Boolean>()
         val watcher = launch { LoadTracker.busy(showAfterMs = 100, hideAfterMs = 100).toList(seen) }
-        delay(50)
-        LoadTracker.track { delay(400) }
-        delay(500)
+        delay(50.milliseconds)
+        LoadTracker.track { delay(400.milliseconds) }
+        delay(500.milliseconds)
         watcher.cancel()
         assertEquals(listOf(true, false), seen.takeLast(2))
         assertTrue(true in seen)

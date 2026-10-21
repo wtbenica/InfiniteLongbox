@@ -418,6 +418,7 @@ class IssueDetailFragment : Fragment() {
             val collectionIds: List<Int> = currentIssue.collectionItems.map { it.userCollection }
             uiState = uiState.copy(
                 info = IssueInfoState(
+                    publisher = currentIssue.seriesAndPublisher.publisher.publisher,
                     releaseDate = issue.releaseDate,
                     coverDate = issue.coverDate,
                     notes = issue.notes

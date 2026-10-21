@@ -19,6 +19,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.util.concurrent.ConcurrentHashMap
+import kotlin.time.Duration.Companion.milliseconds
 
 /**
  * Gathers what is asked for during a short wait and handles it in one go: a screen full of cards
@@ -43,7 +44,7 @@ class RequestBatcher<T : Any>(
         val schedule = synchronized(this) { (!scheduled).also { if (it) scheduled = true } }
         if (schedule) {
             scope.launch {
-                delay(waitMs)
+                delay(waitMs.milliseconds)
                 val batch = synchronized(this@RequestBatcher) {
                     scheduled = false
                     pending.toSet().also { pending.removeAll(it); inFlight.addAll(it) }

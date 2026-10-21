@@ -49,6 +49,7 @@ import dev.benica.infinite_longbox.repository.CharacterInfoText
 import dev.benica.infinite_longbox.repository.IssueRef
 import dev.benica.infinite_longbox.repository.RelatedCharacter
 import dev.benica.infinite_longbox.repository.TeamRef
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 /** What the page can ask for; the fragment decides what each does. */
 @Immutable
@@ -60,6 +61,7 @@ class CharacterDetailActions(
 )
 
 /** Everything known about one character: who they are, who they go by, who they are with. */
+@OptIn(ExperimentalCoroutinesApi::class)
 @Composable
 fun CharacterDetailScreen(
     state: CharacterDetailState,
@@ -96,6 +98,7 @@ fun CharacterDetailScreen(
             is CharacterDetailState.Loading -> LinearProgressIndicator(Modifier.fillMaxWidth())
             is CharacterDetailState.Failed ->
                 LoadFailed(stringResource(R.string.character_load_failed), actions.onRetry)
+
             is CharacterDetailState.Loaded -> Details(state.info, actions)
         }
     }
@@ -163,7 +166,11 @@ private fun Details(info: CharacterInfo, actions: CharacterDetailActions) {
         if (info.appearances > 0) {
             Section(stringResource(R.string.character_appearances)) {
                 Body(CharacterInfoText.appearances(info.appearances, info.issues))
-                IssueRow(stringResource(R.string.character_first_appearance), info.firstAppearance, actions.onIssue)
+                IssueRow(
+                    stringResource(R.string.character_first_appearance),
+                    info.firstAppearance,
+                    actions.onIssue
+                )
                 IssueRow(stringResource(R.string.character_origin), info.origin, actions.onIssue)
                 IssueRow(stringResource(R.string.character_death), info.death, actions.onIssue)
             }
@@ -294,12 +301,20 @@ private fun CharacterDetailScreenPreview() {
     }
 }
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @Preview(showBackground = true, widthDp = 360)
 @Composable
 private fun CharacterDetailLoadingPreview() {
     InfiniteLongboxTheme {
         CharacterDetailScreen(
-            state = CharacterDetailState.Loading(Character(characterId = 1, name = "Oracle", alterEgo = "Barbara Gordon", publisher = 1)),
+            state = CharacterDetailState.Loading(
+                Character(
+                    characterId = 1,
+                    name = "Oracle",
+                    alterEgo = "Barbara Gordon",
+                    publisher = 1
+                )
+            ),
             actions = CharacterDetailActions({}, {}, {}, {}),
         )
     }

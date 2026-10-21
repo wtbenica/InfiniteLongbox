@@ -47,6 +47,6 @@ class LetterIndex(buckets: List<LetterBucket>, private val descending: Boolean) 
 
     companion object {
         /** The letters a strip shows, in ascending order. */
-        val LETTERS: List<Char> = listOf('#') + ('A'..'Z')
+        val LETTERS: List<Char> = listOf('#') + ('A'..'Z').toList()
     }
 }

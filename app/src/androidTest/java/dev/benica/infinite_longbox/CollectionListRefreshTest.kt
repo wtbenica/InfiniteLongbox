@@ -30,12 +30,14 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import kotlin.time.Duration.Companion.milliseconds
 
 /**
  * The My Collection series list is a paged query over the database. It has to show what is added
@@ -99,8 +101,8 @@ class CollectionListRefreshTest {
 
     /** True if the list shows [expected] rows within [seconds], polling. */
     private fun showsWithin(expected: Int, seconds: Int): Boolean = runBlocking {
-        withTimeoutOrNull(seconds * 1000L) {
-            while (shown() != expected) delay(100)
+        withTimeoutOrNull((seconds * 1000L).milliseconds) {
+            while (shown() != expected) delay(100.milliseconds)
             true
         } ?: false
     }
@@ -177,7 +179,7 @@ class CollectionListRefreshTest {
         runBlocking {
             db.issueDao().upsertSus(listOf(Issue(issueId = 100, series = 10, issueNumRaw = "1")))
             db.collectionItemDao().insertSus(CollectionItem(issue = 100, series = 10, userCollection = 1))
-            delay(1500)
+            delay(1500.milliseconds)
         }
         // the picker closes: it starts collecting again
         collecting = scope.launch { itemList.collectLatest { differ.submitData(it) } }
@@ -227,7 +229,7 @@ class CollectionListRefreshTest {
             appeared = showsWithin(1, 5)
         } finally {
             collecting?.cancel()
-            runBlocking { delay(300) }
+            runBlocking { delay(300.milliseconds) }
             fileDb.close()
             context.deleteDatabase("refresh-test.db")
             context.deleteDatabase("refresh-seed.db")
@@ -277,8 +279,10 @@ class CollectionListRefreshTest {
     }
 
     private fun coverShowsWithin(path: String, seconds: Int): Boolean = runBlocking {
-        withTimeoutOrNull(seconds * 1000L) {
-            while (runBlocking(Dispatchers.Main) { differ.getItem(0)?.earliestCoverUri?.path } != path) delay(100)
+        withTimeoutOrNull((seconds * 1000L).milliseconds) {
+            while (withContext(Dispatchers.Main) { differ.getItem(0)?.earliestCoverUri?.path } != path) delay(
+                100.milliseconds
+            )
             true
         } ?: false
     }

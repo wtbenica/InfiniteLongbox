@@ -37,6 +37,7 @@ import java.time.format.DateTimeFormatter
 
 /** Release date, cover date and notes; a row is left out when its value is missing. */
 data class IssueInfoState(
+    val publisher: String? = null,
     val releaseDate: LocalDate? = null,
     val coverDate: LocalDate? = null,
     val notes: String? = null,
@@ -50,6 +51,9 @@ fun IssueInfoBox(state: IssueInfoState, modifier: Modifier = Modifier) {
     Column(modifier = modifier
         .fillMaxWidth()
         .verticalScroll(rememberScrollState())) {
+        state.publisher?.takeIf { it.isNotBlank() }?.let {
+            InfoRow(stringResource(R.string.label_publisher), it)
+        }
         state.releaseDate?.let {
             InfoRow(stringResource(R.string.label_release_date), it.format(releaseFormat))
         }
@@ -95,6 +99,7 @@ private fun IssueInfoBoxPreview() {
     InfiniteLongboxTheme {
         IssueInfoBox(
             IssueInfoState(
+                publisher = "DC",
                 releaseDate = LocalDate.of(2021, 5, 6),
                 coverDate = LocalDate.of(2021, 8, 1),
                 notes = $$"Cover price $3.99",

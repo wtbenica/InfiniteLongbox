@@ -94,7 +94,7 @@ object CollectionBackup {
         val collections = backup.collections.orEmpty()
             .filter { it.id in KNOWN_COLLECTIONS }
             .map { collection ->
-                collection.copy(issues = collection.issues.orEmpty().filter { it.issueId > 0 })
+                collection.copy(issues = collection.issues.filter { it.issueId > 0 })
             }
         return Parsed.Ok(collections)
     }
