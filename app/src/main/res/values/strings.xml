@@ -86,6 +86,8 @@
         <a href="https://www.comics.org">Grand Comics Database\u2122</a> under the
         <a href="https://creativecommons.org/licenses/by-sa/4.0/">Creative Commons
             Attribution-ShareAlike 4.0 International License (CC BY-SA 4.0)</a>.</string>
+    <string name="text_cover_credit">Covers fetched on request come from
+        <a href="https://metron.cloud">Metron</a>.</string>
     <string name="text_gcd_cc_changes">The original database has been adapted to only include a
         subset of its records and fields. Additionally, some creator credits and character
         appearances have been converted from text fields to database records.</string>
@@ -111,8 +113,17 @@
     <string name="cover_options_title">Cover</string>
     <string name="cover_choose_title">Choose a cover image</string>
     <string name="cover_replace">Replace this cover…</string>
+    <string name="cover_replace_from_metron">Replace with the Metron cover</string>
     <string name="cover_remove">Remove this cover</string>
     <string name="cover_removed">Cover removed</string>
+    <string name="cover_add_title">Add a cover</string>
+    <string name="cover_from_metron">Fetch from Metron</string>
+    <string name="cover_from_device">Choose from this device…</string>
+    <string name="cover_metron_none">Metron has no cover for this issue</string>
+    <string name="cover_metron_off">The server isn\'t set up to fetch covers</string>
+    <string name="cover_metron_busy">Metron is busy, try again in a moment</string>
+    <string name="cover_metron_failed">Couldn\'t get the cover from Metron</string>
+    <string name="cover_metron_working">Fetching the cover…</string>
     <string name="cover_removed_here_only">Removed here, but the server still has it</string>
     <string name="cover_saved_here_only">Cover saved here, but the server wasn\'t updated</string>
     <string name="cover_incomplete">Image came through cut off. Download it from Photos first</string>

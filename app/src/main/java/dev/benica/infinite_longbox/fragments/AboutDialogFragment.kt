@@ -60,6 +60,8 @@ class AboutDialogFragment : DialogFragment(R.layout.dialog_fragment_about) {
         }
         view?.findViewById<TextView>(R.id.gcd_thanks_text)?.movementMethod =
             LinkMovementMethod.getInstance()
+        view?.findViewById<TextView>(R.id.cover_credit)?.movementMethod =
+            LinkMovementMethod.getInstance()
 
         return view
     }

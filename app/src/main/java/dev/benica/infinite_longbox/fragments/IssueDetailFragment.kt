@@ -126,6 +126,33 @@ class IssueDetailFragment : Fragment() {
         pickCoverImage.launch(Intent.createChooser(request, getString(R.string.cover_choose_title)))
     }
 
+    /** The cover button on an issue with none: from Metron (through the server), or from this device. */
+    private fun showAddCoverOptions() {
+        val options = arrayOf(
+            getString(R.string.cover_from_metron),
+            getString(R.string.cover_from_device),
+        )
+        AlertDialog.Builder(requireContext())
+            .setTitle(R.string.cover_add_title)
+            .setItems(options) { _, which ->
+                when (which) {
+                    0 -> fetchCoverFromMetron()
+                    else -> launchCoverPicker()
+                }
+            }
+            .show()
+    }
+
+    private fun fetchCoverFromMetron() {
+        val issueId = currentIssue.issue.issueId
+        val context = requireContext().applicationContext
+        Toast.makeText(context, R.string.cover_metron_working, Toast.LENGTH_SHORT).show()
+        viewLifecycleOwner.lifecycleScope.launch {
+            val result = dev.benica.infinite_longbox.repository.fetchCoverFromMetron(context, issueId)
+            Toast.makeText(context, result.message, Toast.LENGTH_SHORT).show()
+        }
+    }
+
     private fun coverPicked(uri: Uri?) {
         uri ?: return
         val issueId = currentIssue.issue.issueId
@@ -140,6 +167,7 @@ class IssueDetailFragment : Fragment() {
         val issueId = currentIssue.issue.issueId
         val options = arrayOf(
             getString(R.string.cover_replace),
+            getString(R.string.cover_replace_from_metron),
             getString(R.string.cover_remove),
         )
         AlertDialog.Builder(requireContext())
@@ -147,6 +175,7 @@ class IssueDetailFragment : Fragment() {
             .setItems(options) { _, which ->
                 when (which) {
                     0 -> launchCoverPicker()
+                    1 -> fetchCoverFromMetron()
                     else -> viewLifecycleOwner.lifecycleScope.launch {
                         val message = removeCover(requireContext().applicationContext, issueId)
                         Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
@@ -451,7 +480,7 @@ class IssueDetailFragment : Fragment() {
         if (uri != null) {
             CoverDialogFragment(uri, currentIssue).show(childFragmentManager, "cover_dialog")
         } else {
-            launchCoverPicker()
+            showAddCoverOptions()
         }
     }
 

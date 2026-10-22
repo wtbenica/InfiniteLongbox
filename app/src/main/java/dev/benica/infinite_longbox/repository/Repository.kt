@@ -68,6 +68,7 @@ import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
@@ -375,6 +376,26 @@ class Repository private constructor(val context: Context) {
                 )
             )
         }
+        if (collId == BaseCollection.MY_COLL.id) fetchMissingCover(issue.issue.issueId)
+    }
+
+    /**
+     * An issue just added to My Collection gets a cover if there is one to be had: the server's
+     * own if it has one, otherwise Metron's. Quiet: nothing is shown if it comes to nothing.
+     */
+    private fun fetchMissingCover(issueId: Int) {
+        if (!hasConnection) return
+        CoroutineScope(Dispatchers.IO).launch {
+            val file = getFileHandle(context, coverFileName(issueId))
+            if (!file.exists()) UpdateIssueCover.get().update(issueId, markedDelete = false).join()
+            // Metron's limit makes some of these wait: try again a little later, a few times
+            repeat(METRON_ATTEMPTS) {
+                if (file.exists()) return@launch
+                val result = fetchCoverFromMetron(context, issueId)
+                if (result != MetronCoverResult.BUSY && result != MetronCoverResult.FAILED) return@launch
+                delay(METRON_RETRY_MS)
+            }
+        }
     }
 
     /** My Collection and the Wish List as the text of a backup file. */
@@ -444,6 +465,10 @@ class Repository private constructor(val context: Context) {
     companion object {
         /** Issues looked up at a time on import: SQLite allows 999 variables in a query. */
         private const val IMPORT_CHUNK = 500
+
+        /** A cover asked of Metron when an issue is added is tried this many times, this far apart. */
+        private const val METRON_ATTEMPTS = 4
+        private const val METRON_RETRY_MS = 20_000L
 
         @SuppressLint("StaticFieldLeak")
         private var INSTANCE: Repository? = null

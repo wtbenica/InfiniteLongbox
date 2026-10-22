@@ -31,6 +31,8 @@ import dev.benica.infinite_longbox.database.models.Cover
 import dev.benica.infinite_longbox.network.RetrofitAPIClient
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody.Companion.toRequestBody
@@ -209,6 +211,45 @@ suspend fun removeCover(context: Context, issueId: Int): Int = withContext(Dispa
         R.string.cover_removed
     }
 }
+
+/** What asking the server to fetch a cover from Metron came to. */
+enum class MetronCoverResult(val message: Int) {
+    SAVED(R.string.cover_saved),
+    NONE(R.string.cover_metron_none),
+    OFF(R.string.cover_metron_off),
+    BUSY(R.string.cover_metron_busy),
+    FAILED(R.string.cover_metron_failed),
+}
+
+/**
+ * Has the server fetch the cover of [issueId] from Metron, then brings the phone's copy up to date
+ * (replacing any it has). The phone's cover is left alone unless the server got a new one.
+ */
+@ExperimentalCoroutinesApi
+suspend fun fetchCoverFromMetron(context: Context, issueId: Int): MetronCoverResult =
+    withContext(Dispatchers.IO) { metronQueue.withLock {
+        val response = try {
+            webservice().fetchCoverFromMetron(issueId)
+        } catch (e: Exception) {
+            Log.e(TAG, "Couldn't ask the server for the Metron cover of issue $issueId", e)
+            return@withContext MetronCoverResult.FAILED
+        }
+        when {
+            response.isSuccessful -> {
+                getFileHandle(context, coverFileName(issueId)).delete()
+                IssueDatabase.getInstance(context).coverDao().deleteForIssue(issueId)
+                UpdateIssueCover.get().update(issueId, markedDelete = false).join()
+                MetronCoverResult.SAVED
+            }
+            response.code() == 404 -> MetronCoverResult.NONE
+            response.code() == 403 -> MetronCoverResult.OFF
+            response.code() == 429 -> MetronCoverResult.BUSY
+            else -> MetronCoverResult.FAILED
+        }
+    } }
+
+/** One Metron request at a time: Metron allows 20 a minute, and the server paces them. */
+private val metronQueue = Mutex()
 
 private fun webservice(): Webservice =
     RetrofitAPIClient.getRetrofitClient().create(Webservice::class.java)
