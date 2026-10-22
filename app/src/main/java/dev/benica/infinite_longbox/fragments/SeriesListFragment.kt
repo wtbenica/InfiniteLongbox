@@ -147,19 +147,27 @@ class SeriesListFragment : ListFragment<FullSeries, SeriesListFragment.SeriesHol
 
             val firstIssue: FullIssue? = item.firstIssue
             val coverUri = firstIssue?.coverUri ?: item.earliestCoverUri
+            val coverFile = coverUri?.path?.let { File(it) }
+
+            // A record of a cover whose file is gone (the fallback issue isn't one the card asks for
+            // above): ask for that issue, so the file comes back
+            if (coverFile != null && !coverFile.exists()) {
+                coverFile.name.removePrefix("COVER_").removeSuffix(".jpg").toIntOrNull()
+                    ?.let { viewModel.updateIssue(it) }
+            }
 
             card = SeriesCardState(
                 name = item.series.seriesName,
                 publisher = item.publisher.publisher,
                 dateRange = item.series.dateRange,
                 format = item.series.publishingFormat?.lowercase().orEmpty(),
-                cover = coverUri?.path?.let { File(it) }?.takeIf { it.exists() },
-                loadingCover = !(firstIssue == null || coverUri != null || firstIssue.cover != null),
+                cover = coverFile?.takeIf { it.exists() },
+                loadingCover = !(firstIssue == null || coverFile?.exists() == true || firstIssue.cover != null),
             )
 
             // No cover for the first issue: the card falls back to the series' earliest cover
             // (item.earliestCoverUri), and goes and gets one if the phone has none
-            if (coverUri == null &&
+            if (coverFile?.exists() != true &&
                 shouldFetchSeriesCover(false, firstIssue != null, firstIssue?.cover != null)
             ) {
                 viewModel.fetchSeriesCover(item.series.seriesId)
