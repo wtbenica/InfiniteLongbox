@@ -62,8 +62,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
-import coil3.request.ImageRequest
-import coil3.request.crossfade
 import dev.benica.infinite_longbox.R
 import java.io.File
 
@@ -255,12 +253,8 @@ private fun Cover(state: IssueCardState, modifier: Modifier) {
 
     val file = state.cover ?: return
     var wide by remember(file) { mutableStateOf(false) }
-    // The file name stays the same when a cover is replaced, so key on its modified time
-    val request = ImageRequest.Builder(LocalContext.current)
-        .data(file)
-        .memoryCacheKey("${file.path}@${file.lastModified()}")
-        .crossfade(true)
-        .build()
+    val context = LocalContext.current
+    val request = remember(file, file.lastModified()) { CoverImages.issueRequest(context, file) }
     AsyncImage(
         model = request,
         contentDescription = stringResource(R.string.description_issue_cover),

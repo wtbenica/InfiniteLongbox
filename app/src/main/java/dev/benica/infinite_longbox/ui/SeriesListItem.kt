@@ -38,6 +38,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.produceState
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -54,7 +55,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.times
 import coil3.compose.AsyncImage
-import coil3.request.ImageRequest
 import dev.benica.infinite_longbox.R
 import java.io.File
 
@@ -275,12 +275,9 @@ private fun Cover(state: SeriesCardState, modifier: Modifier) {
         // The card's wash goes between the art and the title, so the title isn't washed
         TitlePlaceholder(state.name, modifier, showTitle = false)
     } else {
-        // The file name stays the same when a cover is replaced, so key on its modified time
-        val request = ImageRequest.Builder(LocalContext.current)
-            .data(file)
-            .memoryCacheKey("${file.path}@${file.lastModified()}")
-            .build()
-        val alignment by produceState(Alignment.TopStart, file) {
+        val context = LocalContext.current
+        val request = remember(file, file.lastModified()) { CoverImages.seriesRequest(context, file) }
+        val alignment by produceState(CoverFocus.peek(file) ?: Alignment.TopStart, file) {
             value = CoverFocus.alignmentFor(file)
         }
         AsyncImage(

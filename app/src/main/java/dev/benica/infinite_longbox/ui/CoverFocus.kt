@@ -40,6 +40,9 @@ object CoverFocus {
 
     private val cache = LruCache<String, Alignment>(512)
 
+    /** The alignment if it's already been worked out, so a card can start with the right one. */
+    fun peek(file: File): Alignment? = cache.get("${file.path}@${file.lastModified()}")
+
     suspend fun alignmentFor(file: File): Alignment = withContext(Dispatchers.Default) {
         val key = "${file.path}@${file.lastModified()}"
         cache.get(key) ?: compute(file).also { cache.put(key, it) }

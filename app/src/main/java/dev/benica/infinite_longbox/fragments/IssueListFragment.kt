@@ -42,6 +42,7 @@ import dev.benica.infinite_longbox.database.models.FullIssue
 import dev.benica.infinite_longbox.database.models.FullSeries
 import dev.benica.infinite_longbox.database.models.Issue
 import dev.benica.infinite_longbox.fragments_view_models.IssueListViewModel
+import dev.benica.infinite_longbox.ui.CoverImages
 import dev.benica.infinite_longbox.ui.InfiniteLongboxTheme
 import dev.benica.infinite_longbox.ui.IssueCardState
 import dev.benica.infinite_longbox.ui.IssueListItem
@@ -144,6 +145,18 @@ class IssueListFragment : ListFragment<FullIssue, IssueListFragment.IssueViewHol
 
         override fun onBindViewHolder(holder: IssueViewHolder, position: Int) {
             holder.bind(getItem(position), position)
+            prefetchCovers(position)
+        }
+
+        /** Loads the covers of the cards about to scroll in, so they don't appear after the card does. */
+        private fun prefetchCovers(position: Int) {
+            val context = context ?: return
+            val from = (position - CoverImages.PREFETCH_BEHIND).coerceAtLeast(0)
+            val to = (position + CoverImages.PREFETCH_AHEAD).coerceAtMost(itemCount - 1)
+            for (i in from..to) {
+                if (i == position) continue
+                peek(i)?.coverUri?.path?.let { CoverImages.prefetchIssue(context, File(it)) }
+            }
         }
     }
 

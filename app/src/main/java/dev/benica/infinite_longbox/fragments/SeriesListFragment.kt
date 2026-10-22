@@ -37,6 +37,7 @@ import dev.benica.infinite_longbox.database.models.FullSeries
 import dev.benica.infinite_longbox.fragments_view_models.SeriesListViewModel
 import dev.benica.infinite_longbox.ui.InfiniteLongboxTheme
 import dev.benica.infinite_longbox.ui.SeriesCardState
+import dev.benica.infinite_longbox.ui.CoverImages
 import dev.benica.infinite_longbox.ui.SeriesListItem
 import dev.benica.infinite_longbox.ui.SeriesListItemSkeleton
 import java.io.File
@@ -87,6 +88,18 @@ class SeriesListFragment : ListFragment<FullSeries, SeriesListFragment.SeriesHol
 
         override fun onBindViewHolder(holder: SeriesHolder, position: Int) {
             holder.bind(getItem(position), position)
+            prefetchCovers(position)
+        }
+
+        /** Loads the covers of the cards about to scroll in, so they don't appear after the card does. */
+        private fun prefetchCovers(position: Int) {
+            val context = context ?: return
+            val from = (position - CoverImages.PREFETCH_BEHIND).coerceAtLeast(0)
+            val to = (position + CoverImages.PREFETCH_AHEAD).coerceAtMost(itemCount - 1)
+            for (i in from..to) {
+                if (i == position) continue
+                peek(i)?.let { series -> coverFileOf(series)?.let { CoverImages.prefetchSeries(context, it) } }
+            }
         }
     }
 
@@ -146,8 +159,7 @@ class SeriesListFragment : ListFragment<FullSeries, SeriesListFragment.SeriesHol
             }
 
             val firstIssue: FullIssue? = item.firstIssue
-            val coverUri = firstIssue?.coverUri ?: item.earliestCoverUri
-            val coverFile = coverUri?.path?.let { File(it) }
+            val coverFile = coverFileOf(item)
 
             // A record of a cover whose file is gone (the fallback issue isn't one the card asks for
             // above): ask for that issue, so the file comes back
@@ -174,6 +186,10 @@ class SeriesListFragment : ListFragment<FullSeries, SeriesListFragment.SeriesHol
             }
         }
     }
+
+    /** The file of the cover a card shows: the first issue's, or failing that the series' earliest. */
+    private fun coverFileOf(series: FullSeries): File? =
+        (series.firstIssue?.coverUri ?: series.earliestCoverUri)?.path?.let { File(it) }
 
     interface SeriesListCallback : ListFragmentCallback {
         fun onSeriesSelected(series: FullSeries)
