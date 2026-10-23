@@ -35,6 +35,10 @@
         android:title="@string/menu_import_collection"
         app:showAsAction="never" />
     <item
+        android:id="@+id/menu_main_storage_places"
+        android:title="@string/menu_storage_places"
+        app:showAsAction="never" />
+    <item
         android:id="@+id/menu_main_push_covers"
         android:title="@string/menu_push_covers"
         app:showAsAction="never" />

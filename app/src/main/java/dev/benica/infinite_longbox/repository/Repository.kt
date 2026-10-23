@@ -24,6 +24,9 @@ import android.content.SharedPreferences
 import android.database.sqlite.SQLiteConstraintException
 import android.os.Bundle
 import android.os.Parcelable
+import android.widget.Toast
+import android.os.Looper
+import android.os.Handler
 import android.util.Log
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.edit
@@ -36,6 +39,8 @@ import dev.benica.infinite_longbox.LetterIndex
 import dev.benica.infinite_longbox.MainActivity
 import dev.benica.infinite_longbox.BackupSigner
 import dev.benica.infinite_longbox.SearchFilter
+import dev.benica.infinite_longbox.R
+import dev.benica.infinite_longbox.database.daos.StoragePlace
 import dev.benica.infinite_longbox.database.daos.SignedIssue
 import dev.benica.infinite_longbox.database.models.TextFilter
 import dev.benica.infinite_longbox.database.IssueDatabase
@@ -371,6 +376,13 @@ class Repository private constructor(val context: Context) {
     /** How many issues are in the collection (My Collection or the Wish List), kept up to date. */
     fun collectionSize(collectionId: Int): Flow<Int> = collectionItemDao.countIssues(collectionId)
 
+    /** A short notice from the background, on the screen whatever it is on. */
+    private fun tell(message: String) {
+        Handler(Looper.getMainLooper()).post {
+            Toast.makeText(context, message, Toast.LENGTH_LONG).show()
+        }
+    }
+
     fun addToCollection(issue: FullIssue, collId: Int, storageLocation: String? = null) {
         executor.execute {
             collectionItemDao.insert(
@@ -385,15 +397,16 @@ class Repository private constructor(val context: Context) {
                 collectionItemDao.setStorage(issue.issue.issueId, collId, it)
             }
         }
-        fetchMissingCover(issue.issue)
+        fetchMissingCover(issue)
     }
 
     /**
      * An issue just added to My Collection or the Wish List gets a cover if there is one to be had: the server's
      * own if it has one, otherwise Metron's. Quiet: nothing is shown if it comes to nothing.
      */
-    private fun fetchMissingCover(issue: Issue) {
+    private fun fetchMissingCover(fullIssue: FullIssue) {
         if (!hasConnection) return
+        val issue = fullIssue.issue
         val issueId = issue.issueId
         CoroutineScope(Dispatchers.IO).launch {
             val file = getFileHandle(context, coverFileName(issueId))
@@ -401,10 +414,16 @@ class Repository private constructor(val context: Context) {
             // Metron's limit makes some of these wait: try again a little later, a few times
             repeat(METRON_ATTEMPTS) {
                 if (file.exists()) return@launch
-                val result = fetchCoverFromMetron(context, issueId, issue.variantOf, issue.variantName)
-                if (result != MetronCoverResult.BUSY && result != MetronCoverResult.FAILED) return@launch
-                delay(METRON_RETRY_MS)
+                when (fetchCoverFromMetron(context, issueId, issue.variantOf, issue.variantName)) {
+                    MetronCoverResult.SAVED, MetronCoverResult.OFF -> return@launch
+                    MetronCoverResult.NONE -> {
+                        tell(context.getString(R.string.cover_metron_none_for, fullIssue.toString()))
+                        return@launch
+                    }
+                    MetronCoverResult.BUSY, MetronCoverResult.FAILED -> delay(METRON_RETRY_MS)
+                }
             }
+            if (!file.exists()) tell(context.getString(R.string.cover_metron_failed_for, fullIssue.toString()))
         }
     }
 
@@ -522,6 +541,26 @@ class Repository private constructor(val context: Context) {
             mTextFilter = text.trim().takeIf { it.isNotEmpty() }?.let { TextFilter(it) }
         }
         creatorDao.getCreatorOptions(filter, 20)
+    }
+
+    /**
+     * Files the copies of [issueIds] in My Collection under a storage place (null: none).
+     * @return how many were in the collection, and so were filed; the rest are not copies you own
+     */
+    suspend fun setStorage(issueIds: Collection<Int>, storageLocation: String?): Int =
+        withContext(Dispatchers.IO) {
+            val place = storageLocation?.trim()?.takeIf { it.isNotEmpty() }
+            issueIds.toList().chunked(IMPORT_CHUNK).sumOf {
+                collectionItemDao.setStorageForAll(it, BaseCollection.MY_COLL.id, place)
+            }
+        }
+
+    suspend fun storagePlaces(): List<StoragePlace> =
+        withContext(Dispatchers.IO) { collectionItemDao.storagePlaces() }
+
+    /** Renames a storage place everywhere it is used; a blank name takes the copies out of it. */
+    suspend fun renameStorage(from: String, to: String?): Int = withContext(Dispatchers.IO) {
+        collectionItemDao.renameStorage(from, to?.trim()?.takeIf { it.isNotEmpty() })
     }
 
     suspend fun storageLocations(): List<String> =

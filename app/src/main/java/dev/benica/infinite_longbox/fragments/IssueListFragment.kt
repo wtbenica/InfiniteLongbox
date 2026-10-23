@@ -17,6 +17,7 @@ package dev.benica.infinite_longbox.fragments
 
 import android.os.Bundle
 import android.view.Menu
+import android.view.MotionEvent
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
@@ -30,6 +31,15 @@ import androidx.core.view.MenuProvider
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.paging.PagingDataAdapter
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.Dispatchers
+import dev.benica.infinite_longbox.repository.Repository
+import androidx.lifecycle.lifecycleScope
+import android.widget.Toast
+import androidx.appcompat.view.ActionMode
+import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -91,6 +101,7 @@ class IssueListFragment : ListFragment<FullIssue, IssueListFragment.IssueViewHol
             )
 
         listRecyclerView.addItemDecoration(itemDecoration)
+        listRecyclerView.addOnItemTouchListener(dragSelect)
 
         // The adapter and paging collection are set up by ListFragment. A second adapter here
         // would be collected too, and its scroll hints (always at the top) made refreshes after
@@ -127,6 +138,7 @@ class IssueListFragment : ListFragment<FullIssue, IssueListFragment.IssueViewHol
     override fun getAdapter(): IssueAdapter = IssueAdapter()
 
     override fun onDestroyView() {
+        selectionMode?.finish()
         viewModel.saveIssueListState(listRecyclerView.layoutManager?.onSaveInstanceState())
         super.onDestroyView()
     }
@@ -171,6 +183,7 @@ class IssueListFragment : ListFragment<FullIssue, IssueListFragment.IssueViewHol
         }
     ) {
         private var fullIssue: FullIssue? = null
+        val issueId: Int? get() = fullIssue?.issue?.issueId
         private var card by mutableStateOf<IssueCardState?>(null)
         private var slot by mutableIntStateOf(0)
 
@@ -184,10 +197,12 @@ class IssueListFragment : ListFragment<FullIssue, IssueListFragment.IssueViewHol
                         IssueListItem(
                             state = state,
                             onClick = {
-                                fullIssue?.issue?.let {
+                                if (selecting) toggleSelected(this@IssueViewHolder)
+                                else fullIssue?.issue?.let {
                                     (callback as IssueListCallback?)?.onIssueSelected(it)
                                 }
                             },
+                            onLongClick = { startSelecting(this@IssueViewHolder) },
                             onToggleCollection = {
                                 toggle(
                                     BaseCollection.MY_COLL.id,
@@ -243,7 +258,184 @@ class IssueListFragment : ListFragment<FullIssue, IssueListFragment.IssueViewHol
                 loadingCover = coverUri == null && item.cover == null,
                 inCollection = BaseCollection.MY_COLL.id in collectionIds,
                 inWishList = BaseCollection.WISH_LIST.id in collectionIds,
+                selected = issue.issueId in selection,
             )
+        }
+    }
+
+    // BULK SELECTION: a long press picks an issue, and from then on a tap picks or unpicks one
+
+    private val selection = linkedSetOf<Int>()
+    private var selectionMode: ActionMode? = null
+    private val selecting: Boolean
+        get() = selectionMode != null
+
+    private fun toggleSelected(holder: IssueViewHolder) {
+        val id = holder.issueId ?: return
+        if (!selection.add(id)) selection.remove(id)
+        listRecyclerView.adapter?.notifyItemChanged(holder.bindingAdapterPosition)
+        when {
+            selection.isEmpty() -> selectionMode?.finish()
+            selectionMode == null ->
+                selectionMode = (activity as? AppCompatActivity)?.startSupportActionMode(selectionCallback)
+            else -> selectionMode?.invalidate()
+        }
+    }
+
+    /** A long press picks the issue; keeping the finger down and moving then picks more (see [DragSelect]). */
+    private fun startSelecting(holder: IssueViewHolder) {
+        val id = holder.issueId ?: return
+        if (id !in selection) toggleSelected(holder)
+        dragSelect.start(holder.bindingAdapterPosition)
+    }
+
+    private val dragSelect = DragSelect()
+
+    /**
+     * After a long press, dragging over other issues picks everything from the first one to the
+     * one under the finger (and unpicks again if the finger goes back). Near the top or bottom
+     * edge the list scrolls on its own. Taps and ordinary scrolls are left alone.
+     */
+    private inner class DragSelect : RecyclerView.OnItemTouchListener {
+        private var touching = false
+        private var dragging = false
+        private var anchor = -1
+        private var current = -1
+        private var base: Set<Int> = emptySet()
+        private var lastX = 0f
+        private var lastY = 0f
+
+        private val autoScroll = object : Runnable {
+            override fun run() {
+                if (!dragging) return
+                val list = listRecyclerView
+                val edge = list.height * EDGE_FRACTION
+                val dy = when {
+                    lastY < edge -> -(edge - lastY) / edge * MAX_SCROLL
+                    lastY > list.height - edge -> (lastY - (list.height - edge)) / edge * MAX_SCROLL
+                    else -> 0f
+                }
+                if (dy != 0f) {
+                    list.scrollBy(0, dy.toInt())
+                    pick(lastX, lastY)
+                }
+                list.postOnAnimation(this)
+            }
+        }
+
+        fun start(position: Int) {
+            if (!touching || position == RecyclerView.NO_POSITION) return
+            dragging = true
+            anchor = position
+            current = position
+            base = selection.toSet()
+            listRecyclerView.postOnAnimation(autoScroll)
+        }
+
+        private fun stop() {
+            touching = false
+            dragging = false
+        }
+
+        private fun pick(x: Float, y: Float) {
+            val list = listRecyclerView
+            val child = list.findChildViewUnder(x, y) ?: return
+            val position = list.getChildAdapterPosition(child)
+            if (position == RecyclerView.NO_POSITION || position == current) return
+
+            val paged = list.adapter as? PagingDataAdapter<*, *> ?: return
+            val oldLow = minOf(anchor, current)
+            val oldHigh = maxOf(anchor, current)
+            val low = minOf(anchor, position)
+            val high = maxOf(anchor, position)
+
+            selection.clear()
+            selection.addAll(base)
+            for (i in low..high) (paged.peek(i) as? FullIssue)?.let { selection.add(it.issue.issueId) }
+
+            current = position
+            val from = minOf(low, oldLow)
+            list.adapter?.notifyItemRangeChanged(from, maxOf(high, oldHigh) - from + 1)
+            selectionMode?.invalidate()
+        }
+
+        override fun onInterceptTouchEvent(rv: RecyclerView, e: MotionEvent): Boolean {
+            when (e.actionMasked) {
+                MotionEvent.ACTION_DOWN -> { touching = true; dragging = false }
+                MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> stop()
+            }
+            lastX = e.x
+            lastY = e.y
+            // Once dragging, the list is the one handling the finger, not the card under it
+            return dragging && e.actionMasked == MotionEvent.ACTION_MOVE
+        }
+
+        override fun onTouchEvent(rv: RecyclerView, e: MotionEvent) {
+            lastX = e.x
+            lastY = e.y
+            when (e.actionMasked) {
+                MotionEvent.ACTION_MOVE -> if (dragging) pick(e.x, e.y)
+                MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> stop()
+            }
+        }
+
+        override fun onRequestDisallowInterceptTouchEvent(disallowIntercept: Boolean) = Unit
+    }
+
+    private val selectionCallback = object : ActionMode.Callback {
+        override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean {
+            mode.menuInflater.inflate(R.menu.issue_selection, menu)
+            mode.title = getString(R.string.selected_count, selection.size)
+            return true
+        }
+
+        override fun onPrepareActionMode(mode: ActionMode, menu: Menu): Boolean {
+            mode.title = getString(R.string.selected_count, selection.size)
+            return true
+        }
+
+        override fun onActionItemClicked(mode: ActionMode, item: MenuItem): Boolean = when (item.itemId) {
+            R.id.selection_select_all -> { selectAll(); true }
+            R.id.selection_move_storage -> { moveSelectedToStorage(); true }
+            else -> false
+        }
+
+        override fun onDestroyActionMode(mode: ActionMode) {
+            selection.clear()
+            selectionMode = null
+            listRecyclerView.adapter?.let { it.notifyItemRangeChanged(0, it.itemCount) }
+        }
+    }
+
+    /** Everything the list shows, not only the part that has loaded so far. */
+    private fun selectAll() {
+        val filter = viewModel.filter.value ?: return
+        viewLifecycleOwner.lifecycleScope.launch {
+            val all = withContext(Dispatchers.IO) {
+                Repository.get().getIssuesByFilter(filter).first().map { it.issue.issueId }
+            }
+            selection.addAll(all)
+            listRecyclerView.adapter?.let { it.notifyItemRangeChanged(0, it.itemCount) }
+            selectionMode?.invalidate()
+        }
+    }
+
+    /** Files the picked copies in a storage place; the picked issues that aren't in My Collection are left. */
+    private fun moveSelectedToStorage() {
+        val ids = selection.toList()
+        if (ids.isEmpty()) return
+        StoragePrompt.show(
+            requireContext(), viewLifecycleOwner.lifecycleScope, R.string.selection_storage_title,
+            getString(R.string.selection_storage_message, ids.size), null, null,
+        ) { place ->
+            viewLifecycleOwner.lifecycleScope.launch {
+                val moved = Repository.get().setStorage(ids, place)
+                val left = ids.size - moved
+                val text = getString(R.string.selection_moved, moved, place.orEmpty()) +
+                    if (left > 0) getString(R.string.selection_not_owned, left) else ""
+                Toast.makeText(requireContext(), text, Toast.LENGTH_LONG).show()
+                selectionMode?.finish()
+            }
         }
     }
 
@@ -257,6 +449,10 @@ class IssueListFragment : ListFragment<FullIssue, IssueListFragment.IssueViewHol
     companion object {
         @JvmStatic
         fun newInstance() = IssueListFragment()
+
+        /** Dragging within this fraction of the list's height from its top or bottom scrolls it. */
+        private const val EDGE_FRACTION = 0.15f
+        private const val MAX_SCROLL = 40f
 
         private val DIFF_CALLBACK = object : DiffUtil.ItemCallback<FullIssue>() {
             override fun areItemsTheSame(oldItem: FullIssue, newItem: FullIssue): Boolean =

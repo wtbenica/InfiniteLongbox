@@ -72,6 +72,7 @@ import dev.benica.infinite_longbox.fragments.AboutDialogFragment
 import dev.benica.infinite_longbox.fragments.CharacterDetailFragment
 import dev.benica.infinite_longbox.fragments.CharacterListFragment
 import dev.benica.infinite_longbox.fragments.CreatorDetailFragment
+import dev.benica.infinite_longbox.fragments.StoragePrompt
 import dev.benica.infinite_longbox.fragments.CreatorListFragment
 import dev.benica.infinite_longbox.fragments.FilterFragment
 import dev.benica.infinite_longbox.fragments.IssueDetailFragment
@@ -369,10 +370,46 @@ class MainActivity : AppCompatActivity(),
             R.id.menu_main_import_collection ->
                 importCollection.launch(arrayOf("application/json", "text/plain", "*/*"))
 
+            R.id.menu_main_storage_places -> showStoragePlaces()
             R.id.menu_main_push_covers -> pushLocalCovers()
             else -> super.onOptionsItemSelected(item)
         }
         return true
+    }
+
+    /** Every storage place with its copy count; a tap renames it (to a name already used merges the two). */
+    private fun showStoragePlaces() {
+        lifecycleScope.launch {
+            val places = Repository.get().storagePlaces()
+            if (places.isEmpty()) {
+                Toast.makeText(this@MainActivity, R.string.storage_places_none, Toast.LENGTH_SHORT).show()
+                return@launch
+            }
+            androidx.appcompat.app.AlertDialog.Builder(this@MainActivity)
+                .setTitle(R.string.storage_places_title)
+                .setItems(places.map { "${it.name} (${it.copies})" }.toTypedArray()) { _, which ->
+                    renameStoragePlace(places[which].name)
+                }
+                .setNegativeButton(R.string.scan_done, null)
+                .show()
+        }
+    }
+
+    private fun renameStoragePlace(name: String) {
+        StoragePrompt.show(
+            this, lifecycleScope, R.string.storage_rename_title,
+            getString(R.string.storage_rename_message, name), name, R.string.storage_rename_clear,
+        ) { newName ->
+            lifecycleScope.launch {
+                val copies = Repository.get().renameStorage(name, newName)
+                Toast.makeText(
+                    this@MainActivity,
+                    if (newName == null) getString(R.string.storage_cleared, copies, name)
+                    else getString(R.string.storage_renamed, copies, newName),
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
     }
 
     /** Uploads covers stored on this phone that the server doesn't have (debug builds). */

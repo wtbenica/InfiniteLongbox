@@ -154,6 +154,35 @@ abstract class CollectionItemDao : BaseDao<CollectionItem>("collectionItem") {
     @Query("SELECT creatorId FROM Creator WHERE creatorId IN (:ids)")
     abstract suspend fun knownCreators(ids: List<Int>): List<Int>
 
+    /** Puts the copies of [issueIds] in the collection in a storage place (null: none); how many were there. */
+    @Query(
+        """
+            UPDATE collectionItem SET storageLocation = :storageLocation
+            WHERE userCollection = :collectionId AND issue IN (:issueIds)
+        """
+    )
+    abstract fun setStorageForAll(issueIds: List<Int>, collectionId: Int, storageLocation: String?): Int
+
+    /** Every storage place and how many copies are in it. */
+    @Query(
+        """
+            SELECT storageLocation AS name, COUNT(*) AS copies FROM collectionItem
+            WHERE storageLocation IS NOT NULL AND storageLocation != ''
+            GROUP BY storageLocation
+            ORDER BY storageLocation COLLATE NOCASE
+        """
+    )
+    abstract suspend fun storagePlaces(): List<StoragePlace>
+
+    /** Renames a storage place (any spelling of its name); naming it as another merges the two. */
+    @Query(
+        """
+            UPDATE collectionItem SET storageLocation = :to
+            WHERE storageLocation = :from COLLATE NOCASE
+        """
+    )
+    abstract fun renameStorage(from: String, to: String?): Int
+
     /** The places copies have been put, for suggesting one when entering the next. */
     @Query(
         """
@@ -215,6 +244,9 @@ data class SignedIssue(
     val number: String,
     val variantName: String,
 )
+
+/** A place copies are stored, with how many are in it. */
+data class StoragePlace(val name: String, val copies: Int)
 
 data class SignatureRow(val collectionId: Int, val issueId: Int, val creatorId: Int, val name: String)
 

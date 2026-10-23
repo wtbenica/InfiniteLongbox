@@ -117,12 +117,15 @@
     <string name="cover_remove">Remove this cover</string>
     <string name="cover_removed">Cover removed</string>
     <string name="cover_add_title">Add a cover</string>
+    <string name="cover_add_hint">Add cover</string>
     <string name="cover_from_metron">Fetch from Metron</string>
     <string name="cover_from_device">Choose from this device…</string>
     <string name="cover_metron_none">Metron has no cover for this issue</string>
     <string name="cover_metron_off">The server isn\'t set up to fetch covers</string>
     <string name="cover_metron_pick">Which cover is this?</string>
     <string name="cover_metron_standard">Standard cover</string>
+    <string name="cover_metron_none_for">No cover on Metron for %1$s</string>
+    <string name="cover_metron_failed_for">Couldn\'t get a cover for %1$s from Metron</string>
     <string name="cover_metron_busy">Metron is busy, try again in a moment</string>
     <string name="cover_metron_failed">Couldn\'t get the cover from Metron</string>
     <string name="cover_metron_working">Fetching the cover…</string>
@@ -141,6 +144,21 @@
     <string name="scan_storage_title">Where are these going?</string>
     <string name="scan_storage_message">Every copy scanned from now on is filed here, until you change it.</string>
     <string name="scan_storage_clear">No place</string>
+    <string name="menu_storage_places">Storage places</string>
+    <string name="storage_places_title">Storage places</string>
+    <string name="storage_places_none">No copies are filed in a storage place yet</string>
+    <string name="storage_rename_title">Rename storage place</string>
+    <string name="storage_rename_message">Every copy in %1$s moves to the new name. Using a name that\'s already there merges the two.</string>
+    <string name="storage_rename_clear">Remove place</string>
+    <string name="storage_renamed">%1$d copies are now in %2$s</string>
+    <string name="storage_cleared">%1$d copies taken out of %2$s</string>
+    <string name="selected_count">%1$d selected</string>
+    <string name="selection_select_all">Select all</string>
+    <string name="selection_move_storage">Move to storage</string>
+    <string name="selection_storage_title">Move to storage</string>
+    <string name="selection_storage_message">File %1$d selected issues in a storage place. Only copies in My Collection can be filed.</string>
+    <string name="selection_moved">Moved %1$d to %2$s</string>
+    <string name="selection_not_owned">; %1$d aren\'t in My Collection</string>
     <string name="scan_details">Details</string>
     <string name="scan_pick_cover">Pick cover</string>
     <string name="scan_done">Done</string>
@@ -173,7 +191,6 @@
     <string name="my_copy_condition">Condition</string>
     <string name="my_copy_notes">Notes</string>
     <string name="my_copy_save">Save</string>
-    <string name="cover_add_hint">Add cover</string>
 
     <!-- Character page -->
     <string name="character_filter_by">Show issues with this character</string>

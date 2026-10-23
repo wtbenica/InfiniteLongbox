@@ -48,6 +48,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.lifecycleScope
 import dev.benica.infinite_longbox.database.IssueDatabase
+import dev.benica.infinite_longbox.fragments.StoragePrompt
 import dev.benica.infinite_longbox.database.models.BaseCollection
 import dev.benica.infinite_longbox.database.models.FullIssue
 import dev.benica.infinite_longbox.repository.Repository
@@ -431,32 +432,10 @@ class ScanActivity : AppCompatActivity() {
 
     /** "The rest of these are going in Box 2": asked once, then every copy scanned is filed there. */
     private fun askStorage() {
-        val input = android.widget.AutoCompleteTextView(this).apply {
-            setHint(R.string.my_copy_storage)
-            setText(storage.orEmpty())
-            inputType = android.text.InputType.TYPE_CLASS_TEXT or android.text.InputType.TYPE_TEXT_FLAG_CAP_WORDS
-            setSingleLine()
-            threshold = 0
-        }
-        // Places already used are suggested, so the same box isn't spelled two ways
-        lifecycleScope.launch {
-            val places = Repository.get().storageLocations()
-            input.setAdapter(android.widget.ArrayAdapter(this@ScanActivity, android.R.layout.simple_dropdown_item_1line, places))
-        }
-        val pad = (16 * resources.displayMetrics.density).toInt()
-        AlertDialog.Builder(this)
-            .setTitle(R.string.scan_storage_title)
-            .setMessage(R.string.scan_storage_message)
-            .setView(android.widget.FrameLayout(this).apply {
-                setPadding(pad, 0, pad, 0)
-                addView(input)
-            })
-            .setPositiveButton(android.R.string.ok) { _, _ ->
-                storage = input.text.toString().trim().ifEmpty { null }
-            }
-            .setNeutralButton(R.string.scan_storage_clear) { _, _ -> storage = null }
-            .setNegativeButton(android.R.string.cancel, null)
-            .show()
+        StoragePrompt.show(
+            this, lifecycleScope, R.string.scan_storage_title, getString(R.string.scan_storage_message),
+            storage, R.string.scan_storage_clear,
+        ) { storage = it }
     }
 
     private fun undo(entry: Added) {

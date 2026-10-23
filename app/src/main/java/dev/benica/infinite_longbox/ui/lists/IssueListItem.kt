@@ -22,6 +22,7 @@ import androidx.compose.animation.graphics.vector.AnimatedImageVector
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -89,6 +90,8 @@ data class IssueCardState(
     val loadingCover: Boolean,
     val inCollection: Boolean,
     val inWishList: Boolean,
+    /** Picked for a bulk action (see the issue list's selection mode) */
+    val selected: Boolean = false,
 )
 
 /** A card for an issue still loading: the placeholder cover, in the shape of a real card. */
@@ -117,6 +120,7 @@ fun IssueListItem(
     onToggleCollection: () -> Unit,
     onToggleWishList: () -> Unit,
     modifier: Modifier = Modifier,
+    onLongClick: () -> Unit = {},
 ) {
     val boxColor by animateColorAsState(
         targetValue = if (state.inCollection) colorResource(R.color.accent_soft)
@@ -129,8 +133,9 @@ fun IssueListItem(
     val borderColor = colorResource(R.color.card_border)
 
     Card(
-        onClick = onClick,
-        modifier = modifier.listCardFrame(cardShape),
+        modifier = modifier
+            .listCardFrame(cardShape)
+            .combinedClickable(onClick = onClick, onLongClick = onLongClick),
         shape = cardShape,
         colors = CardDefaults.cardColors(containerColor = colorResource(R.color.surface_raised)),
     ) {
@@ -261,6 +266,26 @@ fun IssueListItem(
                             )
                         }
                     }
+                }
+            }
+
+            if (state.selected) {
+                // A wash over the card and a tick in the corner say it is picked
+                Box(
+                    Modifier
+                        .matchParentSize()
+                        .background(colorResource(R.color.accent).copy(alpha = 0.25f))
+                )
+                Box(
+                    Modifier
+                        .align(Alignment.TopStart)
+                        .padding(8.dp)
+                        .size(32.dp)
+                        .background(colorResource(R.color.accent), CircleShape)
+                        .border(2.dp, colorResource(R.color.on_accent), CircleShape),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Text("✓", color = colorResource(R.color.on_accent), fontSize = 18.sp)
                 }
             }
 
