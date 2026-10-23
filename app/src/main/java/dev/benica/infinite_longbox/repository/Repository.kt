@@ -22,7 +22,6 @@ import android.content.Context
 import android.content.DialogInterface
 import android.content.SharedPreferences
 import android.database.sqlite.SQLiteConstraintException
-import android.net.Uri
 import android.os.Bundle
 import android.os.Parcelable
 import android.util.Log

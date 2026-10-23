@@ -39,7 +39,6 @@ import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.File
 import java.io.IOException
-import java.io.RandomAccessFile
 import kotlin.math.max
 
 private const val TAG = APP + "CoverStore"

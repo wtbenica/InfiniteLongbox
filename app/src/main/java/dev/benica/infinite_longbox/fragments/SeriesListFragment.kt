@@ -19,10 +19,8 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.fragment.app.viewModels
@@ -35,13 +33,16 @@ import dev.benica.infinite_longbox.R
 import dev.benica.infinite_longbox.database.models.FullIssue
 import dev.benica.infinite_longbox.database.models.FullSeries
 import dev.benica.infinite_longbox.fragments_view_models.SeriesListViewModel
-import dev.benica.infinite_longbox.ui.InfiniteLongboxTheme
-import dev.benica.infinite_longbox.ui.SeriesCardState
-import dev.benica.infinite_longbox.ui.CoverImages
-import dev.benica.infinite_longbox.ui.SeriesListItem
-import dev.benica.infinite_longbox.ui.SeriesListItemSkeleton
 import java.io.File
 import kotlinx.coroutines.*
+import dev.benica.infinite_longbox.ui.covers.CoverImages
+import dev.benica.infinite_longbox.ui.covers.placeholderKey
+import dev.benica.infinite_longbox.ui.lists.SeriesCardState
+import dev.benica.infinite_longbox.ui.lists.SeriesListItem
+import dev.benica.infinite_longbox.ui.lists.SeriesListItemSkeleton
+import dev.benica.infinite_longbox.ui.theme.InfiniteLongboxTheme
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 
 private const val TAG = APP + "SeriesListFragment"
 

@@ -27,7 +27,6 @@ import dev.benica.infinite_longbox.R
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import java.io.Serializable
 import java.time.LocalDate
-import java.time.format.DateTimeFormatter
 
 // TODO: Add fk restraint back to firstIssueId. I don't want to do it right now, in case it 
 //  breaks things. Not time to deal with a new problem

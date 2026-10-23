@@ -19,10 +19,8 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.fragment.app.viewModels
@@ -35,11 +33,14 @@ import dev.benica.infinite_longbox.R
 import dev.benica.infinite_longbox.database.models.Character
 import dev.benica.infinite_longbox.database.models.FullCharacter
 import dev.benica.infinite_longbox.fragments_view_models.CharacterListViewModel
-import dev.benica.infinite_longbox.ui.InfiniteLongboxTheme
-import dev.benica.infinite_longbox.ui.NameCardState
-import dev.benica.infinite_longbox.ui.NameListItem
-import dev.benica.infinite_longbox.ui.NameListItemSkeleton
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import dev.benica.infinite_longbox.ui.covers.placeholderKey
+import dev.benica.infinite_longbox.ui.lists.NameCardState
+import dev.benica.infinite_longbox.ui.lists.NameListItem
+import dev.benica.infinite_longbox.ui.lists.NameListItemSkeleton
+import dev.benica.infinite_longbox.ui.theme.InfiniteLongboxTheme
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 
 private const val TAG = APP + "CharacterListFragment"
 

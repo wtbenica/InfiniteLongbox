@@ -15,10 +15,10 @@
 
 package dev.benica.infinite_longbox.repository
 
-import dev.benica.infinite_longbox.ui.IssueNumberText
 import java.time.Month
 import java.time.format.TextStyle
 import java.util.Locale
+import dev.benica.infinite_longbox.ui.issue.IssueNumberText
 
 /** The words the character page puts around its data. */
 object CharacterInfoText {

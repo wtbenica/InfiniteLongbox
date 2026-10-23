@@ -39,11 +39,9 @@ import androidx.camera.core.resolutionselector.ResolutionStrategy
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.ComposeView
 import androidx.core.content.ContextCompat
@@ -53,19 +51,13 @@ import dev.benica.infinite_longbox.database.IssueDatabase
 import dev.benica.infinite_longbox.database.models.BaseCollection
 import dev.benica.infinite_longbox.database.models.FullIssue
 import dev.benica.infinite_longbox.repository.Repository
-import dev.benica.infinite_longbox.ui.InfiniteLongboxTheme
 import dev.benica.infinite_longbox.repository.MetronCoverOption
 import dev.benica.infinite_longbox.repository.fetchCoverFromMetron
 import dev.benica.infinite_longbox.repository.metronCoverOptions
 import dev.benica.infinite_longbox.repository.metronCoverPreview
-import dev.benica.infinite_longbox.ui.MetronCoverPicker
-import dev.benica.infinite_longbox.ui.ScanResultState
-import dev.benica.infinite_longbox.ui.ScanWindow
-import dev.benica.infinite_longbox.ui.ScanScreen
 import java.io.File
 import kotlin.coroutines.resume
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
@@ -74,6 +66,13 @@ import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import zxingcpp.BarcodeReader
+import dev.benica.infinite_longbox.ui.covers.MetronCoverPicker
+import dev.benica.infinite_longbox.ui.scan.ScanResultState
+import dev.benica.infinite_longbox.ui.scan.ScanScreen
+import dev.benica.infinite_longbox.ui.scan.ScanWindow
+import dev.benica.infinite_longbox.ui.theme.InfiniteLongboxTheme
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 
 /**
  * Reads a comic's barcode: the 12-digit UPC plus the 5-digit add-on beside it, which says which

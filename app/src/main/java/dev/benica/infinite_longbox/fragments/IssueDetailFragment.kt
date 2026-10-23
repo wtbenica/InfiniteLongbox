@@ -29,9 +29,7 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.core.net.toUri
@@ -62,29 +60,31 @@ import dev.benica.infinite_longbox.repository.fetchCoverFromMetron
 import dev.benica.infinite_longbox.repository.metronCoverOptions
 import dev.benica.infinite_longbox.repository.metronCoverPreview
 import dev.benica.infinite_longbox.repository.pickedCoverToIssue
-import dev.benica.infinite_longbox.ui.MetronCoverPicker
-import dev.benica.infinite_longbox.ui.MyCopyState
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import dev.benica.infinite_longbox.ui.SignerRef
 import dev.benica.infinite_longbox.database.models.Creator
 import dev.benica.infinite_longbox.repository.removeCover
-import dev.benica.infinite_longbox.ui.InfiniteLongboxTheme
-import dev.benica.infinite_longbox.ui.IssueActionState
-import dev.benica.infinite_longbox.ui.IssueCoverState
-import dev.benica.infinite_longbox.ui.IssueDetailActions
-import dev.benica.infinite_longbox.ui.IssueDetailScreen
-import dev.benica.infinite_longbox.ui.IssueDetailUiState
-import dev.benica.infinite_longbox.ui.IssueInfoState
-import dev.benica.infinite_longbox.ui.IssueNumberText
-import dev.benica.infinite_longbox.ui.JumpBarState
-import dev.benica.infinite_longbox.ui.VariantSelectorState
-import dev.benica.infinite_longbox.ui.buildStoryUi
-import dev.benica.infinite_longbox.ui.placeholderKey
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
 import java.io.File
+import dev.benica.infinite_longbox.ui.issue.IssueDetailUiState
+import dev.benica.infinite_longbox.ui.covers.IssueCoverState
+import dev.benica.infinite_longbox.ui.covers.MetronCoverPicker
+import dev.benica.infinite_longbox.ui.issue.IssueActionState
+import dev.benica.infinite_longbox.ui.issue.IssueDetailActions
+import dev.benica.infinite_longbox.ui.issue.IssueDetailScreen
+import dev.benica.infinite_longbox.ui.issue.IssueInfoState
+import dev.benica.infinite_longbox.ui.issue.IssueNumberText
+import dev.benica.infinite_longbox.ui.issue.JumpBarState
+import dev.benica.infinite_longbox.ui.issue.MyCopyState
+import dev.benica.infinite_longbox.ui.issue.SignerRef
+import dev.benica.infinite_longbox.ui.issue.VariantSelectorState
+import dev.benica.infinite_longbox.ui.issue.buildStoryUi
+import dev.benica.infinite_longbox.ui.theme.InfiniteLongboxTheme
+import dev.benica.infinite_longbox.ui.covers.placeholderKey
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 
 // Bundle Argument Tags
 private const val ARG_ISSUE_ID = "issue_id"

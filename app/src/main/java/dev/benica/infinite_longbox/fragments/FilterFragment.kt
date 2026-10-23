@@ -26,13 +26,9 @@ import android.view.View.*
 import android.view.ViewGroup
 import android.widget.*
 import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
-import dev.benica.infinite_longbox.ui.FilterSheetHeader
-import dev.benica.infinite_longbox.ui.InfiniteLongboxTheme
 import androidx.core.view.*
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -55,6 +51,10 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import java.time.LocalDate
+import dev.benica.infinite_longbox.ui.filter.FilterSheetHeader
+import dev.benica.infinite_longbox.ui.theme.InfiniteLongboxTheme
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 
 private const val TAG = APP + "FilterFragment"
 

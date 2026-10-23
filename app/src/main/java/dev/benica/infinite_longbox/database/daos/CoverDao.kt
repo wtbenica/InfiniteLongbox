@@ -15,7 +15,6 @@
 
 package dev.benica.infinite_longbox.database.daos
 
-import android.net.Uri
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy

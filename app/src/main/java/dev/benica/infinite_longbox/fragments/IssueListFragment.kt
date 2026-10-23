@@ -21,10 +21,8 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.core.view.MenuHost
@@ -42,15 +40,17 @@ import dev.benica.infinite_longbox.database.models.FullIssue
 import dev.benica.infinite_longbox.database.models.FullSeries
 import dev.benica.infinite_longbox.database.models.Issue
 import dev.benica.infinite_longbox.fragments_view_models.IssueListViewModel
-import dev.benica.infinite_longbox.ui.CoverImages
-import dev.benica.infinite_longbox.ui.InfiniteLongboxTheme
-import dev.benica.infinite_longbox.ui.IssueCardState
-import dev.benica.infinite_longbox.ui.IssueListItem
-import dev.benica.infinite_longbox.ui.IssueListItemSkeleton
-import dev.benica.infinite_longbox.ui.placeholderKey
 import dev.benica.infinite_longbox.views.SeriesDetailBox
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import java.io.File
+import dev.benica.infinite_longbox.ui.covers.CoverImages
+import dev.benica.infinite_longbox.ui.covers.placeholderKey
+import dev.benica.infinite_longbox.ui.lists.IssueCardState
+import dev.benica.infinite_longbox.ui.lists.IssueListItem
+import dev.benica.infinite_longbox.ui.lists.IssueListItemSkeleton
+import dev.benica.infinite_longbox.ui.theme.InfiniteLongboxTheme
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 
 @ExperimentalCoroutinesApi
 class IssueListFragment : ListFragment<FullIssue, IssueListFragment.IssueViewHolder>() {
