@@ -49,7 +49,7 @@ abstract class SeriesDao : BaseDao<Series>("series") {
 
     // PAGING SOURCE FUNCTIONS
     @Transaction
-    @RawQuery(observedEntities = [FullSeries::class])
+    @RawQuery(observedEntities = [FullSeries::class, Story::class, Credit::class, ExCredit::class, NameDetail::class, Creator::class, Appearance::class, Character::class, CollectionItem::class])
     abstract fun getSeriesByQueryPagingSource(query: SupportSQLiteQuery): PagingSource<Int, FullSeries>
 
     fun getSeriesByFilterPagingSource(filter: SearchFilter): PagingSource<Int, FullSeries> {

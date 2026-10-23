@@ -46,7 +46,7 @@ abstract class CreatorDao : BaseDao<Creator>("creator") {
 
     // PAGING SOURCE FUNCTIONS
     @Transaction
-    @RawQuery(observedEntities = [Character::class])
+    @RawQuery(observedEntities = [Creator::class, Series::class, Issue::class, Story::class, Credit::class, ExCredit::class, NameDetail::class, Creator::class, Appearance::class, Character::class, CollectionItem::class])
     abstract fun getCreatorsByQueryPagingSource(query: SupportSQLiteQuery): PagingSource<Int, FullCreator>
 
     fun getCreatorsByFilterPagingSource(filter: SearchFilter): PagingSource<Int, FullCreator> {

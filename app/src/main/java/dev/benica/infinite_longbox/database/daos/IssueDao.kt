@@ -32,6 +32,15 @@ import dev.benica.infinite_longbox.database.models.Issue
 import dev.benica.infinite_longbox.database.models.ids
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
+import dev.benica.infinite_longbox.database.models.Appearance
+import dev.benica.infinite_longbox.database.models.Character
+import dev.benica.infinite_longbox.database.models.CollectionItem
+import dev.benica.infinite_longbox.database.models.Credit
+import dev.benica.infinite_longbox.database.models.Creator
+import dev.benica.infinite_longbox.database.models.ExCredit
+import dev.benica.infinite_longbox.database.models.NameDetail
+import dev.benica.infinite_longbox.database.models.Story
+import dev.benica.infinite_longbox.database.models.Series
 
 private const val TAG = APP + "IssueDao"
 
@@ -41,7 +50,7 @@ abstract class IssueDao : BaseDao<Issue>("issue") {
 
     // FLOW FUNCTIONS
     @Transaction
-    @RawQuery(observedEntities = [FullIssue::class])
+    @RawQuery(observedEntities = [FullIssue::class, Story::class, Credit::class, ExCredit::class, NameDetail::class, Creator::class, Appearance::class, Character::class, CollectionItem::class])
     abstract fun getFullIssuesByQuery(query: SupportSQLiteQuery): Flow<List<FullIssue>>
 
     fun getIssuesByFilter(filter: SearchFilter): Flow<List<FullIssue>> {
@@ -52,7 +61,7 @@ abstract class IssueDao : BaseDao<Issue>("issue") {
 
     // PAGING SOURCE FUNCTIONS
     @Transaction
-    @RawQuery(observedEntities = [FullIssue::class])
+    @RawQuery(observedEntities = [FullIssue::class, Story::class, Credit::class, ExCredit::class, NameDetail::class, Creator::class, Appearance::class, Character::class, CollectionItem::class])
     abstract fun getFullIssuesByQueryPagingSource(query: SupportSQLiteQuery): PagingSource<Int, FullIssue>
 
     fun getIssuesByFilterPagingSource(filter: SearchFilter): PagingSource<Int, FullIssue> {

@@ -31,6 +31,15 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import java.util.*
 import dev.benica.infinite_longbox.database.models.Character as Character
+import dev.benica.infinite_longbox.database.models.Appearance
+import dev.benica.infinite_longbox.database.models.CollectionItem
+import dev.benica.infinite_longbox.database.models.Credit
+import dev.benica.infinite_longbox.database.models.Creator
+import dev.benica.infinite_longbox.database.models.ExCredit
+import dev.benica.infinite_longbox.database.models.NameDetail
+import dev.benica.infinite_longbox.database.models.Story
+import dev.benica.infinite_longbox.database.models.Series
+import dev.benica.infinite_longbox.database.models.Issue
 
 @ExperimentalCoroutinesApi
 @Dao
@@ -48,7 +57,7 @@ abstract class CharacterDao : BaseDao<Character>("character") {
 
     // PAGING SOURCE FUNCTIONS
     @Transaction
-    @RawQuery(observedEntities = [Character::class])
+    @RawQuery(observedEntities = [Character::class, Series::class, Issue::class, Story::class, Credit::class, ExCredit::class, NameDetail::class, Creator::class, Appearance::class, Character::class, CollectionItem::class])
     abstract fun getCharactersByQueryPagingSource(query: SupportSQLiteQuery): PagingSource<Int, FullCharacter>
 
     fun getCharactersByFilterPagingSource(filter: SearchFilter): PagingSource<Int, FullCharacter> {
