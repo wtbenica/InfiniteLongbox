@@ -398,6 +398,9 @@ abstract class Updater(
                 )
             }
         }
+
+        // Up to date: say so for long enough to be read, rather than flashing past
+        if (toFetch == 0) progressWrapper?.hold()
     }
 
     /** The version of each page of [key]'s model, or null if the server can't say. */
