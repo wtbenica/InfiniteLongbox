@@ -22,6 +22,7 @@ import android.widget.TextView
 import androidx.cardview.widget.CardView
 import dev.benica.infinite_longbox.R
 import kotlinx.coroutines.delay
+import kotlin.time.Duration.Companion.milliseconds
 
 /**
  * One line telling what the database update is doing: "Updating database…" on the left, and on
@@ -105,7 +106,7 @@ class ProgressUpdateCard(context: Context, attributeSet: AttributeSet) :
         while (shownKey == key && SystemClock.uptimeMillis() < giveUp) {
             val since = visibleSince
             if (since != Long.MAX_VALUE && SystemClock.uptimeMillis() - since >= DWELL_MS) return
-            delay(POLL_MS)
+            delay(POLL_MS.milliseconds)
         }
     }
 
