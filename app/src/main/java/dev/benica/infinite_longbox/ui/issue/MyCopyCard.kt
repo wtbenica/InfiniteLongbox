@@ -18,9 +18,8 @@ package dev.benica.infinite_longbox.ui.issue
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -58,7 +57,6 @@ data class SignerRef(val creatorId: Int, val name: String)
 
 /** "My copy": who signed it, where it is stored, its condition and notes, with an Edit button. */
 @Composable
-@OptIn(ExperimentalLayoutApi::class)
 fun MyCopyCard(
     state: MyCopyState,
     onEdit: () -> Unit,

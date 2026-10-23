@@ -15,7 +15,6 @@
 
 package dev.benica.infinite_longbox.database.daos
 
-import kotlinx.serialization.Serializable
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
@@ -28,6 +27,7 @@ import dev.benica.infinite_longbox.database.models.Creator
 import dev.benica.infinite_longbox.database.models.UserCollection
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
+import kotlinx.serialization.Serializable
 
 private const val TAG = APP + "CollectionDao"
 

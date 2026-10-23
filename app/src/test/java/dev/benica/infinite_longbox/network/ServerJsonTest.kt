@@ -1,9 +1,9 @@
 package dev.benica.infinite_longbox.network
 
-import dev.benica.infinite_longbox.Manifest
-import dev.benica.infinite_longbox.database.models.GcdSeries
 import dev.benica.infinite_longbox.CollectionBackup
+import dev.benica.infinite_longbox.Manifest
 import dev.benica.infinite_longbox.database.daos.Count
+import dev.benica.infinite_longbox.database.models.GcdSeries
 import dev.benica.infinite_longbox.repository.CharacterInfo
 import dev.benica.infinite_longbox.repository.CreatorInfo
 import dev.benica.infinite_longbox.repository.RelatedCharacter

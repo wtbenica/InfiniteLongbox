@@ -20,6 +20,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.fragment.app.Fragment
@@ -27,11 +28,10 @@ import androidx.fragment.app.viewModels
 import dev.benica.infinite_longbox.R
 import dev.benica.infinite_longbox.database.models.Character
 import dev.benica.infinite_longbox.fragments_view_models.CharacterDetailViewModel
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import dev.benica.infinite_longbox.ui.character.CharacterDetailActions
 import dev.benica.infinite_longbox.ui.character.CharacterDetailScreen
 import dev.benica.infinite_longbox.ui.theme.InfiniteLongboxTheme
-import androidx.compose.runtime.getValue
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 private const val ARG_CHARACTER_ID = "character_id"
 

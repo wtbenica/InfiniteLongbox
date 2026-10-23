@@ -1,8 +1,8 @@
 package dev.benica.infinite_longbox.database.models
 
-import java.time.LocalDate
 import org.junit.Assert.assertEquals
 import org.junit.Test
+import java.time.LocalDate
 
 class SeriesDatesTest {
     private fun year(y: Int) = LocalDate.of(y, 1, 1)

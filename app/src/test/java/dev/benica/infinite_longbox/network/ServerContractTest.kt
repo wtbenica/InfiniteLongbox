@@ -2,11 +2,6 @@ package dev.benica.infinite_longbox.network
 
 import com.google.gson.JsonParser
 import dev.benica.infinite_longbox.Webservice
-import java.io.File
-import java.lang.reflect.Method
-import java.lang.reflect.ParameterizedType
-import java.lang.reflect.Type
-import java.lang.reflect.WildcardType
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.serializerOrNull
@@ -17,6 +12,11 @@ import org.junit.Assert.fail
 import org.junit.Test
 import retrofit2.Response
 import retrofit2.http.GET
+import java.io.File
+import java.lang.reflect.Method
+import java.lang.reflect.ParameterizedType
+import java.lang.reflect.Type
+import java.lang.reflect.WildcardType
 
 /**
  * What the app makes of what the server sends.

@@ -20,8 +20,8 @@ import android.graphics.Point
 import android.net.ConnectivityManager
 import android.net.Network
 import android.net.NetworkCapabilities
-import android.os.Bundle
 import android.net.Uri
+import android.os.Bundle
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
@@ -43,13 +43,13 @@ import androidx.core.view.updateLayoutParams
 import androidx.core.view.updatePadding
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentContainerView
+import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentTransaction.TRANSIT_FRAGMENT_FADE
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.repeatOnLifecycle
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.appbar.AppBarLayout.LayoutParams.SCROLL_FLAG_SCROLL
 import com.google.android.material.bottomsheet.BottomSheetBehavior
@@ -72,7 +72,6 @@ import dev.benica.infinite_longbox.fragments.AboutDialogFragment
 import dev.benica.infinite_longbox.fragments.CharacterDetailFragment
 import dev.benica.infinite_longbox.fragments.CharacterListFragment
 import dev.benica.infinite_longbox.fragments.CreatorDetailFragment
-import dev.benica.infinite_longbox.fragments.StoragePrompt
 import dev.benica.infinite_longbox.fragments.CreatorListFragment
 import dev.benica.infinite_longbox.fragments.FilterFragment
 import dev.benica.infinite_longbox.fragments.IssueDetailFragment
@@ -80,6 +79,7 @@ import dev.benica.infinite_longbox.fragments.IssueListFragment
 import dev.benica.infinite_longbox.fragments.ListFragment
 import dev.benica.infinite_longbox.fragments.ListFragment.Companion.forScreen
 import dev.benica.infinite_longbox.fragments.SeriesListFragment
+import dev.benica.infinite_longbox.fragments.StoragePrompt
 import dev.benica.infinite_longbox.fragments_view_models.FilterViewModel
 import dev.benica.infinite_longbox.repository.LoadTracker
 import dev.benica.infinite_longbox.repository.Repository

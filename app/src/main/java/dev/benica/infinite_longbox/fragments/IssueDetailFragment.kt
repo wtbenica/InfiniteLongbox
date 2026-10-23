@@ -29,7 +29,9 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.core.net.toUri
@@ -42,6 +44,7 @@ import dev.benica.infinite_longbox.R
 import dev.benica.infinite_longbox.SearchFilter
 import dev.benica.infinite_longbox.database.models.AUTO_ID
 import dev.benica.infinite_longbox.database.models.BaseCollection
+import dev.benica.infinite_longbox.database.models.Creator
 import dev.benica.infinite_longbox.database.models.FullAppearance
 import dev.benica.infinite_longbox.database.models.FullCharacter
 import dev.benica.infinite_longbox.database.models.FullCredit
@@ -54,27 +57,21 @@ import dev.benica.infinite_longbox.database.models.SeriesAndPublisher
 import dev.benica.infinite_longbox.database.models.Story
 import dev.benica.infinite_longbox.fragments_view_models.IssueDetailViewModel
 import dev.benica.infinite_longbox.repository.MetronCoverOption
-import dev.benica.infinite_longbox.repository.Repository
 import dev.benica.infinite_longbox.repository.MetronCoverResult
+import dev.benica.infinite_longbox.repository.Repository
 import dev.benica.infinite_longbox.repository.fetchCoverFromMetron
 import dev.benica.infinite_longbox.repository.metronCoverOptions
 import dev.benica.infinite_longbox.repository.metronCoverPreview
 import dev.benica.infinite_longbox.repository.pickedCoverToIssue
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import dev.benica.infinite_longbox.database.models.Creator
 import dev.benica.infinite_longbox.repository.removeCover
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.launch
-import java.io.File
-import dev.benica.infinite_longbox.ui.issue.IssueDetailUiState
 import dev.benica.infinite_longbox.ui.covers.CoverImages
 import dev.benica.infinite_longbox.ui.covers.IssueCoverState
 import dev.benica.infinite_longbox.ui.covers.MetronCoverPicker
+import dev.benica.infinite_longbox.ui.covers.placeholderKey
 import dev.benica.infinite_longbox.ui.issue.IssueActionState
 import dev.benica.infinite_longbox.ui.issue.IssueDetailActions
 import dev.benica.infinite_longbox.ui.issue.IssueDetailScreen
+import dev.benica.infinite_longbox.ui.issue.IssueDetailUiState
 import dev.benica.infinite_longbox.ui.issue.IssueInfoState
 import dev.benica.infinite_longbox.ui.issue.IssueNumberText
 import dev.benica.infinite_longbox.ui.issue.JumpBarState
@@ -83,9 +80,12 @@ import dev.benica.infinite_longbox.ui.issue.SignerRef
 import dev.benica.infinite_longbox.ui.issue.VariantSelectorState
 import dev.benica.infinite_longbox.ui.issue.buildStoryUi
 import dev.benica.infinite_longbox.ui.theme.InfiniteLongboxTheme
-import dev.benica.infinite_longbox.ui.covers.placeholderKey
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import java.io.File
 
 // Bundle Argument Tags
 private const val ARG_ISSUE_ID = "issue_id"

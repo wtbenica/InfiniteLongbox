@@ -31,6 +31,7 @@ import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -43,10 +44,13 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.unit.times
 import coil3.compose.AsyncImage
 import dev.benica.infinite_longbox.R
-import java.io.File
+import dev.benica.infinite_longbox.ui.common.Bar
 import dev.benica.infinite_longbox.ui.common.FolderTabPanel
+import dev.benica.infinite_longbox.ui.common.Subtitle
+import dev.benica.infinite_longbox.ui.common.listCardFrame
 import dev.benica.infinite_longbox.ui.covers.CoverFocus
 import dev.benica.infinite_longbox.ui.covers.CoverImages
 import dev.benica.infinite_longbox.ui.covers.PlaceholderCover
@@ -55,11 +59,7 @@ import dev.benica.infinite_longbox.ui.covers.placeholderKey
 import dev.benica.infinite_longbox.ui.covers.scrim
 import dev.benica.infinite_longbox.ui.theme.InfiniteLongboxTheme
 import dev.benica.infinite_longbox.ui.theme.PermanentMarker
-import dev.benica.infinite_longbox.ui.common.listCardFrame
-import dev.benica.infinite_longbox.ui.common.Bar
-import dev.benica.infinite_longbox.ui.common.Subtitle
-import androidx.compose.runtime.getValue
-import androidx.compose.ui.unit.times
+import java.io.File
 
 /** Everything a series card shows, so the card itself holds no logic. */
 data class SeriesCardState(

@@ -17,29 +17,26 @@ package dev.benica.infinite_longbox.fragments
 
 import android.os.Bundle
 import android.view.Menu
-import android.view.MotionEvent
 import android.view.MenuInflater
 import android.view.MenuItem
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.view.ActionMode
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.core.view.MenuHost
 import androidx.core.view.MenuProvider
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
-import androidx.paging.PagingDataAdapter
-import kotlinx.coroutines.withContext
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.Dispatchers
-import dev.benica.infinite_longbox.repository.Repository
 import androidx.lifecycle.lifecycleScope
-import android.widget.Toast
-import androidx.appcompat.view.ActionMode
-import androidx.appcompat.app.AppCompatActivity
+import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -50,17 +47,20 @@ import dev.benica.infinite_longbox.database.models.FullIssue
 import dev.benica.infinite_longbox.database.models.FullSeries
 import dev.benica.infinite_longbox.database.models.Issue
 import dev.benica.infinite_longbox.fragments_view_models.IssueListViewModel
-import dev.benica.infinite_longbox.views.SeriesDetailBox
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import java.io.File
+import dev.benica.infinite_longbox.repository.Repository
 import dev.benica.infinite_longbox.ui.covers.CoverImages
 import dev.benica.infinite_longbox.ui.covers.placeholderKey
 import dev.benica.infinite_longbox.ui.lists.IssueCardState
 import dev.benica.infinite_longbox.ui.lists.IssueListItem
 import dev.benica.infinite_longbox.ui.lists.IssueListItemSkeleton
 import dev.benica.infinite_longbox.ui.theme.InfiniteLongboxTheme
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
+import dev.benica.infinite_longbox.views.SeriesDetailBox
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.io.File
 
 @ExperimentalCoroutinesApi
 class IssueListFragment : ListFragment<FullIssue, IssueListFragment.IssueViewHolder>() {

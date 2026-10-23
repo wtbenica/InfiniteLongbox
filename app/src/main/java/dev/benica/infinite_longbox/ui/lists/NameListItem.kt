@@ -44,17 +44,17 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.unit.times
 import dev.benica.infinite_longbox.R
+import dev.benica.infinite_longbox.ui.common.Bar
 import dev.benica.infinite_longbox.ui.common.FolderTabPanel
+import dev.benica.infinite_longbox.ui.common.Subtitle
+import dev.benica.infinite_longbox.ui.common.listCardFrame
 import dev.benica.infinite_longbox.ui.covers.PlaceholderCover
 import dev.benica.infinite_longbox.ui.covers.placeholderKey
 import dev.benica.infinite_longbox.ui.covers.scrim
 import dev.benica.infinite_longbox.ui.theme.InfiniteLongboxTheme
 import dev.benica.infinite_longbox.ui.theme.PermanentMarker
-import dev.benica.infinite_longbox.ui.common.listCardFrame
-import dev.benica.infinite_longbox.ui.common.Bar
-import dev.benica.infinite_longbox.ui.common.Subtitle
-import androidx.compose.ui.unit.times
 
 /** A character or creator card: a name and a few details, none of which has a cover of its own. */
 data class NameCardState(

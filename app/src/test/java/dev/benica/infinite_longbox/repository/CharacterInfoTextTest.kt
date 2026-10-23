@@ -1,8 +1,8 @@
 package dev.benica.infinite_longbox.repository
 
-import java.util.Locale
 import org.junit.Assert.assertEquals
 import org.junit.Test
+import java.util.Locale
 
 class CharacterInfoTextTest {
     private val us = Locale.US

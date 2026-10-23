@@ -26,8 +26,8 @@ import dev.benica.infinite_longbox.LetterIndex
 import dev.benica.infinite_longbox.SearchFilter
 import dev.benica.infinite_longbox.database.models.ListItem
 import dev.benica.infinite_longbox.repository.Repository
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch

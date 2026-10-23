@@ -23,8 +23,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dev.benica.infinite_longbox.APP
 import dev.benica.infinite_longbox.SearchFilter
-import dev.benica.infinite_longbox.database.models.BaseCollection
 import dev.benica.infinite_longbox.SortType
+import dev.benica.infinite_longbox.database.models.BaseCollection
 import dev.benica.infinite_longbox.database.models.Character
 import dev.benica.infinite_longbox.database.models.Creator
 import dev.benica.infinite_longbox.database.models.FilterItem

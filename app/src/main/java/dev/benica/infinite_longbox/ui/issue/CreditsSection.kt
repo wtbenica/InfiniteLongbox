@@ -37,6 +37,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
@@ -59,7 +60,6 @@ import dev.benica.infinite_longbox.database.models.NameDetailAndCreator
 import dev.benica.infinite_longbox.database.models.Story
 import dev.benica.infinite_longbox.ui.theme.CondensedBlock
 import dev.benica.infinite_longbox.ui.theme.InfiniteLongboxTheme
-import androidx.compose.runtime.getValue
 
 private const val STORY_TYPE_COVER = 6
 

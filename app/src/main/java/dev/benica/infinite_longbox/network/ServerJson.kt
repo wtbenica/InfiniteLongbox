@@ -16,13 +16,13 @@
 package dev.benica.infinite_longbox.network
 
 import com.google.gson.Gson
-import java.lang.reflect.Type
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.serializerOrNull
 import okhttp3.MediaType.Companion.toMediaType
 import retrofit2.Converter
 import retrofit2.Retrofit
 import retrofit2.converter.kotlinx.serialization.asConverterFactory
+import java.lang.reflect.Type
 
 /**
  * How the server's answers are read.

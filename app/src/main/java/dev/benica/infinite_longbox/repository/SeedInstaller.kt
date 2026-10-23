@@ -20,20 +20,20 @@ import android.content.SharedPreferences
 import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import android.util.Log
+import androidx.core.content.edit
 import androidx.sqlite.db.SimpleSQLiteQuery
 import androidx.sqlite.db.SupportSQLiteDatabase
 import dev.benica.infinite_longbox.APP
 import dev.benica.infinite_longbox.Webservice
 import dev.benica.infinite_longbox.database.IssueDatabase
-import kotlinx.serialization.Serializable
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.Serializable
 import java.io.File
 import java.io.FileOutputStream
 import java.time.LocalDate
 import java.util.zip.GZIPInputStream
-import androidx.core.content.edit
 
 private const val TAG = APP + "SeedInstaller"
 

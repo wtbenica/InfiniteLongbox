@@ -25,36 +25,36 @@ import android.view.View
 import android.view.View.*
 import android.view.ViewGroup
 import android.widget.*
-import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.*
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.asFlow
+import androidx.lifecycle.lifecycleScope
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.chip.ChipGroup
 import dev.benica.infinite_longbox.*
 import dev.benica.infinite_longbox.database.models.*
-import dev.benica.infinite_longbox.fragments_view_models.FilterViewModel
-import dev.benica.infinite_longbox.views.*
-import androidx.lifecycle.asFlow
-import androidx.lifecycle.lifecycleScope
 import dev.benica.infinite_longbox.database.models.BaseCollection
+import dev.benica.infinite_longbox.fragments_view_models.FilterViewModel
 import dev.benica.infinite_longbox.repository.Repository
+import dev.benica.infinite_longbox.ui.filter.FilterSheetHeader
+import dev.benica.infinite_longbox.ui.theme.InfiniteLongboxTheme
+import dev.benica.infinite_longbox.views.*
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import java.time.LocalDate
-import dev.benica.infinite_longbox.ui.filter.FilterSheetHeader
-import dev.benica.infinite_longbox.ui.theme.InfiniteLongboxTheme
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 
 private const val TAG = APP + "FilterFragment"
 

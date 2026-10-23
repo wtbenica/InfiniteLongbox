@@ -22,12 +22,12 @@ import android.view.View.MeasureSpec.*
 import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.view.animation.DecelerateInterpolator
+import androidx.core.view.isVisible
 import androidx.core.view.marginTop
 import androidx.core.view.updateMargins
 import dev.benica.infinite_longbox.MainActivity
 import dev.benica.infinite_longbox.R
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import androidx.core.view.isVisible
 
 private const val DURATION = 200L
 

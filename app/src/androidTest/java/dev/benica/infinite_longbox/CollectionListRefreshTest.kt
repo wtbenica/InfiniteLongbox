@@ -1,9 +1,14 @@
 package dev.benica.infinite_longbox
 
 import android.content.Context
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.asFlow
+import androidx.lifecycle.asLiveData
+import androidx.lifecycle.switchMap
 import androidx.paging.AsyncPagingDataDiffer
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
+import androidx.paging.cachedIn
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListUpdateCallback
 import androidx.room.Room
@@ -17,11 +22,6 @@ import dev.benica.infinite_longbox.database.models.Publisher
 import dev.benica.infinite_longbox.database.models.Series
 import dev.benica.infinite_longbox.database.models.UserCollection
 import dev.benica.infinite_longbox.repository.importSeedFile
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.asFlow
-import androidx.lifecycle.asLiveData
-import androidx.lifecycle.switchMap
-import androidx.paging.cachedIn
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi

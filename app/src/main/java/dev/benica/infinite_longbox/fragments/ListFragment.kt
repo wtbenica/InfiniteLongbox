@@ -37,9 +37,9 @@ import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.appbar.AppBarLayout.LayoutParams.SCROLL_FLAG_ENTER_ALWAYS
 import com.google.android.material.appbar.AppBarLayout.LayoutParams.SCROLL_FLAG_SCROLL
 import dev.benica.infinite_longbox.APP
+import dev.benica.infinite_longbox.FilterSnapshot
 import dev.benica.infinite_longbox.MainActivity
 import dev.benica.infinite_longbox.R
-import dev.benica.infinite_longbox.FilterSnapshot
 import dev.benica.infinite_longbox.SearchFilter
 import dev.benica.infinite_longbox.SortType
 import dev.benica.infinite_longbox.database.models.FilterModel
@@ -51,8 +51,8 @@ import dev.benica.infinite_longbox.fragments_view_models.ListViewModel
 import dev.benica.infinite_longbox.views.FastScrollHandle
 import dev.benica.infinite_longbox.views.LetterStrip
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import java.time.format.DateTimeFormatter
 

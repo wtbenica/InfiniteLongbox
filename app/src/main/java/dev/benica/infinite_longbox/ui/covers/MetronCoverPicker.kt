@@ -31,6 +31,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.produceState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -44,7 +45,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import dev.benica.infinite_longbox.R
 import dev.benica.infinite_longbox.repository.MetronCoverOption
-import androidx.compose.runtime.getValue
 
 /**
  * The covers Metron has for an issue, to pick one from. [loadPreview] gets the picture of an

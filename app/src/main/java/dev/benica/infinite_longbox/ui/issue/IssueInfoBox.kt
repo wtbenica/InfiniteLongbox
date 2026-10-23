@@ -32,10 +32,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
 import dev.benica.infinite_longbox.R
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
 import dev.benica.infinite_longbox.ui.theme.CondensedBlock
 import dev.benica.infinite_longbox.ui.theme.InfiniteLongboxTheme
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 /** Release date, cover date and notes; a row is left out when its value is missing. */
 data class IssueInfoState(

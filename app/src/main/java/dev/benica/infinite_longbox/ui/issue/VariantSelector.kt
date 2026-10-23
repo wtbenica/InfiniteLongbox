@@ -30,9 +30,11 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
@@ -46,11 +48,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import dev.benica.infinite_longbox.R
 import dev.benica.infinite_longbox.database.models.Issue
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import dev.benica.infinite_longbox.ui.theme.CondensedBlock
 import dev.benica.infinite_longbox.ui.theme.InfiniteLongboxTheme
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 data class VariantSelectorState(
     val variants: List<Issue> = emptyList(),

@@ -45,19 +45,14 @@ import dev.benica.infinite_longbox.repository.LifeEvent
 import dev.benica.infinite_longbox.repository.OtherName
 import dev.benica.infinite_longbox.repository.RoleCount
 import dev.benica.infinite_longbox.repository.SeriesCount
-import dev.benica.infinite_longbox.ui.common.Body
-import dev.benica.infinite_longbox.ui.common.LinkRow
-import dev.benica.infinite_longbox.ui.common.LoadFailed
-import dev.benica.infinite_longbox.ui.common.Section
 import dev.benica.infinite_longbox.ui.common.AttributionBar
-import dev.benica.infinite_longbox.ui.common.Subtitle
-import dev.benica.infinite_longbox.ui.theme.PermanentMarker
-import dev.benica.infinite_longbox.ui.theme.InfiniteLongboxTheme
 import dev.benica.infinite_longbox.ui.common.Body
 import dev.benica.infinite_longbox.ui.common.LinkRow
 import dev.benica.infinite_longbox.ui.common.LoadFailed
 import dev.benica.infinite_longbox.ui.common.Section
 import dev.benica.infinite_longbox.ui.common.Subtitle
+import dev.benica.infinite_longbox.ui.theme.InfiniteLongboxTheme
+import dev.benica.infinite_longbox.ui.theme.PermanentMarker
 
 /** "Batman #25 (Tim Sale Cover)": which copy it is. */
 private fun signedLabel(issue: SignedIssue): String = buildString {

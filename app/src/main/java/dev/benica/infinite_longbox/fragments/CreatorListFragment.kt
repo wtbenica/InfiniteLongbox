@@ -19,8 +19,10 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.compose.ui.res.stringResource
@@ -34,14 +36,12 @@ import dev.benica.infinite_longbox.R
 import dev.benica.infinite_longbox.database.models.Creator
 import dev.benica.infinite_longbox.database.models.FullCreator
 import dev.benica.infinite_longbox.fragments_view_models.CreatorListViewModel
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import dev.benica.infinite_longbox.ui.covers.placeholderKey
 import dev.benica.infinite_longbox.ui.lists.NameCardState
 import dev.benica.infinite_longbox.ui.lists.NameListItem
 import dev.benica.infinite_longbox.ui.lists.NameListItemSkeleton
 import dev.benica.infinite_longbox.ui.theme.InfiniteLongboxTheme
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 private const val TAG = APP + "CreatorListFragment"
 

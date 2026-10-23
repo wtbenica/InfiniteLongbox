@@ -20,6 +20,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
@@ -29,11 +30,10 @@ import dev.benica.infinite_longbox.R
 import dev.benica.infinite_longbox.database.models.Creator
 import dev.benica.infinite_longbox.fragments_view_models.CreatorDetailViewModel
 import dev.benica.infinite_longbox.repository.Repository
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import dev.benica.infinite_longbox.ui.creator.CreatorDetailActions
 import dev.benica.infinite_longbox.ui.creator.CreatorDetailScreen
 import dev.benica.infinite_longbox.ui.theme.InfiniteLongboxTheme
-import androidx.compose.runtime.getValue
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 private const val ARG_CREATOR_ID = "creator_id"
 

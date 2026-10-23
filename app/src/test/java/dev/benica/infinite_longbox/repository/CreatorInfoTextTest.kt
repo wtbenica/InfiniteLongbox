@@ -1,8 +1,8 @@
 package dev.benica.infinite_longbox.repository
 
-import java.util.Locale
 import org.junit.Assert.assertEquals
 import org.junit.Test
+import java.util.Locale
 
 class CreatorInfoTextTest {
     private fun issue(year: Int?) = IssueRef(1, 2, "X", "1", "", year)

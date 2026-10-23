@@ -41,17 +41,16 @@ import dev.benica.infinite_longbox.repository.CharacterInfoText
 import dev.benica.infinite_longbox.repository.IssueRef
 import dev.benica.infinite_longbox.repository.RelatedCharacter
 import dev.benica.infinite_longbox.repository.TeamRef
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import dev.benica.infinite_longbox.ui.common.AttributionBar
-import dev.benica.infinite_longbox.ui.common.Subtitle
-import dev.benica.infinite_longbox.ui.theme.PermanentMarker
-import dev.benica.infinite_longbox.ui.theme.InfiniteLongboxTheme
-import dev.benica.infinite_longbox.ui.common.GCD_HOME_URL
 import dev.benica.infinite_longbox.ui.common.Body
+import dev.benica.infinite_longbox.ui.common.GCD_HOME_URL
 import dev.benica.infinite_longbox.ui.common.LinkRow
 import dev.benica.infinite_longbox.ui.common.LoadFailed
 import dev.benica.infinite_longbox.ui.common.Section
 import dev.benica.infinite_longbox.ui.common.Subtitle
+import dev.benica.infinite_longbox.ui.theme.InfiniteLongboxTheme
+import dev.benica.infinite_longbox.ui.theme.PermanentMarker
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 /** What the page can ask for; the fragment decides what each does. */
 @Immutable
