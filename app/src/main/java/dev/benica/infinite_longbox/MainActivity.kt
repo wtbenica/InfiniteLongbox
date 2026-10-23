@@ -76,7 +76,9 @@ import dev.benica.infinite_longbox.fragments.FilterFragment
 import dev.benica.infinite_longbox.fragments.IssueDetailFragment
 import dev.benica.infinite_longbox.fragments.IssueListFragment
 import dev.benica.infinite_longbox.fragments.ListFragment
-import dev.benica.infinite_longbox.fragments.ListFragment.Companion.forScreen
+import dev.benica.infinite_longbox.fragments.FilteredListFragment
+import dev.benica.infinite_longbox.fragments.FilteredListFragment.Companion.forScreen
+import dev.benica.infinite_longbox.fragments.ListFragmentCallback
 import dev.benica.infinite_longbox.fragments.SeriesListFragment
 import dev.benica.infinite_longbox.fragments.StoragePrompt
 import dev.benica.infinite_longbox.fragments_view_models.FilterViewModel
@@ -174,13 +176,13 @@ class MainActivity : AppCompatActivity(),
                 .replace(R.id.fragment_container, newListFor(filter))
                 .commitNow()
 
-            top is ListFragment<*, *> && top::class == listClassFor(filter) ->
+            top is FilteredListFragment<*> && top::class == listClassFor(filter) ->
                 top.applyFilter(filter)
 
             // Only the view was switched (series, characters, creators): the same list seen another
             // way, so it takes the place of the one showing. Keeping each in the back stack piles
             // them up in memory for as long as the app runs.
-            top is ListFragment<*, *> && top.currentFilter?.sameItemsAs(filter) == true -> {
+            top is FilteredListFragment<*> && top.currentFilter?.sameItemsAs(filter) == true -> {
                 supportFragmentManager.beginTransaction()
                     .setTransition(TRANSIT_FRAGMENT_FADE)
                     .replace(R.id.fragment_container, newListFor(filter))
@@ -238,7 +240,7 @@ class MainActivity : AppCompatActivity(),
         backStackSize = size
 
         val top = currentScreen
-        if (popped && top is ListFragment<*, *>) {
+        if (popped && top is FilteredListFragment<*>) {
             // Back to a list: the filter sheet follows the filter that list was showing
             top.currentFilter?.let {
                 if (filterViewModel.filter.value != it) filterViewModel.setFilter(it)
@@ -326,7 +328,7 @@ class MainActivity : AppCompatActivity(),
             if (filterViewModel.hasScreens) {
                 // Only the activity was recreated: its screens still know their filters, and the
                 // sheet starts from the visible one
-                (currentScreen as? ListFragment<*, *>)?.currentFilter
+                (currentScreen as? FilteredListFragment<*>)?.currentFilter
                     ?.let { filterViewModel.setFilter(it) }
             } else {
                 // The process was killed. The screens came back and are rebuilding their filters
@@ -662,7 +664,7 @@ class MainActivity : AppCompatActivity(),
     // IssueListFragment.IssueListCallback
     override fun onIssueSelected(issue: Issue) {
         // From a collection's list, the issue page's jump bar goes through that collection
-        val collection = (currentScreen as? ListFragment<*, *>)?.currentFilter
+        val collection = (currentScreen as? FilteredListFragment<*>)?.currentFilter
             ?.takeIf { it.mMyCollection }?.mCollectionId
         openIssue(IssueDetailFragment.newInstance(issue.issueId, issue.variantOf, collection))
     }

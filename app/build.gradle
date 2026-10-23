@@ -81,6 +81,7 @@ dependencies {
     implementation libs.navigation.fragment.ktx
     implementation libs.navigation.ui.ktx
     implementation libs.paging.runtime.ktx
+    implementation libs.paging.compose
     implementation libs.kotlinx.coroutines.android
     implementation libs.androidx.cardview
     implementation libs.zxing.cpp

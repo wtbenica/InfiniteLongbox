@@ -57,12 +57,9 @@ import kotlinx.coroutines.launch
 import java.time.format.DateTimeFormatter
 
 @ExperimentalCoroutinesApi
-abstract class ListFragment<T : ListItem, VH : RecyclerView.ViewHolder> : Fragment() {
+abstract class ListFragment<T : ListItem, VH : RecyclerView.ViewHolder> : FilteredListFragment<T>() {
     private val peekHeight
         get() = resources.getDimension(R.dimen.peek_height).toInt()
-
-    protected abstract val viewModel: ListViewModel<T>
-    private val filterViewModel: FilterViewModel by viewModels({ requireActivity() })
 
     protected lateinit var outerScrollView: NestedScrollView
     protected lateinit var listRecyclerView: RecyclerView
@@ -74,61 +71,6 @@ abstract class ListFragment<T : ListItem, VH : RecyclerView.ViewHolder> : Fragme
 
     /** Whether the scroll handle is labeled with the letter or date it's at. */
     protected open val showsLetterBubble: Boolean = true
-
-    protected var callback: ListFragmentCallback? = null
-
-    private var restoringFilter = false
-
-    protected var numCols: Int = 1
-    abstract val minColSizeDp: Int
-
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        callback = context as ListFragmentCallback
-    }
-
-    /** The filter this list is showing: it is kept for when the list is returned to. */
-    val currentFilter: SearchFilter?
-        get() = viewModel.filter.value?.takeIf { viewModel.hasFilter }
-
-    /** Edits made while this list is on screen (the filter sheet); MainActivity passes them on. */
-    fun applyFilter(filter: SearchFilter) {
-        if (filter != currentFilter) viewModel.setFilter(filter)
-    }
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-        // A list is created for one filter and keeps it, so coming back to it from further down
-        // the back stack finds it as it was
-        if (!viewModel.hasFilter) {
-            val registered = arguments?.getInt(ARG_SCREEN)
-                ?.let { filterViewModel.takeScreenFilter(it) }
-            val saved = savedInstanceState?.getString(KEY_FILTER)
-
-            when {
-                registered != null -> viewModel.setFilter(registered)
-                // The app was killed and this screen came back: rebuild its filter from the ids
-                // that were saved with it
-                saved != null -> {
-                    restoringFilter = true
-                    viewModel.restoreFilter(saved) { callback?.onRestoreFailed() }
-                }
-            }
-        }
-
-        numCols = (context as MainActivity).screenSizeInDp.x / minColSizeDp + 1
-    }
-
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        currentFilter?.let { outState.putString(KEY_FILTER, FilterSnapshot.save(it)) }
-    }
-
-    override fun onResume() {
-        super.onResume()
-        callback?.setToolbarScrollFlags(SCROLL_FLAG_SCROLL or SCROLL_FLAG_ENTER_ALWAYS)
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -320,15 +262,7 @@ abstract class ListFragment<T : ListItem, VH : RecyclerView.ViewHolder> : Fragme
 
         listRecyclerView.adapter = adapter
 
-        if (restoringFilter) {
-            // Tell the activity once the rebuilt filter arrives, so the filter sheet can show it
-            viewModel.filter.observe(viewLifecycleOwner) { filter ->
-                if (restoringFilter && filter != null) {
-                    restoringFilter = false
-                    callback?.onFilterRestored(this, filter)
-                }
-            }
-        }
+        announceRestoredFilter()
 
         // A list sorted by name gets a letter strip, once the database says where letters start
         viewModel.filter.observe(viewLifecycleOwner) { updateLetterStrip(it) }
@@ -354,34 +288,9 @@ abstract class ListFragment<T : ListItem, VH : RecyclerView.ViewHolder> : Fragme
     protected abstract fun getLayoutManager(): RecyclerView.LayoutManager
     protected abstract fun getAdapter(): PagingDataAdapter<T, VH>
 
-    override fun onDetach() {
-        super.onDetach()
-        callback = null
-    }
-
-    interface ListFragmentCallback {
-        /** [subtitle] is the smaller line under the title; every call sets both, so it clears. */
-        fun setTitle(title: String? = null, subtitle: String? = null)
-        fun setToolbarScrollFlags(flags: Int)
-        fun updateFilter(filter: SearchFilter)
-
-        /** A restored list's filter was rebuilt after the app was killed. */
-        fun onFilterRestored(list: Fragment, filter: SearchFilter)
-
-        /** A restored list's filter couldn't be rebuilt. */
-        fun onRestoreFailed()
-    }
-
     companion object {
         @Suppress("unused")
         private const val TAG = APP + "ListFragment"
-        private const val ARG_SCREEN = "screen"
-        private const val KEY_FILTER = "filter"
         private val MONTH_YEAR: DateTimeFormatter = DateTimeFormatter.ofPattern("MMM yyyy")
-
-        /** Makes [this] list start with the filter registered for [screenId]. */
-        fun <F : Fragment> F.forScreen(screenId: Int): F = apply {
-            arguments = Bundle().apply { putInt(ARG_SCREEN, screenId) }
-        }
     }
 }

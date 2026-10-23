@@ -75,7 +75,7 @@ class CharacterDetailFragment : Fragment() {
     override fun onResume() {
         super.onResume()
         // The page's own heading is the name; the toolbar says what kind of page this is
-        (activity as? ListFragment.ListFragmentCallback)?.setTitle(getString(R.string.filter_type_character))
+        (activity as? ListFragmentCallback)?.setTitle(getString(R.string.filter_type_character))
     }
 
     interface CharacterDetailCallback {

@@ -108,7 +108,7 @@ internal const val DIALOG_DATE = "DialogDate"
  */
 @ExperimentalCoroutinesApi
 class IssueDetailFragment : Fragment() {
-    private var listFragmentCallback: ListFragment.ListFragmentCallback? = null
+    private var listFragmentCallback: ListFragmentCallback? = null
 
     private var fullIssue: FullIssue = FullIssue.getEmptyFullIssue()
     private var fullVariant: FullIssue? = null
@@ -252,7 +252,7 @@ class IssueDetailFragment : Fragment() {
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        listFragmentCallback = context as ListFragment.ListFragmentCallback?
+        listFragmentCallback = context as ListFragmentCallback?
     }
 
     override fun onResume() {

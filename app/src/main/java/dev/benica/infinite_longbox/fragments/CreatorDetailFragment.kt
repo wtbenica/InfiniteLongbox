@@ -78,7 +78,7 @@ class CreatorDetailFragment : Fragment() {
     override fun onResume() {
         super.onResume()
         // The page's own heading is the name; the toolbar says what kind of page this is
-        (activity as? ListFragment.ListFragmentCallback)?.setTitle(getString(R.string.filter_type_creator))
+        (activity as? ListFragmentCallback)?.setTitle(getString(R.string.filter_type_creator))
     }
 
     interface CreatorDetailCallback {

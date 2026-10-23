@@ -15,6 +15,7 @@
 
 package dev.benica.infinite_longbox.fragments_view_models
 
+import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -42,6 +43,12 @@ abstract class ListViewModel<T : ListItem> : ViewModel() {
     private val _filter = MutableLiveData<SearchFilter>()
     val filter: LiveData<SearchFilter>
         get() = _filter
+
+    /** Where the list is scrolled to; kept here so coming back to it finds it as it was. */
+    val gridState = LazyGridState()
+
+    /** The filter the list was last shown under: another one starts the list at the top. */
+    var scrolledFor: SearchFilter? = null
 
     /** False until the list has been given its filter (when it's first created). */
     var hasFilter = false
