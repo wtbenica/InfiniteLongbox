@@ -27,8 +27,10 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.Layout
@@ -41,16 +43,13 @@ import dev.benica.infinite_longbox.R
 import dev.benica.infinite_longbox.database.models.FullCharacter
 import dev.benica.infinite_longbox.database.models.Issue
 import dev.benica.infinite_longbox.database.models.NameDetailAndCreator
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import dev.benica.infinite_longbox.ui.common.AttributionBar
+import dev.benica.infinite_longbox.ui.common.GCD_HOME_URL
+import dev.benica.infinite_longbox.ui.common.cardShadow
 import dev.benica.infinite_longbox.ui.covers.IssueCover
 import dev.benica.infinite_longbox.ui.covers.IssueCoverState
-import dev.benica.infinite_longbox.ui.covers.placeholderKey
 import dev.benica.infinite_longbox.ui.theme.InfiniteLongboxTheme
-import dev.benica.infinite_longbox.ui.common.cardShadow
-import dev.benica.infinite_longbox.ui.common.GCD_HOME_URL
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 /** Everything the issue detail screen shows, gathered in one place. */
 @OptIn(ExperimentalCoroutinesApi::class)
