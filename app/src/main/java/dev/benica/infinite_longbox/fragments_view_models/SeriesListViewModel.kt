@@ -61,6 +61,7 @@ class SeriesListViewModel : ListViewModel<FullSeries>() {
     }
 
     companion object {
+        @Suppress("unused")
         private const val TAG = APP + "SeriesListViewModel"
     }
 }

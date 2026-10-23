@@ -26,6 +26,7 @@ import dev.benica.infinite_longbox.database.models.FullCharacter
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 
+@Suppress("unused")
 private const val TAG = APP + "SeriesListViewModel"
 
 @ExperimentalCoroutinesApi

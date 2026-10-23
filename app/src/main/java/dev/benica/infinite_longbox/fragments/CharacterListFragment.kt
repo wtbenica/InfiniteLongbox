@@ -42,6 +42,7 @@ import dev.benica.infinite_longbox.ui.lists.NameListItemSkeleton
 import dev.benica.infinite_longbox.ui.theme.InfiniteLongboxTheme
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
+@Suppress("unused")
 private const val TAG = APP + "CharacterListFragment"
 
 @ExperimentalCoroutinesApi

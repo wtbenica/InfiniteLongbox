@@ -211,6 +211,7 @@ abstract class CharacterDao : BaseDao<Character>("character") {
     }
 
     companion object {
+        @Suppress("unused")
         private const val TAG = APP + "CharacterDao"
 
     }

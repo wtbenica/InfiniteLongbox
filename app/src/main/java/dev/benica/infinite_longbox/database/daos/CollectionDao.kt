@@ -29,6 +29,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.serialization.Serializable
 
+@Suppress("unused")
 private const val TAG = APP + "CollectionDao"
 
 @ExperimentalCoroutinesApi

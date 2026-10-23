@@ -56,6 +56,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import java.time.LocalDate
 
+@Suppress("unused")
 private const val TAG = APP + "FilterFragment"
 
 @ExperimentalCoroutinesApi

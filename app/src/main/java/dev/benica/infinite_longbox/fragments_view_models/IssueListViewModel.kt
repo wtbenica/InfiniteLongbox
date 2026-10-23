@@ -30,6 +30,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.flatMapLatest
 
+@Suppress("unused")
 private const val TAG = APP + "IssueListViewModel"
 
 @ExperimentalCoroutinesApi

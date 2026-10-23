@@ -373,6 +373,7 @@ abstract class ListFragment<T : ListItem, VH : RecyclerView.ViewHolder> : Fragme
     }
 
     companion object {
+        @Suppress("unused")
         private const val TAG = APP + "ListFragment"
         private const val ARG_SCREEN = "screen"
         private const val KEY_FILTER = "filter"

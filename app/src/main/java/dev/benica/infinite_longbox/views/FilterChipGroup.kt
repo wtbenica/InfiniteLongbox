@@ -52,6 +52,7 @@ class FilterChip(context: Context?) : Chip(context) {
     }
 
     companion object {
+        @Suppress("unused")
         private const val TAG = APP + "FilterChip"
     }
 

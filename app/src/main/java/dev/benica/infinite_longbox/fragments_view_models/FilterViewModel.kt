@@ -41,6 +41,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlin.reflect.KClass
 
+@Suppress("unused")
 private const val TAG = APP + "FilterViewModel"
 
 @ExperimentalCoroutinesApi

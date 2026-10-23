@@ -46,6 +46,7 @@ class SeriesLink(
     }
 
     companion object {
+        @Suppress("unused")
         private const val TAG = "CreatorLink"
     }
 

@@ -65,6 +65,7 @@ sealed interface FilterModel : FilterItem, Comparable<FilterModel>, Serializable
         this.compareValue.compareTo(other.compareValue)
 
     companion object {
+        @Suppress("unused")
         private const val TAG = "FilterOptionAutoCompletePopupItem"
     }
 }

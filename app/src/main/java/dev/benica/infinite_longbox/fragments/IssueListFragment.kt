@@ -462,6 +462,7 @@ class IssueListFragment : ListFragment<FullIssue, IssueListFragment.IssueViewHol
                 oldItem == newItem
         }
 
+        @Suppress("unused")
         private const val TAG = APP + "IssueListFragment"
     }
 }

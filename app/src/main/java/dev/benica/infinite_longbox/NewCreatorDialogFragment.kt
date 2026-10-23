@@ -32,6 +32,7 @@ import dev.benica.infinite_longbox.database.models.Creator
 import dev.benica.infinite_longbox.fragments_view_models.IssueDetailViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
+@Suppress("unused")
 private const val TAG = "NewCreatorDialogFrag"
 
 private const val RESULT_START_DATE = 33

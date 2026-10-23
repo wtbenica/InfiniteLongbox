@@ -75,6 +75,7 @@ abstract class ListViewModel<T : ListItem> : ViewModel() {
     }
 
     companion object {
+        @Suppress("unused")
         private const val TAG = APP + "ListViewModel"
     }
 }

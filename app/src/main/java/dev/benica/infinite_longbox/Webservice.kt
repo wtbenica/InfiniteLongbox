@@ -199,6 +199,7 @@ interface Webservice {
     suspend fun getBondTypes(): List<Item<GcdBondType>>
 
     companion object {
+        @Suppress("unused")
         private const val TAG = "Webservice"
     }
 }

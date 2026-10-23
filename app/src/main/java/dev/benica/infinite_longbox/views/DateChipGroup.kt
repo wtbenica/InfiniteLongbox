@@ -136,6 +136,7 @@ class DateChip(context: Context?, attrs: AttributeSet? = null) : Chip(context, a
     }
 
     companion object {
+        @Suppress("unused")
         private const val TAG = APP + "DateChip"
     }
 }

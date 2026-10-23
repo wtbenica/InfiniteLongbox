@@ -56,6 +56,7 @@ abstract class CreatorDao : BaseDao<Creator>("creator") {
     }
 
     companion object {
+        @Suppress("unused")
         private const val TAG = APP + "CreatorDao"
 
         private fun getCreatorQuery(filter: SearchFilter, limit: Int? = null): SimpleSQLiteQuery {

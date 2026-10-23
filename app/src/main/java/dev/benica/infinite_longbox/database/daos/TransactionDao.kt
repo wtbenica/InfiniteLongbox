@@ -32,6 +32,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
 
+@Suppress("unused")
 private const val TAG = APP + "TransactionDao"
 
 @ExperimentalCoroutinesApi

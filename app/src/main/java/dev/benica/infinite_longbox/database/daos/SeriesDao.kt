@@ -34,6 +34,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import java.util.*
 
+@Suppress("unused")
 private const val TAG = APP + "SeriesDao"
 
 @ExperimentalCoroutinesApi

@@ -44,6 +44,7 @@ import dev.benica.infinite_longbox.ui.theme.InfiniteLongboxTheme
 import kotlinx.coroutines.*
 import java.io.File
 
+@Suppress("unused")
 private const val TAG = APP + "SeriesListFragment"
 
 @ExperimentalCoroutinesApi

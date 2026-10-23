@@ -25,6 +25,7 @@ import kotlin.reflect.KClass
 
 const val ARG_FILTER = "Filter"
 
+@Suppress("unused")
 private const val TAG = APP + "Filter_SortChipGroup"
 
 @ExperimentalCoroutinesApi
