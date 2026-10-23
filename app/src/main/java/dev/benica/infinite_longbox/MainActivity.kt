@@ -75,7 +75,6 @@ import dev.benica.infinite_longbox.fragments.CreatorListFragment
 import dev.benica.infinite_longbox.fragments.FilterFragment
 import dev.benica.infinite_longbox.fragments.IssueDetailFragment
 import dev.benica.infinite_longbox.fragments.IssueListFragment
-import dev.benica.infinite_longbox.fragments.ListFragment
 import dev.benica.infinite_longbox.fragments.FilteredListFragment
 import dev.benica.infinite_longbox.fragments.FilteredListFragment.Companion.forScreen
 import dev.benica.infinite_longbox.fragments.ListFragmentCallback

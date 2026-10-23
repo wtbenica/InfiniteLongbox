@@ -25,7 +25,6 @@ import android.database.sqlite.SQLiteConstraintException
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.os.Parcelable
 import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
@@ -133,15 +132,6 @@ private fun pagingConfig(pageSize: Int) = PagingConfig(
 
 @ExperimentalCoroutinesApi
 class Repository private constructor(val context: Context) {
-
-    var saveIssueListState: Parcelable? = null
-        get() {
-            val res = field
-            Log.d(TAG, "Issue FIELD BEFORE = $field")
-            field = null
-            Log.d(TAG, "Issue FIELD AFTER = $field")
-            return res
-        }
 
     private val executor = Executors.newSingleThreadExecutor()
     private val issueDatabase: IssueDatabase

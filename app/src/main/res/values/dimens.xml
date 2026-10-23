@@ -29,18 +29,6 @@
     <dimen name="text_med">16sp</dimen>
     <dimen name="text_large">18sp</dimen>
 
-    <!-- ListItemSeries -->
-    <dimen name="item_offset_vert_list_item_series">0dp</dimen>
-    <dimen name="item_offset_horz_list_item_series">0dp</dimen>
-
-    <!-- ListItemIssue -->
-    <dimen name="item_offset_vert_list_item_issue">0dp</dimen>
-    <dimen name="item_offset_horz_list_item_issue">0dp</dimen>
-
-    <!-- ListItemSimple -->
-    <dimen name="item_offset_vert_list_item_simple">0dp</dimen>
-    <dimen name="item_offset_horz_list_item_simple">0dp</dimen>
-
     <dimen name="card_elevation">1dp</dimen>
     <dimen name="radius_list_item_issue">16dp</dimen>
     <dimen name="radius_list_item_series">16dp</dimen>

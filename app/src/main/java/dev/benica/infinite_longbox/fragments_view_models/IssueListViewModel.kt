@@ -15,7 +15,6 @@
 
 package dev.benica.infinite_longbox.fragments_view_models
 
-import android.os.Parcelable
 import androidx.lifecycle.*
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
@@ -55,8 +54,4 @@ class IssueListViewModel : ListViewModel<FullIssue>() {
     }.asFlow().cachedIn(viewModelScope)
 
     fun updateIssueCover(issueId: Int) = repository.updateIssueCover(issueId)
-
-    fun saveIssueListState(instanceState: Parcelable?) {
-        repository.saveIssueListState = instanceState
-    }
 }

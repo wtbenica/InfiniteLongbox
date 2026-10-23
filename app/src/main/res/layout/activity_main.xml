@@ -79,8 +79,7 @@
             android:layout_height="match_parent"
             android:fitsSystemWindows="false"
             app:layout_behavior="@string/appbar_scrolling_view_behavior"
-            app:layout_dodgeInsetEdges="top"
-            tools:layout="@layout/fragment_item_list" />
+            app:layout_dodgeInsetEdges="top" />
 
         <androidx.fragment.app.FragmentContainerView
             android:id="@+id/bottom_sheet"

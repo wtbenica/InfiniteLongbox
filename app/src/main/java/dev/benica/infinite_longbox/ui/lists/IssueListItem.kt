@@ -120,7 +120,7 @@ fun IssueListItem(
     onToggleCollection: () -> Unit,
     onToggleWishList: () -> Unit,
     modifier: Modifier = Modifier,
-    onLongClick: () -> Unit = {},
+    onLongClick: (() -> Unit)? = null,
 ) {
     val boxColor by animateColorAsState(
         targetValue = if (state.inCollection) colorResource(R.color.accent_soft)

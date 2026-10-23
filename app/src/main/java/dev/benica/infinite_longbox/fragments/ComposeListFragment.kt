@@ -23,6 +23,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
+import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -44,6 +46,7 @@ import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.asFlow
+import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemKey
 import com.google.android.material.appbar.AppBarLayout
@@ -79,6 +82,22 @@ abstract class ComposeListFragment<T : ListItem> : FilteredListFragment<T>() {
 
     /** What the scroll handle says at [item]: its initial, or its date if the list is sorted by date. */
     protected abstract fun scrollLabel(item: T): String?
+
+    /** Whether the list has a header: a full-width item above the rows, which scrolls away with them. */
+    protected open val hasHeader: Boolean
+        get() = false
+
+    @Composable
+    protected open fun Header() {
+    }
+
+    /**
+     * What a subclass adds to the grid's gestures (picking rows by touch, say). [headerCount] is how
+     * many items come before the first row.
+     */
+    @Composable
+    protected open fun gridModifier(items: LazyPagingItems<T>, grid: LazyGridState, headerCount: Int): Modifier =
+        Modifier
 
     /** Loads what the row at [item] will show, before it is scrolled to. */
     protected open fun prefetch(item: T) {}
@@ -132,6 +151,7 @@ abstract class ComposeListFragment<T : ListItem> : FilteredListFragment<T>() {
     private fun ListScreen() {
         val filter by viewModel.filter.asFlow().collectAsState(initial = null)
         val items = viewModel.itemList.collectAsLazyPagingItems()
+        val headerCount = if (hasHeader) 1 else 0
         val grid = viewModel.gridState
         val scope = rememberCoroutineScope()
         val context = LocalContext.current
@@ -150,7 +170,7 @@ abstract class ComposeListFragment<T : ListItem> : FilteredListFragment<T>() {
 
         // The covers of the rows about to scroll in
         LaunchedEffect(grid, items) {
-            snapshotFlow { grid.firstVisibleItemIndex }.collect { first ->
+            snapshotFlow { grid.firstVisibleItemIndex - headerCount }.collect { first ->
                 for (i in (first - 4).coerceAtLeast(0)..(first + 14).coerceAtMost(items.itemCount - 1)) {
                     items.peek(i)?.let(::prefetch)
                 }
@@ -184,7 +204,7 @@ abstract class ComposeListFragment<T : ListItem> : FilteredListFragment<T>() {
         }
 
         val label by remember(items) {
-            derivedStateOf { items.peek(grid.firstVisibleItemIndex)?.let(::scrollLabel) }
+            derivedStateOf { items.peek((grid.firstVisibleItemIndex - headerCount).coerceAtLeast(0))?.let(::scrollLabel) }
         }
         var bubble by remember { mutableStateOf<Pair<String, Float>?>(null) }
         var thumbCenter by remember { mutableStateOf(0f) }
@@ -193,7 +213,7 @@ abstract class ComposeListFragment<T : ListItem> : FilteredListFragment<T>() {
                 val visible = grid.layoutInfo.visibleItemsInfo.size
                 val total = items.itemCount
                 if (total <= visible || total == 0) 0f
-                else (grid.firstVisibleItemIndex.toFloat() / (total - visible)).coerceIn(0f, 1f)
+                else ((grid.firstVisibleItemIndex - headerCount).coerceAtLeast(0).toFloat() / (total - visible)).coerceIn(0f, 1f)
             }
         }
 
@@ -203,9 +223,11 @@ abstract class ComposeListFragment<T : ListItem> : FilteredListFragment<T>() {
                 state = grid,
                 modifier = Modifier
                     .fillMaxSize()
-                    .nestedScroll(rememberNestedScrollInteropConnection()),
+                    .nestedScroll(rememberNestedScrollInteropConnection())
+                    .then(gridModifier(items, grid, headerCount)),
                 contentPadding = PaddingValues(bottom = bottom),
             ) {
+                if (hasHeader) item(span = { GridItemSpan(maxLineSpan) }) { Header() }
                 items(count = items.itemCount, key = items.itemKey { key(it) }) { index ->
                     val item = items[index]
                     if (item == null) Skeleton(index) else Row(item, index)
@@ -223,7 +245,7 @@ abstract class ComposeListFragment<T : ListItem> : FilteredListFragment<T>() {
                         current = current,
                         bottomPadding = bottom + 72.dp,
                         onJump = { letter, position, centerY ->
-                            scope.launch { grid.scrollToItem(position) }
+                            scope.launch { grid.scrollToItem(position + headerCount) }
                             bubble = letter.toString() to centerY
                         },
                         onDragging = { held ->
@@ -237,7 +259,7 @@ abstract class ComposeListFragment<T : ListItem> : FilteredListFragment<T>() {
                         count = items.itemCount,
                         bottomPadding = bottom + 72.dp,
                         onDrag = { position, centerY ->
-                            scope.launch { grid.scrollToItem(position) }
+                            scope.launch { grid.scrollToItem(position + headerCount) }
                             bubble = (label ?: "") to centerY
                         },
                         onDragging = { held ->
