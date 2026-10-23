@@ -94,6 +94,9 @@
         subset of its records and fields. Additionally, some creator credits and character
         appearances have been converted from text fields to database records.</string>
     <string name="update_title_default">Updating database…</string>
+    <string name="cover_viewer_previous">Previous cover</string>
+    <string name="cover_viewer_next">Next cover</string>
+    <string name="cover_viewer_position">%1$d of %2$d</string>
     <string name="about_thanks">Thanks</string>
     <string name="about_copyright_notices">Copyright Notices</string>
     <string name="about_cover_acknowledgement">Cover images are used for identification purposes only. All rights to cover images reserved by the respective copyright holders.</string>

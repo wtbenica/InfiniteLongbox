@@ -34,6 +34,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -65,8 +67,10 @@ import dev.benica.infinite_longbox.repository.metronCoverPreview
 import dev.benica.infinite_longbox.repository.pickedCoverToIssue
 import dev.benica.infinite_longbox.repository.removeCover
 import dev.benica.infinite_longbox.ui.covers.CoverImages
+import dev.benica.infinite_longbox.ui.covers.CoverViewer
 import dev.benica.infinite_longbox.ui.covers.IssueCoverState
 import dev.benica.infinite_longbox.ui.covers.MetronCoverPicker
+import dev.benica.infinite_longbox.ui.covers.ViewerCover
 import dev.benica.infinite_longbox.ui.covers.placeholderKey
 import dev.benica.infinite_longbox.ui.issue.IssueActionState
 import dev.benica.infinite_longbox.ui.issue.IssueDetailActions
@@ -109,7 +113,14 @@ class IssueDetailFragment : Fragment() {
     private var fullIssue: FullIssue = FullIssue.getEmptyFullIssue()
     private var fullVariant: FullIssue? = null
     /** What the jump bar goes through: the series, or what's in the collection it was opened from. */
-    private class Stop(val issueId: Int, val variantOf: Int?, val cover: File?)
+    private class Stop(
+        val issueId: Int,
+        val variantOf: Int?,
+        val cover: File?,
+        val title: String,
+        val variantName: String,
+        val placeholderKey: String,
+    )
 
     private var issuesInSeries: List<Stop> = emptyList()
     private var currentPos: Int = 0
@@ -297,6 +308,14 @@ class IssueDetailFragment : Fragment() {
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
             setContent {
                 InfiniteLongboxTheme {
+                    coverViewer?.let { (covers, start) ->
+                        Dialog(
+                            onDismissRequest = { closeCoverViewer(viewerPage) },
+                            properties = DialogProperties(usePlatformDefaultWidth = false),
+                        ) {
+                            CoverViewer(covers, start, onDismiss = ::closeCoverViewer, onPageChanged = { viewerPage = it })
+                        }
+                    }
                     metronPicker?.let { options ->
                         val issue = currentIssue.issue
                         MetronCoverPicker(
@@ -343,7 +362,12 @@ class IssueDetailFragment : Fragment() {
         issueDetailViewModel.issueList.observe(
             viewLifecycleOwner
         ) { issues ->
-            val stops = issues.map { Stop(it.issue.issueId, it.issue.variantOf, it.coverUri?.path?.let { path -> File(path) }) }
+            val stops = issues.map {
+                Stop(
+                    it.issue.issueId, it.issue.variantOf, it.coverUri?.path?.let { path -> File(path) },
+                    it.toString(), it.issue.variantName, it.placeholderKey(),
+                )
+            }
             if (issuesInSeries.map { it.issueId } != stops.map { it.issueId }) {
                 issuesInSeries = stops
                 refreshPosition()
@@ -705,10 +729,36 @@ class IssueDetailFragment : Fragment() {
         )
     }
 
+    /** The covers of the stops the jump bar goes through (or just this one), open at this one. */
+    private var coverViewer by mutableStateOf<Pair<List<ViewerCover>, Int>?>(null)
+    private var viewerPage = 0
+
+    private fun openCoverViewer() {
+        val here = currentPos
+        viewerPage = here.coerceAtLeast(0)
+        coverViewer = if (here >= 0 && issuesInSeries.isNotEmpty()) {
+            issuesInSeries.map { ViewerCover(it.issueId, it.title, it.variantName, it.cover?.takeIf { f -> f.exists() }, it.placeholderKey) } to here
+        } else {
+            val issue = currentIssue
+            listOf(
+                ViewerCover(
+                    issue.issue.issueId, issue.toString(), issue.issue.variantName,
+                    coverUri?.path?.let { File(it) }?.takeIf { it.exists() }, issue.placeholderKey(),
+                )
+            ) to 0
+        }
+    }
+
+    /** The viewer closed on cover [shown]: the page behind goes to that issue. */
+    private fun closeCoverViewer(shown: Int) {
+        coverViewer = null
+        if (issuesInSeries.isNotEmpty() && currentPos >= 0 && shown != currentPos) jumpToIssue(shown - currentPos)
+    }
+
     private fun onCoverClicked() {
         val uri = coverUri
         if (uri != null) {
-            CoverDialogFragment(uri, currentIssue).show(childFragmentManager, "cover_dialog")
+            openCoverViewer()
         } else {
             showAddCoverOptions()
         }
