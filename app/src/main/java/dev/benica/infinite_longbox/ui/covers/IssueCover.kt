@@ -29,6 +29,11 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
@@ -40,8 +45,6 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
-import coil3.request.ImageRequest
-import coil3.request.crossfade
 import dev.benica.infinite_longbox.R
 import java.io.File
 
@@ -81,18 +84,17 @@ fun IssueCover(
             AddCoverBadge(state.placeholderKey, Modifier.align(Alignment.BottomStart).padding(8.dp))
         }
     } else {
-        // The file name stays the same when a cover is replaced, so key on its modified time
-        val request = ImageRequest.Builder(LocalContext.current)
-            .data(file)
-            .memoryCacheKey("${file.path}@${file.lastModified()}")
-            .crossfade(true)
-            .build()
+        val context = LocalContext.current
+        val request = remember(file, file.lastModified()) { CoverImages.detailRequest(context, file) }
+        // The last cover shown stays up while the next loads, rather than the title art flashing
+        var previous by remember { mutableStateOf<Painter?>(null) }
         AsyncImage(
             model = request,
             contentDescription = stringResource(R.string.description_issue_cover_set),
             modifier = clickable,
             contentScale = ContentScale.FillWidth,
-            placeholder = painterResource(placeholderArtworkFor(state.placeholderKey)),
+            placeholder = previous ?: painterResource(placeholderArtworkFor(state.placeholderKey)),
+            onSuccess = { previous = it.painter },
         )
     }
 }

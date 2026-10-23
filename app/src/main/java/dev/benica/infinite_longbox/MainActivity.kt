@@ -61,6 +61,7 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_HIDDEN
 import com.google.android.material.bottomsheet.BottomSheetBehavior.from
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import dev.benica.infinite_longbox.database.IssueDatabase
+import dev.benica.infinite_longbox.database.models.BaseCollection
 import dev.benica.infinite_longbox.database.models.Character
 import dev.benica.infinite_longbox.database.models.Creator
 import dev.benica.infinite_longbox.database.models.FullCreator
@@ -390,7 +391,7 @@ class MainActivity : AppCompatActivity(),
             val issueId = data.getIntExtra(ScanActivity.EXTRA_ISSUE_ID, -1)
             if (issueId >= 0) {
                 val variantOf = data.getIntExtra(ScanActivity.EXTRA_VARIANT_OF, -1).takeIf { it >= 0 }
-                openIssue(IssueDetailFragment.newInstance(issueId, variantOf))
+                openIssue(IssueDetailFragment.newInstance(issueId, variantOf, BaseCollection.MY_COLL.id))
             }
         }
 
@@ -625,7 +626,10 @@ class MainActivity : AppCompatActivity(),
 
     // IssueListFragment.IssueListCallback
     override fun onIssueSelected(issue: Issue) {
-        openIssue(IssueDetailFragment.newInstance(issue.issueId, issue.variantOf))
+        // From a collection's list, the issue page's jump bar goes through that collection
+        val collection = (currentScreen as? ListFragment<*, *>)?.currentFilter
+            ?.takeIf { it.mMyCollection }?.mCollectionId
+        openIssue(IssueDetailFragment.newInstance(issue.issueId, issue.variantOf, collection))
     }
 
     private fun openIssue(fragment: IssueDetailFragment) = openScreen(fragment)

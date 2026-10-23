@@ -44,9 +44,16 @@ object CoverImages {
     private fun issueWidth(context: Context) =
         (context.resources.displayMetrics.widthPixels / 2).coerceAtMost(540)
 
+    /** The issue page shows the cover in half the screen's width. */
+    private fun detailWidth(context: Context) =
+        (context.resources.displayMetrics.widthPixels * 0.6f).toInt()
+
     fun seriesRequest(context: Context, file: File): ImageRequest = request(context, file, seriesWidth(context))
 
     fun issueRequest(context: Context, file: File): ImageRequest = request(context, file, issueWidth(context))
+
+    /** The cover on an issue's page. */
+    fun detailRequest(context: Context, file: File): ImageRequest = request(context, file, detailWidth(context))
 
     private fun request(context: Context, file: File, width: Int): ImageRequest =
         ImageRequest.Builder(context)
@@ -62,6 +69,12 @@ object CoverImages {
         if (!file.exists()) return
         SingletonImageLoader.get(context).enqueue(seriesRequest(context, file))
         scope.launch { CoverFocus.alignmentFor(file) }
+    }
+
+    /** Loads covers the issue page is likely to show next (the jump bar's neighbours). */
+    fun prefetchDetail(context: Context, file: File) {
+        if (!file.exists()) return
+        SingletonImageLoader.get(context).enqueue(detailRequest(context, file))
     }
 
     fun prefetchIssue(context: Context, file: File) {

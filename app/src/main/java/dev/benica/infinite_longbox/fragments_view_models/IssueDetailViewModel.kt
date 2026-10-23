@@ -85,22 +85,41 @@ class IssueDetailViewModel : ViewModel() {
     internal val variantsLiveData: LiveData<List<Issue>> =
         primaryId.flatMapLatest { id -> repository.getVariants(id) }.asLiveData()
 
-    internal val issueList: LiveData<List<FullIssue>> = mIssue.flatMapLatest { fullIssue ->
-        fullIssue?.let {
-            repository.getIssuesByFilter(
-                SearchFilter(
-                    series = FullSeries(it.series),
-                    myCollection = false,
-                    sortType = SortType(
-                        InfiniteLongboxApplication.context!!.getString(R.string.sort_type_issue_number),
-                        InfiniteLongboxApplication.context!!.getString(R.string.column_issue_num),
-                        "ie",
-                        SortType.SortOrder.ASC
+    /**
+     * Which collection the page was opened from, if it was: the jump bar then goes through what is
+     * in that collection (variants included, each cover as its own stop) and not the whole series.
+     */
+    private val _collectionScope = MutableStateFlow<Int?>(null)
+
+    fun setCollectionScope(collectionId: Int?) {
+        _collectionScope.value = collectionId
+    }
+
+    internal val issueList: LiveData<List<FullIssue>> =
+        combine(mIssue, _collectionScope) { issue, scope -> issue to scope }
+            .flatMapLatest { (fullIssue, scope) ->
+                fullIssue?.let {
+                    val context = InfiniteLongboxApplication.context!!
+                    repository.getIssuesByFilter(
+                        SearchFilter(
+                            series = FullSeries(it.series),
+                            myCollection = scope != null,
+                            collectionId = scope ?: BaseCollection.MY_COLL.id,
+                            showVariants = scope != null,
+                            sortType = SortType(
+                                context.getString(R.string.sort_type_issue_number),
+                                context.getString(R.string.column_issue_num),
+                                "ie",
+                                SortType.SortOrder.ASC,
+                                // the standard cover, then its variants, as the GCD orders them
+                                "sortCode",
+                                "ie",
+                                SortType.SortOrder.ASC,
+                            )
+                        )
                     )
-                )
-            )
-        } ?: emptyFlow()
-    }.asLiveData()
+                } ?: emptyFlow()
+            }.asLiveData()
 
     fun loadIssue(issueId: Int) {
         _primaryId.value = issueId

@@ -69,6 +69,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
 import java.io.File
 import dev.benica.infinite_longbox.ui.issue.IssueDetailUiState
+import dev.benica.infinite_longbox.ui.covers.CoverImages
 import dev.benica.infinite_longbox.ui.covers.IssueCoverState
 import dev.benica.infinite_longbox.ui.covers.MetronCoverPicker
 import dev.benica.infinite_longbox.ui.issue.IssueActionState
@@ -89,6 +90,8 @@ import androidx.compose.runtime.setValue
 // Bundle Argument Tags
 private const val ARG_ISSUE_ID = "issue_id"
 private const val ARG_VARIANT_OF = "variant_of"
+private const val ARG_COLLECTION_ID = "collection_id"
+private const val NO_COLLECTION = -1
 
 internal const val RESULT_DATE_PICKER_END = "result_date_picker_start"
 internal const val RESULT_DATE_PICKER_START = "result_date_picker_end"
@@ -105,7 +108,10 @@ class IssueDetailFragment : Fragment() {
 
     private var fullIssue: FullIssue = FullIssue.getEmptyFullIssue()
     private var fullVariant: FullIssue? = null
-    private var issuesInSeries: List<Int> = emptyList()
+    /** What the jump bar goes through: the series, or what's in the collection it was opened from. */
+    private class Stop(val issueId: Int, val variantOf: Int?, val cover: File?)
+
+    private var issuesInSeries: List<Stop> = emptyList()
     private var currentPos: Int = 0
     private var issueCredits: List<FullCredit> = emptyList()
     private var issueStories: List<Story> = emptyList()
@@ -263,6 +269,10 @@ class IssueDetailFragment : Fragment() {
             arguments?.getSerializable(ARG_VARIANT_OF) as Int?
         }
 
+        issueDetailViewModel.setCollectionScope(
+            arguments?.getInt(ARG_COLLECTION_ID, NO_COLLECTION)?.takeIf { it != NO_COLLECTION }
+        )
+
         if (variantOf == null) {
             issueDetailViewModel.loadIssue(issueId)
             issueDetailViewModel.loadVariant(null)
@@ -328,11 +338,10 @@ class IssueDetailFragment : Fragment() {
         issueDetailViewModel.issueList.observe(
             viewLifecycleOwner
         ) { issues ->
-            val issueIds = issues.map { it.issue.issueId }
-            if (issuesInSeries != issueIds) {
-                issuesInSeries = issueIds
-                this.currentPos = this.issuesInSeries.indexOf(this.fullIssue.issue.issueId)
-                updateNavBar()
+            val stops = issues.map { Stop(it.issue.issueId, it.issue.variantOf, it.coverUri?.path?.let { path -> File(path) }) }
+            if (issuesInSeries.map { it.issueId } != stops.map { it.issueId }) {
+                issuesInSeries = stops
+                refreshPosition()
             }
         }
 
@@ -343,6 +352,7 @@ class IssueDetailFragment : Fragment() {
                 if (fullIssue != issue) {
                     fullIssue = issue
                     updateUI()
+                    refreshPosition()
                 }
             }
         }
@@ -388,6 +398,7 @@ class IssueDetailFragment : Fragment() {
                     fullVariant = variant
                     isVariant = (variant?.issue?.issueId ?: AUTO_ID) != AUTO_ID
                     updateUI()
+                    refreshPosition()
                 }
             }
         }
@@ -453,11 +464,44 @@ class IssueDetailFragment : Fragment() {
         uiState = uiState.copy(jumpBar = JumpBarState(currentPos, issuesInSeries.size))
     }
 
+    /** Where the page's issue is among [issuesInSeries]: the cover shown, else its standard issue. */
+    private fun positionOfCurrent(): Int {
+        val shown = issuesInSeries.indexOfFirst { it.issueId == currentIssue.issue.issueId }
+        return if (shown >= 0) shown
+        else issuesInSeries.indexOfFirst { it.issueId == fullIssue.issue.issueId }
+    }
+
+    /**
+     * The issue (and cover) on the page arrive separately from the list the jump bar goes through,
+     * in either order, so the position is worked out again whenever one of them does.
+     */
+    private fun refreshPosition() {
+        currentPos = positionOfCurrent()
+        updateNavBar()
+        prefetchNeighbours()
+    }
+
+    /** The covers of the stops either side of this one are loaded before they're jumped to. */
+    private fun prefetchNeighbours() {
+        val context = context?.applicationContext ?: return
+        if (currentPos < 0) return
+        for (i in (currentPos - 2)..(currentPos + 3)) {
+            issuesInSeries.getOrNull(i)?.cover?.let { CoverImages.prefetchDetail(context, it) }
+        }
+    }
+
     private fun jumpToIssue(skipNum: Int) {
-        currentPos += skipNum
-        // The selected variant belongs to the issue being left; drop it so the new primary shows
-        issueDetailViewModel.clearVariant()
-        issueDetailViewModel.loadIssue(this.issuesInSeries[currentPos])
+        currentPos = (currentPos + skipNum).coerceIn(0, issuesInSeries.lastIndex)
+        val stop = issuesInSeries[currentPos]
+        if (stop.variantOf == null) {
+            // The selected variant belongs to the issue being left; drop it so the new primary shows
+            issueDetailViewModel.clearVariant()
+            issueDetailViewModel.loadIssue(stop.issueId)
+        } else {
+            // A variant in the collection: its standard issue is the page, the variant is the cover
+            issueDetailViewModel.loadVariant(stop.issueId)
+            issueDetailViewModel.loadIssue(stop.variantOf)
+        }
         updateNavBar()
     }
 
@@ -467,6 +511,10 @@ class IssueDetailFragment : Fragment() {
         } else {
             issueDetailViewModel.clearVariant()
         }
+
+        // The cover chosen may be one of the stops: the jump bar follows it
+        issuesInSeries.indexOfFirst { it.issueId == selected.issueId }
+            .takeIf { it >= 0 }?.let { currentPos = it; updateNavBar() }
 
         updateCover()
     }
@@ -669,14 +717,17 @@ class IssueDetailFragment : Fragment() {
 
     companion object {
         @JvmStatic
+        /** [collectionId]: the collection the issue was opened from, so the jump bar stays in it. */
         fun newInstance(
             issueSelectedId: Int? = null,
             variantOf: Int? = null,
+            collectionId: Int? = null,
         ): IssueDetailFragment =
             IssueDetailFragment().apply {
                 arguments = Bundle().apply {
                     putSerializable(ARG_ISSUE_ID, issueSelectedId)
                     putSerializable(ARG_VARIANT_OF, variantOf)
+                    putInt(ARG_COLLECTION_ID, collectionId ?: NO_COLLECTION)
                 }
             }
 
