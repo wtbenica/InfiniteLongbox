@@ -94,8 +94,6 @@ const val DEBUG = false
 internal const val SHARED_PREFS = "CCPrefs"
 
 
-const val LOCAL_SERVER = "http://192.168.12.167:8000/"
-const val REMOTE_SERVER = "https://infinite-longbox.uc.r.appspot.com/"
 const val ADB_REVERSE_SERVER = "http://localhost:8000/" // adb reverse tcp:8000 tcp:8000
 const val TAILNET_SERVER = "https://signal.tail86e26f.ts.net:8443/" // Caddy on Signal
 const val BASE_URL = TAILNET_SERVER
@@ -105,29 +103,15 @@ internal const val UPDATED_STORY_TYPES = "updated_story_types"
 internal const val UPDATED_PUBLISHERS = "updated_publishers"
 internal const val UPDATED_BOND_TYPE = "update_bond_type"
 internal const val UPDATED_BONDS = "update_series_bonds"
-internal const val UPDATED_CREATORS = "updated_creators"
-internal const val UPDATED_CREATORS_PAGE = "updated_creators_page"
 internal const val UPDATED_SERIES = "updated_series"
 internal const val UPDATED_SERIES_PAGE = "updated_series_page"
 internal const val UPDATED_PUBLISHERS_PAGE = "updated_publishers_page"
 internal const val UPDATED_CHARACTERS = "update_characters"
 internal const val UPDATED_CHARACTERS_PAGE = "update_characters_page"
-internal const val UPDATED_ISSUES = "updated_issues"
-internal const val UPDATED_ISSUES_PAGE = "updated_issues_page"
-internal const val UPDATED_STORIES = "updated_stories"
-internal const val UPDATED_STORIES_PAGE = "updated_stories_page"
-internal const val UPDATED_CREDITS = "updated_credits"
-internal const val UPDATED_CREDITS_PAGE = "update_credits_page"
-internal const val UPDATED_EXCREDITS = "updated_excredits"
-internal const val UPDATED_EXCREDITS_PAGE = "updated_excredits_page"
-internal const val UPDATED_APPEARANCES = "updated_appearances"
-internal const val UPDATED_APPEARANCES_PAGE = "updated_appearances_page"
 internal const val UPDATED_NAME_DETAILS = "update_name_details"
 internal const val UPDATED_NAME_DETAILS_PAGE = "update_name_details_page"
 
-internal const val MONTHLY: Long = 30
 internal const val WEEKLY: Long = 7
-internal const val DAILY: Long = 1
 
 internal fun getUpdatedTag(id: Int, type: String): String = "$type${id}_UPDATED"
 

@@ -41,7 +41,6 @@ import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updateLayoutParams
 import androidx.core.view.updatePadding
-import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentContainerView
 import androidx.fragment.app.FragmentManager
@@ -110,7 +109,6 @@ class MainActivity : AppCompatActivity(),
     CharacterDetailFragment.CharacterDetailCallback,
     CreatorDetailFragment.CreatorDetailCallback,
     CreatorListFragment.CreatorListCallback,
-    NewCreatorDialogFragment.NewCreatorDialogCallback,
     FilterFragment.FilterFragmentCallback {
 
     internal val peekHeight
@@ -682,23 +680,6 @@ class MainActivity : AppCompatActivity(),
 
     override fun onNewIssue(issueId: Int) {
         openIssue(IssueDetailFragment.newInstance(issueId))
-    }
-
-    //    // SeriesInfoDialogCallback
-//    override fun onSaveSeriesClick(dialog: DialogFragment, series: Series) {
-//        // TODO: MainActivity onSaveSeriesClick
-//        dialog.dismiss()
-//    }
-//
-    // NewCreatorDialogCallback
-    override fun onSaveCreatorClick(dialog: DialogFragment, creator: Creator) {
-        // TODO: Not yet implemented
-        dialog.dismiss()
-    }
-
-    override fun onCancelClick(dialog: DialogFragment) {
-        // TODO: MainActivity onCancelClick
-        dialog.dismiss()
     }
 
     // ListFragmentCallback

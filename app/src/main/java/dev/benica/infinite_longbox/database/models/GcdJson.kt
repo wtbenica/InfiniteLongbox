@@ -288,10 +288,6 @@ class GcdExCredit(
     }
 }
 
-enum class RoleKey(val pos: Int) {
-    ID(0), NAME(1)
-}
-
 @ExperimentalCoroutinesApi
 @Serializable
 class GcdCreator(
@@ -310,10 +306,6 @@ class GcdCreator(
             bio = if (bio == "") null else bio
         )
     }
-}
-
-enum class CreatorKey(val pos: Int) {
-    ID(0), NAME(1), SORT_NAME(2)
 }
 
 @Serializable
