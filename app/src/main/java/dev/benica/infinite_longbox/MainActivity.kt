@@ -33,7 +33,6 @@ import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.coordinatorlayout.widget.CoordinatorLayout
@@ -61,9 +60,7 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_HALF_EX
 import com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_HIDDEN
 import com.google.android.material.bottomsheet.BottomSheetBehavior.from
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import com.google.android.material.snackbar.Snackbar
 import dev.benica.infinite_longbox.database.IssueDatabase
-import dev.benica.infinite_longbox.database.models.BaseCollection
 import dev.benica.infinite_longbox.database.models.Character
 import dev.benica.infinite_longbox.database.models.Creator
 import dev.benica.infinite_longbox.database.models.FullCreator
@@ -388,124 +385,17 @@ class MainActivity : AppCompatActivity(),
 
     private val scanLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            result.data?.getStringExtra(ScanActivity.EXTRA_UPC)?.let { onBarcodeScanned(it) }
+            // Details on an issue the scanner added opens its page
+            val data = result.data ?: return@registerForActivityResult
+            val issueId = data.getIntExtra(ScanActivity.EXTRA_ISSUE_ID, -1)
+            if (issueId >= 0) {
+                val variantOf = data.getIntExtra(ScanActivity.EXTRA_VARIANT_OF, -1).takeIf { it >= 0 }
+                openIssue(IssueDetailFragment.newInstance(issueId, variantOf))
+            }
         }
 
     private fun startBarcodeScan() {
         scanLauncher.launch(Intent(this, ScanActivity::class.java))
-    }
-
-    /**
-     * [code] is the UPC (12 digits) followed by the add-on (5 digits) if it was read. The add-on
-     * says which issue, cover and printing, so with it there's normally exactly one match.
-     */
-    private fun onBarcodeScanned(code: String) {
-        val digits = code.filter { it.isDigit() }
-        val upc = digits.take(12)
-        val addOn = digits.drop(12).takeIf { it.length == 5 }
-
-        lifecycleScope.launch {
-            if (addOn == null) {
-                // Only the UPC was read, so it covers the whole series: don't list a slice of it,
-                // ask for the issue number (checking first whether it's actually one issue).
-                val probe = lookUpScan(upc, limit = 2)
-                when {
-                    probe == null -> showScanMessage(getString(R.string.scan_lookup_failed))
-                    probe.isEmpty() -> showScanMessage(getString(R.string.scan_no_match, upc))
-                    probe.size == 1 -> addScannedIssue(probe[0])
-                    else -> askIssueNumber(upc)
-                }
-                return@launch
-            }
-
-            // Exact barcode first
-            var matches = lookUpScan(digits, limit = 30)
-
-            // The add-on isn't always recorded the same way; fall back to the series and the
-            // issue number (the first 3 digits of the add-on for most publishers)
-            if (matches != null && matches.isEmpty()) {
-                val number = addOn.take(3).trimStart('0').ifEmpty { null }
-                if (number != null) matches = lookUpScan(upc, number)
-            }
-
-            when {
-                matches == null -> showScanMessage(getString(R.string.scan_lookup_failed))
-                matches.isEmpty() -> showScanMessage(getString(R.string.scan_no_match, digits))
-                matches.size == 1 -> addScannedIssue(matches[0])
-                else -> chooseScannedIssue(matches)
-            }
-        }
-    }
-
-    private suspend fun lookUpScan(upc: String, number: String? = null, limit: Int? = null) =
-        withContext(Dispatchers.IO) { Repository.get().getIssuesByUpc(upc, number, limit) }
-
-    private fun askIssueNumber(upc: String) {
-        val input = EditText(this).apply {
-            inputType = android.text.InputType.TYPE_CLASS_NUMBER
-            hint = getString(R.string.scan_issue_number_hint)
-        }
-        AlertDialog.Builder(this)
-            .setTitle(R.string.scan_which_number)
-            .setMessage(R.string.scan_which_number_message)
-            .setView(input)
-            .setPositiveButton(android.R.string.ok) { _, _ ->
-                val number = input.text.toString().trim().trimStart('0')
-                lifecycleScope.launch {
-                    val matches = lookUpScan(upc, number.ifEmpty { null })
-                    when {
-                        matches == null -> showScanMessage(getString(R.string.scan_lookup_failed))
-                        matches.isEmpty() ->
-                            showScanMessage(getString(R.string.scan_no_match_number, number))
-
-                        matches.size == 1 -> addScannedIssue(matches[0])
-                        else -> chooseScannedIssue(matches)
-                    }
-                }
-            }
-            .setNegativeButton(android.R.string.cancel, null)
-            .show()
-    }
-
-    /** The barcode alone doesn't always pin down the issue; ask which one it is. */
-    private fun chooseScannedIssue(matches: List<FullIssue>) {
-        AlertDialog.Builder(this)
-            .setTitle(R.string.scan_choose_issue)
-            .setItems(matches.map { it.scanLabel() }.toTypedArray()) { _, which ->
-                addScannedIssue(matches[which])
-            }
-            .setNegativeButton(android.R.string.cancel, null)
-            .show()
-    }
-
-    private fun addScannedIssue(issue: FullIssue) {
-        Repository.get().addToCollection(issue, BaseCollection.MY_COLL.id)
-
-        // Show what was just added; the snackbar stays on the issue's page for Undo
-        onIssueSelected(issue.issue)
-
-        Snackbar.make(
-            mainLayout,
-            getString(R.string.scan_added, issue.scanLabel()),
-            Snackbar.LENGTH_LONG
-        )
-            .setAction(R.string.scan_undo) {
-                Repository.get()
-                    .removeFromCollection(issue.issue.issueId, BaseCollection.MY_COLL.id)
-            }
-            .show()
-    }
-
-    /** Series, number and variant, so the copies sharing one barcode can be told apart. */
-    private fun FullIssue.scanLabel(): String {
-        val variant = issue.variantName.ifBlank {
-            if (issue.variantOf == null) getString(R.string.scan_standard_edition) else ""
-        }
-        return if (variant.isBlank()) "$this" else "$this ($variant)"
-    }
-
-    private fun showScanMessage(message: String) {
-        Snackbar.make(mainLayout, message, Snackbar.LENGTH_LONG).setAnchorView(scanFab).show()
     }
 
     private val exportCollection =
