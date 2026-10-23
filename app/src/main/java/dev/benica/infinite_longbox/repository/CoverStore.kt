@@ -220,6 +220,8 @@ data class MetronCoverOption(val id: String, val name: String = "")
 enum class MetronCoverResult(val message: Int) {
     SAVED(R.string.cover_saved),
     NONE(R.string.cover_metron_none),
+    /** Metron has covers for the issue but none that is clearly this variant's */
+    AMBIGUOUS(R.string.cover_metron_ambiguous),
     OFF(R.string.cover_metron_off),
     BUSY(R.string.cover_metron_busy),
     FAILED(R.string.cover_metron_failed),
@@ -250,6 +252,7 @@ suspend fun fetchCoverFromMetron(
                 if (UpdateIssueCover.get().replaceFromServer(issueId)) MetronCoverResult.SAVED
                 else MetronCoverResult.FAILED
             response.code() == 404 -> MetronCoverResult.NONE
+            response.code() == 409 -> MetronCoverResult.AMBIGUOUS
             response.code() == 403 -> MetronCoverResult.OFF
             response.code() == 429 -> MetronCoverResult.BUSY
             else -> MetronCoverResult.FAILED

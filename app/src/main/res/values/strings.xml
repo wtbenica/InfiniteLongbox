@@ -124,6 +124,8 @@
     <string name="cover_metron_off">The server isn\'t set up to fetch covers</string>
     <string name="cover_metron_pick">Which cover is this?</string>
     <string name="cover_metron_standard">Standard cover</string>
+    <string name="cover_metron_ambiguous">Metron has covers for this issue, but none clearly this one</string>
+    <string name="cover_metron_ambiguous_for">Metron has covers for %1$s but couldn\'t tell which is this one: open the issue to choose</string>
     <string name="cover_metron_none_for">No cover on Metron for %1$s</string>
     <string name="cover_metron_failed_for">Couldn\'t get a cover for %1$s from Metron</string>
     <string name="cover_metron_busy">Metron is busy, try again in a moment</string>

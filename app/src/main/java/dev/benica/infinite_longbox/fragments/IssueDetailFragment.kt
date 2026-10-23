@@ -177,7 +177,7 @@ class IssueDetailFragment : Fragment() {
         Toast.makeText(context, R.string.cover_metron_working, Toast.LENGTH_SHORT).show()
         viewLifecycleOwner.lifecycleScope.launch {
             val result = fetchCoverFromMetron(context, issue.issueId, issue.variantOf, issue.variantName)
-            if (result == MetronCoverResult.NONE && issue.variantOf != null) {
+            if ((result == MetronCoverResult.NONE || result == MetronCoverResult.AMBIGUOUS) && issue.variantOf != null) {
                 chooseMetronCover()
             } else {
                 Toast.makeText(context, result.message, Toast.LENGTH_SHORT).show()
@@ -188,10 +188,12 @@ class IssueDetailFragment : Fragment() {
     private suspend fun chooseMetronCover() {
         val issue = currentIssue.issue
         val options = metronCoverOptions(issue.issueId, issue.variantOf)
-        if (options.isNullOrEmpty()) {
-            Toast.makeText(requireContext(), R.string.cover_metron_none, Toast.LENGTH_SHORT).show()
-        } else {
-            metronPicker = options
+        when {
+            options.isNullOrEmpty() ->
+                Toast.makeText(requireContext(), R.string.cover_metron_none, Toast.LENGTH_SHORT).show()
+            // One cover to choose from is no choice: it is the one asked for, and can be replaced
+            options.size == 1 -> metronCoverPicked(options.first())
+            else -> metronPicker = options
         }
     }
 

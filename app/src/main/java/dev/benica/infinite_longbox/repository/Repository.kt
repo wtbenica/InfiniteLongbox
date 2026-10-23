@@ -407,6 +407,11 @@ class Repository private constructor(val context: Context) {
                         tell(context.getString(R.string.cover_metron_none_for, fullIssue.toString()))
                         return@launch
                     }
+                    MetronCoverResult.AMBIGUOUS -> {
+                        // Metron has covers for it, and the issue's page offers them to choose from
+                        tell(context.getString(R.string.cover_metron_ambiguous_for, fullIssue.toString()))
+                        return@launch
+                    }
                     MetronCoverResult.BUSY, MetronCoverResult.FAILED -> delay(METRON_RETRY_MS)
                 }
             }
