@@ -77,6 +77,8 @@
     <string name="bottom_sheet_handle_description">Expand filter/sort options</string>
 
     <!--     Fragment Series Detail-->
+    <string name="series_continues_from">Continues from</string>
+    <string name="series_continues_as">Continues as</string>
     <string name="series_detail_notes">Notes</string>
     <string name="series_detail_tracking_notes">Tracking notes</string>
     <string name="label_cover_date">Cover Date</string>
@@ -91,6 +93,10 @@
     <string name="text_gcd_cc_changes">The original database has been adapted to only include a
         subset of its records and fields. Additionally, some creator credits and character
         appearances have been converted from text fields to database records.</string>
+    <string name="update_title_default">Updating database…</string>
+    <string name="about_thanks">Thanks</string>
+    <string name="about_copyright_notices">Copyright Notices</string>
+    <string name="about_cover_acknowledgement">Cover images are used for identification purposes only. All rights to cover images reserved by the respective copyright holders.</string>
     <string name="gcd_thanks">This app wouldn\'t be possible without the efforts of the
         volunteers of the Grand Comics Database\u2122 Project. If you spot a mistake or something missing,
         the best fix is at the source, so it reaches everyone: become an indexer with

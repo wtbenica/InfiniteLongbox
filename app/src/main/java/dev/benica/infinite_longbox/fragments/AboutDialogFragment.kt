@@ -17,29 +17,24 @@ package dev.benica.infinite_longbox.fragments
 
 import android.graphics.Color
 import android.os.Bundle
-import android.text.method.LinkMovementMethod
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
+import android.view.ViewGroup.LayoutParams.MATCH_PARENT
+import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.core.graphics.drawable.toDrawable
 import androidx.fragment.app.DialogFragment
-import dev.benica.infinite_longbox.R
+import dev.benica.infinite_longbox.ui.dialogs.AboutScreen
+import dev.benica.infinite_longbox.ui.theme.InfiniteLongboxTheme
 
-class AboutDialogFragment : DialogFragment(R.layout.dialog_fragment_about) {
-    private var credit: TextView? = null
+/** The credits and licences, over the whole screen. */
+class AboutDialogFragment : DialogFragment() {
 
     override fun onResume() {
         super.onResume()
-        updateLayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
-    }
-
-    private fun updateLayoutParams(w: Int, h: Int) {
-        val dw = dialog?.window
-        dw?.let { window ->
-            val layoutParams = window.attributes
-            layoutParams.width = w
-            layoutParams.height = h
+        dialog?.window?.let { window ->
+            window.setLayout(MATCH_PARENT, MATCH_PARENT)
             window.setBackgroundDrawable(Color.TRANSPARENT.toDrawable())
         }
     }
@@ -48,23 +43,10 @@ class AboutDialogFragment : DialogFragment(R.layout.dialog_fragment_about) {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        val view = super.onCreateView(inflater, container, savedInstanceState)
-
-        view?.setOnClickListener {
-            this@AboutDialogFragment.dismiss()
+    ): View = ComposeView(requireContext()).apply {
+        setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+        setContent {
+            InfiniteLongboxTheme { AboutScreen(onDismiss = ::dismiss) }
         }
-
-        credit = view?.findViewById<TextView>(R.id.cc_credit)?.apply {
-            movementMethod = LinkMovementMethod.getInstance()
-        }
-        view?.findViewById<TextView>(R.id.gcd_thanks_text)?.movementMethod =
-            LinkMovementMethod.getInstance()
-        view?.findViewById<TextView>(R.id.cover_credit)?.movementMethod =
-            LinkMovementMethod.getInstance()
-
-        return view
     }
-
-
 }

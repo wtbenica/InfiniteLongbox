@@ -28,14 +28,6 @@
         <item name="android:layout_height">@dimen/peek_height</item>
     </style>
 
-    <style name="Handle">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">@dimen/peek_height</item>
-        <item name="android:layout_gravity">top|center_horizontal</item>
-        <item name="android:scaleType">fitCenter</item>
-        <item name="android:src">@drawable/icon_arrow_up</item>
-        <item name="tint">?attr/colorUiInterface</item>
-    </style>
 
     <style name="FilterSection">
         <item name="android:layout_width">match_parent</item>

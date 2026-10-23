@@ -18,9 +18,16 @@ package dev.benica.infinite_longbox.views
 import android.content.Context
 import android.os.SystemClock
 import android.util.AttributeSet
-import android.widget.TextView
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.ComposeView
 import androidx.cardview.widget.CardView
 import dev.benica.infinite_longbox.R
+import dev.benica.infinite_longbox.ui.theme.InfiniteLongboxTheme
+import dev.benica.infinite_longbox.ui.update.STAGE_FADE_MS
+import dev.benica.infinite_longbox.ui.update.UpdateLine
+import dev.benica.infinite_longbox.ui.update.UpdateStage
 import kotlinx.coroutines.delay
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -31,14 +38,15 @@ import kotlin.time.Duration.Companion.milliseconds
 class ProgressUpdateCard(context: Context, attributeSet: AttributeSet) :
     CardView(context, attributeSet) {
 
-    private val title: TextView
-    private val stage: TextView
+    private var titleText by mutableStateOf(context.getString(R.string.update_title_default))
+    private var stage by mutableStateOf<UpdateStage?>(null)
 
     init {
-        val view = inflate(context, R.layout.fragment_static_update, this)
-        (view as CardView).cardElevation = 0f
-        title = view.findViewById(R.id.update_title)
-        stage = view.findViewById(R.id.update_stage)
+        cardElevation = 0f
+        setCardBackgroundColor(context.getColor(R.color.surface_raised))
+        addView(ComposeView(context).apply {
+            setContent { InfiniteLongboxTheme { UpdateLine(titleText, stage) } }
+        })
     }
 
     val publisherWrapper = ProgressWrapper("Publishers")
@@ -47,7 +55,7 @@ class ProgressUpdateCard(context: Context, attributeSet: AttributeSet) :
     val characterWrapper = ProgressWrapper("Characters")
 
     fun setTitle(text: String) {
-        title.post { title.text = "$text…" }
+        titleText = "$text…"
     }
 
     /** The starter database being downloaded: how many megabytes of how many. */
@@ -61,31 +69,13 @@ class ProgressUpdateCard(context: Context, attributeSet: AttributeSet) :
      * in; the same part with a new count just changes the number.
      */
     private fun showStage(key: String, text: String = key) {
-        // Worked out now, not from the animations: they don't run when the card isn't on screen,
-        // and [holdStage] must not wait for them. A new part takes a fade out (if one is up) and in.
+        // The time it is readable is worked out here, not from the animation, which doesn't run when
+        // the card isn't on screen and which [holdStage] must not wait for
         if (key != shownKey) {
-            val fades = if (shownKey == null) 1 else 2
-            readableAt = SystemClock.uptimeMillis() + fades * FADE_MS
+            readableAt = SystemClock.uptimeMillis() + STAGE_FADE_MS
             shownKey = key
         }
-        stage.post {
-            if (stage.tag == key) {
-                stage.text = text
-                return@post
-            }
-            stage.tag = key
-            stage.animate().cancel()
-            if (stage.text.isEmpty()) {
-                stage.text = text
-                stage.animate().alpha(1f).setDuration(FADE_MS).start()
-            } else {
-                // Fade the old part out, then the new one in
-                stage.animate().alpha(0f).setDuration(FADE_MS).withEndAction {
-                    stage.text = text
-                    stage.animate().alpha(1f).setDuration(FADE_MS).start()
-                }.start()
-            }
-        }
+        stage = UpdateStage(key, text)
     }
 
     @Volatile
@@ -129,7 +119,6 @@ class ProgressUpdateCard(context: Context, attributeSet: AttributeSet) :
     }
 
     private companion object {
-        const val FADE_MS = 180L
         const val MEGABYTE = 1024L * 1024L
 
         /** A part with nothing to fetch stays readable this long (after its name has faded in). */

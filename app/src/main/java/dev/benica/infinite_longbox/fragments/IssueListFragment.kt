@@ -55,7 +55,7 @@ import dev.benica.infinite_longbox.ui.lists.IssueCardState
 import dev.benica.infinite_longbox.ui.lists.IssueListItem
 import dev.benica.infinite_longbox.ui.lists.IssueListItemSkeleton
 import dev.benica.infinite_longbox.ui.theme.InfiniteLongboxTheme
-import dev.benica.infinite_longbox.views.SeriesDetailBox
+import dev.benica.infinite_longbox.ui.series.SeriesInfoBox
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
@@ -70,17 +70,25 @@ class IssueListFragment : ListFragment<FullIssue, IssueListFragment.IssueViewHol
     override val minColSizeDp = 300
 
     private var mSeries: FullSeries? = null
-    private var seriesDetailBox: SeriesDetailBox? = null
+    /** The series shown above the issues, when the list is of one series. */
+    private var detailSeries by mutableStateOf<FullSeries?>(null)
+    private var detailShown = false
 
     private fun updateSeriesDetailFragment(series: FullSeries, newBox: Boolean = false) {
-        seriesDetailBox.let {
-            if (newBox || it == null) {
-                details.removeAllViews()
-                seriesDetailBox = SeriesDetailBox(requireContext(), series)
-                details.addView(seriesDetailBox)
-            } else {
-                it.setSeries(series)
-            }
+        detailSeries = series
+        if (newBox || !detailShown) {
+            details.removeAllViews()
+            details.addView(ComposeView(requireContext()).apply {
+                setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+                setContent {
+                    InfiniteLongboxTheme {
+                        detailSeries?.let { shown ->
+                            SeriesInfoBox(shown, onSeries = { callback?.updateFilter(SearchFilter(series = it, myCollection = false)) })
+                        }
+                    }
+                }
+            })
+            detailShown = true
         }
 
         updateBottomPadding()
@@ -147,6 +155,7 @@ class IssueListFragment : ListFragment<FullIssue, IssueListFragment.IssueViewHol
     override fun getAdapter(): IssueAdapter = IssueAdapter()
 
     override fun onDestroyView() {
+        detailShown = false
         selectionMode?.finish()
         viewModel.saveIssueListState(listRecyclerView.layoutManager?.onSaveInstanceState())
         super.onDestroyView()

@@ -19,7 +19,6 @@
 
     <!-- Fonts -->
     <attr name="fontBlock" format="reference" />
-    <attr name="fontRegular" format="reference" />
 
     <!-- MainActivity Theme Values -->
     <attr name="colorUi" format="reference|color" />
@@ -42,49 +41,26 @@
 
     <!-- IssueDetailFragment Variant Spinner -->
 
-    <!-- SeriesDetailBox Theme Values -->
-    <attr name="styleSeriesDetail" format="reference" />
-    <attr name="seriesDetailBackground" format="reference" />
-    <attr name="seriesDetailLabelColor" format="reference" />
-    <attr name="seriesDetailTextColor" format="reference" />
-    <attr name="seriesDetailDropdownButtonTint" format="reference|color" />
 
     <!-- ListItem -->
-    <attr name="listItemBackground" format="reference" />
     <attr name="listItemBackgroundBase" format="reference" />
-    <attr name="listItemTitleTextSize" format="reference" />
 
     <!-- ListItemSeries -->
-    <attr name="listItemSeriesLayoutHeight" format="reference|dimension" />
-    <attr name="listItemSeriesMetaTextSize" format="reference|dimension" />
 
     <!-- ListItemIssue -->
 
     <!-- ListItemSimple -->
-    <attr name="listItemSimpleTitleTextBackground" format="reference" />
     <attr name="listItemSimpleTitleTextBackgroundColor" format="reference" />
-    <attr name="listItemSimpleMetaBoxBg" format="reference" />
     <attr name="listItemSimpleMetaBoxBgColor" format="reference" />
     <attr name="listItemSimpleMetaBoxBgStrokeColor" format="reference" />
     <attr name="listItemSimpleMetaBoxCornerRadius" format="reference|dimension" />
-    <attr name="listItemSimpleMetaTextColor" format="reference|color" />
 
     <!-- StoryBox -->
 
-    <attr name="storyBoxLinkTextColor" format="reference" />
-    <attr name="storyBoxCreatorNameTextColor" format="reference" />
-
-    <attr name="styleLinkTextView" format="reference" />
 
     <!-- CoverDialogFragment -->
-    <attr name="dialogFragmentCoverLayoutBackground" format="reference" />
-    <attr name="dialogFragmentCoverLayoutPadding" format="reference" />
-    <attr name="dialogFragmentCoverInfoCardBackground" format="reference" />
-    <attr name="dialogFragmentCoverInfoCardTextColor" format="reference" />
 
     <attr name="textColorTitleBar" format="reference" />
-    <attr name="textColorTitle" format="reference" />
-    <attr name="textColorSubtitle" format="reference" />
     <attr name="textColorBody" format="reference" />
 
     <attr name="chipActiveBgColor" format="reference" />

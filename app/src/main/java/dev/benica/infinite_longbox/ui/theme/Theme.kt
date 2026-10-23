@@ -29,6 +29,9 @@ import dev.benica.infinite_longbox.R
 /** The condensed face used for small labels (the theme's fontBlock) */
 val CondensedBlock = FontFamily(Typeface.create("sans-serif-condensed", Typeface.NORMAL))
 
+/** The face of the update line and the filter options */
+val Archivo = FontFamily(Font(R.font.archivo))
+
 /** The series-title typeface */
 val PermanentMarker = FontFamily(Font(R.font.permanent_marker))
 

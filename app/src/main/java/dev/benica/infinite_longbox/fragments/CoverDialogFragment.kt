@@ -22,33 +22,25 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
-import android.widget.ImageView
-import android.widget.TextView
+import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.core.graphics.drawable.toDrawable
 import androidx.fragment.app.DialogFragment
-import dev.benica.infinite_longbox.R
 import dev.benica.infinite_longbox.database.models.FullIssue
+import dev.benica.infinite_longbox.ui.covers.CoverViewer
+import dev.benica.infinite_longbox.ui.theme.InfiniteLongboxTheme
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import java.io.File
 
+/** An issue's cover as large as the screen allows. */
 @ExperimentalCoroutinesApi
 class CoverDialogFragment(private val coverUri: Uri, private val currentIssue: FullIssue) :
-    DialogFragment(R.layout.dialog_fragment_cover) {
-
-    private var coverView: ImageView? = null
-    private var coverTextView: TextView? = null
-    private var variantNameTextView: TextView? = null
+    DialogFragment() {
 
     override fun onResume() {
         super.onResume()
-        updateLayoutParams(MATCH_PARENT, MATCH_PARENT)
-    }
-
-    private fun updateLayoutParams(w: Int, h: Int) {
-        val dw = dialog?.window
-        dw?.let { window ->
-            val layoutParams = window.attributes
-            layoutParams.width = w
-            layoutParams.height = h
+        dialog?.window?.let { window ->
+            window.setLayout(MATCH_PARENT, MATCH_PARENT)
             window.setBackgroundDrawable(Color.TRANSPARENT.toDrawable())
         }
     }
@@ -57,31 +49,17 @@ class CoverDialogFragment(private val coverUri: Uri, private val currentIssue: F
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        val view = super.onCreateView(inflater, container, savedInstanceState)
-
-        view?.setOnClickListener {
-            this@CoverDialogFragment.dismiss()
-        }
-
-        coverView = view?.findViewById<ImageView>(R.id.cover_view).apply {
-            this?.setImageURI(coverUri)
-        }
-
-        coverTextView = view?.findViewById<TextView>(R.id.tv_issue).apply {
-            this?.text = currentIssue.toString()
-        }
-
-        variantNameTextView = view?.findViewById<TextView>(R.id.tv_variant_name).apply {
-            val variantName = currentIssue.issue.variantName
-            if (variantName.isBlank()) {
-                this?.visibility = View.GONE
-            } else {
-                this?.visibility = View.VISIBLE
-                this?.text = variantName
+    ): View = ComposeView(requireContext()).apply {
+        setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+        setContent {
+            InfiniteLongboxTheme {
+                CoverViewer(
+                    file = File(coverUri.path.orEmpty()),
+                    title = currentIssue.toString(),
+                    variantName = currentIssue.issue.variantName,
+                    onDismiss = ::dismiss,
+                )
             }
         }
-
-        return view
     }
 }
