@@ -18,11 +18,13 @@ package dev.benica.infinite_longbox.ui.covers
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.pager.HorizontalPager
@@ -45,6 +47,7 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
@@ -52,6 +55,9 @@ import dev.benica.infinite_longbox.R
 import dev.benica.infinite_longbox.ui.theme.CondensedBlock
 import kotlinx.coroutines.launch
 import java.io.File
+
+/** Room for a title and a variant name of two lines each, and the position. */
+private val CAPTION_HEIGHT = 124.dp
 
 /** One cover for the viewer: what it is, and its file (null when the issue has none). */
 data class ViewerCover(
@@ -119,18 +125,22 @@ fun CoverViewer(
                 }
             }
         }
+        // A fixed height, whatever the text: the cover above has the same room for every cover shown,
+        // and doesn't move as the caption goes from two lines to three
         Column(
             Modifier
                 .padding(margin)
                 .fillMaxWidth()
+                .height(CAPTION_HEIGHT)
                 .background(colorResource(R.color.accent_soft), RoundedCornerShape(dimensionResource(R.dimen.margin_wide)))
                 .clickable(interactionSource = remember { MutableInteractionSource() }, indication = null, onClick = close)
-                .padding(dimensionResource(R.dimen.margin_wide)),
+                .padding(horizontal = dimensionResource(R.dimen.margin_wide), vertical = 8.dp),
+            verticalArrangement = Arrangement.Center,
         ) {
-            CoverCaption(shown.title)
-            if (shown.variantName.isNotBlank()) CoverCaption(shown.variantName)
+            CoverCaption(shown.title, maxLines = 2)
+            if (shown.variantName.isNotBlank()) CoverCaption(shown.variantName, maxLines = 2)
             if (covers.size > 1) {
-                CoverCaption(stringResource(R.string.cover_viewer_position, pager.currentPage + 1, covers.size))
+                CoverCaption(stringResource(R.string.cover_viewer_position, pager.currentPage + 1, covers.size), maxLines = 1)
             }
         }
     }
@@ -153,9 +163,11 @@ private fun BoxScope.Arrow(symbol: String, alignment: Alignment, description: St
 }
 
 @Composable
-private fun CoverCaption(text: String) {
+private fun CoverCaption(text: String, maxLines: Int) {
     Text(
         text = text,
+        maxLines = maxLines,
+        overflow = TextOverflow.Ellipsis,
         modifier = Modifier.fillMaxWidth(),
         textAlign = TextAlign.Center,
         fontFamily = CondensedBlock,
