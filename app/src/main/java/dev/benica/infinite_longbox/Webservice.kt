@@ -22,6 +22,7 @@ import dev.benica.infinite_longbox.repository.SeedMeta
 import okhttp3.RequestBody
 import okhttp3.ResponseBody
 import retrofit2.Response
+import dev.benica.infinite_longbox.repository.MetronCoverOption
 import retrofit2.http.Body
 import retrofit2.http.POST
 import kotlinx.serialization.Serializable
@@ -44,9 +45,32 @@ interface Webservice {
     @GET("/db_query/covers/have")
     suspend fun getServerCoverIds(): List<Int>
 
-    /** Asks the server to fetch the issue's cover from Metron; 404 when Metron has none. */
+    /**
+     * Asks the server to fetch the issue's cover from Metron; 404 when Metron has none. For a
+     * variant, [parent] is the issue it is a variant of, and either its [name] picks the cover
+     * or [choice] (an id from [metronCoverOptions]) does.
+     */
     @POST("/db_query/issue/id/{id}/cover/fetch")
-    suspend fun fetchCoverFromMetron(@Path("id") issueId: Int): Response<ResponseBody>
+    suspend fun fetchCoverFromMetron(
+        @Path("id") issueId: Int,
+        @Query("parent") parent: Int? = null,
+        @Query("name") name: String? = null,
+        @Query("choice") choice: String? = null,
+    ): Response<ResponseBody>
+
+    /** The covers Metron has for the issue (or for [parent], if the issue is a variant of it). */
+    @GET("/db_query/issue/id/{id}/cover/metron/options")
+    suspend fun metronCoverOptions(
+        @Path("id") issueId: Int,
+        @Query("parent") parent: Int? = null,
+    ): List<MetronCoverOption>
+
+    @GET("/db_query/issue/id/{id}/cover/metron/preview/{choice}")
+    suspend fun metronCoverPreview(
+        @Path("id") issueId: Int,
+        @Path("choice") choice: String,
+        @Query("parent") parent: Int? = null,
+    ): ResponseBody
 
     @POST("/db_query/issue/id/{id}/cover/upload")
     suspend fun uploadCover(

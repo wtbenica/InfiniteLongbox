@@ -376,22 +376,23 @@ class Repository private constructor(val context: Context) {
                 )
             )
         }
-        if (collId == BaseCollection.MY_COLL.id) fetchMissingCover(issue.issue.issueId)
+        if (collId == BaseCollection.MY_COLL.id) fetchMissingCover(issue.issue)
     }
 
     /**
      * An issue just added to My Collection gets a cover if there is one to be had: the server's
      * own if it has one, otherwise Metron's. Quiet: nothing is shown if it comes to nothing.
      */
-    private fun fetchMissingCover(issueId: Int) {
+    private fun fetchMissingCover(issue: Issue) {
         if (!hasConnection) return
+        val issueId = issue.issueId
         CoroutineScope(Dispatchers.IO).launch {
             val file = getFileHandle(context, coverFileName(issueId))
             if (!file.exists()) UpdateIssueCover.get().update(issueId, markedDelete = false).join()
             // Metron's limit makes some of these wait: try again a little later, a few times
             repeat(METRON_ATTEMPTS) {
                 if (file.exists()) return@launch
-                val result = fetchCoverFromMetron(context, issueId)
+                val result = fetchCoverFromMetron(context, issueId, issue.variantOf, issue.variantName)
                 if (result != MetronCoverResult.BUSY && result != MetronCoverResult.FAILED) return@launch
                 delay(METRON_RETRY_MS)
             }

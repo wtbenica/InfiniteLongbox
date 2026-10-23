@@ -34,6 +34,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.Serializable
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.File
@@ -212,6 +213,10 @@ suspend fun removeCover(context: Context, issueId: Int): Int = withContext(Dispa
     }
 }
 
+/** One cover Metron has for an issue: the standard one (empty [name]) or a variant. */
+@Serializable
+data class MetronCoverOption(val id: String, val name: String = "")
+
 /** What asking the server to fetch a cover from Metron came to. */
 enum class MetronCoverResult(val message: Int) {
     SAVED(R.string.cover_saved),
@@ -226,10 +231,16 @@ enum class MetronCoverResult(val message: Int) {
  * (replacing any it has). The phone's cover is left alone unless the server got a new one.
  */
 @ExperimentalCoroutinesApi
-suspend fun fetchCoverFromMetron(context: Context, issueId: Int): MetronCoverResult =
+suspend fun fetchCoverFromMetron(
+    context: Context,
+    issueId: Int,
+    parent: Int? = null,
+    variantName: String? = null,
+    choice: String? = null,
+): MetronCoverResult =
     withContext(Dispatchers.IO) { metronQueue.withLock {
         val response = try {
-            webservice().fetchCoverFromMetron(issueId)
+            webservice().fetchCoverFromMetron(issueId, parent, variantName, choice)
         } catch (e: Exception) {
             Log.e(TAG, "Couldn't ask the server for the Metron cover of issue $issueId", e)
             return@withContext MetronCoverResult.FAILED
@@ -247,6 +258,35 @@ suspend fun fetchCoverFromMetron(context: Context, issueId: Int): MetronCoverRes
             else -> MetronCoverResult.FAILED
         }
     } }
+
+/** The covers Metron has for the issue, or null when they couldn't be got. */
+suspend fun metronCoverOptions(issueId: Int, parent: Int?): List<MetronCoverOption>? =
+    withContext(Dispatchers.IO) {
+        try {
+            webservice().metronCoverOptions(issueId, parent)
+        } catch (e: Exception) {
+            Log.e(TAG, "Couldn't list Metron's covers for issue $issueId", e)
+            null
+        }
+    }
+
+/** One of [metronCoverOptions], decoded small enough for a picker. */
+suspend fun metronCoverPreview(issueId: Int, parent: Int?, choice: String): Bitmap? =
+    withContext(Dispatchers.IO) {
+        try {
+            val bytes = webservice().metronCoverPreview(issueId, choice, parent).bytes()
+            val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+            BitmapFactory.decodeByteArray(bytes, 0, bytes.size, bounds)
+            var sample = 1
+            while (max(bounds.outWidth, bounds.outHeight) / sample > PREVIEW_SIDE) sample *= 2
+            BitmapFactory.decodeByteArray(bytes, 0, bytes.size, BitmapFactory.Options().apply { inSampleSize = sample })
+        } catch (e: Exception) {
+            Log.e(TAG, "Couldn't get a Metron cover preview for issue $issueId", e)
+            null
+        }
+    }
+
+private const val PREVIEW_SIDE = 600
 
 /** One Metron request at a time: Metron allows 20 a minute, and the server paces them. */
 private val metronQueue = Mutex()

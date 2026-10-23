@@ -55,7 +55,13 @@ import dev.benica.infinite_longbox.database.models.Series
 import dev.benica.infinite_longbox.database.models.SeriesAndPublisher
 import dev.benica.infinite_longbox.database.models.Story
 import dev.benica.infinite_longbox.fragments_view_models.IssueDetailViewModel
+import dev.benica.infinite_longbox.repository.MetronCoverOption
+import dev.benica.infinite_longbox.repository.MetronCoverResult
+import dev.benica.infinite_longbox.repository.fetchCoverFromMetron
+import dev.benica.infinite_longbox.repository.metronCoverOptions
+import dev.benica.infinite_longbox.repository.metronCoverPreview
 import dev.benica.infinite_longbox.repository.pickedCoverToIssue
+import dev.benica.infinite_longbox.ui.MetronCoverPicker
 import dev.benica.infinite_longbox.repository.removeCover
 import dev.benica.infinite_longbox.ui.InfiniteLongboxTheme
 import dev.benica.infinite_longbox.ui.IssueActionState
@@ -143,12 +149,42 @@ class IssueDetailFragment : Fragment() {
             .show()
     }
 
+    private var metronPicker by mutableStateOf<List<MetronCoverOption>?>(null)
+
+    /**
+     * Fetches the cover from Metron. For a variant it tries the variant Metron names the same way
+     * and, failing that, shows what Metron has to pick from.
+     */
     private fun fetchCoverFromMetron() {
-        val issueId = currentIssue.issue.issueId
+        val issue = currentIssue.issue
         val context = requireContext().applicationContext
         Toast.makeText(context, R.string.cover_metron_working, Toast.LENGTH_SHORT).show()
         viewLifecycleOwner.lifecycleScope.launch {
-            val result = dev.benica.infinite_longbox.repository.fetchCoverFromMetron(context, issueId)
+            val result = fetchCoverFromMetron(context, issue.issueId, issue.variantOf, issue.variantName)
+            if (result == MetronCoverResult.NONE && issue.variantOf != null) {
+                chooseMetronCover()
+            } else {
+                Toast.makeText(context, result.message, Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    private suspend fun chooseMetronCover() {
+        val issue = currentIssue.issue
+        val options = metronCoverOptions(issue.issueId, issue.variantOf)
+        if (options.isNullOrEmpty()) {
+            Toast.makeText(requireContext(), R.string.cover_metron_none, Toast.LENGTH_SHORT).show()
+        } else {
+            metronPicker = options
+        }
+    }
+
+    private fun metronCoverPicked(option: MetronCoverOption) {
+        metronPicker = null
+        val issue = currentIssue.issue
+        val context = requireContext().applicationContext
+        viewLifecycleOwner.lifecycleScope.launch {
+            val result = fetchCoverFromMetron(context, issue.issueId, issue.variantOf, choice = option.id)
             Toast.makeText(context, result.message, Toast.LENGTH_SHORT).show()
         }
     }
@@ -239,6 +275,15 @@ class IssueDetailFragment : Fragment() {
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
             setContent {
                 InfiniteLongboxTheme {
+                    metronPicker?.let { options ->
+                        val issue = currentIssue.issue
+                        MetronCoverPicker(
+                            options = options,
+                            loadPreview = { metronCoverPreview(issue.issueId, issue.variantOf, it.id) },
+                            onPick = ::metronCoverPicked,
+                            onDismiss = { metronPicker = null },
+                        )
+                    }
                     IssueDetailScreen(
                         state = uiState,
                         actions = IssueDetailActions(

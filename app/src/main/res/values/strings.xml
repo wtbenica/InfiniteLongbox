@@ -121,6 +121,8 @@
     <string name="cover_from_device">Choose from this device…</string>
     <string name="cover_metron_none">Metron has no cover for this issue</string>
     <string name="cover_metron_off">The server isn\'t set up to fetch covers</string>
+    <string name="cover_metron_pick">Which cover is this?</string>
+    <string name="cover_metron_standard">Standard cover</string>
     <string name="cover_metron_busy">Metron is busy, try again in a moment</string>
     <string name="cover_metron_failed">Couldn\'t get the cover from Metron</string>
     <string name="cover_metron_working">Fetching the cover…</string>
