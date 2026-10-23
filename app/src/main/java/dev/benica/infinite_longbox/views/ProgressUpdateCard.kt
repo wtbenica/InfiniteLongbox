@@ -47,20 +47,31 @@ class ProgressUpdateCard(context: Context, attributeSet: AttributeSet) :
         title.post { title.text = "$text…" }
     }
 
-    /** The starter-database download is the publishers' turn. */
-    fun setSeedProgress(done: Long, total: Long) = publisherWrapper.start()
+    /** The starter database being downloaded: how many megabytes of how many. */
+    fun setSeedProgress(done: Long, total: Long) {
+        if (total <= 0) return
+        showStage("seed", "${done / MEGABYTE} of ${total / MEGABYTE} MB")
+    }
 
-    private fun showStage(name: String) {
+    /**
+     * Says which part is under way: [key] names it, and [text] is what is shown. A new part fades
+     * in; the same part with a new count just changes the number.
+     */
+    private fun showStage(key: String, text: String = key) {
         stage.post {
-            if (stage.text.toString() == name) return@post
+            if (stage.tag == key) {
+                stage.text = text
+                return@post
+            }
+            stage.tag = key
             stage.animate().cancel()
             if (stage.text.isEmpty()) {
-                stage.text = name
+                stage.text = text
                 stage.animate().alpha(1f).setDuration(FADE_MS).start()
             } else {
                 // Fade the old part out, then the new one in
                 stage.animate().alpha(0f).setDuration(FADE_MS).withEndAction {
-                    stage.text = name
+                    stage.text = text
                     stage.animate().alpha(1f).setDuration(FADE_MS).start()
                 }.start()
             }
@@ -68,23 +79,26 @@ class ProgressUpdateCard(context: Context, attributeSet: AttributeSet) :
     }
 
     /**
-     * One part of the update. May be called from any thread. The updates arrive a page at a time
-     * and finish too quickly to draw a bar for, so a part only announces that it is under way.
+     * One part of the update. May be called from any thread. A part announces that it is under
+     * way, and when it has a good many pages to fetch it also says how far along it is; a few
+     * pages go too quickly for a count to be worth reading.
      */
     inner class ProgressWrapper(private val name: String) {
         /** This part is the one being fetched now. */
         fun start() = showStage(name)
 
-        fun setMax(max: Int) = Unit
-
-        fun setProgress(progress: Int) = Unit
-
-        fun incrementProgress() = showStage(name)
-
-        fun isComplete(bool: Boolean) = Unit
+        /** [fetched] of the [toFetch] pages this part has to fetch are in. */
+        fun report(fetched: Int, toFetch: Int) {
+            if (toFetch > SHOW_COUNT_FROM) showStage(name, "$name · $fetched of $toFetch")
+            else showStage(name)
+        }
     }
 
     private companion object {
         const val FADE_MS = 180L
+        const val MEGABYTE = 1024L * 1024L
+
+        /** Parts with more pages to fetch than this show a count. */
+        const val SHOW_COUNT_FROM = 5
     }
 }

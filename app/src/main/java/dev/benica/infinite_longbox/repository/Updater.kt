@@ -279,7 +279,7 @@ abstract class Updater(
      * @param verifyForeignKeys Function to verify foreign keys
      * @param dao Dao to save items to
      * @param getNumPages Function to retrieve number of pages
-     * @param progressWrapper ProgressWrapper to update progress bar
+     * @param progressWrapper says which part this is and how far along it is
      */
     internal suspend fun <ModelType : DataModel> refreshAllPaged(
         prefs: SharedPreferences,
@@ -309,7 +309,6 @@ abstract class Updater(
                     pagesCompleteSaved, PageDiff.parse(prefs.getString(hashTag, "")), manifest
                 )
             } else {
-                progressWrapper?.isComplete(false)
                 pagesCompleteSaved = ""
             }
             Repository.savePrefValue(prefs, savePageTag, pagesCompleteSaved)
@@ -318,7 +317,6 @@ abstract class Updater(
         // make an array for whether each page has been updated
         val numPages: Int = getNumPages().count
         val pagesComplete = BooleanArray(numPages)
-        progressWrapper?.setMax(numPages)
 
         if (numPages == pagesCompleteSaved.length) {
             pagesCompleteSaved.forEachIndexed { index: Int, c: Char ->
@@ -327,8 +325,10 @@ abstract class Updater(
         }
 
         var numComplete = pagesComplete.count { it }
-        progressWrapper?.setProgress(numComplete)
-        if (numComplete < numPages) progressWrapper?.start()
+        // What this run has to fetch, and so what its progress is measured against
+        val alreadyComplete = numComplete
+        val toFetch = numPages - numComplete
+        if (toFetch > 0) progressWrapper?.report(0, toFetch)
 
         // Pages are about to be fetched: say what version each is, to remember with it
         if (manifest == null && manifestKey != null && numComplete < numPages) {
@@ -347,13 +347,13 @@ abstract class Updater(
         }
 
         /**
-         * Increments numComplete, saves to prefs, and increments progress bar
+         * Increments numComplete, saves to prefs, and reports the progress
          */
         fun pageFinished() {
             synchronized(this) {
                 numComplete++
                 pagesComplete.saveToPrefs(savePageTag)
-                progressWrapper?.incrementProgress()
+                progressWrapper?.report(numComplete - alreadyComplete, toFetch)
             }
         }
 
