@@ -203,7 +203,7 @@ abstract class SeriesDao : BaseDao<Series>("series") {
                     )
                 }
 
-                args.add(BaseCollection.MY_COLL.id)
+                args.add(filter.mCollectionId)
             }
 
             filter.mTextFilter?.let { textFilter ->

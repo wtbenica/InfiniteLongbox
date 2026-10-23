@@ -144,7 +144,7 @@ abstract class CreatorDao : BaseDao<Creator>("creator") {
                         ) 
                         """
                     )
-                    args.add(BaseCollection.MY_COLL.id)
+                    args.add(filter.mCollectionId)
                 }
             }
 

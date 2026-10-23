@@ -56,6 +56,8 @@ data class IssueDetailUiState(
     val info: IssueInfoState = IssueInfoState(),
     val actions: IssueActionState = IssueActionState(),
     val variants: VariantSelectorState = VariantSelectorState(),
+    /** What is kept about the copy, when the issue is in My Collection. */
+    val myCopy: MyCopyState? = null,
     val stories: List<StoryUi> = emptyList(),
     val jumpBar: JumpBarState = JumpBarState(),
     val gcdIssueId: Int = 0,
@@ -69,6 +71,8 @@ class IssueDetailActions(
     val onCoverLongClick: () -> Unit,
     val onToggleCollection: () -> Unit,
     val onToggleWishList: () -> Unit,
+    val onEditCopy: () -> Unit,
+    val onSignerClick: (Int) -> Unit,
     val onSearchEbay: () -> Unit,
     val onVariantSelected: (Issue) -> Unit,
     val onCharacterClick: (FullCharacter) -> Unit,
@@ -146,6 +150,15 @@ fun IssueDetailScreen(
                 Modifier.padding(top = dimensionResource(R.dimen.margin_default)),
             )
 
+            state.myCopy?.let {
+                MyCopyCard(
+                    it,
+                    actions.onEditCopy,
+                    actions.onSignerClick,
+                    Modifier.padding(horizontal = narrow, vertical = dimensionResource(R.dimen.margin_default)),
+                )
+            }
+
             CreditsBox(
                 stories = state.stories,
                 expanded = expandedStories,
@@ -206,7 +219,7 @@ private fun IssueDetailScreenPreview() {
                 jumpBar = JumpBarState(position = 3, count = 20),
                 gcdIssueId = 1,
             ),
-            actions = IssueDetailActions({}, {}, {}, {}, {}, {}, {}, {}, {}),
+            actions = IssueDetailActions({}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}),
         )
     }
 }

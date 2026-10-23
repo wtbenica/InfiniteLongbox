@@ -16,6 +16,9 @@
 package dev.benica.infinite_longbox.database
 
 import android.content.Context
+import androidx.room.AutoMigration
+import androidx.room.DeleteColumn
+import androidx.room.migration.AutoMigrationSpec
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
@@ -41,11 +44,19 @@ private const val DATABASE_NAME = "issue-database"
     entities = [Issue::class, Series::class, Creator::class, Role::class, Credit::class,
         Publisher::class, Story::class, ExCredit::class, StoryType::class, NameDetail::class,
         Character::class, Appearance::class, Cover::class, SeriesBond::class, BondType::class,
-        Brand::class, UserCollection::class, CollectionItem::class],
-    version = 1,
+        Brand::class, UserCollection::class, CollectionItem::class, CopySigner::class],
+    version = 3,
+    autoMigrations = [
+        AutoMigration(from = 1, to = 2),
+        AutoMigration(from = 2, to = 3, spec = IssueDatabase.SignedByToCreators::class),
+    ],
 )
 @TypeConverters(IssueTypeConverters::class)
 abstract class IssueDatabase : RoomDatabase() {
+
+    /** Who signed a copy became a link to a creator (CopySigner), not text. */
+    @DeleteColumn(tableName = "CollectionItem", columnName = "signedBy")
+    class SignedByToCreators : AutoMigrationSpec
 
     abstract fun issueDao(): IssueDao
     abstract fun seriesDao(): SeriesDao

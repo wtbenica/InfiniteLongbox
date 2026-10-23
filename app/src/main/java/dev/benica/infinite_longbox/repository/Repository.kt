@@ -35,7 +35,10 @@ import androidx.paging.PagingData
 import dev.benica.infinite_longbox.APP
 import dev.benica.infinite_longbox.LetterIndex
 import dev.benica.infinite_longbox.MainActivity
+import dev.benica.infinite_longbox.BackupSigner
 import dev.benica.infinite_longbox.SearchFilter
+import dev.benica.infinite_longbox.database.daos.SignedIssue
+import dev.benica.infinite_longbox.database.models.TextFilter
 import dev.benica.infinite_longbox.database.IssueDatabase
 import dev.benica.infinite_longbox.database.daos.REQUEST_LIMIT
 import dev.benica.infinite_longbox.database.models.AUTO_ID
@@ -366,6 +369,9 @@ class Repository private constructor(val context: Context) {
         }
     }
 
+    /** How many issues are in the collection (My Collection or the Wish List), kept up to date. */
+    fun collectionSize(collectionId: Int): Flow<Int> = collectionItemDao.countIssues(collectionId)
+
     fun addToCollection(issue: FullIssue, collId: Int) {
         executor.execute {
             collectionItemDao.insert(
@@ -402,6 +408,7 @@ class Repository private constructor(val context: Context) {
     /** My Collection and the Wish List as the text of a backup file. */
     suspend fun exportCollections(exportedAt: String): String = withContext(Dispatchers.IO) {
         val rows = collectionItemDao.exportRows()
+        val signatures = collectionItemDao.exportSigners().groupBy { it.collectionId to it.issueId }
         val names = userCollectionDao.names().associate { it.userCollectionId to it.name }
         CollectionBackup.toJson(
             collections = listOf(BaseCollection.MY_COLL.id, BaseCollection.WISH_LIST.id).map { id ->
@@ -409,7 +416,16 @@ class Repository private constructor(val context: Context) {
                     id = id,
                     name = names[id] ?: if (id == BaseCollection.MY_COLL.id) "My Collection" else "Wish List",
                     issues = rows.filter { it.collectionId == id }
-                        .map { BackupEntry(it.issueId, it.seriesId, it.series, it.number) }
+                        .map {
+                            BackupEntry(
+                                it.issueId, it.seriesId, it.series, it.number,
+                                signedBy = signatures[it.collectionId to it.issueId].orEmpty()
+                                    .map { s -> BackupSigner(s.creatorId, s.name) },
+                                storageLocation = it.storageLocation,
+                                condition = it.condition,
+                                notes = it.notes,
+                            )
+                        }
                 )
             },
             exportedAt = exportedAt
@@ -446,16 +462,67 @@ class Repository private constructor(val context: Context) {
                 if (series == null) {
                     if (unavailable.none { it.issueId == entry.issueId }) unavailable.add(entry)
                 } else if (collectionItemDao.insertSus(
-                        CollectionItem(issue = entry.issueId, series = series, userCollection = collectionId)
+                        CollectionItem(
+                            issue = entry.issueId, series = series, userCollection = collectionId,
+                            storageLocation = entry.storageLocation,
+                            condition = entry.condition, notes = entry.notes,
+                        )
                     ) == -1L
                 ) {
                     alreadyThere++
                 } else {
                     added++
+                    // signers the phone has a record of are linked; the others are left out
+                    if (entry.signedBy.isNotEmpty()) {
+                        val known = collectionItemDao.knownCreators(entry.signedBy.map { it.creatorId }).toSet()
+                        collectionItemDao.setSigners(entry.issueId, collectionId, known)
+                    }
                 }
             }
             ImportResult(added, alreadyThere, unavailable)
         }
+
+    /**
+     * Saves what is kept about the copy in the collection (blank means nothing) and who signed
+     * it, which is any number of creators.
+     */
+    fun setCopyInfo(
+        issueId: Int,
+        collId: Int,
+        storageLocation: String,
+        condition: String,
+        notes: String,
+        signedBy: Collection<Int>,
+    ) {
+        executor.execute {
+            collectionItemDao.setCopyInfo(
+                issueId, collId,
+                storageLocation.trim().ifEmpty { null },
+                condition.trim().ifEmpty { null },
+                notes.trim().ifEmpty { null },
+            )
+            collectionItemDao.setSigners(issueId, collId, signedBy)
+        }
+    }
+
+    /** The creators who signed the copy of the issue in My Collection, kept up to date. */
+    fun signers(issueId: Int): Flow<List<Creator>> =
+        collectionItemDao.signers(issueId, BaseCollection.MY_COLL.id)
+
+    /** The copies in My Collection that the creator signed, kept up to date. */
+    fun signedBy(creatorId: Int): Flow<List<SignedIssue>> =
+        collectionItemDao.signedBy(creatorId, BaseCollection.MY_COLL.id)
+
+    /** Creators whose name matches the text, for choosing who signed a copy. */
+    suspend fun findCreators(text: String): List<Creator> = withContext(Dispatchers.IO) {
+        val filter = SearchFilter(myCollection = false).apply {
+            mTextFilter = text.trim().takeIf { it.isNotEmpty() }?.let { TextFilter(it) }
+        }
+        creatorDao.getCreatorOptions(filter, 20)
+    }
+
+    suspend fun storageLocations(): List<String> =
+        withContext(Dispatchers.IO) { collectionItemDao.storageLocations() }
 
     fun removeFromCollection(issueId: Int, collId: Int) {
         executor.execute {

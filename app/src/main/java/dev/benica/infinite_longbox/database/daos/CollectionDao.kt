@@ -17,9 +17,14 @@ package dev.benica.infinite_longbox.database.daos
 
 import kotlinx.serialization.Serializable
 import androidx.room.Dao
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Transaction
 import dev.benica.infinite_longbox.APP
 import dev.benica.infinite_longbox.database.models.CollectionItem
+import dev.benica.infinite_longbox.database.models.CopySigner
+import dev.benica.infinite_longbox.database.models.Creator
 import dev.benica.infinite_longbox.database.models.UserCollection
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -64,6 +69,96 @@ abstract class CollectionItemDao : BaseDao<CollectionItem>("collectionItem") {
     )
     abstract fun deleteById(issueId: Int, collectionId: Int)
 
+    /** What is kept about a copy: where it is stored, its condition, notes. */
+    @Query(
+        """
+            UPDATE collectionItem
+            SET storageLocation = :storageLocation, condition = :condition, notes = :notes
+            WHERE issue = :issueId AND userCollection = :collectionId
+        """
+    )
+    abstract fun setCopyInfo(
+        issueId: Int,
+        collectionId: Int,
+        storageLocation: String?,
+        condition: String?,
+        notes: String?,
+    )
+
+    @Query("SELECT collectionItemId FROM collectionItem WHERE issue = :issueId AND userCollection = :collectionId")
+    abstract fun itemId(issueId: Int, collectionId: Int): Int?
+
+    @Query("DELETE FROM CopySigner WHERE collectionItem = :itemId")
+    abstract fun clearSigners(itemId: Int)
+
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    abstract fun addSigners(signers: List<CopySigner>)
+
+    /** Makes [creatorIds] the creators who signed the copy of the issue in the collection. */
+    @Transaction
+    open fun setSigners(issueId: Int, collectionId: Int, creatorIds: Collection<Int>) {
+        val item = itemId(issueId, collectionId) ?: return
+        clearSigners(item)
+        addSigners(creatorIds.distinct().map { CopySigner(item, it) })
+    }
+
+    /** The creators who signed the copy of the issue in the collection. */
+    @Query(
+        """
+            SELECT cr.* FROM CopySigner cs
+            JOIN CollectionItem ci ON ci.collectionItemId = cs.collectionItem
+            JOIN Creator cr ON cr.creatorId = cs.creator
+            WHERE ci.issue = :issueId AND ci.userCollection = :collectionId
+            ORDER BY cr.sortName COLLATE NOCASE
+        """
+    )
+    abstract fun signers(issueId: Int, collectionId: Int): Flow<List<Creator>>
+
+    /** The copies in the collection that [creatorId] signed. */
+    @Query(
+        """
+            SELECT ci.issue AS issueId, ci.series AS seriesId, ss.seriesName AS series,
+                   IFNULL(ie.issueNumRaw, '') AS number, ie.variantName AS variantName
+            FROM CopySigner cs
+            JOIN CollectionItem ci ON ci.collectionItemId = cs.collectionItem
+            JOIN Issue ie ON ie.issueId = ci.issue
+            JOIN Series ss ON ss.seriesId = ci.series
+            WHERE cs.creator = :creatorId AND ci.userCollection = :collectionId
+            ORDER BY ss.sortName COLLATE NOCASE, ss.startDate, ie.issueNumRaw
+        """
+    )
+    abstract fun signedBy(creatorId: Int, collectionId: Int): Flow<List<SignedIssue>>
+
+    /** Every signature, for the backup file. */
+    @Query(
+        """
+            SELECT ci.userCollection AS collectionId, ci.issue AS issueId,
+                   cr.creatorId AS creatorId, cr.name AS name
+            FROM CopySigner cs
+            JOIN CollectionItem ci ON ci.collectionItemId = cs.collectionItem
+            JOIN Creator cr ON cr.creatorId = cs.creator
+        """
+    )
+    abstract suspend fun exportSigners(): List<SignatureRow>
+
+    /** The creators among [ids] the phone has a record of. */
+    @Query("SELECT creatorId FROM Creator WHERE creatorId IN (:ids)")
+    abstract suspend fun knownCreators(ids: List<Int>): List<Int>
+
+    /** The places copies have been put, for suggesting one when entering the next. */
+    @Query(
+        """
+            SELECT DISTINCT storageLocation FROM collectionItem
+            WHERE storageLocation IS NOT NULL AND storageLocation != ''
+            ORDER BY storageLocation COLLATE NOCASE
+        """
+    )
+    abstract suspend fun storageLocations(): List<String>
+
+    /** How many issues are in the collection. */
+    @Query("SELECT COUNT(DISTINCT issue) FROM collectionItem WHERE userCollection = :collectionId")
+    abstract fun countIssues(collectionId: Int): Flow<Int>
+
     @Query(
         """
             DELETE FROM collectionitem
@@ -79,7 +174,10 @@ abstract class CollectionItemDao : BaseDao<CollectionItem>("collectionItem") {
                    ci.issue AS issueId,
                    ci.series AS seriesId,
                    ss.seriesName AS series,
-                   IFNULL(ie.issueNumRaw, '') AS number
+                   IFNULL(ie.issueNumRaw, '') AS number,
+                   ci.storageLocation AS storageLocation,
+                   ci.condition AS condition,
+                   ci.notes AS notes
             FROM collectionItem ci
             JOIN issue ie ON ie.issueId = ci.issue
             JOIN series ss ON ss.seriesId = ci.series
@@ -95,7 +193,21 @@ data class CollectionExportRow(
     val seriesId: Int,
     val series: String,
     val number: String,
+    val storageLocation: String? = null,
+    val condition: String? = null,
+    val notes: String? = null,
 )
+
+/** A copy a creator signed, as the creator's page lists it. */
+data class SignedIssue(
+    val issueId: Int,
+    val seriesId: Int,
+    val series: String,
+    val number: String,
+    val variantName: String,
+)
+
+data class SignatureRow(val collectionId: Int, val issueId: Int, val creatorId: Int, val name: String)
 
 data class CollectionName(val userCollectionId: Int, val name: String)
 

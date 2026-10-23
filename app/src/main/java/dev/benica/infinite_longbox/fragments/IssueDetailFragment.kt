@@ -56,12 +56,19 @@ import dev.benica.infinite_longbox.database.models.SeriesAndPublisher
 import dev.benica.infinite_longbox.database.models.Story
 import dev.benica.infinite_longbox.fragments_view_models.IssueDetailViewModel
 import dev.benica.infinite_longbox.repository.MetronCoverOption
+import dev.benica.infinite_longbox.repository.Repository
 import dev.benica.infinite_longbox.repository.MetronCoverResult
 import dev.benica.infinite_longbox.repository.fetchCoverFromMetron
 import dev.benica.infinite_longbox.repository.metronCoverOptions
 import dev.benica.infinite_longbox.repository.metronCoverPreview
 import dev.benica.infinite_longbox.repository.pickedCoverToIssue
 import dev.benica.infinite_longbox.ui.MetronCoverPicker
+import dev.benica.infinite_longbox.ui.MyCopyState
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import dev.benica.infinite_longbox.ui.SignerRef
+import dev.benica.infinite_longbox.database.models.Creator
 import dev.benica.infinite_longbox.repository.removeCover
 import dev.benica.infinite_longbox.ui.InfiniteLongboxTheme
 import dev.benica.infinite_longbox.ui.IssueActionState
@@ -301,6 +308,8 @@ class IssueDetailFragment : Fragment() {
                                     uiState.actions.inWishList
                                 )
                             },
+                            onEditCopy = ::editMyCopy,
+                            onSignerClick = ::signerClicked,
                             onSearchEbay = ::searchEbay,
                             onVariantSelected = ::onVariantSelected,
                             onCharacterClick = ::characterClicked,
@@ -508,10 +517,123 @@ class IssueDetailFragment : Fragment() {
                 ),
                 gcdIssueId = issue.issueId,
                 variants = VariantSelectorState(issueVariants, issue.issueId),
+                myCopy = myCopyState(),
             )
+            followSigners(issue.issueId)
 
             updateCover()
         }
+    }
+
+    /** Who signed the copy of the issue on the page, kept up to date while the page is up. */
+    private var signers: List<Creator> = emptyList()
+    private var signersJob: Job? = null
+    private var signersIssueId = -1
+
+    private fun myCopyState(): MyCopyState? = currentIssue.collectionItems
+        .firstOrNull { it.userCollection == BaseCollection.MY_COLL.id }
+        ?.let { item ->
+            MyCopyState(
+                signers.map { SignerRef(it.creatorId, it.name) },
+                item.storageLocation, item.condition, item.notes,
+            )
+        }
+
+    private fun followSigners(issueId: Int) {
+        if (issueId == signersIssueId) return
+        signersIssueId = issueId
+        signers = emptyList()
+        signersJob?.cancel()
+        signersJob = viewLifecycleOwner.lifecycleScope.launch {
+            Repository.get().signers(issueId).collect {
+                signers = it
+                uiState = uiState.copy(myCopy = myCopyState())
+            }
+        }
+    }
+
+    private fun signerClicked(creatorId: Int) {
+        val creator = signers.firstOrNull { it.creatorId == creatorId } ?: return
+        (activity as? CreatorListFragment.CreatorListCallback)?.onCreatorInfo(creator)
+    }
+
+    /** Asks for what is kept about the copy in My Collection: who signed it, where it is, and so on. */
+    private fun editMyCopy() {
+        val current = uiState.myCopy ?: return
+        val issueId = currentIssue.issue.issueId
+        val context = requireContext()
+        val pad = (16 * resources.displayMetrics.density).toInt()
+
+        fun field(hint: Int, value: String?, multiline: Boolean = false) = android.widget.AutoCompleteTextView(context).apply {
+            setHint(hint)
+            setText(value.orEmpty())
+            if (multiline) {
+                inputType = android.text.InputType.TYPE_CLASS_TEXT or android.text.InputType.TYPE_TEXT_FLAG_MULTI_LINE
+                minLines = 2
+            } else {
+                inputType = android.text.InputType.TYPE_CLASS_TEXT or android.text.InputType.TYPE_TEXT_FLAG_CAP_WORDS
+                setSingleLine()
+            }
+        }
+
+        // Who signed it: creators, chosen from the same kind of dropdown as the filter's
+        val chosen = signers.toMutableList()
+        val chips = com.google.android.material.chip.ChipGroup(context)
+        fun showChips() {
+            chips.removeAllViews()
+            chosen.forEach { creator ->
+                chips.addView(com.google.android.material.chip.Chip(context).apply {
+                    text = creator.name
+                    isCloseIconVisible = true
+                    setOnCloseIconClickListener { chosen.remove(creator); showChips() }
+                })
+            }
+        }
+        showChips()
+        val signerSearch = android.widget.AutoCompleteTextView(context).apply {
+            setHint(R.string.my_copy_signed_by)
+            inputType = android.text.InputType.TYPE_CLASS_TEXT or android.text.InputType.TYPE_TEXT_FLAG_CAP_WORDS
+            setSingleLine()
+            setAdapter(FilterOptionsAdapter(context) { text ->
+                runBlocking(Dispatchers.IO) { Repository.get().findCreators(text) }
+            })
+            setOnItemClickListener { parent, _, position, _ ->
+                (parent.getItemAtPosition(position) as? Creator)?.let { creator ->
+                    if (chosen.none { it.creatorId == creator.creatorId }) chosen.add(creator)
+                    showChips()
+                }
+                setText("")
+            }
+        }
+        val storage = field(R.string.my_copy_storage, current.storageLocation)
+        val condition = field(R.string.my_copy_condition, current.condition)
+        val notes = field(R.string.my_copy_notes, current.notes, multiline = true)
+
+        // Places already used are suggested, so the same box isn't spelled two ways
+        viewLifecycleOwner.lifecycleScope.launch {
+            val places = Repository.get().storageLocations()
+            storage.setAdapter(android.widget.ArrayAdapter(context, android.R.layout.simple_dropdown_item_1line, places))
+            storage.threshold = 0
+        }
+
+        val form = android.widget.LinearLayout(context).apply {
+            orientation = android.widget.LinearLayout.VERTICAL
+            setPadding(pad, pad / 2, pad, 0)
+            addView(chips)
+            listOf(signerSearch, storage, condition, notes).forEach { addView(it) }
+        }
+        AlertDialog.Builder(context)
+            .setTitle(R.string.my_copy_title)
+            .setView(android.widget.ScrollView(context).apply { addView(form) })
+            .setPositiveButton(R.string.my_copy_save) { _, _ ->
+                Repository.get().setCopyInfo(
+                    issueId, BaseCollection.MY_COLL.id,
+                    storage.text.toString(), condition.text.toString(), notes.text.toString(),
+                    chosen.map { it.creatorId },
+                )
+            }
+            .setNegativeButton(android.R.string.cancel, null)
+            .show()
     }
 
     private fun updateCover() {

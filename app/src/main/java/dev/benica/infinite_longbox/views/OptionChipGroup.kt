@@ -40,10 +40,20 @@ class OptionChipGroup(context: Context?, attributeSet: AttributeSet) :
         fmv.myCollection((bool))
     }
 
+    private val wishListChip: OptionChip = OptionChip(
+        context,
+        "Wish List",
+        this
+    ) { fmv, bool ->
+        fmv.wishList(bool)
+    }
+
     fun update(filter: SearchFilter) {
         removeAllViews()
         addView(myCollectionChip)
-        myCollectionChip.isChecked = filter.mMyCollection
+        addView(wishListChip)
+        myCollectionChip.isChecked = filter.mMyCollection && filter.mCollectionId == BaseCollection.MY_COLL.id
+        wishListChip.isChecked = filter.mMyCollection && filter.mCollectionId == BaseCollection.WISH_LIST.id
 
         val viewChip = ViewChip(context, this, filter.mViewOption)
         addView(viewChip)

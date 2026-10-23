@@ -15,6 +15,7 @@
 
 package dev.benica.infinite_longbox
 
+import dev.benica.infinite_longbox.database.models.BaseCollection
 import dev.benica.infinite_longbox.database.models.Character
 import dev.benica.infinite_longbox.database.models.Creator
 import dev.benica.infinite_longbox.database.models.FullSeries
@@ -44,6 +45,7 @@ object FilterSnapshot {
             put("end", filter.mEndDate.toString())
         }
         put("myCollection", filter.mMyCollection)
+        put("collectionId", filter.mCollectionId)
         put("showVariants", filter.mShowVariants)
         put("text", filter.mTextFilter?.text ?: JSONObject.NULL)
         filter.mSortType?.let {
@@ -84,6 +86,7 @@ object FilterSnapshot {
             startDate = json.optString("start").takeIf { it.isNotEmpty() }?.let(LocalDate::parse),
             endDate = json.optString("end").takeIf { it.isNotEmpty() }?.let(LocalDate::parse),
             myCollection = json.getBoolean("myCollection"),
+            collectionId = json.optInt("collectionId", BaseCollection.MY_COLL.id),
             textFilter = if (json.isNull("text")) null else TextFilter(json.getString("text")),
             showVariants = json.getBoolean("showVariants"),
             character = character,

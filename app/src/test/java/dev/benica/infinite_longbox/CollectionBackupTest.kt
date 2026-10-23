@@ -22,6 +22,29 @@ class CollectionBackupTest {
     }
 
     @Test
+    fun whatIsKeptAboutACopyComesBack() {
+        val kept = listOf(
+            BackupCollection(
+                1, "My Collection", listOf(
+                    BackupEntry(50, 9, "Doom Patrol", "9", signedBy = listOf(BackupSigner(120, "Grant Morrison"), BackupSigner(5, "Richard Case")), storageLocation = "Long box 4", condition = "VF", notes = "Signed at a con"),
+                    BackupEntry(51, 9, "Doom Patrol", "10"),
+                )
+            )
+        )
+        val json = CollectionBackup.toJson(kept, "now")
+        assertEquals(CollectionBackup.Parsed.Ok(kept), CollectionBackup.parse(json))
+    }
+
+    @Test
+    fun aFileFromBeforeCopiesHadDetailsStillReads() {
+        val old = """{"app":"InfiniteLongbox","format":1,"exportedAt":"x","collections":[{"id":1,"name":"My Collection","issues":[{"issueId":5,"seriesId":2,"series":"Saga","number":"1"}]}]}"""
+        assertEquals(
+            CollectionBackup.Parsed.Ok(listOf(BackupCollection(1, "My Collection", listOf(BackupEntry(5, 2, "Saga", "1"))))),
+            CollectionBackup.parse(old)
+        )
+    }
+
+    @Test
     fun aBackupOfNothingIsStillABackup() {
         val json = CollectionBackup.toJson(
             listOf(BackupCollection(1, "My Collection", emptyList())), "now"

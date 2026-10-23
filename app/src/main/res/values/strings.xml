@@ -159,6 +159,15 @@
     <string name="description_search_ebay">Search eBay</string>
     <string name="description_select_variant">Select variant</string>
     <string name="description_open_link">Opens in your browser</string>
+    <string name="creator_signed_copies">Signed copies in my collection</string>
+    <string name="my_copy_title">My copy</string>
+    <string name="my_copy_add">Add details</string>
+    <string name="my_copy_edit">Edit</string>
+    <string name="my_copy_signed_by">Signed by</string>
+    <string name="my_copy_storage">Stored in</string>
+    <string name="my_copy_condition">Condition</string>
+    <string name="my_copy_notes">Notes</string>
+    <string name="my_copy_save">Save</string>
     <string name="cover_add_hint">Add cover</string>
 
     <!-- Character page -->
@@ -195,6 +204,7 @@
 
     <!-- Filter summary on the collapsed sheet -->
     <string name="filter_summary_my_collection">My Collection</string>
+    <string name="filter_summary_wish_list">Wish List</string>
     <plurals name="filter_summary_creators">
         <item quantity="one">%d creator</item>
         <item quantity="other">%d creators</item>

@@ -42,7 +42,16 @@ import dev.benica.infinite_longbox.*
 import dev.benica.infinite_longbox.database.models.*
 import dev.benica.infinite_longbox.fragments_view_models.FilterViewModel
 import dev.benica.infinite_longbox.views.*
+import androidx.lifecycle.asFlow
+import androidx.lifecycle.lifecycleScope
+import dev.benica.infinite_longbox.database.models.BaseCollection
+import dev.benica.infinite_longbox.repository.Repository
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import java.time.LocalDate
@@ -71,6 +80,9 @@ class FilterFragment : Fragment(),
     private lateinit var filterView: FrameLayout
     private lateinit var handleBox: FrameLayout
     private var handleSummary by mutableStateOf("")
+
+    /** How many issues are in the collection the filter is showing (see [collectionLabel]). */
+    private var collectionCount: Int? = null
 
     private lateinit var chipSections: LinearLayout
 
@@ -128,6 +140,18 @@ class FilterFragment : Fragment(),
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        // The count follows whichever collection the filter shows, and changes as issues are added
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.filter.asFlow()
+                .map { it.mCollectionId }
+                .distinctUntilChanged()
+                .flatMapLatest { Repository.get().collectionSize(it) }
+                .collect {
+                    collectionCount = it
+                    showSummary(currFilter)
+                }
+        }
 
         viewModel.filter.observe(
             viewLifecycleOwner
@@ -261,11 +285,20 @@ class FilterFragment : Fragment(),
             }
     }
 
+    /** "My Collection (286)": the collection the list is limited to, and how many issues it holds. */
+    private fun collectionLabel(filter: SearchFilter): String {
+        val name = getString(
+            if (filter.mCollectionId == BaseCollection.WISH_LIST.id) R.string.filter_summary_wish_list
+            else R.string.filter_summary_my_collection
+        )
+        return collectionCount?.let { "$name ($it)" } ?: name
+    }
+
     /** The collapsed sheet's line saying what the list is filtered by. */
     private fun showSummary(filter: SearchFilter) {
         val text = FilterSummary.of(
             myCollection = filter.mMyCollection,
-            myCollectionLabel = getString(R.string.filter_summary_my_collection),
+            myCollectionLabel = collectionLabel(filter),
             series = filter.mSeries?.series?.seriesName,
             character = filter.mCharacter?.name,
             creators = filter.mCreators.map { it.name },

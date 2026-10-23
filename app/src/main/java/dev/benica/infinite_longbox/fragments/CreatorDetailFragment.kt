@@ -21,6 +21,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.fragment.app.Fragment
@@ -28,6 +29,7 @@ import androidx.fragment.app.viewModels
 import dev.benica.infinite_longbox.R
 import dev.benica.infinite_longbox.database.models.Creator
 import dev.benica.infinite_longbox.fragments_view_models.CreatorDetailViewModel
+import dev.benica.infinite_longbox.repository.Repository
 import dev.benica.infinite_longbox.ui.CreatorDetailActions
 import dev.benica.infinite_longbox.ui.CreatorDetailScreen
 import dev.benica.infinite_longbox.ui.InfiniteLongboxTheme
@@ -58,8 +60,10 @@ class CreatorDetailFragment : Fragment() {
             setContent {
                 InfiniteLongboxTheme {
                     val state by viewModel.state.collectAsState()
+                    val signed by remember(creatorId) { Repository.get().signedBy(creatorId) }.collectAsState(emptyList())
                     CreatorDetailScreen(
                         state = state,
+                        signed = signed,
                         actions = CreatorDetailActions(
                             onFilter = { viewModel.creator?.let { callback?.filterByCreator(it) } },
                             onRetry = { viewModel.load(creatorId, force = true) },

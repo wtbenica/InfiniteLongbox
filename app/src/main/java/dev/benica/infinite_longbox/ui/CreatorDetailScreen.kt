@@ -34,6 +34,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
 import dev.benica.infinite_longbox.R
+import dev.benica.infinite_longbox.database.daos.SignedIssue
 import dev.benica.infinite_longbox.database.models.Creator
 import dev.benica.infinite_longbox.fragments_view_models.CreatorDetailState
 import dev.benica.infinite_longbox.repository.CharacterInfoText
@@ -44,6 +45,13 @@ import dev.benica.infinite_longbox.repository.LifeEvent
 import dev.benica.infinite_longbox.repository.OtherName
 import dev.benica.infinite_longbox.repository.RoleCount
 import dev.benica.infinite_longbox.repository.SeriesCount
+
+/** "Batman #25 (Tim Sale Cover)": which copy it is. */
+private fun signedLabel(issue: SignedIssue): String = buildString {
+    append(issue.series)
+    if (issue.number.isNotBlank()) append(" #").append(issue.number)
+    if (issue.variantName.isNotBlank()) append(" (").append(issue.variantName).append(")")
+}
 
 /** What the page can ask for; the fragment decides what each does. */
 @Immutable
@@ -59,6 +67,8 @@ fun CreatorDetailScreen(
     state: CreatorDetailState,
     actions: CreatorDetailActions,
     modifier: Modifier = Modifier,
+    /** The copies in My Collection this creator signed. */
+    signed: List<SignedIssue> = emptyList(),
 ) {
     val margin = dimensionResource(R.dimen.margin_wide)
     val info = (state as? CreatorDetailState.Loaded)?.info
@@ -87,6 +97,17 @@ fun CreatorDetailScreen(
 
         Button(onClick = actions.onFilter, modifier = Modifier.fillMaxWidth()) {
             Text(stringResource(R.string.creator_filter_by))
+        }
+
+        if (signed.isNotEmpty()) {
+            Section(stringResource(R.string.creator_signed_copies)) {
+                signed.forEach {
+                    LinkRow(
+                        label = "",
+                        text = signedLabel(it),
+                    ) { actions.onIssue(it.issueId) }
+                }
+            }
         }
 
         when (state) {

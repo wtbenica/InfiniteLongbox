@@ -23,6 +23,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dev.benica.infinite_longbox.APP
 import dev.benica.infinite_longbox.SearchFilter
+import dev.benica.infinite_longbox.database.models.BaseCollection
 import dev.benica.infinite_longbox.SortType
 import dev.benica.infinite_longbox.database.models.Character
 import dev.benica.infinite_longbox.database.models.Creator
@@ -201,9 +202,15 @@ class FilterViewModel : ViewModel() {
         setFilter(newVal)
     }
 
-    fun myCollection(isChecked: Boolean) {
+    fun myCollection(isChecked: Boolean) = inCollection(BaseCollection.MY_COLL.id, isChecked)
+
+    fun wishList(isChecked: Boolean) = inCollection(BaseCollection.WISH_LIST.id, isChecked)
+
+    /** Shows only what is in [collectionId], or everything when unchecked. */
+    private fun inCollection(collectionId: Int, isChecked: Boolean) {
         val newVal = _filter.value?.let { SearchFilter(it) } ?: SearchFilter()
         newVal.mMyCollection = isChecked
+        if (isChecked) newVal.mCollectionId = collectionId
         newVal.mShowVariants = isChecked
         setFilter(newVal)
     }

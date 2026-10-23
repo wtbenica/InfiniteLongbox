@@ -19,12 +19,19 @@ import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonSyntaxException
 
+/** A creator who signed a copy; the name is there for people reading the file. */
+data class BackupSigner(val creatorId: Int, val name: String)
+
 /** One issue in a collection. The series and number are there for people reading the file. */
 data class BackupEntry(
     val issueId: Int,
     val seriesId: Int,
     val series: String,
     val number: String,
+    val signedBy: List<BackupSigner> = emptyList(),
+    val storageLocation: String? = null,
+    val condition: String? = null,
+    val notes: String? = null,
 )
 
 /** A collection (My Collection or the Wish List) and what is in it. */
@@ -89,11 +96,17 @@ object CollectionBackup {
         val issues: List<ReadEntry>?,
     )
 
+    private data class ReadSigner(val creatorId: Int?, val name: String?)
+
     private data class ReadEntry(
         val issueId: Int?,
         val seriesId: Int?,
         val series: String?,
         val number: String?,
+        val signedBy: List<ReadSigner>?,
+        val storageLocation: String?,
+        val condition: String?,
+        val notes: String?,
     )
 
     fun toJson(collections: List<BackupCollection>, exportedAt: String): String =
@@ -128,6 +141,12 @@ object CollectionBackup {
                                 seriesId = it.seriesId ?: 0,
                                 series = it.series.orEmpty(),
                                 number = it.number.orEmpty(),
+                                signedBy = it.signedBy.orEmpty()
+                                    .filter { signer -> (signer.creatorId ?: 0) > 0 }
+                                    .map { signer -> BackupSigner(signer.creatorId ?: 0, signer.name.orEmpty()) },
+                                storageLocation = it.storageLocation?.takeIf { text -> text.isNotBlank() },
+                                condition = it.condition?.takeIf { text -> text.isNotBlank() },
+                                notes = it.notes?.takeIf { text -> text.isNotBlank() },
                             )
                         },
                 )

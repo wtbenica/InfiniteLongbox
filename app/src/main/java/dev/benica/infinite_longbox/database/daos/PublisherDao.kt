@@ -81,7 +81,7 @@ abstract class PublisherDao : BaseDao<Publisher>("publisher") {
 
         if (filter.mMyCollection) {
             tableJoinString.append("""JOIN collectionitem mc ON mc.series = ss.seriesId 
-                AND mc.userCollection = ${dev.benica.infinite_longbox.database.models.BaseCollection.MY_COLL.id}
+                AND mc.userCollection = ${filter.mCollectionId}
             """)
         }
         

@@ -208,7 +208,7 @@ abstract class IssueDao : BaseDao<Issue>("issue") {
                     WHERE userCollection = ?) 
                 """
                 )
-                args.add(BaseCollection.MY_COLL.id)
+                args.add(filter.mCollectionId)
             }
 
             // Variants in my collection always show. The Variants option is hidden while My

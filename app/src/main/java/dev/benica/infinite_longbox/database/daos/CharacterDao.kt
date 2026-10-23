@@ -165,7 +165,7 @@ abstract class CharacterDao : BaseDao<Character>("character") {
                 ) 
                 """
             )
-            args.add(BaseCollection.MY_COLL.id)
+            args.add(filter.mCollectionId)
         }
 
         filter.mTextFilter?.let { textFilter ->

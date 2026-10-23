@@ -53,11 +53,36 @@ data class CollectionItem(
     @PrimaryKey(autoGenerate = true) val collectionItemId: Int = AUTO_ID,
     var issue: Int,
     var series: Int,
-    var userCollection: Int
+    var userCollection: Int,
+    // About this copy, in the collection only: all optional (who signed it is [CopySigner])
+    var storageLocation: String? = null,
+    var condition: String? = null,
+    var notes: String? = null,
 ) : DataModel() {
     override val id: Int
         get() = collectionItemId
 }
+
+/** A creator who signed a copy in a collection; a copy can be signed by several. */
+@Entity(
+    primaryKeys = ["collectionItem", "creator"],
+    foreignKeys = [
+        ForeignKey(
+            entity = CollectionItem::class,
+            parentColumns = arrayOf("collectionItemId"),
+            childColumns = arrayOf("collectionItem"),
+            onDelete = ForeignKey.CASCADE
+        ),
+        ForeignKey(
+            entity = Creator::class,
+            parentColumns = arrayOf("creatorId"),
+            childColumns = arrayOf("creator"),
+            onDelete = ForeignKey.CASCADE
+        ),
+    ],
+    indices = [Index("creator")]
+)
+data class CopySigner(val collectionItem: Int, val creator: Int)
 
 @Entity
 data class UserCollection(

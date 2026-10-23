@@ -35,6 +35,7 @@ class SearchFilter(
     startDate: LocalDate? = null,
     endDate: LocalDate? = null,
     myCollection: Boolean = true,
+    collectionId: Int = BaseCollection.MY_COLL.id,
     sortType: SortType? = null,
     textFilter: TextFilter? = null,
     showVariants: Boolean = false,
@@ -49,6 +50,7 @@ class SearchFilter(
         startDate = filter.mStartDate,
         endDate = filter.mEndDate,
         myCollection = filter.mMyCollection,
+        collectionId = filter.mCollectionId,
         sortType = filter.mSortType,
         textFilter = filter.mTextFilter,
         showVariants = filter.mShowVariants,
@@ -86,7 +88,9 @@ class SearchFilter(
             LocalDate.MAX -> MAX_DATE
             else -> field
         }
+    /** Whether the list is only what is in a collection: [mCollectionId], My Collection or the Wish List. */
     var mMyCollection: Boolean = myCollection
+    var mCollectionId: Int = collectionId
     var mSortType: SortType? = sortType ?: getSortOptions()[0]
     var mTextFilter: TextFilter? = textFilter
     var mShowVariants: Boolean = showVariants
@@ -132,6 +136,7 @@ class SearchFilter(
         mCreators == other.mCreators && mSeries == other.mSeries &&
                 mPublishers == other.mPublishers && mStartDate == other.mStartDate &&
                 mEndDate == other.mEndDate && mMyCollection == other.mMyCollection &&
+                mCollectionId == other.mCollectionId &&
                 mTextFilter == other.mTextFilter && mShowVariants == other.mShowVariants &&
                 mCharacter == other.mCharacter
 
@@ -284,6 +289,7 @@ class SearchFilter(
         result = 31 * result + mStartDate.hashCode()
         result = 31 * result + mEndDate.hashCode()
         result = 31 * result + mMyCollection.hashCode()
+        result = 31 * result + mCollectionId
         result = 31 * result + mSortType.hashCode()
         result = 31 * result + mTextFilter.hashCode()
         result = 31 * result + mShowVariants.hashCode()
