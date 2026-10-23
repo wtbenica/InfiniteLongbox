@@ -61,7 +61,7 @@
     <string name="column_sort_name">sortName</string>
     <string name="column_start_date">startDate</string>
     <string name="sort_type_issue_number">Issue Number</string>
-    <string name="column_issue_num">issueNum</string>
+    <string name="column_issue_num">sortCode</string>
     <string name="sort_type_release_date">Release Date</string>
     <string name="column_release_date">releaseDate</string>
     <string name="content_description_add_filter_button">Open search bar to add a new
@@ -136,6 +136,11 @@
     <string name="scan_choose_issue">Which one is it?</string>
     <string name="scan_added">Added %1$s</string>
     <string name="scan_undo">Undo</string>
+    <string name="scan_storage_set">Set storage</string>
+    <string name="scan_storage_in">In: %1$s</string>
+    <string name="scan_storage_title">Where are these going?</string>
+    <string name="scan_storage_message">Every copy scanned from now on is filed here, until you change it.</string>
+    <string name="scan_storage_clear">No place</string>
     <string name="scan_details">Details</string>
     <string name="scan_pick_cover">Pick cover</string>
     <string name="scan_done">Done</string>

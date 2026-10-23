@@ -92,7 +92,7 @@ class SortChipGroup(context: Context, attributeSet: AttributeSet) :
 class SortChip(context: Context?) : Chip(context) {
 
     init {
-        isCloseIconVisible = true
+        isCloseIconVisible = false
         setOnClickListener {
             if (isChecked) {
                 sortType = sortType?.toggle()
@@ -105,9 +105,7 @@ class SortChip(context: Context?) : Chip(context) {
     internal var sortType: SortType? = null
         set(value) {
             field = value
-            text = value?.tag
-            value?.order?.icon?.let { setCloseIconResource(it) }
-            value?.order?.contentDescription.let { closeIconContentDescription = it }
+            showLabel()
             field?.let {
                 if (isChecked) {
                     callback?.sortOrderChanged(it)
@@ -116,6 +114,18 @@ class SortChip(context: Context?) : Chip(context) {
         }
 
     var callback: SortChipCallback? = null
+
+    /** The chosen sort says which way it goes ("Date · Oldest → Newest"); the others only what they sort. */
+    private fun showLabel() {
+        val sort = sortType ?: return
+        text = if (isChecked) "${sort.tag} · ${sort.directionLabel}" else sort.tag
+        contentDescription = "${sort.tag}, ${sort.directionLabel}"
+    }
+
+    override fun setChecked(checked: Boolean) {
+        super.setChecked(checked)
+        showLabel()
+    }
 
     interface SortChipCallback {
         fun sortOrderChanged(sortType: SortType)

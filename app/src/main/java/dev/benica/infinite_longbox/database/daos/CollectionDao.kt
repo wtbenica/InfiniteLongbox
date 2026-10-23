@@ -85,6 +85,15 @@ abstract class CollectionItemDao : BaseDao<CollectionItem>("collectionItem") {
         notes: String?,
     )
 
+    /** Where the copy is stored, and nothing else about it. */
+    @Query(
+        """
+            UPDATE collectionItem SET storageLocation = :storageLocation
+            WHERE issue = :issueId AND userCollection = :collectionId
+        """
+    )
+    abstract fun setStorage(issueId: Int, collectionId: Int, storageLocation: String)
+
     @Query("SELECT collectionItemId FROM collectionItem WHERE issue = :issueId AND userCollection = :collectionId")
     abstract fun itemId(issueId: Int, collectionId: Int): Int?
 
@@ -124,7 +133,7 @@ abstract class CollectionItemDao : BaseDao<CollectionItem>("collectionItem") {
             JOIN Issue ie ON ie.issueId = ci.issue
             JOIN Series ss ON ss.seriesId = ci.series
             WHERE cs.creator = :creatorId AND ci.userCollection = :collectionId
-            ORDER BY ss.sortName COLLATE NOCASE, ss.startDate, ie.issueNumRaw
+            ORDER BY ss.sortName COLLATE NOCASE, ss.startDate, ie.sortCode
         """
     )
     abstract fun signedBy(creatorId: Int, collectionId: Int): Flow<List<SignedIssue>>
@@ -181,7 +190,7 @@ abstract class CollectionItemDao : BaseDao<CollectionItem>("collectionItem") {
             FROM collectionItem ci
             JOIN issue ie ON ie.issueId = ci.issue
             JOIN series ss ON ss.seriesId = ci.series
-            ORDER BY ci.userCollection, ss.sortName COLLATE NOCASE, ss.startDate, ie.issueNumRaw
+            ORDER BY ci.userCollection, ss.sortName COLLATE NOCASE, ss.startDate, ie.sortCode
         """
     )
     abstract suspend fun exportRows(): List<CollectionExportRow>

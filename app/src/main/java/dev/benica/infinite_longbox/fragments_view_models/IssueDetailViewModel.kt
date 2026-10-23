@@ -111,10 +111,6 @@ class IssueDetailViewModel : ViewModel() {
                                 context.getString(R.string.column_issue_num),
                                 "ie",
                                 SortType.SortOrder.ASC,
-                                // the standard cover, then its variants, as the GCD orders them
-                                "sortCode",
-                                "ie",
-                                SortType.SortOrder.ASC,
                             )
                         )
                     )

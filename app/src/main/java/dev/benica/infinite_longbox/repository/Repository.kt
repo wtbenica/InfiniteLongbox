@@ -371,7 +371,7 @@ class Repository private constructor(val context: Context) {
     /** How many issues are in the collection (My Collection or the Wish List), kept up to date. */
     fun collectionSize(collectionId: Int): Flow<Int> = collectionItemDao.countIssues(collectionId)
 
-    fun addToCollection(issue: FullIssue, collId: Int) {
+    fun addToCollection(issue: FullIssue, collId: Int, storageLocation: String? = null) {
         executor.execute {
             collectionItemDao.insert(
                 CollectionItem(
@@ -380,12 +380,16 @@ class Repository private constructor(val context: Context) {
                     userCollection = collId
                 )
             )
+            // A copy already in the collection is moved too: it was just put in this box
+            storageLocation?.trim()?.takeIf { it.isNotEmpty() }?.let {
+                collectionItemDao.setStorage(issue.issue.issueId, collId, it)
+            }
         }
-        if (collId == BaseCollection.MY_COLL.id) fetchMissingCover(issue.issue)
+        fetchMissingCover(issue.issue)
     }
 
     /**
-     * An issue just added to My Collection gets a cover if there is one to be had: the server's
+     * An issue just added to My Collection or the Wish List gets a cover if there is one to be had: the server's
      * own if it has one, otherwise Metron's. Quiet: nothing is shown if it comes to nothing.
      */
     private fun fetchMissingCover(issue: Issue) {

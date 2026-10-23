@@ -67,7 +67,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 
 /** The issue a scan just added, as the strip over the camera shows it. */
-data class ScanResultState(val label: String, val cover: File?, val canPickCover: Boolean = false)
+data class ScanResultState(
+    val label: String,
+    val cover: File?,
+    val canPickCover: Boolean = false,
+    /** Where the copy was put, when the scanner is filing copies somewhere. */
+    val storage: String? = null,
+)
 
 /**
  * The barcode scanner: the camera filling the screen, a hint along the top, and along the bottom
@@ -87,9 +93,11 @@ fun ScanScreen(
     onTapToFocus: (PreviewView, Offset) -> Unit,
     result: ScanResultState?,
     addedCount: Int,
+    storage: String?,
     onUndo: () -> Unit,
     onDetails: () -> Unit,
     onPickCover: () -> Unit,
+    onStorage: () -> Unit,
     onShowAdded: () -> Unit,
     onDone: () -> Unit,
     modifier: Modifier = Modifier,
@@ -111,7 +119,7 @@ fun ScanScreen(
                 },
         )
         ScanFrame()
-        ScanOverlay(torchOn, onTorchChange, result, addedCount, onUndo, onDetails, onPickCover, onShowAdded, onDone)
+        ScanOverlay(torchOn, onTorchChange, result, addedCount, storage, onUndo, onDetails, onPickCover, onStorage, onShowAdded, onDone)
     }
 }
 
@@ -144,9 +152,11 @@ private fun BoxScope.ScanOverlay(
     onTorchChange: (Boolean) -> Unit,
     result: ScanResultState?,
     addedCount: Int,
+    storage: String?,
     onUndo: () -> Unit,
     onDetails: () -> Unit,
     onPickCover: () -> Unit,
+    onStorage: () -> Unit,
     onShowAdded: () -> Unit,
     onDone: () -> Unit,
 ) {
@@ -178,6 +188,17 @@ private fun BoxScope.ScanOverlay(
                 selected = torchOn,
                 onClick = { onTorchChange(!torchOn) },
                 label = { Text(stringResource(R.string.scan_light)) },
+            )
+            AssistChip(
+                onClick = onStorage,
+                label = {
+                    Text(
+                        if (storage == null) stringResource(R.string.scan_storage_set)
+                        else stringResource(R.string.scan_storage_in, storage),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                },
             )
             if (addedCount > 0) {
                 AssistChip(
@@ -221,7 +242,8 @@ private fun ScanResultStrip(result: ScanResultState, onUndo: () -> Unit, onDetai
             }
             Column(Modifier.weight(1f)) {
                 Text(
-                    text = stringResource(R.string.scan_added, result.label),
+                    text = stringResource(R.string.scan_added, result.label) +
+                        (result.storage?.let { " → $it" } ?: ""),
                     color = colorResource(R.color.text_primary),
                     maxLines = 3,
                     overflow = TextOverflow.Ellipsis,
@@ -243,7 +265,7 @@ private fun ScanResultStrip(result: ScanResultState, onUndo: () -> Unit, onDetai
 private fun ScanOverlayPreview() {
     InfiniteLongboxTheme {
         Box(Modifier.fillMaxSize().background(Color.DarkGray)) {
-            ScanOverlay(torchOn = true, onTorchChange = {}, result = ScanResultState("Batman (2016) #25", null, canPickCover = true), addedCount = 3, onUndo = {}, onDetails = {}, onPickCover = {}, onShowAdded = {}, onDone = {})
+            ScanOverlay(torchOn = true, onTorchChange = {}, result = ScanResultState("Batman (2016) #25", null, canPickCover = true, storage = "Box 2"), addedCount = 3, storage = "Box 2", onUndo = {}, onDetails = {}, onPickCover = {}, onStorage = {}, onShowAdded = {}, onDone = {})
         }
     }
 }

@@ -51,7 +51,7 @@ class SearchFilter(
         endDate = filter.mEndDate,
         myCollection = filter.mMyCollection,
         collectionId = filter.mCollectionId,
-        sortType = filter.mSortType,
+        sortType = filter.mSortType?.let { SortType(it) },
         textFilter = filter.mTextFilter,
         showVariants = filter.mShowVariants,
         character = filter.mCharacter,
@@ -353,11 +353,26 @@ class SortType(
 
     override fun toString(): String = tag
 
-    fun toggle(): SortType {
-        order = flipSortOrder(order)
-        order2 = order2?.let { flipSortOrder(it) }
+    /** What the direction means for this kind of sort, in words: A–Z, Oldest → Newest, First → Last. */
+    val directionLabel: String
+        get() {
+            val forward = order == SortOrder.ASC
+            return when (sortColumn) {
+                in NAME_SORT_COLUMNS -> if (forward) "A–Z" else "Z–A"
+                in DATE_SORT_COLUMNS -> if (forward) "Oldest → Newest" else "Newest → Oldest"
+                // issue order is the GCD's, not the numbers themselves ("7.1" comes after "7")
+                in ISSUE_SORT_COLUMNS -> if (forward) "First → Last" else "Last → First"
+                else -> if (forward) "Low → High" else "High → Low"
+            }
+        }
 
-        return this
+    /**
+     * The same sort the other way round. A new one, not this one turned over: filters hold sorts,
+     * and one flipped in place flips for every filter holding it, so the list never saw a change.
+     */
+    fun toggle(): SortType = SortType(this).also {
+        it.order = flipSortOrder(order)
+        it.order2 = order2?.let { second -> flipSortOrder(second) }
     }
 
     private fun flipSortOrder(sortOrder: SortOrder) = when (sortOrder) {
@@ -394,6 +409,8 @@ class SortType(
     companion object {
         // Series and creators-in-lists sort on a prepared name; characters and creators on their name
         private val NAME_SORT_COLUMNS = setOf("sortName", "name")
+        private val DATE_SORT_COLUMNS = setOf("startDate", "coverDate", "releaseDate")
+        private val ISSUE_SORT_COLUMNS = setOf("sortCode", "issueNum")
 
         // Leading characters ignored when sorting names: quotes, apostrophes, brackets, dots and
         // symbols. "...To Speak of God" files under T, "'Breed" under B, "@Large" under L.

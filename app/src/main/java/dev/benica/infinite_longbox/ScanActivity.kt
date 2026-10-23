@@ -114,10 +114,13 @@ class ScanActivity : AppCompatActivity() {
     private var lastCode: String? = null
     private var lastCodeAt = 0L
 
-    private class Added(val issueId: Int, val variantOf: Int?, val label: String)
+    private class Added(val issueId: Int, val variantOf: Int?, val label: String, val storage: String? = null)
 
     private val added = mutableStateListOf<Added>()
     private var latest by mutableStateOf<Added?>(null)
+
+    /** Where the copies scanned now are being put, or null for nowhere in particular. */
+    private var storage by mutableStateOf<String?>(null)
 
     /** The covers Metron has for a variant just added, to pick one from. */
     private var picker by mutableStateOf<Pair<Added, List<MetronCoverOption>>?>(null)
@@ -165,7 +168,9 @@ class ScanActivity : AppCompatActivity() {
                             else requestCamera.launch(Manifest.permission.CAMERA)
                         },
                         onTapToFocus = ::focusAt,
-                        result = shown?.let { ScanResultState(it.label, cover, canPickCover = it.variantOf != null) },
+                        result = shown?.let { ScanResultState(it.label, cover, canPickCover = it.variantOf != null, storage = it.storage) },
+                        storage = storage,
+                        onStorage = ::askStorage,
                         addedCount = added.size,
                         onUndo = { shown?.let(::undo) },
                         onDetails = { shown?.let(::showDetails) },
@@ -417,11 +422,41 @@ class ScanActivity : AppCompatActivity() {
         }
 
     private fun add(issue: FullIssue) {
-        Repository.get().addToCollection(issue, BaseCollection.MY_COLL.id)
-        val entry = Added(issue.issue.issueId, issue.issue.variantOf, issue.scanLabel())
+        Repository.get().addToCollection(issue, BaseCollection.MY_COLL.id, storage)
+        val entry = Added(issue.issue.issueId, issue.issue.variantOf, issue.scanLabel(), storage)
         added.removeAll { it.issueId == entry.issueId }
         added.add(0, entry)
         latest = entry
+    }
+
+    /** "The rest of these are going in Box 2": asked once, then every copy scanned is filed there. */
+    private fun askStorage() {
+        val input = android.widget.AutoCompleteTextView(this).apply {
+            setHint(R.string.my_copy_storage)
+            setText(storage.orEmpty())
+            inputType = android.text.InputType.TYPE_CLASS_TEXT or android.text.InputType.TYPE_TEXT_FLAG_CAP_WORDS
+            setSingleLine()
+            threshold = 0
+        }
+        // Places already used are suggested, so the same box isn't spelled two ways
+        lifecycleScope.launch {
+            val places = Repository.get().storageLocations()
+            input.setAdapter(android.widget.ArrayAdapter(this@ScanActivity, android.R.layout.simple_dropdown_item_1line, places))
+        }
+        val pad = (16 * resources.displayMetrics.density).toInt()
+        AlertDialog.Builder(this)
+            .setTitle(R.string.scan_storage_title)
+            .setMessage(R.string.scan_storage_message)
+            .setView(android.widget.FrameLayout(this).apply {
+                setPadding(pad, 0, pad, 0)
+                addView(input)
+            })
+            .setPositiveButton(android.R.string.ok) { _, _ ->
+                storage = input.text.toString().trim().ifEmpty { null }
+            }
+            .setNeutralButton(R.string.scan_storage_clear) { _, _ -> storage = null }
+            .setNegativeButton(android.R.string.cancel, null)
+            .show()
     }
 
     private fun undo(entry: Added) {

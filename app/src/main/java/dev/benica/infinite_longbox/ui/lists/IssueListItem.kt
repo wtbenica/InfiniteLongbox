@@ -83,6 +83,8 @@ data class IssueCardState(
     val variantName: String?,
     /** The cover file, or null if there isn't one (yet) */
     val cover: File?,
+    /** When the cover file last changed, so a replaced one (same name) redraws */
+    val coverStamp: Long = cover?.lastModified() ?: 0L,
     /** True while the cover is still being looked for; false once it's known to be missing */
     val loadingCover: Boolean,
     val inCollection: Boolean,

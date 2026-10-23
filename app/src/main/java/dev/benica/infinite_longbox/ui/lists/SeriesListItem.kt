@@ -68,6 +68,8 @@ data class SeriesCardState(
     val dateRange: String,
     val format: String,
     val cover: File?,
+    /** When the cover file last changed, so a replaced one (same name) redraws */
+    val coverStamp: Long = cover?.lastModified() ?: 0L,
     val loadingCover: Boolean,
 )
 

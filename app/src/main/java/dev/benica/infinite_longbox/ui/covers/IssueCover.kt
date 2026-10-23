@@ -49,7 +49,12 @@ import dev.benica.infinite_longbox.R
 import java.io.File
 
 /** The cover file, or null when the issue has none. */
-data class IssueCoverState(val file: File? = null, val placeholderKey: String = "")
+data class IssueCoverState(
+    val file: File? = null,
+    val placeholderKey: String = "",
+    /** When the file last changed: a replaced cover keeps its name, and must still count as new. */
+    val stamp: Long = file?.lastModified() ?: 0L,
+)
 
 /**
  * The cover at the width it's given, as tall as the image is, so the screen is laid out around
