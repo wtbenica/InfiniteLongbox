@@ -221,15 +221,36 @@ fun IssueListItem(
                 border = BorderStroke(4.dp, borderColor)
             ) {
                 Box(contentAlignment = Alignment.Center) {
-                    Text(
-                        text = state.number,
+                    val number = IssueNumberText.split(state.number)
+                    Column(
                         // Centered in the part that stays visible
                         modifier = Modifier.offset(x = (-4).dp, y = (-4).dp),
-                        color = MaterialTheme.colorScheme.onSurface,
-                        fontFamily = PermanentMarker,
-                        fontSize = 32.sp,
-                        maxLines = 1,
-                    )
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                    ) {
+                        Text(
+                            text = number.main,
+                            color = MaterialTheme.colorScheme.onSurface,
+                            fontFamily = PermanentMarker,
+                            // Longer numbers shrink to stay inside the badge
+                            fontSize = when {
+                                number.alt != null -> 26.sp
+                                number.main.length <= 3 -> 32.sp
+                                number.main.length == 4 -> 26.sp
+                                number.main.length == 5 -> 21.sp
+                                else -> 16.sp
+                            },
+                            maxLines = 1,
+                        )
+                        number.alt?.let {
+                            Text(
+                                text = "($it)",
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                fontFamily = PermanentMarker,
+                                fontSize = 14.sp,
+                                maxLines = 1,
+                            )
+                        }
+                    }
                 }
             }
 

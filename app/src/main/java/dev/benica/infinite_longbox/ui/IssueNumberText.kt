@@ -37,6 +37,18 @@ object IssueNumberText {
         return if (NUMBERED.containsMatchIn(text)) Label("#$text") else Label(text)
     }
 
+    /** An issue number with a second number in brackets after it, as Marvel's dual numbering has it. */
+    data class Split(val main: String, val alt: String? = null)
+
+    private val DUAL = Regex("""^(\S+)\s*\((\d+)\)$""")
+
+    /** "32 (726)" is two numbers: the line shows 32 and a smaller 726 under it, not both squeezed together. */
+    fun split(raw: String?): Split {
+        val text = raw?.trim().orEmpty()
+        val match = DUAL.matchEntire(text) ?: return Split(text)
+        return Split(match.groupValues[1], match.groupValues[2])
+    }
+
     private val PLAIN_NUMBER = Regex("""^\d+$""")
 
     /**

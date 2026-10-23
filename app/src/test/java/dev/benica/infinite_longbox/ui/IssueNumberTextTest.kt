@@ -96,4 +96,18 @@ class IssueNumberTextTest {
 
     @Test
     fun noNumberAndNotAOneShotIsNothing() = assertEquals(null, subtitle(null, "ongoing series", 3))
+
+    @Test
+    fun aSecondNumberInBracketsIsSplitOff() {
+        assertEquals(IssueNumberText.Split("32", "726"), IssueNumberText.split("32 (726)"))
+        assertEquals(IssueNumberText.Split("32", "726"), IssueNumberText.split("32(726)"))
+    }
+
+    @Test
+    fun otherNumbersAreLeftWhole() {
+        assertEquals(IssueNumberText.Split("27"), IssueNumberText.split("27"))
+        assertEquals(IssueNumberText.Split("3 [Section 2]"), IssueNumberText.split("3 [Section 2]"))
+        assertEquals(IssueNumberText.Split("1 Pre-Order Edition"), IssueNumberText.split("1 Pre-Order Edition"))
+        assertEquals(IssueNumberText.Split(""), IssueNumberText.split(null))
+    }
 }
