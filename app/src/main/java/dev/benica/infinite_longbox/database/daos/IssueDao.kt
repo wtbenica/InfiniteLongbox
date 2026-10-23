@@ -49,8 +49,15 @@ abstract class IssueDao : BaseDao<Issue>("issue") {
 
     // FLOW FUNCTIONS
     @Transaction
-    @RawQuery(observedEntities = [FullIssue::class, Story::class, Credit::class, ExCredit::class, NameDetail::class, Creator::class, Appearance::class, Character::class, CollectionItem::class])
+    @RawQuery(observedEntities = [FullIssue::class, CollectionItem::class])
     abstract fun getFullIssuesByQuery(query: SupportSQLiteQuery): Flow<List<FullIssue>>
+
+    @RawQuery
+    abstract suspend fun getIssueIdsByQuery(query: SupportSQLiteQuery): List<Int>
+
+    /** The ids of the issues [filter] gives, with none of what [getIssuesByFilter] builds around each. */
+    suspend fun getIssueIdsByFilter(filter: SearchFilter): List<Int> =
+        getIssueIdsByQuery(createIssueQuery(filter, idsOnly = true))
 
     fun getIssuesByFilter(filter: SearchFilter): Flow<List<FullIssue>> {
         val query = createIssueQuery(filter)
@@ -60,13 +67,19 @@ abstract class IssueDao : BaseDao<Issue>("issue") {
 
     // PAGING SOURCE FUNCTIONS
     @Transaction
-    @RawQuery(observedEntities = [FullIssue::class, Story::class, Credit::class, ExCredit::class, NameDetail::class, Creator::class, Appearance::class, Character::class, CollectionItem::class])
+    @RawQuery(observedEntities = [FullIssue::class, CollectionItem::class])
     abstract fun getFullIssuesByQueryPagingSource(query: SupportSQLiteQuery): PagingSource<Int, FullIssue>
+
+    /** For a filter that joins stories, credits or appearances: those tables fill in while it is shown. */
+    @Transaction
+    @RawQuery(observedEntities = [FullIssue::class, Story::class, Credit::class, ExCredit::class, NameDetail::class, Creator::class, Appearance::class, Character::class, CollectionItem::class])
+    abstract fun getFullIssuesByQueryPagingSourceJoined(query: SupportSQLiteQuery): PagingSource<Int, FullIssue>
 
     fun getIssuesByFilterPagingSource(filter: SearchFilter): PagingSource<Int, FullIssue> {
         val query = createIssueQuery(filter)
 
-        return getFullIssuesByQueryPagingSource(query)
+        return if (filter.needsStoryTable) getFullIssuesByQueryPagingSourceJoined(query)
+        else getFullIssuesByQueryPagingSource(query)
     }
 
     @Query(
@@ -109,14 +122,14 @@ abstract class IssueDao : BaseDao<Issue>("issue") {
     abstract fun dropAll()
 
     companion object {
-        private fun createIssueQuery(filter: SearchFilter): SimpleSQLiteQuery {
+        private fun createIssueQuery(filter: SearchFilter, idsOnly: Boolean = false): SimpleSQLiteQuery {
             val tableJoinString = StringBuilder()
             val conditionsString = StringBuilder()
             val args: ArrayList<Any> = arrayListOf()
             fun connectword(): String = if (conditionsString.isEmpty()) "WHERE" else "AND"
 
             tableJoinString.append(
-                """SELECT DISTINCT ie.* 
+                """SELECT DISTINCT ${if (idsOnly) "ie.issueId" else "ie.*"} 
                         FROM issue ie 
                         """
             )
@@ -218,6 +231,24 @@ abstract class IssueDao : BaseDao<Issue>("issue") {
                 args.add(filter.mCollectionId)
             }
 
+            if (filter.mMyCollection && filter.mMissingCover) {
+                conditionsString.append(
+                    """${connectword()} ie.issueId NOT IN (
+                    SELECT issue FROM cover WHERE coverUri IS NOT NULL) 
+                """
+                )
+            }
+
+            if (filter.mMyCollection && filter.mMissingStorage) {
+                conditionsString.append(
+                    """${connectword()} ie.issueId IN (
+                    SELECT issue FROM collectionItem
+                    WHERE userCollection = ? AND (storageLocation IS NULL OR storageLocation = '')) 
+                """
+                )
+                args.add(filter.mCollectionId)
+            }
+
             // Variants in my collection always show. The Variants option is hidden while My
             // Collection is on, so the flag alone left them out whenever it hadn't been toggled
             // (the default filter has My Collection on and Variants off).
@@ -229,7 +260,7 @@ abstract class IssueDao : BaseDao<Issue>("issue") {
 
             // TODO: a text filter means nothing in an issue list yet
 
-            val sortClause: String = filter.mSortType?.let {
+            val sortClause: String = if (idsOnly) "" else filter.mSortType?.let {
                 val isValid =
                     SortType.Companion.SortTypeOptions.ISSUE.options.containsSortType(it)
                 val sortString: String =

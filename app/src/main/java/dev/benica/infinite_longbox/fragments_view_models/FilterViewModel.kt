@@ -213,6 +213,23 @@ class FilterViewModel : ViewModel() {
         newVal.mMyCollection = isChecked
         if (isChecked) newVal.mCollectionId = collectionId
         newVal.mShowVariants = isChecked
+        // What is missing is asked of one collection: another (or none) starts the question again
+        newVal.mMissingCover = false
+        newVal.mMissingStorage = false
+        setFilter(newVal)
+    }
+
+    /** Only copies in the collection whose issue has no cover. */
+    fun missingCover(isChecked: Boolean) {
+        val newVal = _filter.value?.let { SearchFilter(it) } ?: SearchFilter()
+        newVal.mMissingCover = isChecked
+        setFilter(newVal)
+    }
+
+    /** Only copies in the collection that aren't filed in a storage place. */
+    fun missingStorage(isChecked: Boolean) {
+        val newVal = _filter.value?.let { SearchFilter(it) } ?: SearchFilter()
+        newVal.mMissingStorage = isChecked
         setFilter(newVal)
     }
 

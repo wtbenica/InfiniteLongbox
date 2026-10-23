@@ -19,6 +19,7 @@ import android.content.Context
 import android.util.AttributeSet
 import com.google.android.material.chip.Chip
 import dev.benica.infinite_longbox.APP
+import dev.benica.infinite_longbox.R
 import dev.benica.infinite_longbox.SearchFilter
 import dev.benica.infinite_longbox.database.models.*
 import dev.benica.infinite_longbox.fragments_view_models.FilterViewModel
@@ -54,6 +55,16 @@ class OptionChipGroup(context: Context?, attributeSet: AttributeSet) :
         addView(wishListChip)
         myCollectionChip.isChecked = filter.mMyCollection && filter.mCollectionId == BaseCollection.MY_COLL.id
         wishListChip.isChecked = filter.mMyCollection && filter.mCollectionId == BaseCollection.WISH_LIST.id
+
+        // What's missing from the collection: no cover on this phone, not filed in a storage place
+        if (filter.mMyCollection) {
+            addView(OptionChip(context, context?.getString(R.string.filter_no_cover).orEmpty(), this, FilterViewModel::missingCover)
+                .apply { isChecked = filter.mMissingCover })
+            if (filter.mCollectionId == BaseCollection.MY_COLL.id) {
+                addView(OptionChip(context, context?.getString(R.string.filter_not_stored).orEmpty(), this, FilterViewModel::missingStorage)
+                    .apply { isChecked = filter.mMissingStorage })
+            }
+        }
 
         val viewChip = ViewChip(context, this, filter.mViewOption)
         addView(viewChip)

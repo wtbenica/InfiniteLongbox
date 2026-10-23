@@ -227,7 +227,7 @@ enum class MetronCoverResult(val message: Int) {
 
 /**
  * Has the server fetch the cover of [issueId] from Metron, then brings the phone's copy up to date
- * (replacing any it has). The phone's cover is left alone unless the server got a new one.
+ * (replacing any it has). The phone's cover is left alone unless the new one has been downloaded.
  */
 @ExperimentalCoroutinesApi
 suspend fun fetchCoverFromMetron(
@@ -245,12 +245,10 @@ suspend fun fetchCoverFromMetron(
             return@withContext MetronCoverResult.FAILED
         }
         when {
-            response.isSuccessful -> {
-                getFileHandle(context, coverFileName(issueId)).delete()
-                IssueDatabase.getInstance(context).coverDao().deleteForIssue(issueId)
-                UpdateIssueCover.get().update(issueId, markedDelete = false).join()
-                MetronCoverResult.SAVED
-            }
+            // The server has the new cover; the phone's copy is swapped for it once it is in
+            response.isSuccessful ->
+                if (UpdateIssueCover.get().replaceFromServer(issueId)) MetronCoverResult.SAVED
+                else MetronCoverResult.FAILED
             response.code() == 404 -> MetronCoverResult.NONE
             response.code() == 403 -> MetronCoverResult.OFF
             response.code() == 429 -> MetronCoverResult.BUSY

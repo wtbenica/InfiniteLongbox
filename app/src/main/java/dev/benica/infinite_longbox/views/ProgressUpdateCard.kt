@@ -61,10 +61,12 @@ class ProgressUpdateCard(context: Context, attributeSet: AttributeSet) :
      * in; the same part with a new count just changes the number.
      */
     private fun showStage(key: String, text: String = key) {
-        // Set now, not when the fade starts: [hold] must not take the old part's time for the new one's
+        // Worked out now, not from the animations: they don't run when the card isn't on screen,
+        // and [holdStage] must not wait for them. A new part takes a fade out (if one is up) and in.
         if (key != shownKey) {
+            val fades = if (shownKey == null) 1 else 2
+            readableAt = SystemClock.uptimeMillis() + fades * FADE_MS
             shownKey = key
-            visibleSince = Long.MAX_VALUE
         }
         stage.post {
             if (stage.tag == key) {
@@ -75,37 +77,34 @@ class ProgressUpdateCard(context: Context, attributeSet: AttributeSet) :
             stage.animate().cancel()
             if (stage.text.isEmpty()) {
                 stage.text = text
-                stage.animate().alpha(1f).setDuration(FADE_MS).withEndAction { visible(key) }.start()
+                stage.animate().alpha(1f).setDuration(FADE_MS).start()
             } else {
                 // Fade the old part out, then the new one in
                 stage.animate().alpha(0f).setDuration(FADE_MS).withEndAction {
                     stage.text = text
-                    stage.animate().alpha(1f).setDuration(FADE_MS).withEndAction { visible(key) }.start()
+                    stage.animate().alpha(1f).setDuration(FADE_MS).start()
                 }.start()
             }
         }
     }
 
-    /** The part named [key] has finished fading in. */
-    private fun visible(key: String) {
-        if (key == shownKey) visibleSince = SystemClock.uptimeMillis()
-    }
-
     @Volatile
     private var shownKey: String? = null
 
+    /** When the part now shown has faded in and can be read. */
     @Volatile
-    private var visibleSince = Long.MAX_VALUE
+    private var readableAt = 0L
 
     /**
-     * Waits until the part now shown has been fully readable for [DWELL_MS], so a part that had
-     * nothing to fetch isn't gone before it can be read. Gives up after a few seconds whatever happens.
+     * Waits until the part now shown has been readable for [DWELL_MS], so a part that had nothing
+     * to fetch isn't gone before it can be read. Doesn't wait at all if the card isn't on screen
+     * (nobody is reading it), and never for long.
      */
     private suspend fun holdStage(key: String) {
         val giveUp = SystemClock.uptimeMillis() + HOLD_LIMIT_MS
-        while (shownKey == key && SystemClock.uptimeMillis() < giveUp) {
-            val since = visibleSince
-            if (since != Long.MAX_VALUE && SystemClock.uptimeMillis() - since >= DWELL_MS) return
+        while (isShown && shownKey == key) {
+            val now = SystemClock.uptimeMillis()
+            if (now >= readableAt + DWELL_MS || now >= giveUp) return
             delay(POLL_MS.milliseconds)
         }
     }

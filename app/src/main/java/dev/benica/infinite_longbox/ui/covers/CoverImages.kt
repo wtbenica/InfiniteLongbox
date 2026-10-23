@@ -34,6 +34,7 @@ object CoverImages {
     /** How many cards past (and before) the one being bound have their covers loaded ahead. */
     const val PREFETCH_AHEAD = 10
     const val PREFETCH_BEHIND = 4
+    private const val PREFETCH_MEMORY = 200
 
     private val scope = CoroutineScope(Dispatchers.Default)
 
@@ -64,21 +65,32 @@ object CoverImages {
             .crossfade(true)
             .build()
 
+    /**
+     * Files already asked for, most recent last: scrolling binds many cards a second, each asking
+     * for the same neighbours, and a request already made is not made again.
+     */
+    private val recent = object : LinkedHashMap<String, Unit>(PREFETCH_MEMORY, 0.75f, false) {
+        override fun removeEldestEntry(eldest: MutableMap.MutableEntry<String, Unit>?) = size > PREFETCH_MEMORY
+    }
+
+    private fun isNew(kind: String, file: File): Boolean =
+        synchronized(recent) { recent.put("$kind${file.path}@${file.lastModified()}", Unit) == null }
+
     /** Loads a series card's cover (and works out where its crop goes) before the card is shown. */
     fun prefetchSeries(context: Context, file: File) {
-        if (!file.exists()) return
+        if (!file.exists() || !isNew("series", file)) return
         SingletonImageLoader.get(context).enqueue(seriesRequest(context, file))
-        scope.launch { CoverFocus.alignmentFor(file) }
+        if (CoverFocus.peek(file) == null) scope.launch { CoverFocus.alignmentFor(file) }
     }
 
     /** Loads covers the issue page is likely to show next (the jump bar's neighbours). */
     fun prefetchDetail(context: Context, file: File) {
-        if (!file.exists()) return
+        if (!file.exists() || !isNew("detail", file)) return
         SingletonImageLoader.get(context).enqueue(detailRequest(context, file))
     }
 
     fun prefetchIssue(context: Context, file: File) {
-        if (!file.exists()) return
+        if (!file.exists() || !isNew("issue", file)) return
         SingletonImageLoader.get(context).enqueue(issueRequest(context, file))
     }
 }

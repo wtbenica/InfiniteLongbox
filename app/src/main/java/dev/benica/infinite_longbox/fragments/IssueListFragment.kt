@@ -42,6 +42,7 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import dev.benica.infinite_longbox.APP
 import dev.benica.infinite_longbox.R
+import dev.benica.infinite_longbox.SearchFilter
 import dev.benica.infinite_longbox.database.models.BaseCollection
 import dev.benica.infinite_longbox.database.models.FullIssue
 import dev.benica.infinite_longbox.database.models.FullSeries
@@ -102,6 +103,14 @@ class IssueListFragment : ListFragment<FullIssue, IssueListFragment.IssueViewHol
 
         listRecyclerView.addItemDecoration(itemDecoration)
         listRecyclerView.addOnItemTouchListener(dragSelect)
+
+        // Picked issues belong to the list they were picked in: another filter ends the selection
+        viewModel.filter.observe(viewLifecycleOwner) { filter ->
+            val picked = selectionFilter
+            if (selectionMode != null && picked != null && filter != null && !picked.sameItemsAs(filter)) {
+                selectionMode?.finish()
+            }
+        }
 
         // The adapter and paging collection are set up by ListFragment. A second adapter here
         // would be collected too, and its scroll hints (always at the top) made refreshes after
@@ -270,10 +279,17 @@ class IssueListFragment : ListFragment<FullIssue, IssueListFragment.IssueViewHol
     private val selecting: Boolean
         get() = selectionMode != null
 
+    /** The filter the selection was made under: a different list is a different selection. */
+    private var selectionFilter: SearchFilter? = null
+
     private fun toggleSelected(holder: IssueViewHolder) {
         val id = holder.issueId ?: return
+        val position = holder.bindingAdapterPosition
+        // A card on its way out of the list (a refresh is under way) can't be picked
+        if (position == RecyclerView.NO_POSITION) return
+        if (selection.isEmpty()) selectionFilter = viewModel.filter.value
         if (!selection.add(id)) selection.remove(id)
-        listRecyclerView.adapter?.notifyItemChanged(holder.bindingAdapterPosition)
+        listRecyclerView.adapter?.notifyItemChanged(position)
         when {
             selection.isEmpty() -> selectionMode?.finish()
             selectionMode == null ->
@@ -402,6 +418,7 @@ class IssueListFragment : ListFragment<FullIssue, IssueListFragment.IssueViewHol
 
         override fun onDestroyActionMode(mode: ActionMode) {
             selection.clear()
+            selectionFilter = null
             selectionMode = null
             listRecyclerView.adapter?.let { it.notifyItemRangeChanged(0, it.itemCount) }
         }
@@ -411,9 +428,7 @@ class IssueListFragment : ListFragment<FullIssue, IssueListFragment.IssueViewHol
     private fun selectAll() {
         val filter = viewModel.filter.value ?: return
         viewLifecycleOwner.lifecycleScope.launch {
-            val all = withContext(Dispatchers.IO) {
-                Repository.get().getIssuesByFilter(filter).first().map { it.issue.issueId }
-            }
+            val all = Repository.get().getIssueIdsByFilter(filter)
             selection.addAll(all)
             listRecyclerView.adapter?.let { it.notifyItemRangeChanged(0, it.itemCount) }
             selectionMode?.invalidate()

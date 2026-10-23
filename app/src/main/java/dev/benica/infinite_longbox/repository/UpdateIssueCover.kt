@@ -31,6 +31,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import okhttp3.Request
 import java.io.File
 import java.io.FileOutputStream
@@ -110,6 +111,28 @@ class UpdateIssueCover private constructor(
     }
 
     /**
+     * Downloads the server's cover whatever the phone has and whatever else is under way for the
+     * issue; the phone's copy is replaced only once the new one has arrived whole.
+     *
+     * @return whether the new cover is in
+     */
+    suspend fun replaceFromServer(issueId: Int, markedDelete: Boolean = false): Boolean =
+        withContext(Dispatchers.IO) {
+            val file = getFileHandle(context, coverFileName(issueId))
+            val issue = database.issueDao().getIssueSus(issueId) ?: return@withContext false
+            val marked = markedDelete && issue.collectionItems.isEmpty()
+            when (LoadTracker.track { fetchCover(issue.issue.url, file, null) }) {
+                CoverFetch.Saved -> {
+                    database.coverDao().setCover(
+                        Cover(issue = issueId, coverUri = Uri.parse(file.absolutePath), markedDelete = marked)
+                    )
+                    true
+                }
+                else -> false
+            }
+        }
+
+    /**
      * Asks for the cover once and keeps the bytes as they came, so the image is not decoded and
      * compressed again. With [since] (the time of the copy on the phone) the server sends nothing
      * if its image has not changed.
@@ -126,7 +149,8 @@ class UpdateIssueCover private constructor(
                     !response.isSuccessful -> CoverFetch.Failed
                     else -> {
                         val body = response.body ?: return@use CoverFetch.Failed
-                        val part = File(file.parentFile, file.name + ".part")
+                        // its own name: two downloads of one cover (a card binding, a Metron fetch) must not share a file
+                        val part = File.createTempFile("cover_", ".part", file.parentFile)
                         body.byteStream().use { input ->
                             FileOutputStream(part).use { input.copyTo(it) }
                         }

@@ -226,6 +226,8 @@
 
     <!-- Filter summary on the collapsed sheet -->
     <string name="filter_summary_my_collection">My Collection</string>
+    <string name="filter_no_cover">No cover</string>
+    <string name="filter_not_stored">Not stored</string>
     <string name="filter_summary_wish_list">Wish List</string>
     <plurals name="filter_summary_creators">
         <item quantity="one">%d creator</item>

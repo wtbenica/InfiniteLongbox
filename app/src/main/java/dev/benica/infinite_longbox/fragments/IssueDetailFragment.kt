@@ -113,6 +113,9 @@ class IssueDetailFragment : Fragment() {
 
     private var issuesInSeries: List<Stop> = emptyList()
     private var currentPos: Int = 0
+
+    /** The stop being jumped to, until the page shows it. */
+    private var jumpTarget: Int? = null
     private var issueCredits: List<FullCredit> = emptyList()
     private var issueStories: List<Story> = emptyList()
     private var issueAppearances: List<FullAppearance> = emptyList()
@@ -466,6 +469,15 @@ class IssueDetailFragment : Fragment() {
 
     /** Where the page's issue is among [issuesInSeries]: the cover shown, else its standard issue. */
     private fun positionOfCurrent(): Int {
+        // Part-way through a jump the page still shows the issue being left: go by where it is going
+        jumpTarget?.let { target ->
+            if (currentIssue.issue.issueId == target) {
+                jumpTarget = null
+            } else {
+                val at = issuesInSeries.indexOfFirst { it.issueId == target }
+                if (at >= 0) return at
+            }
+        }
         val shown = issuesInSeries.indexOfFirst { it.issueId == currentIssue.issue.issueId }
         return if (shown >= 0) shown
         else issuesInSeries.indexOfFirst { it.issueId == fullIssue.issue.issueId }
@@ -493,6 +505,7 @@ class IssueDetailFragment : Fragment() {
     private fun jumpToIssue(skipNum: Int) {
         currentPos = (currentPos + skipNum).coerceIn(0, issuesInSeries.lastIndex)
         val stop = issuesInSeries[currentPos]
+        jumpTarget = stop.issueId
         if (stop.variantOf == null) {
             // The selected variant belongs to the issue being left; drop it so the new primary shows
             issueDetailViewModel.clearVariant()

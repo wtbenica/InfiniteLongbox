@@ -17,6 +17,20 @@ class FilterSummaryTest {
         myCollection, "My Collection", series, character, creators, publishers, startYear, endYear, text,
     )
 
+    private fun missing(cover: Boolean, storage: Boolean, myCollection: Boolean = true) = FilterSummary.of(
+        myCollection, "My Collection", missingCover = cover, missingStorage = storage,
+    )
+
+    @Test
+    fun whatIsMissingFollowsTheCollection() {
+        assertEquals("My Collection · No cover", missing(cover = true, storage = false))
+        assertEquals("My Collection · No cover · Not stored", missing(cover = true, storage = true))
+    }
+
+    @Test
+    fun whatIsMissingIsLeftOutOfALisWithoutTheCollection() =
+        assertEquals("", missing(cover = true, storage = true, myCollection = false))
+
     @Test
     fun noFiltersIsBlank() = assertEquals("", summary())
 

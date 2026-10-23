@@ -46,6 +46,8 @@ object FilterSnapshot {
         }
         put("myCollection", filter.mMyCollection)
         put("collectionId", filter.mCollectionId)
+        put("missingCover", filter.mMissingCover)
+        put("missingStorage", filter.mMissingStorage)
         put("showVariants", filter.mShowVariants)
         put("text", filter.mTextFilter?.text ?: JSONObject.NULL)
         filter.mSortType?.let {
@@ -87,6 +89,8 @@ object FilterSnapshot {
             endDate = json.optString("end").takeIf { it.isNotEmpty() }?.let(LocalDate::parse),
             myCollection = json.getBoolean("myCollection"),
             collectionId = json.optInt("collectionId", BaseCollection.MY_COLL.id),
+            missingCover = json.optBoolean("missingCover", false),
+            missingStorage = json.optBoolean("missingStorage", false),
             textFilter = if (json.isNull("text")) null else TextFilter(json.getString("text")),
             showVariants = json.getBoolean("showVariants"),
             character = character,

@@ -37,6 +37,8 @@ class SearchFilter(
     endDate: LocalDate? = null,
     myCollection: Boolean = true,
     collectionId: Int = BaseCollection.MY_COLL.id,
+    missingCover: Boolean = false,
+    missingStorage: Boolean = false,
     sortType: SortType? = null,
     textFilter: TextFilter? = null,
     showVariants: Boolean = false,
@@ -52,6 +54,8 @@ class SearchFilter(
         endDate = filter.mEndDate,
         myCollection = filter.mMyCollection,
         collectionId = filter.mCollectionId,
+        missingCover = filter.mMissingCover,
+        missingStorage = filter.mMissingStorage,
         sortType = filter.mSortType?.let { SortType(it) },
         textFilter = filter.mTextFilter,
         showVariants = filter.mShowVariants,
@@ -92,6 +96,12 @@ class SearchFilter(
     /** Whether the list is only what is in a collection: [mCollectionId], My Collection or the Wish List. */
     var mMyCollection: Boolean = myCollection
     var mCollectionId: Int = collectionId
+
+    /** Only copies in the collection whose issue has no cover (on this phone) */
+    var mMissingCover: Boolean = missingCover
+
+    /** Only copies in the collection that aren't filed in a storage place */
+    var mMissingStorage: Boolean = missingStorage
     var mSortType: SortType? = sortType ?: getSortOptions()[0]
     var mTextFilter: TextFilter? = textFilter
     var mShowVariants: Boolean = showVariants
@@ -125,7 +135,8 @@ class SearchFilter(
     }
 
     private fun isEmpty() = mCreators.isEmpty() && mSeries == null && mCharacter == null &&
-            !hasDateFilter() && mPublishers.isEmpty() && !mMyCollection && mTextFilter == null
+            !hasDateFilter() && mPublishers.isEmpty() && !mMyCollection && mTextFilter == null &&
+            !mMissingCover && !mMissingStorage
 
     fun isNotEmpty() = !isEmpty()
 
@@ -138,6 +149,7 @@ class SearchFilter(
                 mPublishers == other.mPublishers && mStartDate == other.mStartDate &&
                 mEndDate == other.mEndDate && mMyCollection == other.mMyCollection &&
                 mCollectionId == other.mCollectionId &&
+                mMissingCover == other.mMissingCover && mMissingStorage == other.mMissingStorage &&
                 mTextFilter == other.mTextFilter && mShowVariants == other.mShowVariants &&
                 mCharacter == other.mCharacter
 
@@ -291,6 +303,8 @@ class SearchFilter(
         result = 31 * result + mEndDate.hashCode()
         result = 31 * result + mMyCollection.hashCode()
         result = 31 * result + mCollectionId
+        result = 31 * result + mMissingCover.hashCode()
+        result = 31 * result + mMissingStorage.hashCode()
         result = 31 * result + mSortType.hashCode()
         result = 31 * result + mTextFilter.hashCode()
         result = 31 * result + mShowVariants.hashCode()

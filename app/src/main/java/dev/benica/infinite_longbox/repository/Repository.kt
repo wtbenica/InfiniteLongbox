@@ -322,6 +322,9 @@ class Repository private constructor(val context: Context) {
         return issueDao.getFullIssue(issueId)
     }
 
+    suspend fun getIssueIdsByFilter(filter: SearchFilter): List<Int> =
+        withContext(Dispatchers.IO) { issueDao.getIssueIdsByFilter(filter) }
+
     fun getIssuesByFilter(filter: SearchFilter): Flow<List<FullIssue>> {
         return issueDao.getIssuesByFilter(filter = filter)
     }

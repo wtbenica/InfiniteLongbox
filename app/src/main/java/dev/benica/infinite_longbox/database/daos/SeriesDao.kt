@@ -50,13 +50,19 @@ abstract class SeriesDao : BaseDao<Series>("series") {
 
     // PAGING SOURCE FUNCTIONS
     @Transaction
-    @RawQuery(observedEntities = [FullSeries::class, Story::class, Credit::class, ExCredit::class, NameDetail::class, Creator::class, Appearance::class, Character::class, CollectionItem::class])
+    @RawQuery(observedEntities = [FullSeries::class, CollectionItem::class])
     abstract fun getSeriesByQueryPagingSource(query: SupportSQLiteQuery): PagingSource<Int, FullSeries>
+
+    /** For a filter that joins stories, credits or appearances: those tables fill in while it is shown. */
+    @Transaction
+    @RawQuery(observedEntities = [FullSeries::class, Story::class, Credit::class, ExCredit::class, NameDetail::class, Creator::class, Appearance::class, Character::class, CollectionItem::class])
+    abstract fun getSeriesByQueryPagingSourceJoined(query: SupportSQLiteQuery): PagingSource<Int, FullSeries>
 
     fun getSeriesByFilterPagingSource(filter: SearchFilter): PagingSource<Int, FullSeries> {
         val query = getSeriesQuery(filter)
 
-        return getSeriesByQueryPagingSource(query)
+        return if (filter.hasCreator() || filter.hasCharacter()) getSeriesByQueryPagingSourceJoined(query)
+        else getSeriesByQueryPagingSource(query)
     }
 
     // SUSPEND FUNCTIONS
@@ -205,6 +211,27 @@ abstract class SeriesDao : BaseDao<Series>("series") {
                 }
 
                 args.add(filter.mCollectionId)
+
+                // Series with at least one copy lacking a cover, or a place in storage
+                if (filter.mMissingCover) {
+                    conditions.append(
+                        """${connectWord()} ss.seriesId IN (
+                    SELECT mci.series FROM collectionItem mci
+                    WHERE mci.userCollection = ?
+                    AND mci.issue NOT IN (SELECT issue FROM cover WHERE coverUri IS NOT NULL)) 
+                """
+                    )
+                    args.add(filter.mCollectionId)
+                }
+                if (filter.mMissingStorage) {
+                    conditions.append(
+                        """${connectWord()} ss.seriesId IN (
+                    SELECT mci.series FROM collectionItem mci
+                    WHERE mci.userCollection = ? AND (mci.storageLocation IS NULL OR mci.storageLocation = '')) 
+                """
+                    )
+                    args.add(filter.mCollectionId)
+                }
             }
 
             filter.mTextFilter?.let { textFilter ->
