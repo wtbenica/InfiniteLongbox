@@ -26,6 +26,7 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
@@ -152,7 +153,7 @@ abstract class ComposeListFragment<T : ListItem> : FilteredListFragment<T>() {
         val filter by viewModel.filter.asFlow().collectAsState(initial = null)
         val items = viewModel.itemList.collectAsLazyPagingItems()
         val headerCount = if (hasHeader) 1 else 0
-        val grid = viewModel.gridState
+        val grid = rememberLazyGridState()
         val scope = rememberCoroutineScope()
         val context = LocalContext.current
 
@@ -161,11 +162,33 @@ abstract class ComposeListFragment<T : ListItem> : FilteredListFragment<T>() {
             (resources.getDimension(R.dimen.peek_height) + activityBarRange).toDp()
         }
 
-        // Another filter is another list: it starts at the top. The same one (coming back) doesn't.
-        LaunchedEffect(filter) {
+        // Coming back to the list puts it where it was, once there are rows to scroll to; another
+        // filter is another list, and starts at the top
+        var placed by remember { mutableStateOf(false) }
+        LaunchedEffect(filter, items.itemCount > 0) {
             val shown = filter ?: return@LaunchedEffect
-            if (viewModel.scrolledFor != null && viewModel.scrolledFor != shown) grid.scrollToItem(0)
+            if (items.itemCount == 0) return@LaunchedEffect
+            if (!placed) {
+                placed = true
+                if (viewModel.scrolledFor == null || viewModel.scrolledFor == shown) {
+                    grid.scrollToItem(viewModel.scrollIndex, viewModel.scrollOffset)
+                } else {
+                    viewModel.scrollIndex = 0
+                    viewModel.scrollOffset = 0
+                }
+            } else if (viewModel.scrolledFor != shown) {
+                grid.scrollToItem(0)
+            }
             viewModel.scrolledFor = shown
+        }
+        LaunchedEffect(grid, items) {
+            snapshotFlow { Triple(placed, grid.firstVisibleItemIndex, grid.firstVisibleItemScrollOffset) }
+                .collect { (ready, index, offset) ->
+                    if (ready && items.itemCount > 0) {
+                        viewModel.scrollIndex = index
+                        viewModel.scrollOffset = offset
+                    }
+                }
         }
 
         // The covers of the rows about to scroll in
