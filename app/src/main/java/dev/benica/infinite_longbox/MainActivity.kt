@@ -167,10 +167,31 @@ class MainActivity : AppCompatActivity(),
     private val currentScreen: Fragment?
         get() = supportFragmentManager.findFragmentById(R.id.fragment_container)
 
+    /**
+     * Only one screen belongs in the container. A navigation that raced another (a filter change
+     * arriving while a back press was being carried out) has left two there, one in front of the
+     * other; the one added last is the one in front, and the rest go.
+     */
+    private fun dropStrayScreens() {
+        val screens = supportFragmentManager.fragments.filter { it.id == R.id.fragment_container && it.isAdded }
+        if (screens.size <= 1) return
+        Log.w(TAG, "More than one screen in the container: ${screens.map { it::class.simpleName }}; keeping the last")
+        supportFragmentManager.beginTransaction().apply {
+            screens.dropLast(1).forEach { remove(it) }
+        }.commitNowAllowingStateLoss()
+    }
+
     /** Puts what [filter] asks for on screen: the list already showing, or a new screen. */
-    private fun showFilter(filter: SearchFilter) {
+    private fun showFilter(filter: SearchFilter, retried: Boolean = false) {
         val top = currentScreen
         when {
+            // Part-way through a back press nothing is in the container for a moment: this is not an
+            // empty app, and a list put there now would end up beside the one the back stack restores
+            top == null && supportFragmentManager.backStackEntryCount > 0 && !retried -> {
+                window.decorView.post { showFilter(filter, retried = true) }
+                return
+            }
+
             top == null -> supportFragmentManager.beginTransaction()
                 .replace(R.id.fragment_container, newListFor(filter))
                 .commitNow()
@@ -199,6 +220,8 @@ class MainActivity : AppCompatActivity(),
                 supportFragmentManager.executePendingTransactions()
             }
         }
+
+        window.decorView.post { dropStrayScreens() }
     }
 
     private var awaitingRestore = false
@@ -248,6 +271,7 @@ class MainActivity : AppCompatActivity(),
 
         syncSheet(top)
         updateScanFab()
+        window.decorView.post { dropStrayScreens() }
     }
 
     private fun Fragment?.isDetailPage() = this is IssueDetailFragment || this is CharacterDetailFragment ||

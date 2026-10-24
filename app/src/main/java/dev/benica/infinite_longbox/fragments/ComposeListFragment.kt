@@ -130,6 +130,8 @@ abstract class ComposeListFragment<T : ListItem> : FilteredListFragment<T>() {
         container: ViewGroup?,
         savedInstanceState: Bundle?,
     ): View = ComposeView(requireContext()).apply {
+        // Opaque, as the list was: whatever is behind it (a screen mid-fade) must not show through the gaps
+        setBackgroundColor(context.getColor(R.color.surface))
         setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
         setContent { InfiniteLongboxTheme { ListScreen() } }
     }
