@@ -15,7 +15,6 @@
 package dev.benica.infinite_longbox.ui
 
 import androidx.compose.runtime.compositionLocalOf
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 /** How much of the filter sheet shows at the bottom of the screen: what a list leaves room for. */

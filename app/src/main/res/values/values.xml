@@ -15,56 +15,20 @@
   -->
 
 <resources>
-    <!-- Colors -->
 
     <!-- Fonts -->
     <attr name="fontBlock" format="reference" />
 
-    <!-- MainActivity Theme Values -->
     <attr name="colorUi" format="reference|color" />
-    <attr name="colorUiBackground" format="reference|color" />
     <attr name="colorUiInterface" format="reference|color" />
-    <attr name="mainActivityProgressBarIndeterminateTint" format="reference" />
-    <attr name="mainActivityProgressBarBgColor" format="reference" />
-
-    <!-- FilterFragment Theme Values -->
-    <attr name="imageLabelBackgroundColor" format="reference" />
-    <attr name="imageLabelTint" format="reference" />
-    <attr name="searchBarTextColorHint" format="reference|color" />
-    <attr name="searchBarTextColor" format="reference" />
-    <attr name="searchBarBackground" format="reference" />
-    <attr name="filterChipGroupBackground" format="reference" />
-    <attr name="filterSectionBackgroundColor" format="reference|color" />
-
-    <!-- IssueDetailFragment -->
-
-    <!-- IssueDetailFragment Variant Spinner -->
-
 
     <!-- ListItem -->
     <attr name="listItemBackgroundBase" format="reference" />
 
-    <!-- ListItemSeries -->
-
-    <!-- ListItemIssue -->
-
     <!-- ListItemSimple -->
     <attr name="listItemSimpleTitleTextBackgroundColor" format="reference" />
-    <attr name="listItemSimpleMetaBoxBgColor" format="reference" />
-    <attr name="listItemSimpleMetaBoxBgStrokeColor" format="reference" />
     <attr name="listItemSimpleMetaBoxCornerRadius" format="reference|dimension" />
 
-    <!-- StoryBox -->
-
-
-    <!-- CoverDialogFragment -->
-
-    <attr name="textColorTitleBar" format="reference" />
     <attr name="textColorBody" format="reference" />
 
-    <attr name="chipActiveBgColor" format="reference" />
-    <attr name="chipInactiveBgColor" format="reference" />
-    <attr name="chipActiveStrokeColor" format="reference" />
-    <attr name="chipInactiveStrokeColor" format="reference" />
-    <attr name="chipTextColor" format="reference" />
 </resources>

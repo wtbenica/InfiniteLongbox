@@ -16,7 +16,6 @@
 package dev.benica.infinite_longbox.screens
 
 import android.app.Activity
-import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.util.Log

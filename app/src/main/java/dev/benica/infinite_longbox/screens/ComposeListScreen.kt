@@ -43,7 +43,6 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemKey
 import dev.benica.infinite_longbox.LetterIndex
 import dev.benica.infinite_longbox.R
-import dev.benica.infinite_longbox.SearchFilter
 import dev.benica.infinite_longbox.SortType
 import dev.benica.infinite_longbox.database.models.ListItem
 import dev.benica.infinite_longbox.nav.ScreenHost

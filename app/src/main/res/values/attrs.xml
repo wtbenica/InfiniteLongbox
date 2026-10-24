@@ -15,9 +15,6 @@
   -->
 
 <resources>
-    <declare-styleable name="TitleBarDropdownButton">
-        <attr name="expanded" format="boolean" />
-    </declare-styleable>
 
 
 

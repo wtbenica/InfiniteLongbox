@@ -57,7 +57,6 @@ import dev.benica.infinite_longbox.screens.CharacterListScreen
 import dev.benica.infinite_longbox.screens.CharacterPage
 import dev.benica.infinite_longbox.screens.CreatorListScreen
 import dev.benica.infinite_longbox.screens.CreatorPage
-import dev.benica.infinite_longbox.screens.FilteredListScreen
 import dev.benica.infinite_longbox.screens.IssueListScreen
 import dev.benica.infinite_longbox.screens.IssuePage
 import dev.benica.infinite_longbox.screens.ListFragmentCallback
