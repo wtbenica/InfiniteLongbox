@@ -50,6 +50,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.geometry.Offset
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import dev.benica.infinite_longbox.database.IssueDatabase
 import dev.benica.infinite_longbox.database.models.BaseCollection
@@ -227,6 +228,8 @@ class ScanPage(host: ScreenHost) : Screen(host) {
         if (previewView == null) return
         val providerFuture = ProcessCameraProvider.getInstance(context)
         providerFuture.addListener({
+            // Backed out before the camera was ready: there is nothing to bind to
+            if (viewLifecycleOwner.lifecycle.currentState == Lifecycle.State.DESTROYED) return@addListener
             val provider = providerFuture.get()
 
             val preview = Preview.Builder().build().also {

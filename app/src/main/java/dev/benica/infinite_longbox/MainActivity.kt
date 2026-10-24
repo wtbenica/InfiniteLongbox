@@ -39,6 +39,8 @@ import dev.benica.infinite_longbox.database.models.FullSeries
 import dev.benica.infinite_longbox.database.models.Issue
 import dev.benica.infinite_longbox.viewmodels.FilterViewModel
 import dev.benica.infinite_longbox.nav.ListKind
+import dev.benica.infinite_longbox.nav.ListMove
+import dev.benica.infinite_longbox.nav.listMove
 import dev.benica.infinite_longbox.nav.Navigator
 import dev.benica.infinite_longbox.nav.Route
 import dev.benica.infinite_longbox.nav.Screen
@@ -130,20 +132,15 @@ class MainActivity : ComponentActivity(),
     /** Editing the filter changes the list on screen; changing what's listed, or leaving a page, opens a new screen. */
     private fun showFilter(filter: SearchFilter) {
         val entry = navigator.top
-        val list = (entry?.route as? Route.List)
-        when {
-            entry == null -> navigator.pushList(filter)
-
-            list != null && list.kind == ListKind.of(filter.mViewOption) -> {
-                entry.listViewModel()?.let { vm ->
-                    if (filter != vm.filter.value || !vm.hasFilter) vm.setFilter(filter)
-                }
+        val move = listMove(entry?.route, ListKind.of(filter.mViewOption)) {
+            entry?.filter?.sameItemsAs(filter) == true
+        }
+        when (move) {
+            ListMove.START, ListMove.PUSH -> navigator.pushList(filter)
+            ListMove.REPLACE -> navigator.replaceTopWithList(filter)
+            ListMove.APPLY -> entry?.listViewModel()?.let { vm ->
+                if (filter != vm.filter.value || !vm.hasFilter) vm.setFilter(filter)
             }
-
-            // Only the view changed: the list takes the place of the one showing
-            list != null && entry.filter?.sameItemsAs(filter) == true -> navigator.replaceTopWithList(filter)
-
-            else -> navigator.pushList(filter)
         }
     }
 
