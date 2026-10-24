@@ -293,6 +293,7 @@ class IssueDetailFragment : Fragment() {
             issueDetailViewModel.loadIssue(issueId)
             issueDetailViewModel.loadVariant(null)
         } else {
+            issueDetailViewModel.showVariants()
             issueDetailViewModel.loadVariant(issueId)
             issueDetailViewModel.loadIssue(variantOf)
         }
@@ -549,6 +550,8 @@ class IssueDetailFragment : Fragment() {
 
     private fun onVariantSelected(selected: Issue) {
         if (selected.issueId != issueDetailViewModel.primaryId.value) {
+            // With a variant on the page its cover has to be among the ones the viewer goes through
+            issueDetailViewModel.showVariants()
             issueDetailViewModel.loadVariant(selected.issueId)
         } else {
             issueDetailViewModel.clearVariant()

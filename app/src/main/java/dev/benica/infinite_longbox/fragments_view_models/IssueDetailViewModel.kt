@@ -95,9 +95,19 @@ class IssueDetailViewModel : ViewModel() {
         _collectionScope.value = collectionId
     }
 
+    /**
+     * Whether the jump bar and the cover viewer go through the variants too: they do from the moment
+     * a variant is shown on the page, so that its cover is one of them.
+     */
+    private val _variantsShown = MutableStateFlow(false)
+
+    fun showVariants() {
+        _variantsShown.value = true
+    }
+
     internal val issueList: LiveData<List<FullIssue>> =
-        combine(mIssue, _collectionScope) { issue, scope -> issue to scope }
-            .flatMapLatest { (fullIssue, scope) ->
+        combine(mIssue, _collectionScope, _variantsShown) { issue, scope, variants -> Triple(issue, scope, variants) }
+            .flatMapLatest { (fullIssue, scope, variants) ->
                 fullIssue?.let {
                     val context = InfiniteLongboxApplication.context!!
                     repository.getIssuesByFilter(
@@ -105,7 +115,7 @@ class IssueDetailViewModel : ViewModel() {
                             series = FullSeries(it.series),
                             myCollection = scope != null,
                             collectionId = scope ?: BaseCollection.MY_COLL.id,
-                            showVariants = scope != null,
+                            showVariants = scope != null || variants,
                             sortType = SortType(
                                 context.getString(R.string.sort_type_issue_number),
                                 context.getString(R.string.column_issue_num),
