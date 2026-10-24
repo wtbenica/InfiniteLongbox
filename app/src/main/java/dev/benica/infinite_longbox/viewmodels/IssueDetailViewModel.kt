@@ -13,8 +13,6 @@
  * limitations under the License.
  */
 
-//@file:Suppress("RemoveExplicitTypeArguments")
-
 package dev.benica.infinite_longbox.viewmodels
 
 import android.util.Log
@@ -172,17 +170,6 @@ class IssueDetailViewModel : ViewModel() {
     }
 
 
-    //    /***
-//     * This stuff is only used in the issue edit fragment, iow: not used
-//     */
-//    var allSeriesLiveData: LiveData<List<Series>> = repository.allSeries.asLiveData()
-//
-//    var allPublishersLiveData: LiveData<List<Publisher>> = repository.allPublishers.asLiveData()
-//
-//    var allCreatorsLiveData: LiveData<List<Creator>> = repository.allCreators.asLiveData()
-//
-//    var allRolesLiveData: LiveData<List<Role>> = repository.allRoles.asLiveData()
-//
     fun upsert(dataModel: DataModel) {
         when (dataModel) {
             is Series -> repository.saveSeries(dataModel)

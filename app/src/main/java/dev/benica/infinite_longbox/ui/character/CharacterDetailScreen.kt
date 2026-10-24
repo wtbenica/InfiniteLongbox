@@ -52,7 +52,7 @@ import dev.benica.infinite_longbox.ui.theme.InfiniteLongboxTheme
 import dev.benica.infinite_longbox.ui.theme.PermanentMarker
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
-/** What the page can ask for; the fragment decides what each does. */
+/** What the page can ask for; the screen decides what each does. */
 @Immutable
 class CharacterDetailActions(
     val onFilter: () -> Unit,

@@ -145,10 +145,6 @@ fun NameListItem(
                         ) {
                             val shown = state?.details.orEmpty().filter { it.isNotBlank() }
 
-//                            if (shown.isEmpty()) {
-//                                Spacer(Modifier.height(20.dp))
-//                            }
-//
                             // Takes what the info button leaves, so long text can't push it off the card
                             Row(Modifier.weight(1f)) {
                                 if (state == null) Bar(Modifier.width(200.dp).height(16.dp))

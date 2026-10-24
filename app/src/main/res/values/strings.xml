@@ -34,7 +34,6 @@
     <string name="synopsis">Synopsis</string>
     <string name="story_dropdown_button">Expand story information table</string>
     <string name="characters">Characters</string>
-    <!-- Strings used for fragments for navigation -->
     <string name="sort_type_series_name">Series Name</string>
     <string name="sort_type_start_date">Start Date</string>
     <string name="column_sort_name">sortName</string>
@@ -54,7 +53,6 @@
     <string name="label_variants">Variants</string>
     <string name="bottom_sheet_handle_description">Expand filter/sort options</string>
 
-    <!--     Fragment Series Detail-->
     <string name="series_continues_from">Continues from</string>
     <string name="series_continues_as">Continues as</string>
     <string name="series_detail_notes">Notes</string>

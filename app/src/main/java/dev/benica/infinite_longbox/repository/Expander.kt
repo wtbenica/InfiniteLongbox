@@ -197,13 +197,6 @@ class Expander private constructor(webservice: Webservice, prefs: SharedPreferen
                 expandStoryAsync(stories)
             }
 
-//
-//        /**
-//         * Gets character appearances, adds missing foreign key models
-//         */
-//
-//        private suspend fun getAppearancesByCharacterId(characterId: Int): List<Appearance>? =
-//            retrieveItemsByArgument(characterId, webservice::getAppearancesByCharacterIds)
     }
 
     inner class CreatorExpander {

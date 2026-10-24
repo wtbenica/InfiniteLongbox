@@ -156,10 +156,7 @@ class FKeyChecker(val database: IssueDatabase, private val webservice: Webservic
         )
 
     internal suspend fun <T : CreditX> checkFKeysCredit(credits: List<T>) {
-//        checkFKeysChunked(credits, this::checkCreditFkSeries)
-//        checkFKeysChunked(credits, this::checkCreditFkIssue)
         checkFKeysChunked(credits, this::checkCreditFkStory)
-//        checkFKeysChunked(credits, this::checkCreditFkNameDetail)
     }
 
     private suspend fun <T : CreditX> checkCreditFkSeries(credits: List<T>) =

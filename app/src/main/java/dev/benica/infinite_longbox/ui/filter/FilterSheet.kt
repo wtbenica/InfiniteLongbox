@@ -101,7 +101,7 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import kotlin.reflect.KClass
 
-/** What the sheet can ask for: the fragment turns each into a change of the filter. */
+/** What the sheet can ask for: the host turns each into a change of the filter. */
 @ExperimentalCoroutinesApi
 interface FilterSheetActions {
     fun myCollection(on: Boolean)
@@ -214,7 +214,7 @@ private fun ChipLine(content: @Composable () -> Unit) {
 @OptIn(ExperimentalCoroutinesApi::class)
 @Composable
 private fun DateRow(filter: SearchFilter, actions: FilterSheetActions) {
-    SectionRow(R.drawable.filter_fragment_image_label_dates_icon) {
+    SectionRow(R.drawable.icon_label_dates) {
         ChipLine {
             DateChip(filter.mStartDate, isStart = true, actions)
             DateChip(filter.mEndDate, isStart = false, actions)
@@ -322,7 +322,7 @@ private fun FilterItems(filter: SearchFilter, actions: FilterSheetActions) {
 
     if (items.isNotEmpty()) {
         SectionRow(
-            R.drawable.filter_fragment_image_label_filter_icon,
+            R.drawable.icon_label_filter,
             trailing = {
                 if (!showSearch) {
                     Box(

@@ -65,7 +65,7 @@ data class IssueDetailUiState(
     val gcdIssueId: Int = 0,
 )
 
-/** What the screen can ask for; the fragment decides what each one does. */
+/** What the screen can ask for; the screen decides what each one does. */
 @OptIn(ExperimentalCoroutinesApi::class)
 @Immutable
 class IssueDetailActions(

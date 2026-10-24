@@ -91,7 +91,7 @@ import java.io.File
 /** An issue's page: its details, credits and covers, with the jump bar through its series. */
 @ExperimentalCoroutinesApi
 class IssuePage(host: ScreenHost) : Screen(host) {
-    private val listFragmentCallback: ScreenCallback get() = host.activity
+    private val callback: ScreenCallback get() = host.activity
 
     private var fullIssue: FullIssue = FullIssue.getEmptyFullIssue()
     private var fullVariant: FullIssue? = null
@@ -440,8 +440,6 @@ class IssuePage(host: ScreenHost) : Screen(host) {
             }
         }
 
-//        issueDetailViewModel.inCollectionLiveData.observe(
-//            viewLifecycleOwner,
 //
 //        issueDetailViewModel.variantInCollectionLiveData.observe(
 //            viewLifecycleOwner,
@@ -535,7 +533,7 @@ class IssuePage(host: ScreenHost) : Screen(host) {
         val issue: Issue = currentIssue.issue
         if (issue.issueId != AUTO_ID) {
             val series = currentIssue.series
-            listFragmentCallback.setTitle(
+            callback.setTitle(
                 series.seriesName,
                 IssueNumberText.subtitle(
                     issue.issueNumRaw, series.publishingFormat, series.issueCount, series.endDate != null
@@ -660,7 +658,7 @@ class IssuePage(host: ScreenHost) : Screen(host) {
             character = character.character, myCollection = false,
             showVariants = true
         )
-        listFragmentCallback.updateFilter(filter)
+        callback.updateFilter(filter)
     }
 
     private fun creatorClicked(creator: NameDetailAndCreator) {
@@ -668,7 +666,7 @@ class IssuePage(host: ScreenHost) : Screen(host) {
             creators = setOf(creator.creator), myCollection = false,
             showVariants = true
         )
-        listFragmentCallback.updateFilter(filter)
+        callback.updateFilter(filter)
     }
 
     companion object {

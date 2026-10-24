@@ -61,7 +61,7 @@ private fun signedLabel(issue: SignedIssue): String = buildString {
     if (issue.variantName.isNotBlank()) append(" (").append(issue.variantName).append(")")
 }
 
-/** What the page can ask for; the fragment decides what each does. */
+/** What the page can ask for; the screen decides what each does. */
 @Immutable
 class CreatorDetailActions(
     val onFilter: () -> Unit,
