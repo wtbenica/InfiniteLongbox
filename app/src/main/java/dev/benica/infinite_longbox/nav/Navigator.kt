@@ -90,14 +90,17 @@ class Entry(val key: Int, val route: Route) : ViewModelStoreOwner {
 
 /** The screens as a stack: the top is on show, Back goes to the one below; saved for a killed app. */
 @OptIn(ExperimentalCoroutinesApi::class)
-class Navigator : ViewModel() {
+class Navigator(
+    private val later: (delayMs: Long, work: () -> Unit) -> Unit = { delayMs, work ->
+        Handler(Looper.getMainLooper()).postDelayed(work, delayMs)
+    },
+) : ViewModel() {
     val stack = mutableStateListOf<Entry>()
 
     val top: Entry?
         get() = stack.lastOrNull()
 
     private var nextKey = 1
-    private val handler = Handler(Looper.getMainLooper())
 
     fun push(route: Route): Entry = Entry(nextKey++, route).also { stack.add(it) }
 
@@ -127,7 +130,7 @@ class Navigator : ViewModel() {
 
     /** A screen that has left may still be fading out: its view models go a moment later. */
     private fun retire(entry: Entry) {
-        handler.postDelayed({ entry.viewModelStore.clear() }, RETIRE_DELAY_MS)
+        later(RETIRE_DELAY_MS) { entry.viewModelStore.clear() }
     }
 
     override fun onCleared() {
