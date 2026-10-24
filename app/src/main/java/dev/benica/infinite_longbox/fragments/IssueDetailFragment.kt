@@ -29,6 +29,8 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
+import dev.benica.infinite_longbox.ui.dialogs.MyCopyDialog
+import dev.benica.infinite_longbox.ui.dialogs.showDialog
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -84,11 +86,9 @@ import dev.benica.infinite_longbox.ui.issue.SignerRef
 import dev.benica.infinite_longbox.ui.issue.VariantSelectorState
 import dev.benica.infinite_longbox.ui.issue.buildStoryUi
 import dev.benica.infinite_longbox.ui.theme.InfiniteLongboxTheme
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import java.io.File
 
 // Bundle Argument Tags
@@ -654,79 +654,7 @@ class IssueDetailFragment : Fragment() {
     private fun editMyCopy() {
         val current = uiState.myCopy ?: return
         val issueId = currentIssue.issue.issueId
-        val context = requireContext()
-        val pad = (16 * resources.displayMetrics.density).toInt()
-
-        fun field(hint: Int, value: String?, multiline: Boolean = false) = android.widget.AutoCompleteTextView(context).apply {
-            setHint(hint)
-            setText(value.orEmpty())
-            if (multiline) {
-                inputType = android.text.InputType.TYPE_CLASS_TEXT or android.text.InputType.TYPE_TEXT_FLAG_MULTI_LINE
-                minLines = 2
-            } else {
-                inputType = android.text.InputType.TYPE_CLASS_TEXT or android.text.InputType.TYPE_TEXT_FLAG_CAP_WORDS
-                setSingleLine()
-            }
-        }
-
-        // Who signed it: creators, chosen from the same kind of dropdown as the filter's
-        val chosen = signers.toMutableList()
-        val chips = com.google.android.material.chip.ChipGroup(context)
-        fun showChips() {
-            chips.removeAllViews()
-            chosen.forEach { creator ->
-                chips.addView(com.google.android.material.chip.Chip(context).apply {
-                    text = creator.name
-                    isCloseIconVisible = true
-                    setOnCloseIconClickListener { chosen.remove(creator); showChips() }
-                })
-            }
-        }
-        showChips()
-        val signerSearch = android.widget.AutoCompleteTextView(context).apply {
-            setHint(R.string.my_copy_signed_by)
-            inputType = android.text.InputType.TYPE_CLASS_TEXT or android.text.InputType.TYPE_TEXT_FLAG_CAP_WORDS
-            setSingleLine()
-            setAdapter(FilterOptionsAdapter(context) { text ->
-                runBlocking(Dispatchers.IO) { Repository.get().findCreators(text) }
-            })
-            setOnItemClickListener { parent, _, position, _ ->
-                (parent.getItemAtPosition(position) as? Creator)?.let { creator ->
-                    if (chosen.none { it.creatorId == creator.creatorId }) chosen.add(creator)
-                    showChips()
-                }
-                setText("")
-            }
-        }
-        val storage = field(R.string.my_copy_storage, current.storageLocation)
-        val condition = field(R.string.my_copy_condition, current.condition)
-        val notes = field(R.string.my_copy_notes, current.notes, multiline = true)
-
-        // Places already used are suggested, so the same box isn't spelled two ways
-        viewLifecycleOwner.lifecycleScope.launch {
-            val places = Repository.get().storageLocations()
-            storage.setAdapter(android.widget.ArrayAdapter(context, android.R.layout.simple_dropdown_item_1line, places))
-            storage.threshold = 0
-        }
-
-        val form = android.widget.LinearLayout(context).apply {
-            orientation = android.widget.LinearLayout.VERTICAL
-            setPadding(pad, pad / 2, pad, 0)
-            addView(chips)
-            listOf(signerSearch, storage, condition, notes).forEach { addView(it) }
-        }
-        AlertDialog.Builder(context)
-            .setTitle(R.string.my_copy_title)
-            .setView(android.widget.ScrollView(context).apply { addView(form) })
-            .setPositiveButton(R.string.my_copy_save) { _, _ ->
-                Repository.get().setCopyInfo(
-                    issueId, BaseCollection.MY_COLL.id,
-                    storage.text.toString(), condition.text.toString(), notes.text.toString(),
-                    chosen.map { it.creatorId },
-                )
-            }
-            .setNegativeButton(android.R.string.cancel, null)
-            .show()
+        requireActivity().showDialog { dismiss -> MyCopyDialog(issueId, current, dismiss) }
     }
 
     private fun updateCover() {

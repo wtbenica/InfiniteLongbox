@@ -593,7 +593,7 @@ private fun OptionItem(option: FilterModel, onClick: () -> Unit) {
 
 /** A chip as the sheet draws them: tinted when on, with a cross when it can be taken away */
 @Composable
-private fun SheetChip(
+internal fun SheetChip(
     text: String,
     selected: Boolean,
     onClick: () -> Unit,

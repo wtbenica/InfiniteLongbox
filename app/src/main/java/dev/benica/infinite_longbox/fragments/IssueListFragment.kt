@@ -284,7 +284,7 @@ class IssueListFragment : ComposeListFragment<FullIssue>() {
         val ids = selection.toList()
         if (ids.isEmpty()) return
         StoragePrompt.show(
-            requireContext(), viewLifecycleOwner.lifecycleScope, R.string.selection_storage_title,
+            requireActivity(), R.string.selection_storage_title,
             getString(R.string.selection_storage_message, ids.size), null, null,
         ) { place ->
             viewLifecycleOwner.lifecycleScope.launch {

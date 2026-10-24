@@ -420,7 +420,7 @@ class MainActivity : AppCompatActivity(),
 
     private fun renameStoragePlace(name: String) {
         StoragePrompt.show(
-            this, lifecycleScope, R.string.storage_rename_title,
+            this, R.string.storage_rename_title,
             getString(R.string.storage_rename_message, name), name, R.string.storage_rename_clear,
         ) { newName ->
             lifecycleScope.launch {

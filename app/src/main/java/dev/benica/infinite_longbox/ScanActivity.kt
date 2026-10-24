@@ -433,7 +433,7 @@ class ScanActivity : AppCompatActivity() {
     /** "The rest of these are going in Box 2": asked once, then every copy scanned is filed there. */
     private fun askStorage() {
         StoragePrompt.show(
-            this, lifecycleScope, R.string.scan_storage_title, getString(R.string.scan_storage_message),
+            this, R.string.scan_storage_title, getString(R.string.scan_storage_message),
             storage, R.string.scan_storage_clear,
         ) { storage = it }
     }
