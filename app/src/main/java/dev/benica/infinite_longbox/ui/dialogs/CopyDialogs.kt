@@ -16,18 +16,23 @@ package dev.benica.infinite_longbox.ui.dialogs
 
 import android.view.ViewGroup
 import androidx.activity.ComponentActivity
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -39,11 +44,20 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntRect
+import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Popup
+import androidx.compose.ui.window.PopupPositionProvider
+import androidx.compose.ui.window.PopupProperties
 import dev.benica.infinite_longbox.R
 import dev.benica.infinite_longbox.database.models.BaseCollection
 import dev.benica.infinite_longbox.repository.Repository
@@ -180,7 +194,20 @@ fun MyCopyDialog(issueId: Int, current: MyCopyState, onDismiss: () -> Unit) {
 
 private const val SUGGESTIONS = 5
 
-/** A text field that, while it has focus, lists [suggestions] under itself; a tap picks one. */
+/** Puts a popup under the box it is declared in, as far left as that box */
+private object BelowAnchor : PopupPositionProvider {
+    override fun calculatePosition(
+        anchorBounds: IntRect,
+        windowSize: IntSize,
+        layoutDirection: LayoutDirection,
+        popupContentSize: IntSize,
+    ) = IntOffset(
+        anchorBounds.left,
+        anchorBounds.bottom.coerceAtMost(windowSize.height - popupContentSize.height).coerceAtLeast(0),
+    )
+}
+
+/** A text field that, while it has focus, floats [suggestions] under itself; a tap picks one. */
 @Composable
 private fun SuggestField(
     value: String,
@@ -191,7 +218,8 @@ private fun SuggestField(
     multiline: Boolean = false,
 ) {
     var focused by remember { mutableStateOf(false) }
-    Column {
+    var width by remember { mutableStateOf(0) }
+    Box(Modifier.onSizeChanged { width = it.width }) {
         OutlinedTextField(
             value = value,
             onValueChange = onChange,
@@ -205,17 +233,29 @@ private fun SuggestField(
                 capitalization = if (multiline) KeyboardCapitalization.Sentences else KeyboardCapitalization.Words
             ),
         )
-        if (focused) {
-            suggestions.take(SUGGESTIONS).forEach { suggestion ->
-                Text(
-                    suggestion,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable { onPick(suggestion) }
-                        .padding(horizontal = 8.dp, vertical = 10.dp),
-                    color = colorResource(R.color.text_primary),
-                    fontFamily = Archivo,
-                )
+        if (focused && suggestions.isNotEmpty()) {
+            Popup(popupPositionProvider = BelowAnchor, properties = PopupProperties(focusable = false)) {
+                Surface(
+                    modifier = Modifier.width(with(LocalDensity.current) { width.toDp() }),
+                    shape = RoundedCornerShape(12.dp),
+                    color = colorResource(R.color.surface_raised),
+                    border = BorderStroke(1.dp, colorResource(R.color.outline)),
+                    shadowElevation = 4.dp,
+                ) {
+                    Column {
+                        suggestions.take(SUGGESTIONS).forEach { suggestion ->
+                            Text(
+                                suggestion,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable { onPick(suggestion) }
+                                    .padding(horizontal = 12.dp, vertical = 10.dp),
+                                color = colorResource(R.color.text_primary),
+                                fontFamily = Archivo,
+                            )
+                        }
+                    }
+                }
             }
         }
     }
