@@ -13,10 +13,8 @@
  * limitations under the License.
  */
 
-package dev.benica.infinite_longbox.fragments
+package dev.benica.infinite_longbox.screens
 
-import android.os.Bundle
-import android.view.View
 import android.widget.Toast
 import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 import androidx.compose.foundation.gestures.scrollBy
@@ -33,10 +31,8 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.activity.OnBackPressedCallback
-import androidx.activity.addCallback
-import androidx.fragment.app.viewModels
-import androidx.lifecycle.Lifecycle
+import dev.benica.infinite_longbox.nav.ScreenHost
+import androidx.activity.compose.BackHandler
 import androidx.lifecycle.lifecycleScope
 import androidx.paging.compose.LazyPagingItems
 import dev.benica.infinite_longbox.R
@@ -67,9 +63,9 @@ import java.time.format.DateTimeFormatter
  * issue, and from then on a tap picks or unpicks one and dragging picks a range.
  */
 @ExperimentalCoroutinesApi
-class IssueListFragment : ComposeListFragment<FullIssue>() {
+class IssueListScreen(host: ScreenHost) : ComposeListScreen<FullIssue>(host) {
 
-    override val viewModel: IssueListViewModel by viewModels()
+    override val viewModel: IssueListViewModel by lazy { host.entry.viewModel<IssueListViewModel>() }
     override val minColSizeDp = 300
 
     /** The series shown above the issues, when the list is of one series. */
@@ -81,28 +77,21 @@ class IssueListFragment : ComposeListFragment<FullIssue>() {
     @Composable
     override fun Header() {
         detailSeries?.let { shown ->
-            SeriesInfoBox(shown, onSeries = { callback?.updateFilter(SearchFilter(series = it, myCollection = false)) })
+            SeriesInfoBox(shown, onSeries = { callback.updateFilter(SearchFilter(series = it, myCollection = false)) })
         }
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
+    init {
         viewModel.seriesLiveData.observe(viewLifecycleOwner) { fullSeries ->
             fullSeries?.let {
                 detailSeries = it
-                callback?.setTitle(it.series.seriesName)
+                callback.setTitle(it.series.seriesName)
             }
-        }
-
-        selectionBack = requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, false) {
-            endSelection()
         }
     }
 
-    override fun onDestroyView() {
+    override fun onHidden() {
         endSelection()
-        super.onDestroyView()
     }
 
     override fun key(item: FullIssue): Any = item.issue.issueId
@@ -159,13 +148,12 @@ class IssueListFragment : ComposeListFragment<FullIssue>() {
     }
 
     override fun prefetch(item: FullIssue) {
-        item.coverUri?.path?.let { CoverImages.prefetchIssue(requireContext().applicationContext, File(it)) }
+        item.coverUri?.path?.let { CoverImages.prefetchIssue(context.applicationContext, File(it)) }
     }
 
     // BULK SELECTION: a long press picks an issue, and from then on a tap picks or unpicks one
 
     private val selection = mutableStateSetOf<Int>()
-    private var selectionBack: OnBackPressedCallback? = null
 
     /** The filter the selection was made under: a different list is a different selection. */
     private var selectionFilter: SearchFilter? = null
@@ -173,6 +161,7 @@ class IssueListFragment : ComposeListFragment<FullIssue>() {
     @Composable
     override fun gridModifier(items: LazyPagingItems<FullIssue>, grid: LazyGridState, headerCount: Int): Modifier {
         val scope = rememberCoroutineScope()
+        BackHandler(enabled = selection.isNotEmpty()) { endSelection() }
 
         // The top bar follows the selection: it changes with the first pick and goes back with the last
         LaunchedEffect(Unit) {
@@ -181,8 +170,7 @@ class IssueListFragment : ComposeListFragment<FullIssue>() {
                     endSelection()
                 } else {
                     if (selectionFilter == null) selectionFilter = viewModel.filter.value
-                    selectionBack?.isEnabled = true
-                    callback?.setSelection(
+                                callback.setSelection(
                         SelectionBar(
                             picked,
                             listOf(
@@ -267,8 +255,7 @@ class IssueListFragment : ComposeListFragment<FullIssue>() {
     private fun endSelection() {
         selection.clear()
         selectionFilter = null
-        selectionBack?.isEnabled = false
-        callback?.setSelection(null)
+        callback.setSelection(null)
     }
 
     /** Everything the list shows, not only the part that has loaded so far. */
@@ -284,7 +271,7 @@ class IssueListFragment : ComposeListFragment<FullIssue>() {
         val ids = selection.toList()
         if (ids.isEmpty()) return
         StoragePrompt.show(
-            requireActivity(), R.string.selection_storage_title,
+            activity, R.string.selection_storage_title,
             getString(R.string.selection_storage_message, ids.size), null, null,
         ) { place ->
             viewLifecycleOwner.lifecycleScope.launch {
@@ -292,7 +279,7 @@ class IssueListFragment : ComposeListFragment<FullIssue>() {
                 val left = ids.size - moved
                 val text = getString(R.string.selection_moved, moved, place.orEmpty()) +
                     if (left > 0) getString(R.string.selection_not_owned, left) else ""
-                Toast.makeText(requireContext(), text, Toast.LENGTH_LONG).show()
+                Toast.makeText(context, text, Toast.LENGTH_LONG).show()
                 endSelection()
             }
         }
@@ -305,13 +292,10 @@ class IssueListFragment : ComposeListFragment<FullIssue>() {
         fun removeFromCollection(issue: FullIssue, collId: Int)
     }
 
-    companion object {
-        @JvmStatic
-        fun newInstance() = IssueListFragment()
-
+    private companion object {
         /** Dragging within this fraction of the list's height from its top or bottom scrolls it. */
-        private const val EDGE_FRACTION = 0.15f
-        private const val MAX_SCROLL = 40f
-        private val MONTH_YEAR: DateTimeFormatter = DateTimeFormatter.ofPattern("MMM yyyy")
+        const val EDGE_FRACTION = 0.15f
+        const val MAX_SCROLL = 40f
+        val MONTH_YEAR: DateTimeFormatter = DateTimeFormatter.ofPattern("MMM yyyy")
     }
 }

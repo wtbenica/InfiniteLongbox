@@ -54,6 +54,7 @@ dependencies {
     // Compose, mixed into the existing View screens (ComposeView)
     implementation platform(libs.compose.bom)
     implementation libs.compose.animation.graphics
+    implementation libs.activity.compose
     implementation libs.compose.ui
     implementation libs.compose.foundation
     implementation libs.compose.ui.text.google.fonts
@@ -68,22 +69,17 @@ dependencies {
     implementation libs.gson
     implementation libs.kotlinx.serialization.json
     implementation libs.androidx.core.ktx
-    implementation libs.androidx.viewpager2
     implementation libs.androidx.appcompat
     implementation libs.material
-    implementation libs.androidx.constraintlayout
     implementation libs.lifecycle.livedata.ktx
     implementation libs.lifecycle.viewmodel.ktx
     implementation libs.lifecycle.runtime.ktx
     implementation libs.room.runtime
     implementation libs.room.ktx
     implementation libs.room.paging
-    implementation libs.navigation.fragment.ktx
-    implementation libs.navigation.ui.ktx
     implementation libs.paging.runtime.ktx
     implementation libs.paging.compose
     implementation libs.kotlinx.coroutines.android
-    implementation libs.androidx.cardview
     implementation libs.zxing.cpp
     implementation libs.camera.core
     implementation libs.camera.camera2

@@ -13,12 +13,12 @@
  * limitations under the License.
  */
 
-package dev.benica.infinite_longbox.fragments
+package dev.benica.infinite_longbox.screens
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.res.stringResource
-import androidx.fragment.app.viewModels
+import dev.benica.infinite_longbox.nav.ScreenHost
 import dev.benica.infinite_longbox.R
 import dev.benica.infinite_longbox.database.models.Creator
 import dev.benica.infinite_longbox.database.models.FullCreator
@@ -30,15 +30,14 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 /** The creators, with the names they have been credited under. */
 @ExperimentalCoroutinesApi
-class CreatorListFragment : ComposeListFragment<FullCreator>() {
+class CreatorListScreen(host: ScreenHost) : ComposeListScreen<FullCreator>(host) {
 
-    override val viewModel: CreatorListViewModel by viewModels()
+    override val viewModel: CreatorListViewModel by lazy { host.entry.viewModel<CreatorListViewModel>() }
     override val minColSizeDp: Int
         get() = 600
 
-    override fun onResume() {
-        super.onResume()
-        callback?.setTitle()
+    override fun onShown() {
+        callback.setTitle()
     }
 
     override fun key(item: FullCreator): Any = item.creator.creatorId
@@ -56,9 +55,9 @@ class CreatorListFragment : ComposeListFragment<FullCreator>() {
         }
         NameListItem(
             state,
-            onClick = { (callback as CreatorListCallback?)?.onCreatorSelected(item.creator) },
+            onClick = { (callback as CreatorListCallback).onCreatorSelected(item.creator) },
             infoDescription = stringResource(R.string.creator_info_description),
-            onInfo = { (callback as CreatorListCallback?)?.onCreatorInfo(item.creator) },
+            onInfo = { (callback as CreatorListCallback).onCreatorInfo(item.creator) },
         )
     }
 
@@ -72,8 +71,4 @@ class CreatorListFragment : ComposeListFragment<FullCreator>() {
         fun onCreatorInfo(creator: Creator)
     }
 
-    companion object {
-        @JvmStatic
-        fun newInstance() = CreatorListFragment()
-    }
 }

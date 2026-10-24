@@ -23,72 +23,54 @@ import android.net.NetworkCapabilities
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
-import android.view.View
-import android.view.ViewGroup
 import android.widget.Toast
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
-import androidx.appcompat.app.AppCompatActivity
-import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.platform.ComposeView
-import dev.benica.infinite_longbox.ui.scan.ScanButton
-import dev.benica.infinite_longbox.ui.toolbar.BarAction
-import dev.benica.infinite_longbox.ui.toolbar.SelectionBar
-import dev.benica.infinite_longbox.ui.toolbar.TopBar
-import dev.benica.infinite_longbox.ui.theme.InfiniteLongboxTheme
-import dev.benica.infinite_longbox.ui.update.HeaderStatus
-import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
-import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.updateLayoutParams
-import androidx.core.view.updatePadding
-import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentContainerView
-import androidx.fragment.app.FragmentManager
-import androidx.fragment.app.FragmentTransaction.TRANSIT_FRAGMENT_FADE
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import com.google.android.material.appbar.AppBarLayout
-import com.google.android.material.appbar.AppBarLayout.LayoutParams.SCROLL_FLAG_SCROLL
-import com.google.android.material.bottomsheet.BottomSheetBehavior
-import com.google.android.material.bottomsheet.BottomSheetBehavior.BottomSheetCallback
-import com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_COLLAPSED
-import com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_EXPANDED
-import com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_HALF_EXPANDED
-import com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_HIDDEN
-import com.google.android.material.bottomsheet.BottomSheetBehavior.from
 import dev.benica.infinite_longbox.database.IssueDatabase
 import dev.benica.infinite_longbox.database.models.BaseCollection
 import dev.benica.infinite_longbox.database.models.Character
 import dev.benica.infinite_longbox.database.models.Creator
-import dev.benica.infinite_longbox.database.models.FullCreator
 import dev.benica.infinite_longbox.database.models.FullIssue
 import dev.benica.infinite_longbox.database.models.FullSeries
 import dev.benica.infinite_longbox.database.models.Issue
-import dev.benica.infinite_longbox.fragments.CharacterDetailFragment
-import dev.benica.infinite_longbox.fragments.CharacterListFragment
-import dev.benica.infinite_longbox.fragments.CreatorDetailFragment
-import dev.benica.infinite_longbox.fragments.CreatorListFragment
+import dev.benica.infinite_longbox.fragments_view_models.FilterViewModel
+import dev.benica.infinite_longbox.nav.ListKind
+import dev.benica.infinite_longbox.nav.Navigator
+import dev.benica.infinite_longbox.nav.Route
+import dev.benica.infinite_longbox.nav.Screen
+import dev.benica.infinite_longbox.nav.ScreenHost
+import dev.benica.infinite_longbox.repository.LoadTracker
+import dev.benica.infinite_longbox.repository.Repository
+import dev.benica.infinite_longbox.repository.pushCoversToServer
+import dev.benica.infinite_longbox.screens.CharacterListScreen
+import dev.benica.infinite_longbox.screens.CharacterPage
+import dev.benica.infinite_longbox.screens.CreatorListScreen
+import dev.benica.infinite_longbox.screens.CreatorPage
+import dev.benica.infinite_longbox.screens.FilteredListScreen
+import dev.benica.infinite_longbox.screens.IssueListScreen
+import dev.benica.infinite_longbox.screens.IssuePage
+import dev.benica.infinite_longbox.screens.ListFragmentCallback
+import dev.benica.infinite_longbox.screens.SeriesListScreen
+import dev.benica.infinite_longbox.screens.StoragePrompt
 import dev.benica.infinite_longbox.ui.dialogs.AboutDialog
 import dev.benica.infinite_longbox.ui.dialogs.ChoiceDialog
 import dev.benica.infinite_longbox.ui.dialogs.showDialog
 import dev.benica.infinite_longbox.ui.filter.FilterSheetHost
-import dev.benica.infinite_longbox.fragments.IssueDetailFragment
-import dev.benica.infinite_longbox.fragments.IssueListFragment
-import dev.benica.infinite_longbox.fragments.FilteredListFragment
-import dev.benica.infinite_longbox.fragments.FilteredListFragment.Companion.forScreen
-import dev.benica.infinite_longbox.fragments.ListFragmentCallback
-import dev.benica.infinite_longbox.fragments.SeriesListFragment
-import dev.benica.infinite_longbox.fragments.StoragePrompt
-import dev.benica.infinite_longbox.fragments_view_models.FilterViewModel
-import dev.benica.infinite_longbox.repository.LoadTracker
-import dev.benica.infinite_longbox.repository.Repository
-import dev.benica.infinite_longbox.repository.pushCoversToServer
+import dev.benica.infinite_longbox.ui.shell.AppScreen
+import dev.benica.infinite_longbox.ui.theme.InfiniteLongboxTheme
+import dev.benica.infinite_longbox.ui.toolbar.BarAction
+import dev.benica.infinite_longbox.ui.toolbar.SelectionBar
 import dev.benica.infinite_longbox.ui.update.UpdateProgress
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
@@ -99,25 +81,25 @@ import kotlinx.coroutines.withContext
 import java.io.IOException
 import java.time.Instant
 import java.time.LocalDate
-import kotlin.reflect.KClass
 
 const val APP = "CC_"
 private const val TAG = APP + "MainActivity"
 
-private const val READ_EXTERNAL_STORAGE_REQUEST = 1
-private const val CAMERA_REQUEST = 8
+private const val KEY_NAV = "navigator"
 
+/**
+ * The app's one activity. What is on screen is [AppScreen]; this holds what the screens report to
+ * (the title, the picked issues, the filter) and decides what a change of the filter means for the
+ * navigator's stack.
+ */
 @ExperimentalCoroutinesApi
-class MainActivity : AppCompatActivity(),
-    SeriesListFragment.SeriesListCallback,
-    IssueListFragment.IssueListCallback,
-    CharacterListFragment.CharacterListCallback,
-    CharacterDetailFragment.CharacterDetailCallback,
-    CreatorDetailFragment.CreatorDetailCallback,
-    CreatorListFragment.CreatorListCallback {
-
-    internal val peekHeight
-        get() = resources.getDimension(R.dimen.peek_height).toInt()
+class MainActivity : ComponentActivity(),
+    SeriesListScreen.SeriesListCallback,
+    IssueListScreen.IssueListCallback,
+    CharacterListScreen.CharacterListCallback,
+    CharacterPage.CharacterDetailCallback,
+    CreatorPage.CreatorDetailCallback,
+    CreatorListScreen.CreatorListCallback {
 
     internal val screenSizeInDp: Point
         get() {
@@ -128,205 +110,99 @@ class MainActivity : AppCompatActivity(),
             )
         }
 
-    internal val screenSize: Point
-        get() {
-            val dm = resources.displayMetrics
-            return Point(dm.widthPixels, dm.heightPixels)
-        }
-
+    internal val navigator: Navigator by viewModels()
     private val filterViewModel: FilterViewModel by viewModels()
-    private lateinit var filterSheet: FilterSheetHost
-    private lateinit var mainLayout: CoordinatorLayout
-    private lateinit var appBarLayout: AppBarLayout
-    private lateinit var toolbar: ComposeView
-    private var barTitle by mutableStateOf("")
-    private var barSubtitle by mutableStateOf<String?>(null)
-    private var barSelection by mutableStateOf<SelectionBar?>(null)
-    private lateinit var resultFragmentContainer: FragmentContainerView
-    private lateinit var bottomSheet: View
-    private lateinit var bottomSheetBehavior: BottomSheetBehavior<*>
-    private lateinit var progressUpdate: UpdateProgress
-    private var loading by mutableStateOf(false)
-    private var scanVisible by mutableStateOf(true)
-    private var restoreNonHideable = false
 
-    /**
-     * Each list screen is its own fragment on the back stack and carries the filter it shows; Back
-     * just pops to the previous screen, which still has its filter and its scroll position.
-     * Editing the filter in the sheet changes the list on screen. Changing what's listed (series,
-     * issues, creators, characters) or leaving the issue page opens a new screen.
-     */
-    private fun listClassFor(filter: SearchFilter): KClass<*> = when (filter.mViewOption) {
-        FullIssue::class -> IssueListFragment::class
-        Character::class -> CharacterListFragment::class
-        FullSeries::class -> SeriesListFragment::class
-        FullCreator::class -> CreatorListFragment::class
-        else -> throw IllegalStateException("illegal view option: ${filter.mViewOption.simpleName}")
+    internal lateinit var filterSheet: FilterSheetHost
+    internal lateinit var progressUpdate: UpdateProgress
+
+    // What the screens report, for the top bar to show
+    internal var barTitle by mutableStateOf("")
+    internal var barSubtitle by mutableStateOf<String?>(null)
+    internal var barSelection by mutableStateOf<SelectionBar?>(null)
+
+    internal var loading by mutableStateOf(false)
+    private var filterUpdating = false
+    private var fetching = false
+
+    /** The screen an entry of the stack stands for. */
+    internal fun createScreen(host: ScreenHost): Screen = when (val route = host.entry.route) {
+        is Route.List -> when (route.kind) {
+            ListKind.SERIES -> SeriesListScreen(host)
+            ListKind.ISSUES -> IssueListScreen(host)
+            ListKind.CHARACTERS -> CharacterListScreen(host)
+            ListKind.CREATORS -> CreatorListScreen(host)
+        }
+        is Route.Issue -> IssuePage(host)
+        is Route.Character -> CharacterPage(host)
+        is Route.Creator -> CreatorPage(host)
     }
 
-    private fun newListFor(filter: SearchFilter): Fragment = when (listClassFor(filter)) {
-        IssueListFragment::class -> IssueListFragment.newInstance()
-        CharacterListFragment::class -> CharacterListFragment.newInstance()
-        SeriesListFragment::class -> SeriesListFragment.newInstance()
-        else -> CreatorListFragment.newInstance()
-    }.forScreen(filterViewModel.registerScreen(filter))
-
-    private val currentScreen: Fragment?
-        get() = supportFragmentManager.findFragmentById(R.id.fragment_container)
+    // WHAT THE FILTER MEANS FOR THE STACK
 
     /**
-     * Only one screen belongs in the container. A navigation that raced another (a filter change
-     * arriving while a back press was being carried out) has left two there, one in front of the
-     * other; the one added last is the one in front, and the rest go.
+     * Each list screen carries the filter it shows; Back just pops to the previous screen, which
+     * still has its filter and its scroll position. Editing the filter in the sheet changes the list
+     * on screen. Changing what's listed (series, issues, creators, characters) or leaving a page
+     * opens a new screen.
      */
-    private fun dropStrayScreens() {
-        val screens = supportFragmentManager.fragments.filter { it.id == R.id.fragment_container && it.isAdded }
-        if (screens.size <= 1) return
-        Log.w(TAG, "More than one screen in the container: ${screens.map { it::class.simpleName }}; keeping the last")
-        supportFragmentManager.beginTransaction().apply {
-            screens.dropLast(1).forEach { remove(it) }
-        }.commitNowAllowingStateLoss()
-    }
-
-    /** Puts what [filter] asks for on screen: the list already showing, or a new screen. */
-    private fun showFilter(filter: SearchFilter, retried: Boolean = false) {
-        val top = currentScreen
+    private fun showFilter(filter: SearchFilter) {
+        val entry = navigator.top
+        val list = (entry?.route as? Route.List)
         when {
-            // Part-way through a back press nothing is in the container for a moment: this is not an
-            // empty app, and a list put there now would end up beside the one the back stack restores
-            top == null && supportFragmentManager.backStackEntryCount > 0 && !retried -> {
-                window.decorView.post { showFilter(filter, retried = true) }
-                return
+            entry == null -> navigator.pushList(filter)
+
+            list != null && list.kind == ListKind.of(filter.mViewOption) -> {
+                entry.listViewModel()?.let { vm ->
+                    if (filter != vm.filter.value || !vm.hasFilter) vm.setFilter(filter)
+                }
             }
-
-            top == null -> supportFragmentManager.beginTransaction()
-                .replace(R.id.fragment_container, newListFor(filter))
-                .commitNow()
-
-            top is FilteredListFragment<*> && top::class == listClassFor(filter) ->
-                top.applyFilter(filter)
 
             // Only the view was switched (series, characters, creators): the same list seen another
-            // way, so it takes the place of the one showing. Keeping each in the back stack piles
-            // them up in memory for as long as the app runs.
-            top is FilteredListFragment<*> && top.currentFilter?.sameItemsAs(filter) == true -> {
-                supportFragmentManager.beginTransaction()
-                    .setTransition(TRANSIT_FRAGMENT_FADE)
-                    .replace(R.id.fragment_container, newListFor(filter))
-                    .commit()
-                supportFragmentManager.executePendingTransactions()
-            }
+            // way, so it takes the place of the one showing. Keeping each in the stack piles them
+            // up in memory for as long as the app runs.
+            list != null && entry.filter?.sameItemsAs(filter) == true -> navigator.replaceTopWithList(filter)
 
-            else -> {
-                supportFragmentManager.beginTransaction()
-                    .setTransition(TRANSIT_FRAGMENT_FADE)
-                    .replace(R.id.fragment_container, newListFor(filter))
-                    .addToBackStack(null)
-                    .commit()
-                // So the next filter change finds this screen, not the one being replaced
-                supportFragmentManager.executePendingTransactions()
-            }
+            else -> navigator.pushList(filter)
         }
-
-        window.decorView.post { dropStrayScreens() }
     }
 
-    private var awaitingRestore = false
+    /** Back one screen; the sheet follows the filter of the list it lands on. */
+    internal fun goBack() {
+        if (navigator.pop()) followTopList()
+    }
 
-    /** The activity came back on a detail page: the filter's first delivery is not a request for a list. */
+    private fun followTopList() {
+        navigator.top?.filter?.let {
+            if (filterViewModel.filter.value != it) filterViewModel.setFilter(it)
+        }
+    }
+
+    /** The activity came back on a page: the filter's first delivery is not a request for a list. */
     private var ignoreFilterReplay = false
+
+    /** A killed app's top list is rebuilding its filter: until it has, the sheet's default is not a request. */
+    private var awaitingRestore = false
 
     /** Drops the restored screens for a fresh default list. */
     private fun startOver() {
         Log.d(TAG, "Couldn't rebuild a restored screen's filter; starting over")
         awaitingRestore = false
-        supportFragmentManager.popBackStackImmediate(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
-        supportFragmentManager.beginTransaction()
-            .replace(R.id.fragment_container, newListFor(SearchFilter()))
-            .commitNow()
-        backStackSize = 0
+        navigator.clear()
         filterViewModel.setFilter(SearchFilter())
     }
 
-    override fun onFilterRestored(list: Fragment, filter: SearchFilter) {
-        awaitingRestore = false
-        if (list === currentScreen && filterViewModel.filter.value != filter) {
-            filterViewModel.setFilter(filter)
-        }
-    }
-
-    override fun onRestoreFailed() {
-        if (awaitingRestore || supportFragmentManager.backStackEntryCount > 0) startOver()
-    }
-
-    private var backStackSize = 0
-    private var sheetStateBeforeDetail = STATE_COLLAPSED
-
-    private fun onBackStackChanged() {
-        awaitingRestore = false
-        val size = supportFragmentManager.backStackEntryCount
-        val popped = size < backStackSize
-        backStackSize = size
-
-        val top = currentScreen
-        if (popped && top is FilteredListFragment<*>) {
-            // Back to a list: the filter sheet follows the filter that list was showing
-            top.currentFilter?.let {
-                if (filterViewModel.filter.value != it) filterViewModel.setFilter(it)
-            }
-        }
-
-        syncSheet(top)
-        updateScanFab()
-        window.decorView.post { dropStrayScreens() }
-    }
-
-    private fun Fragment?.isDetailPage() = this is IssueDetailFragment || this is CharacterDetailFragment ||
-            this is CreatorDetailFragment
-
-    /** The filter sheet covers the lists, not an issue's or a character's page. */
-    private fun syncSheet(top: Fragment?) {
-        if (top.isDetailPage()) {
-            if (bottomSheetBehavior.state != STATE_HIDDEN) {
-                // Only a resting state can be restored; DRAGGING/SETTLING would throw
-                sheetStateBeforeDetail = bottomSheetBehavior.state
-                    .takeIf { it == STATE_EXPANDED || it == STATE_COLLAPSED } ?: STATE_COLLAPSED
-            }
-            resultFragmentContainer.updatePadding(bottom = 0)
-            bottomSheetBehavior.apply {
-                isHideable = true
-                state = STATE_HIDDEN
-            }
-        } else if (bottomSheetBehavior.state == STATE_HIDDEN) {
-            resultFragmentContainer.updatePadding(bottom = peekHeight)
-            // Slide up from where it was hidden; making it non-hideable first would snap it
-            // somewhere else and animate from there. It becomes non-hideable once it settles.
-            restoreNonHideable = true
-            bottomSheetBehavior.apply {
-                state = sheetStateBeforeDetail
-                peekHeight = this@MainActivity.peekHeight
-            }
-        }
-    }
+    // THE ACTIVITY
 
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(R.style.Theme_InfiniteLongbox)
         WindowCompat.setDecorFitsSystemWindows(window, false)
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-        mainLayout = findViewById(R.id.main_activity)
-        appBarLayout = findViewById(R.id.app_bar_layout)
-        toolbar = findViewById(R.id.action_bar)
+
         barTitle = applicationInfo.loadLabel(packageManager).toString()
-        toolbar.setContent {
-            InfiniteLongboxTheme { TopBar(barTitle, barSubtitle, menuEntries(), barSelection) }
-        }
-        resultFragmentContainer = findViewById(R.id.fragment_container)
-        bottomSheet = findViewById(R.id.bottom_sheet)
         progressUpdate = UpdateProgress(this)
-        findViewById<ComposeView>(R.id.header_status).setContent {
-            InfiniteLongboxTheme { HeaderStatus(progressUpdate, loading) }
-        }
+        filterSheet = FilterSheetHost(this, filterViewModel, onUpdating = ::setProgressBar)
+
         // Anything being fetched from the server shows in the bar, once it has taken a moment
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -337,39 +213,41 @@ class MainActivity : AppCompatActivity(),
             }
         }
 
-        val scanFab = findViewById<ComposeView>(R.id.scan_fab)
-        scanFab.setContent {
-            InfiniteLongboxTheme { ScanButton(scanVisible, onClick = ::startBarcodeScan) }
-        }
-        (scanFab.layoutParams as ViewGroup.MarginLayoutParams).bottomMargin =
-            peekHeight + resources.getDimensionPixelSize(R.dimen.margin_default)
-        supportFragmentManager.addOnBackStackChangedListener { onBackStackChanged() }
+        setContent { InfiniteLongboxTheme { AppScreen(this) } }
 
-        initWindowInsets()
-        initBottomSheet()
         initNetwork()
 
         Repository.get().beginStaticUpdate(progressUpdate, this)
 
-        if (savedInstanceState != null) {
-            backStackSize = supportFragmentManager.backStackEntryCount
-            if (currentScreen.isDetailPage()) {
-                // The page itself is what comes back. The filter is replayed to the observer below,
-                // and would otherwise open a new list on top of the page.
-                syncSheet(currentScreen)
-                updateScanFab()
-                ignoreFilterReplay = filterViewModel.filter.value != null
+        val savedStack = savedInstanceState?.getBundle(KEY_NAV)
+        when {
+            navigator.stack.isNotEmpty() -> {
+                // Only the activity was recreated: its screens still know their filters
+                val top = navigator.top
+                if (top?.isDetail == true) ignoreFilterReplay = filterViewModel.filter.value != null
+                else followTopList()
             }
-            if (filterViewModel.hasScreens) {
-                // Only the activity was recreated: its screens still know their filters, and the
-                // sheet starts from the visible one
-                (currentScreen as? FilteredListFragment<*>)?.currentFilter
-                    ?.let { filterViewModel.setFilter(it) }
-            } else {
-                // The process was killed. The screens came back and are rebuilding their filters
-                // from what they saved; until the visible one reports in, the filter sheet's
-                // default must not start a new screen.
-                awaitingRestore = true
+
+            savedStack != null -> {
+                // The process was killed. The screens are rebuilding their filters from what they
+                // saved; until the visible one reports in, the sheet's default must not start a new screen.
+                navigator.restore(savedStack, onListFailed = ::startOver)
+                val top = navigator.top
+                if (top?.isDetail == true) {
+                    ignoreFilterReplay = filterViewModel.filter.value != null
+                } else if (top != null) {
+                    awaitingRestore = true
+                    val vm = top.listViewModel()
+                    vm?.filter?.observe(this, object : Observer<SearchFilter> {
+                        override fun onChanged(value: SearchFilter) {
+                            if (vm.hasFilter) {
+                                vm.filter.removeObserver(this)
+                                awaitingRestore = false
+                                if (filterViewModel.filter.value != value) filterViewModel.setFilter(value)
+                            }
+                        }
+                    })
+                }
             }
         }
 
@@ -382,13 +260,18 @@ class MainActivity : AppCompatActivity(),
         }
     }
 
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putBundle(KEY_NAV, navigator.save())
+    }
+
     override fun onStop() {
         Repository.get().cleanUpImages()
         super.onStop()
     }
 
     /** The overflow menu. */
-    private fun menuEntries() = buildList {
+    internal fun menuEntries() = buildList {
         add(BarAction(getString(R.string.menu_about)) { showDialog { dismiss -> AboutDialog(dismiss) } })
         add(BarAction(getString(R.string.menu_clear_db)) {
             IssueDatabase.getInstance(this@MainActivity).transactionDao().cleanDatabase()
@@ -437,15 +320,6 @@ class MainActivity : AppCompatActivity(),
         }
     }
 
-    /** Uploads covers stored on this phone that the server doesn't have (debug builds). */
-    /** The scan button belongs to the lists: not on an issue's page, not over the open filter. */
-    private fun updateScanFab() {
-        val onDetail = currentScreen.isDetailPage()
-        val sheetOpen = bottomSheetBehavior.state == STATE_EXPANDED ||
-                bottomSheetBehavior.state == STATE_HALF_EXPANDED
-        scanVisible = !(onDetail || sheetOpen)
-    }
-
     private val scanLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             // Details on an issue the scanner added opens its page
@@ -453,11 +327,11 @@ class MainActivity : AppCompatActivity(),
             val issueId = data.getIntExtra(ScanActivity.EXTRA_ISSUE_ID, -1)
             if (issueId >= 0) {
                 val variantOf = data.getIntExtra(ScanActivity.EXTRA_VARIANT_OF, -1).takeIf { it >= 0 }
-                openIssue(IssueDetailFragment.newInstance(issueId, variantOf, BaseCollection.MY_COLL.id))
+                navigator.push(Route.Issue(issueId, variantOf, BaseCollection.MY_COLL.id))
             }
         }
 
-    private fun startBarcodeScan() {
+    internal fun startBarcodeScan() {
         scanLauncher.launch(Intent(this, ScanActivity::class.java))
     }
 
@@ -527,46 +401,96 @@ class MainActivity : AppCompatActivity(),
         }
     }
 
-    private fun initBottomSheet() {
-        filterSheet = FilterSheetHost(
-            this, filterViewModel, bottomSheet,
-            onHeaderClick = ::onHandleClick,
-            onUpdating = ::setProgressBar,
-        )
-        bottomSheetBehavior = from(bottomSheet)
-        bottomSheetBehavior.apply {
-            peekHeight = this@MainActivity.peekHeight
-            isHideable = false
-            // It restores its state (HIDDEN, on an issue's page) after this runs; a sheet that is
-            // HIDDEN but not hideable matches no place to sit and is left at the top of the screen
-            saveFlags = BottomSheetBehavior.SAVE_HIDEABLE
-        }
+    // WHAT THE SCREENS ASK
 
-        bottomSheetBehavior.addBottomSheetCallback(object : BottomSheetCallback() {
-            override fun onStateChanged(bottomSheet: View, newState: Int) {
-                filterSheet.onStateChanged(newState)
-                updateScanFab()
-                if (restoreNonHideable &&
-                    (newState == STATE_COLLAPSED || newState == STATE_EXPANDED)
-                ) {
-                    restoreNonHideable = false
-                    bottomSheetBehavior.isHideable = false
-                }
-            }
-
-            override fun onSlide(bottomSheet: View, slideOffset: Float) {
-                filterSheet.onSlide(slideOffset)
-            }
-        })
+    // SeriesListScreen.SeriesListCallback
+    override fun onSeriesSelected(series: FullSeries) {
+        filterViewModel.addFilterItem(series)
     }
 
-    private fun initWindowInsets() {
-        ViewCompat.setOnApplyWindowInsetsListener(appBarLayout) { view, insets ->
-            val posTop = insets.getInsets(WindowInsetsCompat.Type.systemBars()).top
+    // CharacterListScreen.CharacterListCallback
+    override fun onCharacterSelected(character: Character) {
+        filterViewModel.addFilterItem(character)
+    }
 
-            view.updatePadding(top = posTop)
+    override fun onCharacterInfo(character: Character) {
+        openCharacter(character.characterId)
+    }
 
-            insets
+    // CharacterPage.CharacterDetailCallback
+    override fun openCharacter(characterId: Int) {
+        navigator.push(Route.Character(characterId))
+    }
+
+    override fun openIssue(issueId: Int) {
+        navigator.push(Route.Issue(issueId))
+    }
+
+    override fun filterByCharacter(character: Character) {
+        // Back to the list the character page was opened from, then add it to that list's filter
+        while (navigator.top?.route is Route.Character && navigator.pop()) continue
+        followTopList()
+        filterViewModel.addFilterItem(character)
+    }
+
+    override fun onCreatorInfo(creator: Creator) {
+        navigator.push(Route.Creator(creator.creatorId))
+    }
+
+    // CreatorPage.CreatorDetailCallback
+    override fun filterByCreator(creator: Creator) {
+        // Back to the list the creator page was opened from, then add them to that list's filter
+        while (navigator.top?.route is Route.Creator && navigator.pop()) continue
+        followTopList()
+        filterViewModel.addFilterItem(creator)
+    }
+
+    override fun onCreatorSelected(creator: Creator) {
+        filterViewModel.addFilterItem(creator)
+    }
+
+    // IssueListScreen.IssueListCallback
+    override fun onIssueSelected(issue: Issue) {
+        // From a collection's list, the issue page's jump bar goes through that collection
+        val collection = navigator.top?.filter?.takeIf { it.mMyCollection }?.mCollectionId
+        navigator.push(Route.Issue(issue.issueId, issue.variantOf, collection))
+    }
+
+    override fun onNewIssue(issueId: Int) {
+        navigator.push(Route.Issue(issueId))
+    }
+
+    // ListFragmentCallback
+    override fun setTitle(title: String?, subtitle: String?) {
+        barTitle = title ?: applicationInfo.loadLabel(packageManager).toString()
+        barSubtitle = subtitle
+    }
+
+    override fun setSelection(selection: SelectionBar?) {
+        barSelection = selection
+    }
+
+    override fun updateFilter(filter: SearchFilter) {
+        filterViewModel.setFilter(filter)
+    }
+
+    override fun addToCollection(issue: FullIssue, collId: Int) {
+        Repository.get().addToCollection(issue, collId)
+    }
+
+    override fun removeFromCollection(issue: FullIssue, collId: Int) {
+        Repository.get().removeFromCollection(issue.issue.issueId, collId)
+    }
+
+    /** The bar shows while the filter's items are being updated or anything is being fetched. */
+    private fun showProgress() {
+        loading = filterUpdating || fetching
+    }
+
+    private fun setProgressBar(isHidden: Boolean) {
+        runOnUiThread {
+            filterUpdating = !isHidden
+            showProgress()
         }
     }
 
@@ -610,113 +534,6 @@ class MainActivity : AppCompatActivity(),
         })
     }
 
-    // SeriesListFragment.SeriesListCallbacks
-    override fun onSeriesSelected(series: FullSeries) {
-        filterViewModel.addFilterItem(series)
-    }
-
-    // CharacterListFragment.CharacterListCallbacks
-    override fun onCharacterSelected(character: Character) {
-        filterViewModel.addFilterItem(character)
-//        updateFilter(SearchFilter(character = character, myCollection = false))
-    }
-
-    override fun onCharacterInfo(character: Character) {
-        openCharacter(character.characterId)
-    }
-
-    // CharacterDetailFragment.CharacterDetailCallback
-    override fun openCharacter(characterId: Int) {
-        openScreen(CharacterDetailFragment.newInstance(characterId))
-    }
-
-    override fun openIssue(issueId: Int) {
-        openIssue(IssueDetailFragment.newInstance(issueId))
-    }
-
-    override fun filterByCharacter(character: Character) {
-        // Back to the list the character page was opened from, then add it to that list's filter
-        while (currentScreen is CharacterDetailFragment && supportFragmentManager.popBackStackImmediate()) Unit
-        filterViewModel.addFilterItem(character)
-    }
-
-    override fun onCreatorInfo(creator: Creator) {
-        openScreen(CreatorDetailFragment.newInstance(creator.creatorId))
-    }
-
-    // CreatorDetailFragment.CreatorDetailCallback
-    override fun filterByCreator(creator: Creator) {
-        // Back to the list the creator page was opened from, then add them to that list's filter
-        while (currentScreen is CreatorDetailFragment && supportFragmentManager.popBackStackImmediate()) Unit
-        filterViewModel.addFilterItem(creator)
-    }
-
-    override fun onCreatorSelected(creator: Creator) {
-        filterViewModel.addFilterItem(creator)
-//        updateFilter(SearchFilter(creators = setOf(creator), myCollection = false))
-    }
-
-    private fun onHandleClick() {
-        if (bottomSheetBehavior.state == STATE_COLLAPSED) {
-            bottomSheetBehavior.state = STATE_EXPANDED
-        }
-    }
-
-    private var filterUpdating = false
-    private var fetching = false
-
-    /** The bar shows while the filter's items are being updated or anything is being fetched. */
-    private fun showProgress() {
-        loading = filterUpdating || fetching
-    }
-
-    private fun setProgressBar(isHidden: Boolean) {
-        runOnUiThread {
-            filterUpdating = !isHidden
-            showProgress()
-        }
-    }
-
-    // IssueListFragment.IssueListCallback
-    override fun onIssueSelected(issue: Issue) {
-        // From a collection's list, the issue page's jump bar goes through that collection
-        val collection = (currentScreen as? FilteredListFragment<*>)?.currentFilter
-            ?.takeIf { it.mMyCollection }?.mCollectionId
-        openIssue(IssueDetailFragment.newInstance(issue.issueId, issue.variantOf, collection))
-    }
-
-    private fun openIssue(fragment: IssueDetailFragment) = openScreen(fragment)
-
-    /** A page that covers the lists: an issue's or a character's. */
-    private fun openScreen(fragment: Fragment) {
-        supportFragmentManager.beginTransaction()
-            .setTransition(TRANSIT_FRAGMENT_FADE)
-            .replace(R.id.fragment_container, fragment)
-            .addToBackStack(null)
-            .commit()
-    }
-
-    override fun onNewIssue(issueId: Int) {
-        openIssue(IssueDetailFragment.newInstance(issueId))
-    }
-
-    // ListFragmentCallback
-    override fun setTitle(title: String?, subtitle: String?) {
-        barTitle = title ?: applicationInfo.loadLabel(packageManager).toString()
-        barSubtitle = subtitle
-    }
-
-    override fun setSelection(selection: SelectionBar?) {
-        barSelection = selection
-    }
-
-    override fun setToolbarScrollFlags(flags: Int) {
-        toolbar.updateLayoutParams<AppBarLayout.LayoutParams> { scrollFlags = flags }
-        if (flags and SCROLL_FLAG_SCROLL == SCROLL_FLAG_SCROLL) {
-            appBarLayout.setExpanded(true, true)
-        }
-    }
-
     companion object {
         internal var activeJob: Job? = null
         internal val hasConnection = MutableLiveData(false)
@@ -727,18 +544,5 @@ class MainActivity : AppCompatActivity(),
                 Log.d(TAG, "HAS CONNECTION: $it")
             }
         }
-
-    }
-
-    override fun updateFilter(filter: SearchFilter) {
-        filterViewModel.setFilter(filter)
-    }
-
-    override fun addToCollection(issue: FullIssue, collId: Int) {
-        Repository.get().addToCollection(issue, collId)
-    }
-
-    override fun removeFromCollection(issue: FullIssue, collId: Int) {
-        Repository.get().removeFromCollection(issue.issue.issueId, collId)
     }
 }

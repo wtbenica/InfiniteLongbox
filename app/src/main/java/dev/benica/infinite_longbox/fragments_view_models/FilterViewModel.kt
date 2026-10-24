@@ -245,26 +245,6 @@ class FilterViewModel : ViewModel() {
         setFilter(newVal)
     }
 
-    private val screenFilters = mutableMapOf<Int, SearchFilter>()
-    private var lastScreenId = 0
-
-    /**
-     * Hands a new list screen the filter it starts with. The filter can't travel in the fragment's
-     * arguments (parts of it can't be saved in a bundle), so the screen gets a number to ask for it.
-     */
-    fun registerScreen(filter: SearchFilter): Int {
-        val id = ++lastScreenId
-        screenFilters[id] = filter
-        return id
-    }
-
-    /** False in a view model that has handed out no screens: a new one, after the process died. */
-    val hasScreens: Boolean
-        get() = lastScreenId > 0
-
-    /** The filter [registerScreen] was given for [screenId], once. */
-    fun takeScreenFilter(screenId: Int): SearchFilter? = screenFilters.remove(screenId)
-
     companion object {
         /** Max rows per type shown in the filter-box popup. */
         const val OPTIONS_LIMIT = 50

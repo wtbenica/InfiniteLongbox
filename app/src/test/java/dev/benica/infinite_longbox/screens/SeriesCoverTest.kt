@@ -1,4 +1,4 @@
-package dev.benica.infinite_longbox.fragments
+package dev.benica.infinite_longbox.screens
 
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue

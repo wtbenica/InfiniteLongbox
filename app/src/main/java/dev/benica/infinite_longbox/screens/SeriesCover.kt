@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package dev.benica.infinite_longbox.fragments
+package dev.benica.infinite_longbox.screens
 
 /**
  * Whether a series card should go and get a cover from another issue of its series: it has none

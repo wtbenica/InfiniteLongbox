@@ -13,12 +13,12 @@
  * limitations under the License.
  */
 
-package dev.benica.infinite_longbox.fragments
+package dev.benica.infinite_longbox.screens
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
-import androidx.fragment.app.viewModels
+import dev.benica.infinite_longbox.nav.ScreenHost
 import dev.benica.infinite_longbox.database.models.FullIssue
 import dev.benica.infinite_longbox.database.models.FullSeries
 import dev.benica.infinite_longbox.fragments_view_models.SeriesListViewModel
@@ -31,15 +31,14 @@ import java.io.File
 
 /** The series, as cards: each with its first issue's cover, or failing that another issue's. */
 @ExperimentalCoroutinesApi
-class SeriesListFragment : ComposeListFragment<FullSeries>() {
+class SeriesListScreen(host: ScreenHost) : ComposeListScreen<FullSeries>(host) {
 
-    override val viewModel: SeriesListViewModel by viewModels()
+    override val viewModel: SeriesListViewModel by lazy { host.entry.viewModel<SeriesListViewModel>() }
     override val minColSizeDp: Int
         get() = 600
 
-    override fun onResume() {
-        super.onResume()
-        callback?.setTitle()
+    override fun onShown() {
+        callback.setTitle()
     }
 
     override fun key(item: FullSeries): Any = item.series.seriesId
@@ -64,7 +63,7 @@ class SeriesListFragment : ComposeListFragment<FullSeries>() {
                 loadingCover = !(firstIssue == null || coverFile?.exists() == true || firstIssue.cover != null),
             )
         }
-        SeriesListItem(state, onClick = { (callback as SeriesListCallback?)?.onSeriesSelected(item) })
+        SeriesListItem(state, onClick = { (callback as SeriesListCallback).onSeriesSelected(item) })
     }
 
     private fun requestWhatTheCardNeeds(item: FullSeries) {
@@ -105,7 +104,7 @@ class SeriesListFragment : ComposeListFragment<FullSeries>() {
     }
 
     override fun prefetch(item: FullSeries) {
-        coverFileOf(item)?.let { CoverImages.prefetchSeries(requireContext().applicationContext, it) }
+        coverFileOf(item)?.let { CoverImages.prefetchSeries(context.applicationContext, it) }
     }
 
     /** The file of the cover a card shows: the first issue's, or failing that the series' earliest. */
@@ -116,8 +115,4 @@ class SeriesListFragment : ComposeListFragment<FullSeries>() {
         fun onSeriesSelected(series: FullSeries)
     }
 
-    companion object {
-        @JvmStatic
-        fun newInstance() = SeriesListFragment()
-    }
 }

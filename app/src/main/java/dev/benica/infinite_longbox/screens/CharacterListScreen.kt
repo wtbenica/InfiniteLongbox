@@ -13,11 +13,11 @@
  * limitations under the License.
  */
 
-package dev.benica.infinite_longbox.fragments
+package dev.benica.infinite_longbox.screens
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import androidx.fragment.app.viewModels
+import dev.benica.infinite_longbox.nav.ScreenHost
 import dev.benica.infinite_longbox.database.models.Character
 import dev.benica.infinite_longbox.database.models.FullCharacter
 import dev.benica.infinite_longbox.fragments_view_models.CharacterListViewModel
@@ -28,15 +28,14 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 /** The characters, with the name they go by and the publisher. */
 @ExperimentalCoroutinesApi
-class CharacterListFragment : ComposeListFragment<FullCharacter>() {
+class CharacterListScreen(host: ScreenHost) : ComposeListScreen<FullCharacter>(host) {
 
-    override val viewModel: CharacterListViewModel by viewModels()
+    override val viewModel: CharacterListViewModel by lazy { host.entry.viewModel<CharacterListViewModel>() }
     override val minColSizeDp: Int
         get() = 600
 
-    override fun onResume() {
-        super.onResume()
-        callback?.setTitle()
+    override fun onShown() {
+        callback.setTitle()
     }
 
     override fun key(item: FullCharacter): Any = item.character.characterId
@@ -54,8 +53,8 @@ class CharacterListFragment : ComposeListFragment<FullCharacter>() {
         }
         NameListItem(
             state,
-            onClick = { (callback as CharacterListCallback?)?.onCharacterSelected(item.character) },
-            onInfo = { (callback as CharacterListCallback?)?.onCharacterInfo(item.character) },
+            onClick = { (callback as CharacterListCallback).onCharacterSelected(item.character) },
+            onInfo = { (callback as CharacterListCallback).onCharacterInfo(item.character) },
         )
     }
 
@@ -69,8 +68,4 @@ class CharacterListFragment : ComposeListFragment<FullCharacter>() {
         fun onCharacterInfo(character: Character)
     }
 
-    companion object {
-        @JvmStatic
-        fun newInstance() = CharacterListFragment()
-    }
 }

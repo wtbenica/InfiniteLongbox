@@ -50,7 +50,7 @@ import androidx.lifecycle.lifecycleScope
 import dev.benica.infinite_longbox.database.IssueDatabase
 import dev.benica.infinite_longbox.database.models.BaseCollection
 import dev.benica.infinite_longbox.database.models.FullIssue
-import dev.benica.infinite_longbox.fragments.StoragePrompt
+import dev.benica.infinite_longbox.screens.StoragePrompt
 import dev.benica.infinite_longbox.ui.dialogs.ChoiceDialog
 import dev.benica.infinite_longbox.ui.dialogs.NumberDialog
 import dev.benica.infinite_longbox.ui.dialogs.showDialog

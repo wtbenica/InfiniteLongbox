@@ -13,12 +13,9 @@
  * limitations under the License.
  */
 
-package dev.benica.infinite_longbox.fragments
+package dev.benica.infinite_longbox.screens
 
-import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -31,7 +28,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -39,27 +35,22 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.platform.ComposeView
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.ViewCompositionStrategy
-import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.asFlow
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemKey
-import com.google.android.material.appbar.AppBarLayout
 import dev.benica.infinite_longbox.LetterIndex
 import dev.benica.infinite_longbox.R
 import dev.benica.infinite_longbox.SearchFilter
 import dev.benica.infinite_longbox.SortType
 import dev.benica.infinite_longbox.database.models.ListItem
+import dev.benica.infinite_longbox.nav.ScreenHost
+import dev.benica.infinite_longbox.ui.LocalSheetPeek
 import dev.benica.infinite_longbox.ui.lists.FastScrollThumb
 import dev.benica.infinite_longbox.ui.lists.LetterStrip
 import dev.benica.infinite_longbox.ui.lists.ScrollBubble
-import dev.benica.infinite_longbox.ui.theme.InfiniteLongboxTheme
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -70,7 +61,7 @@ import kotlinx.coroutines.launch
  * the label beside the handle says, is the subclass's.
  */
 @ExperimentalCoroutinesApi
-abstract class ComposeListFragment<T : ListItem> : FilteredListFragment<T>() {
+abstract class ComposeListScreen<T : ListItem>(host: ScreenHost) : FilteredListScreen<T>(host) {
 
     /** Identifies a row across loads, so the list stays where it was while rows change. */
     protected abstract fun key(item: T): Any
@@ -115,39 +106,10 @@ abstract class ComposeListFragment<T : ListItem> : FilteredListFragment<T>() {
         return if (first.isLetter()) first.uppercase() else "#"
     }
 
-    /** How far the activity's own app bar can scroll away: while it is out, the list is that much taller. */
-    private var activityBarRange by mutableIntStateOf(0)
-
-    private val activityAppBar: AppBarLayout?
-        get() = activity?.findViewById(R.id.app_bar_layout)
-
-    private val appBarListener = View.OnLayoutChangeListener { _, _, _, _, _, _, _, _, _ ->
-        activityAppBar?.let { activityBarRange = it.totalScrollRange }
-    }
-
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?,
-    ): View = ComposeView(requireContext()).apply {
+    @Composable
+    override fun Content() {
         // Opaque, as the list was: whatever is behind it (a screen mid-fade) must not show through the gaps
-        setBackgroundColor(context.getColor(R.color.surface))
-        setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
-        setContent { InfiniteLongboxTheme { ListScreen() } }
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        announceRestoredFilter()
-        activityAppBar?.let {
-            it.addOnLayoutChangeListener(appBarListener)
-            activityBarRange = it.totalScrollRange
-        }
-    }
-
-    override fun onDestroyView() {
-        activityAppBar?.removeOnLayoutChangeListener(appBarListener)
-        super.onDestroyView()
+        Box(Modifier.fillMaxSize().background(colorResource(R.color.surface))) { ListScreen() }
     }
 
     @Composable
@@ -157,12 +119,9 @@ abstract class ComposeListFragment<T : ListItem> : FilteredListFragment<T>() {
         val headerCount = if (hasHeader) 1 else 0
         val grid = rememberLazyGridState()
         val scope = rememberCoroutineScope()
-        val context = LocalContext.current
 
-        // The padding under the list: the bottom sheet's peek, and the app bar's scroll range
-        val bottom = with(LocalDensity.current) {
-            (resources.getDimension(R.dimen.peek_height) + activityBarRange).toDp()
-        }
+        // The padding under the list: what shows of the bottom sheet
+        val bottom = LocalSheetPeek.current
 
         // Coming back to the list puts it where it was, once there are rows to scroll to; another
         // filter is another list, and starts at the top
@@ -248,7 +207,6 @@ abstract class ComposeListFragment<T : ListItem> : FilteredListFragment<T>() {
                 state = grid,
                 modifier = Modifier
                     .fillMaxSize()
-                    .nestedScroll(rememberNestedScrollInteropConnection())
                     .then(gridModifier(items, grid, headerCount)),
                 contentPadding = PaddingValues(bottom = bottom),
             ) {

@@ -13,26 +13,18 @@
  * limitations under the License.
  */
 
-package dev.benica.infinite_longbox.fragments
+package dev.benica.infinite_longbox.screens
 
-import androidx.fragment.app.Fragment
 import dev.benica.infinite_longbox.SearchFilter
 import dev.benica.infinite_longbox.ui.toolbar.SelectionBar
 
-/** What a list screen asks of the activity that holds it. */
+/** What a screen asks of the activity that holds it. */
 interface ListFragmentCallback {
     /** [subtitle] is the smaller line under the title; every call sets both, so it clears. */
     fun setTitle(title: String? = null, subtitle: String? = null)
-    fun setToolbarScrollFlags(flags: Int)
 
     /** Turns the top bar into the picked issues' bar; null puts the title back. */
     fun setSelection(selection: SelectionBar?)
 
     fun updateFilter(filter: SearchFilter)
-
-    /** A restored list's filter was rebuilt after the app was killed. */
-    fun onFilterRestored(list: Fragment, filter: SearchFilter)
-
-    /** A restored list's filter couldn't be rebuilt. */
-    fun onRestoreFailed()
 }

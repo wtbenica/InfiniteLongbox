@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.benica.infinite_longbox.fragments
+package dev.benica.infinite_longbox.screens
 
 import androidx.activity.ComponentActivity
 import dev.benica.infinite_longbox.ui.dialogs.StoragePromptDialog

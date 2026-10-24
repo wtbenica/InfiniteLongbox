@@ -14,21 +14,13 @@
  */
 package dev.benica.infinite_longbox.ui.filter
 
-import android.view.View
-import android.view.ViewGroup
-import androidx.appcompat.app.AppCompatActivity
+import androidx.activity.ComponentActivity
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.platform.ComposeView
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.updateLayoutParams
-import androidx.core.view.updatePadding
 import androidx.lifecycle.asFlow
 import androidx.lifecycle.lifecycleScope
-import com.google.android.material.bottomsheet.BottomSheetBehavior
 import dev.benica.infinite_longbox.FilterSummary
 import dev.benica.infinite_longbox.R
 import dev.benica.infinite_longbox.SearchFilter
@@ -41,7 +33,6 @@ import dev.benica.infinite_longbox.fragments_view_models.FilterViewModel
 import dev.benica.infinite_longbox.repository.Repository
 import dev.benica.infinite_longbox.ui.dialogs.DateDialog
 import dev.benica.infinite_longbox.ui.dialogs.showDialog
-import dev.benica.infinite_longbox.ui.theme.InfiniteLongboxTheme
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
@@ -51,48 +42,28 @@ import java.time.LocalDate
 import kotlin.reflect.KClass
 
 /**
- * The bottom sheet: what the list is filtered by when closed, and the controls for it when open.
- * Holds what [FilterSheet] shows and turns what it asks into changes of the filter; the sheet's
- * dragging is the activity's [BottomSheetBehavior], which reports its state and slide here.
+ * What the filter sheet shows and does: the filter it follows, the line it summarises it in, and
+ * what its controls ask for (turned into changes of the filter). The sheet's dragging and look are
+ * [FilterSheetLayer]'s.
  *
- * @param root the sheet's view: where the Compose content and the window insets go
- * @param onHeaderClick the collapsed sheet was tapped: open it
  * @param onUpdating the filter's items are (false) or aren't (true) being updated
  */
 @OptIn(ExperimentalCoroutinesApi::class)
 class FilterSheetHost(
-    private val activity: AppCompatActivity,
+    private val activity: ComponentActivity,
     private val viewModel: FilterViewModel,
-    root: View,
-    private val onHeaderClick: () -> Unit,
     onUpdating: (isHidden: Boolean) -> Unit,
 ) {
     private var currFilter by mutableStateOf(SearchFilter())
     private var summary by mutableStateOf("")
-    private var slide by mutableFloatStateOf(0f)
-    private var expanded by mutableStateOf(false)
+
+    /** Opens the sheet: set by the layer that holds it. */
+    var onOpen: () -> Unit = {}
 
     /** How many issues are in the collection the filter is showing (see [collectionLabel]). */
     private var collectionCount: Int? = null
 
     init {
-        val sheet = root.findViewById<ViewGroup>(R.id.layout_filter_fragment)
-        ViewCompat.setOnApplyWindowInsetsListener(sheet) { v, insets ->
-            val posBottom = insets.getInsets(WindowInsetsCompat.Type.systemBars()).bottom
-            v.updatePadding(bottom = posBottom)
-
-            val imeInsetBottom = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom
-            v.updateLayoutParams<ViewGroup.MarginLayoutParams> { bottomMargin = imeInsetBottom }
-
-            insets
-        }
-
-        root.findViewById<ComposeView>(R.id.sheet_compose).setContent {
-            InfiniteLongboxTheme {
-                FilterSheet(currFilter, summary, slide, expanded, actions)
-            }
-        }
-
         // The count follows whichever collection the filter shows, and changes as issues are added
         activity.lifecycleScope.launch {
             viewModel.filter.asFlow()
@@ -113,18 +84,9 @@ class FilterSheetHost(
         viewModel.updateComplete.observe(activity) { onUpdating(it) }
     }
 
-    /** The sheet settled in [state] (a BottomSheetBehavior state). */
-    fun onStateChanged(state: Int) {
-        expanded = state == BottomSheetBehavior.STATE_EXPANDED
-        // The slide callback doesn't always come before the state settles (a restored sheet)
-        when (state) {
-            BottomSheetBehavior.STATE_EXPANDED -> slide = 1f
-            BottomSheetBehavior.STATE_COLLAPSED, BottomSheetBehavior.STATE_HIDDEN -> slide = 0f
-        }
-    }
-
-    fun onSlide(slideOffset: Float) {
-        slide = slideOffset.coerceIn(0f, 1f)
+    @Composable
+    fun Sheet(slide: Float, expanded: Boolean) {
+        FilterSheet(currFilter, summary, slide, expanded, actions)
     }
 
     /** "My Collection (286)": the collection the list is limited to, and how many issues it holds. */
@@ -170,7 +132,7 @@ class FilterSheetHost(
         override fun setFilterType(type: KClass<out FilterType>) = viewModel.setFilterType(type)
         override fun pickDate(isStart: Boolean) = this@FilterSheetHost.pickDate(isStart)
         override fun setDate(date: LocalDate, isStart: Boolean) = viewModel.addFilterItem(DateFilter(date, isStart))
-        override fun openHeader() = onHeaderClick()
+        override fun openHeader() = onOpen()
         override suspend fun options(text: String) = viewModel.searchOptions(text)
     }
 

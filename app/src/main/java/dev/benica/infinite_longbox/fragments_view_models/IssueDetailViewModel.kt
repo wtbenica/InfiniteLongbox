@@ -33,6 +33,8 @@ private const val TAG = APP + "IssueDetailViewModel"
 
 @ExperimentalCoroutinesApi
 class IssueDetailViewModel : ViewModel() {
+    /** The page has been given its issue; coming back to it must not give it again. */
+    var started = false
 
     private val repository: Repository = Repository.get()
 
