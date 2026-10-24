@@ -15,11 +15,12 @@
   -->
 <!--
   Dark mode needs nothing but the role colors in values-night/colors.xml. The only theme difference
-  is that the status bar icons are light.
+  is that the status and navigation bar icons are light.
 -->
 <resources xmlns:tools="http://schemas.android.com/tools">
     <style name="Theme.InfiniteLongbox" parent="BaseTheme">
         <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowLightNavigationBar">false</item>
         <item name="android:enforceStatusBarContrast" tools:targetApi="q">false</item>
         <item name="android:enforceNavigationBarContrast" tools:targetApi="q">false</item>
     </style>
