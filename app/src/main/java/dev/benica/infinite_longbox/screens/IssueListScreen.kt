@@ -15,7 +15,7 @@
 
 package dev.benica.infinite_longbox.screens
 
-import android.widget.Toast
+import dev.benica.infinite_longbox.Notices
 import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.lazy.grid.LazyGridState
@@ -277,7 +277,7 @@ class IssueListScreen(host: ScreenHost) : ComposeListScreen<FullIssue>(host) {
                 val left = ids.size - moved
                 val text = getString(R.string.selection_moved, moved, place.orEmpty()) +
                     if (left > 0) getString(R.string.selection_not_owned, left) else ""
-                Toast.makeText(context, text, Toast.LENGTH_LONG).show()
+                Notices.show(text, long = true)
                 endSelection()
             }
         }

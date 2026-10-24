@@ -15,7 +15,7 @@
 
 package dev.benica.infinite_longbox.ui.dialogs
 
-import android.widget.Toast
+import dev.benica.infinite_longbox.Notices
 import androidx.activity.ComponentActivity
 import androidx.lifecycle.lifecycleScope
 import dev.benica.infinite_longbox.R
@@ -27,7 +27,7 @@ fun ComponentActivity.showStoragePlaces() {
     lifecycleScope.launch {
         val places = Repository.get().storagePlaces()
         if (places.isEmpty()) {
-            Toast.makeText(this@showStoragePlaces, R.string.storage_places_none, Toast.LENGTH_SHORT).show()
+            Notices.show(R.string.storage_places_none)
             return@launch
         }
         showDialog { dismiss ->
@@ -47,12 +47,10 @@ private fun ComponentActivity.renameStoragePlace(name: String) {
     ) { newName ->
         lifecycleScope.launch {
             val copies = Repository.get().renameStorage(name, newName)
-            Toast.makeText(
-                this@renameStoragePlace,
+            Notices.show(
                 if (newName == null) getString(R.string.storage_cleared, copies, name)
-                else getString(R.string.storage_renamed, copies, newName),
-                Toast.LENGTH_SHORT
-            ).show()
+                else getString(R.string.storage_renamed, copies, newName)
+            )
         }
     }
 }

@@ -18,7 +18,7 @@ package dev.benica.infinite_longbox
 import android.graphics.Point
 import android.os.Bundle
 import android.util.Log
-import android.widget.Toast
+import dev.benica.infinite_longbox.Notices
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -270,10 +270,10 @@ class MainActivity : ComponentActivity(),
     }
 
     private fun pushLocalCovers() {
-        Toast.makeText(this, "Uploading covers…", Toast.LENGTH_SHORT).show()
+        Notices.show("Uploading covers…")
         lifecycleScope.launch {
             val result = pushCoversToServer(applicationContext)
-            Toast.makeText(this@MainActivity, result.toString(), Toast.LENGTH_LONG).show()
+            Notices.show(result.toString(), long = true)
         }
     }
 

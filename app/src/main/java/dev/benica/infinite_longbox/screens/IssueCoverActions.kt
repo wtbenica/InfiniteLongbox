@@ -18,7 +18,7 @@ package dev.benica.infinite_longbox.screens
 import android.app.Activity
 import android.content.Intent
 import android.net.Uri
-import android.widget.Toast
+import dev.benica.infinite_longbox.Notices
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.ActivityResult
@@ -90,13 +90,13 @@ class IssueCoverActions(
     private fun fromMetron() {
         val issue = current()
         val context = activity.applicationContext
-        Toast.makeText(activity, R.string.cover_metron_working, Toast.LENGTH_SHORT).show()
+        Notices.show(R.string.cover_metron_working)
         scope.launch {
             val result = fetchCoverFromMetron(context, issue.issueId, issue.variantOf, issue.variantName)
             if ((result == MetronCoverResult.NONE || result == MetronCoverResult.AMBIGUOUS) && issue.variantOf != null) {
                 chooseFromMetron()
             } else {
-                Toast.makeText(activity, result.message, Toast.LENGTH_SHORT).show()
+                Notices.show(result.message)
             }
         }
     }
@@ -106,7 +106,7 @@ class IssueCoverActions(
         val options = metronCoverOptions(issue.issueId, issue.variantOf)
         when {
             options.isNullOrEmpty() ->
-                Toast.makeText(activity, R.string.cover_metron_none, Toast.LENGTH_SHORT).show()
+                Notices.show(R.string.cover_metron_none)
             // One cover to choose from is no choice: it is the one asked for, and can be replaced
             options.size == 1 -> metronPicked(options.first())
             else -> picker = options
@@ -119,7 +119,7 @@ class IssueCoverActions(
         val context = activity.applicationContext
         scope.launch {
             val result = fetchCoverFromMetron(context, issue.issueId, issue.variantOf, choice = option.id)
-            Toast.makeText(activity, result.message, Toast.LENGTH_SHORT).show()
+            Notices.show(result.message)
         }
     }
 
@@ -128,7 +128,7 @@ class IssueCoverActions(
         val issueId = current().issueId
         scope.launch {
             val message = pickedCoverToIssue(activity.applicationContext, issueId, uri)
-            Toast.makeText(activity, message, Toast.LENGTH_SHORT).show()
+            Notices.show(message)
         }
     }
 
@@ -150,7 +150,7 @@ class IssueCoverActions(
                         1 -> fromMetron()
                         else -> scope.launch {
                             val message = removeCover(activity.applicationContext, issueId)
-                            Toast.makeText(activity, message, Toast.LENGTH_SHORT).show()
+                            Notices.show(message)
                         }
                     }
                 },

@@ -24,7 +24,7 @@ import android.content.pm.PackageManager
 import android.os.SystemClock
 import android.util.Log
 import android.util.Size
-import android.widget.Toast
+import dev.benica.infinite_longbox.Notices
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
@@ -127,7 +127,7 @@ class ScanPage(host: ScreenHost) : Screen(host) {
             if (granted) {
                 startCamera()
             } else {
-                Toast.makeText(context, R.string.scan_camera_denied, Toast.LENGTH_LONG).show()
+                Notices.show(R.string.scan_camera_denied, long = true)
                 activity.goBack()
             }
         }
@@ -442,7 +442,7 @@ class ScanPage(host: ScreenHost) : Screen(host) {
         }
     }
 
-    private fun notice(message: String) = Toast.makeText(context, message, Toast.LENGTH_LONG).show()
+    private fun notice(message: String) = Notices.show(message, long = true)
 
     /** Series, number and variant, so the copies sharing one barcode can be told apart. */
     private fun FullIssue.scanLabel(): String {

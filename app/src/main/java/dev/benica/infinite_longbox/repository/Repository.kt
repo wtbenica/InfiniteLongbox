@@ -20,10 +20,8 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.SharedPreferences
 import android.database.sqlite.SQLiteConstraintException
-import android.os.Handler
-import android.os.Looper
 import android.util.Log
-import android.widget.Toast
+import dev.benica.infinite_longbox.Notices
 import androidx.core.content.edit
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
@@ -335,12 +333,8 @@ class Repository private constructor(val context: Context) {
     /** How many issues are in the collection (My Collection or the Wish List), kept up to date. */
     fun collectionSize(collectionId: Int): Flow<Int> = collectionItemDao.countIssues(collectionId)
 
-    /** A short notice from the background, on the screen whatever it is on. */
-    private fun tell(message: String) {
-        Handler(Looper.getMainLooper()).post {
-            Toast.makeText(context, message, Toast.LENGTH_LONG).show()
-        }
-    }
+    /** A short notice from the background. */
+    private fun tell(message: String) = Notices.show(message, long = true)
 
     fun addToCollection(issue: FullIssue, collId: Int, storageLocation: String? = null) {
         executor.execute {

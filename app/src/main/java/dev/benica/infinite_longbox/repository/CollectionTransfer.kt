@@ -17,7 +17,7 @@ package dev.benica.infinite_longbox.repository
 
 import android.net.Uri
 import android.util.Log
-import android.widget.Toast
+import dev.benica.infinite_longbox.Notices
 import androidx.activity.ComponentActivity
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.lifecycle.lifecycleScope
@@ -59,11 +59,7 @@ class CollectionTransfer(private val activity: ComponentActivity) {
                 Log.e(TAG, "export collection", e)
                 false
             }
-            Toast.makeText(
-                activity,
-                if (saved) R.string.collection_export_done else R.string.collection_export_failed,
-                Toast.LENGTH_LONG
-            ).show()
+            Notices.show(if (saved) R.string.collection_export_done else R.string.collection_export_failed, long = true)
         }
     }
 
@@ -82,12 +78,12 @@ class CollectionTransfer(private val activity: ComponentActivity) {
             if (parsed !is CollectionBackup.Parsed.Ok) {
                 val reason = (parsed as? CollectionBackup.Parsed.Unreadable)?.reason
                     ?: activity.getString(R.string.collection_import_failed)
-                Toast.makeText(activity, reason, Toast.LENGTH_LONG).show()
+                Notices.show(reason, long = true)
                 return@launch
             }
-            Toast.makeText(activity, R.string.collection_import_working, Toast.LENGTH_SHORT).show()
+            Notices.show(R.string.collection_import_working)
             val result = Repository.get().importCollections(parsed.collections)
-            Toast.makeText(activity, result.summary(), Toast.LENGTH_LONG).show()
+            Notices.show(result.summary(), long = true)
         }
     }
 

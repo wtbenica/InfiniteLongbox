@@ -22,11 +22,17 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.material3.Snackbar
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
@@ -39,12 +45,15 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.unit.dp
 import dev.benica.infinite_longbox.MainActivity
+import dev.benica.infinite_longbox.Notices
 import dev.benica.infinite_longbox.R
 import dev.benica.infinite_longbox.nav.Entry
+import dev.benica.infinite_longbox.nav.Route
 import dev.benica.infinite_longbox.nav.ScreenHost
 import dev.benica.infinite_longbox.nav.ScreenLifecycle
 import dev.benica.infinite_longbox.ui.shell.LocalSheetPeek
@@ -114,6 +123,34 @@ fun AppScreen(app: MainActivity) {
                 onOpenChange = { sheetOpen = it },
             )
 
+            val snackbars = remember { SnackbarHostState() }
+            LaunchedEffect(Unit) {
+                Notices.notices.collect {
+                    snackbars.showSnackbar(it.text, duration = if (it.long) SnackbarDuration.Long else SnackbarDuration.Short)
+                }
+            }
+            SnackbarHost(
+                hostState = snackbars,
+                modifier = Modifier
+                    .align(if (fullScreen) Alignment.TopCenter else Alignment.BottomCenter)
+                    .then(
+                        when {
+                            fullScreen -> Modifier.statusBarsPadding()
+                            // Above the jump bar and the attribution under an issue
+                            top?.route is Route.Issue -> Modifier.padding(bottom = navigationBarHeight() + ISSUE_FOOTER)
+                            else -> Modifier.padding(bottom = peek.coerceAtLeast(navigationBarHeight()))
+                        }
+                    )
+                    .padding(dimensionResource(R.dimen.margin_default)),
+            ) { data ->
+                Snackbar(
+                    data,
+                    containerColor = colorResource(R.color.text_primary),
+                    contentColor = colorResource(R.color.surface),
+                    actionColor = colorResource(R.color.accent_soft),
+                )
+            }
+
             ScanButton(
                 visible = !onPage && !sheetOpen,
                 onClick = app::startBarcodeScan,
@@ -146,3 +183,7 @@ private fun EntryContent(app: MainActivity, entry: Entry) {
 }
 
 private const val FADE_MS = 200
+private val ISSUE_FOOTER = 88.dp
+
+@Composable
+private fun navigationBarHeight() = with(LocalDensity.current) { WindowInsets.navigationBars.getBottom(this).toDp() }
