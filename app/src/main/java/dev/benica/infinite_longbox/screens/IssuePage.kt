@@ -15,21 +15,13 @@
 
 package dev.benica.infinite_longbox.screens
 
-import android.app.Activity
 import android.content.Intent
 import android.net.Uri
 import android.util.Log
-import android.widget.Toast
-import androidx.activity.compose.ManagedActivityResultLauncher
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.ActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.SideEffect
 import dev.benica.infinite_longbox.nav.Route
 import dev.benica.infinite_longbox.nav.Screen
 import dev.benica.infinite_longbox.nav.ScreenHost
-import dev.benica.infinite_longbox.ui.dialogs.ChoiceDialog
 import dev.benica.infinite_longbox.ui.dialogs.MyCopyDialog
 import dev.benica.infinite_longbox.ui.dialogs.showDialog
 import androidx.compose.runtime.getValue
@@ -40,7 +32,6 @@ import androidx.compose.ui.window.DialogProperties
 import androidx.core.net.toUri
 import androidx.lifecycle.lifecycleScope
 import dev.benica.infinite_longbox.APP
-import dev.benica.infinite_longbox.R
 import dev.benica.infinite_longbox.filter.SearchFilter
 import dev.benica.infinite_longbox.database.models.AUTO_ID
 import dev.benica.infinite_longbox.database.models.BaseCollection
@@ -56,18 +47,10 @@ import dev.benica.infinite_longbox.database.models.Series
 import dev.benica.infinite_longbox.database.models.SeriesAndPublisher
 import dev.benica.infinite_longbox.database.models.Story
 import dev.benica.infinite_longbox.viewmodels.IssueDetailViewModel
-import dev.benica.infinite_longbox.repository.MetronCoverOption
-import dev.benica.infinite_longbox.repository.MetronCoverResult
 import dev.benica.infinite_longbox.repository.Repository
-import dev.benica.infinite_longbox.repository.fetchCoverFromMetron
-import dev.benica.infinite_longbox.repository.metronCoverOptions
-import dev.benica.infinite_longbox.repository.metronCoverPreview
-import dev.benica.infinite_longbox.repository.pickedCoverToIssue
-import dev.benica.infinite_longbox.repository.removeCover
 import dev.benica.infinite_longbox.ui.covers.CoverImages
 import dev.benica.infinite_longbox.ui.covers.CoverViewer
 import dev.benica.infinite_longbox.ui.covers.IssueCoverState
-import dev.benica.infinite_longbox.ui.covers.MetronCoverPicker
 import dev.benica.infinite_longbox.ui.covers.ViewerCover
 import dev.benica.infinite_longbox.ui.covers.placeholderKey
 import dev.benica.infinite_longbox.ui.issue.IssueActionState
@@ -129,112 +112,7 @@ class IssuePage(host: ScreenHost) : Screen(host) {
 
     private val issueDetailViewModel: IssueDetailViewModel by lazy { host.entry.viewModel<IssueDetailViewModel>() }
 
-    /** Set when the page is composed: it needs the activity result registry. */
-    private var pickCoverImage: ManagedActivityResultLauncher<Intent, ActivityResult>? = null
-
-    private fun launchCoverPicker() {
-        val request = Intent(Intent.ACTION_GET_CONTENT).apply {
-            type = "image/*"
-            addCategory(Intent.CATEGORY_OPENABLE)
-        }
-        pickCoverImage?.launch(Intent.createChooser(request, getString(R.string.cover_choose_title)))
-    }
-
-    /** The cover button on an issue with none: from Metron (through the server), or from this device. */
-    private fun showAddCoverOptions() {
-        val options = arrayOf(
-            getString(R.string.cover_from_metron),
-            getString(R.string.cover_from_device),
-        )
-        activity.showDialog { dismiss ->
-            ChoiceDialog(
-                R.string.cover_add_title, options.toList(), null,
-                onChoose = { which ->
-                    when (which) {
-                        null -> Unit
-                        0 -> fetchCoverFromMetron()
-                        else -> launchCoverPicker()
-                    }
-                },
-                dismiss = dismiss,
-            )
-        }
-    }
-
-    private var metronPicker by mutableStateOf<List<MetronCoverOption>?>(null)
-
-    /** Fetches the cover from Metron; for a variant, falls back to the covers Metron offers to pick from. */
-    private fun fetchCoverFromMetron() {
-        val issue = currentIssue.issue
-        val context = context.applicationContext
-        Toast.makeText(context, R.string.cover_metron_working, Toast.LENGTH_SHORT).show()
-        viewLifecycleOwner.lifecycleScope.launch {
-            val result = fetchCoverFromMetron(context, issue.issueId, issue.variantOf, issue.variantName)
-            if ((result == MetronCoverResult.NONE || result == MetronCoverResult.AMBIGUOUS) && issue.variantOf != null) {
-                chooseMetronCover()
-            } else {
-                Toast.makeText(context, result.message, Toast.LENGTH_SHORT).show()
-            }
-        }
-    }
-
-    private suspend fun chooseMetronCover() {
-        val issue = currentIssue.issue
-        val options = metronCoverOptions(issue.issueId, issue.variantOf)
-        when {
-            options.isNullOrEmpty() ->
-                Toast.makeText(context, R.string.cover_metron_none, Toast.LENGTH_SHORT).show()
-            // One cover to choose from is no choice: it is the one asked for, and can be replaced
-            options.size == 1 -> metronCoverPicked(options.first())
-            else -> metronPicker = options
-        }
-    }
-
-    private fun metronCoverPicked(option: MetronCoverOption) {
-        metronPicker = null
-        val issue = currentIssue.issue
-        val context = context.applicationContext
-        viewLifecycleOwner.lifecycleScope.launch {
-            val result = fetchCoverFromMetron(context, issue.issueId, issue.variantOf, choice = option.id)
-            Toast.makeText(context, result.message, Toast.LENGTH_SHORT).show()
-        }
-    }
-
-    private fun coverPicked(uri: Uri?) {
-        uri ?: return
-        val issueId = currentIssue.issue.issueId
-        viewLifecycleOwner.lifecycleScope.launch {
-            val message = pickedCoverToIssue(context.applicationContext, issueId, uri)
-            Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
-        }
-    }
-
-    /** Long-press on an existing cover: replace it, or remove it. */
-    private fun showCoverOptions() {
-        val issueId = currentIssue.issue.issueId
-        val options = arrayOf(
-            getString(R.string.cover_replace),
-            getString(R.string.cover_replace_from_metron),
-            getString(R.string.cover_remove),
-        )
-        activity.showDialog { dismiss ->
-            ChoiceDialog(
-                R.string.cover_options_title, options.toList(), null,
-                onChoose = { which ->
-                    when (which) {
-                        null -> Unit
-                        0 -> launchCoverPicker()
-                        1 -> fetchCoverFromMetron()
-                        else -> viewLifecycleOwner.lifecycleScope.launch {
-                            val message = removeCover(context.applicationContext, issueId)
-                            Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
-                        }
-                    }
-                },
-                dismiss = dismiss,
-            )
-        }
-    }
+    private val covers = IssueCoverActions(activity, viewLifecycleOwner.lifecycleScope) { currentIssue.issue }
 
     init {
         fullIssue =
@@ -271,10 +149,7 @@ class IssuePage(host: ScreenHost) : Screen(host) {
 
     @Composable
     override fun Content() {
-        val launcher = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            if (result.resultCode == Activity.RESULT_OK) coverPicked(result.data?.data)
-        }
-        SideEffect { pickCoverImage = launcher }
+        covers.Dialogs()
         coverViewer?.let { (covers, start) ->
             Dialog(
                 onDismissRequest = { closeCoverViewer(viewerPage) },
@@ -283,20 +158,11 @@ class IssuePage(host: ScreenHost) : Screen(host) {
                 CoverViewer(covers, start, onDismiss = ::closeCoverViewer, onPageChanged = { viewerPage = it })
             }
         }
-        metronPicker?.let { options ->
-            val issue = currentIssue.issue
-            MetronCoverPicker(
-                options = options,
-                loadPreview = { metronCoverPreview(issue.issueId, issue.variantOf, it.id) },
-                onPick = ::metronCoverPicked,
-                onDismiss = { metronPicker = null },
-            )
-        }
         IssueDetailScreen(
             state = uiState,
             actions = IssueDetailActions(
                 onCoverClick = ::onCoverClicked,
-                onCoverLongClick = ::showCoverOptions,
+                onCoverLongClick = covers::options,
                 onToggleCollection = {
                     toggleCollection(
                         BaseCollection.MY_COLL.id,
@@ -649,7 +515,7 @@ class IssuePage(host: ScreenHost) : Screen(host) {
         if (uri != null) {
             openCoverViewer()
         } else {
-            showAddCoverOptions()
+            covers.addOptions()
         }
     }
 
