@@ -13,8 +13,9 @@
  * limitations under the License.
  */
 
-package dev.benica.infinite_longbox
+package dev.benica.infinite_longbox.repository
 
+import dev.benica.infinite_longbox.APP
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonSyntaxException

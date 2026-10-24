@@ -47,7 +47,7 @@ import dev.benica.infinite_longbox.R
 import dev.benica.infinite_longbox.nav.Entry
 import dev.benica.infinite_longbox.nav.ScreenHost
 import dev.benica.infinite_longbox.nav.ScreenLifecycle
-import dev.benica.infinite_longbox.ui.LocalSheetPeek
+import dev.benica.infinite_longbox.ui.shell.LocalSheetPeek
 import dev.benica.infinite_longbox.ui.scan.ScanButton
 import dev.benica.infinite_longbox.ui.toolbar.TopBar
 import dev.benica.infinite_longbox.ui.update.HeaderStatus

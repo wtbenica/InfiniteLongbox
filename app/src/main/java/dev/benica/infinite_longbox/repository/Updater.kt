@@ -22,7 +22,7 @@ import android.os.Process
 import android.util.Log
 import dev.benica.infinite_longbox.APP
 import dev.benica.infinite_longbox.InfiniteLongboxApplication.Companion.context
-import dev.benica.infinite_longbox.Webservice
+import dev.benica.infinite_longbox.network.Webservice
 import dev.benica.infinite_longbox.database.IssueDatabase
 import dev.benica.infinite_longbox.database.daos.BaseDao
 import dev.benica.infinite_longbox.database.daos.Count

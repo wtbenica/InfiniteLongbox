@@ -1,4 +1,4 @@
-package dev.benica.infinite_longbox
+package dev.benica.infinite_longbox.filter
 
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals

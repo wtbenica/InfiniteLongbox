@@ -21,7 +21,7 @@ import androidx.compose.runtime.remember
 import dev.benica.infinite_longbox.nav.ScreenHost
 import dev.benica.infinite_longbox.database.models.FullIssue
 import dev.benica.infinite_longbox.database.models.FullSeries
-import dev.benica.infinite_longbox.fragments_view_models.SeriesListViewModel
+import dev.benica.infinite_longbox.viewmodels.SeriesListViewModel
 import dev.benica.infinite_longbox.ui.covers.CoverImages
 import dev.benica.infinite_longbox.ui.lists.SeriesCardState
 import dev.benica.infinite_longbox.ui.lists.SeriesListItem
@@ -111,7 +111,7 @@ class SeriesListScreen(host: ScreenHost) : ComposeListScreen<FullSeries>(host) {
     private fun coverFileOf(series: FullSeries): File? =
         (series.firstIssue?.coverUri ?: series.earliestCoverUri)?.path?.let { File(it) }
 
-    interface SeriesListCallback : ListFragmentCallback {
+    interface SeriesListCallback : ScreenCallback {
         fun onSeriesSelected(series: FullSeries)
     }
 

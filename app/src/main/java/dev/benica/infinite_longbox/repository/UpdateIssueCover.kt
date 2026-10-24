@@ -23,7 +23,7 @@ import android.graphics.BitmapFactory
 import android.net.Uri
 import android.util.Log
 import dev.benica.infinite_longbox.APP
-import dev.benica.infinite_longbox.Webservice
+import dev.benica.infinite_longbox.network.Webservice
 import dev.benica.infinite_longbox.database.models.Cover
 import dev.benica.infinite_longbox.network.RetrofitAPIClient
 import kotlinx.coroutines.CoroutineScope

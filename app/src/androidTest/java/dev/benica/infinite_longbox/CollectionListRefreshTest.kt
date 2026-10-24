@@ -38,6 +38,7 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import kotlin.time.Duration.Companion.milliseconds
+import dev.benica.infinite_longbox.filter.SearchFilter
 
 /**
  * The My Collection series list is a paged query over the database. It has to show what is added

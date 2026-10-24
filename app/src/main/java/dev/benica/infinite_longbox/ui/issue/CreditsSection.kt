@@ -52,7 +52,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import dev.benica.infinite_longbox.R
-import dev.benica.infinite_longbox.SortType
+import dev.benica.infinite_longbox.filter.SortType
 import dev.benica.infinite_longbox.database.models.FullAppearance
 import dev.benica.infinite_longbox.database.models.FullCharacter
 import dev.benica.infinite_longbox.database.models.FullCredit

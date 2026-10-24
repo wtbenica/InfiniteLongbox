@@ -44,7 +44,7 @@ import dev.benica.infinite_longbox.database.models.Creator
 import dev.benica.infinite_longbox.database.models.FullIssue
 import dev.benica.infinite_longbox.database.models.FullSeries
 import dev.benica.infinite_longbox.database.models.Issue
-import dev.benica.infinite_longbox.fragments_view_models.FilterViewModel
+import dev.benica.infinite_longbox.viewmodels.FilterViewModel
 import dev.benica.infinite_longbox.nav.ListKind
 import dev.benica.infinite_longbox.nav.Navigator
 import dev.benica.infinite_longbox.nav.Route
@@ -59,9 +59,9 @@ import dev.benica.infinite_longbox.screens.CreatorListScreen
 import dev.benica.infinite_longbox.screens.CreatorPage
 import dev.benica.infinite_longbox.screens.IssueListScreen
 import dev.benica.infinite_longbox.screens.IssuePage
-import dev.benica.infinite_longbox.screens.ListFragmentCallback
+import dev.benica.infinite_longbox.screens.ScreenCallback
 import dev.benica.infinite_longbox.screens.SeriesListScreen
-import dev.benica.infinite_longbox.screens.StoragePrompt
+import dev.benica.infinite_longbox.ui.dialogs.StoragePrompt
 import dev.benica.infinite_longbox.ui.dialogs.AboutDialog
 import dev.benica.infinite_longbox.ui.dialogs.ChoiceDialog
 import dev.benica.infinite_longbox.ui.dialogs.showDialog
@@ -80,6 +80,8 @@ import kotlinx.coroutines.withContext
 import java.io.IOException
 import java.time.Instant
 import java.time.LocalDate
+import dev.benica.infinite_longbox.filter.SearchFilter
+import dev.benica.infinite_longbox.repository.CollectionBackup
 
 const val APP = "CC_"
 private const val TAG = APP + "MainActivity"
@@ -459,7 +461,7 @@ class MainActivity : ComponentActivity(),
         navigator.push(Route.Issue(issueId))
     }
 
-    // ListFragmentCallback
+    // ScreenCallback
     override fun setTitle(title: String?, subtitle: String?) {
         barTitle = title ?: applicationInfo.loadLabel(packageManager).toString()
         barSubtitle = subtitle

@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package dev.benica.infinite_longbox.fragments_view_models
+package dev.benica.infinite_longbox.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

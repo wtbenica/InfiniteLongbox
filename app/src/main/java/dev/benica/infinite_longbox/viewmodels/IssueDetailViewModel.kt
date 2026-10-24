@@ -15,7 +15,7 @@
 
 //@file:Suppress("RemoveExplicitTypeArguments")
 
-package dev.benica.infinite_longbox.fragments_view_models
+package dev.benica.infinite_longbox.viewmodels
 
 import android.util.Log
 import androidx.lifecycle.LiveData
@@ -28,6 +28,8 @@ import dev.benica.infinite_longbox.repository.Repository
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.flow.SharingStarted.Companion.WhileSubscribed
+import dev.benica.infinite_longbox.filter.SearchFilter
+import dev.benica.infinite_longbox.filter.SortType
 
 private const val TAG = APP + "IssueDetailViewModel"
 

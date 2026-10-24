@@ -15,9 +15,9 @@
 
 package dev.benica.infinite_longbox.screens
 
-import dev.benica.infinite_longbox.SearchFilter
+import dev.benica.infinite_longbox.filter.SearchFilter
 import dev.benica.infinite_longbox.database.models.ListItem
-import dev.benica.infinite_longbox.fragments_view_models.ListViewModel
+import dev.benica.infinite_longbox.viewmodels.ListViewModel
 import dev.benica.infinite_longbox.nav.Screen
 import dev.benica.infinite_longbox.nav.ScreenHost
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -30,7 +30,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 abstract class FilteredListScreen<T : ListItem>(host: ScreenHost) : Screen(host) {
     protected abstract val viewModel: ListViewModel<T>
 
-    protected val callback: ListFragmentCallback get() = host.activity
+    protected val callback: ScreenCallback get() = host.activity
 
     abstract val minColSizeDp: Int
 

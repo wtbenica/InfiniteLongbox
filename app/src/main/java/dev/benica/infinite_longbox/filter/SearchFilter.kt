@@ -13,8 +13,10 @@
  * limitations under the License.
  */
 
-package dev.benica.infinite_longbox
+package dev.benica.infinite_longbox.filter
 
+import dev.benica.infinite_longbox.APP
+import dev.benica.infinite_longbox.R
 import android.annotation.SuppressLint
 import dev.benica.infinite_longbox.InfiniteLongboxApplication.Companion.context
 import dev.benica.infinite_longbox.database.models.*

@@ -25,7 +25,7 @@ import android.util.Log
 import dev.benica.infinite_longbox.APP
 import dev.benica.infinite_longbox.BuildConfig
 import dev.benica.infinite_longbox.R
-import dev.benica.infinite_longbox.Webservice
+import dev.benica.infinite_longbox.network.Webservice
 import dev.benica.infinite_longbox.database.IssueDatabase
 import dev.benica.infinite_longbox.database.models.Cover
 import dev.benica.infinite_longbox.network.RetrofitAPIClient

@@ -27,6 +27,7 @@ import dev.benica.infinite_longbox.repository.SHARED_PREFS
 import dev.benica.infinite_longbox.repository.StaticUpdater
 import dev.benica.infinite_longbox.repository.UpdateIssueCover
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import dev.benica.infinite_longbox.network.Webservice
 
 @ExperimentalCoroutinesApi
 class InfiniteLongboxApplication: Application() {

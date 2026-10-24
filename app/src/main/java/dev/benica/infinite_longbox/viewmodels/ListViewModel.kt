@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package dev.benica.infinite_longbox.fragments_view_models
+package dev.benica.infinite_longbox.viewmodels
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -21,9 +21,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import dev.benica.infinite_longbox.APP
-import dev.benica.infinite_longbox.FilterSnapshot
-import dev.benica.infinite_longbox.LetterIndex
-import dev.benica.infinite_longbox.SearchFilter
+import dev.benica.infinite_longbox.filter.FilterSnapshot
+import dev.benica.infinite_longbox.filter.LetterIndex
+import dev.benica.infinite_longbox.filter.SearchFilter
 import dev.benica.infinite_longbox.database.models.ListItem
 import dev.benica.infinite_longbox.repository.Repository
 import kotlinx.coroutines.Dispatchers

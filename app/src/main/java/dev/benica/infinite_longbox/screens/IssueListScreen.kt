@@ -36,12 +36,12 @@ import androidx.activity.compose.BackHandler
 import androidx.lifecycle.lifecycleScope
 import androidx.paging.compose.LazyPagingItems
 import dev.benica.infinite_longbox.R
-import dev.benica.infinite_longbox.SearchFilter
+import dev.benica.infinite_longbox.filter.SearchFilter
 import dev.benica.infinite_longbox.database.models.BaseCollection
 import dev.benica.infinite_longbox.database.models.FullIssue
 import dev.benica.infinite_longbox.database.models.FullSeries
 import dev.benica.infinite_longbox.database.models.Issue
-import dev.benica.infinite_longbox.fragments_view_models.IssueListViewModel
+import dev.benica.infinite_longbox.viewmodels.IssueListViewModel
 import dev.benica.infinite_longbox.repository.Repository
 import dev.benica.infinite_longbox.ui.covers.CoverImages
 import dev.benica.infinite_longbox.ui.covers.placeholderKey
@@ -57,6 +57,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.io.File
 import java.time.format.DateTimeFormatter
+import dev.benica.infinite_longbox.ui.dialogs.StoragePrompt
 
 /**
  * The issues, as cards. For one series the series' details sit above them; a long press picks an
@@ -285,7 +286,7 @@ class IssueListScreen(host: ScreenHost) : ComposeListScreen<FullIssue>(host) {
         }
     }
 
-    interface IssueListCallback : ListFragmentCallback {
+    interface IssueListCallback : ScreenCallback {
         fun onIssueSelected(issue: Issue)
         fun onNewIssue(issueId: Int)
         fun addToCollection(issue: FullIssue, collId: Int)

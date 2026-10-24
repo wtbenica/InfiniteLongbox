@@ -35,7 +35,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
 import dev.benica.infinite_longbox.R
 import dev.benica.infinite_longbox.database.models.Character
-import dev.benica.infinite_longbox.fragments_view_models.CharacterDetailState
+import dev.benica.infinite_longbox.viewmodels.CharacterDetailState
 import dev.benica.infinite_longbox.repository.CharacterInfo
 import dev.benica.infinite_longbox.repository.CharacterInfoText
 import dev.benica.infinite_longbox.repository.IssueRef

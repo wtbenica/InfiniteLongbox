@@ -1,7 +1,7 @@
 package dev.benica.infinite_longbox.network
 
 import com.google.gson.JsonParser
-import dev.benica.infinite_longbox.Webservice
+import dev.benica.infinite_longbox.network.Webservice
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.serializerOrNull

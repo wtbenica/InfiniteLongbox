@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package dev.benica.infinite_longbox
+package dev.benica.infinite_longbox.filter
 
 /** How many list rows fall in one [SortType.letterBucketSql] bucket; a database result row. */
 data class LetterBucket(val bucket: String, val n: Int)

@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package dev.benica.infinite_longbox
+package dev.benica.infinite_longbox.network
 
 import dev.benica.infinite_longbox.database.daos.Count
 import dev.benica.infinite_longbox.database.models.*

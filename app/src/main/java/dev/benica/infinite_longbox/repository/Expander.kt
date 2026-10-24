@@ -16,7 +16,7 @@
 package dev.benica.infinite_longbox.repository
 
 import android.content.SharedPreferences
-import dev.benica.infinite_longbox.Webservice
+import dev.benica.infinite_longbox.network.Webservice
 import dev.benica.infinite_longbox.database.models.Appearance
 import dev.benica.infinite_longbox.database.models.Character
 import dev.benica.infinite_longbox.database.models.Creator

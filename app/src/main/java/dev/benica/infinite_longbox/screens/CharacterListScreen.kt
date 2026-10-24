@@ -20,7 +20,7 @@ import androidx.compose.runtime.remember
 import dev.benica.infinite_longbox.nav.ScreenHost
 import dev.benica.infinite_longbox.database.models.Character
 import dev.benica.infinite_longbox.database.models.FullCharacter
-import dev.benica.infinite_longbox.fragments_view_models.CharacterListViewModel
+import dev.benica.infinite_longbox.viewmodels.CharacterListViewModel
 import dev.benica.infinite_longbox.ui.lists.NameCardState
 import dev.benica.infinite_longbox.ui.lists.NameListItem
 import dev.benica.infinite_longbox.ui.lists.NameListItemSkeleton
@@ -61,7 +61,7 @@ class CharacterListScreen(host: ScreenHost) : ComposeListScreen<FullCharacter>(h
     override fun scrollLabel(item: FullCharacter): String? =
         if (sortedByName()) initialOf(item.character.compareValue) else null
 
-    interface CharacterListCallback : ListFragmentCallback {
+    interface CharacterListCallback : ScreenCallback {
         fun onCharacterSelected(character: Character)
 
         /** The info button: open the character's page rather than filter by it. */

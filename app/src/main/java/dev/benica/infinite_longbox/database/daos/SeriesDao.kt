@@ -23,11 +23,11 @@ import androidx.room.Transaction
 import androidx.sqlite.db.SimpleSQLiteQuery
 import androidx.sqlite.db.SupportSQLiteQuery
 import dev.benica.infinite_longbox.APP
-import dev.benica.infinite_longbox.LetterBucket
-import dev.benica.infinite_longbox.LetterIndex
-import dev.benica.infinite_longbox.SearchFilter
-import dev.benica.infinite_longbox.SortType
-import dev.benica.infinite_longbox.SortType.Companion.containsSortType
+import dev.benica.infinite_longbox.filter.LetterBucket
+import dev.benica.infinite_longbox.filter.LetterIndex
+import dev.benica.infinite_longbox.filter.SearchFilter
+import dev.benica.infinite_longbox.filter.SortType
+import dev.benica.infinite_longbox.filter.SortType.Companion.containsSortType
 import dev.benica.infinite_longbox.database.models.*
 import dev.benica.infinite_longbox.repository.DUMMY_ID
 import kotlinx.coroutines.ExperimentalCoroutinesApi

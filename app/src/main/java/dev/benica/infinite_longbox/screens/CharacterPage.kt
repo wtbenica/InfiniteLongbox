@@ -23,7 +23,7 @@ import dev.benica.infinite_longbox.nav.Route
 import dev.benica.infinite_longbox.nav.Screen
 import dev.benica.infinite_longbox.nav.ScreenHost
 import dev.benica.infinite_longbox.database.models.Character
-import dev.benica.infinite_longbox.fragments_view_models.CharacterDetailViewModel
+import dev.benica.infinite_longbox.viewmodels.CharacterDetailViewModel
 import dev.benica.infinite_longbox.ui.character.CharacterDetailActions
 import dev.benica.infinite_longbox.ui.character.CharacterDetailScreen
 import kotlinx.coroutines.ExperimentalCoroutinesApi

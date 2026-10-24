@@ -12,10 +12,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.benica.infinite_longbox.ui
 
-import androidx.compose.runtime.compositionLocalOf
-import androidx.compose.ui.unit.dp
+package dev.benica.infinite_longbox.screens
 
-/** How much of the filter sheet shows at the bottom of the screen: what a list leaves room for. */
-val LocalSheetPeek = compositionLocalOf { 0.dp }
+import dev.benica.infinite_longbox.filter.SearchFilter
+import dev.benica.infinite_longbox.ui.toolbar.SelectionBar
+
+/** What a screen asks of the activity that holds it. */
+interface ScreenCallback {
+    /** [subtitle] is the smaller line under the title; every call sets both, so it clears. */
+    fun setTitle(title: String? = null, subtitle: String? = null)
+
+    /** Turns the top bar into the picked issues' bar; null puts the title back. */
+    fun setSelection(selection: SelectionBar?)
+
+    fun updateFilter(filter: SearchFilter)
+}

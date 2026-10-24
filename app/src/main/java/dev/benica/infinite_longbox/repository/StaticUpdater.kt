@@ -19,7 +19,7 @@ import android.content.SharedPreferences
 import android.util.Log
 import dev.benica.infinite_longbox.APP
 import dev.benica.infinite_longbox.InfiniteLongboxApplication.Companion.context
-import dev.benica.infinite_longbox.Webservice
+import dev.benica.infinite_longbox.network.Webservice
 import dev.benica.infinite_longbox.database.models.*
 import dev.benica.infinite_longbox.repository.Updater.PriorityDispatcher.Companion.nowDispatcher
 import dev.benica.infinite_longbox.ui.update.UpdateProgress

@@ -22,7 +22,7 @@ import dev.benica.infinite_longbox.nav.ScreenHost
 import dev.benica.infinite_longbox.R
 import dev.benica.infinite_longbox.database.models.Creator
 import dev.benica.infinite_longbox.database.models.FullCreator
-import dev.benica.infinite_longbox.fragments_view_models.CreatorListViewModel
+import dev.benica.infinite_longbox.viewmodels.CreatorListViewModel
 import dev.benica.infinite_longbox.ui.lists.NameCardState
 import dev.benica.infinite_longbox.ui.lists.NameListItem
 import dev.benica.infinite_longbox.ui.lists.NameListItemSkeleton
@@ -64,7 +64,7 @@ class CreatorListScreen(host: ScreenHost) : ComposeListScreen<FullCreator>(host)
     override fun scrollLabel(item: FullCreator): String? =
         if (sortedByName()) initialOf(item.creator.compareValue) else null
 
-    interface CreatorListCallback : ListFragmentCallback {
+    interface CreatorListCallback : ScreenCallback {
         fun onCreatorSelected(creator: Creator)
 
         /** The info button: open the creator's page rather than filter by them. */

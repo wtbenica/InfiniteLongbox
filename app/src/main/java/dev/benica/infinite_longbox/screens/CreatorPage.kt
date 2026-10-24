@@ -24,7 +24,7 @@ import dev.benica.infinite_longbox.nav.Route
 import dev.benica.infinite_longbox.nav.Screen
 import dev.benica.infinite_longbox.nav.ScreenHost
 import dev.benica.infinite_longbox.database.models.Creator
-import dev.benica.infinite_longbox.fragments_view_models.CreatorDetailViewModel
+import dev.benica.infinite_longbox.viewmodels.CreatorDetailViewModel
 import dev.benica.infinite_longbox.repository.Repository
 import dev.benica.infinite_longbox.ui.creator.CreatorDetailActions
 import dev.benica.infinite_longbox.ui.creator.CreatorDetailScreen

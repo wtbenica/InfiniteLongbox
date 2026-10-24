@@ -20,8 +20,8 @@ import androidx.room.Query
 import androidx.room.RawQuery
 import androidx.sqlite.db.SimpleSQLiteQuery
 import androidx.sqlite.db.SupportSQLiteQuery
-import dev.benica.infinite_longbox.SearchFilter
-import dev.benica.infinite_longbox.SortType
+import dev.benica.infinite_longbox.filter.SearchFilter
+import dev.benica.infinite_longbox.filter.SortType
 import dev.benica.infinite_longbox.database.models.Publisher
 import dev.benica.infinite_longbox.repository.DUMMY_ID
 import kotlinx.coroutines.ExperimentalCoroutinesApi

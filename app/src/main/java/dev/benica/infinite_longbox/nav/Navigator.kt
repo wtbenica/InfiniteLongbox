@@ -22,17 +22,17 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.ViewModelStoreOwner
-import dev.benica.infinite_longbox.FilterSnapshot
-import dev.benica.infinite_longbox.SearchFilter
+import dev.benica.infinite_longbox.filter.FilterSnapshot
+import dev.benica.infinite_longbox.filter.SearchFilter
 import dev.benica.infinite_longbox.database.models.Character
 import dev.benica.infinite_longbox.database.models.FullCreator
 import dev.benica.infinite_longbox.database.models.FullIssue
 import dev.benica.infinite_longbox.database.models.FullSeries
-import dev.benica.infinite_longbox.fragments_view_models.CharacterListViewModel
-import dev.benica.infinite_longbox.fragments_view_models.CreatorListViewModel
-import dev.benica.infinite_longbox.fragments_view_models.IssueListViewModel
-import dev.benica.infinite_longbox.fragments_view_models.ListViewModel
-import dev.benica.infinite_longbox.fragments_view_models.SeriesListViewModel
+import dev.benica.infinite_longbox.viewmodels.CharacterListViewModel
+import dev.benica.infinite_longbox.viewmodels.CreatorListViewModel
+import dev.benica.infinite_longbox.viewmodels.IssueListViewModel
+import dev.benica.infinite_longbox.viewmodels.ListViewModel
+import dev.benica.infinite_longbox.viewmodels.SeriesListViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlin.reflect.KClass
 

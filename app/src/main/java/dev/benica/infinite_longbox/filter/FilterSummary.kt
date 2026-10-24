@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package dev.benica.infinite_longbox
+package dev.benica.infinite_longbox.filter
 
 /**
  * A line saying what a list is filtered by, for the collapsed filter sheet, where the filters

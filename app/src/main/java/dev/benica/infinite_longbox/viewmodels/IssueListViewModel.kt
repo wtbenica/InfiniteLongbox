@@ -13,13 +13,13 @@
  * limitations under the License.
  */
 
-package dev.benica.infinite_longbox.fragments_view_models
+package dev.benica.infinite_longbox.viewmodels
 
 import androidx.lifecycle.*
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import dev.benica.infinite_longbox.APP
-import dev.benica.infinite_longbox.SearchFilter
+import dev.benica.infinite_longbox.filter.SearchFilter
 import dev.benica.infinite_longbox.database.models.AUTO_ID
 import dev.benica.infinite_longbox.database.models.FullIssue
 import dev.benica.infinite_longbox.database.models.FullSeries

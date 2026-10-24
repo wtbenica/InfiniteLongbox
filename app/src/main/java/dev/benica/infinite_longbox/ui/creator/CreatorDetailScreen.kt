@@ -36,7 +36,7 @@ import androidx.compose.ui.unit.sp
 import dev.benica.infinite_longbox.R
 import dev.benica.infinite_longbox.database.daos.SignedIssue
 import dev.benica.infinite_longbox.database.models.Creator
-import dev.benica.infinite_longbox.fragments_view_models.CreatorDetailState
+import dev.benica.infinite_longbox.viewmodels.CreatorDetailState
 import dev.benica.infinite_longbox.repository.CharacterInfoText
 import dev.benica.infinite_longbox.repository.CreatorInfo
 import dev.benica.infinite_longbox.repository.CreatorInfoText

@@ -1,4 +1,4 @@
-package dev.benica.infinite_longbox
+package dev.benica.infinite_longbox.repository
 
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue

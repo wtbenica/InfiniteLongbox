@@ -54,7 +54,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import dev.benica.infinite_longbox.LetterIndex
+import dev.benica.infinite_longbox.filter.LetterIndex
 import dev.benica.infinite_longbox.R
 import dev.benica.infinite_longbox.ui.theme.PermanentMarker
 import kotlin.math.roundToInt

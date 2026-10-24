@@ -41,7 +41,7 @@ import androidx.core.net.toUri
 import androidx.lifecycle.lifecycleScope
 import dev.benica.infinite_longbox.APP
 import dev.benica.infinite_longbox.R
-import dev.benica.infinite_longbox.SearchFilter
+import dev.benica.infinite_longbox.filter.SearchFilter
 import dev.benica.infinite_longbox.database.models.AUTO_ID
 import dev.benica.infinite_longbox.database.models.BaseCollection
 import dev.benica.infinite_longbox.database.models.Creator
@@ -55,7 +55,7 @@ import dev.benica.infinite_longbox.database.models.Publisher
 import dev.benica.infinite_longbox.database.models.Series
 import dev.benica.infinite_longbox.database.models.SeriesAndPublisher
 import dev.benica.infinite_longbox.database.models.Story
-import dev.benica.infinite_longbox.fragments_view_models.IssueDetailViewModel
+import dev.benica.infinite_longbox.viewmodels.IssueDetailViewModel
 import dev.benica.infinite_longbox.repository.MetronCoverOption
 import dev.benica.infinite_longbox.repository.MetronCoverResult
 import dev.benica.infinite_longbox.repository.Repository
@@ -91,7 +91,7 @@ import java.io.File
 /** An issue's page: its details, credits and covers, with the jump bar through its series. */
 @ExperimentalCoroutinesApi
 class IssuePage(host: ScreenHost) : Screen(host) {
-    private val listFragmentCallback: ListFragmentCallback get() = host.activity
+    private val listFragmentCallback: ScreenCallback get() = host.activity
 
     private var fullIssue: FullIssue = FullIssue.getEmptyFullIssue()
     private var fullVariant: FullIssue? = null

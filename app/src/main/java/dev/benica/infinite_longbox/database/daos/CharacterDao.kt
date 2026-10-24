@@ -23,9 +23,9 @@ import androidx.room.Transaction
 import androidx.sqlite.db.SimpleSQLiteQuery
 import androidx.sqlite.db.SupportSQLiteQuery
 import dev.benica.infinite_longbox.APP
-import dev.benica.infinite_longbox.SearchFilter
-import dev.benica.infinite_longbox.SortType
-import dev.benica.infinite_longbox.SortType.Companion.containsSortType
+import dev.benica.infinite_longbox.filter.SearchFilter
+import dev.benica.infinite_longbox.filter.SortType
+import dev.benica.infinite_longbox.filter.SortType.Companion.containsSortType
 import dev.benica.infinite_longbox.database.models.Appearance
 import dev.benica.infinite_longbox.database.models.CollectionItem
 import dev.benica.infinite_longbox.database.models.Creator

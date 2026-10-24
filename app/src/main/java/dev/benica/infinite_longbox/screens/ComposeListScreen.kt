@@ -41,12 +41,12 @@ import androidx.lifecycle.asFlow
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemKey
-import dev.benica.infinite_longbox.LetterIndex
+import dev.benica.infinite_longbox.filter.LetterIndex
 import dev.benica.infinite_longbox.R
-import dev.benica.infinite_longbox.SortType
+import dev.benica.infinite_longbox.filter.SortType
 import dev.benica.infinite_longbox.database.models.ListItem
 import dev.benica.infinite_longbox.nav.ScreenHost
-import dev.benica.infinite_longbox.ui.LocalSheetPeek
+import dev.benica.infinite_longbox.ui.shell.LocalSheetPeek
 import dev.benica.infinite_longbox.ui.lists.FastScrollThumb
 import dev.benica.infinite_longbox.ui.lists.LetterStrip
 import dev.benica.infinite_longbox.ui.lists.ScrollBubble

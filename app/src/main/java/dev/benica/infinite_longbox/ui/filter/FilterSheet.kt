@@ -79,8 +79,8 @@ import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupPositionProvider
 import androidx.compose.ui.window.PopupProperties
 import dev.benica.infinite_longbox.R
-import dev.benica.infinite_longbox.SearchFilter
-import dev.benica.infinite_longbox.SortType
+import dev.benica.infinite_longbox.filter.SearchFilter
+import dev.benica.infinite_longbox.filter.SortType
 import dev.benica.infinite_longbox.database.models.All
 import dev.benica.infinite_longbox.database.models.BaseCollection
 import dev.benica.infinite_longbox.database.models.Character
