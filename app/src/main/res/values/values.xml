@@ -33,7 +33,6 @@
     <attr name="searchBarTextColorHint" format="reference|color" />
     <attr name="searchBarTextColor" format="reference" />
     <attr name="searchBarBackground" format="reference" />
-    <attr name="searchBarPopupBackground" format="reference" />
     <attr name="filterChipGroupBackground" format="reference" />
     <attr name="filterSectionBackgroundColor" format="reference|color" />
 

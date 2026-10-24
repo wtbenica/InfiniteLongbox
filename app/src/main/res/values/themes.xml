@@ -73,7 +73,6 @@
         <item name="searchBarTextColorHint">@color/text_secondary</item>
         <item name="searchBarTextColor">@color/text_primary</item>
         <item name="searchBarBackground">@android:color/transparent</item>
-        <item name="searchBarPopupBackground">@drawable/bg_search_popup</item>
         <item name="filterSectionBackgroundColor">@color/surface_sunken</item>
         <item name="filterChipGroupBackground">@android:color/transparent</item>
         <item name="chipActiveBgColor">@color/accent_soft</item>

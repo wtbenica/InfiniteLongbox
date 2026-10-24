@@ -15,103 +15,71 @@
 
 package dev.benica.infinite_longbox.fragments
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Build
 import android.os.Build.VERSION_CODES.TIRAMISU
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
-import android.view.View.*
 import android.view.ViewGroup
-import android.widget.*
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
-import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.core.view.*
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updateLayoutParams
+import androidx.core.view.updatePadding
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.asFlow
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.bottomsheet.BottomSheetBehavior
-import com.google.android.material.chip.ChipGroup
 import dev.benica.infinite_longbox.*
 import dev.benica.infinite_longbox.database.models.*
-import dev.benica.infinite_longbox.database.models.BaseCollection
 import dev.benica.infinite_longbox.fragments_view_models.FilterViewModel
 import dev.benica.infinite_longbox.repository.Repository
-import dev.benica.infinite_longbox.ui.filter.FilterSheetHeader
+import dev.benica.infinite_longbox.ui.filter.FilterSheet
+import dev.benica.infinite_longbox.ui.filter.FilterSheetActions
 import dev.benica.infinite_longbox.ui.theme.InfiniteLongboxTheme
-import dev.benica.infinite_longbox.views.*
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import java.time.LocalDate
+import kotlin.reflect.KClass
 
 @Suppress("unused")
 private const val TAG = APP + "FilterFragment"
 
+/** The bottom sheet: what the list is filtered by when closed, and the controls for it when open. */
 @ExperimentalCoroutinesApi
-class FilterFragment : Fragment(),
-    SearchBar.SearchTextViewCallback,
-    FilterChip.FilterChipCallback, OptionChipGroup.OptionChipGroupCallback,
-    SortChipGroup.SortChipGroupCallback, DateChipGroup.DateChipGroupCallback {
+class FilterFragment : Fragment() {
 
-    private lateinit var sections: LinearLayout
     private val viewModel: FilterViewModel by viewModels({ requireActivity() })
     private var callback: FilterFragmentCallback? = null
-    private val disabledFilterChips = mutableSetOf<FilterChip>()
 
-    internal var visibleState: Int = BottomSheetBehavior.STATE_EXPANDED
-        set(value) {
-            field = onVisibleStateUpdated(value)
-        }
-
-    private var currFilter: SearchFilter = SearchFilter()
-
-    // Views
-    private lateinit var filterView: FrameLayout
-    private lateinit var handleBox: FrameLayout
-    private var handleSummary by mutableStateOf("")
+    private var currFilter by mutableStateOf(SearchFilter())
+    private var summary by mutableStateOf("")
+    private var slide by mutableFloatStateOf(0f)
+    private var expanded by mutableStateOf(false)
 
     /** How many issues are in the collection the filter is showing (see [collectionLabel]). */
     private var collectionCount: Int? = null
 
-    private lateinit var chipSections: LinearLayout
-
-    private lateinit var dateFilterSection: LinearLayout
-    private lateinit var dateChipGroup: DateChipGroup
-
-    private lateinit var optionsSection: LinearLayout
-    private lateinit var optionsChipGroup: OptionChipGroup
-
-    private lateinit var sortSection: LinearLayout
-    private lateinit var sortChipGroup: SortChipGroup
-
-    private lateinit var filterSection: LinearLayout
-    private lateinit var filterOptionsLabel: ImageView
-
-    private lateinit var filterChipGroup: ChipGroup
-    private lateinit var filterAddButton: ImageButton
-
-    private lateinit var searchSection: ConstraintLayout
-    private lateinit var searchBar: SearchBar
-
-    private lateinit var filterTypeScrollView: HorizontalScrollView
-    private lateinit var filterTypeChipGroup: ChipGroup
-    private lateinit var filterChipAll: FilterTypeChip<All.Companion>
-    private lateinit var filterChipSeries: FilterTypeChip<Series.Companion>
-    private lateinit var filterChipCreator: FilterTypeChip<NameDetail.Companion>
-    private lateinit var filterChipCharacter: FilterTypeChip<Character.Companion>
-    private lateinit var filterChipPublisher: FilterTypeChip<Publisher.Companion>
+    internal var visibleState: Int = BottomSheetBehavior.STATE_EXPANDED
+        set(value) {
+            field = value
+            expanded = value == BottomSheetBehavior.STATE_EXPANDED
+            // The slide callback doesn't always come before the state settles (a restored sheet)
+            when (value) {
+                BottomSheetBehavior.STATE_EXPANDED -> slide = 1f
+                BottomSheetBehavior.STATE_COLLAPSED, BottomSheetBehavior.STATE_HIDDEN -> slide = 0f
+            }
+        }
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -123,18 +91,27 @@ class FilterFragment : Fragment(),
         savedInstanceState: Bundle?,
     ): View? {
         val view = inflater.inflate(R.layout.fragment_filter, container, false)
-        onCreateViewFindViews(view)
-        onCreateViewInitViews()
-
         view.clipToOutline = true
 
-        // One adapter for the life of the view: it queries per keystroke instead of being
-        // replaced (and the popup disrupted) every time the underlying data changes.
-        searchBar.setAdapter(
-            FilterOptionsAdapter(requireContext()) { text ->
-                runBlocking(Dispatchers.IO) { viewModel.searchOptions(text) }
+        val filterView = view.findViewById<ViewGroup>(R.id.layout_filter_fragment)
+        ViewCompat.setOnApplyWindowInsetsListener(filterView) { v, insets ->
+            val posBottom = insets.getInsets(WindowInsetsCompat.Type.systemBars()).bottom
+            v.updatePadding(bottom = posBottom)
+
+            val imeInsetBottom = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom
+            v.updateLayoutParams<ViewGroup.MarginLayoutParams> { bottomMargin = imeInsetBottom }
+
+            insets
+        }
+
+        view.findViewById<ComposeView>(R.id.sheet_compose).apply {
+            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+            setContent {
+                InfiniteLongboxTheme {
+                    FilterSheet(currFilter, summary, slide, expanded, actions)
+                }
             }
-        )
+        }
 
         return view
     }
@@ -154,136 +131,14 @@ class FilterFragment : Fragment(),
                 }
         }
 
-        viewModel.filter.observe(
-            viewLifecycleOwner
-        ) { filter ->
+        viewModel.filter.observe(viewLifecycleOwner) { filter ->
             currFilter = filter
             showSummary(filter)
-            updateFilterCard(filter)
-            sortChipGroup.update(filter)
-            optionsChipGroup.update(filter)
-            dateChipGroup.update(filter)
         }
 
         viewModel.updateComplete.observe(viewLifecycleOwner) {
             callback?.setProgressBar(it)
         }
-    }
-
-    @SuppressLint("ClickableViewAccessibility")
-    private fun onCreateViewInitViews() {
-        ViewCompat.setOnApplyWindowInsetsListener(filterView) { view, insets ->
-            val posBottom = insets.getInsets(WindowInsetsCompat.Type.systemBars()).bottom
-            view.updatePadding(bottom = posBottom)
-
-
-            val imeInsetBottom = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom
-            view.updateLayoutParams<ViewGroup.MarginLayoutParams> { bottomMargin = imeInsetBottom }
-
-            insets
-        }
-
-        handleBox.findViewById<ComposeView>(R.id.handle_compose).apply {
-            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
-            setContent {
-                InfiniteLongboxTheme {
-                    FilterSheetHeader(handleSummary, onClick = { callback?.onHandleClick() })
-                }
-            }
-        }
-
-        sortChipGroup.setOnCheckedChangeListener { _, checkedId ->
-            if (checkedId >= 0) {
-                view?.findViewById<SortChip>(checkedId)?.sortType?.let {
-                    if (it != currFilter.mSortType) {
-                        viewModel.setSortOption(it)
-                    }
-                }
-            }
-        }
-
-        sortChipGroup.callback = this@FilterFragment
-
-        filterChipGroup.removeAllViews()
-
-        filterAddButton.setOnClickListener {
-            searchSection.visibility = VISIBLE
-            filterAddButton.visibility = GONE
-        }
-
-        searchBar.callbacks = this
-
-        filterTypeChipGroup.setOnCheckedChangeListener { _, checkedId ->
-            if (checkedId >= 0) {
-                view?.findViewById<FilterTypeChip<*>>(checkedId)?.let { filterChip ->
-                    filterChip.type?.let { type -> viewModel.setFilterType(type) }
-                }
-
-                searchBar.refreshOptions()
-            }
-        }
-    }
-
-    private fun onCreateViewFindViews(view: View) {
-        filterView = view.findViewById(R.id.layout_filter_fragment)
-        handleBox = view.findViewById(R.id.layout_filter_fragment_handle)
-
-        sections = view.findViewById(R.id.sections)
-        chipSections = view.findViewById(R.id.chip_sections)
-        dateFilterSection = view.findViewById(R.id.section_date_filters)
-        dateChipGroup = view.findViewById(R.id.chip_group_dates)
-        dateChipGroup.callback = this
-
-        optionsSection = view.findViewById(R.id.section_options)
-        optionsChipGroup = view.findViewById(R.id.chip_group_option)
-        optionsChipGroup.callback = this
-
-        sortSection = view.findViewById(R.id.section_sort)
-        sortChipGroup = view.findViewById(R.id.chip_group_sort)
-
-        filterSection = view.findViewById(R.id.section_filter)
-
-        filterOptionsLabel = view.findViewById(R.id.image_label_filter_items)
-        filterChipGroup = view.findViewById(R.id.chip_group_filter)
-        filterAddButton = view.findViewById(R.id.add_filter_button)
-
-        searchSection = view.findViewById(R.id.section_search)
-        searchBar = view.findViewById(R.id.search_bar)
-        searchBar.dropDownAnchor = R.id.filter_type_chip_group
-
-        initFilterTypeChipGroup(view)
-    }
-
-    private fun initFilterTypeChipGroup(view: View) {
-        filterTypeScrollView = view.findViewById(R.id.chip_group_scrollview)
-        filterTypeChipGroup = view.findViewById(R.id.filter_type_chip_group)
-        filterChipAll =
-            view.findViewById<FilterTypeChip<All.Companion>>(R.id.filter_chip_all).apply {
-                type = All.Companion::class
-            }
-        filterChipSeries =
-            view.findViewById<FilterTypeChip<Series.Companion>>(R.id.filter_chip_series)
-                .apply {
-                    type = Series.Companion::class
-                }
-        filterChipCreator = view.findViewById<FilterTypeChip<NameDetail.Companion>>(
-            R.id.filter_chip_creator
-        )
-            .apply {
-                type = NameDetail.Companion::class
-            }
-        filterChipCharacter = view.findViewById<FilterTypeChip<Character.Companion>>(
-            R.id.filter_chip_character
-        )
-            .apply {
-                type = Character.Companion::class
-            }
-        filterChipPublisher = view.findViewById<FilterTypeChip<Publisher.Companion>>(
-            R.id.filter_chip_publisher
-        )
-            .apply {
-                type = Publisher.Companion::class
-            }
     }
 
     /** "My Collection (286)": the collection the list is limited to, and how many issues it holds. */
@@ -297,7 +152,7 @@ class FilterFragment : Fragment(),
 
     /** The collapsed sheet's line saying what the list is filtered by. */
     private fun showSummary(filter: SearchFilter) {
-        val text = FilterSummary.of(
+        summary = FilterSummary.of(
             myCollection = filter.mMyCollection,
             myCollectionLabel = collectionLabel(filter),
             missingCover = filter.mMissingCover,
@@ -314,145 +169,39 @@ class FilterFragment : Fragment(),
             creatorsLabel = { resources.getQuantityString(R.plurals.filter_summary_creators, it, it) },
             publishersLabel = { resources.getQuantityString(R.plurals.filter_summary_publishers, it, it) },
         )
-        handleSummary = text
     }
 
     internal fun onSlide(slideOffset: Float) {
-        val inverseOffset = 1 - slideOffset
-        handleBox.alpha = inverseOffset
-        sections.alpha = slideOffset
-        enableViewGroup(sections, slideOffset != 0F)
+        slide = slideOffset.coerceIn(0f, 1f)
     }
 
-    private fun enableViewGroup(vg: ViewGroup, isEnabled: Boolean = true) {
-        vg.isEnabled = isEnabled
-        for (child in vg.children) {
-            if (child is ViewGroup) {
-                enableViewGroup(child, isEnabled)
-            } else {
-                child.isEnabled = isEnabled
-            }
-        }
-    }
-
-    private fun onVisibleStateUpdated(value: Int): Int {
-        if (value == BottomSheetBehavior.STATE_EXPANDED) {
-            handleBox.visibility = GONE
-            optionsChipGroup.isEnabled = true
-            sortChipGroup.isEnabled = true
-            filterChipGroup.isEnabled = true
-        } else {
-            handleBox.visibility = VISIBLE
-            optionsChipGroup.isEnabled = false
-            sortChipGroup.isEnabled = false
-            filterChipGroup.isEnabled = false
-        }
-
-        return value
-    }
-
-    private fun updateFilterCard(value: SearchFilter) {
-        val newFilters: Set<FilterItem> = value.getAll()
-
-        // An item that's active again (typed in again, or re-added from somewhere else) replaces
-        // its switched-off chip instead of sitting next to it as a duplicate
-        disabledFilterChips.removeAll { it.item in newFilters }
-
-        filterChipGroup.removeAllViews()
-        newFilters.forEach { addChip(it) }
-        disabledFilterChips.forEach { filterChipGroup.addView(it) }
-
-        if (filterChipGroup.isEmpty()) {
-            collapseFilterCard()
-            searchSection.visibility = VISIBLE
-        } else {
-            showChipsHideBox()
-            expandFilterCard()
-        }
-    }
-
-    private fun showChipsHideBox() {
-        searchSection.visibility = GONE
-        filterSection.visibility = VISIBLE
-        filterAddButton.visibility = VISIBLE
-    }
-
-    private fun addChip(item: FilterItem) {
-        val chip = FilterChip(context, item, this)
-        filterChipGroup.addView(chip)
-    }
-
-    private fun expandFilterCard() {
-        filterSection.visibility = VISIBLE
-    }
-
-    private fun collapseFilterCard() {
-        filterSection.visibility = GONE
-    }
-
-    // SearchTextViewCallback
-    override fun addFilterItem(option: FilterItem) = viewModel.addFilterItem(option)
-
-    override fun hideKeyboard() {
-        callback?.hideKeyboard()
-    }
-
-    override fun setFilterTypesVisibility(isVisible: Boolean) {
-        // Only the row of types comes and goes: the other rows stay, so the collection, sort and
-        // date can be changed without closing the search first
-        filterTypeScrollView.visibility = if (isVisible) VISIBLE else GONE
-    }
-
-    // ChippyCallback
-    override fun filterChipClosed(chip: FilterChip) {
-        viewModel.removeFilterItem(chip.item)
-        disabledFilterChips.remove(chip)
-    }
-
-    override fun filterChipCheckChanged(buttonView: FilterChip, checked: Boolean) {
-        if (checked) {
-            disabledFilterChips.remove(buttonView)
-            viewModel.addFilterItem(buttonView.item)
-        } else {
-            disabledFilterChips.add(buttonView)
-            viewModel.removeFilterItem(buttonView.item)
-        }
-    }
-
-    // OptionChipGroupCallback
-    override fun checkChanged(action: (FilterViewModel, Boolean) -> Unit, isChecked: Boolean) {
-        action(viewModel, isChecked)
-    }
-
-    override fun onClickViewChip() {
-        viewModel.nextViewOption()
-    }
-
-    // SortChipGroupCallback
-    override fun sortOrderChanged(sortType: SortType) {
-        viewModel.setSortOption(sortType)
+    private val actions = object : FilterSheetActions {
+        override fun myCollection(on: Boolean) = viewModel.myCollection(on)
+        override fun wishList(on: Boolean) = viewModel.wishList(on)
+        override fun missingCover(on: Boolean) = viewModel.missingCover(on)
+        override fun missingStorage(on: Boolean) = viewModel.missingStorage(on)
+        override fun showVariants(on: Boolean) = viewModel.showVariants(on)
+        override fun nextView() = viewModel.nextViewOption()
+        override fun sortBy(sort: SortType) = viewModel.setSortOption(sort)
+        override fun add(item: FilterItem) = viewModel.addFilterItem(item)
+        override fun remove(item: FilterItem) = viewModel.removeFilterItem(item)
+        override fun setFilterType(type: KClass<out FilterType>) = viewModel.setFilterType(type)
+        override fun pickDate(isStart: Boolean) = this@FilterFragment.pickDate(isStart)
+        override fun setDate(date: LocalDate, isStart: Boolean) = viewModel.addFilterItem(DateFilter(date, isStart))
+        override fun openHeader() { callback?.onHandleClick() }
+        override suspend fun options(text: String) = viewModel.searchOptions(text)
     }
 
     interface FilterFragmentCallback {
         fun onHandleClick()
-        fun hideKeyboard()
-        fun showKeyboard(focus: EditText)
         fun setProgressBar(isHidden: Boolean)
     }
 
     companion object {
         fun newInstance() = FilterFragment()
-
-        /*
-                This is a better way to do the Filter-Type Chips, rather than hard-coding them, it was
-                just faster in the short run.
-
-                val filterTypeOptions: List<KClass<*>> = FilterType::class.sealedSubclasses
-                    .sortedBy { it.objectInstance.toString() }
-         */
     }
 
-    override fun getDate(currentSelection: LocalDate, isStart: Boolean) {
+    private fun pickDate(isStart: Boolean) {
         val reqKey = if (isStart) RESULT_DATE_PICKER_START else RESULT_DATE_PICKER_END
         parentFragmentManager.setFragmentResultListener(
             reqKey,
@@ -464,29 +213,15 @@ class FilterFragment : Fragment(),
                 @Suppress("DEPRECATION")
                 result.getSerializable(ARG_DATE) as LocalDate?
             }
-            when (reqKey) {
-                RESULT_DATE_PICKER_START -> resultDate?.let { dateChipGroup.setStartDate(it) }
-                RESULT_DATE_PICKER_END -> resultDate?.let { dateChipGroup.setEndDate(it) }
-                else -> Unit
-            }
+            resultDate?.let { actions.setDate(it, isStart) }
         }
 
-        val minDate = when (isStart) {
-            true -> LocalDate.of(1900, 1, 1)
-            false -> this@FilterFragment.currFilter.mStartDate
-        }
+        val minDate = if (isStart) LocalDate.of(1900, 1, 1) else currFilter.mStartDate
+        val maxDate = if (isStart) currFilter.mEndDate else LocalDate.now()
+        val current = if (isStart) currFilter.mStartDate else currFilter.mEndDate
 
-        val maxDate = when (isStart) {
-            true -> this@FilterFragment.currFilter.mEndDate
-            false -> LocalDate.now()
-        }
-
-        DatePickerFragment.newInstance(currentSelection, minDate, maxDate, reqKey).apply {
+        DatePickerFragment.newInstance(current, minDate, maxDate, reqKey).apply {
             show(this@FilterFragment.parentFragmentManager, DIALOG_DATE)
         }
-    }
-
-    override fun setDate(date: LocalDate, isStart: Boolean) {
-        viewModel.addFilterItem(DateFilter(date, isStart))
     }
 }

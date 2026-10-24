@@ -27,8 +27,6 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import android.view.inputmethod.InputMethodManager
-import android.widget.EditText
 import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
@@ -654,19 +652,6 @@ class MainActivity : AppCompatActivity(),
         if (bottomSheetBehavior.state == STATE_COLLAPSED) {
             bottomSheetBehavior.state = STATE_EXPANDED
         }
-    }
-
-    override fun hideKeyboard() {
-        val view: View? = this.findViewById(android.R.id.content)
-        val inputMethodManager =
-            getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
-        view?.let { inputMethodManager.hideSoftInputFromWindow(it.windowToken, 0) }
-    }
-
-    override fun showKeyboard(focus: EditText) {
-        val inputMethodManager =
-            getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
-        inputMethodManager.showSoftInput(focus, 0)
     }
 
     private var filterUpdating = false
