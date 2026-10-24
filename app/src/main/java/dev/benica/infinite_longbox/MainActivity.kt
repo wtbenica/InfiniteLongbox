@@ -17,10 +17,6 @@ package dev.benica.infinite_longbox
 
 import android.content.Intent
 import android.graphics.Point
-import android.net.ConnectivityManager
-import android.net.Network
-import android.net.NetworkCapabilities
-import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
@@ -33,7 +29,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -61,27 +56,20 @@ import dev.benica.infinite_longbox.screens.IssueListScreen
 import dev.benica.infinite_longbox.screens.IssuePage
 import dev.benica.infinite_longbox.screens.ScreenCallback
 import dev.benica.infinite_longbox.screens.SeriesListScreen
-import dev.benica.infinite_longbox.ui.dialogs.StoragePrompt
 import dev.benica.infinite_longbox.ui.dialogs.AboutDialog
-import dev.benica.infinite_longbox.ui.dialogs.ChoiceDialog
 import dev.benica.infinite_longbox.ui.dialogs.showDialog
+import dev.benica.infinite_longbox.ui.dialogs.showStoragePlaces
+import dev.benica.infinite_longbox.network.Connectivity
+import dev.benica.infinite_longbox.repository.CollectionTransfer
 import dev.benica.infinite_longbox.ui.filter.FilterSheetHost
 import dev.benica.infinite_longbox.ui.shell.AppScreen
 import dev.benica.infinite_longbox.ui.theme.InfiniteLongboxTheme
 import dev.benica.infinite_longbox.ui.toolbar.BarAction
 import dev.benica.infinite_longbox.ui.toolbar.SelectionBar
 import dev.benica.infinite_longbox.ui.update.UpdateProgress
-import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import java.io.IOException
-import java.time.Instant
-import java.time.LocalDate
 import dev.benica.infinite_longbox.filter.SearchFilter
-import dev.benica.infinite_longbox.repository.CollectionBackup
 
 const val APP = "CC_"
 private const val TAG = APP + "MainActivity"
@@ -109,6 +97,8 @@ class MainActivity : ComponentActivity(),
 
     internal val navigator: Navigator by viewModels()
     private val filterViewModel: FilterViewModel by viewModels()
+
+    private val collectionTransfer = CollectionTransfer(this)
 
     internal lateinit var filterSheet: FilterSheetHost
     internal lateinit var progressUpdate: UpdateProgress
@@ -205,7 +195,7 @@ class MainActivity : ComponentActivity(),
 
         setContent { InfiniteLongboxTheme { AppScreen(this) } }
 
-        initNetwork()
+        Connectivity.watch(this)
 
         Repository.get().beginStaticUpdate(progressUpdate, this)
 
@@ -265,48 +255,11 @@ class MainActivity : ComponentActivity(),
         add(BarAction(getString(R.string.menu_clear_db)) {
             IssueDatabase.getInstance(this@MainActivity).transactionDao().cleanDatabase()
         })
-        add(BarAction(getString(R.string.menu_export_collection)) { exportCollection.launch(collectionFileName()) })
-        add(BarAction(getString(R.string.menu_import_collection)) {
-            importCollection.launch(arrayOf("application/json", "text/plain", "*/*"))
-        })
+        add(BarAction(getString(R.string.menu_export_collection)) { collectionTransfer.export() })
+        add(BarAction(getString(R.string.menu_import_collection)) { collectionTransfer.import() })
         add(BarAction(getString(R.string.menu_storage_places)) { showStoragePlaces() })
         // pushing covers to the dev server is a development convenience
         if (BuildConfig.DEBUG) add(BarAction(getString(R.string.menu_push_covers)) { pushLocalCovers() })
-    }
-
-    /** Every storage place with its copy count; a tap renames it (to a name already used merges the two). */
-    private fun showStoragePlaces() {
-        lifecycleScope.launch {
-            val places = Repository.get().storagePlaces()
-            if (places.isEmpty()) {
-                Toast.makeText(this@MainActivity, R.string.storage_places_none, Toast.LENGTH_SHORT).show()
-                return@launch
-            }
-            showDialog { dismiss ->
-                ChoiceDialog(
-                    R.string.storage_places_title, places.map { "${it.name} (${it.copies})" }, R.string.scan_done,
-                    onChoose = { which -> which?.let { renameStoragePlace(places[it].name) } },
-                    dismiss = dismiss,
-                )
-            }
-        }
-    }
-
-    private fun renameStoragePlace(name: String) {
-        StoragePrompt.show(
-            this, R.string.storage_rename_title,
-            getString(R.string.storage_rename_message, name), name, R.string.storage_rename_clear,
-        ) { newName ->
-            lifecycleScope.launch {
-                val copies = Repository.get().renameStorage(name, newName)
-                Toast.makeText(
-                    this@MainActivity,
-                    if (newName == null) getString(R.string.storage_cleared, copies, name)
-                    else getString(R.string.storage_renamed, copies, newName),
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
-        }
     }
 
     private val scanLauncher =
@@ -322,64 +275,6 @@ class MainActivity : ComponentActivity(),
 
     internal fun startBarcodeScan() {
         scanLauncher.launch(Intent(this, ScanActivity::class.java))
-    }
-
-    private val exportCollection =
-        registerForActivityResult(ActivityResultContracts.CreateDocument("application/json")) { uri ->
-            uri?.let { writeCollection(it) }
-        }
-
-    private val importCollection =
-        registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
-            uri?.let { readCollection(it) }
-        }
-
-    private fun collectionFileName() = "infinite-longbox-collection-${LocalDate.now()}.json"
-
-    /** Saves My Collection and the Wish List to the file the person picked. */
-    private fun writeCollection(uri: Uri) {
-        lifecycleScope.launch {
-            val saved = try {
-                val json = Repository.get().exportCollections(Instant.now().toString())
-                withContext(Dispatchers.IO) {
-                    contentResolver.openOutputStream(uri, "wt")?.use { it.write(json.toByteArray()) }
-                        ?: throw IOException("could not open $uri")
-                }
-                true
-            } catch (e: IOException) {
-                Log.e(TAG, "export collection", e)
-                false
-            }
-            Toast.makeText(
-                this@MainActivity,
-                if (saved) R.string.collection_export_done else R.string.collection_export_failed,
-                Toast.LENGTH_LONG
-            ).show()
-        }
-    }
-
-    /** Puts what is in the file the person picked into My Collection and the Wish List. */
-    private fun readCollection(uri: Uri) {
-        lifecycleScope.launch {
-            val text = try {
-                withContext(Dispatchers.IO) {
-                    contentResolver.openInputStream(uri)?.use { it.readBytes().decodeToString() }
-                }
-            } catch (e: IOException) {
-                Log.e(TAG, "read collection", e)
-                null
-            }
-            val parsed = text?.let { CollectionBackup.parse(it) }
-            if (parsed !is CollectionBackup.Parsed.Ok) {
-                val reason = (parsed as? CollectionBackup.Parsed.Unreadable)?.reason
-                    ?: getString(R.string.collection_import_failed)
-                Toast.makeText(this@MainActivity, reason, Toast.LENGTH_LONG).show()
-                return@launch
-            }
-            Toast.makeText(this@MainActivity, R.string.collection_import_working, Toast.LENGTH_SHORT).show()
-            val result = Repository.get().importCollections(parsed.collections)
-            Toast.makeText(this@MainActivity, result.summary(), Toast.LENGTH_LONG).show()
-        }
     }
 
     private fun pushLocalCovers() {
@@ -480,58 +375,6 @@ class MainActivity : ComponentActivity(),
         runOnUiThread {
             filterUpdating = !isHidden
             showProgress()
-        }
-    }
-
-    private fun initNetwork() {
-        val connManager = getSystemService(ConnectivityManager::class.java)
-
-        connManager.registerDefaultNetworkCallback(object :
-            ConnectivityManager.NetworkCallback() {
-            override fun onAvailable(network: Network) {
-                super.onAvailable(network)
-                hasConnection.postValue(true)
-                activeJob?.let { job ->
-                    if (job.isCompleted) {
-                        job.start()
-                    }
-                }
-            }
-
-            override fun onLost(network: Network) {
-                super.onLost(network)
-                hasConnection.postValue(false)
-                activeJob?.cancel(CancellationException("Network Lost"))
-            }
-
-            override fun onUnavailable() {
-                super.onUnavailable()
-                hasConnection.postValue(false)
-            }
-
-            override fun onCapabilitiesChanged(
-                network: Network,
-                networkCapabilities: NetworkCapabilities,
-            ) {
-                super.onCapabilitiesChanged(network, networkCapabilities)
-                hasUnmeteredConnection.postValue(
-                    networkCapabilities.hasCapability(
-                        NetworkCapabilities.NET_CAPABILITY_NOT_METERED
-                    )
-                )
-            }
-        })
-    }
-
-    companion object {
-        internal var activeJob: Job? = null
-        internal val hasConnection = MutableLiveData(false)
-        internal val hasUnmeteredConnection = MutableLiveData(false)
-
-        init {
-            hasConnection.observeForever {
-                Log.d(TAG, "HAS CONNECTION: $it")
-            }
         }
     }
 }

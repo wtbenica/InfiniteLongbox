@@ -61,7 +61,7 @@ import androidx.compose.ui.window.PopupProperties
 import dev.benica.infinite_longbox.R
 import dev.benica.infinite_longbox.database.models.BaseCollection
 import dev.benica.infinite_longbox.repository.Repository
-import dev.benica.infinite_longbox.ui.filter.SheetChip
+import dev.benica.infinite_longbox.ui.common.SheetChip
 import dev.benica.infinite_longbox.ui.issue.MyCopyState
 import dev.benica.infinite_longbox.ui.issue.SignerRef
 import dev.benica.infinite_longbox.ui.theme.Archivo

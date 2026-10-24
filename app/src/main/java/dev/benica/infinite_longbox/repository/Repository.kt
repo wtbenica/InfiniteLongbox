@@ -35,7 +35,8 @@ import dev.benica.infinite_longbox.repository.BackupSigner
 import dev.benica.infinite_longbox.repository.CollectionBackup
 import dev.benica.infinite_longbox.repository.ImportResult
 import dev.benica.infinite_longbox.filter.LetterIndex
-import dev.benica.infinite_longbox.MainActivity
+import androidx.activity.ComponentActivity
+import dev.benica.infinite_longbox.network.Connectivity
 import dev.benica.infinite_longbox.R
 import dev.benica.infinite_longbox.filter.SearchFilter
 import dev.benica.infinite_longbox.database.IssueDatabase
@@ -167,11 +168,11 @@ class Repository private constructor(val context: Context) {
     // Only one static update at a time: each connectivity callback started another that raced the others
     private val staticUpdateRunning = AtomicBoolean(false)
 
-    internal fun beginStaticUpdate(progressUpdate: UpdateProgress, mainActivity: MainActivity) {
-        MainActivity.hasConnection.observe(mainActivity) {
+    internal fun beginStaticUpdate(progressUpdate: UpdateProgress, mainActivity: ComponentActivity) {
+        Connectivity.hasConnection.observe(mainActivity) {
             this.hasConnection = it
             if (checkConnectionStatus() && staticUpdateRunning.compareAndSet(false, true)) {
-                MainActivity.activeJob =
+                Connectivity.activeJob =
                     CoroutineScope(Dispatchers.IO).async {
                         try {
                             withContext(Dispatchers.Default) {
