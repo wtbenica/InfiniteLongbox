@@ -85,11 +85,12 @@ class FilterViewModel : ViewModel() {
         }
     }
 
-    private val _updateCompleteSeries = MutableLiveData(false)
+    // Nothing is being updated until the filter asks for it
+    private val _updateCompleteSeries = MutableLiveData(true)
     private val updateCompleteSeries: LiveData<Boolean> = _updateCompleteSeries
-    private var _updateCompleteCharacter = MutableLiveData(false)
+    private var _updateCompleteCharacter = MutableLiveData(true)
     private val updateCompleteCharacter: LiveData<Boolean> = _updateCompleteCharacter
-    private var _updateCompleteCreator = MutableLiveData(false)
+    private var _updateCompleteCreator = MutableLiveData(true)
     private val updateCompleteCreator: LiveData<Boolean> = _updateCompleteCreator
 
     val updateComplete =
