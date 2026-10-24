@@ -368,9 +368,12 @@ class IssueDetailFragment : Fragment() {
                     it.toString(), it.issue.variantName, it.placeholderKey(),
                 )
             }
-            if (issuesInSeries.map { it.issueId } != stops.map { it.issueId }) {
+            // A cover arriving changes a stop without changing which stops there are: the viewer
+            // and the neighbours' prefetch read the covers from here, so it is kept up to date too
+            val samePlaces = issuesInSeries.map { it.issueId } == stops.map { it.issueId }
+            if (!samePlaces || issuesInSeries.map { it.cover?.path } != stops.map { it.cover?.path }) {
                 issuesInSeries = stops
-                refreshPosition()
+                if (!samePlaces) refreshPosition() else prefetchNeighbours()
             }
         }
 
@@ -737,7 +740,13 @@ class IssueDetailFragment : Fragment() {
         val here = currentPos
         viewerPage = here.coerceAtLeast(0)
         coverViewer = if (here >= 0 && issuesInSeries.isNotEmpty()) {
-            issuesInSeries.map { ViewerCover(it.issueId, it.title, it.variantName, it.cover?.takeIf { f -> f.exists() }, it.placeholderKey) } to here
+            // The page's own cover is the freshest word on this issue's
+            val shown = currentIssue.issue.issueId
+            val shownCover = coverUri?.path?.let { File(it) }
+            issuesInSeries.map {
+                val file = if (it.issueId == shown) shownCover else it.cover
+                ViewerCover(it.issueId, it.title, it.variantName, file?.takeIf { f -> f.exists() }, it.placeholderKey)
+            } to here
         } else {
             val issue = currentIssue
             listOf(
