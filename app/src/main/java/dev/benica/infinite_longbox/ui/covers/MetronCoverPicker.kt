@@ -46,10 +46,7 @@ import androidx.compose.ui.window.Dialog
 import dev.benica.infinite_longbox.R
 import dev.benica.infinite_longbox.repository.MetronCoverOption
 
-/**
- * The covers Metron has for an issue, to pick one from. [loadPreview] gets the picture of an
- * option (null if it can't be had); a tap on a cover is the choice.
- */
+/** The covers Metron has for an issue, to pick one from. */
 @Composable
 fun MetronCoverPicker(
     options: List<MetronCoverOption>,

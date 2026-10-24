@@ -88,11 +88,7 @@ private const val TAG = APP + "MainActivity"
 
 private const val KEY_NAV = "navigator"
 
-/**
- * The app's one activity. What is on screen is [AppScreen]; this holds what the screens report to
- * (the title, the picked issues, the filter) and decides what a change of the filter means for the
- * navigator's stack.
- */
+/** The app's one activity: holds what the screens report and decides what a filter change means for the stack. */
 @ExperimentalCoroutinesApi
 class MainActivity : ComponentActivity(),
     SeriesListScreen.SeriesListCallback,
@@ -141,12 +137,7 @@ class MainActivity : ComponentActivity(),
 
     // WHAT THE FILTER MEANS FOR THE STACK
 
-    /**
-     * Each list screen carries the filter it shows; Back just pops to the previous screen, which
-     * still has its filter and its scroll position. Editing the filter in the sheet changes the list
-     * on screen. Changing what's listed (series, issues, creators, characters) or leaving a page
-     * opens a new screen.
-     */
+    /** Editing the filter changes the list on screen; changing what's listed, or leaving a page, opens a new screen. */
     private fun showFilter(filter: SearchFilter) {
         val entry = navigator.top
         val list = (entry?.route as? Route.List)
@@ -159,9 +150,7 @@ class MainActivity : ComponentActivity(),
                 }
             }
 
-            // Only the view was switched (series, characters, creators): the same list seen another
-            // way, so it takes the place of the one showing. Keeping each in the stack piles them
-            // up in memory for as long as the app runs.
+            // Only the view changed: the list takes the place of the one showing
             list != null && entry.filter?.sameItemsAs(filter) == true -> navigator.replaceTopWithList(filter)
 
             else -> navigator.pushList(filter)
@@ -230,8 +219,7 @@ class MainActivity : ComponentActivity(),
             }
 
             savedStack != null -> {
-                // The process was killed. The screens are rebuilding their filters from what they
-                // saved; until the visible one reports in, the sheet's default must not start a new screen.
+                // Killed process: the top list is rebuilding its filter, so ignore the sheet's default until it is back
                 navigator.restore(savedStack, onListFailed = ::startOver)
                 val top = navigator.top
                 if (top?.isDetail == true) {

@@ -46,10 +46,7 @@ import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneOffset
 
-/**
- * A list to choose from. [onChoose] gets the index picked, or null when the dialog was closed (or
- * [cancelLabel] pressed) without a choice; the dialog goes away either way.
- */
+/** A list to choose from. */
 @Composable
 fun ChoiceDialog(
     title: Int,

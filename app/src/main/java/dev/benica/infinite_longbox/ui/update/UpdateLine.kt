@@ -39,11 +39,7 @@ data class UpdateStage(val key: String, val text: String)
 /** How long one part fades into the next. */
 const val STAGE_FADE_MS = 180
 
-/**
- * One line telling what the database update is doing: [title] on the left and, on the right, which
- * part is being fetched now. A new part fades in as the old one fades out; the same part with a new
- * count just changes the number.
- */
+/** One line telling what the database update is doing: the title, and the part being fetched. */
 @Composable
 fun UpdateLine(title: String, stage: UpdateStage?, modifier: Modifier = Modifier) {
     Row(

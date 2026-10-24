@@ -41,13 +41,7 @@ import kotlinx.coroutines.launch
 import java.time.LocalDate
 import kotlin.reflect.KClass
 
-/**
- * What the filter sheet shows and does: the filter it follows, the line it summarises it in, and
- * what its controls ask for (turned into changes of the filter). The sheet's dragging and look are
- * [FilterSheetLayer]'s.
- *
- * @param onUpdating the filter's items are (false) or aren't (true) being updated
- */
+/** What the filter sheet shows and does. */
 @OptIn(ExperimentalCoroutinesApi::class)
 class FilterSheetHost(
     private val activity: ComponentActivity,

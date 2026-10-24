@@ -24,11 +24,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 
-/**
- * Counts the requests the app is waiting for, so the screen can say it is still fetching: a creator
- * picked whose credits have not all arrived, covers on their way. Every fetch from the server
- * goes through [track].
- */
+/** Counts the requests the app is waiting for, so the screen can say it is still fetching. */
 object LoadTracker {
     private val active = MutableStateFlow(0)
 
@@ -44,11 +40,7 @@ object LoadTracker {
         }
     }
 
-    /**
-     * Whether to show that the app is fetching. It waits [showAfterMs] before saying yes, so
-     * requests that finish at once show nothing, and [hideAfterMs] before saying no, so a run of
-     * requests with gaps between them does not flicker.
-     */
+    /** Whether to show that the app is fetching. */
     @OptIn(FlowPreview::class)
     fun busy(showAfterMs: Long = 300, hideAfterMs: Long = 600): Flow<Boolean> =
         active.map { it > 0 }

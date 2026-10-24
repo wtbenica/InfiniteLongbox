@@ -51,10 +51,7 @@ class BarAction(val label: String, val onClick: () -> Unit)
 /** Issues are picked: the bar says how many, offers [actions] for them, and [onClose] lets them go. */
 class SelectionBar(val count: Int, val actions: List<BarAction>, val onClose: () -> Unit)
 
-/**
- * The bar at the top of every screen: the title (and a smaller line under it) and the overflow
- * menu. While issues are picked it turns into [selection]'s count and actions.
- */
+/** The bar at the top of every screen: title, subtitle and overflow menu, or the picked issues' count and actions. */
 @Composable
 fun TopBar(
     title: String,

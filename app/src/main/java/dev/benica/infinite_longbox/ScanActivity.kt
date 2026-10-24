@@ -76,17 +76,7 @@ import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import kotlin.coroutines.resume
 
-/**
- * Reads a comic's barcode: the 12-digit UPC plus the 5-digit add-on beside it, which says which
- * issue, cover and printing it is. (Google's code scanner ignores the add-on.)
- *
- * Each barcode is looked up and its issue added to My Collection, and the scanner stays open for
- * the next: the issue just added shows over the camera with Undo and Details. If the add-on never
- * shows up, e.g. the comic doesn't have one, the UPC alone is used after [ADD_ON_GRACE_MS].
- *
- * Returns [RESULT_OK] on Done or Details; Details also carries the issue in [EXTRA_ISSUE_ID] (and
- * [EXTRA_VARIANT_OF]), for the caller to open.
- */
+/** Scans a comic's barcode (UPC plus 5-digit add-on) and adds the issue to My Collection, staying open for the next. */
 private const val TAG = APP + "ScanActivity"
 
 class ScanActivity : AppCompatActivity() {
@@ -198,14 +188,7 @@ class ScanActivity : AppCompatActivity() {
         return w.toFloat() / h
     }
 
-    /**
-     * Whether the barcode [result] found is where the frame is (see [ScanWindow]).
-     *
-     * The position the reader gives is taken to be on the upright picture the analysis was cropped
-     * to. If that isn't so (it might be on the sensor's own, unrotated, picture) the position is
-     * tried that way too, and either one in the frame is enough, so a wrong guess about the
-     * reader can't leave the scanner reading nothing.
-     */
+    /** Whether the barcode [result] found is inside the frame (see [ScanWindow]). */
     private fun inFrame(result: BarcodeReader.Result, image: ImageProxy, aspect: Float): Boolean {
         val crop = image.cropRect
         val rotation = image.imageInfo.rotationDegrees
@@ -279,8 +262,7 @@ class ScanActivity : AppCompatActivity() {
                 }
             }
 
-            // The analysis sees what the preview shows (not the wider picture), so a position in
-            // it is a position on screen
+            // The analysis sees what the preview shows, so a position in it is a position on screen
             val group = UseCaseGroup.Builder().addUseCase(preview).addUseCase(analysis)
                 .apply { previewView?.viewPort?.let { setViewPort(it) } }
                 .build()
@@ -289,10 +271,7 @@ class ScanActivity : AppCompatActivity() {
         }, ContextCompat.getMainExecutor(this))
     }
 
-    /**
-     * [text] is what the reader saw: the UPC-A (12 digits) or EAN-13, with the add-on after it
-     * (separated by a space or not) when it was read.
-     */
+    /** [text] is what the reader saw: a UPC-A or EAN-13, with the add-on if it was read. */
     private fun onRead(text: String) {
         val digits = text.filter { it.isDigit() }
         val code = when (digits.length) {
@@ -336,18 +315,14 @@ class ScanActivity : AppCompatActivity() {
         }
     }
 
-    /**
-     * [code] is the UPC (12 digits) followed by the add-on (5 digits) if it was read. The add-on
-     * says which issue, cover and printing, so with it there's normally exactly one match.
-     */
+    /** [code] is the UPC plus the add-on if it was read; with the add-on there is normally one match. */
     private suspend fun resolve(code: String) {
         val digits = code.filter { it.isDigit() }
         val upc = digits.take(12)
         val addOn = digits.drop(12).takeIf { it.length == 5 }
 
         if (addOn == null) {
-            // Only the UPC was read, so it covers the whole series: don't list a slice of it,
-            // ask for the issue number (checking first whether it's actually one issue).
+            // UPC only: it covers the whole series, so ask for the issue number
             val probe = lookUp(upc, limit = 2)
             when {
                 probe == null -> notice(getString(R.string.scan_lookup_failed))
@@ -361,8 +336,7 @@ class ScanActivity : AppCompatActivity() {
         // Exact barcode first
         var matches = lookUp(digits, limit = 30)
 
-        // The add-on isn't always recorded the same way; fall back to the series and the
-        // issue number (the first 3 digits of the add-on for most publishers)
+        // No add-on match: fall back to the series and issue number
         if (matches != null && matches.isEmpty()) {
             val number = addOn.take(3).trimStart('0').ifEmpty { null }
             if (number != null) matches = lookUp(upc, number)

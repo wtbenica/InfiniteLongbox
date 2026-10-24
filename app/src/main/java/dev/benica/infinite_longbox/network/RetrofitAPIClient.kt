@@ -39,8 +39,7 @@ class RetrofitAPIClient {
                 retrofit = Retrofit.Builder()
                     .baseUrl(BASE_URL)
                     .client(httpClient)
-                    // Every answer is read with kotlinx.serialization (ServerJson); a type it
-                    // can't read fails when the call is made, rather than being read loosely
+                    // Every answer is read with kotlinx.serialization (ServerJson)
                     .addConverterFactory(ServerJson.converterFactory())
                     .build()
             }

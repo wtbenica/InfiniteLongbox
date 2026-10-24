@@ -61,10 +61,7 @@ sealed interface Route {
     class Creator(val creatorId: Int) : Route
 }
 
-/**
- * One screen on the stack. It owns the view models of that screen, which live until the screen is
- * left for good (not just while it is on top).
- */
+/** One screen on the stack; its view models live until it is left for good. */
 @OptIn(ExperimentalCoroutinesApi::class)
 class Entry(val key: Int, val route: Route) : ViewModelStoreOwner {
     override val viewModelStore = ViewModelStore()
@@ -91,11 +88,7 @@ class Entry(val key: Int, val route: Route) : ViewModelStoreOwner {
         get() = listViewModel()?.let { vm -> vm.filter.value?.takeIf { vm.hasFilter } }
 }
 
-/**
- * The screens, as a stack: the one on top is on show, Back goes to the one below. The activity
- * decides what a change of filter means (see [dev.benica.infinite_longbox.MainActivity]); this
- * only keeps the stack, and saves it for when the app is killed and comes back.
- */
+/** The screens as a stack: the top is on show, Back goes to the one below; saved for a killed app. */
 @OptIn(ExperimentalCoroutinesApi::class)
 class Navigator : ViewModel() {
     val stack = mutableStateListOf<Entry>()
@@ -170,10 +163,7 @@ class Navigator : ViewModel() {
         putStringArrayList(ARGS, args)
     }
 
-    /**
-     * Rebuilds the stack from [save]. Lists get their filters back asynchronously (their records
-     * are looked up again); [onListFailed] is told of one that can't be rebuilt.
-     */
+    /** Rebuilds the stack from [save]; [onListFailed] hears of a list whose filter can't be rebuilt. */
     fun restore(saved: Bundle, onListFailed: () -> Unit) {
         val kinds = saved.getStringArrayList(KINDS) ?: return
         val args = saved.getStringArrayList(ARGS) ?: return

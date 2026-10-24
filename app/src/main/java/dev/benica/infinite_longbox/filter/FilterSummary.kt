@@ -15,10 +15,7 @@
 
 package dev.benica.infinite_longbox.filter
 
-/**
- * A line saying what a list is filtered by, for the collapsed filter sheet, where the filters
- * themselves are out of sight: "My Collection · Oracle · DC · 1990–1999".
- */
+/** A line saying what a list is filtered by, for the collapsed filter sheet. */
 object FilterSummary {
     /** How many names of one kind are listed before they are counted instead. */
     private const val NAMES_SHOWN = 2

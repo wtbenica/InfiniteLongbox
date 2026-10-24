@@ -196,10 +196,7 @@ data class FullSeries(
     @Relation(parentColumn = "firstIssue", entityColumn = "issue", entity = Cover::class)
     val firstIssueCover: Cover? = null,
 
-    /**
-     * The earliest cover the phone has for any issue of the series (regular issues before
-     * variants), for a card whose first issue has none. Only the series list's query fills it in.
-     */
+    /** The earliest cover the phone has for any issue of the series; only the series list's query fills it in. */
     val earliestCoverUri: Uri? = null,
 ) : ListItem, FilterModel {
     override val tagName: String

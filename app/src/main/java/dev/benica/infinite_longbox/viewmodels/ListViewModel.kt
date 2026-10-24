@@ -43,11 +43,7 @@ abstract class ListViewModel<T : ListItem> : ViewModel() {
     val filter: LiveData<SearchFilter>
         get() = _filter
 
-    /**
-     * Where the list was scrolled to (the first row showing, and how far into it), kept here so
-     * coming back to the list finds it as it was. It is put back once the rows are in: a list with
-     * no rows yet has no place to scroll to, and would forget it.
-     */
+    /** Where the list was scrolled to (first row and offset), put back once its rows are in. */
     var scrollIndex = 0
     var scrollOffset = 0
 
@@ -66,10 +62,7 @@ abstract class ListViewModel<T : ListItem> : ViewModel() {
     /** Where each letter starts in this list under [filter], for lists that have a letter strip. */
     open suspend fun letterIndex(filter: SearchFilter): LetterIndex? = null
 
-    /**
-     * Gives the list the filter saved by [FilterSnapshot], once its records have been looked up
-     * again; [onFailed] if that can't be done.
-     */
+    /** Gives the list the filter saved by [FilterSnapshot], once its records have been looked up again. */
     fun restoreFilter(snapshot: String, onFailed: () -> Unit) {
         viewModelScope.launch {
             val filter = withContext(Dispatchers.IO) {

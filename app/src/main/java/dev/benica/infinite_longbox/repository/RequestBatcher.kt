@@ -21,15 +21,7 @@ import kotlinx.coroutines.launch
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.time.Duration.Companion.milliseconds
 
-/**
- * Gathers what is asked for during a short wait and handles it in one go: a screen full of cards
- * binds together, and one request for all their issues costs far less than one for each.
- *
- * An item asked for again while it waits or is being handled is not handled twice.
- *
- * @param waitMs how long after the first item arrives to wait for more
- * @param handle gets the items gathered, once
- */
+/** Gathers what is asked for during a short wait and handles it in one go. */
 class RequestBatcher<T : Any>(
     private val scope: CoroutineScope,
     private val waitMs: Long,

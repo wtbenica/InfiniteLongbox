@@ -25,13 +25,7 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import dev.benica.infinite_longbox.R
 
-/**
- * The one place overlays on covers are defined: a wash (white, or dark in dark mode) that fades
- * the artwork so text and controls read over it.
- * - Every missing-cover placeholder gets it, via [PlaceholderCover].
- * - Every series card gets it behind its title tab, whether it has a cover (see
- *   SeriesListItem), so a series placeholder doesn't use [PlaceholderCover]'s own.
- */
+/** The one place overlays on covers are defined. */
 /** Washes whatever this element draws; an empty, sized element becomes a plain band. */
 @Composable
 fun Modifier.scrim(): Modifier {
@@ -43,11 +37,7 @@ fun Modifier.scrim(): Modifier {
     }
 }
 
-/**
- * The blank cover that stands in for a missing one, in the color picked for [key] (see
- * [placeholderArtworkFor]). Pass [scrim] = false where the caller already washes the area. [contentDescription] is for
- * placeholders that stand alone (the issue's cover); decorative ones leave it null.
- */
+/** The blank cover standing in for a missing one, in the color picked for [key]; [scrim] false where the caller already washes the area. */
 @Composable
 fun PlaceholderCover(
     key: String,

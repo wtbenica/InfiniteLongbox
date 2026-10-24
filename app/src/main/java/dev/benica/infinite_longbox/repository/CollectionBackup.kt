@@ -60,11 +60,7 @@ data class ImportResult(
     }
 }
 
-/**
- * My Collection and the Wish List as a small JSON file, so they can be kept somewhere and put
- * back later, on this phone after its data is cleared or on another one. The file lists issues
- * by their GCD id; importing fetches any issue the phone does not have yet.
- */
+/** My Collection and the Wish List as a small JSON file. */
 object CollectionBackup {
     private const val APP = "InfiniteLongbox"
     const val FORMAT = 1
@@ -82,9 +78,7 @@ object CollectionBackup {
         val collections: List<BackupCollection>,
     )
 
-    // What comes out of one. Gson fills these in from the file and knows nothing of Kotlin's null
-    // rules: whatever the file leaves out is null, so every field is nullable here, and
-    // [parse] is the one place that turns them into the non-null types the rest of the app uses.
+    // Gson fills these in and knows nothing of null rules, so every field is nullable; [parse] makes them non-null
     private data class Read(
         val app: String?,
         val format: Int?,
@@ -113,10 +107,7 @@ object CollectionBackup {
     fun toJson(collections: List<BackupCollection>, exportedAt: String): String =
         gson.toJson(Written(APP, FORMAT, exportedAt, collections))
 
-    /**
-     * The collections in [json], or why it is not a backup this version can read. Entries
-     * with no issue id are skipped, and so is a collection that does not exist.
-     */
+    /** The collections in [json], or why it isn't a backup this version can read. */
     fun parse(json: String): Parsed {
         val backup = try {
             gson.fromJson(json, Read::class.java)

@@ -68,10 +68,7 @@ import dev.benica.infinite_longbox.ui.theme.Archivo
 import dev.benica.infinite_longbox.ui.theme.InfiniteLongboxTheme
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
-/**
- * Shows [content] (a dialog) over this activity, for screens that aren't Compose themselves. The
- * dialog calls the function it is given to go away, and the one returned does the same from outside.
- */
+/** Shows [content] (a dialog) over this activity, for screens that aren't Compose themselves. */
 fun ComponentActivity.showDialog(content: @Composable (dismiss: () -> Unit) -> Unit): () -> Unit {
     val host = findViewById<ViewGroup>(android.R.id.content)
     val view = ComposeView(this)

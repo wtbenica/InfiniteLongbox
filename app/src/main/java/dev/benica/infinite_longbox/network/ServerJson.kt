@@ -24,14 +24,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.kotlinx.serialization.asConverterFactory
 import java.lang.reflect.Type
 
-/**
- * How the server's answers are read.
- *
- * A type marked @Serializable is read with kotlinx.serialization, which knows Kotlin's null rules
- * and defaults: a missing required field, or a null in a field that can't hold one, fails at once
- * with a message saying which, where Gson would leave a null in the object to fail somewhere else.
- * Everything else (the sync's GcdJson classes) is still read with Gson.
- */
+/** How the server's answers are read. */
 object ServerJson {
     /** The server may send more than the app reads. */
     val json = Json { ignoreUnknownKeys = true }

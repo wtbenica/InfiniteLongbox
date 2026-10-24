@@ -24,10 +24,7 @@ import dev.benica.infinite_longbox.R
 import kotlinx.coroutines.delay
 import kotlin.time.Duration.Companion.milliseconds
 
-/**
- * What the database update is doing: "Updating database…", and which part (publishers, series,
- * creators, characters) is being fetched now. [HeaderStatus] shows it.
- */
+/** What the database update is doing: its title and the part (publishers, series, creators, characters) being fetched. */
 class UpdateProgress(context: Context) {
 
     var titleText by mutableStateOf(context.getString(R.string.update_title_default))
@@ -62,13 +59,9 @@ class UpdateProgress(context: Context) {
         showStage("seed", "${done / MEGABYTE} of ${total / MEGABYTE} MB")
     }
 
-    /**
-     * Says which part is under way: [key] names it, and [text] is what is shown. A new part fades
-     * in; the same part with a new count just changes the number.
-     */
+    /** Says which part is under way; a new part fades in, the same part just changes its count. */
     private fun showStage(key: String, text: String = key) {
-        // The time it is readable is worked out here, not from the animation, which doesn't run when
-        // the line isn't on screen and which [holdStage] must not wait for
+        // The readable time is worked out here, not from the animation, which doesn't run when the line is off screen
         if (key != shownKey) {
             readableAt = SystemClock.uptimeMillis() + STAGE_FADE_MS
             shownKey = key
@@ -83,11 +76,7 @@ class UpdateProgress(context: Context) {
     @Volatile
     private var readableAt = 0L
 
-    /**
-     * Waits until the part now shown has been readable for [DWELL_MS], so a part that had nothing
-     * to fetch isn't gone before it can be read. Doesn't wait at all if the line isn't on screen
-     * (nobody is reading it), and never for long.
-     */
+    /** Waits until the part shown has been readable for [DWELL_MS]; not at all if the line is off screen, never for long. */
     private suspend fun holdStage(key: String) {
         val giveUp = SystemClock.uptimeMillis() + HOLD_LIMIT_MS
         while (visible && shownKey == key) {
@@ -97,11 +86,7 @@ class UpdateProgress(context: Context) {
         }
     }
 
-    /**
-     * One part of the update. May be called from any thread. A part announces that it is under
-     * way, and when it has a good many pages to fetch it also says how far along it is; a few
-     * pages go too quickly for a count to be worth reading.
-     */
+    /** One part of the update; it announces itself and, with many pages, how far along it is. */
     inner class ProgressWrapper(private val name: String) {
         /** This part is the one being fetched now. */
         fun start() = showStage(name)

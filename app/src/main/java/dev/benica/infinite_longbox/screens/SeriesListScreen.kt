@@ -80,15 +80,13 @@ class SeriesListScreen(host: ScreenHost) : ComposeListScreen<FullSeries>(host) {
         val firstIssue: FullIssue? = item.firstIssue
         val coverFile = coverFileOf(item)
 
-        // A record of a cover whose file is gone (the fallback issue isn't one the card asks for
-        // above): ask for that issue, so the file comes back
+        // A cover record whose file is gone: ask for that issue so the file comes back
         if (coverFile != null && !coverFile.exists()) {
             coverFile.name.removePrefix("COVER_").removeSuffix(".jpg").toIntOrNull()
                 ?.let { viewModel.updateIssue(it) }
         }
 
-        // No cover for the first issue: the card falls back to the series' earliest cover
-        // (item.earliestCoverUri), and goes and gets one if the phone has none
+        // No cover for the first issue: fall back to the series' earliest cover, fetching one if the phone has none
         if (coverFile?.exists() != true &&
             shouldFetchSeriesCover(false, firstIssue != null, firstIssue?.cover != null)
         ) {

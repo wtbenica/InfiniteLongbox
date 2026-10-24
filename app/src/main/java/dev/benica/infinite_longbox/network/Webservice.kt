@@ -45,11 +45,7 @@ interface Webservice {
     @GET("/db_query/covers/have")
     suspend fun getServerCoverIds(): List<Int>
 
-    /**
-     * Asks the server to fetch the issue's cover from Metron; 404 when Metron has none. For a
-     * variant, [parent] is the issue it is a variant of, and either its [name] picks the cover
-     * or [choice] (an id from [metronCoverOptions]) does.
-     */
+    /** Asks the server to fetch the issue's cover from Metron (404 when it has none). */
     @POST("/db_query/issue/id/{id}/cover/fetch")
     suspend fun fetchCoverFromMetron(
         @Path("id") issueId: Int,

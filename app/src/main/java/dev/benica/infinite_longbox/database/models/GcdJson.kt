@@ -23,10 +23,7 @@ import java.time.LocalDate
 @Suppress("unused")
 private const val TAG = "GcdJson"
 
-/**
- * One record as the server sends it: Django's serialization of a model, with the key in [pk] and
- * the model's columns in [fields]. Only the columns [G] names are read.
- */
+/** One record as the server sends it: the key in [pk], the columns in [fields]. */
 @Serializable
 class Item<G : GcdJson<*>>(
     val model: String? = null,

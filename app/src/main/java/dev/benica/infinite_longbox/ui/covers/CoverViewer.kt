@@ -68,11 +68,7 @@ data class ViewerCover(
     val placeholderKey: String,
 )
 
-/**
- * The covers as large as the screen allows, one at a time: swipe (or the arrows) for the next or the
- * one before, a tap anywhere else closes it. [onDismiss] says which cover was showing, so the page
- * behind can follow.
- */
+/** The covers as large as the screen allows, one at a time. */
 @Composable
 fun CoverViewer(
     covers: List<ViewerCover>,
@@ -125,8 +121,7 @@ fun CoverViewer(
                 }
             }
         }
-        // A fixed height, whatever the text: the cover above has the same room for every cover shown,
-        // and doesn't move as the caption goes from two lines to three
+        // A fixed height, whatever the text
         Column(
             Modifier
                 .padding(margin)

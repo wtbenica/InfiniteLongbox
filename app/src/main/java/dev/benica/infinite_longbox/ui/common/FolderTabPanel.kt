@@ -31,18 +31,7 @@ import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 
-/**
- * A panel with a tab on its top-left, like a folder: [tab] sits above [body], and the outline
- * runs up the tab's side, across its top, down the other side and then out along the panel's top
- * edge to the far end, so the tab "blocks" the border and flows into it with rounded corners
- * (convex on the tab, a concave fillet where it meets the panel) instead of sharp turns.
- *
- * One path is both the fill and the stroke, so there's nothing to line up. Only the contour that
- * faces the cover is stroked; the left, right and bottom edges are left to whatever frames the
- * card.
- *
- * The tab is as wide as its content and the body is as wide as the panel.
- */
+/** A panel with a tab on its top-left, like a folder. */
 @Composable
 fun FolderTabPanel(
     tab: @Composable () -> Unit,
@@ -91,8 +80,7 @@ fun FolderTabPanel(
                         180f, -90f, false
                     ) // concave fillet into the panel's top edge
                 }
-                // Square at the far end: it runs into the card's own border, so a curve there
-                // would leave a gap when the tab reaches that far
+                // Square at the far end: it runs into the card's own border
                 lineTo(w, panelTop)
                 lineTo(w, h)
                 close()

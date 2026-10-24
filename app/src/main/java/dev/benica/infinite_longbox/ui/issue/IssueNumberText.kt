@@ -15,11 +15,7 @@
 
 package dev.benica.infinite_longbox.ui.issue
 
-/**
- * How an issue's number is shown under its cover. GCD's numbers are text, not numbers: most are
- * digits ("27"), but there are also "1A", "1/2", "-1", "[13]" (a number that isn't printed),
- * "[nn]" (no number at all), "Preview" and "3 [Section 2]".
- */
+/** How an issue's number is shown under its cover. */
 object IssueNumberText {
     /** [main] is the line to show; [detail] is a smaller line under it, or blank. */
     data class Label(val main: String, val detail: String = "")
@@ -51,15 +47,7 @@ object IssueNumberText {
 
     private val PLAIN_NUMBER = Regex("""^\d+$""")
 
-    /**
-     * The line under an issue's title in the toolbar. A series of one issue says what it is
-     * ("One-shot", "Graphic novel"), because "#1" tells a reader nothing; a limited series that has
-     * finished says how long it ran ("#2 (of 4)"); anything else is its number.
-     *
-     * @param format the series' publishing format as GCD has it ("limited series", "one-shot")
-     * @param issueCount how many issues the series has, once it has ended
-     * @param ended whether the series has an end date; a running series has no "of"
-     */
+    /** The line under an issue's title in the toolbar. */
     fun subtitle(raw: String?, format: String?, issueCount: Int, ended: Boolean): String? {
         val kind = format?.trim().orEmpty()
         if (issueCount == 1 && kind.isNotEmpty()) {

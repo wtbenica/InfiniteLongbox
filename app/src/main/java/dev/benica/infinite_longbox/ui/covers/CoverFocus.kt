@@ -24,10 +24,7 @@ import kotlinx.coroutines.withContext
 import java.io.File
 import kotlin.math.abs
 
-/**
- * Picks which part of a cover the series card shows: the top, where logos usually are, unless
- * the top is nearly blank (a white background with the art lower down), then the middle.
- */
+/** Picks which part of a cover the series card shows. */
 object CoverFocus {
     /** The top band checked for content, as a fraction of the cover's height. */
     private const val TOP_BAND = 0.30f

@@ -15,12 +15,7 @@
 
 package dev.benica.infinite_longbox.screens
 
-/**
- * Whether a series card should go and get a cover from another issue of its series: it has none
- * to show, and its first issue has either not been found or has been looked at and has no cover.
- * While the first issue's cover is still being fetched the answer is no: the card refreshes when
- * it arrives.
- */
+/** Whether a series card should go and get a cover from another issue of its series. */
 internal fun shouldFetchSeriesCover(
     hasCover: Boolean,
     firstIssueKnown: Boolean,

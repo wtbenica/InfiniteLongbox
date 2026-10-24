@@ -75,16 +75,7 @@ data class ScanResultState(
     val storage: String? = null,
 )
 
-/**
- * The barcode scanner: the camera filling the screen, a hint along the top, and along the bottom
- * the issue just added (with Undo and Details), a light switch, the count added and Done. The
- * camera itself is the activity's to bind to the [PreviewView] it is handed.
- *
- * @param onPreviewView the view the camera should draw into, once it exists
- * @param onTapToFocus a tap on the picture, as a point on the [PreviewView], to focus there
- * @param result what the last scan added, if anything
- * @param addedCount how many scans have added an issue since the scanner opened
- */
+/** The barcode scanner: the camera filling the screen. */
 @Composable
 fun ScanScreen(
     torchOn: Boolean,
@@ -123,10 +114,7 @@ fun ScanScreen(
     }
 }
 
-/**
- * The frame to line the barcode up in (see [ScanWindow]): the picture outside it is dimmed and the
- * corners are marked.
- */
+/** The frame to line the barcode up in (see [ScanWindow]); the picture outside is dimmed. */
 @Composable
 private fun ScanFrame() {
     Canvas(

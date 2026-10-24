@@ -79,11 +79,7 @@ abstract class IssueDatabase : RoomDatabase() {
         @Volatile
         private var INSTANCE: IssueDatabase? = null
 
-        /**
-         * The one database. Room tells a list about changes made through the same instance only,
-         * so a second instance on the file (two threads asking at once, the lock not checked
-         * again once held) means lists that never hear about writes made through the other.
-         */
+        /** The one database: a second instance would leave lists deaf to writes made through the other. */
         fun getInstance(context: Context): IssueDatabase =
             INSTANCE ?: synchronized(this) {
                 INSTANCE ?: build(context).also { INSTANCE = it }

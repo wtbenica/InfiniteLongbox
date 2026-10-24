@@ -95,8 +95,7 @@ abstract class SeriesDao : BaseDao<Series>("series") {
             val args: ArrayList<Any> = arrayListOf()
             fun connectWord(): String = if (conditions.isEmpty()) "WHERE" else "AND"
 
-            // The cover a card falls back to is part of the row, so that when it arrives the row
-            // has changed and the list redraws it. The letter counts do not need it.
+            // The fallback cover is part of the row, so the list redraws when it arrives
             val fallbackCover = if (letterBuckets) "" else """, (
                         SELECT cv.coverUri
                         FROM cover cv

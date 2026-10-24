@@ -35,10 +35,7 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.unit.dp
 import dev.benica.infinite_longbox.R
 
-/**
- * What sits under the toolbar: the database update's line, while an update runs, and below it a
- * thin bar that moves while anything is being loaded.
- */
+/** What sits under the toolbar: the database update's line and the loading bar. */
 @Composable
 fun HeaderStatus(update: UpdateProgress, busy: Boolean, modifier: Modifier = Modifier) {
     Column(modifier.fillMaxWidth()) {

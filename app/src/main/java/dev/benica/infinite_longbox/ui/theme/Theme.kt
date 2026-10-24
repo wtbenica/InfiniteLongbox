@@ -38,11 +38,7 @@ val Archivo = FontFamily(Font(R.font.archivo))
 /** The series-title typeface */
 val PermanentMarker = FontFamily(Font(R.font.permanent_marker))
 
-/**
- * Maps the app's color roles (values/colors.xml, overridden in values-night) onto a Material 3
- * scheme, so Compose follows the same palette and dark mode as the View screens. Nothing here
- * picks a color: change a role in colors.xml and both worlds change.
- */
+/** Maps the app's color roles (colors.xml, values-night) onto a Material 3 scheme; nothing here picks a color. */
 @Composable
 fun InfiniteLongboxTheme(content: @Composable () -> Unit) {
     val surface = colorResource(R.color.surface)

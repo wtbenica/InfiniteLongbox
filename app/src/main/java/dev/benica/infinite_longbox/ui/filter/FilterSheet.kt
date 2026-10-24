@@ -120,12 +120,7 @@ interface FilterSheetActions {
     suspend fun options(text: String): List<FilterModel>
 }
 
-/**
- * The filter sheet: the collapsed strip says what the list is filtered by; dragged open, it holds
- * the dates, switches, sort and filter items, and a search box for adding more.
- *
- * @param slide how far open the sheet is, 0 (collapsed) to 1
- */
+/** The filter sheet: a strip saying what the list is filtered by, opening to dates, switches, sort, filter items and a search box. */
 @OptIn(ExperimentalCoroutinesApi::class)
 @Composable
 fun FilterSheet(
@@ -308,10 +303,7 @@ private fun SortRow(filter: SearchFilter, actions: FilterSheetActions) {
     }
 }
 
-/**
- * What the list is filtered by, one chip each. A chip switched off stays (greyed) so it can be
- * switched back on; it goes for good when closed or when the same item is added again.
- */
+/** What the list is filtered by, one chip each. */
 @OptIn(ExperimentalCoroutinesApi::class)
 @Composable
 private fun FilterItems(filter: SearchFilter, actions: FilterSheetActions) {
@@ -436,8 +428,7 @@ private fun SearchSection(actions: FilterSheetActions) {
             .clip(RoundedCornerShape(dimensionResource(R.dimen.margin_default)))
             .background(colorResource(R.color.surface_sunken))
     ) {
-        // Only the row of types comes and goes: the other rows stay, so the collection, sort and
-        // date can be changed without closing the search first
+        // Only the types row comes and goes, so the other rows stay usable while searching
         if (focused) {
             var width by remember { mutableStateOf(0) }
             Box(Modifier.fillMaxWidth().onSizeChanged { width = it.width }) {

@@ -26,10 +26,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.io.File
 
-/**
- * The image requests of the list cards, built in one place so a cover loaded ahead of the scroll
- * ([prefetch]) is the very entry the card asks for: same key, same size.
- */
+/** The image requests of the list cards, built in one place so a prefetched cover is the entry the card asks for. */
 object CoverImages {
     /** How many cards past (and before) the one being bound have their covers loaded ahead. */
     const val PREFETCH_AHEAD = 10
@@ -65,10 +62,7 @@ object CoverImages {
             .crossfade(true)
             .build()
 
-    /**
-     * Files already asked for, most recent last: scrolling binds many cards a second, each asking
-     * for the same neighbours, and a request already made is not made again.
-     */
+    /** Files already asked for, most recent last, so neighbours aren't requested twice. */
     private val recent = object : LinkedHashMap<String, Unit>(PREFETCH_MEMORY, 0.75f, false) {
         override fun removeEldestEntry(eldest: MutableMap.MutableEntry<String, Unit>?) = size > PREFETCH_MEMORY
     }

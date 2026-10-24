@@ -72,10 +72,7 @@ fun placeholderColorFor(key: String): Color =
 fun placeholderArtworkFor(key: String): Int =
     artwork[Math.floorMod(key.trim().lowercase().hashCode(), artwork.size)]
 
-/**
- * What an issue's placeholder color is chosen from: series, number, cover date and variant, so
- * the issues of a series rotate through the colors instead of all matching their series.
- */
+/** What an issue's placeholder color is chosen from. */
 fun FullIssue.placeholderKey(): String =
     "${series.seriesName}|${issue.issueNumRaw}|${issue.coverDateLong ?: issue.coverDate}|${issue.variantName}"
 
@@ -86,12 +83,7 @@ private const val MASTHEAD_RIGHT = 0.969f
 private const val MASTHEAD_TOP = 0.0194f
 private const val MASTHEAD_BOTTOM = 0.172f
 
-/**
- * Stands in for a missing series cover: the blank cover with the series title in its masthead.
- *
- * The two halves can be drawn apart ([showArt], [showTitle]) so a card can put its wash between
- * them: the art is washed and the title stays crisp over it.
- */
+/** Stands in for a missing series cover: the blank cover with the series title in its masthead. */
 @Composable
 fun TitlePlaceholder(
     name: String,

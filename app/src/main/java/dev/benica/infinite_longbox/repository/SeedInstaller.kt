@@ -52,15 +52,7 @@ data class SeedMeta(
     val prefs: Map<String, String>,
 )
 
-/**
- * Installs a pre-synced copy of the static data (publishers, series, creators, characters,
- * series bonds) on first run, so the paged static sync only has to catch up instead of making
- * thousands of requests.
- *
- * It only runs on an empty database and only if the seed was built from the same Room schema.
- * Anything unexpected (no seed on the server, no network, schema mismatch, a failed import)
- * returns false and leaves the database untouched, and the normal sync runs as before.
- */
+/** Installs a pre-synced copy of the static data. */
 @ExperimentalCoroutinesApi
 class SeedInstaller(
     private val webservice: Webservice,
@@ -145,11 +137,7 @@ class SeedInstaller(
 
     private fun importSeed(seedDb: File) = importSeedFile(database, seedDb)
 
-    /**
-     * The sync-progress markers say which pages are already downloaded. Update dates are set to
-     * today: the data is as current as the server's was at seed time, and a stale date would
-     * make the app throw the markers away and re-download everything.
-     */
+    /** Markers say which pages are downloaded; dates are set to today so they aren't thrown away and re-downloaded. */
     private fun restoreMarkers(meta: SeedMeta) {
         val today = LocalDate.now().toString()
         val dateFormat = Regex("""\d{4}-\d{2}-\d{2}""")
@@ -161,16 +149,7 @@ class SeedInstaller(
     }
 }
 
-/**
- * Copies every table from the seed file into [database] in one transaction. Rows that already
- * exist are left alone.
- *
- * It must not ATTACH the seed to the live database: attaching makes Android switch the database
- * out of write-ahead logging and reopen its connections, which destroys the temporary table
- * Room's change tracking keeps on its connection. Lists would never hear about a change again
- * until the app was restarted. So the seed is read through a connection of its own, and the rows
- * are written inside a Room transaction, which also tells the lists when it is done.
- */
+/** Copies every table from the seed file into [database] in one transaction. */
 @ExperimentalCoroutinesApi
 internal fun importSeedFile(database: IssueDatabase, seedFile: File) {
     val seed = SQLiteDatabase.openDatabase(seedFile.absolutePath, null, SQLiteDatabase.OPEN_READONLY)

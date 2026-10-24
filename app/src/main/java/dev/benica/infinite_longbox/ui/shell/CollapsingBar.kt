@@ -27,10 +27,7 @@ import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.layout.Layout
 import kotlin.math.roundToInt
 
-/**
- * The top bar's scrolling away: it leaves as a list scrolls up, and comes back at once when the
- * list scrolls down, wherever it is. [offset] is how far up it has gone (0 to -its height).
- */
+/** The top bar scrolling away as a list scrolls up, and back as it scrolls down; [offset] is how far up it is. */
 @Stable
 class BarCollapse {
     var offset by mutableFloatStateOf(0f)

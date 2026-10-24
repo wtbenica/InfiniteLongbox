@@ -45,10 +45,7 @@ import androidx.compose.ui.unit.sp
 import dev.benica.infinite_longbox.R
 import dev.benica.infinite_longbox.ui.theme.InfiniteLongboxTheme
 
-/**
- * The collapsed filter sheet: an arrow, and a line saying what the list is filtered by. The whole
- * strip opens the sheet.
- */
+/** The collapsed filter sheet: an arrow, and a line saying what the list is filtered by. */
 @Composable
 fun FilterSheetHeader(summary: String, onClick: () -> Unit, modifier: Modifier = Modifier) {
     val description = stringResource(R.string.bottom_sheet_handle_description)

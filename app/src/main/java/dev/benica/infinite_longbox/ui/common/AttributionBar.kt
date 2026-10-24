@@ -40,11 +40,7 @@ import dev.benica.infinite_longbox.ui.theme.InfiniteLongboxTheme
 /** Where the GCD's own site is, for a page that has no record of its own to link to. */
 const val GCD_HOME_URL = "https://www.comics.org/"
 
-/**
- * Says where the data on a page comes from, as the GCD asks: credited to the Grand Comics
- * Database™, linked to the page for [recordUrl] where there is one, with the license (CC BY-SA
- * 4.0) linked as well. The About screen has the full notice.
- */
+/** Says where the data on a page comes from, as the GCD asks. */
 @Composable
 fun AttributionBar(recordUrl: String, modifier: Modifier = Modifier) {
     val linkStyle = TextLinkStyles(

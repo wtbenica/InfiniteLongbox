@@ -15,20 +15,9 @@
 
 package dev.benica.infinite_longbox.repository
 
-/**
- * The paged sync used to throw away everything it had once a week and fetch it all again. The
- * server now says what version each page is (a short fingerprint), and the phone remembers the
- * version of each page it has: a week later it fetches only the pages whose version changed.
- */
+/** The paged sync fetches only the pages whose version (a short fingerprint) changed since the last sync. */
 object PageDiff {
-    /**
-     * Which pages are still current: a string with a 't' for each page of [manifest] the phone has
-     * at that version and an 'f' for each it does not have or has an older version of.
-     *
-     * @param savedFlags the phone's record of the pages it has, 't' or 'f' for each
-     * @param savedHashes the version of each page it has (blank if it does not know)
-     * @param manifest the server's current version of each page
-     */
+    /** Which pages are still current: 't' for each manifest page the phone has at that version, else 'f'. */
     fun stalePages(savedFlags: String, savedHashes: List<String>, manifest: List<String>): String =
         manifest.indices.joinToString("") { page ->
             val has = savedFlags.getOrNull(page) == 't'
@@ -36,10 +25,7 @@ object PageDiff {
             if (has && same) "t" else "f"
         }
 
-    /**
-     * The versions to remember after a sync of [pages] pages: what was remembered, with each page
-     * that was fetched (a key of [fetched]) at the version it had in the manifest.
-     */
+    /** The versions to remember after a sync: what was remembered, plus the fetched pages at their manifest version. */
     fun remember(saved: List<String>, pages: Int, fetched: Map<Int, String>): List<String> =
         List(pages) { page -> fetched[page] ?: saved.getOrNull(page).orEmpty() }
 

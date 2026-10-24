@@ -27,11 +27,7 @@ import org.json.JSONException
 import org.json.JSONObject
 import java.time.LocalDate
 
-/**
- * A [SearchFilter] as text that survives the app being killed. The filter itself holds whole
- * records (a series with its first issue, creators, ...), which can't be saved in a bundle; what
- * identifies it is only their ids, plus the plain settings. [restore] looks the records up again.
- */
+/** A [SearchFilter] as text that survives the app being killed; [restore] looks the records up again. */
 @ExperimentalCoroutinesApi
 object FilterSnapshot {
 
@@ -57,10 +53,7 @@ object FilterSnapshot {
         put("view", filter.viewOptionIndex)
     }.toString()
 
-    /**
-     * Rebuilds the filter [save] described, or null if it can't be: unreadable text, or a record
-     * it names is gone.
-     */
+    /** Rebuilds the filter [save] described, or null if the text is unreadable or a record is gone. */
     suspend fun restore(
         snapshot: String,
         loadSeries: suspend (Int) -> FullSeries?,

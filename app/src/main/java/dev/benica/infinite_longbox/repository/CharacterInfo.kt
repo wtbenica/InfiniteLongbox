@@ -17,12 +17,7 @@ package dev.benica.infinite_longbox.repository
 
 import kotlinx.serialization.Serializable
 
-/**
- * What the server knows about a character (see the backend's character_info.py).
- *
- * Read with kotlinx.serialization (see ServerJson), which enforces these types: a field with no
- * default has to be in the answer, and nothing null can go into a field that is not nullable.
- */
+/** What the server knows about a character (see the backend's character_info.py). */
 @Serializable
 data class CharacterInfo(
     val characterId: Int,

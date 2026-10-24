@@ -74,10 +74,7 @@ data class StoryUi(
     val hasDetails get() = !synopsis.isNullOrBlank() || characters.isNotEmpty()
 }
 
-/**
- * The stories to show for an issue, with the variant's. A variant with its own cover story
- * replaces the issue's cover story. Characters come out alphabetized.
- */
+/** The stories to show for an issue, with the variant's. */
 fun buildStoryUi(
     issueStories: List<Story>,
     variantStories: List<Story>,

@@ -63,11 +63,7 @@ class StaticUpdater private constructor(
         }
     }
 
-    /**
-     * On a fresh install, imports the starter database from the server before the paged sync, so
-     * the paged sync has little left to do. Does nothing if there's no seed or the database
-     * isn't empty.
-     */
+    /** On a fresh install, imports the starter database before the paged sync, so that has little left to do. */
     private suspend fun installSeedIfNeeded(progressUpdate: UpdateProgress) {
         SeedInstaller(webservice, prefs, database, context!!.cacheDir).installIfNeeded(
             onStart = { progressUpdate.setTitle("Downloading starter database") },
@@ -196,11 +192,7 @@ class StaticUpdater private constructor(
         fetchCardIssues(ids)
     }
 
-    /**
-     * A card on a list needs its issue and cover, not the issue's stories, credits and
-     * appearances (those are for the page that opens). Cards that bind together are fetched in one
-     * request.
-     */
+    /** A card on a list needs its issue and cover, not the issue's stories, credits and appearances. */
     internal fun requestIssueAndCover(issueId: Int, markedDelete: Boolean = true) {
         cardIssueMarkedDelete[issueId] = markedDelete
         cardIssues.request(issueId)
@@ -281,11 +273,7 @@ class StaticUpdater private constructor(
     private suspend fun getStoriesByIssueIds(issueIds: List<Int>): List<Story> =
         retrieveItemsByList(issueIds, webservice::getStoriesByIssueIds)
 
-    /**
-     * Looks up the issues for a scanned barcode on the server and saves them locally (with their
-     * series), so they can be added to the collection even if the series was never browsed.
-     * @return the ids of the matching issues, or null if the lookup failed (e.g. offline)
-     */
+    /** Looks up the issues for a scanned barcode on the server and saves them locally. */
     internal suspend fun importIssuesByUpc(
         upc: String,
         number: String? = null,
@@ -305,10 +293,7 @@ class StaticUpdater private constructor(
         return issues.map { it.issueId }
     }
 
-    /**
-     * Fetches these issues from the server, with the series and variant parents they need, and
-     * saves them. Whatever the server does not have, or cannot be reached for, is left out.
-     */
+    /** Fetches these issues from the server, with the series and variant parents they need, and saves them. */
     internal suspend fun importIssuesById(issueIds: List<Int>) {
         val issues = retrieveItemsByList(issueIds, webservice::getIssuesByIds)
         if (issues.isEmpty()) return
@@ -316,12 +301,7 @@ class StaticUpdater private constructor(
         database.issueDao().upsertSus(issues)
     }
 
-    /**
-     * A series card shows its first issue's cover, and when that issue has none, the earliest
-     * cover the phone has for any issue of the series. Nothing fetches covers for the other
-     * issues until the series is opened, so this asks the server which of them have one, and
-     * fetches the earliest. The card refreshes when the cover is saved.
-     */
+    /** A series card shows its first issue's cover. */
     /** A character's page data, or null when the server can't be reached. */
     internal suspend fun characterInfo(characterId: Int): CharacterInfo? = try {
         webservice.getCharacterInfo(characterId)

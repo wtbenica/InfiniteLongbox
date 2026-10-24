@@ -58,17 +58,12 @@ class FilterViewModel : ViewModel() {
     private val filterType: LiveData<KClass<*>>
         get() = _filterType
 
-    /**
-     * Options for the filter-box popup: the first [OPTIONS_LIMIT] matches for [text] among the
-     * selected filter type, under the current filter. Queries the database per call instead of
-     * holding whole tables (hundreds of thousands of rows) in memory.
-     */
+    /** Options for the filter-box popup: the first [OPTIONS_LIMIT] matches for [text] among the selected filter type. */
     suspend fun searchOptions(text: String): List<FilterModel> {
         val trimmed = text.trim()
         val searchFilter = SearchFilter(_filter.value ?: SearchFilter()).apply {
             mTextFilter = if (trimmed.isEmpty()) null else TextFilter(trimmed)
-            // The filter row is hidden while typing, so My Collection can't be seen or undone from
-            // here. Finding a series or creator shouldn't depend on already owning something.
+            // Search ignores My Collection: finding a series shouldn't depend on already owning something
             mMyCollection = false
         }
 

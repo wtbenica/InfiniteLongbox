@@ -28,10 +28,7 @@ import androidx.compose.ui.text.TextLinkStyles
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextDecoration
 
-/**
- * A string resource with links in it (`<a href=...>`) as text whose links open in the browser: the
- * resource's own markup is read, so the strings stay as they are in strings.xml.
- */
+/** A string resource with links in it (`<a href=...>`) as text whose links open in the browser. */
 @Composable
 fun linkedString(@StringRes id: Int): AnnotatedString {
     val text = LocalContext.current.getText(id)

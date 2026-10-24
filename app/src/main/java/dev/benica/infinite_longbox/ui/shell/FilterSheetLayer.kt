@@ -62,12 +62,7 @@ import kotlin.math.roundToInt
 fun sheetPeek() = dimensionResource(R.dimen.peek_height) +
     with(LocalDensity.current) { WindowInsets.navigationBars.getBottom(this).toDp() }
 
-/**
- * The filter sheet over the bottom of the screen: closed (showing only its header), open, or
- * hidden (on an issue's page). Dragging it settles at closed or open; the keyboard lifts it.
- *
- * @param open whether it rests open; the layer changes it when the sheet is dragged
- */
+/** The filter sheet over the bottom of the screen: closed, open or hidden; a drag settles at closed or open. */
 @OptIn(ExperimentalCoroutinesApi::class)
 @Composable
 fun FilterSheetLayer(

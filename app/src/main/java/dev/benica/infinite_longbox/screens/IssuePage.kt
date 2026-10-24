@@ -163,10 +163,7 @@ class IssuePage(host: ScreenHost) : Screen(host) {
 
     private var metronPicker by mutableStateOf<List<MetronCoverOption>?>(null)
 
-    /**
-     * Fetches the cover from Metron. For a variant it tries the variant Metron names the same way
-     * and, failing that, shows what Metron has to pick from.
-     */
+    /** Fetches the cover from Metron; for a variant, falls back to the covers Metron offers to pick from. */
     private fun fetchCoverFromMetron() {
         val issue = currentIssue.issue
         val context = context.applicationContext
@@ -333,8 +330,7 @@ class IssuePage(host: ScreenHost) : Screen(host) {
                     it.toString(), it.issue.variantName, it.placeholderKey(),
                 )
             }
-            // A cover arriving changes a stop without changing which stops there are: the viewer
-            // and the neighbours' prefetch read the covers from here, so it is kept up to date too
+            // A cover arriving changes a stop without changing which stops there are; the viewer and prefetch read it from here
             val samePlaces = issuesInSeries.map { it.issueId } == stops.map { it.issueId }
             if (!samePlaces || issuesInSeries.map { it.cover?.path } != stops.map { it.cover?.path }) {
                 issuesInSeries = stops
@@ -471,10 +467,7 @@ class IssuePage(host: ScreenHost) : Screen(host) {
         else issuesInSeries.indexOfFirst { it.issueId == fullIssue.issue.issueId }
     }
 
-    /**
-     * The issue (and cover) on the page arrive separately from the list the jump bar goes through,
-     * in either order, so the position is worked out again whenever one of them does.
-     */
+    /** The issue and the jump bar's list arrive separately, in either order, so the position is worked out for each. */
     private fun refreshPosition() {
         currentPos = positionOfCurrent()
         updateNavBar()

@@ -89,20 +89,14 @@ class IssueDetailViewModel : ViewModel() {
     internal val variantsLiveData: LiveData<List<Issue>> =
         primaryId.flatMapLatest { id -> repository.getVariants(id) }.asLiveData()
 
-    /**
-     * Which collection the page was opened from, if it was: the jump bar then goes through what is
-     * in that collection (variants included, each cover as its own stop) and not the whole series.
-     */
+    /** Which collection the page was opened from, if it was. */
     private val _collectionScope = MutableStateFlow<Int?>(null)
 
     fun setCollectionScope(collectionId: Int?) {
         _collectionScope.value = collectionId
     }
 
-    /**
-     * Whether the jump bar and the cover viewer go through the variants too: they do from the moment
-     * a variant is shown on the page, so that its cover is one of them.
-     */
+    /** Whether the jump bar and the cover viewer go through the variants too. */
     private val _variantsShown = MutableStateFlow(false)
 
     fun showVariants() {

@@ -59,15 +59,7 @@ import dev.benica.infinite_longbox.R
 import dev.benica.infinite_longbox.ui.theme.PermanentMarker
 import kotlin.math.roundToInt
 
-/**
- * A column of letters on the list's right edge, for lists sorted by name: touch or drag along it to
- * jump to the names starting with that letter. The letter the list is at is picked out; letters
- * with no names are faint. [bottomPadding] keeps it above the bottom sheet, like the list.
- *
- * @param onJump the strip was touched at [letter]: the list should show [position], and a label for
- *     the letter belongs at [centerY] in this strip's coordinates
- * @param onDragging whether a finger is on the strip
- */
+/** A column of letters on the list's right edge, for lists sorted by name. */
 @Composable
 fun BoxScope.LetterStrip(
     index: LetterIndex,
@@ -149,14 +141,7 @@ fun BoxScope.LetterStrip(
     }
 }
 
-/**
- * A scroll handle for long lists, the same size however long the list: the drag maps straight to a
- * position. [fraction] is how far through the list it is (0..1) while the list scrolls itself.
- *
- * @param onDrag the handle was dragged to [position] (of [count]): the list should show it, and a
- *     label belongs at [centerY] in this handle's coordinates
- * @param onDragging whether a finger is on the handle
- */
+/** A scroll handle for long lists, the same size however long: the drag maps straight to a position. */
 @Composable
 fun BoxScope.FastScrollThumb(
     fraction: Float,

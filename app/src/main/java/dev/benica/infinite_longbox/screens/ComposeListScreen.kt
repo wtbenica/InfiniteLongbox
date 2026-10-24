@@ -54,11 +54,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-/**
- * A list screen drawn in Compose: a grid of rows paged from the view model, with the letter strip
- * (lists sorted by name) or the scroll handle on the right edge. What a row looks like, and what
- * the label beside the handle says, is the subclass's.
- */
+/** A list screen in Compose: a paged grid of rows, with a letter strip or scroll handle on the right edge. */
 @ExperimentalCoroutinesApi
 abstract class ComposeListScreen<T : ListItem>(host: ScreenHost) : FilteredListScreen<T>(host) {
 
@@ -82,10 +78,7 @@ abstract class ComposeListScreen<T : ListItem>(host: ScreenHost) : FilteredListS
     protected open fun Header() {
     }
 
-    /**
-     * What a subclass adds to the grid's gestures (picking rows by touch, say). [headerCount] is how
-     * many items come before the first row.
-     */
+    /** What a subclass adds to the grid's gestures; [headerCount] items come before the first row. */
     @Composable
     protected open fun gridModifier(items: LazyPagingItems<T>, grid: LazyGridState, headerCount: Int): Modifier =
         Modifier
@@ -122,8 +115,7 @@ abstract class ComposeListScreen<T : ListItem>(host: ScreenHost) : FilteredListS
         // The padding under the list: what shows of the bottom sheet
         val bottom = LocalSheetPeek.current
 
-        // Coming back to the list puts it where it was, once there are rows to scroll to; another
-        // filter is another list, and starts at the top
+        // Coming back puts the list where it was once rows exist; another filter starts at the top
         var placed by remember { mutableStateOf(false) }
         LaunchedEffect(filter, items.itemCount > 0) {
             val shown = filter ?: return@LaunchedEffect

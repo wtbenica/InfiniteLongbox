@@ -22,10 +22,7 @@ import dev.benica.infinite_longbox.nav.Screen
 import dev.benica.infinite_longbox.nav.ScreenHost
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
-/**
- * What every list screen shares, whatever it draws its rows with: the filter it was made for (kept
- * with the screen, for when it is come back to) and how many columns fit.
- */
+/** What every list screen shares, whatever it draws its rows with. */
 @ExperimentalCoroutinesApi
 abstract class FilteredListScreen<T : ListItem>(host: ScreenHost) : Screen(host) {
     protected abstract val viewModel: ListViewModel<T>

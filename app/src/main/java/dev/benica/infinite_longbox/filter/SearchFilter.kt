@@ -142,10 +142,7 @@ class SearchFilter(
 
     fun isNotEmpty() = !isEmpty()
 
-    /**
-     * Whether [other] filters by the same things, however each shows them: only the choice of
-     * Series, Characters or Creators (and the sort that goes with it) may differ.
-     */
+    /** Whether [other] filters by the same things, however each shows them. */
     fun sameItemsAs(other: SearchFilter): Boolean =
         mCreators == other.mCreators && mSeries == other.mSeries &&
                 mPublishers == other.mPublishers && mStartDate == other.mStartDate &&
@@ -349,8 +346,7 @@ class SortType(
             val columnRef = "${if (table != null) "$table." else ""}$sortColumn"
             val primaryKey = when {
                 sortColumn in NAME_SORT_COLUMNS -> nameSortKey(columnRef)
-                // An issue with no cover date falls back to the series' start date, instead of
-                // sorting a series whose issues are undated apart from every dated one
+                // An issue with no cover date falls back to the series' start date
                 sortColumn == "coverDate" && sortColumn2 != null && table2 != null ->
                     "COALESCE($columnRef, $table2.$sortColumn2)"
                 else -> columnRef
@@ -383,10 +379,7 @@ class SortType(
             }
         }
 
-    /**
-     * The same sort the other way round. A new one, not this one turned over: filters hold sorts,
-     * and one flipped in place flips for every filter holding it, so the list never saw a change.
-     */
+    /** The same sort the other way round. */
     fun toggle(): SortType = SortType(this).also {
         it.order = flipSortOrder(order)
         it.order2 = order2?.let { second -> flipSortOrder(second) }
@@ -429,26 +422,16 @@ class SortType(
         private val DATE_SORT_COLUMNS = setOf("startDate", "coverDate", "releaseDate")
         private val ISSUE_SORT_COLUMNS = setOf("sortCode", "issueNum")
 
-        // Leading characters ignored when sorting names: quotes, apostrophes, brackets, dots and
-        // symbols. "...To Speak of God" files under T, "'Breed" under B, "@Large" under L.
+        // Leading characters ignored when sorting names: quotes, brackets, dots and symbols.
         private const val SORT_IGNORED_LEADING = " \"'.()[]#@!\u00A1\u00BF\u201C\u201D\u2018\u2019*-"
 
-        /**
-         * SQL expression for sorting by a name column: ignores leading punctuation and compares
-         * case-insensitively, so "iCandy" sorts with the I's, not after Z. Digits still sort
-         * ahead of letters, as their own group. A hyphen counts as a space, so "All-New X-Men"
-         * files with "All New ..." instead of after all of them.
-         */
+        /** SQL expression for sorting by a name column. */
         fun nameSortKey(columnRef: String): String = "${plainNameKey(columnRef)} COLLATE NOCASE"
 
         private fun plainNameKey(columnRef: String): String =
             "replace(ltrim($columnRef, '${SORT_IGNORED_LEADING.replace("'", "''")}'), '-', ' ')"
 
-        /**
-         * SQL expression that files a name under '#' (sorts before 'a'), a letter 'a'..'z', or
-         * '~' (sorts after 'z'): the bucket [nameSortKey] puts it in. Names with no sort name
-         * count as empty, which is where ORDER BY puts them too.
-         */
+        /** SQL expression filing a name under '#', a letter, or '~' (after 'z'). */
         fun letterBucketSql(columnRef: String): String {
             val k = "COALESCE(${plainNameKey(columnRef)}, '') COLLATE NOCASE"
             val cases = ('a'..'z').joinToString(" ") { "WHEN k < '${it + 1}' THEN '$it'" }
@@ -460,13 +443,7 @@ class SortType(
         fun sortKeyOf(name: String): String =
             name.trimStart { it in SORT_IGNORED_LEADING }.replace('-', ' ').lowercase()
 
-        /**
-         * ORDER BY for the filter-box popup, which only shows the first few matches: names that
-         * start with the typed text come first, then the rest alphabetically. Without this,
-         * typing "x-men" listed "Civil War: X-Men" and friends and cut off before "X-Men" itself.
-         *
-         * @param args receives the LIKE argument when there is typed text
-         */
+        /** ORDER BY for the filter-box popup, which only shows the first few matches. */
         fun optionsOrderBy(columnRef: String, typed: String?, args: MutableList<Any>): String {
             val key = nameSortKey(columnRef)
             val text = typed?.trim().orEmpty()

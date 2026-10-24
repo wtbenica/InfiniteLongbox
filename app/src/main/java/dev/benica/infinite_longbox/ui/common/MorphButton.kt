@@ -34,10 +34,7 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 
-/**
- * The plus that morphs into a check. Flips at once when tapped, without waiting for the database
- * to catch up; the real state then takes over.
- */
+/** The plus that morphs into a check. */
 @Composable
 fun MorphButton(
     image: AnimatedImageVector,

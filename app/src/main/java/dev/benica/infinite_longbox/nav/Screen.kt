@@ -24,10 +24,7 @@ import androidx.lifecycle.LifecycleRegistry
 import dev.benica.infinite_longbox.MainActivity
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
-/**
- * A lifecycle that follows a screen's being on show: it is resumed when the screen appears and
- * destroyed when it goes, so what a screen observes or launches stops with it.
- */
+/** A lifecycle that follows a screen being on show. */
 class ScreenLifecycle : LifecycleOwner {
     private val registry = LifecycleRegistry.createUnsafe(this)
     override val lifecycle: Lifecycle get() = registry
@@ -41,10 +38,7 @@ class ScreenLifecycle : LifecycleOwner {
 @OptIn(ExperimentalCoroutinesApi::class)
 class ScreenHost(val activity: MainActivity, val entry: Entry, val lifecycleOwner: LifecycleOwner)
 
-/**
- * A screen on the stack. [onShown] runs when it comes on show (and again each time it returns to
- * the top), [onHidden] when it goes; [Content] is what it draws.
- */
+/** A screen on the stack: [onShown] when it comes on show, [onHidden] when it goes, [Content] is what it draws. */
 @OptIn(ExperimentalCoroutinesApi::class)
 abstract class Screen(protected val host: ScreenHost) {
     protected val activity: MainActivity get() = host.activity

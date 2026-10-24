@@ -70,10 +70,7 @@ class UpdateIssueCover private constructor(
 ) : Updater(webservice, prefs) {
     private val inFlight = ConcurrentHashMap.newKeySet<Int>()
 
-    /**
-     * Brings an issue's cover up to date (see [CoverPlan]). Covers are looked at each time a card
-     * binds, so an issue already being worked on is left to the one doing it.
-     */
+    /** Brings an issue's cover up to date (see [CoverPlan]). */
     internal fun update(issueId: Int, markedDelete: Boolean = true): Job {
         if (!inFlight.add(issueId)) return Job().apply { complete() }
         return CoroutineScope(Dispatchers.IO).launch {
@@ -110,12 +107,7 @@ class UpdateIssueCover private constructor(
         }
     }
 
-    /**
-     * Downloads the server's cover whatever the phone has and whatever else is under way for the
-     * issue; the phone's copy is replaced only once the new one has arrived whole.
-     *
-     * @return whether the new cover is in
-     */
+    /** Downloads the server's cover whatever the phone has and whatever else is under way for the issue. */
     suspend fun replaceFromServer(issueId: Int, markedDelete: Boolean = false): Boolean =
         withContext(Dispatchers.IO) {
             val file = getFileHandle(context, coverFileName(issueId))
@@ -132,11 +124,7 @@ class UpdateIssueCover private constructor(
             }
         }
 
-    /**
-     * Asks for the cover once and keeps the bytes as they came, so the image is not decoded and
-     * compressed again. With [since] (the time of the copy on the phone) the server sends nothing
-     * if its image has not changed.
-     */
+    /** Asks for the cover once and keeps the bytes as they came, so the image is not decoded and compressed again. */
     private fun fetchCover(url: String, file: File, since: Long?): CoverFetch {
         val request = Request.Builder().url(url).apply {
             if (since != null && since > 0) header("If-Modified-Since", httpDate(since))

@@ -59,10 +59,7 @@ import java.io.File
 import java.time.format.DateTimeFormatter
 import dev.benica.infinite_longbox.ui.dialogs.StoragePrompt
 
-/**
- * The issues, as cards. For one series the series' details sit above them; a long press picks an
- * issue, and from then on a tap picks or unpicks one and dragging picks a range.
- */
+/** The issues, as cards. */
 @ExperimentalCoroutinesApi
 class IssueListScreen(host: ScreenHost) : ComposeListScreen<FullIssue>(host) {
 

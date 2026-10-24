@@ -46,17 +46,7 @@ private const val TAG = APP + "CoverStore"
 /** Covers are scaled down to this on their longest side when picked; plenty for a phone. */
 private const val MAX_COVER_SIDE = 2400
 
-/**
- * Decodes an image the user picked. Never returns a partly decoded picture.
- *
- * The picked image is copied to a temp file first. Reading straight from the picker's stream is
- * unreliable (a streamed source such as Google Photos can hand back incomplete data, and Android
- * then returns a bitmap with the unread rows black). The copy's length is checked against what the
- * source declares, and ImageDecoder is used because it fails on incomplete input instead of
- * returning half an image, and applies the photo's rotation.
- *
- * @throws java.io.IOException if the image is unreadable or incomplete
- */
+/** Decodes an image the user picked. */
 private fun decodeCover(context: Context, source: Uri): DecodedCover {
     val temp = File.createTempFile("picked_cover", null, context.cacheDir)
     try {
@@ -120,8 +110,7 @@ private fun decodeWithImageDecoder(file: File): DecodedCover {
         while (max(info.size.width, info.size.height) / sample > MAX_COVER_SIDE) sample *= 2
         if (sample > 1) decoder.setTargetSampleSize(sample)
 
-        // The decoder calls this when the file ends early (e.g. a JPEG missing its last bytes, which
-        // viewers happily show). Keep the partial image and judge below how much is missing.
+        // The decoder calls this when the file ends early: keep the partial image and judge how much is missing
         decoder.setOnPartialImageListener {
             incomplete = true
             true
@@ -138,11 +127,7 @@ private fun decodeWithImageDecoder(file: File): DecodedCover {
     return DecodedCover(bitmap, trimmed = incomplete)
 }
 
-/**
- * How much of the bottom of a partly decoded image is the blank fill the decoder leaves where data
- * is missing: the fraction of rows, counted up from the bottom, that are one flat color matching
- * the bottom-left pixel. Only used on images already known to be incomplete.
- */
+/** How much of the bottom of a partly decoded image is the decoder's blank fill, as a fraction of rows. */
 private fun missingTailFraction(bitmap: Bitmap): Float {
     val width = bitmap.width
     val height = bitmap.height
@@ -159,13 +144,7 @@ private fun missingTailFraction(bitmap: Bitmap): Float {
     return blank.toFloat() / height
 }
 
-/**
- * Saves a picked image as the cover for [issueId], replacing any existing cover. In debug builds
- * it also replaces the dev server's copy, so a swapped cover isn't undone the next time the
- * phone syncs with the server.
- *
- * @return the message to show the user
- */
+/** Saves a picked image as the cover for [issueId], replacing any existing cover. */
 @ExperimentalCoroutinesApi
 suspend fun pickedCoverToIssue(context: Context, issueId: Int, source: Uri): Int =
     withContext(Dispatchers.IO) {
@@ -194,12 +173,7 @@ suspend fun pickedCoverToIssue(context: Context, issueId: Int, source: Uri): Int
         }
     }
 
-/**
- * Removes the cover for [issueId] from this phone and (debug builds) from the dev server. Without
- * the server part the cover would simply be downloaded again.
- *
- * @return the message to show the user
- */
+/** Removes the cover for [issueId] from this phone and (debug builds) from the dev server. */
 @ExperimentalCoroutinesApi
 suspend fun removeCover(context: Context, issueId: Int): Int = withContext(Dispatchers.IO) {
     getFileHandle(context, coverFileName(issueId)).delete()
@@ -227,10 +201,7 @@ enum class MetronCoverResult(val message: Int) {
     FAILED(R.string.cover_metron_failed),
 }
 
-/**
- * Has the server fetch the cover of [issueId] from Metron, then brings the phone's copy up to date
- * (replacing any it has). The phone's cover is left alone unless the new one has been downloaded.
- */
+/** Has the server fetch the cover of [issueId] from Metron, then brings the phone's copy up to date. */
 @ExperimentalCoroutinesApi
 suspend fun fetchCoverFromMetron(
     context: Context,
@@ -324,12 +295,7 @@ data class CoverPushResult(
         ?: "Uploaded $uploaded cover(s); $alreadyOnServer already on the server; $failed failed"
 }
 
-/**
- * Uploads the covers stored on this phone that the server doesn't have yet. The server must be
- * started with ALLOW_COVER_UPLOAD=1; otherwise this reports that uploads are disabled.
- *
- * @param onProgress called with (done, total) as covers are uploaded
- */
+/** Uploads the covers stored on this phone that the server doesn't have yet. */
 @ExperimentalCoroutinesApi
 suspend fun pushCoversToServer(
     context: Context,

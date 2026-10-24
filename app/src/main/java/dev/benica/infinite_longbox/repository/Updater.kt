@@ -206,8 +206,7 @@ abstract class Updater(
             argList: List<ArgType>,
             apiCall: KSuspendFunction1<List<ArgType>, List<Item<GcdType>>>,
         ): List<ModelType> {
-            // Fewer, bigger requests, a few at a time: each request costs a round trip, which
-            // is what dominates on a phone, while the server answers in milliseconds.
+            // Fewer, bigger requests, a few at a time: the round trip dominates on a phone
             val gate = Semaphore(PARALLEL_REQUESTS)
             val res = coroutineScope {
                 argList.chunked(LIST_CHUNK_SIZE).map { elem ->
@@ -294,15 +293,13 @@ abstract class Updater(
     ) {
         progressWrapper?.start()
 
-        // savePageTag's value is a string of whether each page has been updated, e.g. "tfffttttftt";
-        // hashTag's is the version (fingerprint) of each page the phone has
+        // savePageTag holds a t/f per page updated, e.g. "tfffttt"; hashTag the version of each page the phone has
         val hashTag = "${savePageTag}_hashes"
         var pagesCompleteSaved: String = prefs.getString(savePageTag, "") ?: ""
         var manifest: List<String>? = null
 
         if (!pagesCompleteSaved.contains('f') && checkIfStale(saveTag, WEEKLY, prefs)) {
-            // It's been a week. Ask which pages changed and fetch only those; with no answer, fetch
-            // everything again next time, as before.
+            // A week on: ask which pages changed and fetch only those; with no answer, fetch everything next time
             manifest = manifestKey?.let { fetchManifest(it) }
             if (manifest != null) {
                 pagesCompleteSaved = PageDiff.stalePages(
@@ -366,8 +363,7 @@ abstract class Updater(
 
                     // if request is successful, save and mark as updated
                     if (!itemPage.isNullOrEmpty()) {
-                        // The FK check hands back a Deferred; it must be awaited so the
-                        // foreign keys exist before the page is saved.
+                        // Await the FK check so the foreign keys exist before the page is saved
                         verifyForeignKeys(itemPage)?.await()
                         if (dao.upsertSus(itemPage)) {
                             pagesComplete[currPage] = true

@@ -50,10 +50,7 @@ import dev.benica.infinite_longbox.database.models.FullSeries
 import dev.benica.infinite_longbox.ui.theme.CondensedBlock
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
-/**
- * What the series is: volume, publisher and dates, the series it continues from and as, and its
- * tracking notes and notes (which open and close). A series named here opens as the list's series.
- */
+/** What the series is: volume, publisher, dates, the series it continues, tracking notes and notes. */
 @OptIn(ExperimentalCoroutinesApi::class)
 @Composable
 fun SeriesInfoBox(series: FullSeries, onSeries: (FullSeries) -> Unit, modifier: Modifier = Modifier) {

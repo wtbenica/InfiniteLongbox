@@ -15,13 +15,7 @@
 
 package dev.benica.infinite_longbox.ui.scan
 
-/**
- * The frame on the scanner that the barcode (with its 5-digit add-on) is lined up in. The scanner
- * draws it and ignores a barcode that isn't inside it, so the wait for the add-on only starts once
- * the comic is in place.
- *
- * Everything is in fractions of the camera picture (0..1, left to right and top to bottom).
- */
+/** The frame on the scanner that the barcode (with its 5-digit add-on) is lined up in. */
 object ScanWindow {
     /** A UPC with its add-on is about this much wider than it is tall. */
     private const val ASPECT = 2.4f

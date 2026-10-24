@@ -56,11 +56,7 @@ data class IssueCoverState(
     val stamp: Long = file?.lastModified() ?: 0L,
 )
 
-/**
- * The cover at the width it's given, as tall as the image is, so the screen is laid out around
- * it. The placeholder has a similar shape, so nothing jumps when the real cover loads.
- * Tap: view it, or add one if there isn't any. Long-press (when there is one): replace or remove.
- */
+/** The cover at the width given, as tall as the image is. */
 @Composable
 fun IssueCover(
     state: IssueCoverState,

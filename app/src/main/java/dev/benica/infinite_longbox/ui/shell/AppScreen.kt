@@ -53,10 +53,7 @@ import dev.benica.infinite_longbox.ui.toolbar.TopBar
 import dev.benica.infinite_longbox.ui.update.HeaderStatus
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
-/**
- * The whole app: the top bar and the update line above, the screen on top of the navigator's
- * stack, the filter sheet and the scan button over the bottom.
- */
+/** The whole app: top bar and update line, the top screen, the filter sheet and scan button. */
 @OptIn(ExperimentalCoroutinesApi::class)
 @Composable
 fun AppScreen(app: MainActivity) {

@@ -62,10 +62,7 @@ data class NameCardState(
     val details: List<String>,
 )
 
-/**
- * A card for a row still loading. It has the height of a real one: a list that fills its screen
- * with rows of no height asks for every row there is.
- */
+/** A card for a row still loading. */
 @Composable
 fun NameListItemSkeleton(modifier: Modifier = Modifier, placeholderKey: String = "") =
     NameListItem(state = null, onClick = {}, modifier = modifier, placeholderKey = placeholderKey)

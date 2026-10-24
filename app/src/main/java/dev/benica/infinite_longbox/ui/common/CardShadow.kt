@@ -27,20 +27,14 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.unit.dp
 import dev.benica.infinite_longbox.R
 
-/**
- * The one shadow cards and covers cast. It is dark by day; by night a dark shadow would vanish
- * into the dark surface, so the color role (card_shadow) is a soft light glow instead.
- */
+/** The one shadow cards and covers cast. */
 @Composable
 fun Modifier.cardShadow(shape: Shape): Modifier = dropShadow(
     shape = shape,
     shadow = Shadow(radius = 6.dp, color = colorResource(R.color.card_shadow)),
 )
 
-/**
- * How every card in a list sits: the full width, with room around it for its shadow (the lists add
- * no spacing of their own), and the shadow.
- */
+/** How every card in a list sits: the full width, with room around it for its shadow. */
 @Composable
 fun Modifier.listCardFrame(shape: Shape): Modifier = this
     .fillMaxWidth()

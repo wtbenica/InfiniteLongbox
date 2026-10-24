@@ -71,9 +71,7 @@ class Expander private constructor(webservice: Webservice, prefs: SharedPreferen
                     if (checkIfStale(seriesTag(series.id), 1L, prefs)) {
                         val issues = updateSeriesIssues(series.id)
                         expandIssueAsync(issues)
-                        // Only mark the series as up to date if its issues actually arrived.
-                        // Saving this after a failed fetch (e.g. server unreachable) left the
-                        // series empty and blocked retries until the next day.
+                        // Only mark the series up to date if its issues arrived
                         if (issues.isNotEmpty()) {
                             Repository.saveTime(prefs, seriesTag(series.id))
                         }

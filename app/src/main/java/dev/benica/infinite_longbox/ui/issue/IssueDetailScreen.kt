@@ -82,10 +82,7 @@ class IssueDetailActions(
     val onJump: (Int) -> Unit,
 )
 
-/**
- * The whole issue detail page: the cover beside its info and actions, the variant selector and
- * the credits scroll together; the jump bar and the attribution links stay at the bottom.
- */
+/** The whole issue detail page: the cover beside its info and actions. */
 @OptIn(ExperimentalCoroutinesApi::class)
 @Composable
 fun IssueDetailScreen(
@@ -187,10 +184,7 @@ fun IssueDetailScreen(
     }
 }
 
-/**
- * Two equal halves: the cover on the left, as tall as it is, and [beside] on the right at exactly
- * that height. The right side never makes the cover taller; it scrolls inside its own area.
- */
+/** Two equal halves: the cover on the left, as tall as it is, and [beside] on the right at that height. */
 @Composable
 private fun CoverBeside(
     cover: @Composable () -> Unit,

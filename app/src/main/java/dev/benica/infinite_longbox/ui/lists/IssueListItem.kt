@@ -141,8 +141,7 @@ fun IssueListItem(
     ) {
         Box {
             Column {
-                // Fixed ratio so every card in a row is the same height whatever each cover's own
-                // aspect ratio; filled from the top, cropping the bottom
+                // Fixed ratio so every card in a row is the same height
                 Box(
                     Modifier
                         .fillMaxWidth()
@@ -194,8 +193,7 @@ fun IssueListItem(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.margin_narrow))
                 ) {
-                    // Keyed by issue, so a recycled holder showing another issue starts at its
-                    // resting icon instead of animating from the previous one
+                    // Keyed by issue, so a recycled holder starts at its resting icon
                     key(state.issueId) {
                         MorphButton(
                             image = AnimatedImageVector.animatedVectorResource(
@@ -299,10 +297,7 @@ fun IssueListItem(
     }
 }
 
-/**
- * Placeholder art underneath, the cover on top (fading in). Portrait covers are centered and
- * top-aligned; wider-than-tall ones (wraparound, gatefold) are aligned right to show the front.
- */
+/** Placeholder art underneath, the cover (fading in) on top. */
 @Composable
 private fun Cover(state: IssueCardState, modifier: Modifier) {
     PlaceholderCover(state.placeholderKey, modifier)

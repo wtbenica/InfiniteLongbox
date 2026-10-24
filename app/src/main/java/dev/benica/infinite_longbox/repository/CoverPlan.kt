@@ -20,11 +20,7 @@ import java.time.LocalDate
 /** What the app knows about an issue's cover row in its database. */
 data class CoverRow(val hasImage: Boolean, val checked: LocalDate)
 
-/**
- * What to do about an issue's cover, from the file on the phone and the row in the database.
- * Looking costs a request, and most issues have no cover on the server, so what was found (or not
- * found) is kept for [CHECK_DAYS] days before the server is asked again.
- */
+/** What to do about an issue's cover, from the file on the phone and the row in the database. */
 enum class CoverPlan {
     /** Ask the server for the image. */
     DOWNLOAD,
