@@ -28,7 +28,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.AlertDialog
+import dev.benica.infinite_longbox.ui.dialogs.ChoiceDialog
 import dev.benica.infinite_longbox.ui.dialogs.MyCopyDialog
 import dev.benica.infinite_longbox.ui.dialogs.showDialog
 import androidx.compose.runtime.getValue
@@ -97,9 +97,6 @@ private const val ARG_VARIANT_OF = "variant_of"
 private const val ARG_COLLECTION_ID = "collection_id"
 private const val NO_COLLECTION = -1
 
-internal const val RESULT_DATE_PICKER_END = "result_date_picker_start"
-internal const val RESULT_DATE_PICKER_START = "result_date_picker_end"
-internal const val DIALOG_DATE = "DialogDate"
 
 /**
  * A simple [Fragment] subclass.
@@ -165,15 +162,19 @@ class IssueDetailFragment : Fragment() {
             getString(R.string.cover_from_metron),
             getString(R.string.cover_from_device),
         )
-        AlertDialog.Builder(requireContext())
-            .setTitle(R.string.cover_add_title)
-            .setItems(options) { _, which ->
-                when (which) {
-                    0 -> fetchCoverFromMetron()
-                    else -> launchCoverPicker()
-                }
-            }
-            .show()
+        requireActivity().showDialog { dismiss ->
+            ChoiceDialog(
+                R.string.cover_add_title, options.toList(), null,
+                onChoose = { which ->
+                    when (which) {
+                        null -> Unit
+                        0 -> fetchCoverFromMetron()
+                        else -> launchCoverPicker()
+                    }
+                },
+                dismiss = dismiss,
+            )
+        }
     }
 
     private var metronPicker by mutableStateOf<List<MetronCoverOption>?>(null)
@@ -235,19 +236,23 @@ class IssueDetailFragment : Fragment() {
             getString(R.string.cover_replace_from_metron),
             getString(R.string.cover_remove),
         )
-        AlertDialog.Builder(requireContext())
-            .setTitle(R.string.cover_options_title)
-            .setItems(options) { _, which ->
-                when (which) {
-                    0 -> launchCoverPicker()
-                    1 -> fetchCoverFromMetron()
-                    else -> viewLifecycleOwner.lifecycleScope.launch {
-                        val message = removeCover(requireContext().applicationContext, issueId)
-                        Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
+        requireActivity().showDialog { dismiss ->
+            ChoiceDialog(
+                R.string.cover_options_title, options.toList(), null,
+                onChoose = { which ->
+                    when (which) {
+                        null -> Unit
+                        0 -> launchCoverPicker()
+                        1 -> fetchCoverFromMetron()
+                        else -> viewLifecycleOwner.lifecycleScope.launch {
+                            val message = removeCover(requireContext().applicationContext, issueId)
+                            Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
+                        }
                     }
-                }
-            }
-            .show()
+                },
+                dismiss = dismiss,
+            )
+        }
     }
 
     override fun onAttach(context: Context) {

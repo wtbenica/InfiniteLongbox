@@ -70,11 +70,13 @@ import dev.benica.infinite_longbox.database.models.FullCreator
 import dev.benica.infinite_longbox.database.models.FullIssue
 import dev.benica.infinite_longbox.database.models.FullSeries
 import dev.benica.infinite_longbox.database.models.Issue
-import dev.benica.infinite_longbox.fragments.AboutDialogFragment
 import dev.benica.infinite_longbox.fragments.CharacterDetailFragment
 import dev.benica.infinite_longbox.fragments.CharacterListFragment
 import dev.benica.infinite_longbox.fragments.CreatorDetailFragment
 import dev.benica.infinite_longbox.fragments.CreatorListFragment
+import dev.benica.infinite_longbox.ui.dialogs.AboutDialog
+import dev.benica.infinite_longbox.ui.dialogs.ChoiceDialog
+import dev.benica.infinite_longbox.ui.dialogs.showDialog
 import dev.benica.infinite_longbox.ui.filter.FilterSheetHost
 import dev.benica.infinite_longbox.fragments.IssueDetailFragment
 import dev.benica.infinite_longbox.fragments.IssueListFragment
@@ -387,7 +389,7 @@ class MainActivity : AppCompatActivity(),
 
     /** The overflow menu. */
     private fun menuEntries() = buildList {
-        add(BarAction(getString(R.string.menu_about)) { AboutDialogFragment().show(supportFragmentManager, "app_about") })
+        add(BarAction(getString(R.string.menu_about)) { showDialog { dismiss -> AboutDialog(dismiss) } })
         add(BarAction(getString(R.string.menu_clear_db)) {
             IssueDatabase.getInstance(this@MainActivity).transactionDao().cleanDatabase()
         })
@@ -408,13 +410,13 @@ class MainActivity : AppCompatActivity(),
                 Toast.makeText(this@MainActivity, R.string.storage_places_none, Toast.LENGTH_SHORT).show()
                 return@launch
             }
-            androidx.appcompat.app.AlertDialog.Builder(this@MainActivity)
-                .setTitle(R.string.storage_places_title)
-                .setItems(places.map { "${it.name} (${it.copies})" }.toTypedArray()) { _, which ->
-                    renameStoragePlace(places[which].name)
-                }
-                .setNegativeButton(R.string.scan_done, null)
-                .show()
+            showDialog { dismiss ->
+                ChoiceDialog(
+                    R.string.storage_places_title, places.map { "${it.name} (${it.copies})" }, R.string.scan_done,
+                    onChoose = { which -> which?.let { renameStoragePlace(places[it].name) } },
+                    dismiss = dismiss,
+                )
+            }
         }
     }
 

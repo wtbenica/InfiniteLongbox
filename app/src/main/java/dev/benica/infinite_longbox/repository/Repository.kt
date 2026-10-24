@@ -17,19 +17,14 @@ package dev.benica.infinite_longbox.repository
 
 //import android.util.Log
 import android.annotation.SuppressLint
-import android.app.Dialog
 import android.content.Context
-import android.content.DialogInterface
 import android.content.SharedPreferences
 import android.database.sqlite.SQLiteConstraintException
-import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import android.widget.Toast
-import androidx.appcompat.app.AlertDialog
 import androidx.core.content.edit
-import androidx.fragment.app.DialogFragment
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
@@ -705,17 +700,6 @@ class Repository private constructor(val context: Context) {
         }
 
 
-    class DuplicateFragment : DialogFragment() {
-        override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-            return activity?.let {
-                val builder = AlertDialog.Builder(it)
-                builder.setTitle("Duplicate Issue")
-                    .setMessage("This is a duplicate issue and will not be saved")
-                    .setPositiveButton("OK") { dialogInterface: DialogInterface, i: Int -> }
-                builder.create()
-            } ?: throw IllegalStateException("Activity cannot be null")
-        }
-    }
 
 /*
     FUTURE IMPLEMENTATION

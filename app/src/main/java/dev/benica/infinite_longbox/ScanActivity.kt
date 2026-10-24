@@ -22,10 +22,8 @@ import android.os.Bundle
 import android.os.SystemClock
 import android.util.Log
 import android.util.Size
-import android.widget.EditText
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraSelector
@@ -53,6 +51,9 @@ import dev.benica.infinite_longbox.database.IssueDatabase
 import dev.benica.infinite_longbox.database.models.BaseCollection
 import dev.benica.infinite_longbox.database.models.FullIssue
 import dev.benica.infinite_longbox.fragments.StoragePrompt
+import dev.benica.infinite_longbox.ui.dialogs.ChoiceDialog
+import dev.benica.infinite_longbox.ui.dialogs.NumberDialog
+import dev.benica.infinite_longbox.ui.dialogs.showDialog
 import dev.benica.infinite_longbox.repository.MetronCoverOption
 import dev.benica.infinite_longbox.repository.Repository
 import dev.benica.infinite_longbox.repository.fetchCoverFromMetron
@@ -391,35 +392,27 @@ class ScanActivity : AppCompatActivity() {
 
     /** The issue number, typed in; null if cancelled. */
     private suspend fun ask(): String? = suspendCancellableCoroutine { continuation ->
-        val input = EditText(this).apply {
-            inputType = android.text.InputType.TYPE_CLASS_NUMBER
-            hint = getString(R.string.scan_issue_number_hint)
+        val close = showDialog { dismiss ->
+            NumberDialog(
+                R.string.scan_which_number, R.string.scan_which_number_message, R.string.scan_issue_number_hint,
+                onResult = { if (continuation.isActive) continuation.resume(it?.trim()?.trimStart('0')) },
+                dismiss = dismiss,
+            )
         }
-        val dialog = AlertDialog.Builder(this)
-            .setTitle(R.string.scan_which_number)
-            .setMessage(R.string.scan_which_number_message)
-            .setView(input)
-            .setPositiveButton(android.R.string.ok) { _, _ ->
-                continuation.resume(input.text.toString().trim().trimStart('0'))
-            }
-            .setNegativeButton(android.R.string.cancel) { _, _ -> continuation.resume(null) }
-            .setOnCancelListener { if (continuation.isActive) continuation.resume(null) }
-            .show()
-        continuation.invokeOnCancellation { dialog.dismiss() }
+        continuation.invokeOnCancellation { close() }
     }
 
     /** The barcode alone doesn't always pin down the issue; ask which one it is. */
     private suspend fun choose(matches: List<FullIssue>): FullIssue? =
         suspendCancellableCoroutine { continuation ->
-            val dialog = AlertDialog.Builder(this)
-                .setTitle(R.string.scan_choose_issue)
-                .setItems(matches.map { it.scanLabel() }.toTypedArray()) { _, which ->
-                    continuation.resume(matches[which])
-                }
-                .setNegativeButton(android.R.string.cancel) { _, _ -> continuation.resume(null) }
-                .setOnCancelListener { if (continuation.isActive) continuation.resume(null) }
-                .show()
-            continuation.invokeOnCancellation { dialog.dismiss() }
+            val close = showDialog { dismiss ->
+                ChoiceDialog(
+                    R.string.scan_choose_issue, matches.map { it.scanLabel() }, android.R.string.cancel,
+                    onChoose = { if (continuation.isActive) continuation.resume(it?.let(matches::get)) },
+                    dismiss = dismiss,
+                )
+            }
+            continuation.invokeOnCancellation { close() }
         }
 
     private fun add(issue: FullIssue) {
@@ -472,11 +465,13 @@ class ScanActivity : AppCompatActivity() {
     /** Everything added since the scanner opened; a tap opens that issue's page. */
     private fun showAdded() {
         val entries = added.toList()
-        AlertDialog.Builder(this)
-            .setTitle(R.string.scan_added_title)
-            .setItems(entries.map { it.label }.toTypedArray()) { _, which -> showDetails(entries[which]) }
-            .setNegativeButton(R.string.scan_done, null)
-            .show()
+        showDialog { dismiss ->
+            ChoiceDialog(
+                R.string.scan_added_title, entries.map { it.label }, R.string.scan_done,
+                onChoose = { which -> which?.let { showDetails(entries[it]) } },
+                dismiss = dismiss,
+            )
+        }
     }
 
     private fun notice(message: String) = Toast.makeText(this, message, Toast.LENGTH_LONG).show()

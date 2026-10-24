@@ -70,13 +70,15 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 /**
  * Shows [content] (a dialog) over this activity, for screens that aren't Compose themselves. The
- * dialog calls the function it is given to go away.
+ * dialog calls the function it is given to go away, and the one returned does the same from outside.
  */
-fun ComponentActivity.showDialog(content: @Composable (dismiss: () -> Unit) -> Unit) {
+fun ComponentActivity.showDialog(content: @Composable (dismiss: () -> Unit) -> Unit): () -> Unit {
     val host = findViewById<ViewGroup>(android.R.id.content)
     val view = ComposeView(this)
-    view.setContent { InfiniteLongboxTheme { content { host.removeView(view) } } }
+    val dismiss = { host.removeView(view) }
+    view.setContent { InfiniteLongboxTheme { content(dismiss) } }
     host.addView(view)
+    return dismiss
 }
 
 /** Asks for a storage place, suggesting the ones already used so the same box isn't spelled two ways. */

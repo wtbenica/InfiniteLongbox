@@ -14,8 +14,6 @@
  */
 package dev.benica.infinite_longbox.ui.filter
 
-import android.os.Build
-import android.os.Build.VERSION_CODES.TIRAMISU
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
@@ -31,8 +29,6 @@ import androidx.core.view.updatePadding
 import androidx.lifecycle.asFlow
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.bottomsheet.BottomSheetBehavior
-import dev.benica.infinite_longbox.ARG_DATE
-import dev.benica.infinite_longbox.DatePickerFragment
 import dev.benica.infinite_longbox.FilterSummary
 import dev.benica.infinite_longbox.R
 import dev.benica.infinite_longbox.SearchFilter
@@ -41,11 +37,10 @@ import dev.benica.infinite_longbox.database.models.BaseCollection
 import dev.benica.infinite_longbox.database.models.DateFilter
 import dev.benica.infinite_longbox.database.models.FilterItem
 import dev.benica.infinite_longbox.database.models.FilterType
-import dev.benica.infinite_longbox.fragments.DIALOG_DATE
-import dev.benica.infinite_longbox.fragments.RESULT_DATE_PICKER_END
-import dev.benica.infinite_longbox.fragments.RESULT_DATE_PICKER_START
 import dev.benica.infinite_longbox.fragments_view_models.FilterViewModel
 import dev.benica.infinite_longbox.repository.Repository
+import dev.benica.infinite_longbox.ui.dialogs.DateDialog
+import dev.benica.infinite_longbox.ui.dialogs.showDialog
 import dev.benica.infinite_longbox.ui.theme.InfiniteLongboxTheme
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -180,22 +175,12 @@ class FilterSheetHost(
     }
 
     private fun pickDate(isStart: Boolean) {
-        val fragments = activity.supportFragmentManager
-        val reqKey = if (isStart) RESULT_DATE_PICKER_START else RESULT_DATE_PICKER_END
-        fragments.setFragmentResultListener(reqKey, activity) { _, result ->
-            val resultDate: LocalDate? = if (Build.VERSION.SDK_INT >= TIRAMISU) {
-                result.getSerializable(ARG_DATE, LocalDate::class.java)
-            } else {
-                @Suppress("DEPRECATION")
-                result.getSerializable(ARG_DATE) as LocalDate?
-            }
-            resultDate?.let { actions.setDate(it, isStart) }
-        }
-
         val minDate = if (isStart) LocalDate.of(1900, 1, 1) else currFilter.mStartDate
         val maxDate = if (isStart) currFilter.mEndDate else LocalDate.now()
         val current = if (isStart) currFilter.mStartDate else currFilter.mEndDate
 
-        DatePickerFragment.newInstance(current, minDate, maxDate, reqKey).show(fragments, DIALOG_DATE)
+        activity.showDialog { dismiss ->
+            DateDialog(current, minDate, maxDate, { actions.setDate(it, isStart) }, dismiss)
+        }
     }
 }
