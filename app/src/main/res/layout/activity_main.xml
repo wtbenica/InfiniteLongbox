@@ -38,38 +38,18 @@
             app:layout_behavior="com.google.android.material.appbar.AppBarLayout$Behavior"
             app:layout_insetEdge="top">
 
-            <androidx.appcompat.widget.Toolbar
+            <androidx.compose.ui.platform.ComposeView
                 android:id="@+id/action_bar"
-                style="@style/myActionBarStyle"
-                tools:title="Doom Patrol #9" />
-
-            <dev.benica.infinite_longbox.views.ProgressUpdateCard
-                android:id="@+id/progress_update_card"
-                android:visibility="gone"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="@dimen/margin_default" />
+                app:layout_scrollFlags="scroll|enterAlways" />
 
-            <FrameLayout
+            <!-- The database update's line and the loading bar -->
+            <androidx.compose.ui.platform.ComposeView
+                android:id="@+id/header_status"
                 android:layout_width="match_parent"
-                android:layout_height="4dp"
-                android:layout_marginTop="-1dp">
-
-                <FrameLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="16dp"
-                    android:layout_gravity="center_vertical">
-
-                    <ProgressBar
-                        android:id="@+id/progress_bar_item_list_update"
-                        style="@style/Widget.AppCompat.ProgressBar.Horizontal"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:background="?attr/mainActivityProgressBarBgColor"
-                        android:indeterminateOnly="true"
-                        android:indeterminateTint="?attr/mainActivityProgressBarIndeterminateTint" />
-                </FrameLayout>
-            </FrameLayout>
+                android:layout_height="wrap_content"
+                android:layout_marginTop="-1dp" />
         </com.google.android.material.appbar.AppBarLayout>
 
 
@@ -91,16 +71,12 @@
             app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior"
             tools:layout="@layout/fragment_filter" />
 
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
+        <androidx.compose.ui.platform.ComposeView
             android:id="@+id/scan_fab"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/margin_default"
-            android:contentDescription="@string/scan_barcode"
-            app:backgroundTint="@color/accent"
-            android:layout_gravity="bottom|end"
-            app:srcCompat="@drawable/ic_barcode_scan"
-            app:tint="@color/on_accent" />
+            android:layout_gravity="bottom|end" />
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
 </LinearLayout>

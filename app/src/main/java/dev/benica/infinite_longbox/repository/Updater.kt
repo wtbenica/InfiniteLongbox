@@ -27,7 +27,7 @@ import dev.benica.infinite_longbox.database.IssueDatabase
 import dev.benica.infinite_longbox.database.daos.BaseDao
 import dev.benica.infinite_longbox.database.daos.Count
 import dev.benica.infinite_longbox.database.models.*
-import dev.benica.infinite_longbox.views.ProgressUpdateCard.ProgressWrapper
+import dev.benica.infinite_longbox.ui.update.UpdateProgress.ProgressWrapper
 import kotlinx.coroutines.*
 import kotlinx.coroutines.android.asCoroutineDispatcher
 import kotlinx.coroutines.sync.Semaphore

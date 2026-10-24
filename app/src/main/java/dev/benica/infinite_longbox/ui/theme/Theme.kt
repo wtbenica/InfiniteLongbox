@@ -29,6 +29,9 @@ import dev.benica.infinite_longbox.R
 /** The condensed face used for small labels (the theme's fontBlock) */
 val CondensedBlock = FontFamily(Typeface.create("sans-serif-condensed", Typeface.NORMAL))
 
+/** The same face, bold: titles (a Typeface-made family can't be made bold by a weight) */
+val CondensedBold = FontFamily(Typeface.create("sans-serif-condensed", Typeface.BOLD))
+
 /** The face of the update line and the filter options */
 val Archivo = FontFamily(Font(R.font.archivo))
 

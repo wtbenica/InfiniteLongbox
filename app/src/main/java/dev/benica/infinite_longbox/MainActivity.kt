@@ -23,17 +23,23 @@ import android.net.NetworkCapabilities
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
-import android.view.Menu
-import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.Toolbar
 import androidx.coordinatorlayout.widget.CoordinatorLayout
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.ComposeView
+import dev.benica.infinite_longbox.ui.scan.ScanButton
+import dev.benica.infinite_longbox.ui.toolbar.BarAction
+import dev.benica.infinite_longbox.ui.toolbar.SelectionBar
+import dev.benica.infinite_longbox.ui.toolbar.TopBar
+import dev.benica.infinite_longbox.ui.theme.InfiniteLongboxTheme
+import dev.benica.infinite_longbox.ui.update.HeaderStatus
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
@@ -56,7 +62,6 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_EXPANDE
 import com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_HALF_EXPANDED
 import com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_HIDDEN
 import com.google.android.material.bottomsheet.BottomSheetBehavior.from
-import com.google.android.material.floatingactionbutton.FloatingActionButton
 import dev.benica.infinite_longbox.database.IssueDatabase
 import dev.benica.infinite_longbox.database.models.BaseCollection
 import dev.benica.infinite_longbox.database.models.Character
@@ -82,7 +87,7 @@ import dev.benica.infinite_longbox.fragments_view_models.FilterViewModel
 import dev.benica.infinite_longbox.repository.LoadTracker
 import dev.benica.infinite_longbox.repository.Repository
 import dev.benica.infinite_longbox.repository.pushCoversToServer
-import dev.benica.infinite_longbox.views.ProgressUpdateCard
+import dev.benica.infinite_longbox.ui.update.UpdateProgress
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -132,13 +137,16 @@ class MainActivity : AppCompatActivity(),
     private var filterFragment: FilterFragment? = null
     private lateinit var mainLayout: CoordinatorLayout
     private lateinit var appBarLayout: AppBarLayout
-    private lateinit var toolbar: Toolbar
+    private lateinit var toolbar: ComposeView
+    private var barTitle by mutableStateOf("")
+    private var barSubtitle by mutableStateOf<String?>(null)
+    private var barSelection by mutableStateOf<SelectionBar?>(null)
     private lateinit var resultFragmentContainer: FragmentContainerView
     private lateinit var bottomSheet: FragmentContainerView
     private lateinit var bottomSheetBehavior: BottomSheetBehavior<*>
-    private lateinit var progressUpdate: ProgressUpdateCard
-    private lateinit var progressBar: ProgressBar
-    private lateinit var scanFab: FloatingActionButton
+    private lateinit var progressUpdate: UpdateProgress
+    private var loading by mutableStateOf(false)
+    private var scanVisible by mutableStateOf(true)
     private var restoreNonHideable = false
 
     /**
@@ -310,11 +318,16 @@ class MainActivity : AppCompatActivity(),
         mainLayout = findViewById(R.id.main_activity)
         appBarLayout = findViewById(R.id.app_bar_layout)
         toolbar = findViewById(R.id.action_bar)
-        setSupportActionBar(toolbar)
+        barTitle = applicationInfo.loadLabel(packageManager).toString()
+        toolbar.setContent {
+            InfiniteLongboxTheme { TopBar(barTitle, barSubtitle, menuEntries(), barSelection) }
+        }
         resultFragmentContainer = findViewById(R.id.fragment_container)
         bottomSheet = findViewById(R.id.bottom_sheet)
-        progressUpdate = findViewById(R.id.progress_update_card)
-        progressBar = findViewById(R.id.progress_bar_item_list_update)
+        progressUpdate = UpdateProgress(this)
+        findViewById<ComposeView>(R.id.header_status).setContent {
+            InfiniteLongboxTheme { HeaderStatus(progressUpdate, loading) }
+        }
         // Anything being fetched from the server shows in the bar, once it has taken a moment
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -325,8 +338,10 @@ class MainActivity : AppCompatActivity(),
             }
         }
 
-        scanFab = findViewById(R.id.scan_fab)
-        scanFab.setOnClickListener { startBarcodeScan() }
+        val scanFab = findViewById<ComposeView>(R.id.scan_fab)
+        scanFab.setContent {
+            InfiniteLongboxTheme { ScanButton(scanVisible, onClick = ::startBarcodeScan) }
+        }
         (scanFab.layoutParams as ViewGroup.MarginLayoutParams).bottomMargin =
             peekHeight + resources.getDimensionPixelSize(R.dimen.margin_default)
         supportFragmentManager.addOnBackStackChangedListener { onBackStackChanged() }
@@ -373,29 +388,19 @@ class MainActivity : AppCompatActivity(),
         super.onStop()
     }
 
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        super.onCreateOptionsMenu(menu)
-        menuInflater.inflate(R.menu.activity_main, menu)
+    /** The overflow menu. */
+    private fun menuEntries() = buildList {
+        add(BarAction(getString(R.string.menu_about)) { AboutDialogFragment().show(supportFragmentManager, "app_about") })
+        add(BarAction(getString(R.string.menu_clear_db)) {
+            IssueDatabase.getInstance(this@MainActivity).transactionDao().cleanDatabase()
+        })
+        add(BarAction(getString(R.string.menu_export_collection)) { exportCollection.launch(collectionFileName()) })
+        add(BarAction(getString(R.string.menu_import_collection)) {
+            importCollection.launch(arrayOf("application/json", "text/plain", "*/*"))
+        })
+        add(BarAction(getString(R.string.menu_storage_places)) { showStoragePlaces() })
         // pushing covers to the dev server is a development convenience
-        menu?.findItem(R.id.menu_main_push_covers)?.isVisible = BuildConfig.DEBUG
-        return true
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
-            R.id.app_about -> AboutDialogFragment().show(supportFragmentManager, "app_about")
-            R.id.menu_main_clear_db -> IssueDatabase.getInstance(this).transactionDao()
-                .cleanDatabase()
-
-            R.id.menu_main_export_collection -> exportCollection.launch(collectionFileName())
-            R.id.menu_main_import_collection ->
-                importCollection.launch(arrayOf("application/json", "text/plain", "*/*"))
-
-            R.id.menu_main_storage_places -> showStoragePlaces()
-            R.id.menu_main_push_covers -> pushLocalCovers()
-            else -> super.onOptionsItemSelected(item)
-        }
-        return true
+        if (BuildConfig.DEBUG) add(BarAction(getString(R.string.menu_push_covers)) { pushLocalCovers() })
     }
 
     /** Every storage place with its copy count; a tap renames it (to a name already used merges the two). */
@@ -439,7 +444,7 @@ class MainActivity : AppCompatActivity(),
         val onDetail = currentScreen.isDetailPage()
         val sheetOpen = bottomSheetBehavior.state == STATE_EXPANDED ||
                 bottomSheetBehavior.state == STATE_HALF_EXPANDED
-        if (onDetail || sheetOpen) scanFab.hide() else scanFab.show()
+        scanVisible = !(onDetail || sheetOpen)
     }
 
     private val scanLauncher =
@@ -659,7 +664,7 @@ class MainActivity : AppCompatActivity(),
 
     /** The bar shows while the filter's items are being updated or anything is being fetched. */
     private fun showProgress() {
-        progressBar.visibility = if (filterUpdating || fetching) View.VISIBLE else View.GONE
+        loading = filterUpdating || fetching
     }
 
     override fun setProgressBar(isHidden: Boolean) {
@@ -694,9 +699,12 @@ class MainActivity : AppCompatActivity(),
 
     // ListFragmentCallback
     override fun setTitle(title: String?, subtitle: String?) {
-        val actual = title ?: applicationInfo.loadLabel(packageManager)
-        toolbar.title = actual
-        toolbar.subtitle = subtitle
+        barTitle = title ?: applicationInfo.loadLabel(packageManager).toString()
+        barSubtitle = subtitle
+    }
+
+    override fun setSelection(selection: SelectionBar?) {
+        barSelection = selection
     }
 
     override fun setToolbarScrollFlags(flags: Int) {

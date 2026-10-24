@@ -16,13 +16,8 @@
 package dev.benica.infinite_longbox.fragments
 
 import android.os.Bundle
-import android.view.Menu
-import android.view.MenuInflater
-import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.view.ActionMode
 import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.lazy.grid.LazyGridState
@@ -38,8 +33,8 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.core.view.MenuHost
-import androidx.core.view.MenuProvider
+import androidx.activity.OnBackPressedCallback
+import androidx.activity.addCallback
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -54,6 +49,8 @@ import dev.benica.infinite_longbox.fragments_view_models.IssueListViewModel
 import dev.benica.infinite_longbox.repository.Repository
 import dev.benica.infinite_longbox.ui.covers.CoverImages
 import dev.benica.infinite_longbox.ui.covers.placeholderKey
+import dev.benica.infinite_longbox.ui.toolbar.BarAction
+import dev.benica.infinite_longbox.ui.toolbar.SelectionBar
 import dev.benica.infinite_longbox.ui.lists.IssueCardState
 import dev.benica.infinite_longbox.ui.lists.IssueListItem
 import dev.benica.infinite_longbox.ui.lists.IssueListItemSkeleton
@@ -98,18 +95,13 @@ class IssueListFragment : ComposeListFragment<FullIssue>() {
             }
         }
 
-        val menuHost: MenuHost = requireActivity()
-        menuHost.addMenuProvider(object : MenuProvider {
-            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
-                menuInflater.inflate(R.menu.fragment_issue_list, menu)
-            }
-
-            override fun onMenuItemSelected(menuItem: MenuItem): Boolean = false
-        }, viewLifecycleOwner, Lifecycle.State.RESUMED)
+        selectionBack = requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, false) {
+            endSelection()
+        }
     }
 
     override fun onDestroyView() {
-        selectionMode?.finish()
+        endSelection()
         super.onDestroyView()
     }
 
@@ -173,7 +165,7 @@ class IssueListFragment : ComposeListFragment<FullIssue>() {
     // BULK SELECTION: a long press picks an issue, and from then on a tap picks or unpicks one
 
     private val selection = mutableStateSetOf<Int>()
-    private var selectionMode: ActionMode? = null
+    private var selectionBack: OnBackPressedCallback? = null
 
     /** The filter the selection was made under: a different list is a different selection. */
     private var selectionFilter: SearchFilter? = null
@@ -182,16 +174,24 @@ class IssueListFragment : ComposeListFragment<FullIssue>() {
     override fun gridModifier(items: LazyPagingItems<FullIssue>, grid: LazyGridState, headerCount: Int): Modifier {
         val scope = rememberCoroutineScope()
 
-        // The action bar follows the selection: it opens with the first pick and closes with the last
+        // The top bar follows the selection: it changes with the first pick and goes back with the last
         LaunchedEffect(Unit) {
             snapshotFlow { selection.size }.collect { picked ->
-                when {
-                    picked == 0 -> selectionMode?.finish()
-                    selectionMode == null -> {
-                        selectionFilter = viewModel.filter.value
-                        selectionMode = (activity as? AppCompatActivity)?.startSupportActionMode(selectionCallback)
-                    }
-                    else -> selectionMode?.invalidate()
+                if (picked == 0) {
+                    endSelection()
+                } else {
+                    if (selectionFilter == null) selectionFilter = viewModel.filter.value
+                    selectionBack?.isEnabled = true
+                    callback?.setSelection(
+                        SelectionBar(
+                            picked,
+                            listOf(
+                                BarAction(getString(R.string.selection_select_all)) { selectAll() },
+                                BarAction(getString(R.string.selection_move_storage)) { moveSelectedToStorage() },
+                            ),
+                            onClose = ::endSelection,
+                        )
+                    )
                 }
             }
         }
@@ -200,8 +200,8 @@ class IssueListFragment : ComposeListFragment<FullIssue>() {
         LaunchedEffect(Unit) {
             snapshotFlow { viewModel.filter.value }.collect { filter ->
                 val under = selectionFilter
-                if (selectionMode != null && under != null && filter != null && !under.sameItemsAs(filter)) {
-                    selectionMode?.finish()
+                if (under != null && filter != null && !under.sameItemsAs(filter)) {
+                    endSelection()
                 }
             }
         }
@@ -264,29 +264,11 @@ class IssueListFragment : ComposeListFragment<FullIssue>() {
         }
     }
 
-    private val selectionCallback = object : ActionMode.Callback {
-        override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean {
-            mode.menuInflater.inflate(R.menu.issue_selection, menu)
-            mode.title = getString(R.string.selected_count, selection.size)
-            return true
-        }
-
-        override fun onPrepareActionMode(mode: ActionMode, menu: Menu): Boolean {
-            mode.title = getString(R.string.selected_count, selection.size)
-            return true
-        }
-
-        override fun onActionItemClicked(mode: ActionMode, item: MenuItem): Boolean = when (item.itemId) {
-            R.id.selection_select_all -> { selectAll(); true }
-            R.id.selection_move_storage -> { moveSelectedToStorage(); true }
-            else -> false
-        }
-
-        override fun onDestroyActionMode(mode: ActionMode) {
-            selection.clear()
-            selectionFilter = null
-            selectionMode = null
-        }
+    private fun endSelection() {
+        selection.clear()
+        selectionFilter = null
+        selectionBack?.isEnabled = false
+        callback?.setSelection(null)
     }
 
     /** Everything the list shows, not only the part that has loaded so far. */
@@ -311,7 +293,7 @@ class IssueListFragment : ComposeListFragment<FullIssue>() {
                 val text = getString(R.string.selection_moved, moved, place.orEmpty()) +
                     if (left > 0) getString(R.string.selection_not_owned, left) else ""
                 Toast.makeText(requireContext(), text, Toast.LENGTH_LONG).show()
-                selectionMode?.finish()
+                endSelection()
             }
         }
     }

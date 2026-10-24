@@ -22,8 +22,8 @@ import dev.benica.infinite_longbox.InfiniteLongboxApplication.Companion.context
 import dev.benica.infinite_longbox.Webservice
 import dev.benica.infinite_longbox.database.models.*
 import dev.benica.infinite_longbox.repository.Updater.PriorityDispatcher.Companion.nowDispatcher
-import dev.benica.infinite_longbox.views.ProgressUpdateCard
-import dev.benica.infinite_longbox.views.ProgressUpdateCard.ProgressWrapper
+import dev.benica.infinite_longbox.ui.update.UpdateProgress
+import dev.benica.infinite_longbox.ui.update.UpdateProgress.ProgressWrapper
 import kotlinx.coroutines.*
 
 /**
@@ -44,7 +44,7 @@ class StaticUpdater private constructor(
      * characters, and series bonds.  If updates are found, they are downloaded and saved to the
      * local database.
      */
-    internal suspend fun updateStaticAsync(progressUpdate: ProgressUpdateCard) {
+    internal suspend fun updateStaticAsync(progressUpdate: UpdateProgress) {
         Log.d(TAG, "updateStaticAsync Begin")
         installSeedIfNeeded(progressUpdate)
         getAllPublishers(progressUpdate.publisherWrapper)
@@ -68,7 +68,7 @@ class StaticUpdater private constructor(
      * the paged sync has little left to do. Does nothing if there's no seed or the database
      * isn't empty.
      */
-    private suspend fun installSeedIfNeeded(progressUpdate: ProgressUpdateCard) {
+    private suspend fun installSeedIfNeeded(progressUpdate: UpdateProgress) {
         SeedInstaller(webservice, prefs, database, context!!.cacheDir).installIfNeeded(
             onStart = { progressUpdate.setTitle("Downloading starter database") },
             onProgress = { done, total -> progressUpdate.setSeedProgress(done, total) },

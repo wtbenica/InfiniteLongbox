@@ -66,9 +66,7 @@ import dev.benica.infinite_longbox.database.models.Role
 import dev.benica.infinite_longbox.database.models.Series
 import dev.benica.infinite_longbox.database.models.Story
 import dev.benica.infinite_longbox.database.models.TextFilter
-import dev.benica.infinite_longbox.views.ProgressUpdateCard
-import dev.benica.infinite_longbox.views.hide
-import dev.benica.infinite_longbox.views.show
+import dev.benica.infinite_longbox.ui.update.UpdateProgress
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
@@ -180,7 +178,7 @@ class Repository private constructor(val context: Context) {
     // every activity re-creation) started another loop that raced the others on saved progress.
     private val staticUpdateRunning = AtomicBoolean(false)
 
-    internal fun beginStaticUpdate(progressUpdate: ProgressUpdateCard, mainActivity: MainActivity) {
+    internal fun beginStaticUpdate(progressUpdate: UpdateProgress, mainActivity: MainActivity) {
         MainActivity.hasConnection.observe(mainActivity) {
             this.hasConnection = it
             if (checkConnectionStatus() && staticUpdateRunning.compareAndSet(false, true)) {

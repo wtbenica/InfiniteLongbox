@@ -13,40 +13,38 @@
  * limitations under the License.
  */
 
-package dev.benica.infinite_longbox.views
+package dev.benica.infinite_longbox.ui.update
 
 import android.content.Context
 import android.os.SystemClock
-import android.util.AttributeSet
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.platform.ComposeView
-import androidx.cardview.widget.CardView
 import dev.benica.infinite_longbox.R
-import dev.benica.infinite_longbox.ui.theme.InfiniteLongboxTheme
-import dev.benica.infinite_longbox.ui.update.STAGE_FADE_MS
-import dev.benica.infinite_longbox.ui.update.UpdateLine
-import dev.benica.infinite_longbox.ui.update.UpdateStage
 import kotlinx.coroutines.delay
 import kotlin.time.Duration.Companion.milliseconds
 
 /**
- * One line telling what the database update is doing: "Updating database…" on the left, and on
- * the right which part (publishers, series, creators, characters) is being fetched now.
+ * What the database update is doing: "Updating database…", and which part (publishers, series,
+ * creators, characters) is being fetched now. [HeaderStatus] shows it.
  */
-class ProgressUpdateCard(context: Context, attributeSet: AttributeSet) :
-    CardView(context, attributeSet) {
+class UpdateProgress(context: Context) {
 
-    private var titleText by mutableStateOf(context.getString(R.string.update_title_default))
-    private var stage by mutableStateOf<UpdateStage?>(null)
+    var titleText by mutableStateOf(context.getString(R.string.update_title_default))
+        private set
+    var stage by mutableStateOf<UpdateStage?>(null)
+        private set
 
-    init {
-        cardElevation = 0f
-        setCardBackgroundColor(context.getColor(R.color.surface_raised))
-        addView(ComposeView(context).apply {
-            setContent { InfiniteLongboxTheme { UpdateLine(titleText, stage) } }
-        })
+    /** Whether the line is on screen: while an update runs. */
+    var visible by mutableStateOf(false)
+        private set
+
+    fun show() {
+        visible = true
+    }
+
+    fun hide() {
+        visible = false
     }
 
     val publisherWrapper = ProgressWrapper("Publishers")
@@ -70,7 +68,7 @@ class ProgressUpdateCard(context: Context, attributeSet: AttributeSet) :
      */
     private fun showStage(key: String, text: String = key) {
         // The time it is readable is worked out here, not from the animation, which doesn't run when
-        // the card isn't on screen and which [holdStage] must not wait for
+        // the line isn't on screen and which [holdStage] must not wait for
         if (key != shownKey) {
             readableAt = SystemClock.uptimeMillis() + STAGE_FADE_MS
             shownKey = key
@@ -87,12 +85,12 @@ class ProgressUpdateCard(context: Context, attributeSet: AttributeSet) :
 
     /**
      * Waits until the part now shown has been readable for [DWELL_MS], so a part that had nothing
-     * to fetch isn't gone before it can be read. Doesn't wait at all if the card isn't on screen
+     * to fetch isn't gone before it can be read. Doesn't wait at all if the line isn't on screen
      * (nobody is reading it), and never for long.
      */
     private suspend fun holdStage(key: String) {
         val giveUp = SystemClock.uptimeMillis() + HOLD_LIMIT_MS
-        while (isShown && shownKey == key) {
+        while (visible && shownKey == key) {
             val now = SystemClock.uptimeMillis()
             if (now >= readableAt + DWELL_MS || now >= giveUp) return
             delay(POLL_MS.milliseconds)
