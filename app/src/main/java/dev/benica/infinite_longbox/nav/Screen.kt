@@ -46,8 +46,6 @@ abstract class Screen(protected val host: ScreenHost) {
     protected val resources: Resources get() = host.activity.resources
     protected val viewLifecycleOwner: LifecycleOwner get() = host.lifecycleOwner
 
-    protected fun requireContext(): Context = host.activity
-    protected fun requireActivity(): MainActivity = host.activity
     protected fun getString(@StringRes id: Int, vararg args: Any): String = host.activity.getString(id, *args)
 
     open fun onShown() {}

@@ -14,8 +14,6 @@
  */
 package dev.benica.infinite_longbox.ui.dialogs
 
-import android.view.ViewGroup
-import androidx.activity.ComponentActivity
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -45,7 +43,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.layout.onSizeChanged
-import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
@@ -65,18 +62,7 @@ import dev.benica.infinite_longbox.ui.common.SheetChip
 import dev.benica.infinite_longbox.ui.issue.MyCopyState
 import dev.benica.infinite_longbox.ui.issue.SignerRef
 import dev.benica.infinite_longbox.ui.theme.Archivo
-import dev.benica.infinite_longbox.ui.theme.InfiniteLongboxTheme
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-
-/** Shows [content] (a dialog) over this activity, for screens that aren't Compose themselves. */
-fun ComponentActivity.showDialog(content: @Composable (dismiss: () -> Unit) -> Unit): () -> Unit {
-    val host = findViewById<ViewGroup>(android.R.id.content)
-    val view = ComposeView(this)
-    val dismiss = { host.removeView(view) }
-    view.setContent { InfiniteLongboxTheme { content(dismiss) } }
-    host.addView(view)
-    return dismiss
-}
 
 /** Asks for a storage place, suggesting the ones already used so the same box isn't spelled two ways. */
 @Composable

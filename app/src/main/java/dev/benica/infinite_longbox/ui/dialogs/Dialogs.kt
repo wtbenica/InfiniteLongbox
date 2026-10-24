@@ -14,6 +14,8 @@
  */
 package dev.benica.infinite_longbox.ui.dialogs
 
+import android.view.ViewGroup
+import androidx.activity.ComponentActivity
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -34,6 +36,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
@@ -42,9 +45,23 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import dev.benica.infinite_longbox.R
 import dev.benica.infinite_longbox.ui.theme.Archivo
+import dev.benica.infinite_longbox.ui.theme.InfiniteLongboxTheme
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneOffset
+
+/**
+ * Shows [content] (a dialog) over this activity, for screens that aren't Compose themselves. The
+ * dialog calls the function it is given to go away, and the one returned does the same from outside.
+ */
+fun ComponentActivity.showDialog(content: @Composable (dismiss: () -> Unit) -> Unit): () -> Unit {
+    val host = findViewById<ViewGroup>(android.R.id.content)
+    val view = ComposeView(this)
+    val dismiss = { host.removeView(view) }
+    view.setContent { InfiniteLongboxTheme { content(dismiss) } }
+    host.addView(view)
+    return dismiss
+}
 
 /** A list to choose from. */
 @Composable
