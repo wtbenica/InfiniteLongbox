@@ -75,7 +75,7 @@ import dev.benica.infinite_longbox.fragments.CharacterDetailFragment
 import dev.benica.infinite_longbox.fragments.CharacterListFragment
 import dev.benica.infinite_longbox.fragments.CreatorDetailFragment
 import dev.benica.infinite_longbox.fragments.CreatorListFragment
-import dev.benica.infinite_longbox.fragments.FilterFragment
+import dev.benica.infinite_longbox.ui.filter.FilterSheetHost
 import dev.benica.infinite_longbox.fragments.IssueDetailFragment
 import dev.benica.infinite_longbox.fragments.IssueListFragment
 import dev.benica.infinite_longbox.fragments.FilteredListFragment
@@ -112,8 +112,7 @@ class MainActivity : AppCompatActivity(),
     CharacterListFragment.CharacterListCallback,
     CharacterDetailFragment.CharacterDetailCallback,
     CreatorDetailFragment.CreatorDetailCallback,
-    CreatorListFragment.CreatorListCallback,
-    FilterFragment.FilterFragmentCallback {
+    CreatorListFragment.CreatorListCallback {
 
     internal val peekHeight
         get() = resources.getDimension(R.dimen.peek_height).toInt()
@@ -134,7 +133,7 @@ class MainActivity : AppCompatActivity(),
         }
 
     private val filterViewModel: FilterViewModel by viewModels()
-    private var filterFragment: FilterFragment? = null
+    private lateinit var filterSheet: FilterSheetHost
     private lateinit var mainLayout: CoordinatorLayout
     private lateinit var appBarLayout: AppBarLayout
     private lateinit var toolbar: ComposeView
@@ -142,7 +141,7 @@ class MainActivity : AppCompatActivity(),
     private var barSubtitle by mutableStateOf<String?>(null)
     private var barSelection by mutableStateOf<SelectionBar?>(null)
     private lateinit var resultFragmentContainer: FragmentContainerView
-    private lateinit var bottomSheet: FragmentContainerView
+    private lateinit var bottomSheet: View
     private lateinit var bottomSheetBehavior: BottomSheetBehavior<*>
     private lateinit var progressUpdate: UpdateProgress
     private var loading by mutableStateOf(false)
@@ -313,8 +312,6 @@ class MainActivity : AppCompatActivity(),
         WindowCompat.setDecorFitsSystemWindows(window, false)
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        filterFragment =
-            supportFragmentManager.findFragmentByTag(resources.getString(R.string.tag_filter_fragment)) as FilterFragment?
         mainLayout = findViewById(R.id.main_activity)
         appBarLayout = findViewById(R.id.app_bar_layout)
         toolbar = findViewById(R.id.action_bar)
@@ -529,6 +526,11 @@ class MainActivity : AppCompatActivity(),
     }
 
     private fun initBottomSheet() {
+        filterSheet = FilterSheetHost(
+            this, filterViewModel, bottomSheet,
+            onHeaderClick = ::onHandleClick,
+            onUpdating = ::setProgressBar,
+        )
         bottomSheetBehavior = from(bottomSheet)
         bottomSheetBehavior.apply {
             peekHeight = this@MainActivity.peekHeight
@@ -540,7 +542,7 @@ class MainActivity : AppCompatActivity(),
 
         bottomSheetBehavior.addBottomSheetCallback(object : BottomSheetCallback() {
             override fun onStateChanged(bottomSheet: View, newState: Int) {
-                filterFragment?.visibleState = newState
+                filterSheet.onStateChanged(newState)
                 updateScanFab()
                 if (restoreNonHideable &&
                     (newState == STATE_COLLAPSED || newState == STATE_EXPANDED)
@@ -551,7 +553,7 @@ class MainActivity : AppCompatActivity(),
             }
 
             override fun onSlide(bottomSheet: View, slideOffset: Float) {
-                filterFragment?.onSlide(slideOffset)
+                filterSheet.onSlide(slideOffset)
             }
         })
     }
@@ -652,8 +654,7 @@ class MainActivity : AppCompatActivity(),
 //        updateFilter(SearchFilter(creators = setOf(creator), myCollection = false))
     }
 
-    // FilterFragmentCallback
-    override fun onHandleClick() {
+    private fun onHandleClick() {
         if (bottomSheetBehavior.state == STATE_COLLAPSED) {
             bottomSheetBehavior.state = STATE_EXPANDED
         }
@@ -667,7 +668,7 @@ class MainActivity : AppCompatActivity(),
         loading = filterUpdating || fetching
     }
 
-    override fun setProgressBar(isHidden: Boolean) {
+    private fun setProgressBar(isHidden: Boolean) {
         runOnUiThread {
             filterUpdating = !isHidden
             showProgress()

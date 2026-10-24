@@ -61,15 +61,28 @@
             app:layout_behavior="@string/appbar_scrolling_view_behavior"
             app:layout_dodgeInsetEdges="top" />
 
-        <androidx.fragment.app.FragmentContainerView
+        <!-- The filter sheet: dragged by the BottomSheetBehavior, drawn by FilterSheet -->
+        <com.google.android.material.card.MaterialCardView
             android:id="@+id/bottom_sheet"
-            android:name="dev.benica.infinite_longbox.fragments.FilterFragment"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:fitsSystemWindows="false"
-            android:tag="@string/tag_filter_fragment"
+            app:cardBackgroundColor="@color/surface_raised"
+            app:cardElevation="@dimen/margin_default"
+            app:cardPreventCornerOverlap="false"
             app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior"
-            tools:layout="@layout/fragment_filter" />
+            app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay_bottom_sheet">
+
+            <FrameLayout
+                android:id="@+id/layout_filter_fragment"
+                style="@style/FilterFrameLayout">
+
+                <androidx.compose.ui.platform.ComposeView
+                    android:id="@+id/sheet_compose"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+            </FrameLayout>
+        </com.google.android.material.card.MaterialCardView>
 
         <androidx.compose.ui.platform.ComposeView
             android:id="@+id/scan_fab"

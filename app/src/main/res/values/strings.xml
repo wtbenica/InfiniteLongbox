@@ -55,7 +55,6 @@
 
     <string name="sort_image_content_description">Label for sort by picker box</string>
     <string name="search_image_content_description">Label for search bar</string>
-    <string name="tag_filter_fragment">filter_fragment</string>
     <string name="sort_type_series_name">Series Name</string>
     <string name="sort_type_start_date">Start Date</string>
     <string name="column_sort_name">sortName</string>
