@@ -13,18 +13,24 @@
  * limitations under the License.
  */
 
-package dev.benica.infinite_longbox
+package dev.benica.infinite_longbox.screens
+
+import dev.benica.infinite_longbox.APP
+import dev.benica.infinite_longbox.BuildConfig
+import dev.benica.infinite_longbox.R
 
 import android.Manifest
-import android.content.Intent
 import android.content.pm.PackageManager
-import android.os.Bundle
 import android.os.SystemClock
 import android.util.Log
 import android.util.Size
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import dev.benica.infinite_longbox.nav.Screen
+import dev.benica.infinite_longbox.nav.ScreenHost
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.FocusMeteringAction
@@ -43,9 +49,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.platform.ComposeView
 import androidx.core.content.ContextCompat
-import androidx.core.view.WindowCompat
 import androidx.lifecycle.lifecycleScope
 import dev.benica.infinite_longbox.database.IssueDatabase
 import dev.benica.infinite_longbox.database.models.BaseCollection
@@ -63,7 +67,6 @@ import dev.benica.infinite_longbox.ui.covers.MetronCoverPicker
 import dev.benica.infinite_longbox.ui.scan.ScanResultState
 import dev.benica.infinite_longbox.ui.scan.ScanScreen
 import dev.benica.infinite_longbox.ui.scan.ScanWindow
-import dev.benica.infinite_longbox.ui.theme.InfiniteLongboxTheme
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
@@ -76,10 +79,10 @@ import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import kotlin.coroutines.resume
 
-/** Scans a comic's barcode (UPC plus 5-digit add-on) and adds the issue to My Collection, staying open for the next. */
-private const val TAG = APP + "ScanActivity"
+private const val TAG = APP + "ScanPage"
 
-class ScanActivity : AppCompatActivity() {
+/** Scans a comic's barcode (UPC plus 5-digit add-on) and adds the issue to My Collection, staying open for the next. */
+class ScanPage(host: ScreenHost) : Screen(host) {
 
     private var previewView: PreviewView? = null
     private var torchOn by mutableStateOf(false)
@@ -117,66 +120,58 @@ class ScanActivity : AppCompatActivity() {
     /** The covers Metron has for a variant just added, to pick one from. */
     private var picker by mutableStateOf<Pair<Added, List<MetronCoverOption>>?>(null)
 
-    private val requestCamera =
-        registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+    @Composable
+    override fun Content() {
+        val requestCamera = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
             if (granted) {
                 startCamera()
             } else {
-                Toast.makeText(this, R.string.scan_camera_denied, Toast.LENGTH_LONG).show()
-                finish()
+                Toast.makeText(context, R.string.scan_camera_denied, Toast.LENGTH_LONG).show()
+                activity.goBack()
             }
         }
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        // The picture draws under the system bars; the hint and the light switch keep clear of them
-        WindowCompat.setDecorFitsSystemWindows(window, false)
-
-        setContentView(ComposeView(this).apply {
-            setContent {
-                InfiniteLongboxTheme {
-                    val shown = latest
-                    // The cover arrives a moment after the issue is added: follow it
-                    val cover by remember(shown?.issueId) {
-                        shown?.let { coverOf(it.issueId) } ?: kotlinx.coroutines.flow.flowOf(null)
-                    }.collectAsState(null)
-                    picker?.let { (entry, options) ->
-                        MetronCoverPicker(
-                            options = options,
-                            loadPreview = { metronCoverPreview(entry.issueId, entry.variantOf, it.id) },
-                            onPick = { pickCover(entry, it) },
-                            onDismiss = { picker = null },
-                        )
-                    }
-                    ScanScreen(
-                        torchOn = torchOn,
-                        onTorchChange = {
-                            torchOn = it
-                            camera?.cameraControl?.enableTorch(it)
-                        },
-                        onPreviewView = { view ->
-                            previewView = view
-                            if (hasCameraPermission()) startCamera()
-                            else requestCamera.launch(Manifest.permission.CAMERA)
-                        },
-                        onTapToFocus = ::focusAt,
-                        result = shown?.let { ScanResultState(it.label, cover, canPickCover = it.variantOf != null, storage = it.storage) },
-                        storage = storage,
-                        onStorage = ::askStorage,
-                        addedCount = added.size,
-                        onUndo = { shown?.let(::undo) },
-                        onDetails = { shown?.let(::showDetails) },
-                        onPickCover = { shown?.let(::offerCovers) },
-                        onShowAdded = ::showAdded,
-                        onDone = ::finish,
-                    )
-                }
+        // The launcher isn't ready until this composition is applied, so it can't be asked from the preview's factory
+        LaunchedEffect(Unit) {
+            if (!hasCameraPermission()) requestCamera.launch(Manifest.permission.CAMERA)
+        }
+            val shown = latest
+            // The cover arrives a moment after the issue is added: follow it
+            val cover by remember(shown?.issueId) {
+                shown?.let { coverOf(it.issueId) } ?: kotlinx.coroutines.flow.flowOf(null)
+            }.collectAsState(null)
+            picker?.let { (entry, options) ->
+                MetronCoverPicker(
+                    options = options,
+                    loadPreview = { metronCoverPreview(entry.issueId, entry.variantOf, it.id) },
+                    onPick = { pickCover(entry, it) },
+                    onDismiss = { picker = null },
+                )
             }
-        })
+            ScanScreen(
+                torchOn = torchOn,
+                onTorchChange = {
+                    torchOn = it
+                    camera?.cameraControl?.enableTorch(it)
+                },
+                onPreviewView = { view ->
+                    previewView = view
+                    if (hasCameraPermission()) startCamera()
+                },
+                onTapToFocus = ::focusAt,
+                result = shown?.let { ScanResultState(it.label, cover, canPickCover = it.variantOf != null, storage = it.storage) },
+                storage = storage,
+                onStorage = ::askStorage,
+                addedCount = added.size,
+                onUndo = { shown?.let(::undo) },
+                onDetails = { shown?.let(::showDetails) },
+                onPickCover = { shown?.let(::offerCovers) },
+                onShowAdded = ::showAdded,
+                onDone = activity::goBack,
+            )
     }
 
     private fun coverOf(issueId: Int) =
-        IssueDatabase.getInstance(this).issueDao().getFullIssue(issueId)
+        IssueDatabase.getInstance(context).issueDao().getFullIssue(issueId)
             .map { issue -> issue?.coverUri?.path?.let { File(it) }?.takeIf { it.exists() } }
 
     /** Width over height of what the analysis was given, turned upright. */
@@ -225,12 +220,12 @@ class ScanActivity : AppCompatActivity() {
     }
 
     private fun hasCameraPermission() =
-        ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) ==
+        ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA) ==
                 PackageManager.PERMISSION_GRANTED
 
     private fun startCamera() {
         if (previewView == null) return
-        val providerFuture = ProcessCameraProvider.getInstance(this)
+        val providerFuture = ProcessCameraProvider.getInstance(context)
         providerFuture.addListener({
             val provider = providerFuture.get()
 
@@ -267,8 +262,8 @@ class ScanActivity : AppCompatActivity() {
                 .apply { previewView?.viewPort?.let { setViewPort(it) } }
                 .build()
             provider.unbindAll()
-            camera = provider.bindToLifecycle(this, CameraSelector.DEFAULT_BACK_CAMERA, group)
-        }, ContextCompat.getMainExecutor(this))
+            camera = provider.bindToLifecycle(viewLifecycleOwner, CameraSelector.DEFAULT_BACK_CAMERA, group)
+        }, ContextCompat.getMainExecutor(context))
     }
 
     /** [text] is what the reader saw: a UPC-A or EAN-13, with the add-on if it was read. */
@@ -301,8 +296,8 @@ class ScanActivity : AppCompatActivity() {
         val now = SystemClock.elapsedRealtime()
         if (busy || (code == lastCode && now - lastCodeAt < SAME_CODE_MS)) return
         busy = true
-        runOnUiThread {
-            lifecycleScope.launch {
+        activity.runOnUiThread {
+            viewLifecycleOwner.lifecycleScope.launch {
                 try {
                     resolve(code)
                 } finally {
@@ -366,7 +361,7 @@ class ScanActivity : AppCompatActivity() {
 
     /** The issue number, typed in; null if cancelled. */
     private suspend fun ask(): String? = suspendCancellableCoroutine { continuation ->
-        val close = showDialog { dismiss ->
+        val close = activity.showDialog { dismiss ->
             NumberDialog(
                 R.string.scan_which_number, R.string.scan_which_number_message, R.string.scan_issue_number_hint,
                 onResult = { if (continuation.isActive) continuation.resume(it?.trim()?.trimStart('0')) },
@@ -379,7 +374,7 @@ class ScanActivity : AppCompatActivity() {
     /** The barcode alone doesn't always pin down the issue; ask which one it is. */
     private suspend fun choose(matches: List<FullIssue>): FullIssue? =
         suspendCancellableCoroutine { continuation ->
-            val close = showDialog { dismiss ->
+            val close = activity.showDialog { dismiss ->
                 ChoiceDialog(
                     R.string.scan_choose_issue, matches.map { it.scanLabel() }, android.R.string.cancel,
                     onChoose = { if (continuation.isActive) continuation.resume(it?.let(matches::get)) },
@@ -400,7 +395,7 @@ class ScanActivity : AppCompatActivity() {
     /** "The rest of these are going in Box 2": asked once, then every copy scanned is filed there. */
     private fun askStorage() {
         StoragePrompt.show(
-            this, R.string.scan_storage_title, getString(R.string.scan_storage_message),
+            activity, R.string.scan_storage_title, getString(R.string.scan_storage_message),
             storage, R.string.scan_storage_clear,
         ) { storage = it }
     }
@@ -413,7 +408,7 @@ class ScanActivity : AppCompatActivity() {
 
     /** The covers Metron has for a variant whose cover couldn't be told from its name. */
     private fun offerCovers(entry: Added) {
-        lifecycleScope.launch {
+        viewLifecycleOwner.lifecycleScope.launch {
             val options = metronCoverOptions(entry.issueId, entry.variantOf)
             if (options.isNullOrEmpty()) notice(getString(R.string.cover_metron_none))
             else picker = entry to options
@@ -422,24 +417,20 @@ class ScanActivity : AppCompatActivity() {
 
     private fun pickCover(entry: Added, option: MetronCoverOption) {
         picker = null
-        lifecycleScope.launch {
-            val result = fetchCoverFromMetron(applicationContext, entry.issueId, entry.variantOf, choice = option.id)
+        viewLifecycleOwner.lifecycleScope.launch {
+            val result = fetchCoverFromMetron(context.applicationContext, entry.issueId, entry.variantOf, choice = option.id)
             notice(getString(result.message))
         }
     }
 
     private fun showDetails(entry: Added) {
-        setResult(
-            RESULT_OK,
-            Intent().putExtra(EXTRA_ISSUE_ID, entry.issueId).putExtra(EXTRA_VARIANT_OF, entry.variantOf ?: -1)
-        )
-        finish()
+        activity.showScannedIssue(entry.issueId, entry.variantOf)
     }
 
     /** Everything added since the scanner opened; a tap opens that issue's page. */
     private fun showAdded() {
         val entries = added.toList()
-        showDialog { dismiss ->
+        activity.showDialog { dismiss ->
             ChoiceDialog(
                 R.string.scan_added_title, entries.map { it.label }, R.string.scan_done,
                 onChoose = { which -> which?.let { showDetails(entries[it]) } },
@@ -448,7 +439,7 @@ class ScanActivity : AppCompatActivity() {
         }
     }
 
-    private fun notice(message: String) = Toast.makeText(this, message, Toast.LENGTH_LONG).show()
+    private fun notice(message: String) = Toast.makeText(context, message, Toast.LENGTH_LONG).show()
 
     /** Series, number and variant, so the copies sharing one barcode can be told apart. */
     private fun FullIssue.scanLabel(): String {
@@ -458,17 +449,14 @@ class ScanActivity : AppCompatActivity() {
         return if (variant.isBlank()) "$this" else "$this ($variant)"
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
+    override fun onHidden() {
         analysisExecutor.shutdown()
     }
 
-    companion object {
-        const val EXTRA_ISSUE_ID = "issue_id"
-        const val EXTRA_VARIANT_OF = "variant_of"
-        private const val ADD_ON_GRACE_MS = 3000L
+    private companion object {
+        const val ADD_ON_GRACE_MS = 3000L
 
         /** The same code read again within this long is the comic still in view, not another one. */
-        private const val SAME_CODE_MS = 4000L
+        const val SAME_CODE_MS = 4000L
     }
 }

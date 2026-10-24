@@ -24,66 +24,15 @@
         <item name="android:enforceNavigationBarContrast">false</item>
     </style>
 
-    <!-- The Light parent hard-codes a light dialog surface; follow the role colors instead -->
-    <style name="AppAlertDialog" parent="Theme.MaterialComponents.Light.Dialog.Alert">
-        <item name="colorPrimary">@color/accent</item>
-        <item name="colorAccent">@color/accent</item>
-        <item name="colorSurface">@color/surface_raised</item>
-        <item name="colorOnSurface">@color/text_primary</item>
-        <item name="colorBackgroundFloating">@color/surface_raised</item>
-        <item name="android:colorBackground">@color/surface_raised</item>
-        <item name="android:textColorPrimary">@color/text_primary</item>
-        <item name="android:textColorSecondary">@color/text_secondary</item>
-        <item name="android:textColorHint">@color/text_secondary</item>
-        <!-- The list in setItems dialogs (Replace / Remove cover) -->
-        <item name="textColorAlertDialogListItem">@color/text_primary</item>
-        <item name="android:textColorAlertDialogListItem">@color/text_primary</item>
-        <item name="android:windowBackground">@color/surface_raised</item>
-        <item name="colorControlNormal">@color/text_secondary</item>
-        <item name="colorControlActivated">@color/accent</item>
-    </style>
-
-    <style name="BaseTheme" parent="Theme.MaterialComponents.Light.NoActionBar">
-        <item name="colorPrimaryVariant">@color/accent_strong</item>
-        <item name="colorPrimary">@color/accent</item>
-        <item name="colorPrimaryDark">@color/accent_strong</item>
-        <item name="colorOnPrimary">@color/on_accent</item>
-        <item name="colorAccent">@color/accent</item>
-        <item name="colorSecondaryVariant">@color/accent_strong</item>
-        <item name="colorSecondary">@color/accent</item>
-        <item name="colorOnSecondary">@color/on_accent</item>
-        <item name="fontBlock">@string/font_condensed</item>
+    <style name="BaseTheme" parent="android:Theme.Material.Light.NoActionBar">
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>
         <item name="android:windowLightStatusBar">true</item>
-        <item name="textColorBody">@color/text_primary</item>
-        <item name="cardElevation">@dimen/card_elevation</item>
-        <item name="cardMaxElevation">@dimen/card_elevation</item>
-        <item name="cardCornerRadius">@dimen/radius_default</item>
-        <item name="cardUseCompatPadding">false</item>
-        <item name="colorUi">@color/surface_raised</item>
-        <item name="colorUiInterface">@color/accent_strong</item>
-        <item name="listItemBackgroundBase">@drawable/bg_placeholder</item>
-        <item name="listItemSimpleTitleTextBackgroundColor">@color/scrim_surface</item>
-        <item name="listItemSimpleMetaBoxCornerRadius">48dp</item>
         <item name="android:windowBackground">@color/surface</item>
-        <item name="materialButtonStyle">@style/myButtonStyle</item>
-        <item name="android:buttonBarButtonStyle">@style/IssueDetailButtonBarButton</item>
-        <item name="android:buttonBarStyle">@style/IssueDetailButtonBar</item>
-        <item name="cardViewStyle">@style/myCardView</item>
-        <item name="colorSurface">@color/surface_raised</item>
-        <item name="colorOnSurface">@color/text_primary</item>
         <item name="android:colorBackground">@color/surface</item>
-        <item name="colorBackgroundFloating">@color/surface_raised</item>
-        <item name="android:colorBackgroundFloating">@color/surface_raised</item>
-        <item name="colorButtonNormal">@color/surface_sunken</item>
-        <item name="alertDialogTheme">@style/AppAlertDialog</item>
-        <item name="materialAlertDialogTheme">@style/AppAlertDialog</item>
+        <item name="android:textColorPrimary">@color/text_primary</item>
         <item name="android:textColorSecondary">@color/text_secondary</item>
         <item name="android:textColorHint">@color/text_secondary</item>
-        <item name="colorControlNormal">@color/text_secondary</item>
-        <item name="colorControlActivated">@color/accent</item>
-        <item name="android:textColorPrimary">?attr/textColorBody</item>
-        <item name="android:textColor">?attr/textColorBody</item>
+        <item name="textColorBody">@color/text_primary</item>
     </style>
 </resources>

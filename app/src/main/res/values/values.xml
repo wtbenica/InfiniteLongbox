@@ -16,19 +16,6 @@
 
 <resources>
 
-    <!-- Fonts -->
-    <attr name="fontBlock" format="reference" />
-
-    <attr name="colorUi" format="reference|color" />
-    <attr name="colorUiInterface" format="reference|color" />
-
-    <!-- ListItem -->
-    <attr name="listItemBackgroundBase" format="reference" />
-
-    <!-- ListItemSimple -->
-    <attr name="listItemSimpleTitleTextBackgroundColor" format="reference" />
-    <attr name="listItemSimpleMetaBoxCornerRadius" format="reference|dimension" />
-
     <attr name="textColorBody" format="reference" />
 
 </resources>

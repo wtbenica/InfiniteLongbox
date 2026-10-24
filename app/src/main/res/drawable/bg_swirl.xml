@@ -15,6 +15,11 @@
   -->
 
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:drawable="?attr/listItemBackgroundBase" />
-    <item android:drawable="@drawable/list_item_simple_name_bg" />
+    <item android:drawable="@drawable/bg_placeholder" />
+    <item>
+        <shape>
+            <solid android:color="@color/scrim_surface" />
+            <corners android:topRightRadius="48dp" />
+        </shape>
+    </item>
 </layer-list>

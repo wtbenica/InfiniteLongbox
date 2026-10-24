@@ -59,6 +59,9 @@ sealed interface Route {
     class Issue(val issueId: Int, val variantOf: Int? = null, val collectionId: Int? = null) : Route
     class Character(val characterId: Int) : Route
     class Creator(val creatorId: Int) : Route
+
+    /** The barcode scanner, over the whole screen. */
+    data object Scan : Route
 }
 
 /** One screen on the stack; its view models live until it is left for good. */
@@ -69,6 +72,10 @@ class Entry(val key: Int, val route: Route) : ViewModelStoreOwner {
     /** A page that covers the lists: an issue's, a character's or a creator's. */
     val isDetail: Boolean
         get() = route !is Route.List
+
+    /** Draws over the whole screen, with no top bar or sheet. */
+    val isFullScreen: Boolean
+        get() = route is Route.Scan
 
     inline fun <reified VM : ViewModel> viewModel(): VM =
         ViewModelProvider(viewModelStore, ViewModelProvider.NewInstanceFactory())[VM::class.java]
@@ -160,6 +167,8 @@ class Navigator(
                     kinds += "creator"
                     args += route.creatorId.toString()
                 }
+                // A scan session isn't kept through a killed app
+                Route.Scan -> Unit
             }
         }
         putStringArrayList(KINDS, kinds)

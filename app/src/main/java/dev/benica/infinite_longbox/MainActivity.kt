@@ -15,14 +15,12 @@
 
 package dev.benica.infinite_longbox
 
-import android.content.Intent
 import android.graphics.Point
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -55,6 +53,7 @@ import dev.benica.infinite_longbox.screens.CreatorPage
 import dev.benica.infinite_longbox.screens.IssueListScreen
 import dev.benica.infinite_longbox.screens.IssuePage
 import dev.benica.infinite_longbox.screens.ScreenCallback
+import dev.benica.infinite_longbox.screens.ScanPage
 import dev.benica.infinite_longbox.screens.SeriesListScreen
 import dev.benica.infinite_longbox.ui.dialogs.AboutDialog
 import dev.benica.infinite_longbox.ui.dialogs.showDialog
@@ -123,6 +122,7 @@ class MainActivity : ComponentActivity(),
         is Route.Issue -> IssuePage(host)
         is Route.Character -> CharacterPage(host)
         is Route.Creator -> CreatorPage(host)
+        Route.Scan -> ScanPage(host)
     }
 
     // WHAT THE FILTER MEANS FOR THE STACK
@@ -262,19 +262,14 @@ class MainActivity : ComponentActivity(),
         if (BuildConfig.DEBUG) add(BarAction(getString(R.string.menu_push_covers)) { pushLocalCovers() })
     }
 
-    private val scanLauncher =
-        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            // Details on an issue the scanner added opens its page
-            val data = result.data ?: return@registerForActivityResult
-            val issueId = data.getIntExtra(ScanActivity.EXTRA_ISSUE_ID, -1)
-            if (issueId >= 0) {
-                val variantOf = data.getIntExtra(ScanActivity.EXTRA_VARIANT_OF, -1).takeIf { it >= 0 }
-                navigator.push(Route.Issue(issueId, variantOf, BaseCollection.MY_COLL.id))
-            }
-        }
-
     internal fun startBarcodeScan() {
-        scanLauncher.launch(Intent(this, ScanActivity::class.java))
+        navigator.push(Route.Scan)
+    }
+
+    /** The scanner is done: the issue it added opens on a page of its own. */
+    internal fun showScannedIssue(issueId: Int, variantOf: Int?) {
+        navigator.pop()
+        navigator.push(Route.Issue(issueId, variantOf, BaseCollection.MY_COLL.id))
     }
 
     private fun pushLocalCovers() {

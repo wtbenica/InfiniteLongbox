@@ -61,6 +61,7 @@ fun AppScreen(app: MainActivity) {
     val top = navigator.top
     // An issue's, character's or creator's page covers the lists, and takes the sheet and the scan button away
     val onPage = top?.isDetail == true
+    val fullScreen = top?.isFullScreen == true
 
     val collapse = remember { BarCollapse() }
     collapse.enabled = !onPage
@@ -79,15 +80,17 @@ fun AppScreen(app: MainActivity) {
                 .nestedScroll(collapse.connection)
         ) {
             Column(Modifier.fillMaxSize()) {
-                Column(
-                    Modifier
-                        .fillMaxWidth()
-                        .statusBarsPadding()
-                ) {
-                    CollapsingBar(collapse) {
-                        TopBar(app.barTitle, app.barSubtitle, app.menuEntries(), app.barSelection)
+                if (!fullScreen) {
+                    Column(
+                        Modifier
+                            .fillMaxWidth()
+                            .statusBarsPadding()
+                    ) {
+                        CollapsingBar(collapse) {
+                            TopBar(app.barTitle, app.barSubtitle, app.menuEntries(), app.barSelection)
+                        }
+                        HeaderStatus(app.progressUpdate, app.loading)
                     }
-                    HeaderStatus(app.progressUpdate, app.loading)
                 }
                 Box(
                     Modifier

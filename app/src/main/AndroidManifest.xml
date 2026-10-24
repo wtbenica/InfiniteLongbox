@@ -43,10 +43,6 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.InfiniteLongbox">
         <activity
-            android:name=".ScanActivity"
-            android:exported="false"
-            android:screenOrientation="portrait" />
-        <activity
             android:name=".MainActivity"
             android:configChanges="orientation"
             android:windowSoftInputMode="adjustResize"

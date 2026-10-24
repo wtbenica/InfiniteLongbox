@@ -24,8 +24,6 @@
     <dimen name="radius_default">8dp</dimen>
 
     <dimen name="peek_height">48dp</dimen>
-
-    <dimen name="card_elevation">1dp</dimen>
     <dimen name="radius_list_item_issue">16dp</dimen>
     <dimen name="radius_list_item_series">16dp</dimen>
 </resources>
