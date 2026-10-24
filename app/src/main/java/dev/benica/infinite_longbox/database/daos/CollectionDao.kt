@@ -175,6 +175,15 @@ abstract class CollectionItemDao : BaseDao<CollectionItem>("collectionItem") {
     )
     abstract suspend fun storagePlaces(): List<StoragePlace>
 
+    /** How many copies in the collection aren't filed in a storage place. */
+    @Query(
+        """
+            SELECT COUNT(*) FROM collectionItem
+            WHERE userCollection = :collectionId AND (storageLocation IS NULL OR storageLocation = '')
+        """
+    )
+    abstract suspend fun unstoredCopies(collectionId: Int): Int
+
     /** Renames a storage place (any spelling of its name); naming it as another merges the two. */
     @Query(
         """

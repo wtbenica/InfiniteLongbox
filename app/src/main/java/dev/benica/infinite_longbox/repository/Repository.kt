@@ -502,6 +502,10 @@ class Repository private constructor(val context: Context) {
     suspend fun storagePlaces(): List<StoragePlace> =
         withContext(Dispatchers.IO) { collectionItemDao.storagePlaces() }
 
+    /** How many copies in My Collection aren't filed in a storage place. */
+    suspend fun unstoredCopies(): Int =
+        withContext(Dispatchers.IO) { collectionItemDao.unstoredCopies(BaseCollection.MY_COLL.id) }
+
     /** Renames a storage place everywhere it is used; a blank name takes the copies out of it. */
     suspend fun renameStorage(from: String, to: String?): Int = withContext(Dispatchers.IO) {
         collectionItemDao.renameStorage(from, to?.trim()?.takeIf { it.isNotEmpty() })

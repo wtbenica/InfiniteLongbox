@@ -22,18 +22,22 @@ import dev.benica.infinite_longbox.R
 import dev.benica.infinite_longbox.repository.Repository
 import kotlinx.coroutines.launch
 
-/** Every storage place with its copy count; a tap renames it (to a name already used merges the two). */
+/** Every storage place with its copy count, and how many copies are in none; a tap on a place renames it (to a name already used merges the two). */
 fun ComponentActivity.showStoragePlaces() {
     lifecycleScope.launch {
         val places = Repository.get().storagePlaces()
-        if (places.isEmpty()) {
+        val unstored = Repository.get().unstoredCopies()
+        if (places.isEmpty() && unstored == 0) {
             Notices.show(R.string.storage_places_none)
             return@launch
         }
         showDialog { dismiss ->
             ChoiceDialog(
-                R.string.storage_places_title, places.map { "${it.name} (${it.copies})" }, R.string.scan_done,
-                onChoose = { which -> which?.let { renameStoragePlace(places[it].name) } },
+                R.string.storage_places_title,
+                places.map { "${it.name} (${it.copies})" } + "${getString(R.string.filter_not_stored)} ($unstored)",
+                R.string.scan_done,
+                // The last line is the copies in no place: nothing to rename
+                onChoose = { which -> which?.let { places.getOrNull(it) }?.let { renameStoragePlace(it.name) } },
                 dismiss = dismiss,
             )
         }
