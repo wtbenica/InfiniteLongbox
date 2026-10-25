@@ -71,13 +71,16 @@ abstract class IssueDao : BaseDao<Issue>("issue") {
     @RawQuery
     abstract suspend fun getFullIssuesByQuerySus(query: SupportSQLiteQuery): List<FullIssue>
 
-    /** The issues with [parentIds] and all their variants that have a cover. */
-    suspend fun getIssuesWithVariantsWithCovers(parentIds: Collection<Int>): List<FullIssue> {
+    /** The issues with [parentIds] and all their variants that have a cover, only those in collection [collectionId] if given. */
+    suspend fun getIssuesWithVariantsWithCovers(parentIds: Collection<Int>, collectionId: Int?): List<FullIssue> {
         val ids = idsToSqlIdString(parentIds)
+        val inCollection = collectionId?.let {
+            "AND ie.issueId IN (SELECT issue FROM collectionItem WHERE userCollection = $it)"
+        }.orEmpty()
         return getFullIssuesByQuerySus(
             SimpleSQLiteQuery(
                 """SELECT ie.* FROM issue ie WHERE (ie.issueId IN $ids OR ie.variantOf IN $ids)
-                AND ie.issueId IN (SELECT issue FROM cover WHERE coverUri IS NOT NULL)"""
+                AND ie.issueId IN (SELECT issue FROM cover WHERE coverUri IS NOT NULL) $inCollection"""
             )
         )
     }

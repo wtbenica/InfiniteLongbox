@@ -102,6 +102,12 @@ class IssueDetailViewModel : ViewModel() {
         _listFilter.value = filter?.let { SearchFilter(it) }
     }
 
+    /** The collection the gallery is limited to: the list's, or the one the page was opened from; none for an unfiltered list. */
+    fun galleryCollectionId(): Int? {
+        val filter = _listFilter.value
+        return if (filter != null) filter.mCollectionId.takeIf { filter.mMyCollection } else _collectionScope.value
+    }
+
     /** The issues the jump bar goes through, a variant standing for its issue, each with where its cover is. */
     internal val issueList: LiveData<List<IssueStop>> =
         combine(mIssue, _collectionScope, _listFilter) { issue, scope, filter -> Triple(issue, scope, filter) }

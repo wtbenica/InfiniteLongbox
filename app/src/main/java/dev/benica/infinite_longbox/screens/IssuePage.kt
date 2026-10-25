@@ -504,7 +504,7 @@ class IssuePage(host: ScreenHost) : Screen(host) {
         val shownIssue = shown.issue.variantOf ?: shown.issue.issueId
         val order = issuesInSeries.map { it.issueId }
         viewLifecycleOwner.lifecycleScope.launch {
-            val issues = Repository.get().getIssuesWithVariantsWithCovers(order.ifEmpty { listOf(shownIssue) })
+            val issues = Repository.get().getIssuesWithVariantsWithCovers(order.ifEmpty { listOf(shownIssue) }, issueDetailViewModel.galleryCollectionId())
                 .filter { it.coverUri?.path?.let(::File)?.exists() == true }
                 .sortedWith(
                     compareBy<FullIssue>({ order.indexOf(it.issue.variantOf ?: it.issue.issueId) },

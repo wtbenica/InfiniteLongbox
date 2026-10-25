@@ -295,8 +295,8 @@ class Repository private constructor(val context: Context) {
 
     fun getIssueStopsByFilter(filter: SearchFilter): Flow<List<IssueStop>> = issueDao.getIssueStopsByFilter(filter)
 
-    suspend fun getIssuesWithVariantsWithCovers(parentIds: Collection<Int>): List<FullIssue> =
-        withContext(Dispatchers.IO) { issueDao.getIssuesWithVariantsWithCovers(parentIds) }
+    suspend fun getIssuesWithVariantsWithCovers(parentIds: Collection<Int>, collectionId: Int?): List<FullIssue> =
+        withContext(Dispatchers.IO) { issueDao.getIssuesWithVariantsWithCovers(parentIds, collectionId) }
 
     suspend fun getIssueIdsByFilter(filter: SearchFilter): List<Int> =
         withContext(Dispatchers.IO) { issueDao.getIssueIdsByFilter(filter) }
