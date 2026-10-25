@@ -483,31 +483,34 @@ class IssuePage(host: ScreenHost) : Screen(host) {
     private var viewerPage = 0
 
     private fun openCoverViewer() {
+        val shown = currentIssue
+        // The page's own cover is the freshest word on this issue's
+        val shownCover = ViewerCover(
+            shown.issue.issueId, shown.toString(), shown.issue.variantName,
+            coverUri?.path?.let { File(it) }?.takeIf { it.exists() }, shown.placeholderKey(),
+        )
         val here = currentPos
-        viewerPage = here.coerceAtLeast(0)
-        coverViewer = if (here >= 0 && issuesInSeries.isNotEmpty()) {
-            // The page's own cover is the freshest word on this issue's
-            val shown = currentIssue.issue.issueId
-            val shownCover = coverUri?.path?.let { File(it) }
-            issuesInSeries.map {
-                val file = if (it.issueId == shown) shownCover else it.cover
-                ViewerCover(it.issueId, it.title, it.variantName, file?.takeIf { f -> f.exists() }, it.placeholderKey)
-            } to here
+        val (covers, start) = if (here >= 0 && issuesInSeries.isNotEmpty()) {
+            viewerCovers(
+                issuesInSeries.map { ViewerCover(it.issueId, it.title, it.variantName, it.cover?.takeIf { f -> f.exists() }, it.placeholderKey) },
+                issuesInSeries.map { it.variantOf },
+                here, shownCover, shown.issue.variantOf ?: shown.issue.issueId,
+            )
         } else {
-            val issue = currentIssue
-            listOf(
-                ViewerCover(
-                    issue.issue.issueId, issue.toString(), issue.issue.variantName,
-                    coverUri?.path?.let { File(it) }?.takeIf { it.exists() }, issue.placeholderKey(),
-                )
-            ) to 0
+            listOf(shownCover) to 0
         }
+        viewerPage = start
+        coverViewer = covers to start
     }
 
-    /** The viewer closed on cover [shown]: the page behind goes to that issue. */
-    private fun closeCoverViewer(shown: Int) {
+    /** The viewer closed on its page [page]: the page behind goes to that issue. */
+    private fun closeCoverViewer(page: Int) {
+        val issueId = coverViewer?.first?.getOrNull(page)?.issueId
         coverViewer = null
-        if (issuesInSeries.isNotEmpty() && currentPos >= 0 && shown != currentPos) jumpToIssue(shown - currentPos)
+        val stop = issuesInSeries.indexOfFirst { it.issueId == issueId }
+        if (issueId != null && issueId != currentIssue.issue.issueId && stop >= 0 && currentPos >= 0 && stop != currentPos) {
+            jumpToIssue(stop - currentPos)
+        }
     }
 
     private fun onCoverClicked() {
