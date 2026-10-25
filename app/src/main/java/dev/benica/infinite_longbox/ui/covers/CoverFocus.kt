@@ -36,6 +36,17 @@ object CoverFocus {
     private const val SAMPLE_WIDTH = 200
 
     private val cache = LruCache<String, Alignment>(512)
+    private val wideCache = LruCache<String, Boolean>(512)
+
+    /** Whether the cover is a wraparound spread (its shape is read from the file's header, once). */
+    fun isWide(file: File): Boolean {
+        val key = "${file.path}@${file.lastModified()}"
+        return wideCache.get(key) ?: run {
+            val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+            BitmapFactory.decodeFile(file.path, bounds)
+            (bounds.outWidth > 0 && bounds.outWidth.toFloat() / bounds.outHeight > WIDE_COVER).also { wideCache.put(key, it) }
+        }
+    }
 
     /** The alignment if it's already been worked out, so a card can start with the right one. */
     fun peek(file: File): Alignment? = cache.get("${file.path}@${file.lastModified()}")
@@ -54,7 +65,12 @@ object CoverFocus {
             inSampleSize = (bounds.outWidth / SAMPLE_WIDTH).coerceAtLeast(1)
         }
         val bitmap = BitmapFactory.decodeFile(file.path, options) ?: return Alignment.TopStart
-        val blank = topIsBlank(bitmap)
+        // A wraparound shows its front, the right half: that is where to look for blank
+        val front = if (bounds.outWidth.toFloat() / bounds.outHeight > WIDE_COVER) {
+            Bitmap.createBitmap(bitmap, bitmap.width / 2, 0, bitmap.width - bitmap.width / 2, bitmap.height)
+        } else bitmap
+        val blank = topIsBlank(front)
+        if (front !== bitmap) front.recycle()
         bitmap.recycle()
         return if (blank) Alignment.CenterStart else Alignment.TopStart
     }

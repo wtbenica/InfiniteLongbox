@@ -67,6 +67,7 @@ import dev.benica.infinite_longbox.R
 import dev.benica.infinite_longbox.ui.common.MorphButton
 import dev.benica.infinite_longbox.ui.common.listCardFrame
 import dev.benica.infinite_longbox.ui.covers.CoverImages
+import dev.benica.infinite_longbox.ui.covers.WIDE_COVER
 import dev.benica.infinite_longbox.ui.covers.PlaceholderCover
 import dev.benica.infinite_longbox.ui.covers.placeholderKey
 import dev.benica.infinite_longbox.ui.issue.IssueNumberText
@@ -314,13 +315,10 @@ private fun Cover(state: IssueCardState, modifier: Modifier) {
         alignment = if (wide) Alignment.TopEnd else Alignment.TopCenter,
         onSuccess = { success ->
             val image = success.result.image
-            wide = image.width.toFloat() / image.height > WIDE_ASPECT_RATIO
+            wide = image.width.toFloat() / image.height > WIDE_COVER
         },
     )
 }
-
-/** Width/height above which a cover is treated as a wraparound or gatefold spread. */
-private const val WIDE_ASPECT_RATIO = 0.95f
 
 @Preview(showBackground = true, widthDp = 200)
 @Composable

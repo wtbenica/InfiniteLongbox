@@ -36,7 +36,6 @@ import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
@@ -52,6 +51,8 @@ import dev.benica.infinite_longbox.ui.common.FolderTabPanel
 import dev.benica.infinite_longbox.ui.common.Subtitle
 import dev.benica.infinite_longbox.ui.common.listCardFrame
 import dev.benica.infinite_longbox.ui.covers.CoverFocus
+import dev.benica.infinite_longbox.ui.covers.FrontAlignment
+import dev.benica.infinite_longbox.ui.covers.FrontCrop
 import dev.benica.infinite_longbox.ui.covers.CoverImages
 import dev.benica.infinite_longbox.ui.covers.PlaceholderCover
 import dev.benica.infinite_longbox.ui.covers.TitlePlaceholder
@@ -239,8 +240,8 @@ private fun Cover(state: SeriesCardState, modifier: Modifier) {
             model = request,
             contentDescription = stringResourceCoverDescription(),
             modifier = modifier,
-            contentScale = ContentScale.Crop,
-            alignment = alignment,
+            contentScale = FrontCrop,
+            alignment = FrontAlignment(top = alignment == Alignment.TopStart),
         )
     }
 }

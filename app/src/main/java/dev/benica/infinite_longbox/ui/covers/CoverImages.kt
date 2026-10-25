@@ -46,7 +46,9 @@ object CoverImages {
     private fun detailWidth(context: Context) =
         (context.resources.displayMetrics.widthPixels * 0.6f).toInt()
 
-    fun seriesRequest(context: Context, file: File): ImageRequest = request(context, file, seriesWidth(context))
+    /** A wraparound is shown by its front half, so it is loaded at twice the width. */
+    fun seriesRequest(context: Context, file: File): ImageRequest =
+        request(context, file, seriesWidth(context) * if (CoverFocus.isWide(file)) 2 else 1)
 
     fun issueRequest(context: Context, file: File): ImageRequest = request(context, file, issueWidth(context))
 
