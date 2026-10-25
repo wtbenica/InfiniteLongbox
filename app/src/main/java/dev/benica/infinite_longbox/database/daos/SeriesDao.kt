@@ -96,7 +96,7 @@ abstract class SeriesDao : BaseDao<Series>("series") {
             fun connectWord(): String = if (conditions.isEmpty()) "WHERE" else "AND"
 
             // The fallback cover (first in issue order, a variant after its issue) is part of the row; the list redraws when it arrives
-            val fallbackCover = if (letterBuckets) "" else """, (
+            val fallbackCover = """(
                         SELECT cv.coverUri
                         FROM cover cv
                         JOIN issue ce ON ce.issueId = cv.issue
@@ -104,16 +104,19 @@ abstract class SeriesDao : BaseDao<Series>("series") {
                         ORDER BY ce.sortCode
                         LIMIT 1
                     ) AS earliestCoverUri"""
+            // Joined with issues, a series is a row for each of them (and the sort may be by their columns), so the cover goes in the row itself
+            val joinsIssues = filter.hasCreator() || filter.hasCharacter() || (filter.mMyCollection && filter.hasDateFilter())
+            val coverInRow = joinsIssues && !letterBuckets
             table.append(
-                """SELECT DISTINCT ss.*$fallbackCover
+                """SELECT DISTINCT ss.*${if (coverInRow) ", $fallbackCover" else ""}
                         FROM series ss 
                         """
             )
 
             conditions.append("${connectWord()} ss.seriesId != $DUMMY_ID ")
 
-            if (filter.hasCreator() || filter.hasCharacter() || filter.mMyCollection
-            ) {
+            // A collection alone needs no issues: the series with a copy are picked without joining them
+            if (joinsIssues) {
                 table.append(
                     """JOIN issue ie ON ie.series = ss.seriesId
                     """
@@ -161,7 +164,7 @@ abstract class SeriesDao : BaseDao<Series>("series") {
             }
 
             if (filter.hasDateFilter()) {
-                if (filter.hasCreator() || filter.hasCharacter() || filter.mMyCollection) {
+                if (joinsIssues) {
                     conditions.append(
                         """${connectWord()} ((ie.releaseDate <= '${filter.mEndDate}' 
                         AND ie.releaseDate >= '${filter.mStartDate}'
@@ -277,10 +280,10 @@ abstract class SeriesDao : BaseDao<Series>("series") {
                 else sortClause
             val limitClause = limit?.let { " LIMIT $it" } ?: ""
 
-            return SimpleSQLiteQuery(
-                "$table$conditions$orderClause$limitClause",
-                args.toArray()
-            )
+            // Without joins the cover is looked up for the rows that stay, after the paging picks them
+            val query = if (joinsIssues || letterBuckets) "$table$conditions$orderClause$limitClause"
+            else "SELECT ss.*, $fallbackCover FROM ($table$conditions) ss $orderClause$limitClause"
+            return SimpleSQLiteQuery(query, args.toArray())
         }
 
     }
