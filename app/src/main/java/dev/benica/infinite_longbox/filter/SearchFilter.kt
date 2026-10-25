@@ -443,17 +443,16 @@ class SortType(
         fun sortKeyOf(name: String): String =
             name.trimStart { it in SORT_IGNORED_LEADING }.replace('-', ' ').lowercase()
 
-        /** ORDER BY for the filter-box popup, which only shows the first few matches. */
+        /** ORDER BY for the filter-box popup: exact match, then prefix, then word start, then the rest. */
         fun optionsOrderBy(columnRef: String, typed: String?, args: MutableList<Any>): String {
             val key = nameSortKey(columnRef)
-            val text = typed?.trim().orEmpty()
-            return if (text.isEmpty()) {
-                "ORDER BY $key "
-            } else {
-                // The key has no hyphens, so the typed text mustn't either
-                args.add("${text.replace('-', ' ')}%")
-                "ORDER BY CASE WHEN $key LIKE ? THEN 0 ELSE 1 END, $key "
-            }
+            // The key has no hyphens, so the typed text mustn't either
+            val text = typed?.trim().orEmpty().replace('-', ' ')
+            if (text.isEmpty()) return "ORDER BY $key "
+            val like = text.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
+            args.addAll(listOf(text, "$like%", "% $like%"))
+            return "ORDER BY CASE WHEN $key = ? THEN 0 WHEN $key LIKE ? ESCAPE '\\' THEN 1 " +
+                    "WHEN $key LIKE ? ESCAPE '\\' THEN 2 ELSE 3 END, $key "
         }
 
         @SuppressLint("StaticFieldLeak")

@@ -188,7 +188,7 @@ abstract class SeriesDao : BaseDao<Series>("series") {
                     """${connectWord()} sy.storyId IN (
                         SELECT ap.story
                         FROM appearance ap
-                        WHERE ap.character = $it)
+                        WHERE ap.character IN (${sameCharacterIds(it)}))
                          """
                 )
             }

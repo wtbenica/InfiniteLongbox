@@ -201,10 +201,9 @@ abstract class IssueDao : BaseDao<Issue>("issue") {
 
                 filter.mCharacter?.let {
                     conditionsString.append(
-                        """${connectword()} ap.character = ? 
+                        """${connectword()} ap.character IN (${sameCharacterIds(it.characterId)})
                     """
                     )
-                    args.add(it.characterId)
                 }
             }
 

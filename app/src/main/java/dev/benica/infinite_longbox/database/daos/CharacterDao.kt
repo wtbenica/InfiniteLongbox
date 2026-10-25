@@ -73,10 +73,9 @@ abstract class CharacterDao : BaseDao<Character>("character") {
 
         fun connectWord(): String = if (conditionsString.isEmpty()) "WHERE" else "AND"
 
+        // The popup lists a name and alter ego once, whatever the publisher
         tableJoinString.append(
-            """SELECT DISTINCT ch.* 
-            FROM character ch 
-            """
+            if (limit != null) "SELECT ch.*, MIN(ch.characterId) FROM character ch " else "SELECT DISTINCT ch.* FROM character ch "
         )
 
         if (filter.hasDateFilter() || filter.hasCharacter() || filter.hasCreator() || filter
@@ -117,13 +116,13 @@ abstract class CharacterDao : BaseDao<Character>("character") {
                 """${connectWord()} sy2.storyId IN (
                     SELECT story
                     FROM appearance
-                    WHERE character = ${filter.mCharacter!!.id}
+                    WHERE character IN (${sameCharacterIds(filter.mCharacter!!.id)})
                 )
                 """
             )
 
             conditionsString.append(
-                """${connectWord()} ch.characterId != ${filter.mCharacter!!.id}
+                """${connectWord()} ch.characterId NOT IN (${sameCharacterIds(filter.mCharacter!!.id)})
                 """
             )
         }
@@ -202,11 +201,12 @@ abstract class CharacterDao : BaseDao<Character>("character") {
 
         val orderClause =
             if (limit != null)
-                SortType.optionsOrderBy("ch.name", filter.mTextFilter?.text, args)
+                SortType.optionsOrderBy("rtrim(ch.name || ' ' || IFNULL(ch.alterEgo, ''))", filter.mTextFilter?.text, args)
             else sortClause
+        val groupClause = if (limit != null) "GROUP BY ch.name, IFNULL(ch.alterEgo, '') " else ""
         val limitClause = limit?.let { " LIMIT $it" } ?: ""
         val simpleSQLiteQuery = SimpleSQLiteQuery(
-            "$tableJoinString$conditionsString$orderClause$limitClause", args.toArray()
+            "$tableJoinString$conditionsString$groupClause$orderClause$limitClause", args.toArray()
         )
         return simpleSQLiteQuery
     }

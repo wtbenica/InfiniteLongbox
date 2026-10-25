@@ -164,6 +164,11 @@ abstract class BaseDao<T : DataModel>(private val tableName: String) {
         private fun idsToSqlIdString(ids: Collection<Int>) =
             ids.toString().replace("[", "(").replace("]", ")")
 
+        /** SQL for the ids of characters with the same name and alter ego as [id], publishers aside. */
+        internal fun sameCharacterIds(id: Int) =
+            """SELECT c2.characterId FROM character c2 JOIN character c1 ON c1.characterId = $id
+            AND c2.name = c1.name AND IFNULL(c2.alterEgo, '') = IFNULL(c1.alterEgo, '')"""
+
         internal fun textFilterToString(text: String) =
             "%${text.replace(' ', '%').replace("'", "\'")}%"
     }
