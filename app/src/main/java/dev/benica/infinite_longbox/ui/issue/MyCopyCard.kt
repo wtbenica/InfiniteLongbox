@@ -15,7 +15,19 @@
 
 package dev.benica.infinite_longbox.ui.issue
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import coil3.compose.AsyncImage
+import coil3.request.ImageRequest
+import coil3.size.Size
+import java.io.File
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -47,6 +59,7 @@ data class MyCopyState(
     val storageLocation: String? = null,
     val condition: String? = null,
     val notes: String? = null,
+    val photos: List<File> = emptyList(),
 ) {
     val isEmpty: Boolean
         get() = signedBy.isEmpty() && listOf(storageLocation, condition, notes).all { it.isNullOrBlank() }
@@ -62,6 +75,9 @@ fun MyCopyCard(
     onEdit: () -> Unit,
     onSigner: (Int) -> Unit,
     modifier: Modifier = Modifier,
+    onAddPhoto: () -> Unit = {},
+    onPhoto: (Int) -> Unit = {},
+    onPhotoLongClick: (Int) -> Unit = {},
 ) {
     val margin = dimensionResource(R.dimen.margin_default)
     Column(
@@ -78,6 +94,7 @@ fun MyCopyCard(
                 fontFamily = CondensedBlock,
                 fontSize = 16.sp,
             )
+            TextButton(onClick = onAddPhoto) { Text(stringResource(R.string.copy_photo_add)) }
             TextButton(onClick = onEdit) {
                 Text(stringResource(if (state.isEmpty) R.string.my_copy_add else R.string.my_copy_edit))
             }
@@ -108,8 +125,44 @@ fun MyCopyCard(
             CopyLine(label = R.string.my_copy_condition, value = state.condition)
             CopyLine(label = R.string.my_copy_notes, value = state.notes)
         }
+        if (state.photos.isNotEmpty()) {
+            Photos(state.photos, onPhoto, onPhotoLongClick, Modifier.padding(top = 8.dp))
+        }
     }
 }
+
+/** Small pictures of the copy, side by side; a tap opens one and a long press offers to delete it. */
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+private fun Photos(
+    photos: List<File>,
+    onPhoto: (Int) -> Unit,
+    onLongClick: (Int) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val context = LocalContext.current
+    Row(
+        modifier
+            .fillMaxWidth()
+            .horizontalScroll(rememberScrollState()),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        photos.forEachIndexed { index, file ->
+            AsyncImage(
+                model = ImageRequest.Builder(context).data(file).memoryCacheKey("\${file.path}@\${file.lastModified()}")
+                    .size(Size(THUMB_PX, THUMB_PX)).build(),
+                contentDescription = stringResource(R.string.copy_photo_title),
+                modifier = Modifier
+                    .size(96.dp)
+                    .clip(RoundedCornerShape(8.dp))
+                    .combinedClickable(onClick = { onPhoto(index) }, onLongClick = { onLongClick(index) }),
+                contentScale = ContentScale.Crop,
+            )
+        }
+    }
+}
+
+private const val THUMB_PX = 288
 
 @Composable
 private fun CopyLine(label: Int, value: String?) {

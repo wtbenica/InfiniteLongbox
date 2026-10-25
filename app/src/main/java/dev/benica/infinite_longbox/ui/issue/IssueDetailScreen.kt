@@ -74,6 +74,9 @@ class IssueDetailActions(
     val onToggleCollection: () -> Unit,
     val onToggleWishList: () -> Unit,
     val onEditCopy: () -> Unit,
+    val onAddPhoto: () -> Unit,
+    val onPhoto: (Int) -> Unit,
+    val onPhotoLongClick: (Int) -> Unit,
     val onSignerClick: (Int) -> Unit,
     val onSearchEbay: () -> Unit,
     val onVariantSelected: (Issue) -> Unit,
@@ -155,6 +158,9 @@ fun IssueDetailScreen(
                     actions.onEditCopy,
                     actions.onSignerClick,
                     Modifier.padding(horizontal = narrow, vertical = dimensionResource(R.dimen.margin_default)),
+                    onAddPhoto = actions.onAddPhoto,
+                    onPhoto = actions.onPhoto,
+                    onPhotoLongClick = actions.onPhotoLongClick,
                 )
             }
 
@@ -215,7 +221,7 @@ private fun IssueDetailScreenPreview() {
                 jumpBar = JumpBarState(position = 3, count = 20),
                 gcdIssueId = 1,
             ),
-            actions = IssueDetailActions({}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}),
+            actions = IssueDetailActions({}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}),
         )
     }
 }

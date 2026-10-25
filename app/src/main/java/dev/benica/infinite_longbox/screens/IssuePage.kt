@@ -47,6 +47,7 @@ import dev.benica.infinite_longbox.database.models.Series
 import dev.benica.infinite_longbox.database.models.SeriesAndPublisher
 import dev.benica.infinite_longbox.database.models.Story
 import dev.benica.infinite_longbox.viewmodels.IssueDetailViewModel
+import dev.benica.infinite_longbox.repository.CopyPhotos
 import dev.benica.infinite_longbox.repository.Repository
 import dev.benica.infinite_longbox.ui.covers.CoverImages
 import dev.benica.infinite_longbox.ui.covers.CoverViewer
@@ -113,6 +114,9 @@ class IssuePage(host: ScreenHost) : Screen(host) {
     private val issueDetailViewModel: IssueDetailViewModel by lazy { host.entry.viewModel<IssueDetailViewModel>() }
 
     private val covers = IssueCoverActions(activity, viewLifecycleOwner.lifecycleScope) { currentIssue.issue }
+    private val copyPhotos = CopyPhotoActions(
+        activity, viewLifecycleOwner.lifecycleScope, { currentIssue.issue.issueId }, { photos },
+    )
 
     init {
         fullIssue =
@@ -150,6 +154,7 @@ class IssuePage(host: ScreenHost) : Screen(host) {
     @Composable
     override fun Content() {
         covers.Dialogs()
+        copyPhotos.Dialogs()
         coverViewer?.let { (covers, start) ->
             Dialog(
                 onDismissRequest = { closeCoverViewer(viewerPage) },
@@ -176,6 +181,9 @@ class IssuePage(host: ScreenHost) : Screen(host) {
                     )
                 },
                 onEditCopy = ::editMyCopy,
+                onAddPhoto = copyPhotos::add,
+                onPhoto = copyPhotos::open,
+                onPhotoLongClick = copyPhotos::options,
                 onSignerClick = ::signerClicked,
                 onSearchEbay = ::searchEbay,
                 onVariantSelected = ::onVariantSelected,
@@ -431,6 +439,7 @@ class IssuePage(host: ScreenHost) : Screen(host) {
                 myCopy = myCopyState(),
             )
             followSigners(issue.issueId)
+            followPhotos(issue.issueId)
 
             updateCover()
         }
@@ -447,8 +456,26 @@ class IssuePage(host: ScreenHost) : Screen(host) {
             MyCopyState(
                 signers.map { SignerRef(it.creatorId, it.name) },
                 item.storageLocation, item.condition, item.notes,
+                photos,
             )
         }
+
+    private var photos: List<File> = emptyList()
+    private var photosJob: Job? = null
+    private var photosIssueId = -1
+
+    private fun followPhotos(issueId: Int) {
+        if (issueId == photosIssueId) return
+        photosIssueId = issueId
+        photos = emptyList()
+        photosJob?.cancel()
+        photosJob = viewLifecycleOwner.lifecycleScope.launch {
+            CopyPhotos.photos(issueId).collect {
+                photos = it
+                uiState = uiState.copy(myCopy = myCopyState())
+            }
+        }
+    }
 
     private fun followSigners(issueId: Int) {
         if (issueId == signersIssueId) return

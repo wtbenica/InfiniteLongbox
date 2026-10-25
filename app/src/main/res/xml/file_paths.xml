@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Where the camera is allowed to put a photo it takes for the app -->
+<paths>
+    <cache-path name="photos" path="photos/" />
+</paths>
