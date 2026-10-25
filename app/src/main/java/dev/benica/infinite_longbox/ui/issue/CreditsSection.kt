@@ -292,16 +292,7 @@ private fun AppearanceRow(appearance: FullAppearance, onCharacterClick: (FullCha
                 fontFamily = CondensedBlock,
                 fontSize = 14.sp,
             )
-            appearance.appearance.notes?.let {
-                Text(
-                    text = it,
-                    modifier = Modifier.padding(start = narrow),
-                    color = plain,
-                    fontFamily = CondensedBlock,
-                    fontSize = 14.sp,
-                )
-            }
-            appearance.appearance.details?.let {
+            appearanceText(appearance.appearance.notes, appearance.appearance.details)?.let {
                 Box(
                     Modifier
                         .padding(horizontal = narrow)
@@ -317,6 +308,11 @@ private fun AppearanceRow(appearance: FullAppearance, onCharacterClick: (FullCha
         }
     }
 }
+
+/** What is said of a character's part, after the bar: the role ([notes]) and the rest ([details]), or null if neither says anything. */
+internal fun appearanceText(notes: String?, details: String?): String? =
+    listOfNotNull(notes, details).map { it.trim() }.filter { it.isNotEmpty() }
+        .joinToString("; ").ifEmpty { null }
 
 @Preview(showBackground = true, widthDp = 360)
 @Composable
