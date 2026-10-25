@@ -183,8 +183,13 @@ abstract class SeriesDao : BaseDao<Series>("series") {
                     )
                 } else {
                     conditions.append(
-                        """${connectWord()} ss.startDate <= '${filter.mEndDate}' 
+                        """${connectWord()} ss.startDate <= '${filter.mEndDate}'
                         AND ss.endDate >= '${filter.mStartDate}'
+                        AND (NOT EXISTS (SELECT 1 FROM issue ia WHERE ia.series = ss.seriesId)
+                            OR EXISTS (SELECT 1 FROM issue ib WHERE ib.series = ss.seriesId
+                                AND ((ib.releaseDate <= '${filter.mEndDate}' AND ib.releaseDate >= '${filter.mStartDate}')
+                                OR (ib.releaseDate IS NULL AND ib.coverDate <= '${filter.mEndDate}'
+                                    AND ib.coverDate >= '${filter.mStartDate}'))))
                         """
                     )
                 }
