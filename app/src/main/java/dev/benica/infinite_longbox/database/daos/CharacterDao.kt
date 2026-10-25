@@ -180,11 +180,12 @@ abstract class CharacterDao : BaseDao<Character>("character") {
             val text = textFilterToString(textFilter.text)
             conditionsString.append(
                 """${connectWord()} (ch.name LIKE ?
-                OR ch.alterEgo LIKE ?)
+                OR ch.alterEgo LIKE ?
+                OR (ch.name || ' ' || IFNULL(ch.alterEgo, '')) LIKE ?)
                 """
             )
 
-            args.addAll(listOf(text, text))
+            args.addAll(listOf(text, text, text))
         }
 
         val sortClause: String = filter.mSortType?.let {
