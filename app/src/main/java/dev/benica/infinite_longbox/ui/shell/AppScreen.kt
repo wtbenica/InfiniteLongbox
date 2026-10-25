@@ -24,6 +24,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -106,6 +107,8 @@ fun AppScreen(app: MainActivity) {
                         .weight(1f)
                         .fillMaxWidth()
                         .background(colorResource(R.color.surface))
+                        // A list leaves room for the sheet under it; a page, for the system bar
+                        .then(if (onPage && !fullScreen) Modifier.navigationBarsPadding() else Modifier)
                 ) {
                     AnimatedContent(
                         targetState = top,

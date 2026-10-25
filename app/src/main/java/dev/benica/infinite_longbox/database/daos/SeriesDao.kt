@@ -95,13 +95,13 @@ abstract class SeriesDao : BaseDao<Series>("series") {
             val args: ArrayList<Any> = arrayListOf()
             fun connectWord(): String = if (conditions.isEmpty()) "WHERE" else "AND"
 
-            // The fallback cover is part of the row, so the list redraws when it arrives
+            // The fallback cover (first in issue order, a variant after its issue) is part of the row; the list redraws when it arrives
             val fallbackCover = if (letterBuckets) "" else """, (
                         SELECT cv.coverUri
                         FROM cover cv
                         JOIN issue ce ON ce.issueId = cv.issue
                         WHERE ce.series = ss.seriesId AND cv.coverUri IS NOT NULL
-                        ORDER BY (ce.variantOf IS NOT NULL), ce.sortCode
+                        ORDER BY ce.sortCode
                         LIMIT 1
                     ) AS earliestCoverUri"""
             table.append(
