@@ -62,6 +62,7 @@ import dev.benica.infinite_longbox.database.models.Series
 import dev.benica.infinite_longbox.database.models.Story
 import dev.benica.infinite_longbox.database.models.TextFilter
 import dev.benica.infinite_longbox.ui.update.UpdateProgress
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
@@ -72,6 +73,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlin.time.Duration.Companion.minutes
 import java.time.LocalDate
 import java.util.Collections.sort
 import java.util.concurrent.Executors
@@ -174,16 +176,30 @@ class Repository private constructor(val context: Context) {
                 Connectivity.activeJob =
                     CoroutineScope(Dispatchers.IO).async {
                         try {
-                            withContext(Dispatchers.Default) {
-                                Log.d(TAG, "STARTING UPDATE")
-                                mainActivity.runOnUiThread {
-                                    progressUpdate.show()
+                            // With the server down, wait and try again, a little longer each time
+                            var attempt = 0
+                            while (true) {
+                                try {
+                                    withContext(Dispatchers.Default) {
+                                        Log.d(TAG, "STARTING UPDATE")
+                                        mainActivity.runOnUiThread {
+                                            progressUpdate.show()
+                                        }
+                                        updater.updateStaticAsync(progressUpdate)
+                                    }
+                                    Log.d(TAG, "Static update done")
+                                    break
+                                } catch (e: CancellationException) {
+                                    throw e
+                                } catch (e: Exception) {
+                                    Log.d(TAG, "Static update failed: $e")
+                                    mainActivity.runOnUiThread { progressUpdate.hide() }
+                                    delay(RETRY_DELAYS_MIN[attempt.coerceAtMost(RETRY_DELAYS_MIN.lastIndex)].minutes)
+                                    attempt++
                                 }
-                                updater.updateStaticAsync(progressUpdate)
                             }
-                            Log.d(TAG, "Static update done")
                         } finally {
-                            // Hide the card however the update ended (done, failed, or the network was lost and the job canceled)
+                            // Hide the card however the update ended (done, or the network was lost and the job canceled)
                             staticUpdateRunning.set(false)
                             mainActivity.runOnUiThread {
                                 progressUpdate.hide()
@@ -237,6 +253,12 @@ class Repository private constructor(val context: Context) {
 
     suspend fun getSeriesLetterIndex(filter: SearchFilter): LetterIndex =
         seriesDao.getLetterIndex(SearchFilter(filter))
+
+    suspend fun getCharacterLetterIndex(filter: SearchFilter): LetterIndex =
+        characterDao.getLetterIndex(SearchFilter(filter))
+
+    suspend fun getCreatorLetterIndex(filter: SearchFilter): LetterIndex =
+        creatorDao.getLetterIndex(SearchFilter(filter))
 
     // CHARACTER METHODS
     fun getCharactersByFilterPaged(filter: SearchFilter): Flow<PagingData<FullCharacter>> {
@@ -527,6 +549,9 @@ class Repository private constructor(val context: Context) {
     }
 
     companion object {
+        /** Minutes to wait before each new try at the update while the server is down; the last repeats. */
+        private val RETRY_DELAYS_MIN = listOf(1, 2, 5, 10)
+
         /** Issues looked up at a time on import: SQLite allows 999 variables in a query. */
         private const val IMPORT_CHUNK = 500
 

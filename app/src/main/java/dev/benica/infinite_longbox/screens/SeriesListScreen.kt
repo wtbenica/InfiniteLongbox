@@ -95,8 +95,8 @@ class SeriesListScreen(host: ScreenHost) : ComposeListScreen<FullSeries>(host) {
     }
 
     override fun scrollLabel(item: FullSeries): String? = when {
-        // A series only knows the year it began
-        sortedByDate() -> item.series.startDate?.year?.toString()
+        // Filtered by issues, a series goes by the date of its issue; otherwise by the year it began
+        sortedByDate() -> item.sortDate?.format(IssueListScreen.MONTH_YEAR) ?: item.series.startDate?.year?.toString()
         sortedByName() -> initialOf(item.compareValue)
         else -> null
     }

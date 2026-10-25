@@ -16,6 +16,7 @@ package dev.benica.infinite_longbox.ui.shell
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.setValue
@@ -26,6 +27,9 @@ import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.layout.Layout
 import kotlin.math.roundToInt
+
+/** How far up the top bar is (zero or less), read where it is laid out rather than composed. */
+val LocalBarOffset = staticCompositionLocalOf<() -> Float> { { 0f } }
 
 /** The top bar scrolling away as a list scrolls up, and back as it scrolls down; [offset] is how far up it is. */
 @Stable

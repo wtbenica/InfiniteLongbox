@@ -24,6 +24,8 @@ import androidx.sqlite.db.SimpleSQLiteQuery
 import androidx.sqlite.db.SupportSQLiteQuery
 import dev.benica.infinite_longbox.APP
 import dev.benica.infinite_longbox.filter.SearchFilter
+import dev.benica.infinite_longbox.filter.LetterBucket
+import dev.benica.infinite_longbox.filter.LetterIndex
 import dev.benica.infinite_longbox.filter.SortType
 import dev.benica.infinite_longbox.filter.SortType.Companion.containsSortType
 import dev.benica.infinite_longbox.database.models.Appearance
@@ -51,6 +53,15 @@ abstract class CharacterDao : BaseDao<Character>("character") {
     @RawQuery(observedEntities = [Character::class])
     abstract suspend fun getCharactersByQuerySus(query: SupportSQLiteQuery): List<Character>
 
+    @RawQuery
+    abstract suspend fun getLetterBuckets(query: SupportSQLiteQuery): List<LetterBucket>
+
+    /** Where each letter starts in the list [filter] gives, for the letter strip. */
+    suspend fun getLetterIndex(filter: SearchFilter): LetterIndex = LetterIndex(
+        getLetterBuckets(getCharacterQuery(filter, letterBuckets = true)),
+        descending = filter.mSortType?.order == SortType.SortOrder.DESC
+    )
+
     /** A bounded list of characters for the filter-box popup. */
     suspend fun getCharacterOptions(filter: SearchFilter, limit: Int): List<Character> =
         getCharactersByQuerySus(getCharacterQuery(filter, limit))
@@ -66,7 +77,7 @@ abstract class CharacterDao : BaseDao<Character>("character") {
         return getCharactersByQueryPagingSource(query)
     }
 
-    private fun getCharacterQuery(filter: SearchFilter, limit: Int? = null): SimpleSQLiteQuery {
+    private fun getCharacterQuery(filter: SearchFilter, limit: Int? = null, letterBuckets: Boolean = false): SimpleSQLiteQuery {
         val tableJoinString = StringBuilder()
         val conditionsString = StringBuilder()
         val args: ArrayList<Any> = arrayListOf()
@@ -185,6 +196,12 @@ abstract class CharacterDao : BaseDao<Character>("character") {
             )
 
             args.addAll(listOf(text, text, text))
+        }
+
+        if (letterBuckets) {
+            // The same rows as the list, counted by what letter they start with
+            val buckets = SortType.letterBucketSql("name").format("($tableJoinString$conditionsString)")
+            return SimpleSQLiteQuery("SELECT bucket, COUNT(*) AS n FROM ($buckets) GROUP BY bucket", args.toArray())
         }
 
         val sortClause: String = filter.mSortType?.let {

@@ -35,6 +35,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.asFlow
@@ -46,6 +47,7 @@ import dev.benica.infinite_longbox.R
 import dev.benica.infinite_longbox.filter.SortType
 import dev.benica.infinite_longbox.database.models.ListItem
 import dev.benica.infinite_longbox.nav.ScreenHost
+import dev.benica.infinite_longbox.ui.shell.LocalBarOffset
 import dev.benica.infinite_longbox.ui.shell.LocalSheetPeek
 import dev.benica.infinite_longbox.ui.lists.FastScrollThumb
 import dev.benica.infinite_longbox.ui.lists.LetterStrip
@@ -53,6 +55,7 @@ import dev.benica.infinite_longbox.ui.lists.ScrollBubble
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlin.math.roundToInt
 
 /** A list screen in Compose: a paged grid of rows, with a letter strip or scroll handle on the right edge. */
 @ExperimentalCoroutinesApi
@@ -179,9 +182,16 @@ abstract class ComposeListScreen<T : ListItem>(host: ScreenHost) : FilteredListS
         }
 
         val label by remember(items) {
-            derivedStateOf { items.peek((grid.firstVisibleItemIndex - headerCount).coerceAtLeast(0))?.let(::scrollLabel) }
+            derivedStateOf {
+                val at = (grid.firstVisibleItemIndex - headerCount).coerceAtLeast(0)
+                if (at < items.itemCount) items.peek(at)?.let(::scrollLabel) else null
+            }
         }
-        var bubble by remember { mutableStateOf<Pair<String, Float>?>(null) }
+        // Where the bubble is, and what it says if not the live label (the strip's letter)
+        var bubble by remember { mutableStateOf<Pair<String?, Float>?>(null) }
+        var lastLabel by remember { mutableStateOf("") }
+        LaunchedEffect(label) { label?.let { lastLabel = it } }
+        val barOffset = LocalBarOffset.current
         var thumbCenter by remember { mutableStateOf(0f) }
         val fraction by remember(items) {
             derivedStateOf {
@@ -208,45 +218,55 @@ abstract class ComposeListScreen<T : ListItem>(host: ScreenHost) : FilteredListS
                 }
             }
 
-            val index = letterIndex
-            if (items.itemCount > 0 && showing) {
-                if (index != null) {
-                    val current by remember(items) {
-                        derivedStateOf { label?.firstOrNull() }
-                    }
-                    LetterStrip(
-                        index = index,
-                        current = current,
-                        bottomPadding = bottom + 72.dp,
-                        onJump = { letter, position, centerY ->
-                            scope.launch { grid.scrollToItem(position + headerCount) }
-                            bubble = letter.toString() to centerY
-                        },
-                        onDragging = { held ->
-                            stripHeld = held
-                            if (!held) bubble = null
-                        },
-                    )
-                } else if (!sortedByName()) {
-                    FastScrollThumb(
-                        fraction = fraction,
-                        count = items.itemCount,
-                        bottomPadding = bottom + 72.dp,
-                        onDrag = { position, centerY ->
-                            scope.launch { grid.scrollToItem(position + headerCount) }
-                            bubble = (label ?: "") to centerY
-                        },
-                        onDragging = { held ->
-                            thumbHeld = held
-                            if (!held) bubble = null
-                        },
-                        onThumbMoved = { thumbCenter = it },
-                    )
+            // The strip, handle and bubble stay where they are as the top bar slides away and the list grows under it
+            Box(
+                Modifier.fillMaxSize().layout { measurable, constraints ->
+                    val shift = (-barOffset()).roundToInt().coerceIn(0, constraints.maxHeight)
+                    val placeable = measurable.measure(constraints.copy(minHeight = 0, maxHeight = constraints.maxHeight - shift))
+                    layout(constraints.maxWidth, constraints.maxHeight) { placeable.place(0, shift) }
                 }
+            ) {
+                val index = letterIndex
+                if (items.itemCount > 0 && showing) {
+                    if (index != null) {
+                        val current by remember(items) {
+                            derivedStateOf { label?.firstOrNull() }
+                        }
+                        LetterStrip(
+                            index = index,
+                            current = current,
+                            bottomPadding = bottom + 72.dp,
+                            onJump = { letter, position, centerY ->
+                                scope.launch { grid.scrollToItem(position + headerCount) }
+                                bubble = letter.toString() to centerY
+                            },
+                            onDragging = { held ->
+                                stripHeld = held
+                                if (!held) bubble = null
+                            },
+                        )
+                    } else if (!sortedByName()) {
+                        FastScrollThumb(
+                            fraction = fraction,
+                            count = items.itemCount,
+                            bottomPadding = bottom + 72.dp,
+                            onDrag = { position, centerY ->
+                                scope.launch { grid.scrollToItem(position + headerCount) }
+                                bubble = null to centerY
+                            },
+                            onDragging = { held ->
+                                thumbHeld = held
+                                if (!held) bubble = null
+                            },
+                            onThumbMoved = { thumbCenter = it },
+                        )
+                    }
+                }
+                // A letter or date by the finger on the strip or handle, or by the handle as the list scrolls
+                val passive = if (!thumbHeld && !stripHeld && scrolling && !sortedByName() && showing) label?.let { it to thumbCenter } else null
+                val shown = bubble?.let { (text, y) -> (text ?: label ?: lastLabel) to y } ?: passive
+                shown?.takeIf { it.first.isNotEmpty() && showing }?.let { (text, y) -> ScrollBubble(text, y) }
             }
-            // A letter or date by the finger on the strip or handle, or by the handle as the list scrolls
-            val passive = if (!thumbHeld && !stripHeld && scrolling && !sortedByName() && showing) label?.let { it to thumbCenter } else null
-            (bubble ?: passive)?.takeIf { it.first.isNotEmpty() && showing }?.let { (text, y) -> ScrollBubble(text, y) }
         }
     }
 

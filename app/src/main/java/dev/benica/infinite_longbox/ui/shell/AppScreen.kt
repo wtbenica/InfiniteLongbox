@@ -82,7 +82,7 @@ fun AppScreen(app: MainActivity) {
 
     BackHandler(enabled = navigator.stack.size > 1) { app.goBack() }
 
-    CompositionLocalProvider(LocalSheetPeek provides peek) {
+    CompositionLocalProvider(LocalSheetPeek provides peek, LocalBarOffset provides { collapse.offset }) {
         Box(
             Modifier
                 .fillMaxSize()

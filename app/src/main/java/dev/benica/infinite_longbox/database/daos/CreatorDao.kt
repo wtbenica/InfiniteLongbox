@@ -24,6 +24,8 @@ import androidx.sqlite.db.SimpleSQLiteQuery
 import androidx.sqlite.db.SupportSQLiteQuery
 import dev.benica.infinite_longbox.APP
 import dev.benica.infinite_longbox.filter.SearchFilter
+import dev.benica.infinite_longbox.filter.LetterBucket
+import dev.benica.infinite_longbox.filter.LetterIndex
 import dev.benica.infinite_longbox.filter.SortType
 import dev.benica.infinite_longbox.filter.SortType.Companion.containsSortType
 import dev.benica.infinite_longbox.database.models.*
@@ -39,6 +41,15 @@ abstract class CreatorDao : BaseDao<Creator>("creator") {
 
     @RawQuery(observedEntities = [Creator::class])
     abstract suspend fun getCreatorsByQuerySus(query: SupportSQLiteQuery): List<Creator>
+
+    @RawQuery
+    abstract suspend fun getLetterBuckets(query: SupportSQLiteQuery): List<LetterBucket>
+
+    /** Where each letter starts in the list [filter] gives, for the letter strip. */
+    suspend fun getLetterIndex(filter: SearchFilter): LetterIndex = LetterIndex(
+        getLetterBuckets(getCreatorQuery(filter, letterBuckets = true)),
+        descending = filter.mSortType?.order == SortType.SortOrder.DESC
+    )
 
     /** A bounded list of creators for the filter-box popup. */
     suspend fun getCreatorOptions(filter: SearchFilter, limit: Int): List<Creator> =
@@ -59,7 +70,7 @@ abstract class CreatorDao : BaseDao<Creator>("creator") {
         @Suppress("unused")
         private const val TAG = APP + "CreatorDao"
 
-        private fun getCreatorQuery(filter: SearchFilter, limit: Int? = null): SimpleSQLiteQuery {
+        private fun getCreatorQuery(filter: SearchFilter, limit: Int? = null, letterBuckets: Boolean = false): SimpleSQLiteQuery {
 
             val tableJoinString = StringBuilder()
             val conditionsString = StringBuilder()
@@ -190,6 +201,13 @@ abstract class CreatorDao : BaseDao<Creator>("creator") {
                     SortType.optionsOrderBy("sortName", filter.mTextFilter?.text, allArgs)
                 else sortClause
             val limitClause = limit?.let { " LIMIT $it" } ?: ""
+            if (letterBuckets) {
+                // The same rows as the list, counted by what letter they start with
+                val rows = "(SELECT * FROM ($tableJoinString$conditionsString UNION $tableJoinString2$conditionsString2))"
+                val buckets = SortType.letterBucketSql("name").format(rows)
+                return SimpleSQLiteQuery("SELECT bucket, COUNT(*) AS n FROM ($buckets) GROUP BY bucket", allArgs.toArray())
+            }
+
             val simpleSQLiteQuery = SimpleSQLiteQuery(
                 """
                     SELECT *

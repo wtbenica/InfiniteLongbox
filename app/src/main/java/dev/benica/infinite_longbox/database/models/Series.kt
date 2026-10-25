@@ -198,6 +198,9 @@ data class FullSeries(
 
     /** The earliest cover the phone has for any issue of the series; only the series list's query fills it in. */
     val earliestCoverUri: Uri? = null,
+
+    /** The date a list sorted by date put the series at (its latest issue in the list); only that query fills it in. */
+    val sortDate: LocalDate? = null,
 ) : ListItem, FilterModel {
     override val tagName: String
         get() = "Series"

@@ -105,10 +105,17 @@ abstract class SeriesDao : BaseDao<Series>("series") {
                         LIMIT 1
                     ) AS earliestCoverUri"""
             // Joined with issues, a series is a row for each of them (and the sort may be by their columns), so the cover goes in the row itself
-            val joinsIssues = filter.hasCreator() || filter.hasCharacter() || (filter.mMyCollection && filter.hasDateFilter())
+            // Sorted by date, a series goes by its latest (or earliest) issue in the list; the row carries that date
+            val dateSort = filter.isComplex && filter.mSortType?.sortColumn == "coverDate" && !letterBuckets && limit == null
+            val joinsIssues = filter.hasCreator() || filter.hasCharacter() ||
+                    (filter.mMyCollection && (filter.hasDateFilter() || dateSort))
             val coverInRow = joinsIssues && !letterBuckets
+            val sortDirection = filter.mSortType?.order?.option ?: "DESC"
+            val sortDate = if (dateSort) {
+                ", ${if (sortDirection == "ASC") "MIN" else "MAX"}(COALESCE(ie.coverDate, ss.startDate)) AS sortDate"
+            } else ""
             table.append(
-                """SELECT DISTINCT ss.*${if (coverInRow) ", $fallbackCover" else ""}
+                """SELECT ${if (dateSort) "" else "DISTINCT "}ss.*${if (coverInRow) ", $fallbackCover" else ""}$sortDate
                         FROM series ss 
                         """
             )
@@ -194,7 +201,7 @@ abstract class SeriesDao : BaseDao<Series>("series") {
             }
 
             if (filter.mMyCollection) {
-                if (filter.hasCharacter() || filter.hasCreator()) {
+                if (joinsIssues) {
                     conditions.append(
                         """${connectWord()} ie.issueId IN (
                     SELECT issue
@@ -256,7 +263,9 @@ abstract class SeriesDao : BaseDao<Series>("series") {
                 )
             }
 
-            val sortClause: String = filter.mSortType?.let {
+            val sortClause: String = if (dateSort) {
+                "GROUP BY ss.seriesId ORDER BY sortDate $sortDirection, ss.startDate $sortDirection"
+            } else filter.mSortType?.let {
                 val isValid =
                     if (filter.isComplex)
                         SortType.Companion.SortTypeOptions.SERIES_COMPLEX.options.containsSortType(

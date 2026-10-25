@@ -27,7 +27,8 @@ class RetrofitAPIClient {
         /** The one HTTP client, so the sync and the cover downloads share connections (HTTP/2). */
         val httpClient: OkHttpClient by lazy {
             OkHttpClient.Builder()
-                .connectTimeout(60, TimeUnit.SECONDS)
+                .connectTimeout(ServerStatus.CONNECT_TIMEOUT_S, TimeUnit.SECONDS)
+                .addInterceptor(ServerStatus.Guard())
                 .readTimeout(60, TimeUnit.SECONDS)
                 .writeTimeout(60, TimeUnit.SECONDS)
                 .build()

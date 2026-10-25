@@ -290,7 +290,7 @@ class IssueListScreen(host: ScreenHost) : ComposeListScreen<FullIssue>(host) {
         fun removeFromCollection(issue: FullIssue, collId: Int)
     }
 
-    private companion object {
+    companion object {
         /** Dragging within this fraction of the list's height from its top or bottom scrolls it. */
         const val EDGE_FRACTION = 0.15f
         const val MAX_SCROLL = 40f

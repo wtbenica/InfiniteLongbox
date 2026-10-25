@@ -22,9 +22,13 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import dev.benica.infinite_longbox.APP
+import dev.benica.infinite_longbox.filter.LetterIndex
+import dev.benica.infinite_longbox.filter.SearchFilter
 import dev.benica.infinite_longbox.database.models.FullCharacter
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.withContext
 
 @Suppress("unused")
 private const val TAG = APP + "SeriesListViewModel"
@@ -35,4 +39,7 @@ class CharacterListViewModel : ListViewModel<FullCharacter>() {
     override val itemList: Flow<PagingData<FullCharacter>> = filter.switchMap {
         repository.getCharactersByFilterPaged(it).asLiveData()
     }.asFlow().cachedIn(viewModelScope)
+
+    override suspend fun letterIndex(filter: SearchFilter): LetterIndex? =
+        withContext(Dispatchers.IO) { repository.getCharacterLetterIndex(filter) }
 }
