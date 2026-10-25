@@ -26,6 +26,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.systemBarsPadding
+import androidx.compose.ui.window.DialogProperties
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
@@ -68,6 +70,9 @@ data class ViewerCover(
     val placeholderKey: String,
 )
 
+/** The viewer's dialog runs under the system bars too; [CoverViewer] keeps its content clear of them. */
+val ViewerDialogProperties = DialogProperties(usePlatformDefaultWidth = false, decorFitsSystemWindows = false)
+
 /** The covers as large as the screen allows, one at a time. */
 @Composable
 fun CoverViewer(
@@ -88,6 +93,7 @@ fun CoverViewer(
         modifier
             .fillMaxSize()
             .background(colorResource(R.color.surface_raised))
+            .systemBarsPadding()
             .padding(margin),
     ) {
         Box(Modifier.weight(1f).fillMaxWidth()) {

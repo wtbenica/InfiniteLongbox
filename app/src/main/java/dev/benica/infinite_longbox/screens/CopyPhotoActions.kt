@@ -26,7 +26,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import dev.benica.infinite_longbox.MainActivity
@@ -35,6 +34,7 @@ import dev.benica.infinite_longbox.R
 import dev.benica.infinite_longbox.repository.CopyPhotos
 import dev.benica.infinite_longbox.ui.covers.CoverViewer
 import dev.benica.infinite_longbox.ui.covers.ViewerCover
+import dev.benica.infinite_longbox.ui.covers.ViewerDialogProperties
 import dev.benica.infinite_longbox.ui.dialogs.ChoiceDialog
 import dev.benica.infinite_longbox.ui.dialogs.showDialog
 import kotlinx.coroutines.CoroutineScope
@@ -140,7 +140,7 @@ class CopyPhotoActions(
         viewer?.let { (covers, start) ->
             Dialog(
                 onDismissRequest = { viewer = null },
-                properties = DialogProperties(usePlatformDefaultWidth = false),
+                properties = ViewerDialogProperties,
             ) { CoverViewer(covers, start, onDismiss = { viewer = null }) }
         }
     }

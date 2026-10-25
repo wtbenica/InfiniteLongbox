@@ -28,7 +28,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
 import androidx.core.net.toUri
 import androidx.lifecycle.lifecycleScope
 import dev.benica.infinite_longbox.APP
@@ -53,6 +52,7 @@ import dev.benica.infinite_longbox.ui.covers.CoverImages
 import dev.benica.infinite_longbox.ui.covers.CoverViewer
 import dev.benica.infinite_longbox.ui.covers.IssueCoverState
 import dev.benica.infinite_longbox.ui.covers.ViewerCover
+import dev.benica.infinite_longbox.ui.covers.ViewerDialogProperties
 import dev.benica.infinite_longbox.ui.covers.placeholderKey
 import dev.benica.infinite_longbox.ui.issue.IssueActionState
 import dev.benica.infinite_longbox.ui.issue.IssueDetailActions
@@ -158,7 +158,7 @@ class IssuePage(host: ScreenHost) : Screen(host) {
         coverViewer?.let { (covers, start) ->
             Dialog(
                 onDismissRequest = { closeCoverViewer(viewerPage) },
-                properties = DialogProperties(usePlatformDefaultWidth = false),
+                properties = ViewerDialogProperties,
             ) {
                 CoverViewer(covers, start, onDismiss = ::closeCoverViewer, onPageChanged = { viewerPage = it })
             }
