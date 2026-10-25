@@ -19,6 +19,7 @@ import android.content.Intent
 import android.net.Uri
 import android.util.Log
 import androidx.compose.runtime.Composable
+import dev.benica.infinite_longbox.nav.ListKind
 import dev.benica.infinite_longbox.nav.Route
 import dev.benica.infinite_longbox.nav.Screen
 import dev.benica.infinite_longbox.nav.ScreenHost
@@ -79,15 +80,8 @@ class IssuePage(host: ScreenHost) : Screen(host) {
 
     private var fullIssue: FullIssue = FullIssue.getEmptyFullIssue()
     private var fullVariant: FullIssue? = null
-    /** What the jump bar goes through: the series, or what's in the collection it was opened from. */
-    private class Stop(
-        val issueId: Int,
-        val variantOf: Int?,
-        val cover: File?,
-        val title: String,
-        val variantName: String,
-        val placeholderKey: String,
-    )
+    /** What the jump bar goes through: the issues of the list the page was opened from, else of its series. */
+    private class Stop(val issueId: Int, val cover: File?)
 
     private var issuesInSeries: List<Stop> = emptyList()
     private var currentPos: Int = 0
@@ -135,12 +129,12 @@ class IssuePage(host: ScreenHost) : Screen(host) {
         if (!issueDetailViewModel.started) {
             issueDetailViewModel.started = true
             issueDetailViewModel.setCollectionScope(route.collectionId)
+            issueDetailViewModel.setListFilter(openedFrom())
 
             if (variantOf == null) {
                 issueDetailViewModel.loadIssue(issueId)
                 issueDetailViewModel.loadVariant(null)
             } else {
-                issueDetailViewModel.showVariants()
                 issueDetailViewModel.loadVariant(issueId)
                 issueDetailViewModel.loadIssue(variantOf)
             }
@@ -149,6 +143,13 @@ class IssuePage(host: ScreenHost) : Screen(host) {
 
     init {
         observeModel()
+    }
+
+    /** The filter of the issue list directly under this page, if that's where it was opened from. */
+    private fun openedFrom(): SearchFilter? {
+        val stack = activity.navigator.stack
+        val below = stack.getOrNull(stack.indexOf(host.entry) - 1) ?: return null
+        return below.takeIf { (it.route as? Route.List)?.kind == ListKind.ISSUES }?.filter
     }
 
     @Composable
@@ -198,12 +199,7 @@ class IssuePage(host: ScreenHost) : Screen(host) {
         issueDetailViewModel.issueList.observe(
             viewLifecycleOwner
         ) { issues ->
-            val stops = issues.map {
-                Stop(
-                    it.issue.issueId, it.issue.variantOf, it.coverUri?.path?.let { path -> File(path) },
-                    it.toString(), it.issue.variantName, it.placeholderKey(),
-                )
-            }
+            val stops = issues.map { Stop(it.issueId, it.coverUri?.toUri()?.path?.let(::File)) }
             // A cover arriving changes a stop without changing which stops there are; the viewer and prefetch read it from here
             val samePlaces = issuesInSeries.map { it.issueId } == stops.map { it.issueId }
             if (!samePlaces || issuesInSeries.map { it.cover?.path } != stops.map { it.cover?.path }) {
@@ -327,19 +323,14 @@ class IssuePage(host: ScreenHost) : Screen(host) {
     private fun positionOfCurrent(): Int {
         // Part-way through a jump the page still shows the issue being left: go by where it is going
         jumpTarget?.let { target ->
-            if (currentIssue.issue.issueId == target) {
+            if (fullIssue.issue.issueId == target) {
                 jumpTarget = null
             } else {
                 val at = issuesInSeries.indexOfFirst { it.issueId == target }
                 if (at >= 0) return at
             }
         }
-        val shown = issuesInSeries.indexOfFirst { it.issueId == currentIssue.issue.issueId }
-        if (shown >= 0) return shown
-        val issueStop = issuesInSeries.indexOfFirst { it.issueId == fullIssue.issue.issueId }
-        if (issueStop >= 0) return issueStop
-        // The issue isn't a stop, but a variant of it may be (the issue outside the collection)
-        return issuesInSeries.indexOfFirst { it.variantOf == fullIssue.issue.issueId }
+        return issuesInSeries.indexOfFirst { it.issueId == fullIssue.issue.issueId }
     }
 
     /** The issue and the jump bar's list arrive separately, in either order, so the position is worked out for each. */
@@ -362,30 +353,18 @@ class IssuePage(host: ScreenHost) : Screen(host) {
         currentPos = (currentPos + skipNum).coerceIn(0, issuesInSeries.lastIndex)
         val stop = issuesInSeries[currentPos]
         jumpTarget = stop.issueId
-        if (stop.variantOf == null) {
-            // The selected variant belongs to the issue being left; drop it so the new primary shows
-            issueDetailViewModel.clearVariant()
-            issueDetailViewModel.loadIssue(stop.issueId)
-        } else {
-            // A variant in the collection: its standard issue is the page, the variant is the cover
-            issueDetailViewModel.loadVariant(stop.issueId)
-            issueDetailViewModel.loadIssue(stop.variantOf)
-        }
+        // The selected variant belongs to the issue being left; drop it so the new primary shows
+        issueDetailViewModel.clearVariant()
+        issueDetailViewModel.loadIssue(stop.issueId)
         updateNavBar()
     }
 
     private fun onVariantSelected(selected: Issue) {
         if (selected.issueId != issueDetailViewModel.primaryId.value) {
-            // With a variant on the page its cover has to be among the ones the viewer goes through
-            issueDetailViewModel.showVariants()
             issueDetailViewModel.loadVariant(selected.issueId)
         } else {
             issueDetailViewModel.clearVariant()
         }
-
-        // The cover chosen may be one of the stops: the jump bar follows it
-        issuesInSeries.indexOfFirst { it.issueId == selected.issueId }
-            .takeIf { it >= 0 }?.let { currentPos = it; updateNavBar() }
 
         updateCover()
     }
@@ -508,9 +487,12 @@ class IssuePage(host: ScreenHost) : Screen(host) {
         )
     }
 
-    /** The covers of the stops the jump bar goes through (or just this one), open at this one. */
+    /** Every cover there is of the jump bar's issues, standard and variant, open at the one on the page. */
     private var coverViewer by mutableStateOf<Pair<List<ViewerCover>, Int>?>(null)
     private var viewerPage = 0
+
+    /** The issue each cover in the viewer is of: itself, or the one it is a variant of. */
+    private var viewerIssues: Map<Int, Int> = emptyMap()
 
     private fun openCoverViewer() {
         val shown = currentIssue
@@ -519,28 +501,37 @@ class IssuePage(host: ScreenHost) : Screen(host) {
             shown.issue.issueId, shown.toString(), shown.issue.variantName,
             coverUri?.path?.let { File(it) }?.takeIf { it.exists() }, shown.placeholderKey(),
         )
-        val here = currentPos
-        val (covers, start) = if (here >= 0 && issuesInSeries.isNotEmpty()) {
-            viewerCovers(
-                issuesInSeries.map { ViewerCover(it.issueId, it.title, it.variantName, it.cover?.takeIf { f -> f.exists() }, it.placeholderKey) },
-                issuesInSeries.map { it.variantOf },
-                here, shownCover, shown.issue.variantOf ?: shown.issue.issueId,
-            )
-        } else {
-            listOf(shownCover) to 0
+        val shownIssue = shown.issue.variantOf ?: shown.issue.issueId
+        val order = issuesInSeries.map { it.issueId }
+        viewLifecycleOwner.lifecycleScope.launch {
+            val issues = Repository.get().getIssuesWithVariantsWithCovers(order.ifEmpty { listOf(shownIssue) })
+                .filter { it.coverUri?.path?.let(::File)?.exists() == true }
+                .sortedWith(
+                    compareBy<FullIssue>({ order.indexOf(it.issue.variantOf ?: it.issue.issueId) },
+                        { it.issue.variantOf != null }, { it.issue.variantName }, { it.issue.issueId })
+                )
+            val covers = issues.map {
+                ViewerCover(it.issue.issueId, it.toString(), it.issue.variantName, it.coverUri?.path?.let(::File), it.placeholderKey())
+            }
+            val here = covers.indexOfFirst { it.issueId == shownCover.issueId }.coerceAtLeast(0)
+            val (all, start) = viewerCovers(covers, issues.map { it.issue.variantOf }, here, shownCover, shownIssue)
+            viewerIssues = issues.associate { it.issue.issueId to (it.issue.variantOf ?: it.issue.issueId) } +
+                    (shownCover.issueId to shownIssue)
+            viewerPage = start
+            coverViewer = all to start
         }
-        viewerPage = start
-        coverViewer = covers to start
     }
 
-    /** The viewer closed on its page [page]: the page behind goes to that issue. */
+    /** The viewer closed on its page [page]: the page behind goes to that cover's issue, and to the variant if it is one. */
     private fun closeCoverViewer(page: Int) {
-        val issueId = coverViewer?.first?.getOrNull(page)?.issueId
+        val coverId = coverViewer?.first?.getOrNull(page)?.issueId
         coverViewer = null
+        if (coverId == null || coverId == currentIssue.issue.issueId) return
+        val issueId = viewerIssues[coverId] ?: coverId
         val stop = issuesInSeries.indexOfFirst { it.issueId == issueId }
-        if (issueId != null && issueId != currentIssue.issue.issueId && stop >= 0 && currentPos >= 0 && stop != currentPos) {
-            jumpToIssue(stop - currentPos)
-        }
+        if (issueId != fullIssue.issue.issueId && stop >= 0 && currentPos >= 0) jumpToIssue(stop - currentPos)
+        if (coverId == issueId) issueDetailViewModel.clearVariant() else issueDetailViewModel.loadVariant(coverId)
+        updateCover()
     }
 
     private fun onCoverClicked() {

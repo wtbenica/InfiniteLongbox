@@ -75,7 +75,7 @@ abstract class CharacterDao : BaseDao<Character>("character") {
 
         // The popup lists a name and alter ego once, whatever the publisher
         tableJoinString.append(
-            if (limit != null) "SELECT ch.*, MIN(ch.characterId) FROM character ch " else "SELECT DISTINCT ch.* FROM character ch "
+            if (limit != null) "SELECT ch.*, MIN(ch.characterId), SUM((SELECT COUNT(*) FROM appearance pa WHERE pa.character = ch.characterId)) AS pop FROM character ch " else "SELECT DISTINCT ch.* FROM character ch "
         )
 
         if (filter.hasDateFilter() || filter.hasCharacter() || filter.hasCreator() || filter
@@ -201,7 +201,7 @@ abstract class CharacterDao : BaseDao<Character>("character") {
 
         val orderClause =
             if (limit != null)
-                SortType.optionsOrderBy("rtrim(ch.name || ' ' || IFNULL(ch.alterEgo, ''))", filter.mTextFilter?.text, args)
+                SortType.optionsOrderBy("rtrim(ch.name || ' ' || IFNULL(ch.alterEgo, ''))", filter.mTextFilter?.text, args, "pop")
             else sortClause
         val groupClause = if (limit != null) "GROUP BY ch.name, IFNULL(ch.alterEgo, '') " else ""
         val limitClause = limit?.let { " LIMIT $it" } ?: ""

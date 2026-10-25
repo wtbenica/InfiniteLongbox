@@ -443,8 +443,8 @@ class SortType(
         fun sortKeyOf(name: String): String =
             name.trimStart { it in SORT_IGNORED_LEADING }.replace('-', ' ').lowercase()
 
-        /** ORDER BY for the filter-box popup: exact match, then prefix, then word start, then the rest. */
-        fun optionsOrderBy(columnRef: String, typed: String?, args: MutableList<Any>): String {
+        /** ORDER BY for the filter-box popup: exact match, prefix, word start, then the rest; the more [popularity] first within each. */
+        fun optionsOrderBy(columnRef: String, typed: String?, args: MutableList<Any>, popularity: String? = null): String {
             val key = nameSortKey(columnRef)
             // The key has no hyphens, so the typed text mustn't either
             val text = typed?.trim().orEmpty().replace('-', ' ')
@@ -452,7 +452,7 @@ class SortType(
             val like = text.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
             args.addAll(listOf(text, "$like%", "% $like%"))
             return "ORDER BY CASE WHEN $key = ? THEN 0 WHEN $key LIKE ? ESCAPE '\\' THEN 1 " +
-                    "WHEN $key LIKE ? ESCAPE '\\' THEN 2 ELSE 3 END, $key "
+                    "WHEN $key LIKE ? ESCAPE '\\' THEN 2 ELSE 3 END, ${popularity?.let { "$it DESC, " } ?: ""}$key "
         }
 
         @SuppressLint("StaticFieldLeak")

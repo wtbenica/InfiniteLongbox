@@ -30,6 +30,7 @@ import dev.benica.infinite_longbox.filter.SortType.Companion.containsSortType
 import dev.benica.infinite_longbox.database.models.Appearance
 import dev.benica.infinite_longbox.database.models.Character
 import dev.benica.infinite_longbox.database.models.CollectionItem
+import dev.benica.infinite_longbox.database.models.Cover
 import dev.benica.infinite_longbox.database.models.Creator
 import dev.benica.infinite_longbox.database.models.Credit
 import dev.benica.infinite_longbox.database.models.ExCredit
@@ -58,6 +59,28 @@ abstract class IssueDao : BaseDao<Issue>("issue") {
     /** The ids of the issues [filter] gives, with none of what [getIssuesByFilter] builds around each. */
     suspend fun getIssueIdsByFilter(filter: SearchFilter): List<Int> =
         getIssueIdsByQuery(createIssueQuery(filter, idsOnly = true))
+
+    @RawQuery(observedEntities = [Issue::class, Cover::class, CollectionItem::class])
+    abstract fun getIssueStopsByQuery(query: SupportSQLiteQuery): Flow<List<IssueStop>>
+
+    /** What the issue page's jump bar goes through: [filter]'s issues, in its order, with where each one's cover is. */
+    fun getIssueStopsByFilter(filter: SearchFilter): Flow<List<IssueStop>> =
+        getIssueStopsByQuery(createIssueQuery(filter, stops = true))
+
+    @Transaction
+    @RawQuery
+    abstract suspend fun getFullIssuesByQuerySus(query: SupportSQLiteQuery): List<FullIssue>
+
+    /** The issues with [parentIds] and all their variants that have a cover. */
+    suspend fun getIssuesWithVariantsWithCovers(parentIds: Collection<Int>): List<FullIssue> {
+        val ids = idsToSqlIdString(parentIds)
+        return getFullIssuesByQuerySus(
+            SimpleSQLiteQuery(
+                """SELECT ie.* FROM issue ie WHERE (ie.issueId IN $ids OR ie.variantOf IN $ids)
+                AND ie.issueId IN (SELECT issue FROM cover WHERE coverUri IS NOT NULL)"""
+            )
+        )
+    }
 
     fun getIssuesByFilter(filter: SearchFilter): Flow<List<FullIssue>> {
         val query = createIssueQuery(filter)
@@ -122,14 +145,20 @@ abstract class IssueDao : BaseDao<Issue>("issue") {
     abstract fun dropAll()
 
     companion object {
-        private fun createIssueQuery(filter: SearchFilter, idsOnly: Boolean = false): SimpleSQLiteQuery {
+        private fun createIssueQuery(filter: SearchFilter, idsOnly: Boolean = false, stops: Boolean = false): SimpleSQLiteQuery {
             val tableJoinString = StringBuilder()
             val conditionsString = StringBuilder()
             val args: ArrayList<Any> = arrayListOf()
             fun connectword(): String = if (conditionsString.isEmpty()) "WHERE" else "AND"
 
             tableJoinString.append(
-                """SELECT DISTINCT ${if (idsOnly) "ie.issueId" else "ie.*"} 
+                """SELECT DISTINCT ${
+                    when {
+                        idsOnly -> "ie.issueId"
+                        stops -> "ie.issueId, ie.variantOf, (SELECT cv.coverUri FROM cover cv WHERE cv.issue = ie.issueId) AS coverUri"
+                        else -> "ie.*"
+                    }
+                } 
                         FROM issue ie 
                         """
             )
@@ -276,5 +305,7 @@ abstract class IssueDao : BaseDao<Issue>("issue") {
         }
     }
 }
+
+data class IssueStop(val issueId: Int, val variantOf: Int?, val coverUri: String?)
 
 data class IssueSeries(val issueId: Int, val series: Int)

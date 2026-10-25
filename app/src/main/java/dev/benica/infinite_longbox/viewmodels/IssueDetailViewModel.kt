@@ -21,6 +21,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import dev.benica.infinite_longbox.*
+import dev.benica.infinite_longbox.database.daos.IssueStop
 import dev.benica.infinite_longbox.database.models.*
 import dev.benica.infinite_longbox.repository.Repository
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -94,34 +95,42 @@ class IssueDetailViewModel : ViewModel() {
         _collectionScope.value = collectionId
     }
 
-    /** Whether the jump bar and the cover viewer go through the variants too. */
-    private val _variantsShown = MutableStateFlow(false)
+    /** The filter of the issue list the page was opened from; the jump bar goes through what it gives. */
+    private val _listFilter = MutableStateFlow<SearchFilter?>(null)
 
-    fun showVariants() {
-        _variantsShown.value = true
+    fun setListFilter(filter: SearchFilter?) {
+        _listFilter.value = filter?.let { SearchFilter(it) }
     }
 
-    internal val issueList: LiveData<List<FullIssue>> =
-        combine(mIssue, _collectionScope, _variantsShown) { issue, scope, variants -> Triple(issue, scope, variants) }
-            .flatMapLatest { (fullIssue, scope, variants) ->
-                fullIssue?.let {
-                    val context = InfiniteLongboxApplication.context!!
-                    repository.getIssuesByFilter(
-                        SearchFilter(
-                            series = FullSeries(it.series),
-                            myCollection = scope != null,
-                            collectionId = scope ?: BaseCollection.MY_COLL.id,
-                            showVariants = scope != null || variants,
-                            sortType = SortType(
-                                context.getString(R.string.sort_type_issue_number),
-                                context.getString(R.string.column_issue_num),
-                                "ie",
-                                SortType.SortOrder.ASC,
-                            )
-                        )
-                    )
-                } ?: emptyFlow()
+    /** The issues the jump bar goes through, a variant standing for its issue, each with where its cover is. */
+    internal val issueList: LiveData<List<IssueStop>> =
+        combine(mIssue, _collectionScope, _listFilter) { issue, scope, filter -> Triple(issue, scope, filter) }
+            .flatMapLatest { (fullIssue, scope, listFilter) ->
+                val filter = listFilter ?: fullIssue?.let { seriesFilter(it, scope) }
+                filter?.let { repository.getIssueStopsByFilter(it).map(::issuesOnly) } ?: emptyFlow()
             }.asLiveData()
+
+    private fun seriesFilter(issue: FullIssue, scope: Int?): SearchFilter {
+        val context = InfiniteLongboxApplication.context!!
+        return SearchFilter(
+            series = FullSeries(issue.series),
+            myCollection = scope != null,
+            collectionId = scope ?: BaseCollection.MY_COLL.id,
+            showVariants = true,
+            sortType = SortType(
+                context.getString(R.string.sort_type_issue_number),
+                context.getString(R.string.column_issue_num),
+                "ie",
+                SortType.SortOrder.ASC,
+            )
+        )
+    }
+
+    private fun issuesOnly(stops: List<IssueStop>): List<IssueStop> {
+        val standard = stops.filter { it.variantOf == null }.associateBy { it.issueId }
+        return stops.map { it.variantOf ?: it.issueId }.distinct()
+            .map { id -> standard[id] ?: IssueStop(id, null, null) }
+    }
 
     fun loadIssue(issueId: Int) {
         _primaryId.value = issueId

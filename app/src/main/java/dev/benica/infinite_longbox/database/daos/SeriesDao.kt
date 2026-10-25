@@ -276,7 +276,7 @@ abstract class SeriesDao : BaseDao<Series>("series") {
 
             val orderClause =
                 if (limit != null)
-                    SortType.optionsOrderBy("ss.seriesName", filter.mTextFilter?.text, args)
+                    SortType.optionsOrderBy("ss.seriesName", filter.mTextFilter?.text, args, "ss.issueCount")
                 else sortClause
             val limitClause = limit?.let { " LIMIT $it" } ?: ""
 

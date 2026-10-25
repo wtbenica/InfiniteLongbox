@@ -52,6 +52,7 @@ import dev.benica.infinite_longbox.database.models.FullAppearance
 import dev.benica.infinite_longbox.database.models.FullCharacter
 import dev.benica.infinite_longbox.database.models.FullCreator
 import dev.benica.infinite_longbox.database.models.FullCredit
+import dev.benica.infinite_longbox.database.daos.IssueStop
 import dev.benica.infinite_longbox.database.models.FullIssue
 import dev.benica.infinite_longbox.database.models.FullSeries
 import dev.benica.infinite_longbox.database.models.Issue
@@ -291,6 +292,11 @@ class Repository private constructor(val context: Context) {
         updateIssue(issueId, markedDelete)
         return issueDao.getFullIssue(issueId)
     }
+
+    fun getIssueStopsByFilter(filter: SearchFilter): Flow<List<IssueStop>> = issueDao.getIssueStopsByFilter(filter)
+
+    suspend fun getIssuesWithVariantsWithCovers(parentIds: Collection<Int>): List<FullIssue> =
+        withContext(Dispatchers.IO) { issueDao.getIssuesWithVariantsWithCovers(parentIds) }
 
     suspend fun getIssueIdsByFilter(filter: SearchFilter): List<Int> =
         withContext(Dispatchers.IO) { issueDao.getIssueIdsByFilter(filter) }

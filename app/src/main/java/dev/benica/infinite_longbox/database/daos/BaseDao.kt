@@ -161,7 +161,7 @@ abstract class BaseDao<T : DataModel>(private val tableName: String) {
         internal fun <T : DataModel> modelsToSqlIdString(models: Collection<T>) =
             idsToSqlIdString(models.map { it.id })
 
-        private fun idsToSqlIdString(ids: Collection<Int>) =
+        internal fun idsToSqlIdString(ids: Collection<Int>) =
             ids.toString().replace("[", "(").replace("]", ")")
 
         /** SQL for the ids of characters with the same name and alter ego as [id], publishers aside. */
