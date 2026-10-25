@@ -327,8 +327,11 @@ class IssuePage(host: ScreenHost) : Screen(host) {
             }
         }
         val shown = issuesInSeries.indexOfFirst { it.issueId == currentIssue.issue.issueId }
-        return if (shown >= 0) shown
-        else issuesInSeries.indexOfFirst { it.issueId == fullIssue.issue.issueId }
+        if (shown >= 0) return shown
+        val issueStop = issuesInSeries.indexOfFirst { it.issueId == fullIssue.issue.issueId }
+        if (issueStop >= 0) return issueStop
+        // The issue isn't a stop, but a variant of it may be (the issue outside the collection)
+        return issuesInSeries.indexOfFirst { it.variantOf == fullIssue.issue.issueId }
     }
 
     /** The issue and the jump bar's list arrive separately, in either order, so the position is worked out for each. */

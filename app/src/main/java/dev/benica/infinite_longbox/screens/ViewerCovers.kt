@@ -19,8 +19,9 @@ import dev.benica.infinite_longbox.ui.covers.ViewerCover
 /**
  * The covers the viewer goes through, opening at the one on the page. [stops] are the jump bar's
  * covers, with each one's issue it is a variant of ([variantOf]); [here] is the page's place among
- * them. A page whose cover is no stop (a variant outside the collection) is put in after the stops
- * of its issue and opened first, so the cover that was clicked is the one that shows.
+ * them. A page whose cover is no stop (an issue or variant outside the collection) is put in among
+ * the stops of its issue (the issue before its variants, a variant after them) and opened first,
+ * so the cover that was clicked is the one that shows.
  *
  * @return the covers, and the index to open at
  */
@@ -34,6 +35,11 @@ internal fun viewerCovers(
     if (stops.any { it.issueId == shown.issueId }) {
         return stops.map { if (it.issueId == shown.issueId) shown else it } to here
     }
-    val after = stops.indices.lastOrNull { stops[it].issueId == shownIssue || variantOf[it] == shownIssue } ?: here
-    return stops.toMutableList().apply { add(after + 1, shown) } to after + 1
+    val related = stops.indices.filter { stops[it].issueId == shownIssue || variantOf[it] == shownIssue }
+    val at = when {
+        related.isEmpty() -> here + 1
+        shown.issueId == shownIssue -> related.first()
+        else -> related.last() + 1
+    }
+    return stops.toMutableList().apply { add(at, shown) } to at
 }

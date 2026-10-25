@@ -39,7 +39,17 @@ class ViewerCoversTest {
     }
 
     @Test
-    fun aVariantOfAnIssueWithNoStopOpensNextToThePlaceOnThePage() {
+    fun anIssueOutsideTheCollectionGoesInBeforeItsVariants() {
+        // Issue 40 isn't in the collection; its variant 41 is
+        val only = listOf(cover(41, "B"), cover(50))
+        val (covers, start) = viewerCovers(only, listOf(40, null), here = 0, shown = cover(40), shownIssue = 40)
+
+        assertEquals(listOf(40, 41, 50), covers.map { it.issueId })
+        assertEquals(0, start)
+    }
+
+    @Test
+    fun aCoverWithNothingRelatedOpensNextToThePlaceOnThePage() {
         val (covers, start) = viewerCovers(stops, variantOf, here = 2, shown = cover(31, "B"), shownIssue = 30)
 
         assertEquals(listOf(10, 11, 20, 31), covers.map { it.issueId })
