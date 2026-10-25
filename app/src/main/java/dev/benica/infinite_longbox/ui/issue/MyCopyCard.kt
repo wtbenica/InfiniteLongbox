@@ -149,7 +149,7 @@ private fun Photos(
     ) {
         photos.forEachIndexed { index, file ->
             AsyncImage(
-                model = ImageRequest.Builder(context).data(file).memoryCacheKey("\${file.path}@\${file.lastModified()}")
+                model = ImageRequest.Builder(context).data(file).memoryCacheKey("${file.path}@${file.lastModified()}")
                     .size(Size(THUMB_PX, THUMB_PX)).build(),
                 contentDescription = stringResource(R.string.copy_photo_title),
                 modifier = Modifier
