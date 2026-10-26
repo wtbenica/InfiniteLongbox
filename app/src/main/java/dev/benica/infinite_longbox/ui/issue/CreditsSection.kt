@@ -277,7 +277,8 @@ private fun creatorName(creator: NameDetailAndCreator): String {
 private fun AppearanceRow(appearance: FullAppearance, onCharacterClick: (FullCharacter) -> Unit) {
     val narrow = dimensionResource(R.dimen.margin_narrow)
     val character = appearance.character.character
-    val name = character.alterEgo?.let { "${character.name} ($it)" } ?: character.name
+    val membership = appearance.appearance.membership
+    val name = appearanceName(character.name, character.alterEgo, membership)
     val link = colorResource(R.color.accent_strong)
     val plain = MaterialTheme.colorScheme.onSurface
 
@@ -303,11 +304,24 @@ private fun AppearanceRow(appearance: FullAppearance, onCharacterClick: (FullCha
                 Text(text = it, color = plain, fontFamily = CondensedBlock, fontSize = 14.sp)
             }
         }
-        appearance.appearance.membership?.let {
+        roster(membership)?.let {
             Text(text = it, color = plain, fontFamily = CondensedBlock, fontSize = 14.sp)
         }
     }
 }
+
+/** A team's members are bracketed; without brackets the list is the names the character goes by. */
+private fun isRoster(membership: String?) = membership?.contains('[') == true
+
+/** The character's name with who they are as the story gives it: their alter ego, else the names they go by. */
+internal fun appearanceName(name: String, alterEgo: String?, membership: String?): String {
+    val identity = alterEgo?.takeIf { it.isNotBlank() }
+        ?: membership?.takeIf { it.isNotBlank() && !isRoster(it) }
+    return identity?.let { "$name ($it)" } ?: name
+}
+
+/** The members of a team appearing, for a line of their own; null for anyone else. */
+internal fun roster(membership: String?): String? = membership?.takeIf { it.isNotBlank() && isRoster(it) }
 
 /** What is said of a character's part, after the bar: the role ([notes]) and the rest ([details]), or null if neither says anything. */
 internal fun appearanceText(notes: String?, details: String?): String? =
