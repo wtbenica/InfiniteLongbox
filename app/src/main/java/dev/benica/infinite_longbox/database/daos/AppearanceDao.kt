@@ -39,6 +39,18 @@ abstract class AppearanceDao : BaseDao<Appearance>("appearance") {
     )
     abstract fun getAppearancesByIssueId(issueId: Int): Flow<List<FullAppearance>>
 
+    @Query("DELETE FROM appearance WHERE story = :story AND character = :character AND appearanceId NOT IN (:keep)")
+    abstract suspend fun deleteOthers(story: Int, character: Int, keep: List<Int>)
+
+    /** A rebuilt server renumbers appearances, so a copy saved under an old id would show twice. */
+    @Transaction
+    override suspend fun upsertSus(objList: List<Appearance>): Boolean {
+        objList.groupBy { it.story to it.character }.forEach { (key, rows) ->
+            deleteOthers(key.first, key.second, rows.map { it.appearanceId })
+        }
+        return super.upsertSus(objList)
+    }
+
     @Query(
         """
             DELETE FROM appearance
