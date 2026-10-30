@@ -24,3 +24,6 @@ local.properties
 /.idea/AndroidProjectSystem.xml
 
 /.idea/inspectionProfiles/
+
+# preview cover art kept in the project root
+/*.jpg

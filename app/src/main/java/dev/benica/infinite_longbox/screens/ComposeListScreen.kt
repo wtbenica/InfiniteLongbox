@@ -195,10 +195,21 @@ abstract class ComposeListScreen<T : ListItem>(host: ScreenHost) : FilteredListS
         var thumbCenter by remember { mutableStateOf(0f) }
         val fraction by remember(items) {
             derivedStateOf {
-                val visible = grid.layoutInfo.visibleItemsInfo.size
-                val total = items.itemCount
-                if (total <= visible || total == 0) 0f
-                else ((grid.firstVisibleItemIndex - headerCount).coerceAtLeast(0).toFloat() / (total - visible)).coerceIn(0f, 1f)
+                val info = grid.layoutInfo
+                val first = info.visibleItemsInfo.firstOrNull()
+                when {
+                    first == null || items.itemCount == 0 || !grid.canScrollBackward -> 0f
+                    !grid.canScrollForward -> 1f
+                    else -> {
+                        // In items, with the row the top one is part-way through; a part-hidden last row still counts as off screen
+                        val rowHeight = first.size.height.coerceAtLeast(1)
+                        val viewport = info.viewportSize.height - info.beforeContentPadding - info.afterContentPadding
+                        val onScreen = viewport.toFloat() / rowHeight * numCols
+                        val position = (grid.firstVisibleItemIndex - headerCount).coerceAtLeast(0) +
+                                grid.firstVisibleItemScrollOffset.toFloat() / rowHeight * numCols
+                        (position / (items.itemCount - onScreen).coerceAtLeast(1f)).coerceIn(0f, 1f)
+                    }
+                }
             }
         }
 
