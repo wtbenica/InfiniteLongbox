@@ -15,6 +15,7 @@
 
 package dev.benica.infinite_longbox.ui.lists
 
+import android.content.res.Configuration
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -37,6 +38,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -45,6 +47,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.times
 import coil3.compose.AsyncImage
+import coil3.request.crossfade
 import dev.benica.infinite_longbox.R
 import dev.benica.infinite_longbox.ui.common.Bar
 import dev.benica.infinite_longbox.ui.common.FolderTabPanel
@@ -232,7 +235,11 @@ private fun Cover(state: SeriesCardState, modifier: Modifier) {
         TitlePlaceholder(state.name, modifier, showTitle = false)
     } else {
         val context = LocalContext.current
-        val request = remember(file, file.lastModified()) { CoverImages.seriesRequest(context, file) }
+        // A preview is drawn at the crossfade's first frame, so the cover would show part-way faded
+        val inspecting = LocalInspectionMode.current
+        val request = remember(file, file.lastModified(), inspecting) {
+            CoverImages.seriesRequest(context, file).let { if (inspecting) it.newBuilder().crossfade(false).build() else it }
+        }
         val alignment by produceState(CoverFocus.peek(file) ?: Alignment.TopStart, file) {
             value = CoverFocus.alignmentFor(file)
         }
@@ -251,6 +258,7 @@ private fun stringResourceCoverDescription(): String =
     androidx.compose.ui.res.stringResource(R.string.description_series_list_item_background_image)
 
 @Preview(showBackground = true)
+@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 private fun SeriesListItemPreview() {
     InfiniteLongboxTheme {
@@ -260,7 +268,7 @@ private fun SeriesListItemPreview() {
                 publisher = "DC Comics",
                 dateRange = "1990-2005",
                 format = "ongoing series",
-                cover = null,
+                cover = File("/home/wesley/StudioProjects/InfiniteLongbox/doom_patrol_v2_45.jpg"),
                 loadingCover = true,
             ),
             onClick = {}
