@@ -27,16 +27,16 @@
     <!-- ============================ RAMPS ============================ -->
 
     <!-- Accent: sage green -->
-    <color name="accent_50">#F0F5F2</color>
-    <color name="accent_100">#DCEAE1</color>
-    <color name="accent_200">#BDD6C8</color>
-    <color name="accent_300">#98BDA8</color>
-    <color name="accent_400">#74A38A</color>
-    <color name="accent_500">#568870</color>
-    <color name="accent_600">#446F5A</color>
-    <color name="accent_700">#365947</color>
-    <color name="accent_800">#294436</color>
-    <color name="accent_900">#1D3126</color>
+    <color name="accent_50">#F0F2F5</color>
+    <color name="accent_100">#DCE1EA</color>
+    <color name="accent_200">#BDC8D6</color>
+    <color name="accent_300">#98A8BD</color>
+    <color name="accent_400">#748AA3</color>
+    <color name="accent_500">#567088</color>
+    <color name="accent_600">#445A6F</color>
+    <color name="accent_700">#364759</color>
+    <color name="accent_800">#293644</color>
+    <color name="accent_900">#1D2631</color>
 
     <!-- Neutral: warm grey -->
     <color name="neutral_0">#FFFFFF</color>
@@ -77,7 +77,7 @@
     <color name="scrim_surface">#49F7F6F3</color>
 
     <!-- The wash over covers and blank covers, and the title chip that sits on a blank cover -->
-    <color name="cover_wash">#AAFFFFFF</color>
+    <color name="cover_wash">#66FFFFFF</color>
 
     <!-- What cards and covers cast: a shadow by day, a glow by night -->
     <color name="card_shadow">@color/neutral_900</color>
