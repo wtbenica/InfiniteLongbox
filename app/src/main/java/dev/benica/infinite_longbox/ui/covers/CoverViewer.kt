@@ -39,6 +39,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalContext
+import coil3.request.ImageRequest
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
@@ -101,8 +103,14 @@ fun CoverViewer(
                 val cover = covers[page]
                 val tap = Modifier.clickable(interactionSource = remember { MutableInteractionSource() }, indication = null, onClick = close)
                 if (cover.file != null) {
+                    val context = LocalContext.current
+                    // Keyed on the file's mtime, so a replaced cover isn't served from the memory cache
+                    val request = remember(cover.file, cover.file.lastModified()) {
+                        ImageRequest.Builder(context).data(cover.file)
+                            .memoryCacheKey("viewer:${cover.file.path}@${cover.file.lastModified()}").build()
+                    }
                     AsyncImage(
-                        model = cover.file,
+                        model = request,
                         contentDescription = stringResource(R.string.description_issue_cover_set),
                         contentScale = ContentScale.Fit,
                         modifier = Modifier.fillMaxSize().then(tap),
