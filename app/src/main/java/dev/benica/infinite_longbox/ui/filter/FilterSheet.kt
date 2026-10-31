@@ -148,7 +148,7 @@ private fun SectionRow(
             .padding(bottom = dimensionResource(R.dimen.margin_default))
             .height(IntrinsicSize.Min)
             .clip(corner)
-            .background(colorResource(R.color.surface_sunken)),
+            .background(colorResource(R.color.surface_raised)),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         LabelIcon(icon)
@@ -170,6 +170,7 @@ internal fun LabelIcon(icon: Int) {
         Icon(
             painterResource(icon),
             contentDescription = null,
+            modifier = Modifier.size(32.dp),
             tint = colorResource(R.color.accent_strong)
         )
     }
@@ -388,38 +389,27 @@ private fun FilterSheetPreview() {
             slide = 1.2f,
             expanded = true,
             actions = object : FilterSheetActions {
-                override fun myCollection(on: Boolean) {
-                }
+                override fun myCollection(on: Boolean) {}
 
-                override fun wishList(on: Boolean) {
-                }
+                override fun wishList(on: Boolean) {}
 
-                override fun missingCover(on: Boolean) {
-                }
+                override fun missingCover(on: Boolean) {}
 
-                override fun missingStorage(on: Boolean) {
-                }
+                override fun missingStorage(on: Boolean) {}
 
-                override fun showVariants(on: Boolean) {
-                }
+                override fun showVariants(on: Boolean) {}
 
-                override fun nextView() {
-                }
+                override fun nextView() {}
 
-                override fun sortBy(sort: SortType) {
-                }
+                override fun sortBy(sort: SortType) {}
 
-                override fun add(item: FilterItem) {
-                }
+                override fun add(item: FilterItem) {}
 
-                override fun remove(item: FilterItem) {
-                }
+                override fun remove(item: FilterItem) {}
 
-                override fun setFilterType(type: KClass<out FilterType>) {
-                }
+                override fun setFilterType(type: KClass<out FilterType>) {}
 
-                override fun pickDate(isStart: Boolean) {
-                }
+                override fun pickDate(isStart: Boolean) {}
 
                 override fun setDate(date: LocalDate, isStart: Boolean) {}
 

@@ -130,7 +130,7 @@ fun FilterSheetLayer(
                 topStart = dimensionResource(R.dimen.margin_wide),
                 topEnd = dimensionResource(R.dimen.margin_wide),
             ),
-            color = colorResource(R.color.surface_raised),
+            color = colorResource(R.color.surface_sunken),
             shadowElevation = dimensionResource(R.dimen.margin_default),
         ) {
             Box(Modifier.navigationBarsPadding()) { host.Sheet(slide = slide, expanded = slide >= 1f) }

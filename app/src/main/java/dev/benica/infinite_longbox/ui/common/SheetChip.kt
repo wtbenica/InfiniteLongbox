@@ -56,7 +56,7 @@ fun SheetChip(
     textSize: TextUnit = 13.sp,
 ) {
     val shape = RoundedCornerShape(dimensionResource(R.dimen.radius_default))
-    val fill = colorResource(if (selected) R.color.accent_soft else R.color.surface_raised)
+    val fill = colorResource(if (selected) R.color.accent_soft else R.color.surface)
     val edge = colorResource(if (selected) R.color.accent else R.color.outline)
     Row(
         modifier
