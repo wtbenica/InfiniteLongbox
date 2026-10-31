@@ -53,6 +53,7 @@ data class Series(
     var publisher: Int = AUTO_ID,
     var startDate: LocalDate? = null,
     var endDate: LocalDate? = null,
+    /** The GCD's tracking notes (how its numbering links to other series); shown as "Tracking notes". */
     val description: String? = null,
     val publishingFormat: String? = null,
     val firstIssue: Int? = null,
@@ -71,7 +72,8 @@ data class Series(
         get() = SeriesDates.range(startDate, endDate, publishingFormat)
 
     companion object : FilterType {
-        override var displayName: String = context!!.getString(R.string.filter_type_series)
+        override val displayName: String
+            get() = context?.getString(R.string.filter_type_series) ?: "Series"
 
         override fun toString(): String = displayName
     }
@@ -104,7 +106,8 @@ data class Publisher(
     override fun toString(): String = publisher
 
     companion object : FilterType {
-        override var displayName: String = context!!.getString(R.string.filter_type_publisher)
+        override val displayName: String
+            get() = context?.getString(R.string.filter_type_publisher) ?: "Publisher"
 
         override fun toString(): String = displayName
     }

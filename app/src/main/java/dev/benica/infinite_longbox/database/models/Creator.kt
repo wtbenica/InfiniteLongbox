@@ -74,7 +74,8 @@ data class NameDetail(
         get() = nameDetailId
 
     companion object : FilterType {
-        override val displayName: String = context!!.getString(R.string.filter_type_creator)
+        override val displayName: String
+            get() = context?.getString(R.string.filter_type_creator) ?: "Creator"
 
         override fun toString(): String = displayName
     }

@@ -15,6 +15,7 @@
 
 package dev.benica.infinite_longbox.ui.issue
 
+import dev.benica.infinite_longbox.ui.theme.DayNightPreview200
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -29,7 +30,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
 import dev.benica.infinite_longbox.R
 import dev.benica.infinite_longbox.ui.theme.CondensedBlock
@@ -95,7 +95,7 @@ private fun InfoRow(label: String, text: String) {
     }
 }
 
-@Preview(showBackground = true, widthDp = 200)
+@DayNightPreview200
 @Composable
 private fun IssueInfoBoxPreview() {
     InfiniteLongboxTheme {

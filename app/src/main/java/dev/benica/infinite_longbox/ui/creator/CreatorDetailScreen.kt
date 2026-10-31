@@ -15,6 +15,8 @@
 
 package dev.benica.infinite_longbox.ui.creator
 
+import dev.benica.infinite_longbox.ui.theme.DayNightPreview360
+import dev.benica.infinite_longbox.ui.theme.DayNightPreview360Tall
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -31,7 +33,6 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
 import dev.benica.infinite_longbox.R
 import dev.benica.infinite_longbox.database.daos.SignedIssue
@@ -183,7 +184,7 @@ private fun Details(info: CreatorInfo, actions: CreatorDetailActions) {
     }
 }
 
-@Preview(showBackground = true, widthDp = 360, heightDp = 900)
+@DayNightPreview360Tall
 @Composable
 private fun CreatorDetailScreenPreview() {
     InfiniteLongboxTheme {
@@ -207,7 +208,7 @@ private fun CreatorDetailScreenPreview() {
     }
 }
 
-@Preview(showBackground = true, widthDp = 360)
+@DayNightPreview360
 @Composable
 private fun CreatorDetailLoadingPreview() {
     InfiniteLongboxTheme {

@@ -15,6 +15,7 @@
 
 package dev.benica.infinite_longbox.ui.issue
 
+import dev.benica.infinite_longbox.ui.theme.DayNightPreview
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
@@ -36,7 +37,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.dp
 import dev.benica.infinite_longbox.R
@@ -210,7 +210,7 @@ private fun CoverBeside(
 }
 
 @OptIn(ExperimentalCoroutinesApi::class)
-@Preview(showBackground = true)
+@DayNightPreview
 @Composable
 private fun IssueDetailScreenPreview() {
     InfiniteLongboxTheme {

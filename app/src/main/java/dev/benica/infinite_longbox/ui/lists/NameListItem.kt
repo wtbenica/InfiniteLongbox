@@ -15,6 +15,7 @@
 
 package dev.benica.infinite_longbox.ui.lists
 
+import dev.benica.infinite_longbox.ui.theme.DayNightPreview
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -41,7 +42,6 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.times
@@ -184,7 +184,7 @@ fun NameListItem(
 /** Just a band of color above the tab: the blank cover is only decoration here. */
 private val NAME_COVER_WINDOW = 36.dp
 
-@Preview(showBackground = true)
+@DayNightPreview
 @Composable
 private fun NameListItemPreview() {
     InfiniteLongboxTheme {

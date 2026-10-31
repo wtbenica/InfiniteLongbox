@@ -44,16 +44,25 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import dev.benica.infinite_longbox.R
 import dev.benica.infinite_longbox.database.models.FullSeries
+import dev.benica.infinite_longbox.database.models.Publisher
+import dev.benica.infinite_longbox.database.models.Series
+import dev.benica.infinite_longbox.ui.theme.Archivo
 import dev.benica.infinite_longbox.ui.theme.CondensedBlock
+import dev.benica.infinite_longbox.ui.theme.DayNightPreview
+import dev.benica.infinite_longbox.ui.theme.InfiniteLongboxTheme
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 /** What the series is: volume, publisher, dates, the series it continues, tracking notes and notes. */
 @OptIn(ExperimentalCoroutinesApi::class)
 @Composable
-fun SeriesInfoBox(series: FullSeries, onSeries: (FullSeries) -> Unit, modifier: Modifier = Modifier) {
+fun SeriesInfoBox(
+    series: FullSeries,
+    onSeries: (FullSeries) -> Unit,
+    modifier: Modifier = Modifier,
+    startExpanded: Boolean = false,
+) {
     val info = series.series
     Column(
         modifier
@@ -72,17 +81,33 @@ fun SeriesInfoBox(series: FullSeries, onSeries: (FullSeries) -> Unit, modifier: 
         }
 
         series.seriesBondFrom?.originSeries?.let {
-            Linked(stringResource(R.string.series_continues_from), FullSeries(series = it), onSeries)
+            Linked(
+                label = stringResource(id = R.string.series_continues_from),
+                series = FullSeries(series = it),
+                onSeries = onSeries
+            )
         }
         series.seriesBondTo?.targetSeries?.let {
-            Linked(stringResource(R.string.series_continues_as), FullSeries(series = it), onSeries)
+            Linked(
+                label = stringResource(id = R.string.series_continues_as),
+                series = FullSeries(series = it),
+                onSeries = onSeries
+            )
         }
 
         info.description?.takeIf { it.isNotBlank() }?.let {
-            Expandable(stringResource(R.string.series_detail_tracking_notes), it)
+            Expandable(
+                label = stringResource(R.string.series_detail_tracking_notes),
+                text = it,
+                startOpen = startExpanded
+            )
         }
         info.notes?.takeIf { it.isNotBlank() }?.let {
-            Expandable(stringResource(R.string.series_detail_notes), it)
+            Expandable(
+                label = stringResource(R.string.series_detail_notes),
+                text = it,
+                startOpen = startExpanded
+            )
         }
     }
 }
@@ -91,7 +116,11 @@ fun SeriesInfoBox(series: FullSeries, onSeries: (FullSeries) -> Unit, modifier: 
 private fun Labeled(label: String, value: String) {
     Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
         Label(label)
-        Text(value, color = MaterialTheme.colorScheme.onSurface)
+        Text(
+            value,
+            fontFamily = Archivo,
+            color = MaterialTheme.colorScheme.onSurface,
+        )
     }
 }
 
@@ -99,10 +128,9 @@ private fun Labeled(label: String, value: String) {
 private fun Label(text: String) {
     Text(
         text = text,
-        fontFamily = CondensedBlock,
+        fontFamily = Archivo,
         fontWeight = FontWeight.Bold,
-        fontSize = 14.sp,
-        color = colorResource(R.color.accent_strong),
+        color = colorResource(R.color.accent_strong)
     )
 }
 
@@ -122,8 +150,8 @@ private fun Linked(label: String, series: FullSeries, onSeries: (FullSeries) -> 
 
 /** A heading that opens and closes the [text] under it. */
 @Composable
-private fun Expandable(label: String, text: String) {
-    var open by rememberSaveable(label) { mutableStateOf(false) }
+private fun Expandable(label: String, text: String, startOpen: Boolean) {
+    var open by rememberSaveable(label) { mutableStateOf(startOpen) }
     Column(Modifier.animateContentSize()) {
         Row(
             Modifier
@@ -145,5 +173,33 @@ private fun Expandable(label: String, text: String) {
         AnimatedVisibility(open) {
             Text(text, color = MaterialTheme.colorScheme.onSurface)
         }
+    }
+}
+
+@OptIn(ExperimentalCoroutinesApi::class)
+@DayNightPreview
+@Composable
+private fun SeriesInfoBoxPreview() {
+    InfiniteLongboxTheme {
+        val series = FullSeries(
+            series = Series(
+                seriesName = "Doom Patrol",
+                volume = 2,
+                publisher = 1,
+                issueCount = 163,
+                description = "continues in Doom Patrol vol 3",
+                notes = "This is a very special issue where the truth comes out and nothing is " +
+                        "ever the same again."
+            ),
+            publisher = Publisher(
+                publisher = "DC/Vertigo",
+            ),
+        )
+
+        SeriesInfoBox(
+            series = series,
+            onSeries = {},
+            startExpanded = true,
+        )
     }
 }

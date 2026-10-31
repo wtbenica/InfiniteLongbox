@@ -15,6 +15,7 @@
 
 package dev.benica.infinite_longbox.ui.issue
 
+import dev.benica.infinite_longbox.ui.theme.DayNightPreview
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
@@ -46,7 +47,6 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import dev.benica.infinite_longbox.R
@@ -178,7 +178,7 @@ private fun CopyLine(label: Int, value: String?) {
     }
 }
 
-@Preview(showBackground = true)
+@DayNightPreview
 @Composable
 private fun MyCopyCardPreview() {
     InfiniteLongboxTheme {

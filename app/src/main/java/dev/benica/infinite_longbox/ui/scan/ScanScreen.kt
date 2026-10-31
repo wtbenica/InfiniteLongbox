@@ -15,6 +15,7 @@
 
 package dev.benica.infinite_longbox.ui.scan
 
+import android.content.res.Configuration
 import androidx.camera.view.PreviewView
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -249,6 +250,7 @@ private fun ScanResultStrip(result: ScanResultState, onUndo: () -> Unit, onDetai
 }
 
 @Preview(widthDp = 360, heightDp = 640)
+@Preview(widthDp = 360, heightDp = 640, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 private fun ScanOverlayPreview() {
     InfiniteLongboxTheme {

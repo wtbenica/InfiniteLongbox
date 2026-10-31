@@ -78,7 +78,8 @@ sealed interface ListItem
 @ExperimentalCoroutinesApi
 class All {
     companion object : FilterType {
-        override val displayName: String = context!!.getString(R.string.filter_type_all)
+        override val displayName: String
+            get() = context?.getString(R.string.filter_type_all) ?: "All"
 
         override fun toString(): String = displayName
     }

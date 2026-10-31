@@ -15,6 +15,7 @@
 
 package dev.benica.infinite_longbox.ui.lists
 
+import dev.benica.infinite_longbox.ui.theme.DayNightPreview200
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.graphics.res.animatedVectorResource
@@ -59,7 +60,6 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
@@ -320,7 +320,7 @@ private fun Cover(state: IssueCardState, modifier: Modifier) {
     )
 }
 
-@Preview(showBackground = true, widthDp = 200)
+@DayNightPreview200
 @Composable
 private fun IssueListItemPreview() {
     InfiniteLongboxTheme {
@@ -342,7 +342,7 @@ private fun IssueListItemPreview() {
     }
 }
 
-@Preview(showBackground = true, widthDp = 200)
+@DayNightPreview200
 @Composable
 private fun IssueListItemSkeletonPreview() {
     InfiniteLongboxTheme { IssueListItemSkeleton(placeholderKey = "issue|3") }

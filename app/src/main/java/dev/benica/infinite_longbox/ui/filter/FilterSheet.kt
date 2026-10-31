@@ -15,7 +15,6 @@
 
 package dev.benica.infinite_longbox.ui.filter
 
-import dev.benica.infinite_longbox.ui.common.SheetChip
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -30,7 +29,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
@@ -46,15 +44,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
+import dev.benica.infinite_longbox.InfiniteLongboxApplication
 import dev.benica.infinite_longbox.R
-import dev.benica.infinite_longbox.filter.SearchFilter
-import dev.benica.infinite_longbox.filter.SortType
 import dev.benica.infinite_longbox.database.models.BaseCollection
 import dev.benica.infinite_longbox.database.models.Character
 import dev.benica.infinite_longbox.database.models.FilterItem
@@ -63,7 +61,11 @@ import dev.benica.infinite_longbox.database.models.FilterType
 import dev.benica.infinite_longbox.database.models.FullCreator
 import dev.benica.infinite_longbox.database.models.FullIssue
 import dev.benica.infinite_longbox.database.models.FullSeries
-import dev.benica.infinite_longbox.database.models.Series
+import dev.benica.infinite_longbox.filter.SearchFilter
+import dev.benica.infinite_longbox.filter.SortType
+import dev.benica.infinite_longbox.ui.common.SheetChip
+import dev.benica.infinite_longbox.ui.theme.DayNightPreview360
+import dev.benica.infinite_longbox.ui.theme.InfiniteLongboxTheme
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -121,7 +123,11 @@ fun FilterSheet(
         }
 
         if (!expanded) {
-            FilterSheetHeader(summary, onClick = actions::openHeader, modifier = Modifier.alpha(1 - slide))
+            FilterSheetHeader(
+                summary,
+                onClick = actions::openHeader,
+                modifier = Modifier.alpha(1 - slide)
+            )
         }
     }
 }
@@ -161,7 +167,11 @@ internal fun LabelIcon(icon: Int) {
             .background(colorResource(R.color.accent_soft)),
         contentAlignment = Alignment.Center,
     ) {
-        Icon(painterResource(icon), contentDescription = null, tint = colorResource(R.color.accent_strong))
+        Icon(
+            painterResource(icon),
+            contentDescription = null,
+            tint = colorResource(R.color.accent_strong)
+        )
     }
 }
 
@@ -216,8 +226,18 @@ private fun OptionRow(filter: SearchFilter, actions: FilterSheetActions) {
     val onWishList = filter.mMyCollection && filter.mCollectionId == BaseCollection.WISH_LIST.id
     SectionRow(R.drawable.toggle_24) {
         ChipLine {
-            SheetChip("My Collection", inMyCollection, { actions.myCollection(!inMyCollection) }, role = Role.Checkbox)
-            SheetChip("Wish List", onWishList, { actions.wishList(!onWishList) }, role = Role.Checkbox)
+            SheetChip(
+                "My Collection",
+                inMyCollection,
+                { actions.myCollection(!inMyCollection) },
+                role = Role.Checkbox
+            )
+            SheetChip(
+                "Wish List",
+                onWishList,
+                { actions.wishList(!onWishList) },
+                role = Role.Checkbox
+            )
 
             // What's missing from the collection: no cover on this phone, not filed in a storage place
             if (filter.mMyCollection) {
@@ -236,12 +256,18 @@ private fun OptionRow(filter: SearchFilter, actions: FilterSheetActions) {
             SheetChip(viewLabel(filter.mViewOption), selected = true, onClick = actions::nextView)
 
             if (filter.mViewOption == FullIssue::class && !filter.mMyCollection) {
-                SheetChip("Variants", filter.mShowVariants, { actions.showVariants(!filter.mShowVariants) }, role = Role.Checkbox)
+                SheetChip(
+                    "Variants",
+                    filter.mShowVariants,
+                    { actions.showVariants(!filter.mShowVariants) },
+                    role = Role.Checkbox
+                )
             }
         }
     }
 }
 
+@OptIn(ExperimentalCoroutinesApi::class)
 private fun viewLabel(view: KClass<*>) = when (view) {
     FullSeries::class -> "Series"
     FullIssue::class -> "Issues"
@@ -347,6 +373,62 @@ private fun FilterItems(filter: SearchFilter, actions: FilterSheetActions) {
     }
 
     if (showSearch) SearchSection(actions)
+}
+
+@OptIn(ExperimentalCoroutinesApi::class)
+@DayNightPreview360
+@Composable
+private fun FilterSheetPreview() {
+    // The sort types read their labels through the application's context, which a preview doesn't have
+    InfiniteLongboxApplication.context = LocalContext.current
+    InfiniteLongboxTheme {
+        FilterSheet(
+            filter = SearchFilter(),
+            summary = "Jojoba",
+            slide = 1.2f,
+            expanded = true,
+            actions = object : FilterSheetActions {
+                override fun myCollection(on: Boolean) {
+                }
+
+                override fun wishList(on: Boolean) {
+                }
+
+                override fun missingCover(on: Boolean) {
+                }
+
+                override fun missingStorage(on: Boolean) {
+                }
+
+                override fun showVariants(on: Boolean) {
+                }
+
+                override fun nextView() {
+                }
+
+                override fun sortBy(sort: SortType) {
+                }
+
+                override fun add(item: FilterItem) {
+                }
+
+                override fun remove(item: FilterItem) {
+                }
+
+                override fun setFilterType(type: KClass<out FilterType>) {
+                }
+
+                override fun pickDate(isStart: Boolean) {
+                }
+
+                override fun setDate(date: LocalDate, isStart: Boolean) {}
+
+                override fun openHeader() {}
+
+                override suspend fun options(text: String): List<FilterModel> = emptyList()
+            },
+        )
+    }
 }
 
 internal val ROW_HEIGHT = 48.dp

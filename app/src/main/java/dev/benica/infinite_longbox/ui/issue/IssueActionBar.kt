@@ -15,6 +15,7 @@
 
 package dev.benica.infinite_longbox.ui.issue
 
+import android.content.res.Configuration
 import androidx.compose.animation.graphics.res.animatedVectorResource
 import androidx.compose.animation.graphics.vector.AnimatedImageVector
 import androidx.compose.foundation.Image
@@ -128,6 +129,7 @@ private fun Action(label: Int, button: @Composable () -> Unit) {
 }
 
 @Preview(showBackground = true, widthDp = 220)
+@Preview(showBackground = true, widthDp = 220, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 private fun IssueActionBarPreview() {
     InfiniteLongboxTheme {

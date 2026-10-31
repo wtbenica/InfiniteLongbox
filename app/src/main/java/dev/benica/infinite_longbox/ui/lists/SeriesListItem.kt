@@ -15,7 +15,7 @@
 
 package dev.benica.infinite_longbox.ui.lists
 
-import android.content.res.Configuration
+import dev.benica.infinite_longbox.ui.theme.DayNightPreview360
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -42,7 +42,6 @@ import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.times
@@ -61,6 +60,7 @@ import dev.benica.infinite_longbox.ui.covers.PlaceholderCover
 import dev.benica.infinite_longbox.ui.covers.TitlePlaceholder
 import dev.benica.infinite_longbox.ui.covers.placeholderKey
 import dev.benica.infinite_longbox.ui.covers.scrim
+import dev.benica.infinite_longbox.ui.theme.DayNightPreview
 import dev.benica.infinite_longbox.ui.theme.InfiniteLongboxTheme
 import dev.benica.infinite_longbox.ui.theme.PermanentMarker
 import java.io.File
@@ -257,8 +257,7 @@ private fun Cover(state: SeriesCardState, modifier: Modifier) {
 private fun stringResourceCoverDescription(): String =
     androidx.compose.ui.res.stringResource(R.string.description_series_list_item_background_image)
 
-@Preview(showBackground = true)
-@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
+@DayNightPreview
 @Composable
 private fun SeriesListItemPreview() {
     InfiniteLongboxTheme {
@@ -276,7 +275,7 @@ private fun SeriesListItemPreview() {
     }
 }
 
-@Preview(showBackground = true, widthDp = 360)
+@DayNightPreview360
 @Composable
 private fun SeriesListItemSkeletonPreview() {
     InfiniteLongboxTheme { SeriesListItemSkeleton(placeholderKey = "series|3") }

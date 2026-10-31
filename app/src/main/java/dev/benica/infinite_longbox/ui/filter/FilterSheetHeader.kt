@@ -15,6 +15,7 @@
 
 package dev.benica.infinite_longbox.ui.filter
 
+import android.content.res.Configuration
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -85,6 +86,7 @@ fun FilterSheetHeader(summary: String, onClick: () -> Unit, modifier: Modifier =
 }
 
 @Preview(showBackground = true, device = "id:pixel_10_pro", showSystemUi = true)
+@Preview(showBackground = true, device = "id:pixel_10_pro", showSystemUi = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 private fun FilterSheetHeaderPreview() {
     InfiniteLongboxTheme {
@@ -105,6 +107,7 @@ private fun FilterSheetHeaderPreview() {
 }
 
 @Preview(showBackground = true, device = "id:pixel_10_pro", showSystemUi = true)
+@Preview(showBackground = true, device = "id:pixel_10_pro", showSystemUi = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 private fun FilterSheetHeaderEmptyPreview() {
     InfiniteLongboxTheme {

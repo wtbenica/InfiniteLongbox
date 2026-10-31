@@ -15,6 +15,7 @@
 
 package dev.benica.infinite_longbox.ui.issue
 
+import dev.benica.infinite_longbox.ui.theme.DayNightPreview
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -23,7 +24,6 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import dev.benica.infinite_longbox.R
 import dev.benica.infinite_longbox.ui.theme.InfiniteLongboxTheme
@@ -68,7 +68,7 @@ private fun JumpButton(
     }
 }
 
-@Preview(showBackground = true)
+@DayNightPreview
 @Composable
 private fun IssueJumpBarPreview() {
     InfiniteLongboxTheme {

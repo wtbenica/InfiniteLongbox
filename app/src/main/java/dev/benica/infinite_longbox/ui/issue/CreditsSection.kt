@@ -15,6 +15,7 @@
 
 package dev.benica.infinite_longbox.ui.issue
 
+import dev.benica.infinite_longbox.ui.theme.DayNightPreview360
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateFloatAsState
@@ -48,7 +49,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import dev.benica.infinite_longbox.R
@@ -314,7 +314,7 @@ internal fun appearanceText(notes: String?, details: String?): String? =
     listOfNotNull(notes, details).map { it.trim() }.filter { it.isNotEmpty() }
         .joinToString("; ").ifEmpty { null }
 
-@Preview(showBackground = true, widthDp = 360)
+@DayNightPreview360
 @Composable
 private fun CreditsBoxPreview() {
     InfiniteLongboxTheme {

@@ -15,6 +15,7 @@
 
 package dev.benica.infinite_longbox.ui.common
 
+import dev.benica.infinite_longbox.ui.theme.DayNightPreview360
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
@@ -31,7 +32,6 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withLink
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
 import dev.benica.infinite_longbox.R
 import dev.benica.infinite_longbox.ui.theme.CondensedBlock
@@ -77,7 +77,7 @@ fun AttributionBar(recordUrl: String, modifier: Modifier = Modifier) {
     )
 }
 
-@Preview(showBackground = true, widthDp = 360)
+@DayNightPreview360
 @Composable
 private fun AttributionBarPreview() {
     InfiniteLongboxTheme { AttributionBar(recordUrl = "https://www.comics.org/issue/1/") }

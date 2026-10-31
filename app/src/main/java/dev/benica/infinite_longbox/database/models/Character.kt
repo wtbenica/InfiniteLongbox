@@ -64,8 +64,8 @@ data class Character(
     override fun toString(): String = "$name${alterEgo?.let { " ($it)" } ?: ""}"
 
     companion object : FilterType {
-        override val displayName: String =
-            dev.benica.infinite_longbox.InfiniteLongboxApplication.context!!.getString(R.string.filter_type_character)
+        override val displayName: String
+            get() = dev.benica.infinite_longbox.InfiniteLongboxApplication.context?.getString(R.string.filter_type_character) ?: "Character"
 
         override fun toString(): String = displayName
     }

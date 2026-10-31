@@ -15,6 +15,7 @@
 
 package dev.benica.infinite_longbox.ui.issue
 
+import dev.benica.infinite_longbox.ui.theme.DayNightPreview360
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -43,7 +44,6 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import dev.benica.infinite_longbox.R
@@ -139,7 +139,7 @@ private fun Issue.label(): String =
     if (variantOf == null) "$issueNumRaw – ${stringResource(R.string.scan_standard_edition)}"
     else "$issueNumRaw – $variantName"
 
-@Preview(showBackground = true, widthDp = 360)
+@DayNightPreview360
 @Composable
 private fun VariantSelectorPreview() {
     val regular = Issue(issueId = 1, issueNumRaw = "34")
