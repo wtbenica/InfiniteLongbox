@@ -220,7 +220,8 @@ abstract class CharacterDao : BaseDao<Character>("character") {
             if (limit != null)
                 SortType.optionsOrderBy("rtrim(ch.name || ' ' || IFNULL(ch.alterEgo, ''))", filter.mTextFilter?.text, args, "pop")
             else sortClause
-        val groupClause = if (limit != null) "GROUP BY ch.name, IFNULL(ch.alterEgo, '') " else ""
+        // The "+" keeps the planner from walking the whole name index, one random row lookup at a time, to group
+        val groupClause = if (limit != null) "GROUP BY +ch.name, IFNULL(ch.alterEgo, '') " else ""
         val limitClause = limit?.let { " LIMIT $it" } ?: ""
         val simpleSQLiteQuery = SimpleSQLiteQuery(
             "$tableJoinString$conditionsString$groupClause$orderClause$limitClause", args.toArray()

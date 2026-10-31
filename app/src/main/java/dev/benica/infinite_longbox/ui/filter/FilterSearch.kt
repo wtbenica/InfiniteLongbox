@@ -84,8 +84,10 @@ import dev.benica.infinite_longbox.database.models.TextFilter
 import dev.benica.infinite_longbox.ui.theme.Archivo
 import dev.benica.infinite_longbox.ui.theme.CondensedBlock
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.delay
 import kotlin.reflect.KClass
 
+@OptIn(ExperimentalCoroutinesApi::class)
 private val FILTER_TYPES: List<Pair<Int, KClass<out FilterType>>> = listOf(
     R.string.filter_type_all to All.Companion::class,
     R.string.filter_type_series to Series.Companion::class,
@@ -115,6 +117,8 @@ internal fun SearchSection(actions: FilterSheetActions) {
 
     // Looks up the options again for every keystroke, and when the type changes
     LaunchedEffect(text, type, focused) {
+        // A keystroke cancels this, so typing runs one lookup after it pauses, not one per letter
+        if (text.isNotEmpty()) delay(LOOKUP_PAUSE_MS)
         options = if (focused) actions.options(text) else emptyList()
     }
 
@@ -129,7 +133,7 @@ internal fun SearchSection(actions: FilterSheetActions) {
             .fillMaxWidth()
             .padding(bottom = dimensionResource(R.dimen.margin_default))
             .clip(RoundedCornerShape(dimensionResource(R.dimen.margin_default)))
-            .background(colorResource(R.color.surface_sunken))
+            .background(colorResource(R.color.surface_raised))
     ) {
         // Only the types row comes and goes, so the other rows stay usable while searching
         if (focused) {
@@ -221,6 +225,7 @@ private fun SearchField(
 }
 
 /** What the typed text could mean: a series, a creator, a character, a publisher */
+@OptIn(ExperimentalCoroutinesApi::class)
 @Composable
 private fun OptionList(options: List<FilterModel>, width: Dp, onPick: (FilterModel) -> Unit) {
     Surface(
@@ -283,3 +288,5 @@ private fun OptionItem(option: FilterModel, onClick: () -> Unit) {
     }
 }
 
+/** How long typing must pause before the options are looked up. */
+private const val LOOKUP_PAUSE_MS = 150L
