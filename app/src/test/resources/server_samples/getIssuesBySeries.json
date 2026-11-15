@@ -40,7 +40,9 @@
    "rating": "",
    "no_rating": 0,
    "volume_not_printed": 0,
-   "no_indicia_printer": 0
+   "no_indicia_printer": 0,
+   "release_date": "1989-03-28",
+   "release_precision": "DAY"
   }
  },
  {
@@ -84,7 +86,9 @@
    "rating": "",
    "no_rating": 0,
    "volume_not_printed": 0,
-   "no_indicia_printer": 0
+   "no_indicia_printer": 0,
+   "release_date": "1989-04-25",
+   "release_precision": "DAY"
   }
  },
  {
@@ -128,7 +132,9 @@
    "rating": "",
    "no_rating": 0,
    "volume_not_printed": 0,
-   "no_indicia_printer": 0
+   "no_indicia_printer": 0,
+   "release_date": "1989-05-23",
+   "release_precision": "DAY"
   }
  }
 ]

@@ -43,10 +43,11 @@ private const val DATABASE_NAME = "issue-database"
         Publisher::class, Story::class, ExCredit::class, StoryType::class, NameDetail::class,
         Character::class, Appearance::class, Cover::class, SeriesBond::class, BondType::class,
         Brand::class, UserCollection::class, CollectionItem::class, CopySigner::class],
-    version = 3,
+    version = 4,
     autoMigrations = [
         AutoMigration(from = 1, to = 2),
         AutoMigration(from = 2, to = 3, spec = IssueDatabase.SignedByToCreators::class),
+        AutoMigration(from = 3, to = 4),
     ],
 )
 @TypeConverters(IssueTypeConverters::class)

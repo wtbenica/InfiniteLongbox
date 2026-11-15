@@ -40,7 +40,9 @@
    "rating": "Approved by the Comics Code Authority",
    "no_rating": 0,
    "volume_not_printed": 0,
-   "no_indicia_printer": 0
+   "no_indicia_printer": 0,
+   "release_date": "1958-09-18",
+   "release_precision": "DAY"
   }
  },
  {
@@ -84,7 +86,9 @@
    "rating": "Approved by the Comics Code Authority",
    "no_rating": 0,
    "volume_not_printed": 0,
-   "no_indicia_printer": 0
+   "no_indicia_printer": 0,
+   "release_date": "1975-10-01",
+   "release_precision": "COVER"
   }
  }
 ]

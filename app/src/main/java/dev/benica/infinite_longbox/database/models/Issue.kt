@@ -27,6 +27,27 @@ import java.time.format.DateTimeParseException
 
 const val AUTO_ID = 0
 
+/** How closely an issue's [Issue.bestReleaseDate] is known; the server works it out (CreditUpdater, step 8). */
+enum class ReleasePrecision {
+    /** The on-sale day. */
+    DAY,
+
+    /** The on-sale month. */
+    MONTH,
+
+    /** The cover month moved by the publisher's usual lead. */
+    ESTIMATED,
+
+    /** The cover month as it is (no lead is known for the publisher and year). */
+    COVER,
+
+    /** Only the year. */
+    YEAR,
+
+    /** No date at all. */
+    NONE,
+}
+
 @ExperimentalCoroutinesApi
 @Entity(
     foreignKeys = [
@@ -63,6 +84,9 @@ data class Issue(
     val notes: String? = null,
     val brandId: Int? = null,
     val issueNumRaw: String?,
+    /** The date to place the issue on a timeline at: its on-sale date, or the best guess the cover date gives. */
+    val bestReleaseDate: LocalDate? = null,
+    @ColumnInfo(defaultValue = "NONE") val releasePrecision: ReleasePrecision = ReleasePrecision.NONE,
 ) : DataModel() {
 
     val coverFileName: String
@@ -102,6 +126,8 @@ data class Issue(
         if (notes != other.notes) return false
         if (brandId != other.brandId) return false
         if (issueNumRaw != other.issueNumRaw) return false
+        if (bestReleaseDate != other.bestReleaseDate) return false
+        if (releasePrecision != other.releasePrecision) return false
         if (coverFileName != other.coverFileName) return false
         if (url != other.url) return false
         if (id != other.id) return false
@@ -124,6 +150,8 @@ data class Issue(
         result = 31 * result + notes.hashCode()
         result = 31 * result + (brandId ?: 0)
         result = 31 * result + issueNumRaw.hashCode()
+        result = 31 * result + bestReleaseDate.hashCode()
+        result = 31 * result + releasePrecision.hashCode()
         result = 31 * result + coverFileName.hashCode()
         result = 31 * result + url.hashCode()
         result = 31 * result + id

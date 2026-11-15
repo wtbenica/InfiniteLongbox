@@ -207,6 +207,10 @@ class GcdIssue(
     val variantName: String,
     @SerialName("variant_of")
     val variantOf: Int?,
+    @SerialName("release_date")
+    val releaseDate: String? = null,
+    @SerialName("release_precision")
+    val releasePrecision: String = "NONE",
 ) : GcdJson<Issue> {
     override fun toRoomModel(pk: Int): Issue {
         return Issue(
@@ -222,7 +226,10 @@ class GcdIssue(
             onSaleDateUncertain = onSaleDateUncertain == 1,
             coverDate = Issue.formatDate(keyDate),
             notes = if (notes == "") null else notes,
-            issueNumRaw = number
+            issueNumRaw = number,
+            bestReleaseDate = Issue.formatDate(releaseDate.orEmpty()),
+            releasePrecision = ReleasePrecision.entries.firstOrNull { it.name == releasePrecision }
+                ?: ReleasePrecision.NONE,
         )
     }
 
