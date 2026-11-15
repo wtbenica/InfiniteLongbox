@@ -69,6 +69,7 @@ import dev.benica.infinite_longbox.ui.toolbar.BarAction
 import dev.benica.infinite_longbox.ui.toolbar.SelectionBar
 import dev.benica.infinite_longbox.ui.update.UpdateProgress
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import dev.benica.infinite_longbox.filter.SearchFilter
 
@@ -161,6 +162,9 @@ class MainActivity : ComponentActivity(),
     /** A killed app's top list is rebuilding its filter: until it has, the sheet's default is not a request. */
     private var awaitingRestore = false
 
+    /** A fresh start is deciding whether My Collection has anything to show; until it has, the sheet's default is not a request. */
+    private var awaitingStart = false
+
     /** Drops the restored screens for a fresh default list. */
     private fun startOver() {
         Log.d(TAG, "Couldn't rebuild a restored screen's filter; starting over")
@@ -225,6 +229,17 @@ class MainActivity : ComponentActivity(),
                     })
                 }
             }
+
+            else -> {
+                // A first start with nothing in My Collection opens on all the series, not on an empty list
+                awaitingStart = true
+                lifecycleScope.launch {
+                    val empty = Repository.get().collectionSize(BaseCollection.MY_COLL.id).first() == 0
+                    awaitingStart = false
+                    if (empty) filterViewModel.setFilter(SearchFilter(myCollection = false))
+                    else filterViewModel.filter.value?.let(::showFilter)
+                }
+            }
         }
 
         filterViewModel.filter.observe(this) { filter ->
@@ -232,7 +247,7 @@ class MainActivity : ComponentActivity(),
                 ignoreFilterReplay = false
                 return@observe
             }
-            if (!awaitingRestore) showFilter(filter)
+            if (!awaitingRestore && !awaitingStart) showFilter(filter)
         }
     }
 
@@ -349,6 +364,8 @@ class MainActivity : ComponentActivity(),
     override fun updateFilter(filter: SearchFilter) {
         filterViewModel.setFilter(filter)
     }
+
+    override fun restoreCollection() = collectionTransfer.import()
 
     override fun addToCollection(issue: FullIssue, collId: Int) {
         Repository.get().addToCollection(issue, collId)

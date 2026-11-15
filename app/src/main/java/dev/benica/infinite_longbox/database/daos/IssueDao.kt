@@ -154,17 +154,12 @@ abstract class IssueDao : BaseDao<Issue>("issue") {
             val args: ArrayList<Any> = arrayListOf()
             fun connectword(): String = if (conditionsString.isEmpty()) "WHERE" else "AND"
 
-            tableJoinString.append(
-                """SELECT DISTINCT ${
-                    when {
-                        idsOnly -> "ie.issueId"
-                        stops -> "ie.issueId, ie.variantOf, (SELECT cv.coverUri FROM cover cv WHERE cv.issue = ie.issueId) AS coverUri"
-                        else -> "ie.*"
-                    }
-                } 
-                        FROM issue ie 
-                        """
-            )
+            val columns = when {
+                idsOnly -> "ie.issueId"
+                stops -> "ie.issueId, ie.variantOf, (SELECT cv.coverUri FROM cover cv WHERE cv.issue = ie.issueId) AS coverUri"
+                else -> "ie.*"
+            }
+            tableJoinString.append("FROM issue ie ")
 
             filter.mSeries?.let {
                 conditionsString.append(
@@ -281,7 +276,10 @@ abstract class IssueDao : BaseDao<Issue>("issue") {
             }
 
             // Variants in my collection always show
-            if (!filter.mShowVariants && !filter.mMyCollection) {
+            val hidesVariants = !filter.mShowVariants && !filter.mMyCollection
+            // A credit or an appearance can be on a variant alone (a cover artist), so a variant whose standard issue doesn't match stays
+            val keepsMatchingVariants = hidesVariants && filter.needsStoryTable
+            if (hidesVariants && !keepsMatchingVariants) {
                 conditionsString.append(
                     "${connectword()} ie.variantOf IS NULL "
                 )
@@ -301,10 +299,15 @@ abstract class IssueDao : BaseDao<Issue>("issue") {
                 "ORDER BY $sortString"
             } ?: ""
 
-            return SimpleSQLiteQuery(
-                "$tableJoinString$conditionsString$sortClause",
-                args.toArray()
-            )
+            val sql = if (keepsMatchingVariants) {
+                """WITH m AS (SELECT DISTINCT ie.* $tableJoinString$conditionsString)
+                    SELECT DISTINCT $columns FROM m ie
+                    WHERE ie.variantOf IS NULL OR ie.variantOf NOT IN (SELECT issueId FROM m) $sortClause"""
+            } else {
+                "SELECT DISTINCT $columns $tableJoinString$conditionsString$sortClause"
+            }
+
+            return SimpleSQLiteQuery(sql, args.toArray())
         }
     }
 }

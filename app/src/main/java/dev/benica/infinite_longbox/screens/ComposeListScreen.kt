@@ -42,7 +42,13 @@ import androidx.lifecycle.asFlow
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemKey
+import androidx.paging.LoadState
+import dev.benica.infinite_longbox.database.models.BaseCollection
 import dev.benica.infinite_longbox.filter.LetterIndex
+import dev.benica.infinite_longbox.filter.SearchFilter
+import dev.benica.infinite_longbox.repository.Repository
+import dev.benica.infinite_longbox.ui.lists.EmptyCollection
+import kotlinx.coroutines.flow.flowOf
 import dev.benica.infinite_longbox.R
 import dev.benica.infinite_longbox.filter.SortType
 import dev.benica.infinite_longbox.database.models.ListItem
@@ -211,6 +217,19 @@ abstract class ComposeListScreen<T : ListItem>(host: ScreenHost) : FilteredListS
                     }
                 }
             }
+        }
+
+        // My Collection with nothing in it says so, in place of a blank list
+        val collectionId = filter?.takeIf { it.mMyCollection }?.mCollectionId
+        val collectionSize by remember(collectionId) {
+            collectionId?.let { Repository.get().collectionSize(it) } ?: flowOf(-1)
+        }.collectAsState(initial = -1)
+        if (collectionId == BaseCollection.MY_COLL.id && collectionSize == 0 && items.loadState.refresh is LoadState.NotLoading) {
+            EmptyCollection(
+                onBrowse = { filter?.let { callback.updateFilter(SearchFilter(it).apply { mMyCollection = false }) } },
+                onRestore = callback::restoreCollection,
+            )
+            return
         }
 
         Box(Modifier.fillMaxSize()) {

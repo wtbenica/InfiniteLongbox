@@ -27,4 +27,7 @@ interface ScreenCallback {
     fun setSelection(selection: SelectionBar?)
 
     fun updateFilter(filter: SearchFilter)
+
+    /** Asks for a collection backup file and puts what is in it into the collections. */
+    fun restoreCollection()
 }

@@ -87,6 +87,10 @@
         </string>
     <string name="menu_push_covers">Upload covers to server</string>
     <string name="menu_export_collection">Export collection</string>
+    <string name="empty_collection_title">Nothing in your collection yet</string>
+    <string name="empty_collection_body">Add issues from any issue\'s page, or bring back a backup.</string>
+    <string name="empty_collection_browse">Browse all series</string>
+    <string name="empty_collection_restore">Restore a backup</string>
     <string name="menu_import_collection">Import collection</string>
     <string name="collection_export_done">Collection saved</string>
     <string name="collection_export_failed">Could not save the collection</string>
