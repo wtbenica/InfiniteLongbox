@@ -148,6 +148,10 @@ interface Webservice {
     @GET("db_query/character/ids/{ids}")
     suspend fun getCharactersByIds(@Path("ids") ids: List<Int>): List<Item<GcdCharacter>>
 
+    /** The standard issues released in [month] (YYYY-MM). */
+    @GET("/db_query/issue/month/{month}")
+    suspend fun getIssuesByMonth(@Path("month") month: String): List<Item<GcdIssue>>
+
     // GET _ by Series
     @GET("/db_query/series/id/{seriesId}/issues")
     suspend fun getIssuesBySeries(@Path("seriesId") seriesId: Int): List<Item<GcdIssue>>

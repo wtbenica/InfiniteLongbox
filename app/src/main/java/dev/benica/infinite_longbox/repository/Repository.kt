@@ -315,6 +315,13 @@ class Repository private constructor(val context: Context) {
         return issueDao.getFullIssue(issueId)
     }
 
+    /** Brings the issues of [month] onto the phone; false if the server couldn't be reached. */
+    suspend fun fetchReleases(month: java.time.YearMonth): Boolean = Expander.get().fetchMonth(month)
+
+    /** The standard issues released in [month], with how surely each is placed in it. */
+    fun releasesIn(month: java.time.YearMonth): Flow<List<dev.benica.infinite_longbox.database.daos.ReleaseRow>> =
+        issueDao.releasesBetween(month.atDay(1).toString(), month.plusMonths(1).atDay(1).toString())
+
     fun getIssueStopsByFilter(filter: SearchFilter): Flow<List<IssueStop>> = issueDao.getIssueStopsByFilter(filter)
 
     suspend fun getIssuesWithVariantsWithCovers(parentIds: Collection<Int>, collectionId: Int?): List<FullIssue> =

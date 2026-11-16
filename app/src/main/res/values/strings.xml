@@ -85,6 +85,16 @@
             <a href="http://docs.comics.org/wiki/How_To_Contribute_FAQ">Help index</a>\n
             <a href="https://www.comics.org/donate/">Donate to the GCD</a>
         </string>
+    <string name="menu_releases">Releases by month</string>
+    <string name="releases_title">Releases</string>
+    <string name="releases_week_of">Week of %1$s</string>
+    <string name="releases_elsewhere">Sometime this month</string>
+    <string name="releases_elsewhere_hint">Only the month is known, or estimated from the cover date</string>
+    <string name="releases_empty">Nothing is dated in this month</string>
+    <string name="releases_previous">Previous month</string>
+    <string name="releases_next">Next month</string>
+    <string name="releases_pick">Choose a month</string>
+    <string name="releases_close">Close</string>
     <string name="menu_push_covers">Upload covers to server</string>
     <string name="menu_export_collection">Export collection</string>
     <string name="empty_collection_title">Nothing in your collection yet</string>

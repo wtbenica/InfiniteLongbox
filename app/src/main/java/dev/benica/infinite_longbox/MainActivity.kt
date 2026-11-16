@@ -50,6 +50,7 @@ import dev.benica.infinite_longbox.repository.Repository
 import dev.benica.infinite_longbox.repository.pushCoversToServer
 import dev.benica.infinite_longbox.screens.CharacterListScreen
 import dev.benica.infinite_longbox.screens.CharacterPage
+import dev.benica.infinite_longbox.screens.ReleasesPage
 import dev.benica.infinite_longbox.screens.CreatorListScreen
 import dev.benica.infinite_longbox.screens.CreatorPage
 import dev.benica.infinite_longbox.screens.IssueListScreen
@@ -86,6 +87,7 @@ class MainActivity : ComponentActivity(),
     CharacterListScreen.CharacterListCallback,
     CharacterPage.CharacterDetailCallback,
     CreatorPage.CreatorDetailCallback,
+    ReleasesPage.ReleasesCallback,
     CreatorListScreen.CreatorListCallback {
 
     internal val screenSizeInDp: Point
@@ -125,6 +127,7 @@ class MainActivity : ComponentActivity(),
         is Route.Issue -> IssuePage(host)
         is Route.Character -> CharacterPage(host)
         is Route.Creator -> CreatorPage(host)
+        Route.Releases -> ReleasesPage(host)
         Route.Scan -> ScanPage(host)
     }
 
@@ -264,6 +267,7 @@ class MainActivity : ComponentActivity(),
     /** The overflow menu. */
     internal fun menuEntries() = buildList {
         add(BarAction(getString(R.string.menu_about)) { showDialog { dismiss -> AboutDialog(dismiss) } })
+        add(BarAction(getString(R.string.menu_releases)) { navigator.push(Route.Releases) })
         add(BarAction(getString(R.string.menu_clear_db)) {
             IssueDatabase.getInstance(this@MainActivity).transactionDao().cleanDatabase()
         })

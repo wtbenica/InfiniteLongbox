@@ -60,6 +60,9 @@ sealed interface Route {
     class Character(val characterId: Int) : Route
     class Creator(val creatorId: Int) : Route
 
+    /** The month-by-month timeline of releases. */
+    data object Releases : Route
+
     /** The barcode scanner, over the whole screen. */
     data object Scan : Route
 }
@@ -168,6 +171,10 @@ class Navigator(
                     args += route.creatorId.toString()
                 }
                 // A scan session isn't kept through a killed app
+                Route.Releases -> {
+                    kinds += "releases"
+                    args += ""
+                }
                 Route.Scan -> Unit
             }
         }
@@ -192,6 +199,7 @@ class Navigator(
                     val (id, variantOf, collection) = arg.split("|")
                     push(Route.Issue(id.toInt(), variantOf.toIntOrNull(), collection.toIntOrNull()))
                 }
+                "releases" -> push(Route.Releases)
                 "character" -> push(Route.Character(arg.toInt()))
                 "creator" -> push(Route.Creator(arg.toInt()))
             }

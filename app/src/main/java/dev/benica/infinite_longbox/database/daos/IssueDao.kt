@@ -36,6 +36,8 @@ import dev.benica.infinite_longbox.database.models.Credit
 import dev.benica.infinite_longbox.database.models.ExCredit
 import dev.benica.infinite_longbox.database.models.FullIssue
 import dev.benica.infinite_longbox.database.models.Issue
+import dev.benica.infinite_longbox.database.models.ReleasePrecision
+import java.time.LocalDate
 import dev.benica.infinite_longbox.database.models.NameDetail
 import dev.benica.infinite_longbox.database.models.Story
 import dev.benica.infinite_longbox.database.models.ids
@@ -107,6 +109,20 @@ abstract class IssueDao : BaseDao<Issue>("issue") {
         return if (filter.needsStoryTable) getFullIssuesByQueryPagingSourceJoined(query)
         else getFullIssuesByQueryPagingSource(query)
     }
+
+    /** The standard issues released from [from] up to [to] (ISO dates), the ones with at least a month known. */
+    @Query(
+        """SELECT ie.issueId AS issueId, ie.series AS seriesId, ss.seriesName AS series, COALESCE(ss.sortName, ss.seriesName) AS sortName, pr.publisher AS publisher,
+            COALESCE(ie.issueNumRaw, CAST(ie.issueNum AS TEXT)) AS number,
+            ie.bestReleaseDate AS date, ie.releasePrecision AS precision
+            FROM issue ie
+            JOIN series ss ON ss.seriesId = ie.series
+            LEFT JOIN publisher pr ON pr.publisherId = ss.publisher
+            WHERE ie.variantOf IS NULL AND ie.releasePrecision IN ('DAY', 'MONTH', 'ESTIMATED', 'COVER')
+            AND ie.bestReleaseDate >= :from AND ie.bestReleaseDate < :to
+            ORDER BY ie.bestReleaseDate, ss.sortName COLLATE NOCASE, ie.sortCode"""
+    )
+    abstract fun releasesBetween(from: String, to: String): Flow<List<ReleaseRow>>
 
     @Query(
         """SELECT ie.* 
@@ -311,6 +327,19 @@ abstract class IssueDao : BaseDao<Issue>("issue") {
         }
     }
 }
+
+/** One issue on the release timeline: what it is and when (and how surely) it came out. */
+data class ReleaseRow(
+    val issueId: Int,
+    val seriesId: Int,
+    val series: String,
+    /** What the series is filed under, so "The" doesn't put it under T */
+    val sortName: String,
+    val publisher: String?,
+    val number: String,
+    val date: LocalDate,
+    val precision: ReleasePrecision,
+)
 
 data class IssueStop(val issueId: Int, val variantOf: Int?, val coverUri: String?)
 

@@ -38,6 +38,8 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
+private const val RELEASES_SHELF_LIFE_DAYS = 7L
+
 @ExperimentalCoroutinesApi
 class Expander private constructor(webservice: Webservice, prefs: SharedPreferences) : Updater(
     webservice,
@@ -47,6 +49,19 @@ class Expander private constructor(webservice: Webservice, prefs: SharedPreferen
     fun expandSeriesAsync(series: Series) = seriesExpander.expandSeriesAsync(series)
     fun expandCreatorsAsync(creators: List<Creator>) =
         creatorExpander.expandCreatorsAsync(creators)
+
+    /** Gets the issues of [month] if the phone's copy is old; false if the server couldn't be reached. */
+    suspend fun fetchMonth(month: java.time.YearMonth): Boolean {
+        val tag = "RELEASES_$month"
+        if (!checkIfStale(tag, RELEASES_SHELF_LIFE_DAYS, prefs)) return true
+        val issues = retrieveItemsByArgument(month.toString(), webservice::getIssuesByMonth) ?: return false
+        if (issues.isNotEmpty()) {
+            fKeyChecker.checkFKeysIssue(issues).await()
+            database.issueDao().upsertSus(issues)
+        }
+        Repository.saveTime(prefs, tag)
+        return true
+    }
 
     fun expandIssueAsync(issues: List<Issue>) = issueExpander.expandIssueAsync(issues)
     fun expandStoryAsync(stories: List<Story>) = storyExpander.expandStoryAsync(stories)
