@@ -189,9 +189,9 @@ abstract class CharacterDao : BaseDao<Character>("character") {
         filter.mTextFilter?.let { textFilter ->
             val text = textFilterToString(textFilter.text)
             conditionsString.append(
-                """${connectWord()} (ch.name LIKE ?
-                OR ch.alterEgo LIKE ?
-                OR (ch.name || ' ' || IFNULL(ch.alterEgo, '')) LIKE ?)
+                """${connectWord()} (ch.name GLOB ?
+                OR ch.alterEgo GLOB ?
+                OR (ch.name || ' ' || IFNULL(ch.alterEgo, '')) GLOB ?)
                 """
             )
 

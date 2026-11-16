@@ -252,7 +252,7 @@ abstract class SeriesDao : BaseDao<Series>("series") {
                 val text = textFilterToString(textFilter.text)
 
                 conditions.append(
-                    """${connectWord()} ss.seriesName like ? 
+                    """${connectWord()} ss.seriesName GLOB ? 
                 """
                 )
 

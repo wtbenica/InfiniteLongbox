@@ -16,6 +16,7 @@
 package dev.benica.infinite_longbox.filter
 
 import dev.benica.infinite_longbox.APP
+import dev.benica.infinite_longbox.database.daos.AccentFolding
 import dev.benica.infinite_longbox.R
 import android.annotation.SuppressLint
 import dev.benica.infinite_longbox.InfiniteLongboxApplication.Companion.context
@@ -449,10 +450,10 @@ class SortType(
             // The key has no hyphens, so the typed text mustn't either
             val text = typed?.trim().orEmpty().replace('-', ' ')
             if (text.isEmpty()) return "ORDER BY $key "
-            val like = text.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
-            args.addAll(listOf(text, "$like%", "% $like%"))
-            return "ORDER BY CASE WHEN $key = ? THEN 0 WHEN $key LIKE ? ESCAPE '\\' THEN 1 " +
-                    "WHEN $key LIKE ? ESCAPE '\\' THEN 2 ELSE 3 END, ${popularity?.let { "$it DESC, " } ?: ""}$key "
+            val glob = AccentFolding.globLiteral(text)
+            args.addAll(listOf(glob, "$glob*", "* $glob*"))
+            return "ORDER BY CASE WHEN $key GLOB ? THEN 0 WHEN $key GLOB ? THEN 1 " +
+                    "WHEN $key GLOB ? THEN 2 ELSE 3 END, ${popularity?.let { "$it DESC, " } ?: ""}$key "
         }
 
         @SuppressLint("StaticFieldLeak")

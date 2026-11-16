@@ -163,8 +163,8 @@ abstract class CreatorDao : BaseDao<Creator>("creator") {
             filter.mTextFilter?.let { textFilter ->
                 val text = textFilterToString(textFilter.text)
                 conditionsString.append(
-                    """${connectWord()} nd.name LIKE ?
-                    OR cr.name LIKE ?
+                    """${connectWord()} nd.name GLOB ?
+                    OR cr.name GLOB ?
                     """
                 )
                 args.addAll(listOf(text, text))

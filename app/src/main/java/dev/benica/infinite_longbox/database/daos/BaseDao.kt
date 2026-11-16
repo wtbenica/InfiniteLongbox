@@ -169,7 +169,7 @@ abstract class BaseDao<T : DataModel>(private val tableName: String) {
             """SELECT c2.characterId FROM character c2 JOIN character c1 ON c1.characterId = $id
             AND c2.name = c1.name AND IFNULL(c2.alterEgo, '') = IFNULL(c1.alterEgo, '')"""
 
-        internal fun textFilterToString(text: String) =
-            "%${text.replace(' ', '%').replace("'", "\'")}%"
+        /** The GLOB pattern a text filter matches names against, ignoring case and accents. */
+        internal fun textFilterToString(text: String) = AccentFolding.globContaining(text)
     }
 }
