@@ -85,7 +85,12 @@
             <a href="http://docs.comics.org/wiki/How_To_Contribute_FAQ">Help index</a>\n
             <a href="https://www.comics.org/donate/">Donate to the GCD</a>
         </string>
-    <string name="menu_releases">Releases by month</string>
+    <string name="tab_browse">Browse</string>
+    <string name="tab_releases">Releases</string>
+    <string name="tab_collections">Collections</string>
+    <string name="tab_scan">Scan</string>
+    <string name="collections_title">Collections</string>
+    <string name="collections_issue_count">%1$d issues</string>
     <string name="releases_title">Releases</string>
     <string name="releases_week_of">Week of %1$s</string>
     <string name="releases_elsewhere">Sometime this month</string>

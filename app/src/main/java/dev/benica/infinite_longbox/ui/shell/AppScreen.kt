@@ -39,12 +39,14 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.colorResource
@@ -57,8 +59,8 @@ import dev.benica.infinite_longbox.nav.Entry
 import dev.benica.infinite_longbox.nav.Route
 import dev.benica.infinite_longbox.nav.ScreenHost
 import dev.benica.infinite_longbox.nav.ScreenLifecycle
+import dev.benica.infinite_longbox.nav.Tab
 import dev.benica.infinite_longbox.ui.shell.LocalSheetPeek
-import dev.benica.infinite_longbox.ui.scan.ScanButton
 import dev.benica.infinite_longbox.ui.toolbar.TopBar
 import dev.benica.infinite_longbox.ui.update.HeaderStatus
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -69,18 +71,28 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 fun AppScreen(app: MainActivity) {
     val navigator = app.navigator
     val top = navigator.top
-    // An issue's, character's or creator's page covers the lists, and takes the sheet and the scan button away
-    val onPage = top?.isDetail == true
     val fullScreen = top?.isFullScreen == true
+    // An issue's, character's or creator's page covers the lists, and takes the sheet and the tab bar away
+    val onPage = top?.isDetail == true && !top.isTabRoot
+    // The sheet belongs to the lists; the tab roots have no filter
+    val sheetHidden = top?.isDetail == true
+    val showsBar = !onPage && top != null && !fullScreen
 
     val collapse = remember { BarCollapse() }
     collapse.enabled = !onPage
     LaunchedEffect(top?.key) { collapse.offset = 0f }
 
     var sheetOpen by rememberSaveable { mutableStateOf(false) }
-    val peek = if (onPage) 0.dp else sheetPeek()
+    val bar = if (showsBar) TAB_BAR_HEIGHT + navigationBarHeight() else 0.dp
+    // What the screen on show leaves room for at its bottom: the sheet over the tab bar, or the bar alone
+    val peek = when {
+        onPage -> 0.dp
+        sheetHidden -> bar
+        else -> sheetPeek(bar)
+    }
+    var sheetSlide by remember { mutableFloatStateOf(0f) }
 
-    BackHandler(enabled = navigator.stack.size > 1) { app.goBack() }
+    BackHandler(enabled = navigator.stack.size > 1 || navigator.tab != Tab.BROWSE) { app.goBack() }
 
     CompositionLocalProvider(LocalSheetPeek provides peek, LocalBarOffset provides { collapse.offset }) {
         Box(
@@ -107,8 +119,15 @@ fun AppScreen(app: MainActivity) {
                         .weight(1f)
                         .fillMaxWidth()
                         .background(colorResource(R.color.surface))
-                        // A list leaves room for the sheet under it; a page, for the system bar
-                        .then(if (onPage && !fullScreen) Modifier.navigationBarsPadding() else Modifier)
+                        // A list leaves room for the sheet under it, a tab's first screen for the bar, a page for the system bar
+                        .then(
+                            when {
+                                fullScreen -> Modifier
+                                onPage -> Modifier.navigationBarsPadding()
+                                sheetHidden -> Modifier.padding(bottom = bar)
+                                else -> Modifier
+                            }
+                        )
                 ) {
                     AnimatedContent(
                         targetState = top,
@@ -121,10 +140,24 @@ fun AppScreen(app: MainActivity) {
 
             FilterSheetLayer(
                 host = app.filterSheet,
-                hidden = onPage,
+                hidden = sheetHidden,
                 open = sheetOpen,
                 onOpenChange = { sheetOpen = it },
+                bar = bar,
+                onSlide = { sheetSlide = it },
             )
+
+            // The bar goes down as the sheet opens over it
+            if (showsBar) {
+                TabBar(
+                    selected = navigator.tab,
+                    onTab = app::selectTab,
+                    onScan = app::startBarcodeScan,
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .graphicsLayer { translationY = sheetSlide * bar.toPx() },
+                )
+            }
 
             val snackbars = remember { SnackbarHostState() }
             LaunchedEffect(Unit) {
@@ -153,17 +186,6 @@ fun AppScreen(app: MainActivity) {
                     actionColor = colorResource(R.color.accent_soft),
                 )
             }
-
-            ScanButton(
-                visible = !onPage && !sheetOpen,
-                onClick = app::startBarcodeScan,
-                modifier = Modifier
-                    .align(Alignment.BottomEnd)
-                    .padding(
-                        end = dimensionResource(R.dimen.margin_default),
-                        bottom = peek + dimensionResource(R.dimen.margin_default),
-                    ),
-            )
         }
     }
 }

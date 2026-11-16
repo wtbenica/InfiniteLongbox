@@ -68,4 +68,52 @@ class NavigatorTest {
         assertNull(navigator.top)
         assertTrue(probes.all { it.cleared })
     }
+
+    @Test
+    fun eachTabKeepsItsOwnScreens() {
+        val list = navigator.push(Route.List(ListKind.SERIES))
+        val issue = navigator.push(Route.Issue(7))
+
+        navigator.switchTab(Tab.RELEASES)
+        assertEquals(Tab.RELEASES, navigator.tab)
+        assertSame(Route.Releases, navigator.top?.route)
+        assertEquals(1, navigator.stack.size)
+
+        navigator.switchTab(Tab.BROWSE)
+        assertEquals(listOf(list, issue), navigator.stack.toList())
+    }
+
+    @Test
+    fun aTabsRootIsTheSameScreenWhenYouReturn() {
+        navigator.push(Route.List(ListKind.SERIES))
+        navigator.switchTab(Tab.COLLECTIONS)
+        val root = navigator.top
+        navigator.switchTab(Tab.BROWSE)
+        navigator.switchTab(Tab.COLLECTIONS)
+
+        assertSame(root, navigator.top)
+    }
+
+    @Test
+    fun poppingToTheRootLeavesTheTabsFirstScreen() {
+        navigator.push(Route.List(ListKind.SERIES))
+        navigator.switchTab(Tab.RELEASES)
+        val root = navigator.top
+        navigator.push(Route.Issue(1))
+        navigator.push(Route.Issue(2))
+
+        navigator.popToRoot()
+
+        assertSame(root, navigator.top)
+    }
+
+    @Test
+    fun clearingForgetsEveryTab() {
+        navigator.push(Route.List(ListKind.SERIES))
+        navigator.switchTab(Tab.RELEASES)
+        navigator.clear()
+
+        assertNull(navigator.top)
+        assertEquals(Tab.BROWSE, navigator.tab)
+    }
 }

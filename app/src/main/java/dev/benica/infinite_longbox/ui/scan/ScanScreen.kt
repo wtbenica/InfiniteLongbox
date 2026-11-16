@@ -33,7 +33,10 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AssistChip
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.material3.Button
+import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -177,9 +180,13 @@ private fun BoxScope.ScanOverlay(
                 selected = torchOn,
                 onClick = { onTorchChange(!torchOn) },
                 label = { Text(stringResource(R.string.scan_light)) },
+                colors = scanFilterChipColors(),
+                border = SCAN_CHIP_BORDER,
             )
             AssistChip(
                 onClick = onStorage,
+                colors = scanChipColors(),
+                border = SCAN_CHIP_BORDER,
                 label = {
                     Text(
                         if (storage == null) stringResource(R.string.scan_storage_set)
@@ -192,6 +199,8 @@ private fun BoxScope.ScanOverlay(
             if (addedCount > 0) {
                 AssistChip(
                     onClick = onShowAdded,
+                    colors = scanChipColors(),
+                    border = SCAN_CHIP_BORDER,
                     label = { Text(stringResource(R.string.scan_added_count, addedCount)) },
                 )
             }
@@ -199,6 +208,23 @@ private fun BoxScope.ScanOverlay(
         }
     }
 }
+
+// The chips sit over the camera picture, so they are the same dark glass in both themes
+private val SCAN_CHIP_BORDER = BorderStroke(1.dp, Color(0x99FFFFFF))
+
+@Composable
+private fun scanChipColors() = AssistChipDefaults.assistChipColors(
+    containerColor = Color(0xCC000000),
+    labelColor = Color.White,
+)
+
+@Composable
+private fun scanFilterChipColors() = FilterChipDefaults.filterChipColors(
+    containerColor = Color(0xCC000000),
+    labelColor = Color.White,
+    selectedContainerColor = colorResource(R.color.accent),
+    selectedLabelColor = colorResource(R.color.on_accent),
+)
 
 /** The cover and name of what was just added, with Undo and Details. */
 @Composable

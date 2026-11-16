@@ -248,6 +248,12 @@ abstract class SeriesDao : BaseDao<Series>("series") {
                 }
             }
 
+            // The GCD has series with no issues entered: nothing to open, unless an issue is already here
+            conditions.append(
+                """${connectWord()} (ss.issueCount > 0 OR EXISTS (SELECT 1 FROM issue ix WHERE ix.series = ss.seriesId))
+                """
+            )
+
             filter.mTextFilter?.let { textFilter ->
                 val text = textFilterToString(textFilter.text)
 

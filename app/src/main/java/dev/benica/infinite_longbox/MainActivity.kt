@@ -50,7 +50,9 @@ import dev.benica.infinite_longbox.repository.Repository
 import dev.benica.infinite_longbox.repository.pushCoversToServer
 import dev.benica.infinite_longbox.screens.CharacterListScreen
 import dev.benica.infinite_longbox.screens.CharacterPage
+import dev.benica.infinite_longbox.screens.CollectionsPage
 import dev.benica.infinite_longbox.screens.ReleasesPage
+import dev.benica.infinite_longbox.nav.Tab
 import dev.benica.infinite_longbox.screens.CreatorListScreen
 import dev.benica.infinite_longbox.screens.CreatorPage
 import dev.benica.infinite_longbox.screens.IssueListScreen
@@ -88,6 +90,7 @@ class MainActivity : ComponentActivity(),
     CharacterPage.CharacterDetailCallback,
     CreatorPage.CreatorDetailCallback,
     ReleasesPage.ReleasesCallback,
+    CollectionsPage.CollectionsCallback,
     CreatorListScreen.CreatorListCallback {
 
     internal val screenSizeInDp: Point
@@ -128,6 +131,7 @@ class MainActivity : ComponentActivity(),
         is Route.Character -> CharacterPage(host)
         is Route.Creator -> CreatorPage(host)
         Route.Releases -> ReleasesPage(host)
+        Route.Collections -> CollectionsPage(host)
         Route.Scan -> ScanPage(host)
     }
 
@@ -135,6 +139,8 @@ class MainActivity : ComponentActivity(),
 
     /** Editing the filter changes the list on screen; changing what's listed, or leaving a page, opens a new screen. */
     private fun showFilter(filter: SearchFilter) {
+        // A list that isn't a collection's belongs to Browse, whatever tab the request came from
+        if (navigator.tab != Tab.BROWSE && navigator.top?.route !is Route.List && !filter.mMyCollection) selectTab(Tab.BROWSE)
         val entry = navigator.top
         val move = listMove(entry?.route, ListKind.of(filter.mViewOption)) {
             entry?.filter?.sameItemsAs(filter) == true
@@ -151,6 +157,24 @@ class MainActivity : ComponentActivity(),
     /** Back one screen; the sheet follows the filter of the list it lands on. */
     internal fun goBack() {
         if (navigator.pop()) followTopList()
+        else if (navigator.tab != Tab.BROWSE) selectTab(Tab.BROWSE)
+    }
+
+    /** The tab bar's choice: that tab as it was left, or its first screen again if it is already on show. */
+    internal fun selectTab(tab: Tab) {
+        if (tab == navigator.tab) {
+            navigator.popToRoot()
+        } else {
+            navigator.switchTab(tab)
+            // A Browse with nothing kept starts again from the sheet's filter
+            if (tab == Tab.BROWSE && navigator.top == null) filterViewModel.filter.value?.let(::showFilter)
+        }
+        followTopList()
+    }
+
+    // CollectionsPage.CollectionsCallback
+    override fun openCollection(collectionId: Int) {
+        filterViewModel.setFilter(SearchFilter(myCollection = true, collectionId = collectionId, showVariants = true))
     }
 
     private fun followTopList() {
@@ -267,7 +291,6 @@ class MainActivity : ComponentActivity(),
     /** The overflow menu. */
     internal fun menuEntries() = buildList {
         add(BarAction(getString(R.string.menu_about)) { showDialog { dismiss -> AboutDialog(dismiss) } })
-        add(BarAction(getString(R.string.menu_releases)) { navigator.push(Route.Releases) })
         add(BarAction(getString(R.string.menu_clear_db)) {
             IssueDatabase.getInstance(this@MainActivity).transactionDao().cleanDatabase()
         })
@@ -366,6 +389,8 @@ class MainActivity : ComponentActivity(),
     }
 
     override fun updateFilter(filter: SearchFilter) {
+        // Asking for everything, from a collection's list, goes to Browse
+        if (!filter.mMyCollection && navigator.tab == Tab.COLLECTIONS) selectTab(Tab.BROWSE)
         filterViewModel.setFilter(filter)
     }
 

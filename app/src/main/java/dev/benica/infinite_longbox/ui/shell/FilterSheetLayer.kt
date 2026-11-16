@@ -48,6 +48,7 @@ import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import dev.benica.infinite_longbox.R
@@ -57,10 +58,10 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
-/** How much of the sheet shows when it is closed, in dp: its header, and the system bar under it. */
+/** How much of the sheet shows when it is closed, in dp: its header, and what is under it: the tab bar [bar] if there is one, else the system bar. */
 @Composable
-fun sheetPeek() = dimensionResource(R.dimen.peek_height) +
-    with(LocalDensity.current) { WindowInsets.navigationBars.getBottom(this).toDp() }
+fun sheetPeek(bar: Dp = 0.dp) = dimensionResource(R.dimen.peek_height) +
+    if (bar > 0.dp) bar else with(LocalDensity.current) { WindowInsets.navigationBars.getBottom(this).toDp() }
 
 /** The filter sheet over the bottom of the screen: closed, open or hidden; a drag settles at closed or open. */
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -71,10 +72,14 @@ fun FilterSheetLayer(
     open: Boolean,
     onOpenChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
+    /** The height of the tab bar under the closed sheet, 0 for none */
+    bar: Dp = 0.dp,
+    /** How far open the sheet is, 0 to 1, as it moves */
+    onSlide: (Float) -> Unit = {},
 ) {
     val scope = rememberCoroutineScope()
     val density = LocalDensity.current
-    val peekPx = with(density) { sheetPeek().toPx() }
+    val peekPx = with(density) { sheetPeek(bar).toPx() }
 
     var height by remember { mutableIntStateOf(0) }
     var offset by remember { mutableFloatStateOf(Float.NaN) }
@@ -103,6 +108,8 @@ fun FilterSheetLayer(
     BackHandler(enabled = open && !hidden) { onOpenChange(false) }
 
     val slide = if (offset.isNaN() || closedAt <= 0f) 0f else (1f - offset / closedAt).coerceIn(0f, 1f)
+
+    SideEffect { onSlide(slide) }
 
     Box(modifier.fillMaxSize()) {
         Surface(
