@@ -94,6 +94,10 @@
     <string name="releases_previous">Previous month</string>
     <string name="releases_next">Next month</string>
     <string name="releases_pick">Choose a month</string>
+    <string name="releases_all_publishers">All publishers</string>
+    <string name="releases_publishers">Publishers</string>
+    <string name="releases_done">Done</string>
+    <string name="releases_show_all">Show all</string>
     <string name="releases_close">Close</string>
     <string name="menu_push_covers">Upload covers to server</string>
     <string name="menu_export_collection">Export collection</string>

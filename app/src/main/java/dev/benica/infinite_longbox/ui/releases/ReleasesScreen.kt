@@ -15,7 +15,9 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.LocalContentColor
@@ -40,7 +42,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import dev.benica.infinite_longbox.R
 import dev.benica.infinite_longbox.database.daos.ReleaseRow
+import dev.benica.infinite_longbox.viewmodels.PublisherOption
 import dev.benica.infinite_longbox.viewmodels.ReleaseSection
+import dev.benica.infinite_longbox.viewmodels.ReleasesView
 import java.time.YearMonth
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
@@ -50,17 +54,21 @@ import java.util.Locale
 /** The first year the picker offers. */
 private const val FIRST_YEAR = 1930
 
-/** A month's releases: a bar to move between months, then the issues under their weeks. [sections] is null while loading. */
+/** A month's releases: a bar to move between months, a publisher filter, then the issues under their weeks. [view] is null while loading. */
 @Composable
 fun ReleasesScreen(
     month: YearMonth,
-    sections: List<ReleaseSection>?,
+    view: ReleasesView?,
+    picked: Set<Int>,
     loading: Boolean,
+    onPublishers: (Set<Int>) -> Unit,
     onStep: (Long) -> Unit,
     onPick: (YearMonth) -> Unit,
     onIssue: (Int) -> Unit,
 ) {
     var picking by remember { mutableStateOf(false) }
+    var choosingPublishers by remember { mutableStateOf(false) }
+    val sections = view?.sections
     val margin = dimensionResource(R.dimen.margin_wide)
     val list = rememberLazyListState()
     LaunchedEffect(month) { list.scrollToItem(0) }
@@ -81,6 +89,14 @@ fun ReleasesScreen(
                 Text("›", style = MaterialTheme.typography.headlineMedium)
             }
         }
+        if (view != null) {
+            FilterChip(
+                selected = picked.isNotEmpty(),
+                onClick = { choosingPublishers = true },
+                label = { Text(publisherLabel(view.publishers, picked)) },
+                modifier = Modifier.padding(horizontal = margin),
+            )
+        }
         // The bar under the toolbar shows the fetching
         HorizontalDivider()
         when {
@@ -96,6 +112,9 @@ fun ReleasesScreen(
             }
         }
     }
+    }
+    if (choosingPublishers && view != null) {
+        PublisherPicker(view.publishers, picked, onDone = { onPublishers(it); choosingPublishers = false }, onDismiss = { choosingPublishers = false })
     }
     if (picking) MonthPicker(month, onPick = { onPick(it); picking = false }, onDismiss = { picking = false })
 }
@@ -184,5 +203,42 @@ private fun MonthPicker(current: YearMonth, onPick: (YearMonth) -> Unit, onDismi
             }
         },
         confirmButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.releases_close)) } },
+    )
+}
+
+@Composable
+private fun publisherLabel(options: List<PublisherOption>, picked: Set<Int>): String {
+    val names = options.filter { it.id in picked }.map { it.name }
+    return when {
+        names.isEmpty() -> stringResource(R.string.releases_all_publishers)
+        names.size == 1 -> names.first()
+        else -> "${names.first()} +${names.size - 1}"
+    }
+}
+
+@Composable
+private fun PublisherPicker(options: List<PublisherOption>, picked: Set<Int>, onDone: (Set<Int>) -> Unit, onDismiss: () -> Unit) {
+    var chosen by remember { mutableStateOf(picked) }
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(R.string.releases_publishers)) },
+        text = {
+            LazyColumn {
+                items(options, key = { it.id }) { option ->
+                    Row(
+                        Modifier.fillMaxWidth().clickable {
+                            chosen = if (option.id in chosen) chosen - option.id else chosen + option.id
+                        },
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Checkbox(checked = option.id in chosen, onCheckedChange = null, modifier = Modifier.padding(12.dp))
+                        Text(option.name.ifEmpty { "?" }, Modifier.weight(1f), maxLines = 2, overflow = TextOverflow.Ellipsis)
+                        Text("${option.count}", color = colorResource(R.color.text_secondary), modifier = Modifier.padding(start = 8.dp))
+                    }
+                }
+            }
+        },
+        confirmButton = { TextButton(onClick = { onDone(chosen) }) { Text(stringResource(R.string.releases_done)) } },
+        dismissButton = { TextButton(onClick = { onDone(emptySet()) }) { Text(stringResource(R.string.releases_show_all)) } },
     )
 }

@@ -21,10 +21,13 @@ class ReleasesPage(host: ScreenHost) : Screen(host) {
     override fun Content() {
         val month by viewModel.month.collectAsState()
         val loading by viewModel.loading.collectAsState()
-        val sections by viewModel.sections.collectAsState(null)
+        val view by viewModel.view.collectAsState(null)
+        val picked by viewModel.publishers.collectAsState()
         ReleasesScreen(
             month = month,
-            sections = sections,
+            view = view,
+            picked = picked,
+            onPublishers = viewModel::setPublishers,
             loading = loading,
             onStep = viewModel::step,
             onPick = viewModel::setMonth,

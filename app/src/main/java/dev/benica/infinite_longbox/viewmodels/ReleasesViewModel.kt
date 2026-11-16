@@ -3,7 +3,6 @@ package dev.benica.infinite_longbox.viewmodels
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dev.benica.infinite_longbox.Notices
-import dev.benica.infinite_longbox.database.daos.ReleaseRow
 import dev.benica.infinite_longbox.repository.LoadTracker
 import dev.benica.infinite_longbox.repository.Repository
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -12,6 +11,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import java.time.YearMonth
@@ -22,9 +22,18 @@ class ReleasesViewModel : ViewModel() {
     private val _month = MutableStateFlow(YearMonth.now())
     val month: StateFlow<YearMonth> = _month
 
-    /** The month's issues in sections; null while they load. */
-    val sections: Flow<List<ReleaseSection>?> = _month.flatMapLatest { month ->
-        Repository.get().releasesIn(month).map<List<ReleaseRow>, List<ReleaseSection>?> { groupReleases(it) }
+    private val _publishers = MutableStateFlow<Set<Int>>(emptySet())
+
+    /** The publishers the month is narrowed to; empty is all of them. */
+    val publishers: StateFlow<Set<Int>> = _publishers
+
+    /** The month's issues, narrowed to the picked publishers; null while they load. */
+    val view: Flow<ReleasesView?> = _month.flatMapLatest { month ->
+        Repository.get().releasesIn(month).combine(_publishers) { rows, picked -> releasesView(rows, picked) as ReleasesView? }
+    }
+
+    fun setPublishers(ids: Set<Int>) {
+        _publishers.value = ids
     }
 
     private val _loading = MutableStateFlow(true)

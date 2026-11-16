@@ -112,7 +112,7 @@ abstract class IssueDao : BaseDao<Issue>("issue") {
 
     /** The standard issues released from [from] up to [to] (ISO dates), the ones with at least a month known. */
     @Query(
-        """SELECT ie.issueId AS issueId, ie.series AS seriesId, ss.seriesName AS series, COALESCE(ss.sortName, ss.seriesName) AS sortName, pr.publisher AS publisher,
+        """SELECT ie.issueId AS issueId, ie.series AS seriesId, ss.seriesName AS series, COALESCE(ss.sortName, ss.seriesName) AS sortName, ss.publisher AS publisherId, pr.publisher AS publisher,
             COALESCE(ie.issueNumRaw, CAST(ie.issueNum AS TEXT)) AS number,
             ie.bestReleaseDate AS date, ie.releasePrecision AS precision
             FROM issue ie
@@ -335,6 +335,7 @@ data class ReleaseRow(
     val series: String,
     /** What the series is filed under, so "The" doesn't put it under T */
     val sortName: String,
+    val publisherId: Int,
     val publisher: String?,
     val number: String,
     val date: LocalDate,
